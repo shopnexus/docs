@@ -1,0 +1,111 @@
+# Hướng dẫn vẽ Component Diagram
+
+## Component Diagram là gì?
+
+Sơ đồ thành phần (Component Diagram) mô tả **cấu trúc bên trong** của hệ thống, bao gồm các **components** (module/thành phần), **interfaces** (giao diện), và **dependencies** (phụ thuộc) giữa chúng.
+
+## Cách đọc ví dụ mẫu
+
+**Hệ thống Terminal** (khung lớn màu xanh) chứa:
+- **Components:** SafetyInspection, Inspector, Staff, Defect, Map (hình chữ nhật có <<component>>)
+- **Provided Interfaces:** State, Details, Defect details (hình tròn - lollipop)
+- **Required Interfaces:** Account, Inspection ID (hình bán nguyệt - socket)
+- **Ports:** Inspection Item (hình vuông nhỏ trên viền)
+
+**Quan hệ:**
+- SafetyInspection cần (required) Inspection ID và Location
+- Staff cung cấp (provided) Account interface
+- Inspector sử dụng Account từ Staff
+
+## Cách vẽ Component Diagram
+
+### Bước 1: Vẽ Component (Thành phần)
+
+**Component là gì?**
+- Module/package có thể thay thế độc lập
+- Ví dụ: SafetyInspection, Inspector, Staff
+
+**Cách vẽ:**
+- Hình chữ nhật có stereotype <<component>>
+- Icon component (hình chữ nhật nhỏ có 2 tab) ở góc trên phải
+- Tên component bên trong
+
+### Bước 2: Vẽ Interface (Giao diện)
+
+**Provided Interface (Giao diện cung cấp):**
+- Component CUNG CẤP dịch vụ cho components khác
+- **Ký hiệu:** Hình tròn (lollipop) nối với component
+- Ví dụ: State, Details, Account
+
+**Required Interface (Giao diện yêu cầu):**
+- Component CẦN dịch vụ từ component khác
+- **Ký hiệu:** Hình bán nguyệt/socket (◐) nối với component
+- Ví dụ: Account (của Inspector), Inspection ID (của Staff)
+
+**Kết nối Provided ↔ Required:**
+- Vẽ đường thẳng nối lollipop với socket
+- Nghĩa: Component A cung cấp interface cho Component B sử dụng
+
+### Bước 3: Vẽ Port (Cổng)
+
+**Port là gì?**
+- Điểm tương tác giữa component với bên ngoài
+- Ví dụ: State, Details, Inspection Item
+
+**Cách vẽ:**
+- Hình vuông nhỏ trên viền component
+- Nối với interface bên ngoài
+
+### Bước 4: Vẽ Component chứa (Container)
+
+**Container component:**
+- Component lớn chứa nhiều sub-components
+- Ví dụ: Terminal chứa SafetyInspection, Inspector, Staff, Defect, Map
+
+**Cách vẽ:**
+- Hình chữ nhật lớn màu nền (xanh nhạt)
+- Ghi stereotype <<component>> và tên ở trên cùng
+- Các sub-components nằm bên trong
+
+### Bước 5: Hoàn thiện dependencies
+
+**Assembly Connector:**
+- Nối Provided Interface với Required Interface
+- Ví dụ: Staff.Account → Inspector.Account
+
+**Delegation Connector:**
+- Từ Port của container đến interface của sub-component
+- Ví dụ: Port "State" → SafetyInspection.State
+
+## Các ký hiệu quan trọng
+
+| Ký hiệu | Tên | Ý nghĩa |
+|---------|-----|---------|
+| ▭ + <<component>> | Component | Thành phần/module |
+| ○ | Provided Interface | Cung cấp dịch vụ |
+| ◐ | Required Interface | Yêu cầu dịch vụ |
+| ▫ | Port | Điểm tương tác |
+| → | Dependency | Phụ thuộc |
+
+## Nguyên tắc vẽ
+
+**Tính độc lập:**
+- Mỗi component có ranh giới rõ ràng
+- Chỉ giao tiếp qua interfaces, KHÔNG truy cập trực tiếp
+
+**Hướng dependency:**
+- Mũi tên từ Required → Provided
+- Hoặc nối trực tiếp lollipop với socket
+
+**Tổ chức sơ đồ:**
+- Components cung cấp service ở bên phải/dưới
+- Components sử dụng service ở bên trái/trên
+- Container bao bọc sub-components
+
+## Mục đích
+
+Component Diagram giúp:
+- Hiểu **cấu trúc module** của hệ thống
+- Xác định **dependencies** giữa các thành phần
+- Thiết kế hệ thống **loosely coupled**
+- Lập kế hoạch **phát triển song song** các modules

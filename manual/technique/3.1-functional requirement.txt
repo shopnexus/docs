@@ -1,0 +1,171 @@
+3.1 Functional Requirements
+Purpose:
+Transform use cases into clear, testable, traceable statements of what the system must do. Each requirement becomes a specific, verifiable contract that developers and testers can work from, eliminating ambiguity from use case narratives.
+Prerequisite deliverables from previous steps:
+
+DOC 2.1-B: Use Case Specifications Document (from step 2.1)
+DOC 2.3-A: Conceptual ERD (from step 2.3)
+
+Tasks:
+Task 3.1.1: Extract Requirements from Use Cases
+Systematically analyze each use case specification (DOC 2.1-B) to identify specific system behaviors, converting narrative steps into atomic requirement statements.
+Guiding questions:
+- What must the system do at each step? (extract from main flow)
+- What system behaviors are implied by alternative flows?
+- What validations occur? (from exception flows)
+- What calculations or business logic apply? (from business rules)
+- What data must be captured, displayed, or modified?
+
+Acceptance criteria:
+- Each use case step analyzed for extractable requirements
+- System responses isolated from user actions
+- Each requirement states one specific system behavior
+- Requirements cover main flow, alternatives, and exceptions
+- Candidate list contains 20-40 raw requirements (before refinement)
+
+Example:
+"From UC-001 Step 6 'System validates address': Extract requirements: REQ-012: System shall validate shipping address against postal service database. REQ-013: System shall reject addresses not found in postal database. REQ-014: System shall display address validation error message to user."
+
+Red flags to watch for:
+- Requirements describing user actions not system behavior
+- Design decisions mixed with requirements (use specific database)
+- Multiple behaviors in one requirement statement
+- Missing requirements for error conditions
+Task 3.1.2: Write Well-Formed Requirements
+Transform raw requirements into clear, testable statements using standard format: "The system shall [action] [object] [conditions] [criterion]." Use "shall" for mandatory, "should" for optional.
+Guiding questions:
+- Is this requirement unambiguous? (only one interpretation)
+- Is it testable? (can we verify when it's met?)
+- Is it atomic? (one behavior, not compound with "and")
+- Does it state what, not how? (requirement not design)
+- Is it quantified where needed? (specific numbers, not "fast" or "secure")
+
+Acceptance criteria:
+- Each requirement uses "shall" or "should" consistently
+- Active voice throughout
+- No weak words (adequate, easy, flexible, user-friendly)
+- Specific numbers replace vague terms (< 2 seconds, not "fast")
+- No compound requirements with "and/or"
+- Requirements at consistent abstraction level
+
+Example:
+"Good: REQ-012: The system shall validate shipping address by querying USPS API within 3 seconds of user submission. Bad: The system should quickly validate the address using some kind of postal service and make sure it's correct and properly formatted."
+
+Red flags to watch for:
+- Subjective language (easy, intuitive, user-friendly)
+- Implementation details (REST API, SQL query)
+- Passive voice (address shall be validated by...)
+- Unmeasurable criteria (adequate performance, sufficient security)
+Task 3.1.3: Define Acceptance Criteria for Each Requirement
+Specify how each requirement will be verified using Given-When-Then format, making requirements testable and preventing misinterpretation.
+Guiding questions:
+- What conditions must exist before testing? (Given)
+- What action triggers the behavior? (When)
+- What is the expected outcome? (Then)
+- What are edge cases or boundary conditions?
+- How will we know it's working correctly?
+
+Acceptance criteria:
+- Each functional requirement has 1-3 acceptance criteria
+- Criteria use Given-When-Then format
+- Positive and negative test cases included
+- Boundary conditions specified where applicable
+- Measurable outcomes defined
+
+Example:
+"REQ-012 acceptance criteria: AC-1: Given user submits shipping address, When address exists in USPS database, Then system marks address as valid and proceeds to next step. AC-2: Given user submits address, When USPS API returns no match, Then system displays 'Address not found' error and highlights address fields."
+
+Red flags to watch for:
+- No acceptance criteria (requirement untestable)
+- Vague outcomes (system responds appropriately)
+- Missing negative test cases (what if it fails?)
+- Acceptance criteria describing implementation not behavior
+Task 3.1.4: Organize and Number Requirements
+Group related requirements by functional area or use case, assign unique IDs, and establish traceability to source use cases.
+Guiding questions:
+- What is the logical grouping? (by feature, by use case, by subsystem)
+- What numbering scheme supports traceability? (REQ-UC01-001)
+- Which use case(s) does each requirement support?
+- What priority is each requirement? (from vision objectives)
+
+Acceptance criteria:
+- Unique ID for each requirement (REQ-XXX format)
+- Requirements grouped logically (authentication, order processing, reporting)
+- Traceability column links each requirement to source use case(s)
+- Priority assigned (High/Medium/Low or MoSCoW)
+- Total of 15-30 finalized functional requirements
+
+Example:
+"Authentication group: REQ-001 through REQ-005. Order Processing group: REQ-006 through REQ-020. Each requirement shows: ID, Description, Source Use Case(s), Priority, Acceptance Criteria."
+
+Red flags to watch for:
+- Duplicate requirement IDs
+- Requirements without source traceability
+- Inconsistent numbering (gaps or overlaps)
+- All requirements marked high priority (unrealistic)
+Task 3.1.5: Validate Completeness with CRUD Matrix
+Create matrix mapping entities (from DOC 2.3-A) to Create/Read/Update/Delete operations, ensuring all necessary data operations have corresponding requirements. Return to step 2.3 to add missing entities if gaps found.
+Guiding questions:
+- Does each entity have Create requirements? (or is data loaded externally?)
+- Can users Read/view each entity? (how will they access it?)
+- Are Update requirements present where needed?
+- Should users be able to Delete? (or soft delete/archive?)
+- Are there orphaned operations? (create but no read?)
+
+Acceptance criteria:
+- CRUD matrix created with entities as rows, operations as columns
+- Each cell marked with requirement IDs that provide that operation
+- Gaps identified and justified (intentional vs. missing requirement)
+- Missing requirements added to functional requirements list
+- New entities discovered are added to data model (DOC 2.3-A updated)
+
+Example:
+"CRUD Matrix: Customer entity - Create: REQ-002, Read: REQ-003/REQ-015, Update: REQ-004, Delete: REQ-005 (soft delete). Gap found: No Read requirement for OrderStatus entity - added REQ-021 for status lookup display."
+
+Red flags to watch for:
+- Entities with no Create operation (where does data come from?)
+- Create but no Read (users can't view what they created)
+- Update but no Read (how do they know what to update?)
+- Missing entities referenced in requirements (update data model)
+Deliverable:
+DOC 3.1-A: Functional Requirements List
+Output format:
+Document containing (10-15 pages):
+
+Requirements by Functional Area (8-10 pages):
+Each requirement includes:
+
+Requirement ID: Unique identifier (REQ-XXX)
+Requirement Statement: "The system shall..." format
+Description: Additional context if needed (1-2 sentences)
+Source: Use case ID(s) this requirement derives from
+Priority: High/Medium/Low (or Must/Should/Could/Won't)
+Acceptance Criteria: Given-When-Then statements (1-3 per requirement)
+Business Rules: Referenced rule IDs (BR-XXX)
+
+
+CRUD Matrix (1 page):
+
+Rows: All entities from data model
+Columns: Create, Read, Update, Delete
+Cells: Requirement IDs providing each operation
+Notes on intentional gaps (read-only entities, soft deletes, etc.)
+
+
+Requirements Traceability Matrix (1-2 pages):
+
+Requirement ID
+Source Use Case(s)
+Related Requirements (dependencies)
+Affected Entities (from data model)
+
+
+Summary Statistics:
+
+Total requirements count
+Count by priority level
+Coverage metrics (use cases addressed, entities covered)
+
+
+
+IMPORTANT: After creating this document, update DOC 2.3-A (Conceptual ERD) if CRUD analysis revealed missing entities or relationships.

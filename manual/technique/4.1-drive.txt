@@ -1,0 +1,95 @@
+4.1 Extract Architecture Drivers
+
+Purpose:
+Identify the key requirements and constraints that will fundamentally shape the system architecture. Not all requirements are architecturally significant—this step separates the critical drivers that determine architectural patterns and technology choices from those addressed during detailed design.
+
+Prerequisite deliverables from previous steps:
+- DOC 1.1-A: Project Vision Document (from step 1.1)
+- DOC 1.3-A: System Context Diagram (from step 1.3)
+- DOC 3.2-A: Non-Functional Requirements Specification (from step 3.2)
+- DOC 3.4-A: Prioritized Requirements Matrix (from step 3.4)
+
+Tasks:
+
+Task 4.1.1: Identify Architecturally Significant Functional Requirements
+    Use the prioritized requirements matrix (DOC 3.4-A) to identify which functional requirements have architectural implications.
+    
+    Guiding questions:
+    - Which requirements involve high transaction volumes or data volumes?
+    - Which requirements need many external integrations? (cross-reference context diagram 1.3-A)
+    - Which requirements need real-time or computationally intensive processing?
+    
+    Acceptance criteria:
+    - Each "Must Have" functional requirement evaluated for architectural significance
+    - High-volume requirements identified with specific numbers
+    - Integration requirements mapped to external systems from context diagram
+    - 5-10 architecturally significant functional requirements extracted
+    
+    Example:
+    "FR-015 'Process 100,000 orders/day with 500 orders/minute peaks' requires scalable architecture, async processing. FR-023 'Integrate with 15 external APIs' drives need for integration layer, circuit breakers."
+    
+    Red flags to watch for:
+    - Treating all requirements as architecturally significant
+    - Missing integration complexity from context diagram
+    - No specific volume/scale numbers
+
+Task 4.1.2: Analyze Quality Attribute Requirements
+    Use the non-functional requirements specification (DOC 3.2-A) to identify which quality attributes will most significantly constrain architectural choices.
+    
+    Guiding questions:
+    - What are the most demanding performance, availability, and scalability requirements?
+    - What security/compliance requirements are mandatory?
+    - Are there conflicting quality attributes requiring trade-offs?
+    
+    Acceptance criteria:
+    - Each NFR category from DOC 3.2-A evaluated for architectural impact
+    - Specific measurable targets extracted (< 200ms p95, not "fast")
+    - Trade-offs between conflicting attributes identified
+    - Quality attributes ranked by criticality to business objectives (from vision doc 1.1-A)
+    
+    Example:
+    "NFR-001 'p95 < 200ms under 1000 users' drives caching strategy. NFR-010 'PCI-DSS compliance' mandates encryption, tokenization, network segmentation architecture."
+    
+    Red flags to watch for:
+    - Treating all NFRs equally without prioritization
+    - Ignoring conflicts (can't have strong consistency and high availability everywhere)
+    - No connection to business objectives from vision document
+
+Task 4.1.3: Document Constraints and Prioritize Drivers
+    Extract constraints from vision document (DOC 1.1-A) and context diagram (DOC 1.3-A), then rank all drivers by architectural significance using business objectives.
+    
+    Guiding questions:
+    - What technology, budget, timeline, or regulatory constraints limit options?
+    - What existing systems must we integrate with? (from context diagram)
+    - Which drivers have highest business risk if not met? (from vision objectives)
+    - Which drivers conflict and how do we resolve trade-offs?
+    
+    Acceptance criteria:
+    - All constraints from vision document and context diagram listed and categorized
+    - Flexibility of each constraint assessed (hard vs preference)
+    - All drivers ranked using consistent criteria (critical/important/desirable)
+    - Trade-offs between conflicting drivers documented with resolution approach
+    - Top 8-12 drivers identified as primary architectural shapers
+    
+    Example:
+    "Constraint: Must deploy on Azure (enterprise agreement). Constraint: Must integrate with legacy SAP via SOAP (from context diagram). Ranking: 1) CRITICAL: PCI-DSS (regulatory), 2) CRITICAL: 99.9% availability (vision objective), 3) IMPORTANT: Scale to 50K users in 2 years (vision growth target)."
+    
+    Red flags to watch for:
+    - Everything marked "critical" (defeats prioritization)
+    - Accepting constraints without questioning rationale
+    - No stakeholder validation of priorities
+
+Deliverable:
+DOC 4.1-A: Architectural Drivers Document
+
+Output format:
+Document containing (5-8 pages):
+
+1. **Executive Summary:** Key drivers, critical trade-offs
+2. **Architecturally Significant Functional Requirements:** Table with Requirement ID, Description, Architectural Significance, specific metrics
+3. **Quality Attribute Drivers:** Organized by category with measurable targets, business rationale (from vision), priority, trade-off resolutions
+4. **Constraints:** Table with Constraint, Type, Flexibility, Impact, Source
+5. **Prioritized Drivers Matrix:** All drivers ranked with business impact and risk assessment, top 8-12 highlighted
+6. **Assumptions and Open Questions**
+
+This document serves as the foundation for architecture decisions in steps 4.2 (technology selection) and 4.3 (architecture pattern selection). Every major architectural decision should trace back to drivers documented here.

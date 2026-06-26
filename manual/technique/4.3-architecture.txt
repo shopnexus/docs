@@ -1,0 +1,120 @@
+4.3 Define System Architecture
+
+Purpose:
+Select the overall architectural pattern and create high-level structure showing major subsystems, components, and their relationships. This establishes the blueprint that guides all detailed design decisions and ensures the architecture satisfies architectural drivers.
+
+Prerequisite deliverables from previous steps:
+- DOC 1.3-A: System Context Diagram (from step 1.3)
+- DOC 4.1-A: Architectural Drivers Document (from step 4.1)
+- DOC 4.2-A: Technology Stack Decision Document (from step 4.2)
+
+Tasks:
+
+Task 4.3.1: Select Architectural Pattern
+    Use architectural drivers (DOC 4.1-A) to choose the overall architectural style that best satisfies requirements and constraints.
+    
+    Guiding questions:
+    - What scale/complexity level do drivers indicate? (from 4.1-A)
+    - How many developers/teams will work on this?
+    - Do different parts need independent scaling? (from scalability drivers)
+    - What's the team's operational maturity?
+    - Are there clear service boundaries? (from context diagram 1.3-A)
+    - What deployment frequency is needed? (from constraints)
+    
+    Acceptance criteria:
+    - Architectural style selected: Monolithic, Microservices, Event-Driven, Layered, or hybrid
+    - Selection justified against top architectural drivers from DOC 4.1-A
+    - Trade-offs explicitly documented (complexity vs scalability, etc.)
+    - Team capabilities and constraints considered
+    - Alternative patterns considered and rejected with rationale
+    
+    Example:
+    "Selected: Modular Monolith. Rationale: Team size (5 devs) too small for microservices complexity, single deployment simplifies operations matching current maturity, meets performance drivers (p95 < 200ms), clear internal module boundaries enable future extraction if needed. Rejected microservices: operational overhead exceeds benefit at current scale."
+    
+    Red flags to watch for:
+    - Choosing microservices for small team/simple domain
+    - Selecting pattern based on hype, not drivers
+    - Ignoring operational maturity constraints from drivers doc
+    - Pattern contradicts scalability or availability drivers
+
+Task 4.3.2: Decompose into Major Components
+    Break system into cohesive, loosely-coupled components based on technology stack (DOC 4.2-A) and external systems from context diagram (DOC 1.3-A).
+    
+    Guiding questions:
+    - What are the major functional areas? (from requirements)
+    - What has different scaling needs? (from drivers)
+    - What needs independent deployment? (from constraints)
+    - What external systems require integration? (from context diagram 1.3-A)
+    - How does chosen technology stack map to layers? (from 4.2-A)
+    - Where are transaction boundaries?
+    
+    Acceptance criteria:
+    - 5-12 major components/subsystems identified
+    - Each component has clear responsibility and boundary
+    - Components organized by architectural layers (presentation, application, data)
+    - Integration points with external systems (from context diagram) clearly shown
+    - Technology assignments from stack decision (DOC 4.2-A) mapped to components
+    - Data ownership defined (which component owns which data)
+    
+    Example:
+    "Components: Web UI (React from tech stack), API Gateway (handles external traffic), Authentication Service (Auth0 integration per tech stack), Order Service (owns order data), Payment Service (integrates with Payment Gateway from context diagram), Notification Service (async email/SMS), PostgreSQL Database (per tech stack). Clear boundaries: each service owns its data, communicates via REST APIs."
+    
+    Red flags to watch for:
+    - Too many components (over-decomposition)
+    - Unclear responsibilities (overlapping concerns)
+    - Shared database across components (tight coupling)
+    - Missing integration components for external systems from context diagram
+
+Task 4.3.3: Define Communication Patterns and Create Architecture Diagram
+    Specify how components interact and create visual architecture showing structure, relationships, and deployment. Document major decisions as ADRs.
+    
+    Guiding questions:
+    - Which interactions are synchronous vs asynchronous? (from performance drivers)
+    - What protocols? (REST, gRPC, message queue from tech stack)
+    - How do components discover each other?
+    - Where are the layers and tiers? (logical vs physical separation)
+    - What goes on which deployment nodes? (servers, containers, cloud services)
+    - What are the key architectural decisions needing documentation?
+    
+    Acceptance criteria:
+    - Communication style defined for each interaction (sync/async, protocol)
+    - Architecture diagram shows: all major components, layers/tiers, external systems (from context diagram), data stores, communication patterns, deployment nodes
+    - Diagram uses consistent notation with legend
+    - Architecture Decision Records (ADRs) created for 3-5 key decisions
+    - Each ADR includes: context, problem, options considered, decision, consequences
+    
+    Example:
+    "Communication: Web UI ↔ API Gateway (HTTPS/REST sync), API Gateway ↔ Services (REST sync, circuit breaker pattern), Services → Notification (RabbitMQ async per tech stack), Services → Database (connection pool). Diagram shows: 3-tier separation (presentation/application/data), containers for each service, external Payment Gateway integration from context diagram. ADR-001: Selected REST over gRPC—team expertise, adequate performance for current drivers."
+    
+    Red flags to watch for:
+    - No distinction between logical and physical architecture
+    - Missing external systems from context diagram
+    - Unclear communication patterns between components
+    - Synchronous calls everywhere (performance bottleneck)
+    - No ADRs for controversial decisions
+
+Deliverables:
+- DOC 4.3-A: System Architecture Diagram
+- DOC 4.3-B: Architecture Decision Records (ADRs)
+
+Output format:
+
+DOC 4.3-A: System Architecture Diagram (3-5 pages)
+1. **Architecture Overview:** Narrative describing chosen pattern, key characteristics, how it satisfies drivers from DOC 4.1-A
+2. **Logical Architecture Diagram:** Component view showing major components, responsibilities, relationships, data ownership
+3. **Deployment Architecture Diagram:** Physical view showing deployment nodes, network zones, load balancers, how components map to infrastructure (cloud services, containers)
+4. **Communication Patterns:** Table with From Component, To Component, Protocol, Style (Sync/Async), Purpose
+5. **External Integration Points:** All external systems from context diagram (DOC 1.3-A) with integration approach
+6. **Technology Mapping:** How technology stack (DOC 4.2-A) maps to architecture (which tech for which component)
+
+DOC 4.3-B: Architecture Decision Records (2-4 pages)
+One ADR per major decision (3-5 ADRs typical):
+- **ADR Title:** Short descriptive name
+- **Status:** Proposed/Accepted/Superseded
+- **Context:** Problem requiring decision, relevant drivers from DOC 4.1-A
+- **Options Considered:** 2-4 alternatives with pros/cons
+- **Decision:** What was chosen and why
+- **Consequences:** Positive and negative outcomes, trade-offs accepted, impacts on other decisions
+- **Date and Participants**
+
+Example ADR topics: Architectural pattern selection, monolith vs microservices, sync vs async communication, API gateway vs direct access, database per service vs shared

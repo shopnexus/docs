@@ -1,0 +1,181 @@
+# Hướng dẫn vẽ Sequence Diagram
+
+## Sequence Diagram là gì?
+
+Sơ đồ tuần tự (Sequence Diagram) mô tả **thứ tự tương tác** giữa các **đối tượng/actors** theo **thời gian** để thực hiện một use case hoặc chức năng cụ thể.
+
+## Cách đọc ví dụ mẫu
+
+**Use case:** Đặt phòng khách sạn (Hotel Reservation)
+
+**Luồng:**
+1. User (window:UI) gọi `makeReservation`
+2. HotelChain nhận yêu cầu, gọi `makeReservation` đến Hotel
+3. Hotel lặp qua từng ngày (`loop [each day]`)
+4. Kiểm tra phòng trống (`available(roomId, date)`)
+5. Nếu có phòng (`alt [isRoom = true]`), tạo đặt chỗ (`aReservation:Reservation`)
+6. Gửi thông báo xác nhận (`aNotice:Confirmation`)
+
+## Các thành phần chính
+
+### 1. **Actor/Object (Đối tượng)**
+
+**Ký hiệu:** Hình chữ nhật ở đầu sơ đồ
+
+**Cú pháp:**
+```
+objectName : ClassName
+```
+
+**Ví dụ:**
+- `window : UI` (user interface)
+- `aChain : HotelChain`
+- `aHotel : Hotel`
+- `aReservation : Reservation`
+- `aNotice : Confirmation`
+
+### 2. **Lifeline (Đường đời)**
+
+**Ký hiệu:** Đường thẳng nét đứt từ object xuống dưới
+
+**Ý nghĩa:** Biểu diễn thời gian tồn tại của object
+
+**Đặc biệt:**
+- **X** ở cuối lifeline: Object bị hủy/kết thúc
+
+### 3. **Activation (Thanh kích hoạt)**
+
+**Ký hiệu:** Hình chữ nhật dọc (màu xanh) trên lifeline
+
+**Ý nghĩa:** Object đang **active** (xử lý logic)
+
+**Trong ví dụ:**
+- aChain active khi xử lý `makeReservation`
+- aHotel active khi kiểm tra phòng
+
+### 4. **Message (Thông điệp)**
+
+**Các loại message:**
+
+**a) Synchronous Message (Đồng bộ):**
+- **Ký hiệu:** Mũi tên nét liền + đầu đặc →
+- **Ý nghĩa:** Gọi method và CHỜ kết quả
+- **Ví dụ:** `1: makeReservation`, `1.1: makeReservation`
+
+**b) Return Message (Trả về):**
+- **Ký hiệu:** Mũi tên nét đứt ← ←
+- **Ý nghĩa:** Trả kết quả về
+- **Ví dụ:** `isRoom` (return boolean)
+
+**c) Asynchronous Message (Bất đồng bộ):**
+- **Ký hiệu:** Mũi tên nét liền + đầu mở >
+- **Ý nghĩa:** Gọi method KHÔNG chờ kết quả
+- **Ví dụ:** `2:` (gửi notification)
+
+**d) Create Message (Tạo object):**
+- **Ký hiệu:** Mũi tên nét đứt + đầu mở chỉ đến object mới
+- **Ví dụ:** `1.1.2:` tạo `aReservation:Reservation`
+
+**e) Self Message (Tự gọi):**
+- **Ký hiệu:** Mũi tên từ lifeline quay về chính nó
+- **Ví dụ:** `1.1.1: available(roomId, date): isRoom`
+
+## Combined Fragments (Khung kết hợp)
+
+### 1. **Loop (Vòng lặp)**
+
+**Ký hiệu:** Khung có nhãn `loop`
+
+**Điều kiện:** `[condition]` - ví dụ: `[each day]`
+
+**Ý nghĩa:** Lặp lại các message bên trong
+
+### 2. **Alt (Alternative - Rẽ nhánh)**
+
+**Ký hiệu:** Khung có nhãn `alt`
+
+**Cấu trúc:**
+```
+alt
+├─ [condition1] ← nhánh 1
+│  └─ messages...
+├─ [else]        ← nhánh 2
+   └─ messages...
+```
+
+**Ví dụ:** `alt [isRoom = true]` và phần else (nếu có)
+
+### 3. **Opt (Optional - Tùy chọn)**
+
+**Ký hiệu:** Khung có nhãn `opt`
+
+**Ý nghĩa:** Chỉ thực hiện NẾU điều kiện đúng
+
+### 4. **Par (Parallel - Song song)**
+
+**Ký hiệu:** Khung có nhãn `par`
+
+**Ý nghĩa:** Các message bên trong xảy ra ĐỒNG THỜI
+
+## Cách vẽ Sequence Diagram
+
+### Bước 1: Xác định actors và objects
+- Liệt kê TẤT CẢ thành phần tham gia
+- Sắp xếp từ trái sang phải theo thứ tự tương tác
+
+### Bước 2: Vẽ lifelines
+- Vẽ đường thẳng đứng nét đứt từ mỗi object
+
+### Bước 3: Vẽ messages theo thứ tự
+- Đánh số thứ tự: 1, 1.1, 1.1.1, 2, 2.1...
+- Từ trên xuống dưới = thời gian trôi
+- Ghi tên method + parameters
+
+### Bước 4: Thêm activation boxes
+- Vẽ hình chữ nhật khi object đang xử lý
+
+### Bước 5: Thêm combined fragments
+- Loop cho vòng lặp
+- Alt cho rẽ nhánh
+- Opt cho điều kiện tùy chọn
+
+### Bước 6: Đánh dấu kết thúc
+- X ở cuối lifeline nếu object bị hủy
+
+## Đánh số messages
+
+**Quy tắc:**
+- **1, 2, 3...**: Messages cùng cấp
+- **1.1, 1.2...**: Messages con (nested)
+- **1.1.1, 1.1.2...**: Messages con của con
+
+**Ví dụ:**
+```
+1: makeReservation
+  1.1: makeReservation
+    1.1.1: available()
+    1.1.2: create Reservation
+2: send confirmation
+```
+
+## Lưu ý quan trọng
+
+**Thời gian:**
+- Từ TRÊN xuống DƯỚI = thời gian trôi
+- Message ở trên xảy ra TRƯỚC message ở dưới
+
+**Return messages:**
+- Có thể bỏ qua nếu rõ ràng
+- Chỉ vẽ khi cần nhấn mạnh giá trị trả về
+
+**Focus on interaction:**
+- KHÔNG vẽ chi tiết logic bên trong method
+- Chỉ vẽ TƯƠNG TÁC giữa objects
+
+## Mục đích
+
+Sequence Diagram giúp:
+- Hiểu **luồng xử lý** của use case
+- Xác định **thứ tự gọi methods**
+- Thiết kế **API/interfaces** giữa components
+- Debug logic flow

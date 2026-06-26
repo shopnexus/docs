@@ -1,0 +1,98 @@
+1.3 Define System Context
+
+Purpose:
+Understand the environment in which the system will operate - what external systems it connects to, who interacts with it, and where boundaries exist. This prevents scope creep and identifies integration requirements early.
+
+Prerequisite deliverable from previous step:
+- DOC 1.1-A: Project Vision Document (from step 1.1)
+- DOC 1.2-A: User Personas Document (from step 1.2)
+- DOC 1.2-B: Stakeholder Register (from step 1.2)
+
+Tasks:
+
+Task 1.3.1: Identify External Entities
+    Use the vision document's scope statement and stakeholder register to identify all entities (users, systems, devices) outside the system boundary that will interact with it.
+    
+    Guiding questions:
+    - Who are all the user types? (from personas document)
+    - What external systems will send data to this system?
+    - What external systems will receive data from this system?
+    - What third-party services will be used? (payment gateways, email, maps, etc.)
+    - What hardware devices will interact? (mobile devices, sensors, kiosks)
+    
+    Acceptance criteria:
+    - All user types identified as external actors (derived from personas)
+    - All external systems identified with owner contact info
+    - All third-party services identified
+    - All hardware devices identified
+    
+    Example:
+    "External actors: Customer (from persona), Customer Service Rep (from persona), Admin. External systems: Legacy Order System, Payment Gateway API, Email Service. Devices: Mobile apps (iOS/Android)."
+    
+    Red flags to watch for:
+    - Internal components listed as external entities (stay at boundary level)
+    - Missing obvious integrations (authentication, email)
+    - Vague system names ("the database" - which one?)
+
+Task 1.3.2: Map High-Level Data Flows
+    For each external entity identified, determine what information flows in and out of the system boundary. Use vision document to ensure flows align with project scope.
+    
+    Guiding questions:
+    - What data comes into the system and from where?
+    - What data goes out of the system and to where?
+    - What triggers each data flow? (user action, scheduled batch, event)
+    - How often does data flow? (real-time, daily batch, on-demand)
+    
+    Acceptance criteria:
+    - Data flows identified for each external entity
+    - Flow direction clearly marked (in, out, or bidirectional)
+    - Data type/description provided (not detailed schema, just high-level)
+    - Frequency/timing noted (real-time, batch, on-demand)
+    
+    Example:
+    "Customer → System: Order submission (real-time). System → Payment Gateway: Payment request (real-time). Payment Gateway → System: Payment confirmation (real-time). System → Customer: Order confirmation email (real-time)."
+    
+    Red flags to watch for:
+    - Detailed data structures (too early, that's for data modeling)
+    - Internal system data flows (stay at boundary only)
+    - Missing return flows (request sent but no response shown)
+
+Task 1.3.3: Create System Context Diagram
+    Create Level 0 Data Flow Diagram showing the system as a single process with all external entities and data flows. This is a visual boundary definition.
+    
+    Guiding questions:
+    - Is the system boundary clear and unambiguous?
+    - Are all external entities shown?
+    - Are all major data flows shown?
+    - Does this align with the scope in the vision document?
+    
+    Acceptance criteria:
+    - Single circle/rectangle representing the system
+    - All external entities shown as boxes or stick figures
+    - All data flows shown as labeled arrows
+    - Diagram is readable and not cluttered
+    - Legend provided explaining symbols
+    
+    Example:
+    [System boundary box labeled "Order Tracking System" in center, with arrows showing: Customer → [Submit Order], [Order Status] → Customer, System → [Payment Request] → Payment Gateway, etc.]
+    
+    Red flags to watch for:
+    - Multiple system boxes (should be single boundary at this level)
+    - Internal components shown (database, modules - too detailed)
+    - Bidirectional arrows without separate labels (unclear what flows each way)
+    - Technology details mentioned (REST API, HTTPS - not relevant yet)
+
+Deliverable:
+DOC 1.3-A: System Context Diagram
+
+Output format:
+Single-page diagram containing:
+- System boundary (single box/circle representing the entire system)
+- External entities (users from personas, external systems, devices)
+- Data flows (labeled arrows showing information exchange)
+- Legend (explaining symbols used)
+- Brief annotations noting:
+  - Communication frequency (real-time, batch, on-demand)
+  - Critical dependencies or constraints
+
+Keep diagram simple and high-level - this is about boundary and environment, not internal design or technology choices.

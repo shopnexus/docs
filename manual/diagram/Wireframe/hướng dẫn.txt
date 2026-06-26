@@ -1,0 +1,59 @@
+# Hướng dẫn vẽ Wireframe Low-Fidelity
+
+## Wireframe là gì?
+
+Wireframe là bản phác thảo giao diện người dùng, chỉ tập trung vào **bố cục** và **chức năng**, KHÔNG quan tâm màu sắc, hình ảnh thật hay chi tiết thiết kế.
+
+## Cách đọc ví dụ mẫu
+
+**Trang sản phẩm e-commerce** gồm:
+- **Header:** Logo, menu (Men, Women, Boys, Girls), ô tìm kiếm, giỏ hàng
+- **Khu vực chính:** 4 ô hình vuông với dấu X (placeholder cho ảnh sản phẩm)
+- **Sidebar phải:** Tên sản phẩm, giá, ảnh thu nhỏ, chọn size, nút "Add to Cart", mô tả
+
+**Đặc điểm Low-Fidelity:**
+- Đen trắng/xám
+- Dùng ký hiệu đơn giản (X = ảnh, ô chữ nhật = nút)
+- Không có hình ảnh thật, chỉ placeholder
+
+## Cách vẽ Wireframe
+
+### Bước 1: Xác định các khu vực chính
+- Header, Footer, Sidebar, Content Area
+- Vẽ khung chữ nhật phân chia không gian
+
+### Bước 2: Vẽ các thành phần UI
+
+**Placeholder cho nội dung:**
+- **Ảnh:** Hình vuông/chữ nhật có dấu X chéo góc
+- **Text:** Đường kẻ ngang hoặc chữ "Lorem ipsum"
+- **Logo:** Hình vuông nhỏ với icon đơn giản
+- **Nút (Button):** Hình chữ nhật + nhãn text
+
+**Ví dụ trong mẫu:**
+- Logo: Hình vuông có icon ảnh
+- Ảnh sản phẩm: 4 ô vuông lớn có X
+- Menu: Text đơn giản (Men, Women, Boys, Girls)
+- Nút: "Add to Cart" (chữ nhật màu đen)
+
+### Bước 3: Chú thích chức năng
+- Ghi rõ mục đích từng phần tử
+- Ví dụ: "Search", "Add to Cart", "Size Guide"
+
+### Bước 4: Giữ đơn giản
+- KHÔNG dùng màu sắc phức tạp
+- KHÔNG vẽ chi tiết trang trí
+- Chỉ dùng: đen, trắng, xám
+- Font chữ đơn giản, dễ đọc
+
+## Công cụ vẽ
+
+- **Giấy & bút:** Nhanh nhất cho brainstorming
+- **Phần mềm:** Figma, Balsamiq, Sketch, Adobe XD
+
+## Mục đích
+
+Wireframe giúp:
+- Thống nhất bố cục TRƯỚC khi thiết kế chi tiết
+- Tiết kiệm thời gian (không lãng phí vào màu sắc/hình ảnh)
+- Tập trung vào **luồng người dùng** và **chức năng**

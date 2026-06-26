@@ -1,0 +1,227 @@
+3.2 Non-Functional Requirements
+
+Purpose:
+Define quality attributes and constraints (performance, security, usability, reliability, etc.) that the system must satisfy. NFRs shape architecture decisions and technology choices by specifying how well the system must perform, not just what it must do.
+
+Prerequisite deliverables from previous steps:
+- DOC 1.1-A: Project Vision Document (from step 1.1)
+- DOC 1.3-A: System Context Diagram (from step 1.3)
+- DOC 2.2-A: Process Flow Diagrams (from step 2.2)
+- DOC 2.3-A: Conceptual ERD (from step 2.3)
+- DOC 3.1-A: Functional Requirements List (from step 3.1)
+
+Tasks:
+
+Task 3.2.1: Identify Performance and Scalability Requirements
+    Use process flow diagrams (DOC 2.2-A) to identify time-critical operations and volume expectations. Use vision document (DOC 1.1-A) success metrics to set performance targets.
+    
+    Guiding questions:
+    - What are acceptable response times for each critical operation? (from process annotations in 2.2-A)
+    - How many concurrent users must be supported? (from vision objectives)
+    - What transaction volumes are expected? (peak vs. average)
+    - What is the expected growth over 1, 3, 5 years?
+    - Which operations have performance constraints mentioned in functional requirements?
+    
+    Acceptance criteria:
+    - Response time targets specified for all user-facing operations (< 2 seconds typical)
+    - Throughput requirements defined (transactions per second/minute/hour)
+    - Concurrent user counts specified (peak and average)
+    - Data volume and growth expectations documented
+    - Scalability requirements stated (horizontal vs. vertical)
+    
+    Example:
+    "NFR-001: System shall respond to order submission within 2 seconds for 95% of requests during peak usage. NFR-002: System shall support 500 concurrent users during peak hours (3pm-5pm). NFR-003: System shall handle 10,000 orders per day with capability to scale to 50,000 within 2 years."
+    
+    Red flags to watch for:
+    - Vague performance terms (fast, responsive) without numbers
+    - No distinction between average and peak loads
+    - Unrealistic targets (100% of requests in < 1 second)
+    - No consideration of growth over time
+
+Task 3.2.2: Define Security Requirements
+    Use context diagram (DOC 1.3-A) to identify security boundaries and data flows requiring protection. Review functional requirements (DOC 3.1-A) for sensitive data and access control needs.
+    
+    Guiding questions:
+    - What data is sensitive? (PII, financial, health from data model 2.3-A)
+    - How should users authenticate? (password complexity, MFA, SSO)
+    - What authorization model is needed? (role-based access control)
+    - What data must be encrypted? (in transit, at rest)
+    - What audit trail is required? (who accessed what, when)
+    - Are there regulatory requirements? (GDPR, HIPAA, PCI-DSS)
+    
+    Acceptance criteria:
+    - Authentication mechanism specified
+    - Authorization model defined (RBAC with specific roles)
+    - Encryption requirements stated (TLS 1.2+, AES-256)
+    - Audit logging requirements detailed (what events, retention period)
+    - Compliance requirements identified if applicable
+    - Password policy specified (complexity, expiration, history)
+    
+    Example:
+    "NFR-010: System shall authenticate users via username/password with minimum 8 characters including uppercase, lowercase, number, and special character. NFR-011: System shall encrypt all customer PII using AES-256 encryption at rest. NFR-012: System shall log all user authentication attempts, data access, and modifications with timestamp and user ID, retained for 7 years."
+    
+    Red flags to watch for:
+    - Generic "system shall be secure" statements
+    - Missing encryption requirements for sensitive data
+    - No audit requirements (compliance risk)
+    - Weak authentication (no MFA for sensitive operations)
+
+Task 3.2.3: Specify Availability and Reliability Requirements
+    Use vision document (DOC 1.1-A) to understand business criticality and acceptable downtime. Use process flows (DOC 2.2-A) to identify mission-critical operations.
+    
+    Guiding questions:
+    - What are business hours requiring system availability?
+    - What is the cost of downtime? (revenue loss, reputation)
+    - What uptime percentage is required? (99%, 99.9%, 99.99%)
+    - What are acceptable maintenance windows?
+    - What are recovery time objectives (RTO) and recovery point objectives (RPO)?
+    - What error rates are acceptable?
+    
+    Acceptance criteria:
+    - Uptime target specified as percentage (e.g., 99.9% = 8.76 hours/year downtime)
+    - Business hours or 24/7 requirement stated
+    - Planned maintenance windows defined
+    - RTO and RPO specified for disaster recovery
+    - Error rate tolerance defined (< 1% failed transactions)
+    
+    Example:
+    "NFR-020: System shall maintain 99.9% uptime during business hours (6am-10pm EST, Monday-Saturday). NFR-021: Planned maintenance shall occur only during Sunday 2am-6am window with 48-hour advance notice. NFR-022: System shall recover from failure with RTO of 4 hours and RPO of 15 minutes (maximum data loss)."
+    
+    Red flags to watch for:
+    - Impossible targets (100% uptime)
+    - No defined maintenance windows
+    - Missing disaster recovery requirements
+    - Availability without reliability (uptime but high error rate)
+
+Task 3.2.4: Define Usability and Accessibility Requirements
+    Use personas (referenced in use cases DOC 2.1-B) to understand user technical proficiency and use context diagram (DOC 1.3-A) to identify device types and access methods.
+    
+    Guiding questions:
+    - What is users' technical skill level? (from personas)
+    - How much training is acceptable?
+    - What devices must be supported? (desktop, tablet, mobile from context)
+    - What browsers must be supported?
+    - What accessibility standards apply? (WCAG 2.1, Section 508)
+    - What languages must be supported?
+    
+    Acceptance criteria:
+    - User training time target specified (e.g., novice productive within 30 minutes)
+    - Supported browsers and versions listed
+    - Device types and screen sizes specified
+    - Accessibility compliance level stated (WCAG 2.1 Level AA)
+    - Language support requirements defined
+    
+    Example:
+    "NFR-030: Novice users shall complete basic order entry within 30 minutes of completing training. NFR-031: System shall support Chrome, Firefox, Safari, Edge (current and previous versions). NFR-032: System UI shall be responsive, supporting desktop (1920x1080), tablet (768x1024), and mobile (375x667) viewports. NFR-033: System shall comply with WCAG 2.1 Level AA accessibility standards."
+    
+    Red flags to watch for:
+    - Subjective requirements (easy to use, intuitive)
+    - Missing accessibility requirements (legal risk)
+    - No mobile support when users need it
+    - All browsers ever made (unrealistic)
+
+Task 3.2.5: Document Constraints and Additional Quality Attributes
+    Review all prerequisite documents to identify technical, regulatory, operational, and business constraints that limit solution options.
+    
+    Guiding questions:
+    - What technology mandates exist? (must use certain platforms from vision doc)
+    - What systems must we integrate with? (from context diagram 1.3-A)
+    - What regulatory compliance is required?
+    - What budget or timeline constraints exist? (from vision doc)
+    - Are there maintainability requirements? (code standards, documentation)
+    - Are there portability needs? (cloud vendor independence)
+    
+    Acceptance criteria:
+    - Technical constraints documented (required platforms, integrations)
+    - Regulatory/compliance requirements listed
+    - Operational constraints stated (budget, timeline, staffing)
+    - Maintainability requirements specified if applicable
+    - Interoperability standards identified
+    
+    Example:
+    "NFR-040 (Constraint): System shall integrate with existing SAP ERP system via REST API. NFR-041 (Constraint): System shall run on Azure cloud platform per IT standards. NFR-042 (Compliance): System shall comply with PCI-DSS Level 1 for payment card data handling. NFR-043 (Maintainability): Code shall maintain minimum 80% unit test coverage."
+    
+    Red flags to watch for:
+    - Constraints that are actually design decisions (should be questioned)
+    - Missing integration constraints from context diagram
+    - Overlooked regulatory requirements
+    - No maintainability requirements (long-term risk)
+
+Task 3.2.6: Make Requirements Measurable and Testable
+    Review all NFR statements to ensure each has specific, measurable criteria that can be verified through testing.
+    
+    Guiding questions:
+    - How will we test this requirement?
+    - What specific numbers or criteria define success?
+    - Can this be objectively measured?
+    - What tools or methods will verify compliance?
+    
+    Acceptance criteria:
+    - Every NFR includes measurable criterion (percentage, time, count)
+    - Vague terms eliminated (fast, secure, reliable)
+    - Test approach specified for each NFR
+    - Acceptance threshold clearly stated
+    
+    Example:
+    "Before: System shall be fast. After: System shall respond to search queries within 1 second for 95% of requests under load of 500 concurrent users, measured using JMeter load testing tool."
+    
+    Red flags to watch for:
+    - Subjective language without metrics
+    - "Shall be compliant" without specifying standard
+    - No defined measurement method
+    - Impossible to verify (untestable)
+
+Deliverable:
+DOC 3.2-A: Non-Functional Requirements Specification
+
+Output format:
+Document containing (8-12 pages):
+
+1. **Introduction (1 page):**
+   - Purpose and scope of NFRs
+   - How NFRs relate to functional requirements
+   - Organization of this document
+
+2. **Performance Requirements (1-2 pages):**
+   - Response time requirements (by operation type)
+   - Throughput requirements (transactions per time)
+   - Resource utilization limits (CPU, memory, disk)
+   - Scalability requirements
+
+3. **Security Requirements (2-3 pages):**
+   - Authentication requirements
+   - Authorization/access control requirements
+   - Data protection requirements (encryption)
+   - Audit and logging requirements
+   - Compliance requirements
+
+4. **Availability and Reliability Requirements (1 page):**
+   - Uptime targets
+   - Maintenance windows
+   - Disaster recovery (RTO/RPO)
+   - Error rate tolerance
+
+5. **Usability and Accessibility Requirements (1 page):**
+   - User training requirements
+   - Browser/device support
+   - Accessibility compliance
+   - Internationalization/localization
+
+6. **Constraints (1-2 pages):**
+   - Technical constraints (platforms, integrations)
+   - Regulatory constraints
+   - Operational constraints (budget, timeline)
+
+7. **Other Quality Attributes (1 page):**
+   - Maintainability requirements
+   - Portability requirements
+   - Interoperability requirements
+
+Each requirement includes:
+- **NFR ID:** Unique identifier (NFR-XXX)
+- **Category:** Performance, Security, etc.
+- **Requirement Statement:** "The system shall..." with measurable criteria
+- **Priority:** High/Medium/Low
+- **Rationale:** Why this requirement exists (business need)
+- **Verification Method:** How it will be tested
+- **Source:** Which prerequisite document(s) informed this requirement

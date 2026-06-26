@@ -1,0 +1,104 @@
+1.1 Define Project Vision
+
+Purpose:
+Establish clear understanding of what problem the system solves, what success looks like, and the strategic value it delivers to the business. This creates alignment among all stakeholders and provides the foundation for all subsequent requirements work.
+
+Prerequisite deliverable from previous step:
+- Project assignment document or initial problem statement (provided by instructor/client)
+
+Tasks:
+
+Task 1.1.1: Identify Business Drivers
+    Use the project assignment to understand strategic context and interview sponsors to uncover the real motivations behind the project.
+    
+    Guiding questions:
+    - Why is this system needed now? What changed?
+    - What business problem does this solve?
+    - What happens if we don't build this system?
+    - How does this support company strategy?
+    - What are the expected business benefits (ROI, cost savings, revenue)?
+    
+    Acceptance criteria:
+    - Strategic initiatives identified and documented
+    - Market pressures or competitive threats articulated
+    - Regulatory or compliance drivers identified (if applicable)
+    - Operational issues or inefficiencies clearly stated
+    
+    Example:
+    "Customer complaints about order tracking have increased 40% in the past year. Competitors offer real-time tracking. We need this capability to retain customers and remain competitive."
+    
+    Red flags to watch for:
+    - Vague justifications like "we need to modernize"
+    - Solution looking for a problem
+    - Conflicting drivers from different stakeholders
+
+Task 1.1.2: Define Project Objectives and Success Metrics
+    Transform business drivers into specific, measurable objectives that define what the project will accomplish.
+    
+    Guiding questions:
+    - What defines success for this project?
+    - How will success be measured?
+    - What are the quantitative targets (time saved, cost reduced, revenue increased)?
+    - What are the qualitative goals (user satisfaction, process improvement)?
+    
+    Acceptance criteria:
+    - At least 3-5 SMART objectives defined (Specific, Measurable, Achievable, Relevant, Time-bound)
+    - Both quantitative and qualitative metrics identified
+    - Success criteria agreed upon by key stakeholders
+    
+    Example:
+    "Reduce customer service calls about order status by 60% within 6 months of launch. Achieve 80% customer satisfaction rating for order tracking feature."
+    
+    Red flags to watch for:
+    - Unmeasurable objectives ("improve customer experience")
+    - Too many objectives (lack of focus)
+    - No timeline for achieving objectives
+
+Task 1.1.3: Define Scope Boundaries
+    Clearly establish what is in scope and explicitly state what is out of scope to manage expectations and prevent scope creep.
+    
+    Guiding questions:
+    - What business processes are in scope? Out of scope?
+    - What user groups are included? Excluded?
+    - What features must be in version 1? What can wait for later?
+    - What existing systems will be replaced? What will remain unchanged?
+    
+    Acceptance criteria:
+    - In-scope items clearly listed
+    - Out-of-scope items explicitly documented
+    - Scope boundaries agreed upon by sponsor
+    - Future phases/releases identified (if applicable)
+    
+    Example:
+    "In scope: Customer order tracking for retail orders. Out of scope: Wholesale orders, inventory management, supplier integration (deferred to Phase 2)."
+    
+    Red flags to watch for:
+    - Everything is "in scope" (unrealistic)
+    - Out-of-scope list is empty (scope creep likely)
+    - Disagreement on what's in/out among stakeholders
+
+Deliverable:
+DOC 1.1-A: Project Vision Document
+
+Output format:
+2-3 page document containing:
+1. Executive Summary (1 paragraph overview)
+2. Business Problem and Opportunity
+   - Current situation and pain points
+   - Business drivers and strategic context
+3. Project Objectives
+   - Specific objectives (3-5 SMART goals)
+   - Success metrics and targets
+4. Scope Statement
+   - In scope (business processes, user groups, features)
+   - Out of scope (explicitly stated exclusions)
+   - Future phases (if applicable)
+5. High-level Constraints
+   - Budget and timeline expectations
+   - Technology or platform constraints
+6. Assumptions
+   - Key assumptions being made
+7. Risks
+   - Major risks that could prevent success
+
+The document should be concise, business-focused, and understandable by non-technical stakeholders. It serves as the project's north star throughout requirements and design phases.

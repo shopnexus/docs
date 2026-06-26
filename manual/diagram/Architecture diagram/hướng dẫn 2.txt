@@ -1,0 +1,151 @@
+# Hướng dẫn vẽ Architecture Diagram
+
+## Architecture Diagram là gì?
+
+Sơ đồ kiến trúc hệ thống mô tả **các thành phần** (components), **dịch vụ** (services), và **luồng dữ liệu** (data flow) trong một hệ thống phần mềm.
+
+## Cách đọc ví dụ mẫu (AWS Architecture)
+
+**Cấu trúc:**
+- **Bên trái:** External sources (File Systems, DB CDC Events, Users)
+- **Giữa:** AWS Region (vùng đóng khung nét đứt màu xanh) chứa các services
+- **Bên phải:** Systems of Record (hệ thống lưu trữ)
+
+**Luồng dữ liệu:**
+1. Dữ liệu từ sources → Ingestion (S3) / CDC Event Stream (Kinesis)
+2. Qua Event Bus → Xử lý bởi Lambda, Fargate, Step Functions, hoặc A2I
+3. Lưu vào databases (DynamoDB, Aurora) hoặc Data Lake (S3)
+4. Cross-Region Replication cho backup
+
+**Phân nhóm:**
+- Khung màu xanh (Region): Ranh giới cloud region
+- Khung vàng nét đứt (Data Stores): Nhóm databases
+- Icon AWS: Mỗi service có icon riêng
+
+## Cách vẽ Architecture Diagram
+
+### Bước 1: Xác định các Layer/Tiers
+
+**3-Layer Architecture phổ biến:**
+1. **Presentation Layer (UI/Frontend):** Web, Mobile, API Gateway
+2. **Business Logic Layer (Application):** Services, Processing, Rules
+3. **Data Layer (Database):** Database, Cache, Storage
+
+**Trong ví dụ AWS:**
+- Layer 1: Ingestion (nhận dữ liệu)
+- Layer 2: Processing (xử lý)
+- Layer 3: Storage (lưu trữ)
+
+### Bước 2: Vẽ Components (Thành phần)
+
+**Biểu diễn components:**
+- **Hình chữ nhật có icon:** Service/Component chính
+- **Icon chuẩn:** Dùng icon chính thức (AWS, Azure, GCP) hoặc icon đại diện
+- **Nhãn text:** Tên service + công nghệ (ví dụ: "Ingestion - Amazon S3")
+
+**Nhóm components:**
+- Khung nét đứt/liền: Nhóm theo region, zone, subnet
+- Màu sắc: Phân biệt môi trường (dev/staging/prod) hoặc chức năng
+
+### Bước 3: Vẽ Data Flow (Luồng dữ liệu)
+
+**Mũi tên:**
+- **Nét liền + mũi tên:** Luồng chính, sync
+- **Nét đứt:** Luồng phụ, async
+- **Nhãn trên mũi tên:** Loại dữ liệu hoặc protocol (HTTP, gRPC, Event, Query)
+
+**Ví dụ trong sơ đồ:**
+- "File System Changes" → S3
+- "Database Changes" → Kinesis
+- "Async Write" → Event Bus
+- "Sync Write" → API Gateway
+
+### Bước 4: Thêm context
+
+**External Systems:**
+- Đặt bên ngoài khung chính
+- Ví dụ: Users, File Systems, Systems of Record
+
+**Boundaries:**
+- Cloud Region/Zone
+- Network segments (Public/Private subnet)
+- Security zones
+
+## Đa dạng trong cách trình bày
+
+### 1. **Layered Diagram (Theo tầng ngang)**
+- Phổ biến nhất cho 3-layer architecture
+- Presentation (trên) → Logic (giữa) → Data (dưới)
+- **Nhấn mạnh:** Separation of concerns
+
+### 2. **Flow-based Diagram (Theo luồng)**
+- Như ví dụ AWS: Trái → Phải
+- **Nhấn mạnh:** Data flow, event-driven
+- Phù hợp: Microservices, event streaming
+
+### 3. **Component Diagram (Theo module)**
+- Nhóm theo business domain
+- **Nhấn mạnh:** Modularity, bounded contexts
+- Phù hợp: Domain-driven design
+
+### 4. **Deployment Diagram (Theo triển khai)**
+- Theo servers, containers, regions
+- **Nhấn mạnh:** Infrastructure, scalability
+- Phù hợp: DevOps, cloud architecture
+
+## 3-Layer Architecture: Nhấn mạnh gì?
+
+### **Presentation Layer:**
+- User interfaces (Web, Mobile)
+- API Gateway/Load Balancer
+- **Nhấn mạnh:** Entry points, user-facing components
+
+### **Business Logic Layer:**
+- Application servers
+- Microservices
+- Processing engines
+- **Nhấn mạnh:** Core business rules, orchestration
+
+### **Data Layer:**
+- Databases (SQL/NoSQL)
+- Cache (Redis)
+- Storage (S3, File Systems)
+- **Nhấn mạnh:** Data persistence, state management
+
+**Nguyên tắc vẽ 3-layer:**
+- Vẽ theo chiều DỌC (trên → dưới) hoặc NGANG (trái → phải)
+- Không có mũi tên từ Layer 1 → Layer 3 (phải qua Layer 2)
+- Mỗi layer độc lập, có thể scale riêng
+
+## Lưu ý quan trọng
+
+**Độ chi tiết:**
+- **High-level:** Chỉ các components chính, phù hợp stakeholders
+- **Detailed:** Mọi services, databases, queues, phù hợp developers
+
+**Màu sắc:**
+- Nhất quán trong toàn bộ sơ đồ
+- Dùng màu phân biệt: môi trường, chức năng, team ownership
+
+**Icon:**
+- Dùng icon chuẩn của platform (AWS, Azure, GCP)
+- Nếu không có, dùng hình đơn giản nhất quán
+
+**Annotations:**
+- Ghi rõ protocol, data format
+- Đánh dấu điểm quan trọng: security, bottleneck, single point of failure
+
+## Công cụ vẽ
+
+- **Diagrams.net (draw.io):** Miễn phí, nhiều icon
+- **Lucidchart:** Chuyên nghiệp, collaborative
+- **Cloudcraft:** Cho AWS architecture
+- **Miro/Figma:** Flexible, team collaboration
+
+## Mục đích
+
+Architecture Diagram giúp:
+- **Communicate:** Giải thích hệ thống cho team/stakeholders
+- **Document:** Lưu trữ thiết kế hệ thống
+- **Plan:** Thiết kế trước khi implement
+- **Troubleshoot:** Debug vấn đề production

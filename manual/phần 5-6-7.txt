@@ -1,0 +1,1350 @@
+# THIẾT KẾ CẤP CAO VÀ CẤP THẤP - BẢN ĐƠN GIẢN CHO SINH VIÊN
+# Tuần 5-7 (tổng cộng 8 tuần cho giai đoạn thiết kế)
+# Dành cho sinh viên năm thứ 3
+
+===============================================================================
+TUẦN 5: THIẾT KẾ CẤP CAO
+===============================================================================
+
+-------------------------------------------------------------------------------
+
+5.1 Thiết Kế Thành Phần (ĐƠN GIẢN HÓA - 3-4 giờ)
+-------------------------------------------------------------------------------
+
+**Mục Đích:**
+Chia cấu trúc thành các thành phần cụ thể có trách nhiệm rõ ràng. Bước này chi tiết hóa những gì mỗi thành phần làm và cách chúng kết nối.
+
+**Tiền Điều Kiện:**
+- DOC 3.1-A: Danh Sách Yêu Cầu Chức Năng
+- DOC 4.3-A: Sơ Đồ Kiến Trúc Hệ Thống
+
+**Các Nhiệm Vụ:**
+
+**Nhiệm Vụ 5.1.1: Chi Tiết Hóa Thành Phần Trong Mỗi Lớp**
+
+Mở rộng các thành phần chính thành các lớp/mô-đun cụ thể.
+
+Đối với mỗi lớp, xác định các thành phần cụ thể:
+
+**Presentation Layer:**
+- Thành phần UI/trang (một cái cho mỗi màn hình từ wireframes)
+- Controllers (xử lý yêu cầu người dùng)
+
+**Business Logic Layer:**
+- Các lớp Service (một cái cho mỗi lĩnh vực tính năng chính)
+- Validators
+- Các bộ xử lý logic kinh doanh
+
+**Data Access Layer:**
+- Các lớp Repository (một cái cho mỗi thực thể chính)
+- Data mappers
+
+Công việc cần làm:
+- Liệt kê 10-20 thành phần cụ thể trên tất cả các lớp
+- Cho mỗi cái một trách nhiệm rõ ràng và duy nhất
+- Ánh xạ tới yêu cầu (những yêu cầu nào nó thực hiện?)
+
+**Nhiệm Vụ 5.1.2: Xác Định Trách Nhiệm Thành Phần**
+
+Chỉ định những gì mỗi thành phần làm.
+
+Đối với mỗi thành phần, viết:
+- Tên
+- Lớp
+- Trách nhiệm (2-3 câu)
+- Những yêu cầu chức năng nào nó triển khai
+
+Ví dụ:
+- OrderService (Business Layer): Xử lý tất cả logic kinh doanh liên quan đến đơn hàng bao gồm xác thực, tính toán và xử lý. Triển khai REQ-006, REQ-007, REQ-008, REQ-015.
+
+**Nhiệm Vụ 5.1.3: Xác Định Phụ Thuộc Thành Phần**
+
+Hiển thị thành phần nào cần những thành phần nào khác.
+
+Quy tắc:
+- Các lớp trên phụ thuộc vào các lớp dưới (không ngược lại)
+- Controllers phụ thuộc vào Services
+- Services phụ thuộc vào Repositories
+- Không có phụ thuộc vòng tròn
+
+Những gì cần tạo:
+- Danh sách phụ thuộc đơn giản hoặc sơ đồ
+- Thành phần A → cần → Thành phần B
+
+Ví dụ:
+- OrderController → OrderService
+- OrderService → OrderRepository, PaymentService
+- OrderRepository → Database
+
+**Kết Quả Đầu Ra:**
+DOC 5.1-A: Đặc Tả Thành Phần (4-6 trang)
+
+Nội dung:
+1. **Sơ Đồ Thành Phần** (1-2 trang):
+   - Hộp cho mỗi thành phần được tổ chức theo lớp
+   - Mũi tên hiển thị phụ thuộc
+   - Có thể là các hộp và mũi tên đơn giản
+
+2. **Danh Mục Thành Phần** (2-3 trang):
+   Bảng với các cột:
+   - Tên Thành Phần
+   - Lớp
+   - Trách Nhiệm
+   - Yêu Cầu Được Triển Khai
+   - Phụ Thuộc (những gì nó cần)
+
+3. **Ma Trận Trách Nhiệm** (1 trang):
+   - Hàng = Thành Phần
+   - Cột = Yêu Cầu Chức Năng
+   - Đánh dấu nơi thành phần triển khai yêu cầu
+
+-------------------------------------------------------------------------------
+
+5.2 Thiết Kế API (ĐƠN GIẢN HÓA - 3-4 giờ)
+-------------------------------------------------------------------------------
+
+**Mục Đích:**
+Xác định các giao diện giữa frontend và backend, chỉ định chính xác dữ liệu nào được trao đổi. Điều này cho phép frontend và backend được phát triển độc lập.
+
+**Tiền Điều Kiện:**
+- DOC 3.3-A: Tài Liệu Wireframes UI
+- DOC 5.1-A: Đặc Tả Thành Phần
+
+**Các Nhiệm Vụ:**
+
+**Nhiệm Vụ 5.2.1: Xác Định Các Endpoint API Cần Thiết**
+
+Xác định những gì backend APIs mà frontend cần.
+
+Đối với mỗi màn hình wireframe, hỏi:
+- Màn hình này cần tải dữ liệu gì?
+- Những hành động nào mà người dùng có thể thực hiện?
+- Dữ liệu nào được gửi đi?
+
+Công việc cần làm:
+- Xem lại mỗi wireframe
+- Liệt kê các endpoint API cần thiết
+- Sử dụng quy ước REST: GET (truy cập), POST (tạo), PUT (cập nhật), DELETE (xóa)
+
+Ví dụ từ màn hình Order:
+- GET /api/orders - liệt kê đơn hàng
+- GET /api/orders/{id} - lấy một đơn hàng
+- POST /api/orders - tạo đơn hàng
+- PUT /api/orders/{id} - cập nhật đơn hàng
+- DELETE /api/orders/{id} - xóa đơn hàng
+
+**Nhiệm Vụ 5.2.2: Xác Định Định Dạng Yêu Cầu và Phản Hồi**
+
+Chỉ định dữ liệu nào đi vào và ra khỏi mỗi endpoint.
+
+Đối với mỗi endpoint, xác định:
+- Phương pháp HTTP và URL
+- Phần thân yêu cầu (nếu POST/PUT)
+- Phần thân phản hồi
+- Mã trạng thái thành công (200, 201, 204)
+- Mã trạng thái lỗi (400, 404, 500)
+
+Sử dụng định dạng JSON
+
+Ví dụ:
+```
+POST /api/orders
+Yêu cầu:
+{
+  "customerId": 123,
+  "items": [
+    {"productId": 456, "quantity": 2},
+    {"productId": 789, "quantity": 1}
+  ],
+  "shippingAddress": {
+    "street": "123 Main St",
+    "city": "Boston",
+    "zip": "02101"
+  }
+}
+
+Phản Hồi (201 Created):
+{
+  "orderId": 999,
+  "status": "PENDING",
+  "totalAmount": 156.99,
+  "createdAt": "2024-02-15T10:30:00Z"
+}
+
+Phản Hồi Lỗi (400 Bad Request):
+{
+  "error": "Invalid product ID",
+  "details": "Product 456 not found"
+}
+```
+
+**Nhiệm Vụ 5.2.3: Xác Định Cách Tiếp Cận Xác Thực**
+
+Chỉ định cách các yêu cầu API được xác thực.
+
+Những lựa chọn đơn giản cho dự án sinh viên:
+- Session-based (cookies)
+- Token-based (JWT)
+
+Những gì cần chỉ định:
+- Người dùng đăng nhập như thế nào? (POST /api/auth/login)
+- Cái gì được trả lại? (session cookie hoặc token)
+- Các yêu cầu tiếp theo được xác thực như thế nào? (cookie hoặc Authorization header)
+
+Ví dụ:
+```
+POST /api/auth/login
+Yêu cầu: {"email": "user@example.com", "password": "secret"}
+Phản Hồi: {"token": "eyJhbGc...", "userId": 123}
+
+Sau đó tất cả các yêu cầu khác bao gồm:
+Header: Authorization: Bearer eyJhbGc...
+```
+
+**Kết Quả Đầu Ra:**
+DOC 5.2-A: Đặc Tả API (6-10 trang)
+
+Nội dung:
+1. **Tổng Quan API** (1 trang):
+   - Base URL
+   - Phương pháp xác thực
+   - Định dạng phản hồi (JSON)
+   - Các mã lỗi phổ biến
+
+2. **Đặc Tả Endpoint** (4-8 trang):
+   Đối với mỗi endpoint (15-25 endpoints điển hình):
+   - Phương pháp HTTP và mẫu URL
+   - Mô tả
+   - Định dạng yêu cầu (nếu POST/PUT)
+   - Định dạng phản hồi
+   - Mã trạng thái
+   - Ví dụ yêu cầu và phản hồi
+   
+   Được tổ chức theo tài nguyên (Orders, Customers, Products, v.v.)
+
+3. **Các Endpoint Xác Thực** (1 trang):
+   - Đăng nhập
+   - Đăng xuất
+   - Làm mới token (nếu sử dụng tokens)
+
+-------------------------------------------------------------------------------
+
+5.3 Kiến Trúc Dữ Liệu Vật Lý (CẤP THIẾT - 4-5 giờ)
+-------------------------------------------------------------------------------
+
+**Mục Đích:**
+Chuyển đổi mô hình dữ liệu khái niệm của bạn thành các bảng cơ sở dữ liệu thực tế với các loại dữ liệu cụ thể, khóa và ràng buộc.
+
+**Tiền Điều Kiện:**
+- DOC 2.3-A: Sơ Đồ ERD Khái Niệm
+- DOC 3.1-A: Danh Sách Yêu Cầu Chức Năng
+- DOC 4.2-A: Tài Liệu Quyết Định Stack Công Nghệ
+
+**Các Nhiệm Vụ:**
+
+**Nhiệm Vụ 5.3.1: Chuyển Đổi Thực Thể Thành Bảng**
+
+Chuyển đổi mỗi thực thể khái niệm thành bảng cơ sở dữ liệu vật lý.
+
+Đối với mỗi thực thể:
+- Tên bảng (chữ thường, khuyến nghị số nhiều: customers, orders)
+- Chuyển đổi thuộc tính thành các cột với các loại dữ liệu cụ thể
+- Chỉ định độ dài/độ chính xác
+- Đánh dấu bắt buộc vs tùy chọn (NOT NULL vs nullable)
+
+Ví dụ loại dữ liệu (PostgreSQL):
+- Text: VARCHAR(length) hoặc TEXT
+- Numbers: INTEGER, BIGINT, DECIMAL(precision, scale)
+- Dates: DATE, TIMESTAMP
+- Yes/No: BOOLEAN
+
+Ví dụ:
+```
+Thực Thể: Customer
+Bảng: customers
+Các Cột:
+- customer_id: BIGINT, NOT NULL
+- name: VARCHAR(100), NOT NULL
+- email: VARCHAR(255), NOT NULL
+- phone: VARCHAR(20), NULL
+- created_at: TIMESTAMP, NOT NULL, DEFAULT CURRENT_TIMESTAMP
+```
+
+**Nhiệm Vụ 5.3.2: Xác Định Khóa Chính và Khóa Ngoài**
+
+Thiết lập khóa và mối quan hệ.
+
+Đối với mỗi bảng:
+- **Khóa Chính**: Cái gì định danh duy nhất mỗi hàng?
+  * Thường là một cột ID (tự động tăng)
+  * Đặt tên nó: tablename_id (customer_id, order_id)
+
+- **Khóa Ngoài**: Các bảng được liên kết như thế nào?
+  * Tham chiếu đến khóa chính trong bảng khác
+  * Thực thi tính toàn vẹn tham chiếu
+
+Đối với mối quan hệ nhiều-đến-nhiều:
+- Tạo bảng junction
+- Chứa khóa ngoài cho cả hai bảng
+- Khóa chính là kết hợp của cả hai khóa ngoài
+
+Ví dụ:
+```
+Bảng orders:
+- PRIMARY KEY (order_id)
+- FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
+
+Bảng order_items (junction cho orders ↔ products):
+- PRIMARY KEY (order_id, product_id)
+- FOREIGN KEY (order_id) REFERENCES orders(order_id)
+- FOREIGN KEY (product_id) REFERENCES products(product_id)
+```
+
+**Nhiệm Vụ 5.3.3: Thêm Ràng Buộc và Chỉ Mục**
+
+Xác định các quy tắc xác thực và tối ưu hóa truy vấn.
+
+**Ràng Buộc:**
+- UNIQUE (email phải duy nhất)
+- CHECK (giá >= 0)
+- DEFAULT values
+
+**Chỉ Mục:**
+- Chỉ mục khóa ngoài (cải thiện hiệu năng JOIN)
+- Chỉ mục các cột tìm kiếm thường xuyên
+- Chỉ mục duy nhất cho các ràng buộc duy nhất
+
+Ví dụ:
+```
+Bảng customers:
+- UNIQUE constraint trên email
+- CHECK constraint: email LIKE '%@%'
+
+Bảng orders:
+- INDEX trên customer_id (cho "tìm đơn hàng của khách hàng")
+- INDEX trên order_date (cho "đơn hàng gần đây")
+```
+
+**Nhiệm Vụ 5.3.4: Vẽ Sơ Đồ ERD Vật Lý**
+
+Tạo sơ đồ hiển thị cấu trúc cơ sở dữ liệu thực tế.
+
+Những gì hiển thị:
+- Tên bảng
+- Tất cả các cột với loại dữ liệu
+- Khóa chính (được đánh dấu bằng PK hoặc gạch dưới)
+- Khóa ngoài (mũi tên đến các bảng được tham chiếu)
+- Các chỉ báo NOT NULL
+
+Công cụ:
+- Draw.io, Lucidchart, dbdiagram.io
+- Hoặc vẽ tay (được gắn nhãn rõ ràng)
+
+**Kết Quả Đầu Ra:**
+DOC 5.3-A: Thiết Kế Cơ Sở Dữ Liệu Vật Lý (6-10 trang)
+
+Nội dung:
+1. **Sơ Đồ ERD Vật Lý** (2-3 trang):
+   - Tất cả các bảng với các cột và loại dữ liệu
+   - Khóa chính và khóa ngoài được đánh dấu
+   - Các mối quan hệ được hiển thị bằng mũi tên
+
+2. **Đặc Tả Bảng** (3-6 trang):
+   Đối với mỗi bảng:
+   - Tên bảng
+   - Mục đích
+   - Các cột với: tên, loại dữ liệu, nullable, default, ràng buộc
+   - Khóa chính
+   - Khóa ngoài
+   - Chỉ mục
+   - Ước tính số hàng
+
+3. **Tóm Tắt Lược Đồ Cơ Sở Dữ Liệu** (1 trang):
+   - Nền tảng và phiên bản cơ sở dữ liệu
+   - Quy ước đặt tên
+   - Ghi chú về cấu trúc tổng thể
+
+-------------------------------------------------------------------------------
+
+5.4 Thiết Kế Bảo Mật (ĐƠN GIẢN HÓA - 2-3 giờ)
+-------------------------------------------------------------------------------
+
+**Mục Đích:**
+Xác định các biện pháp bảo mật cơ bản để bảo vệ dữ liệu người dùng và quyền truy cập hệ thống.
+
+**Tiền Điều Kiện:**
+- DOC 3.2-A: Đặc Tả Yêu Cầu Phi Chức Năng
+- DOC 5.2-A: Đặc Tả API
+
+**Các Nhiệm Vụ:**
+
+**Nhiệm Vụ 5.4.1: Xác Định Xác Thực và Ủy Quyền**
+
+Chỉ định cách người dùng chứng minh danh tính và họ có thể truy cập cái gì.
+
+**Xác Thực** (bạn là ai?):
+- Đăng nhập username/password
+- Yêu cầu mật khẩu (từ NFRs)
+- Cách lưu trữ mật khẩu (hashed, không bao giờ văn bản thuần)
+
+**Ủy Quyền** (bạn có thể làm gì?):
+- Vai trò người dùng (customer, admin, v.v.)
+- Từng vai trò có thể làm gì
+- Cách kiểm tra quyền
+
+Ví dụ:
+```
+Xác Thực:
+- Đăng nhập Email + mật khẩu
+- Mật khẩu phải là 8+ ký tự với chữ cái hợp lẫn và số
+- Mật khẩu được hash bằng bcrypt trước khi lưu trữ
+- JWT token được trả lại sau khi đăng nhập thành công
+
+Ủy Quyền:
+- Vai trò: Customer, Admin
+- Customer có thể: xem đơn hàng riêng, tạo đơn hàng, cập nhật hồ sơ riêng
+- Admin có thể: xem tất cả đơn hàng, quản lý sản phẩm, quản lý người dùng
+- Kiểm tra vai trò trước khi cho phép mỗi hành động
+```
+
+**Nhiệm Vụ 5.4.2: Xác Định Nhu Cầu Bảo Vệ Dữ Liệu**
+
+Xác định dữ liệu nào cần mã hóa hoặc xử lý đặc biệt.
+
+Những gì cần bảo vệ:
+- Mật khẩu (luôn hash)
+- Thông tin thanh toán (mã hóa hoặc không lưu trữ)
+- Thông tin cá nhân (có thể cần mã hóa)
+
+Nơi mã hóa:
+- In transit: HTTPS cho tất cả các cuộc gọi API
+- At rest: mã hóa cơ sở dữ liệu cho các trường nhạy cảm
+
+Những gì cần chỉ định:
+- Những trường nào nhạy cảm
+- Chúng được bảo vệ như thế nào
+- Những gì không bao giờ được ghi vào log (mật khẩu, thẻ tín dụng)
+
+**Nhiệm Vụ 5.4.3: Xác Định Các Điều Khiển Bảo Mật Cơ Bản**
+
+Liệt kê các biện pháp bảo mật để ngăn chặn các cuộc tấn công phổ biến.
+
+Các bảo vệ cơ bản:
+- **Input validation**: Kiểm tra tất cả dữ liệu người dùng (ngăn chặn SQL injection, XSS)
+- **SQL injection prevention**: Sử dụng parameterized queries (không bao giờ string concatenation)
+- **Password security**: Hash mật khẩu, thực thi độ phức tạp
+- **Session security**: Timeout sau khi không hoạt động
+- **HTTPS**: Mã hóa tất cả các liên lạc
+
+Những gì cần ghi chép:
+- Quy tắc xác thực đầu vào
+- Cách thực thi các truy vấn SQL an toàn
+- Thời gian chờ phiên
+- Những gì được ghi vào log để kiểm toán
+
+**Kết Quả Đầu Ra:**
+DOC 5.4-A: Thiết Kế Bảo Mật (3-5 trang)
+
+Nội dung:
+1. **Thiết Kế Xác Thực** (1 trang):
+   - Quá trình đăng nhập
+   - Yêu cầu mật khẩu và lưu trữ
+   - Quản lý phiên/token
+
+2. **Thiết Kế Ủy Quyền** (1 trang):
+   - Vai trò người dùng
+   - Quyền theo vai trò
+   - Cách kiểm tra quyền
+
+3. **Bảo Vệ Dữ Liệu** (1 trang):
+   - Xác định dữ liệu nhạy cảm
+   - Yêu cầu mã hóa
+   - Dữ liệu không bao giờ được ghi vào log
+
+4. **Điều Khiển Bảo Mật** (1 trang):
+   - Cách tiếp cận xác thực đầu vào
+   - Ngăn chặn SQL injection
+   - Bảo mật phiên
+   - Yêu cầu HTTPS
+
+===============================================================================
+TUẦN 6: THIẾT KẾ CHI TIẾT (THIẾT KẾ CẤP THẤP)
+===============================================================================
+
+-------------------------------------------------------------------------------
+
+6.1 Thiết Kế Lớp (CẤP THIẾT - 6-8 giờ)
+-------------------------------------------------------------------------------
+
+**Mục Đích:**
+Thiết kế cấu trúc chi tiết của mã của bạn: lớp, thuộc tính, phương thức và mối quan hệ. Đây là bản vẽ mà các nhà phát triển tuân theo khi viết mã.
+
+**Tiền Điều Kiện:**
+- DOC 2.3-A: Sơ Đồ ERD Khái Niệm
+- DOC 5.1-A: Đặc Tả Thành Phần
+- DOC 5.2-A: Đặc Tả API
+- DOC 5.3-A: Thiết Kế Cơ Sở Dữ Liệu Vật Lý
+
+**Các Nhiệm Vụ:**
+
+**Nhiệm Vụ 6.1.1: Xác Định Tất Cả Các Lớp**
+
+Xác định mọi lớp bạn sẽ cần triển khai.
+
+Các loại lớp:
+
+**Entity/Model classes** (từ ERD):
+- Một lớp cho mỗi bảng cơ sở dữ liệu
+- Đại diện cho các đối tượng kinh doanh
+- Ví dụ: Customer, Order, Product
+
+**Controller classes** (từ API spec):
+- Xử lý các yêu cầu HTTP
+- Một controller cho mỗi tài nguyên
+- Ví dụ: OrderController, CustomerController
+
+**Service classes** (business logic):
+- Một service cho mỗi tính năng chính
+- Ví dụ: OrderService, AuthenticationService
+
+**Repository classes** (data access):
+- Một repository cho mỗi thực thể
+- Xử lý các hoạt động cơ sở dữ liệu
+- Ví dụ: OrderRepository, CustomerRepository
+
+**DTO classes** (data transfer):
+- Cho các yêu cầu/phản hồi API
+- Ví dụ: CreateOrderRequest, OrderResponse
+
+Công việc cần làm:
+- Liệt kê tất cả các lớp được tổ chức theo loại
+- Nên có 20-40 lớp tổng cộng
+- Mỗi cái ánh xạ tới một thành phần từ 5.1-A
+
+**Nhiệm Vụ 6.1.2: Thiết Kế Cấu Trúc Lớp**
+
+Đối với mỗi lớp, xác định các thuộc tính và phương thức.
+
+Đối với mỗi lớp, chỉ định:
+
+**Thuộc Tính:**
+- Tên
+- Loại dữ liệu
+- Khả năng hiển thị (private -, public +, protected #)
+
+**Phương Thức:**
+- Tên
+- Tham số
+- Loại trả về
+- Khả năng hiển thị
+
+Ví dụ - Lớp Order entity:
+```
+Lớp: Order
+Thuộc Tính:
+- orderId: Long (private)
+- customerId: Long (private)
+- orderDate: LocalDateTime (private)
+- totalAmount: BigDecimal (private)
+- status: String (private)
+
+Phương Thức:
++ getOrderId(): Long
++ getCustomerId(): Long
++ setStatus(status: String): void
++ calculateTotal(): BigDecimal
++ canCancel(): boolean
+```
+
+Ví dụ - Lớp OrderService:
+```
+Lớp: OrderService
+Thuộc Tính:
+- orderRepository: OrderRepository (private)
+- paymentService: PaymentService (private)
+
+Phương Thức:
++ createOrder(orderRequest: CreateOrderRequest): Order
++ getOrder(orderId: Long): Order
++ cancelOrder(orderId: Long): void
++ calculateDiscount(order: Order): BigDecimal
+```
+
+**Nhiệm Vụ 6.1.3: Xác Định Mối Quan Hệ Lớp**
+
+Hiển thị cách các lớp kết nối với nhau.
+
+Các loại mối quan hệ:
+- **Association**: Lớp A sử dụng Lớp B
+- **Dependency**: Lớp A cần Lớp B tạm thời
+- **Composition**: Lớp A chứa Lớp B (ownership mạnh)
+- **Inheritance**: Lớp B mở rộng Lớp A
+
+Các mẫu phổ biến:
+- Controller → Service (dependency)
+- Service → Repository (dependency)
+- Order → OrderItem (composition, one-to-many)
+- Service → Entity (association)
+
+Những gì hiển thị:
+- Các dòng kết nối các lớp liên quan
+- Hướng mũi tên hiển thị sự phụ thuộc
+- Multiplicity (1, *, 0..1, 1..*)
+
+**Nhiệm Vụ 6.1.4: Vẽ Sơ Đồ Lớp**
+
+Tạo sơ đồ trực quan hiển thị cấu trúc lớp.
+
+Tạo 3-5 sơ đồ được nhóm theo:
+- Lớp Entity (từ cơ sở dữ liệu)
+- Lớp Controller + Service (theo tính năng)
+- Lớp Repository
+
+Những gì hiển thị trong mỗi hộp lớp:
+- Tên lớp
+- Thuộc tính với loại và khả năng hiển thị
+- Phương thức với chữ ký và khả năng hiển thị
+
+Mối quan hệ giữa các lớp:
+- Các dòng hiển thị kết nối
+- Mũi tên hiển thị hướng
+- Multiplicity trên các associations
+
+Công cụ:
+- Draw.io, Lucidchart, PlantUML
+- Hoặc vẽ tay (phải rõ ràng và dễ đọc)
+
+**Kết Quả Đầu Ra:**
+DOC 6.1-A: Sơ Đồ Lớp Chi Tiết (12-20 trang)
+
+Nội dung:
+1. **Tổng Quan Sơ Đồ Lớp** (1 trang):
+   - Cách các lớp được tổ chức
+   - Quy ước đặt tên
+   - Packages/namespaces
+
+2. **Sơ Đồ Lớp Theo Thành Phần** (6-12 trang):
+   - 3-5 sơ đồ lớp UML chi tiết
+   - Mỗi sơ đồ hiển thị 5-10 lớp liên quan
+   - Tất cả các thuộc tính và phương thức được hiển thị
+   - Các mối quan hệ được đánh dấu rõ ràng
+
+3. **Đặc Tả Lớp** (5-7 trang):
+   Đối với mỗi lớp (định dạng bảng/danh sách):
+   - Tên lớp và mục đích
+   - Thuộc tính: tên, loại, khả năng hiển thị, mô tả
+   - Phương thức: chữ ký, mục đích
+   - Mối quan hệ với các lớp khác
+
+-------------------------------------------------------------------------------
+
+6.2 Sơ Đồ Trình Tự (CẤP THIẾT - 5-6 giờ)
+-------------------------------------------------------------------------------
+
+**Mục Đích:**
+Hiển thị từng bước cách các đối tượng tương tác để hoàn thành các trường hợp sử dụng. Sơ đồ trình tự tiết lộ các cuộc gọi phương thức chính xác cần thiết và xác thực rằng thiết kế lớp của bạn thực sự hoạt động.
+
+**Tiền Điều Kiện:**
+- DOC 2.1-B: Tài Liệu Đặc Tả Trường Hợp Sử Dụng
+- DOC 5.2-A: Đặc Tả API
+- DOC 6.1-A: Sơ Đồ Lớp Chi Tiết
+
+**Các Nhiệm Vụ:**
+
+**Nhiệm Vụ 6.2.1: Chọn Trường Hợp Sử Dụng Để Vẽ Sơ Đồ**
+
+Chọn 4-6 trường hợp sử dụng quan trọng cho các sơ đồ trình tự chi tiết.
+
+Những gì cần chọn:
+- Những trường hợp sử dụng phức tạp nhất
+- Những trường hợp sử dụng quan trọng nhất
+- Những trường hợp sử dụng kéo dài nhiều thành phần
+
+Bao gồm các loại khác nhau:
+- Ít nhất một hoạt động Create
+- Ít nhất một hoạt động Read/Query
+- Ít nhất một hoạt động Update
+- Ít nhất một với xử lý lỗi
+
+**Nhiệm Vụ 6.2.2: Tạo Sơ Đồ Trình Tự**
+
+Vẽ tương tác các đối tượng từng bước.
+
+Các yếu tố sơ đồ:
+- **Actors**: Người dùng hoặc hệ thống bên ngoài (ở trên cùng bên trái)
+- **Objects**: Thực thể của các lớp (trên cùng)
+- **Lifelines**: Các dòng chấm dọc dưới mỗi đối tượng
+- **Messages**: Mũi tên hiển thị các cuộc gọi phương thức
+- **Return values**: Mũi tên chấm trở lại
+- **Activation bars**: Hình chữ nhật hiển thị khi đối tượng hoạt động
+
+Cách tạo:
+1. Bắt đầu với actor khởi động hành động
+2. Theo dõi luồng trường hợp sử dụng
+3. Hiển thị mỗi cuộc gọi phương thức giữa các đối tượng
+4. Bao gồm tham số và giá trị trả về
+5. Hiển thị các điểm quyết định (alt frames)
+6. Hiển thị xử lý lỗi
+
+Ví dụ - Trình tự Create Order:
+```
+Customer → OrderController: POST /api/orders (orderData)
+OrderController → OrderService: createOrder(orderRequest)
+OrderService → OrderValidator: validate(orderRequest)
+OrderValidator → OrderService: validationResult
+[nếu hợp lệ]
+    OrderService → OrderRepository: save(order)
+    OrderRepository → Database: INSERT
+    Database → OrderRepository: orderId
+    OrderRepository → OrderService: savedOrder
+    OrderService → PaymentService: processPayment(paymentInfo)
+    PaymentService → PaymentGateway: charge(amount)
+    PaymentGateway → PaymentService: confirmation
+    PaymentService → OrderService: paymentResult
+[nếu thanh toán thành công]
+    OrderService → OrderController: order
+    OrderController → Customer: 201 Created (orderResponse)
+[nếu thanh toán thất bại]
+    OrderService → OrderController: throw PaymentException
+    OrderController → Customer: 400 Bad Request (error)
+```
+
+**Nhiệm Vụ 6.2.3: Xác Thực Với Thiết Kế Lớp**
+
+Đảm bảo mọi cuộc gọi phương thức trong sơ đồ tồn tại trong thiết kế lớp.
+
+Kiểm tra mỗi sơ đồ trình tự:
+- Mỗi phương thức được gọi có tồn tại trong sơ đồ lớp không?
+- Các loại tham số có đúng không?
+- Các loại trả về có đúng không?
+
+Nếu tìm thấy sự không phù hợp:
+- Thêm các phương thức bị thiếu vào sơ đồ lớp
+- Cập nhật chữ ký phương thức
+- Giữ cả hai tài liệu đồng bộ
+
+**Kết Quả Đầu Ra:**
+DOC 6.2-A: Sơ Đồ Trình Tự (10-15 trang)
+
+Nội dung:
+Đối với mỗi 4-6 trường hợp sử dụng:
+- Tên và ID trường hợp sử dụng (1 trang mỗi cái)
+- Sơ đồ trình tự hiển thị luồng tương tác hoàn chỉnh
+- Những người tham gia được liệt kê (đối tượng liên quan)
+- Ghi chú giải thích các bước phức tạp
+- Xử lý lỗi được hiển thị
+
+-------------------------------------------------------------------------------
+
+6.3 Thiết Kế UI (Độ Trung Thực Cao) (ĐƠN GIẢN HÓA - 4-5 giờ)
+-------------------------------------------------------------------------------
+
+**Mục Đích:**
+Tạo thiết kế UI đánh bóng, chi tiết hiển thị màu sắc, phông chữ và kiểu dáng chính xác. Những thiết kế này hướng dẫn triển khai frontend.
+
+**Tiền Điều Kiện:**
+- DOC 3.3-A: Tài Liệu Wireframes UI
+- DOC 3.3-B: Sơ Đồ Luồng Điều Hướng
+
+**Các Nhiệm Vụ:**
+
+**Nhiệm Vụ 6.3.1: Chọn Kiểu Trực Quan**
+
+Chọn màu sắc, phông chữ và hình thức tổng thể.
+
+Những gì cần xác định:
+- **Color palette**: 3-5 màu chính
+  * Màu chính (nút, liên kết)
+  * Màu phụ (accents)
+  * Màu trung tính (nền, văn bản)
+  * Màu lỗi/thành công (đỏ, xanh)
+
+- **Typography**: Lựa chọn phông chữ
+  * Phông chữ tiêu đề
+  * Phông chữ văn bản thân
+  * Kích thước phông chữ (16px body, 20px, 24px, 32px headings)
+
+- **Spacing**: Thang cách giữa nhất quán
+  * Sử dụng bội số 8px: 8, 16, 24, 32, 48
+
+Cách tiếp cận đơn giản:
+- Sử dụng hệ thống thiết kế hiện có (Bootstrap, Material Design)
+- Hoặc chọn màu sắc và phông chữ hoạt động tốt với nhau
+
+**Nhiệm Vụ 6.3.2: Tạo Mockups Độ Trung Thực Cao**
+
+Chuyển đổi wireframes thành thiết kế đánh bóng.
+
+Đối với mỗi wireframe:
+- Áp dụng lược đồ màu sắc
+- Sử dụng phông chữ và kích thước thực tế
+- Thêm nội dung thực tế (hoặc thực tế)
+- Hiển thị kiểu nút
+- Hiển thị kiểu trường biểu mẫu
+- Bao gồm biểu tượng
+
+Công cụ:
+- Figma (được khuyến nghị, miễn phí cho sinh viên)
+- Adobe XD
+- Sketch
+- Hoặc thậm chí PowerPoint/Google Slides với kiểu dáng cẩn thận
+
+Những gì cần thiết kế:
+- 5-8 màn hình quan trọng nhất chi tiết
+- Hiển thị trạng thái mặc định (không cần trạng thái hover/focus)
+- Chế độ xem desktop (mobile tùy chọn)
+
+**Nhiệm Vụ 6.3.3: Ghi Chép Đặc Tả Thiết Kế**
+
+Viết chi tiết thiết kế cho các nhà phát triển.
+
+Những gì cần chỉ định:
+- Màu sắc (mã hex: #2563EB)
+- Họ phông chữ và kích thước
+- Giá trị khoảng cách
+- Kiểu thành phần (nút, biểu mẫu, thẻ)
+
+Có thể đơn giản:
+- Ảnh chụp mockup với chú thích
+- Hoặc tài liệu hướng dẫn kiểu riêng
+
+**Kết Quả Đầu Ra:**
+DOC 6.3-A: Mockups UI Độ Trung Thực Cao (8-12 trang)
+
+Nội dung:
+1. **Tóm Tắt Hệ Thống Thiết Kế** (1-2 trang):
+   - Lề màu sắc với mã hex
+   - Typography (phông chữ, kích thước)
+   - Thang khoảng cách
+   - Kiểu nút
+   - Kiểu trường biểu mẫu
+
+2. **Mockups Màn Hình** (5-8 trang):
+   - Một trang cho mỗi màn hình
+   - Thiết kế đánh bóng với màu sắc và phông chữ
+   - Chú thích hiển thị phép đo
+   - Ghi chú cho các nhà phát triển
+
+3. **Thư Viện Thành Phần** (1-2 trang):
+   - Các thành phần có thể tái sử dụng (nút, đầu vào, thẻ)
+   - Đặc tả cho mỗi cái
+
+-------------------------------------------------------------------------------
+
+6.4 Chi Tiết Thiết Kế Cơ Sở Dữ Liệu (CẤP THIẾT - 3-4 giờ)
+-------------------------------------------------------------------------------
+
+**Mục Đích:**
+Tạo các tập lệnh SQL thực tế để xây dựng cơ sở dữ liệu của bạn. Điều này hoàn thành thiết kế cơ sở dữ liệu với mọi thứ cần thiết để triển khai.
+
+**Tiền Điều Kiện:**
+- DOC 5.3-A: Thiết Kế Cơ Sở Dữ Liệu Vật Lý
+
+**Các Nhiệm Vụ:**
+
+**Nhiệm Vụ 6.4.1: Viết Tập Lệnh DDL**
+
+Tạo các phát biểu CREATE TABLE SQL cho tất cả các bảng.
+
+Đối với mỗi bảng từ thiết kế vật lý:
+- Phát biểu CREATE TABLE
+- Tất cả các cột với loại dữ liệu
+- Ràng buộc khóa chính
+- Ràng buộc NOT NULL
+- Giá trị DEFAULT
+- Ràng buộc CHECK
+
+Ví dụ:
+```sql
+CREATE TABLE customers (
+    customer_id BIGSERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    phone VARCHAR(20),
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP,
+    CONSTRAINT email_format CHECK (email LIKE '%@%')
+);
+
+CREATE TABLE orders (
+    order_id BIGSERIAL PRIMARY KEY,
+    customer_id BIGINT NOT NULL,
+    order_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    total_amount DECIMAL(10,2) NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
+    CONSTRAINT fk_customer FOREIGN KEY (customer_id) 
+        REFERENCES customers(customer_id),
+    CONSTRAINT positive_amount CHECK (total_amount >= 0),
+    CONSTRAINT valid_status CHECK (status IN 
+        ('PENDING', 'CONFIRMED', 'SHIPPED', 'DELIVERED', 'CANCELLED'))
+);
+```
+
+**Nhiệm Vụ 6.4.2: Viết Tập Lệnh Tạo Chỉ Mục**
+
+Tạo chỉ mục cho khóa ngoài và các cột được truy vấn thường xuyên.
+
+Chỉ mục tất cả:
+- Khóa ngoài
+- Các cột được sử dụng trong các mệnh đề WHERE
+- Các cột được sử dụng trong ORDER BY
+
+Ví dụ:
+```sql
+CREATE INDEX idx_orders_customer ON orders(customer_id);
+CREATE INDEX idx_orders_date ON orders(order_date DESC);
+CREATE INDEX idx_orders_status ON orders(status);
+```
+
+**Nhiệm Vụ 6.4.3: Tạo Tập Lệnh Dữ Liệu Tham Chiếu**
+
+Chèn dữ liệu tra cứu/tham chiếu.
+
+Đối với các bảng tra cứu:
+- Viết các phát biểu INSERT
+- Bao gồm tất cả các giá trị hợp lệ
+
+Ví dụ:
+```sql
+INSERT INTO order_statuses (status_code, status_name) VALUES
+    ('PENDING', 'Pending'),
+    ('CONFIRMED', 'Confirmed'),
+    ('SHIPPED', 'Shipped'),
+    ('DELIVERED', 'Delivered'),
+    ('CANCELLED', 'Cancelled');
+```
+
+**Nhiệm Vụ 6.4.4: Tổ Chức Tập Lệnh Để Thực Thi**
+
+Đặt tập lệnh theo thứ tự đúng.
+
+Tạo các tệp riêng:
+1. `01_create_tables.sql` - Tất cả các phát biểu CREATE TABLE
+2. `02_create_indexes.sql` - Tất cả các phát biểu CREATE INDEX
+3. `03_insert_reference_data.sql` - Tất cả các INSERT dữ liệu tham chiếu
+
+Thứ tự trong các tệp:
+- Tạo các bảng không có phụ thuộc trước
+- Sau đó các bảng có khóa ngoài
+- Chỉ mục sau khi bảng tồn tại
+
+**Kết Quả Đầu Ra:**
+DOC 6.4-A: Tập Lệnh DDL Cơ Sở Dữ Liệu (các tệp .sql thực tế)
+
+Tệp cần tạo:
+1. **01_create_tables.sql**:
+   - Tất cả các phát biểu CREATE TABLE
+   - Theo thứ tự phụ thuộc
+   - Có chú thích tốt
+
+2. **02_create_indexes.sql**:
+   - Tất cả các phát biểu CREATE INDEX
+   - Các chú thích giải thích mục đích
+
+3. **03_insert_reference_data.sql**:
+   - Các phát biểu INSERT cho các bảng tra cứu
+   - Dữ liệu kiểm tra (tùy chọn nhưng hữu ích)
+
+4. **README.md**:
+   - Cách chạy tập lệnh
+   - Thứ tự thực thi
+   - Các điều kiện tiên quyết (cơ sở dữ liệu phải tồn tại)
+
+===============================================================================
+TUẦN 7: LẬP KẾ HOẠCH TRIỂN KHAI
+===============================================================================
+
+-------------------------------------------------------------------------------
+
+7.1 Thiết Kế Thuật Toán (NHANH CHÓNG - 1-2 giờ)
+-------------------------------------------------------------------------------
+
+**Mục Đích:**
+Xác định logic kinh doanh phức tạp cần lập kế hoạch cẩn thận trước khi viết mã.
+
+**Tiền Điều Kiện:**
+- DOC 3.1-A: Danh Sách Yêu Cầu Chức Năng
+- DOC 6.1-A: Sơ Đồ Lớp Chi Tiết
+
+**Các Nhiệm Vụ:**
+
+**Nhiệm Vụ 7.1.1: Xác Định Logic Phức Tạp**
+
+Tìm 2-3 phần logic phức tạp về thuật toán.
+
+Những gì được coi là phức tạp:
+- Nhiều điều kiện và tính toán
+- Sắp xếp hoặc tìm kiếm
+- Quy tắc xác thực phức tạp
+- Tính toán giá/chiết khấu
+
+Công việc cần làm:
+- Xem lại yêu cầu chức năng của bạn
+- Xác định 2-3 tính toán hoặc quá trình phức tạp nhất
+- Ghi chú phương thức lớp nào triển khai mỗi cái
+
+**Nhiệm Vụ 7.1.2: Viết Mã Giả Đơn Giản**
+
+Mô tả thuật toán bằng ngôn ngữ có cấu trúc đơn giản.
+
+Đối với mỗi thuật toán phức tạp:
+- Viết logic từng bước
+- Sử dụng IF/THEN/ELSE cho các quyết định
+- Sử dụng FOR EACH cho các vòng lặp
+- Giữ cho nó dễ đọc
+
+Ví dụ:
+```
+Thuật Toán: CalculateOrderDiscount
+Đầu vào: order, customer
+
+Đặt discount = 0
+
+NẾU customer là premium member THÌ
+    discount = order total × 0.15
+KHÁC NẾU customer là regular member THÌ
+    discount = order total × 0.10
+KẾT THÚC NẾU
+
+NẾU order total > 100 THÌ
+    volumeDiscount = order total × 0.05
+    discount = MAX(discount, volumeDiscount)
+KẾT THÚC NẾU
+
+Trả lại MIN(discount, order total × 0.50)
+```
+
+**Kết Quả Đầu Ra:**
+DOC 7.1-A: Đặc Tả Thuật Toán (2-4 trang)
+
+Nội dung:
+Đối với mỗi 2-3 thuật toán:
+- Tên thuật toán và mục đích
+- Phương thức/lớp nào
+- Đầu vào và đầu ra
+- Mã giả
+- Ví dụ với số
+
+-------------------------------------------------------------------------------
+
+7.2 Thiết Kế Xử Lý Lỗi (NHANH CHÓNG - 1 giờ)
+-------------------------------------------------------------------------------
+
+**Mục Đích:**
+Xác định chiến lược xử lý lỗi cơ bản.
+
+**Tiền Điều Kiện:**
+- DOC 5.2-A: Đặc Tả API
+
+**Các Nhiệm Vụ:**
+
+**Nhiệm Vụ 7.2.1: Xác Định Định Dạng Phản Hồi Lỗi**
+
+Chỉ định cách lỗi được trả lại từ API.
+
+Định dạng tiêu chuẩn đơn giản:
+```json
+{
+  "error": "Thông báo lỗi ở đây",
+  "details": "Chi tiết cụ thể hơn nếu cần"
+}
+```
+
+**Nhiệm Vụ 7.2.2: Liệt Kê Các Tình Huống Lỗi Phổ Biến**
+
+Xác định 5-10 lỗi phổ biến và mã HTTP của chúng.
+
+Ví dụ:
+- Đầu vào không hợp lệ → 400 Bad Request
+- Không tìm thấy → 404 Not Found
+- Không được phép → 401 Unauthorized
+- Lỗi máy chủ → 500 Internal Server Error
+
+Những gì cần ghi chép:
+- Tình huống lỗi
+- Mã trạng thái HTTP
+- Thông báo lỗi để trả lại
+
+**Kết Quả Đầu Ra:**
+DOC 7.2-A: Đặc Tả Xử Lý Lỗi (2-3 trang)
+
+Nội dung:
+1. **Định Dạng Phản Hồi Lỗi**: Cấu trúc JSON tiêu chuẩn
+2. **Các Lỗi Phổ Biến**: Bảng với tình huống, mã trạng thái, thông báo
+3. **Hướng Dẫn Xử Lý Lỗi**: Ghi chú ngắn về nơi bắt lỗi
+
+-------------------------------------------------------------------------------
+
+7.3 Chiến Lược Kiểm Thử (ĐƠN GIẢN HÓA - 2-3 giờ)
+-------------------------------------------------------------------------------
+
+**Mục Đích:**
+Lập kế hoạch cách bạn sẽ kiểm tra hệ thống để đảm bảo nó hoạt động đúng.
+
+**Tiền Điều Kiện:**
+- DOC 3.1-A: Danh Sách Yêu Cầu Chức Năng
+- DOC 6.1-A: Sơ Đồ Lớp Chi Tiết
+
+**Các Nhiệm Vụ:**
+
+**Nhiệm Vụ 7.3.1: Xác Định Mức Độ Kiểm Thử**
+
+Quyết định những loại kiểm thử bạn sẽ làm.
+
+Khuyến nghị cho sinh viên:
+- **Unit Testing**: Kiểm tra các phương thức/chức năng riêng lẻ
+- **Integration Testing**: Kiểm tra các endpoint API
+- **Manual Testing**: Kiểm tra UI và luồng làm việc đầy đủ
+
+Những gì cần chỉ định:
+- Những gì sẽ được kiểm tra đơn vị (lớp service, logic quan trọng)
+- Những gì sẽ được kiểm tra tích hợp (các endpoint API)
+- Những gì sẽ được kiểm tra thủ công (UI, luồng end-to-end)
+
+**Nhiệm Vụ 7.3.2: Xác Định Tình Huống Kiểm Thử**
+
+Liệt kê những gì cần được kiểm tra.
+
+Đối với unit tests:
+- Kiểm tra mỗi phương thức service
+- Kiểm tra các trường hợp tích cực (happy path)
+- Kiểm tra các trường hợp tiêu cực (đầu vào không hợp lệ)
+
+Đối với integration tests:
+- Kiểm tra mỗi endpoint API
+- Kiểm tra các yêu cầu thành công
+- Kiểm tra các trường hợp lỗi
+
+Đối với manual tests:
+- Kiểm tra mỗi luồng trường hợp sử dụng
+- Kiểm tra từ UI thông qua cơ sở dữ liệu
+
+Mục tiêu:
+- 10-15 kịch bản unit test
+- 10-15 kịch bản integration test
+- 5-8 kịch bản manual test
+
+**Nhiệm Vụ 7.3.3: Chọn Công Cụ Kiểm Thử**
+
+Chọn khung kiểm thử.
+
+Những lựa chọn phổ biến theo công nghệ:
+- Java: JUnit, Mockito
+- Python: pytest, unittest
+- JavaScript: Jest, Mocha
+- Kiểm tra API: Postman, REST Client
+
+Những gì cần chỉ định:
+- Khung kiểm tra đơn vị
+- Công cụ kiểm tra API
+- Cách kiểm tra chạy (thủ công, trong CI/CD)
+
+**Kết Quả Đầu Ra:**
+DOC 7.3-A: Chiến Lược Kiểm Thử (4-6 trang)
+
+Nội dung:
+1. **Cách Tiếp Cận Kiểm Thử** (1 trang):
+   - Mức độ kiểm thử được sử dụng
+   - Mục tiêu bao phủ (nhắm tới 70%+ bao phủ code)
+
+2. **Tình Huống Kiểm Thử** (2-3 trang):
+   - Tình huống unit test (danh sách các phương thức cần kiểm tra)
+   - Tình huống integration test (danh sách các API cần kiểm tra)
+   - Tình huống manual test (danh sách các trường hợp sử dụng cần kiểm tra)
+
+3. **Công Cụ Kiểm Thử** (1 trang):
+   - Công cụ được chọn
+   - Cách chạy kiểm tra
+
+4. **Ví Dụ Trường Hợp Kiểm Thử** (1-2 trang):
+   - 3-5 ví dụ trường hợp kiểm thử chi tiết hiển thị định dạng
+   - Mỗi cái với: tên kiểm tra, đầu vào, đầu ra dự kiến
+
+-------------------------------------------------------------------------------
+
+7.4 Tiêu Chuẩn Phát Triển (NHANH CHÓNG - 1 giờ)
+-------------------------------------------------------------------------------
+
+**Mục Đích:**
+Thiết lập các quy ước viết mã cơ bản để nhất quán.
+
+**Tiền Điều Kiện:**
+- DOC 4.2-A: Tài Liệu Quyết Định Stack Công Nghệ
+
+**Các Nhiệm Vụ:**
+
+**Nhiệm Vụ 7.4.1: Xác Định Quy Ước Đặt Tên Cơ Bản**
+
+Đồng ý về cách đặt tên các thứ.
+
+Tuân theo tiêu chuẩn ngôn ngữ:
+- Java: camelCase phương thức, PascalCase lớp
+- Python: snake_case chức năng, PascalCase lớp
+- JavaScript: camelCase chức năng, PascalCase lớp
+
+Những gì cần chỉ định:
+- Đặt tên lớp
+- Đặt tên phương thức/chức năng
+- Đặt tên biến
+- Đặt tên tệp
+
+**Nhiệm Vụ 7.4.2: Chọn Định Dạng Mã**
+
+Chọn quy tắc định dạng.
+
+Những lựa chọn đơn giản:
+- Indent: 2 hoặc 4 khoảng trắng (nhất quán)
+- Độ dài dòng: 80-100 ký tự
+- Dấu ngoặc: cùng dòng hoặc dòng mới
+
+Hoặc chỉ cần sử dụng định dạng mặc định:
+- Prettier (JavaScript)
+- Black (Python)
+- Google Java Format (Java)
+
+**Kết Quả Đầu Ra:**
+DOC 7.4-A: Tiêu Chuẩn Viết Mã (2-3 trang)
+
+Nội dung:
+1. **Quy Ước Đặt Tên**: Lớp, phương thức, biến, tệp
+2. **Định Dạng Mã**: Thụt lề, độ dài dòng, kiểu ngoặc
+3. **Bình Luận**: Khi nào cần bình luận, cần giải thích gì
+4. **Tổ Chức Tệp**: Nơi các tệp đi, cấu trúc package
+
+-------------------------------------------------------------------------------
+
+7.5 Lập Kế Hoạch Triển Khai (ĐƠN GIẢN HÓA - 2-3 giờ)
+-------------------------------------------------------------------------------
+
+**Mục Đích:**
+Chia công việc thành các tác vụ và tạo lịch biểu cho giai đoạn triển khai.
+
+**Tiền Điều Kiện:**
+- DOC 6.1-A: Sơ Đồ Lớp Chi Tiết
+- Tất cả các tài liệu thiết kế
+
+**Các Nhiệm Vụ:**
+
+**Nhiệm Vụ 7.5.1: Liệt Kê Các Tác Vụ Triển Khai**
+
+Chia thiết kế thành các phần có thể triển khai.
+
+Các danh mục tác vụ:
+- **Database setup**: Tạo cơ sở dữ liệu, chạy tập lệnh DDL
+- **Backend development**: Triển khai các lớp theo thành phần
+- **API development**: Triển khai các endpoint
+- **Frontend development**: Xây dựng các màn hình UI
+- **Testing**: Viết và chạy kiểm tra
+- **Integration**: Kết nối tất cả các phần
+
+Công việc cần làm:
+- Liệt kê các tác vụ chính (20-40 tác vụ điển hình)
+- Nhóm theo tuần hoặc sprint
+- Ước tính nỗ lực tính bằng giờ hoặc ngày
+
+**Nhiệm Vụ 7.5.2: Tạo Lịch Biểu Triển Khai**
+
+Lập kế hoạch khi nào làm gì.
+
+Đối với 8 tuần triển khai:
+- **Tuần 1**: Database setup, cấu trúc dự án
+- **Tuần 2-3**: Backend cốt lõi (thực thể, repositories)
+- **Tuần 3-4**: Services và logic kinh doanh
+- **Tuần 4-5**: Các endpoint API
+- **Tuần 5-6**: Frontend UI
+- **Tuần 6-7**: Tích hợp và kiểm tra
+- **Tuần 8**: Sửa lỗi, đánh bóng, tài liệu
+
+Những gì cần tạo:
+- Kế hoạch tuần-theo-tuần đơn giản
+- Liệt kê tác vụ mỗi tuần
+- Ghi chú phụ thuộc (cái gì phải hoàn thành trước cái gì)
+
+**Nhiệm Vụ 7.5.3: Xác Định Rủi Ro**
+
+Ghi chú những gì có thể sai.
+
+Những rủi ro phổ biến:
+- Đường cong học công nghệ
+- Vấn đề tích hợp
+- Quản lý thời gian
+- Sự mở rộng phạm vi
+
+Đối với mỗi rủi ro:
+- Rủi ro là gì?
+- Khả năng xảy ra như thế nào?
+- Cách giảm thiểu là gì?
+
+**Kết Quả Đầu Ra:**
+DOC 7.5-A: Kế Hoạch Triển Khai (4-6 trang)
+
+Nội dung:
+1. **Danh Sách Tác Vụ** (2-3 trang):
+   - Tất cả các tác vụ triển khai
+   - Ước tính nỗ lực
+   - Phụ thuộc
+
+2. **Lịch Biểu Triển Khai** (1-2 trang):
+   - Kế hoạch tuần-theo-tuần
+   - Tác vụ mỗi tuần
+   - Các mốc quan trọng
+
+3. **Đăng Ký Rủi Ro** (1 trang):
+   - 5-8 rủi ro
+   - Khả năng và tác động
+   - Chiến lược giảm thiểu
+
+===============================================================================
+TUẦN 8: HOÀN THÀNH VÀ BẢN GIAO
+===============================================================================
+
+Các tác vụ tuần 8 (không chi tiết hóa ở đây):
+- Xem lại tất cả các tài liệu thiết kế
+- Đảm bảo nhất quán trên các tài liệu
+- Điền vào bất kỳ khoảng trống nào
+- Chuẩn bị cho giai đoạn triển khai
+- Thuyết trình cuối cùng về thiết kế (nếu được yêu cầu)
+
+===============================================================================
+GIAI ĐOẠN THIẾT KẾ HOÀN THÀNH
+===============================================================================
+
+Vào cuối Tuần 8, bạn nên có:
+
+**Tài Liệu Yêu Cầu:**
+- Tầm nhìn và phạm vi
+- Personas người dùng và bên liên quan
+- Bối cảnh hệ thống
+- Trường hợp sử dụng (8-15 xác định, 4-6 chi tiết)
+- Luồng quy trình (3-4 sơ đồ)
+- Mô hình dữ liệu (6-12 thực thể)
+- Yêu cầu chức năng (15-25)
+- Yêu cầu phi chức năng (10-15)
+- Wireframes UI (6-10 màn hình)
+
+**Tài Liệu Kiến Trúc:**
+- Các yếu tố kiến trúc
+- Lựa chọn stack công nghệ
+- Kiến trúc hệ thống
+- Quyết định kiến trúc
+
+**Tài Liệu Thiết Kế Cấp Cao:**
+- Đặc Tả thành phần (10-20 thành phần)
+- Đặc Tả API (15-25 endpoint)
+- Thiết Kế cơ sở dữ liệu vật lý (bảng, khóa, ràng buộc)
+- Thiết Kế bảo mật
+
+**Tài Liệu Thiết Kế Cấp Thấp:**
+- Sơ đồ lớp (20-40 lớp)
+- Sơ đồ trình tự (4-6 kịch bản)
+- Mockups UI (5-8 màn hình)
+- Tập lệnh DDL cơ sở dữ liệu
+
+**Tài Liệu Lập Kế Hoạch Triển Khai:**
+- Đặc Tả thuật toán (2-3)
+- Đặc Tả xử lý lỗi
+- Chiến Lược kiểm thử
+- Tiêu Chuẩn viết mã
+- Kế hoạch triển khai
+
+Tổng cộng: Khoảng 18-20 tài liệu

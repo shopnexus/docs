@@ -1,0 +1,114 @@
+4.2 Select Technology Stack
+
+Purpose:
+Choose specific technologies, frameworks, and platforms based on architectural drivers and constraints. Technology decisions have long-term implications—they affect development speed, scalability, hiring, and maintenance for years. The goal is selecting technologies that best satisfy drivers while minimizing risk.
+
+Prerequisite deliverables from previous steps:
+- DOC 3.2-A: Non-Functional Requirements Specification (from step 3.2)
+- DOC 4.1-A: Architectural Drivers Document (from step 4.1)
+
+Tasks:
+
+Task 4.2.1: Evaluate Programming Languages and Frameworks
+    Use architectural drivers (DOC 4.1-A) to identify language/framework requirements, then evaluate candidates against these requirements and team capabilities.
+    
+    Guiding questions:
+    - What performance requirements drive language choice? (from drivers document)
+    - What does the team already know? What's the learning curve?
+    - What ecosystem/libraries are needed? (web frameworks, ML libraries, data processing)
+    - Can we hire developers for this language?
+    - Does this language support required platforms? (from constraints in drivers)
+    
+    Acceptance criteria:
+    - Language candidates identified for backend, frontend, and specialized needs
+    - Each candidate evaluated against: performance requirements (from 4.1-A), team expertise, ecosystem maturity, hiring availability, platform support
+    - Web framework selected (if applicable) with rationale
+    - Testing frameworks identified
+    - Evaluation matrix completed comparing candidates
+    
+    Example:
+    "Backend: Evaluated Java vs Go vs Python. Selected Java—team expertise high, mature ecosystem, meets performance targets (p95 < 200ms from NFR-001), strong enterprise library support. Frontend: React—team knows JavaScript, component ecosystem, meets interactive UI requirements."
+    
+    Red flags to watch for:
+    - Choosing "cool" technology without team expertise
+    - Ignoring hiring market realities
+    - Not validating performance assumptions against drivers
+    - Technology doesn't run on required platform (from constraints)
+
+Task 4.2.2: Select Data Storage Technologies
+    Use data requirements from NFRs (DOC 3.2-A) and architectural drivers (DOC 4.1-A) to select appropriate database(s), caching, and storage solutions.
+    
+    Guiding questions:
+    - What are data access patterns? (from use cases and drivers)
+    - What consistency requirements exist? (from NFRs and drivers)
+    - What are volume and scalability requirements? (from drivers)
+    - Do we need relational (complex queries, transactions) or NoSQL (flexibility, scale)?
+    - What caching strategy supports performance targets? (from NFRs)
+    - Where will files be stored? (local, object storage, CDN)
+    
+    Acceptance criteria:
+    - Primary database selected with rationale tied to drivers
+    - Caching solution selected if performance drivers require it
+    - File storage solution chosen based on volume/access patterns
+    - Search engine selected if full-text search required
+    - Polyglot persistence justified if multiple database types needed
+    - Each choice mapped to specific architectural drivers
+    
+    Example:
+    "Primary DB: PostgreSQL—relational data model fits domain, ACID transactions needed (from NFR-020), handles 100K orders/day (from driver AD-001), team expertise. Caching: Redis—achieves p95 < 200ms target (NFR-001), distributed caching for horizontal scaling. Object storage: S3—scalable file storage, integrates with CloudFront CDN for global delivery."
+    
+    Red flags to watch for:
+    - NoSQL without clear need (relational often simpler)
+    - Multiple databases without strong justification (operational complexity)
+    - No caching when performance drivers demand it
+    - Database doesn't support required scale from drivers
+
+Task 4.2.3: Select Infrastructure and Supporting Technologies
+    Choose cloud platform, message queues, authentication, monitoring, and other infrastructure based on constraints and drivers from DOC 4.1-A.
+    
+    Guiding questions:
+    - What platform constraints exist? (from constraints in drivers document)
+    - Do availability/scalability drivers require cloud? (from 4.1-A)
+    - Is message queue needed for async processing? (from drivers)
+    - What authentication mechanism? (from security requirements in NFRs)
+    - What monitoring/logging tools support operational requirements?
+    
+    Acceptance criteria:
+    - Cloud platform selected (or on-premises justified) based on constraints
+    - Message queue selected if async processing required by drivers
+    - Authentication solution chosen based on security NFRs
+    - Logging/monitoring stack selected supporting observability needs
+    - CI/CD tools identified
+    - Each selection traceable to constraint or architectural driver
+    
+    Example:
+    "Platform: Azure—mandated constraint from drivers doc. Message queue: RabbitMQ—handles async order processing (driver AD-001), reliable delivery for payment workflows. Auth: OAuth 2.0 with Auth0—meets SSO requirement (NFR-015), reduces security implementation risk. Monitoring: DataDog—comprehensive observability, supports 99.9% availability target (driver AD-002)."
+    
+    Red flags to watch for:
+    - Ignoring mandated platform constraints
+    - Over-engineering (Kafka when simple queue suffices)
+    - Building authentication instead of proven solutions
+    - No monitoring strategy for availability-critical systems
+
+Deliverable:
+DOC 4.2-A: Technology Stack Decision Document
+
+Output format:
+Document containing (4-6 pages):
+
+1. **Technology Stack Overview:** Visual diagram showing all selected technologies across layers (presentation, application, data, infrastructure)
+
+2. **Technology Decisions by Category:**
+   - **Languages & Frameworks:** Backend, frontend, mobile (if applicable) with versions and rationale
+   - **Data Storage:** Database(s), caching, file storage, search engine with rationale mapped to drivers
+   - **Infrastructure:** Platform, containers, orchestration, message queue
+   - **Security:** Authentication, secrets management
+   - **DevOps:** CI/CD, monitoring, logging
+
+3. **Decision Matrix:** Comparison table for major decisions (e.g., Java vs Go, PostgreSQL vs MongoDB) showing evaluation criteria from drivers and scores
+
+4. **Traceability:** Each technology mapped to architectural driver(s) or constraint that drove selection
+
+5. **Risks and Mitigation:** Technology risks identified (new to team, vendor lock-in, version compatibility) with mitigation strategies
+
+6. **Assumptions:** Technology availability, licensing, team training needs

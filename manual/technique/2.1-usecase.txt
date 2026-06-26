@@ -1,0 +1,135 @@
+2.1 Use Case Modeling
+
+Purpose:
+Document functional requirements from user perspective as end-to-end scenarios showing what users want to accomplish with the system. Use cases bridge business needs and technical specifications by describing system behavior in user-centric terms.
+
+Prerequisite deliverables from previous steps:
+- DOC 1.2-A: User Personas Document (from step 1.2)
+- DOC 1.3-A: System Context Diagram (from step 1.3)
+
+Tasks:
+
+Task 2.1.1: Identify Actors and Goals
+    Use personas document to identify primary actors (users) and context diagram to identify secondary actors (external systems). For each actor, brainstorm what they want to accomplish.
+    
+    Guiding questions:
+    - What does each persona (from 1.2-A) want to achieve using this system?
+    - What external systems (from 1.3-A) need to interact with our system?
+    - What are the user's end-goals? (not individual actions, but complete objectives)
+    - Are there different roles with different goals?
+    
+    Acceptance criteria:
+    - All personas mapped to actors
+    - All external entities from context diagram evaluated as potential actors
+    - Actor-goal pairs documented (Actor: Customer, Goal: Track my order status)
+    - Primary actors (initiate use cases) distinguished from secondary actors (system interacts with)
+    
+    Example:
+    "Customer (from Sarah Chen persona): Track order status, Modify delivery address, Request refund. Customer Service Rep: Process return, Update order notes. Payment Gateway (external system): Verify payment."
+    
+    Red flags to watch for:
+    - Goals that are too granular (Click button, Enter data - these are steps not goals)
+    - Missing key actors from personas or context diagram
+    - Internal system components listed as actors (database, module)
+
+Task 2.1.2: Create Use Case Catalog
+    Transform actor-goal pairs into named use cases using verb-noun format. Create brief one-sentence description for each to build complete inventory.
+    
+    Guiding questions:
+    - What action verb describes what the actor does? (Submit, Track, Generate, Process)
+    - What is the noun/object? (Order, Report, Payment, Request)
+    - Is this a complete user goal or just a step within larger goal?
+    - Are there related use cases that should be grouped?
+    
+    Acceptance criteria:
+    - 10-20 use cases identified for typical project
+    - Each use case named with verb-noun pattern
+    - Brief description (1 sentence) for each
+    - Use cases organized by actor or functional area
+    - Priority assigned (high/medium/low) based on vision document objectives
+    
+    Example:
+    "UC-001: Submit Order - Customer enters product selections and shipping information to create new order. UC-002: Track Order Status - Customer views current status and location of their order."
+    
+    Red flags to watch for:
+    - Use cases that are really system functions not user goals (Validate data, Store record)
+    - Duplicate use cases with different names
+    - Missing obvious user goals from personas' pain points
+
+Task 2.1.3: Develop Detailed Use Case Specifications
+    Select 5-8 most critical/complex use cases and write fully detailed specifications including preconditions, main flow, alternatives, exceptions, and postconditions.
+    
+    Guiding questions:
+    - What must be true before this use case starts? (preconditions)
+    - What is the happy path step-by-step? (main flow)
+    - What variations exist on the happy path? (alternatives)
+    - What can go wrong and how is it handled? (exceptions)
+    - What is guaranteed after successful completion? (postconditions)
+    - What business rules apply?
+    
+    Acceptance criteria:
+    - Fully dressed template completed for high-priority use cases
+    - Main flow written as numbered actor-system steps (3-10 steps typical)
+    - At least 2-3 alternative flows per complex use case
+    - Exception flows address error conditions
+    - Preconditions and postconditions clearly stated
+    - Business rules referenced by ID
+    
+    Example:
+    "UC-001 Main Flow: 1. Customer selects 'New Order'. 2. System displays product catalog. 3. Customer selects products and quantities. 4. System calculates total. 5. Customer enters shipping address. 6. System validates address. 7. Customer confirms order. 8. System creates order record and displays confirmation."
+    
+    Red flags to watch for:
+    - Implementation details (SQL queries, button colors - that's design)
+    - Missing exception handling (what if address invalid? payment fails?)
+    - Inconsistent detail level (some steps very detailed, others vague)
+    - No alternative flows (every use case has variations)
+
+Task 2.1.4: Create Use Case Diagram
+    Create visual overview showing actors, use cases, and relationships (include, extend, generalization).
+    
+    Guiding questions:
+    - Are all actors shown?
+    - Are all use cases shown?
+    - Are include/extend relationships needed for common subfunctions?
+    - Does diagram communicate system scope clearly?
+    
+    Acceptance criteria:
+    - System boundary box drawn
+    - Actors shown outside boundary as stick figures
+    - Use cases shown inside boundary as ovals
+    - Lines connect actors to their use cases
+    - Include/extend relationships shown where applicable
+    - Diagram is readable (not cluttered)
+    
+    Red flags to watch for:
+    - Too many use cases (hard to read - create multiple diagrams by subsystem)
+    - Crossing lines everywhere (reorganize layout)
+    - Missing actors or use cases from catalog
+
+Deliverables:
+- DOC 2.1-A: Use Case Diagram
+- DOC 2.1-B: Use Case Specifications Document
+
+Output format:
+DOC 2.1-A: Use Case Diagram (1-2 pages)
+- Visual diagram using UML notation
+- System boundary clearly marked
+- All actors and use cases from catalog
+- Include/extend relationships if applicable
+- Legend explaining notation
+
+DOC 2.1-B: Use Case Specifications Document (15-30 pages)
+- Use case catalog: Brief descriptions of all use cases (1-2 pages)
+- Fully dressed specifications for 5-8 critical use cases containing:
+  - Use Case ID and Name
+  - Actors (primary and secondary)
+  - Brief Description
+  - Preconditions
+  - Main Success Scenario (numbered steps)
+  - Alternative Flows (3a, 3b notation)
+  - Exception Flows (error handling)
+  - Postconditions
+  - Business Rules (referenced by ID)
+  - Special Requirements (performance, usability specific to this use case)
+  - Frequency of Use
+  - Open Issues/Assumptions

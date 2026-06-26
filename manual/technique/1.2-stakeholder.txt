@@ -1,0 +1,116 @@
+1.2 Identify Users and Stakeholders
+
+Purpose:
+Identify everyone who will use, be affected by, or has interest in the system to ensure all perspectives are captured during requirements gathering. This prevents missing critical requirements and helps manage competing interests throughout the project.
+
+Prerequisite deliverable from previous step:
+- DOC 1.1-A: Project Vision Document (from step 1.1)
+
+Tasks:
+
+Task 1.2.1: Discover and Categorize Stakeholders
+    Use the vision document to identify initial stakeholders, then employ snowball technique by asking each stakeholder "who else should we talk to?"
+    
+    Guiding questions:
+    - Who requested this system? (identify champion/sponsor)
+    - Who currently performs these tasks manually? (identify users)
+    - Who will use this system daily? Weekly? Monthly?
+    - Whose work will change because of this system?
+    - Who makes decisions about this area of the business?
+    - Who is impacted if this system fails?
+    - Who has authority to approve requirements and budget?
+    
+    Acceptance criteria:
+    - Primary stakeholders identified (direct users by role)
+    - Secondary stakeholders identified (affected but don't use directly)
+    - Project stakeholders identified (sponsor, PM, dev team, QA, operations, security, legal)
+    - Each stakeholder categorized by role and influence level
+    
+    Example:
+    "Primary: Customer Service Reps (20 users), Sales Team (15 users). Secondary: Customers (receive tracking emails), Warehouse Staff (affected by new process). Project: VP of Sales (sponsor), IT Manager (approver), Compliance Officer (regulatory requirements)."
+    
+    Red flags to watch for:
+    - Only senior management identified (missing actual users)
+    - Missing key groups (operations, support, security often forgotten)
+    - Stakeholders who are unavailable for engagement
+    - Proxy stakeholders instead of actual users
+
+Task 1.2.2: Create User Personas
+    Develop 2-3 detailed representative profiles of primary user types to humanize requirements and guide design decisions.
+    
+    Guiding questions:
+    - What are the different types of users? (by role, frequency, technical skill)
+    - What are their goals and motivations?
+    - What are their pain points with current process?
+    - What is their technical proficiency level?
+    - How frequently will they use the system?
+    - What is their work environment like?
+    
+    Acceptance criteria:
+    - 2-3 personas created representing main user segments
+    - Each persona includes: name, role, demographics, goals, pain points, technical proficiency, usage frequency
+    - Personas validated with actual users
+    - Personas cover range of user types (novice to expert, frequent to occasional)
+    
+    Example:
+    "Sarah Chen - Customer Service Rep: 5 years experience, handles 50+ calls/day, moderate technical skills, frustrated by switching between 4 different systems to find order info, needs fast access to customer history."
+    
+    Red flags to watch for:
+    - Generic personas that don't reflect real users
+    - Too many personas (loses focus, aim for 2-3 primary)
+    - Personas based on assumptions not validated with real users
+    - All personas are power users (missing novice perspective)
+
+Task 1.2.3: Analyze Stakeholder Influence and Engagement Strategy
+    Assess each stakeholder's power and interest to determine appropriate engagement approach and avoid conflicts later.
+    
+    Guiding questions:
+    - What is each stakeholder's level of authority? (decision-making power)
+    - What is each stakeholder's level of interest? (engagement, concern)
+    - Who are the skeptics or opponents? (important to include)
+    - What are potential conflicts between stakeholder groups?
+    - How available is each stakeholder for requirements activities?
+    
+    Acceptance criteria:
+    - Power/interest grid completed (high/low power × high/low interest)
+    - Engagement strategy defined for each stakeholder type
+    - RACI matrix started for major decisions
+    - Communication plan outlined (who gets what info, when, how)
+    
+    Example:
+    "VP Sales: High power, high interest → Manage closely, weekly updates. Warehouse Manager: Low power, high interest → Keep informed, include in workshops. CFO: High power, low interest → Keep satisfied, monthly executive summary."
+    
+    Red flags to watch for:
+    - Conflicting authority (multiple people think they're the approver)
+    - High-power stakeholders who are disengaged
+    - Ignoring skeptics or opponents (they have valid concerns)
+    - No plan for hard-to-reach stakeholders (executives, field workers, customers)
+
+Deliverables:
+- DOC 1.2-A: User Personas Document
+- DOC 1.2-B: Stakeholder Register
+
+Output format:
+DOC 1.2-A: User Personas Document (3-5 pages)
+- One page per persona containing:
+  - Photo or illustration (makes it real)
+  - Name, role, demographics (age range, experience level)
+  - Background and work context
+  - Goals and motivations ("I want to...")
+  - Pain points and frustrations ("I'm frustrated by...")
+  - Technical proficiency (novice/intermediate/expert)
+  - Usage pattern (frequency, duration, context)
+  - Success scenario ("A good day is when...")
+  - Quote (memorable statement capturing their perspective)
+
+DOC 1.2-B: Stakeholder Register (spreadsheet or table)
+Columns:
+- Name, Title, Role
+- Organization/Department
+- Category (Primary/Secondary/Project/Tertiary)
+- Contact Information (email, phone)
+- Power/Interest Classification (High/Low for each)
+- Engagement Strategy (manage closely/keep satisfied/keep informed/monitor)
+- Key Concerns or Focus Areas
+- Availability/Accessibility
+- Notes

@@ -1,0 +1,155 @@
+3.3 UI Mockups (Low-Fidelity)
+
+Purpose:
+Visualize user interface structure and navigation flow to validate understanding with stakeholders early, before investing in detailed design. Low-fidelity wireframes focus on layout, content, and flow—not colors, fonts, or visual polish.
+
+Prerequisite deliverables from previous steps:
+- DOC 1.2-A: User Personas Document (from step 1.2)
+- DOC 2.1-B: Use Case Specifications Document (from step 2.1)
+- DOC 2.2-A: Process Flow Diagrams (from step 2.2)
+- DOC 3.1-A: Functional Requirements List (from step 3.1)
+
+Tasks:
+
+Task 3.3.1: Identify Required Screens
+    Analyze use case flows (DOC 2.1-B) and functional requirements (DOC 3.1-A) to determine what screens/pages the system needs to support user tasks.
+    
+    Guiding questions:
+    - What screens are mentioned in use case main flows and alternatives?
+    - What data entry is required? (creates input forms)
+    - What information do users need to view? (creates display screens)
+    - What decisions do users make? (may need confirmation dialogs)
+    - What are the main user workflows? (from process diagrams 2.2-A)
+    
+    Acceptance criteria:
+    - Screen inventory created listing all required screens
+    - Each screen mapped to use case(s) and requirements it supports
+    - Screen types identified (form, list, detail, dashboard, dialog)
+    - Priority assigned based on use case priority
+    - 8-15 key screens identified for wireframing
+    
+    Example:
+    "Screens needed: Login (UC-001), Customer Dashboard (UC-002), Order Entry Form (UC-003), Order Search/List (UC-004, REQ-015), Order Detail View (UC-005), Address Validation Dialog (UC-003 alt flow), Order Confirmation (UC-003 postcondition)."
+    
+    Red flags to watch for:
+    - Missing screens for key use cases
+    - Too granular (every button click = new screen)
+    - Screens with no clear use case or requirement linkage
+
+Task 3.3.2: Create Low-Fidelity Wireframes
+    Sketch structure and content of each key screen using simple boxes, labels, and placeholders. Focus on what goes where, not visual design. Use personas (DOC 1.2-A) to inform content priority and organization.
+    
+    Guiding questions:
+    - What information must appear on this screen? (from requirements)
+    - What actions can users take? (buttons, links from use cases)
+    - What is the logical grouping and hierarchy? (most important first)
+    - What fits users' mental model? (from personas)
+    - What input fields are required vs. optional? (from use case preconditions)
+    
+    Acceptance criteria:
+    - Wireframes show page structure using boxes/placeholders
+    - All required data fields present (from functional requirements)
+    - Navigation elements included (menus, buttons, breadcrumbs)
+    - Content hierarchy clear (size/position indicates importance)
+    - Annotations explain functionality where needed
+    - No colors, fonts, or visual styling (gray/black/white only)
+    - Tool-agnostic (hand sketches, Balsamiq, Figma wireframe mode all acceptable)
+    
+    Example:
+    "Order Entry wireframe: Header with logo/nav, main area with product selection (dropdowns/search), quantity inputs, shipping address form (linked to REQ-012 address validation), price calculator display, Submit/Cancel buttons. Annotations: 'Address validates on blur per REQ-012', 'Total updates real-time per REQ-018'."
+    
+    Red flags to watch for:
+    - High-fidelity design elements (specific colors, fonts, images)
+    - Missing required fields from functional requirements
+    - Unclear affordances (can't tell what's clickable)
+    - Inconsistent layout patterns between related screens
+
+Task 3.3.3: Map Navigation Flow
+    Create diagram showing how users move between screens, using process flows (DOC 2.2-A) to ensure navigation supports actual workflows.
+    
+    Guiding questions:
+    - How does user get from screen A to screen B? (click, submit, link)
+    - What are the main user paths? (from use case main flows)
+    - Where can users go from each screen? (all possible navigation)
+    - How do users return to previous screens? (back, cancel, breadcrumbs)
+    - Are there dead ends? (screen with no way forward or back)
+    
+    Acceptance criteria:
+    - Flow diagram shows all screens as boxes
+    - Arrows show navigation paths with trigger labels
+    - Main user workflows highlighted (from common use cases)
+    - Entry points identified (where users start)
+    - Exit points identified (logout, complete, abandon)
+    - No orphaned screens (unreachable or no exit)
+    
+    Example:
+    "Navigation: Login → Dashboard. Dashboard → [New Order, Search Orders, My Account]. New Order → Product Selection → Shipping Info → Review → Confirmation → Dashboard. Each transition labeled: 'click New Order button', 'submit form', 'click Cancel returns to Dashboard'."
+    
+    Red flags to watch for:
+    - Screens not reachable from any workflow
+    - No way to cancel/go back from forms
+    - Overly complex navigation (too many clicks to common tasks)
+    - Navigation contradicts process flows from step 2.2
+
+Task 3.3.4: Validate Wireframes with Stakeholders
+    Review wireframes and navigation with actual users (from personas) to identify usability issues, missing functionality, or workflow problems before detailed design begins.
+    
+    Guiding questions:
+    - Can users find what they need on each screen?
+    - Is the workflow logical and efficient?
+    - Are there missing fields or actions?
+    - Is terminology clear? (labels match users' language)
+    - Can users complete their tasks? (walk through use cases)
+    
+    Acceptance criteria:
+    - Wireframes reviewed with representatives of each persona type
+    - Walkthrough conducted for 3-5 key use cases
+    - Feedback documented (usability issues, missing elements, confusion)
+    - Critical issues resolved (updated wireframes)
+    - Stakeholder confirmation that structure supports their needs
+    
+    Example:
+    "Validation session with CSR persona: Identified missing 'Customer History' link on Order Detail screen (added). User confused by 'Submit' vs 'Confirm' buttons (standardized to 'Submit'). Requested quick-access to common actions on Dashboard (added shortcuts panel)."
+    
+    Red flags to watch for:
+    - Users struggle to complete basic tasks
+    - Users ask "where is [obvious feature]?" (missing functionality)
+    - Users say "I guess this works" (not confident)
+    - Feedback contradicts use case flows (use cases may be wrong)
+
+Deliverables:
+- DOC 3.3-A: UI Wireframes Document
+- DOC 3.3-B: Navigation Flow Diagram
+
+Output format:
+DOC 3.3-A: UI Wireframes Document (10-20 pages)
+- Introduction: Purpose, fidelity level, wireframe conventions used
+- Screen inventory table:
+  - Screen name, purpose, use case(s) supported, priority
+- Wireframes for 8-15 key screens (1-2 pages each):
+  - Screen name and purpose
+  - Low-fidelity sketch/wireframe (boxes, labels, placeholders)
+  - Annotations explaining:
+    - Field requirements (required/optional, validation rules)
+    - Actions/interactions (what happens when clicked)
+    - Business rules applied (requirement IDs)
+    - Dynamic content (what changes, when)
+  - Linked requirements (REQ-XXX)
+  - Open questions or design notes
+- Common UI patterns identified:
+  - Standard layouts, navigation, error handling
+
+DOC 3.3-B: Navigation Flow Diagram (2-3 pages)
+- Visual flow diagram showing:
+  - All screens as boxes/nodes
+  - Navigation paths as arrows with labels (trigger)
+  - Entry and exit points marked
+  - Main user workflows highlighted in color/bold
+- Navigation matrix (table format):
+  - From Screen | To Screen | Trigger | User Action | Use Case
+- Notes on navigation patterns:
+  - Breadcrumbs, back buttons, cancel behavior
+  - How errors redirect users
+  - Session timeout/logout behavior
+
+**Note:** Low-fidelity means gray boxes, simple labels, no visual design. Focus is structure, content, and flow—NOT colors, fonts, images, or branding. These wireframes will be refined into high-fidelity mockups in step 6.3.

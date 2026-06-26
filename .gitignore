@@ -1,0 +1,2 @@
+# Build artifacts của Typst (tái tạo từ .typ bằng `typst compile`)
+*.pdf

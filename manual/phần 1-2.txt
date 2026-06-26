@@ -1,0 +1,518 @@
+# PHÂN TÍCH YÊU CẦU - BẢN ĐƠN GIẢN CHO SINH VIÊN
+# Tuần 1-2 (tổng cộng 8 tuần cho giai đoạn thiết kế)
+# Dành cho sinh viên năm thứ 3
+
+================================================================================
+GIAI ĐOẠN 1: PHÂN TÍCH YÊU CẦU
+================================================================================
+
+===============================================================================
+TUẦN 1: THIẾT LẬP VÀ HIỂU BIẾT DỰ ÁN
+===============================================================================
+
+-------------------------------------------------------------------------------
+1.1 Xác Định Tầm Nhìn Dự Án (NHANH CHÓNG - 1-2 giờ)
+-------------------------------------------------------------------------------
+
+**Mục Đích:**
+Nhanh chóng xác định vấn đề bạn giải quyết và thành công trông như thế nào. Giảng viên/khách hàng cung cấp thông tin này, bạn cần hiểu nó.
+
+**Tiền Điều Kiện:**
+- Tài liệu giao dự án (được cung cấp bởi giảng viên)
+
+**Các Nhiệm Vụ:**
+
+**Nhiệm Vụ 1.1.1: Hiểu Vấn Đề Kinh Doanh**
+
+Đọc tài liệu giao dự án và xác định vấn đề cốt lõi được giải quyết.
+
+Câu hỏi chính:
+- Vấn đề chính mà hệ thống này giải quyết là gì?
+- Ai được hưởng lợi từ hệ thống này?
+- 2-3 mục tiêu chính là gì?
+
+Công việc cần làm:
+- Đọc kỹ tài liệu giao dự án
+- Gạch dưới câu phát biểu vấn đề kinh doanh
+- Liệt kê 2-3 mục tiêu chính
+
+**Nhiệm Vụ 1.1.2: Xác Định Ranh Giới Phạm Vi**
+
+Xác định những gì được bao gồm và những gì được loại trừ.
+
+Câu hỏi chính:
+- Những tính năng nào chắc chắn nằm trong phạm vi?
+- Những tính năng nào rõ ràng ngoài phạm vi?
+- Có những giai đoạn tiếp theo được đề cập không?
+
+Công việc cần làm:
+- Tạo danh sách hai cột: "Trong Phạm Vi" | "Ngoài Phạm Vi"
+- Ghi chú những tính năng được hoãn lại cho các giai đoạn sau
+
+**Kết Quả Đầu Ra:**
+DOC 1.1-A: Tài Liệu Tầm Nhìn Dự Án (1-2 trang)
+
+Nội dung:
+1. Phát biểu vấn đề (1 đoạn từ tài liệu giao dự án)
+2. Mục tiêu dự án (3-5 điểm bullet)
+3. Phạm vi
+   - Trong phạm vi (5-8 mục)
+   - Ngoài phạm vi (3-5 mục)
+4. Tiêu chí thành công (2-3 kết quả có thể đo lường)
+
+-------------------------------------------------------------------------------
+
+1.2 Xác Định Người Dùng và Bên Liên Quan (CẤP THIẾT - 3-4 giờ)
+-------------------------------------------------------------------------------
+
+**Mục Đích:**
+Xác định những người sẽ sử dụng hệ thống và những gì họ cần hoàn thành. Điều này đảm bảo bạn hiểu được tất cả các quan điểm của người dùng.
+
+**Tiền Điều Kiện:**
+- DOC 1.1-A: Tài Liệu Tầm Nhìn Dự Án
+
+**Các Nhiệm Vụ:**
+
+**Nhiệm Vụ 1.2.1: Xác Định Loại Người Dùng**
+
+Xác định các loại người khác nhau sẽ sử dụng hệ thống của bạn.
+
+Câu hỏi chính:
+- Người dùng chính là ai? (sử dụng hệ thống trực tiếp)
+- Có những vai trò người dùng khác nhau không?
+- Có những quản trị viên hoặc trình quản lý không?
+
+Công việc cần làm:
+- Liệt kê tất cả các loại người dùng từ tài liệu giao dự án
+- Nhóm những người dùng tương tự lại với nhau
+- Xác định 2-3 loại người dùng chính
+
+**Nhiệm Vụ 1.2.2: Tạo Persona Người Dùng**
+
+Tạo 2-3 hồ sơ người dùng đại diện để làm cho yêu cầu trở nên cụ thể hơn.
+
+Câu hỏi chính:
+- Mỗi loại người dùng muốn hoàn thành điều gì?
+- Điểm khó khăn của họ với quy trình hiện tại là gì?
+- Trình độ kỹ thuật của họ là gì?
+
+Công việc cần làm:
+- Chọn 2-3 loại người dùng quan trọng nhất
+- Đối với mỗi loại, viết một persona ngắn bao gồm:
+  * Tên và vai trò
+  * Mục tiêu chính (2-3 mục)
+  * Những điểm khó khăn với tình hình hiện tại (2-3 mục)
+  * Trình độ kỹ thuật (novice/intermediate/expert)
+
+**Nhiệm Vụ 1.2.3: Liệt Kê Các Bên Liên Quan Chính**
+
+Xác định mọi người quan tâm đến hoặc ảnh hưởng đến dự án.
+
+Câu hỏi chính:
+- Ai yêu cầu hệ thống này? (người tài trợ)
+- Ai sẽ phê duyệt yêu cầu?
+- Ai khác bị ảnh hưởng?
+
+Công việc cần làm:
+- Tạo danh sách bên liên quan với: tên, vai trò, lợi ích trong dự án
+- Đánh dấu những người quyết định chính
+
+**Kết Quả Đầu Ra:**
+- DOC 1.2-A: Tài Liệu Persona Người Dùng (2-3 trang)
+- DOC 1.2-B: Sổ Đăng Ký Bên Liên Quan (1 trang bảng)
+
+**Định Dạng DOC 1.2-A:**
+Một trang cho mỗi persona:
+- Tên, vai trò, lý lịch
+- Mục tiêu ("Tôi muốn...")
+- Điểm khó khăn ("Tôi bực mình vì...")
+- Trình độ kỹ thuật
+- Trích dẫn nắm bắt quan điểm của họ
+
+**Định Dạng DOC 1.2-B:**
+Bảng đơn giản:
+- Tên | Vai Trò | Lợi Ích Trong Dự Án | Quyền Quyết Định (Có/Không)
+
+-------------------------------------------------------------------------------
+
+1.3 Xác Định Bối Cảnh Hệ Thống (CẤP THIẾT - 2-3 giờ)
+-------------------------------------------------------------------------------
+
+**Mục Đích:**
+Hiểu những gì ở bên trong ranh giới hệ thống của bạn so với những gì ở bên ngoài. Điều này ngăn chặn sự mở rộng phạm vi và xác định các điểm kết nối.
+
+**Tiền Điều Kiện:**
+- DOC 1.1-A: Tài Liệu Tầm Nhìn Dự Án
+- DOC 1.2-A: Tài Liệu Persona Người Dùng
+- DOC 1.2-B: Sổ Đăng Ký Bên Liên Quan
+
+**Các Nhiệm Vụ:**
+
+**Nhiệm Vụ 1.3.1: Xác Định Các Thực Thể Bên Ngoài**
+
+Liệt kê mọi thứ bên ngoài hệ thống của bạn tương tác với nó.
+
+Câu hỏi chính:
+- Tất cả những người dùng là ai? (từ personas)
+- Nó kết nối với những hệ thống bên ngoài nào?
+- Những dịch vụ bên thứ ba nào? (email, payment, maps)
+
+Công việc cần làm:
+- Liệt kê tất cả các loại người dùng từ personas dưới dạng các diễn viên bên ngoài
+- Xác định bất kỳ hệ thống bên ngoài được đề cập
+- Ghi chú những dịch vụ bên thứ ba cần thiết
+
+**Nhiệm Vụ 1.3.2: Xác Định Luồng Dữ Liệu Chính**
+
+Đối với mỗi thực thể bên ngoài, xác định thông tin nào chảy vào/ra.
+
+Câu hỏi chính:
+- Dữ liệu nào đi vào hệ thống?
+- Dữ liệu nào đi ra khỏi hệ thống?
+- Dữ liệu chảy khi nào? (real-time, batch, on-demand)
+
+Công việc cần làm:
+- Đối với mỗi thực thể bên ngoài, liệt kê:
+  * Dữ liệu chảy VÀO (actor → hệ thống)
+  * Dữ liệu chảy RA (hệ thống → actor)
+  * Thời gian cơ bản (real-time hoặc batch)
+
+**Nhiệm Vụ 1.3.3: Vẽ Sơ Đồ Bối Cảnh Hệ Thống**
+
+Tạo một sơ đồ đơn giản hiển thị ranh giới hệ thống.
+
+Vẽ những gì:
+- Một hộp ở giữa có tên hệ thống của bạn
+- Các thực thể bên ngoài xung quanh bên ngoài (người dùng, hệ thống)
+- Mũi tên hiển thị các luồng dữ liệu với nhãn
+
+Giữ cho đơn giản:
+- Không hiển thị các thành phần bên trong (chỉ ranh giới)
+- Không hiển thị chi tiết công nghệ
+- Tập trung vào những gì vượt qua ranh giới
+
+**Kết Quả Đầu Ra:**
+DOC 1.3-A: Sơ Đồ Bối Cảnh Hệ Thống (1 trang)
+
+Nội dung:
+- Một sơ đồ hiển thị:
+  * Ranh giới hệ thống (một hộp/vòng tròn ở giữa)
+  * Các thực thể bên ngoài (người dùng và hệ thống)
+  * Các luồng dữ liệu có nhãn (mũi tên)
+  * Chú giải đơn giản
+- Danh sách ngắn các thực thể bên ngoài cùng mục đích của chúng
+
+===============================================================================
+TUẦN 2: THU THẬP YÊU CẦU
+===============================================================================
+
+-------------------------------------------------------------------------------
+
+2.1 Mô Hình Hóa Trường Hợp Sử Dụng (CẤP THIẾT - 6-8 giờ)
+-------------------------------------------------------------------------------
+
+**Mục Đích:**
+Ghi chép những gì người dùng muốn hoàn thành với hệ thống trong các kịch bản có cấu trúc. Các trường hợp sử dụng nắm bắt yêu cầu chức năng từ quan điểm của người dùng.
+
+**Tiền Điều Kiện:**
+- DOC 1.2-A: Tài Liệu Persona Người Dùng
+- DOC 1.3-A: Sơ Đồ Bối Cảnh Hệ Thống
+
+**Các Nhiệm Vụ:**
+
+**Nhiệm Vụ 2.1.1: Lập Phác Thảo Mục Tiêu Người Dùng**
+
+Đối với mỗi persona, xác định những gì họ muốn hoàn thành.
+
+Câu hỏi chính:
+- Mỗi người dùng cần làm những tác vụ nào?
+- Mục tiêu cuối cùng của họ là gì? (kết quả hoàn chỉnh, không phải nhấp chuột)
+- Các hoạt động phổ biến nhất là gì?
+
+Công việc cần làm:
+- Xem lại mỗi persona
+- Liệt kê 3-5 mục tiêu cho mỗi persona
+- Đặt tên cho mỗi mục tiêu với động từ-danh từ (ví dụ: "Submit Order", "Track Package")
+
+**Nhiệm Vụ 2.1.2: Tạo Danh Sách Trường Hợp Sử Dụng**
+
+Chuyển đổi mục tiêu thành một danh mục các trường hợp sử dụng.
+
+Công việc cần làm:
+- Kết hợp các mục tiêu tương tự trên các personas
+- Gán ID duy nhất cho mỗi cái (UC-001, UC-002, v.v.)
+- Viết mô tả một câu cho mỗi cái
+- Đánh dấu ưu tiên (High/Medium/Low)
+- Hướng tới 8-15 trường hợp sử dụng tổng cộng
+
+**Nhiệm Vụ 2.1.3: Viết Các Đặc Tả Trường Hợp Sử Dụng Chi Tiết**
+
+Cho mỗi trường hợp sử dụng ưu tiên cao, viết tất cả các luồng chính, luồng thay thế và luồng ngoại lệ.
+
+Cấu trúc sử dụng mẫu này:
+
+UC-XXX: [Tên Trường Hợp Sử Dụng]
+Diễn viên: [Loại Người Dùng]
+Mô tả: [1-2 câu mô tả mục tiêu]
+Điều kiện trước: [Điều gì phải đúng trước khi trường hợp sử dụng bắt đầu]
+
+Luồng chính:
+1. [Bước 1]
+2. [Bước 2]
+...
+
+Luồng thay thế [3a]: [Khi điều kiện xảy ra]
+- [Bước thay thế]
+
+Luồng ngoại lệ [6a]: [Khi lỗi xảy ra]
+- [Xử lý lỗi]
+
+Điều kiện sau: [Trạng thái cuối cùng sau khi trường hợp sử dụng hoàn thành]
+
+Ví dụ:
+UC-003: Submit Order
+Diễn viên: Customer
+Mô tả: Customer tạo một đơn đặt hàng mới cho các sản phẩm
+Điều kiện trước: Customer đã đăng nhập
+Luồng chính:
+1. Customer chọn "New Order"
+2. Hệ thống hiển thị danh mục sản phẩm
+3. Customer chọn sản phẩm và số lượng
+4. Hệ thống tính toán tổng cộng
+5. Customer nhập địa chỉ giao hàng
+6. Hệ thống xác thực địa chỉ
+7. Customer xác nhận đơn hàng
+8. Hệ thống tạo đơn hàng và hiển thị xác nhận
+Luồng thay thế 3a: Nếu sản phẩm hết hàng
+- Hệ thống hiển thị thông báo "Out of Stock"
+- Customer chọn sản phẩm khác
+Luồng ngoại lệ 6a: Nếu địa chỉ không hợp lệ
+- Hệ thống hiển thị thông báo lỗi
+- Customer sửa địa chỉ
+- Tiếp tục ở bước 6
+Điều kiện sau: Đơn hàng được lưu, customer nhận được xác nhận
+
+**Nhiệm Vụ 2.1.4: Tạo Sơ Đồ Trường Hợp Sử Dụng**
+
+Vẽ một tổng quan trực quan về tất cả các trường hợp sử dụng.
+
+Vẽ những gì:
+- Hộp ranh giới hệ thống
+- Các nhân vật que cho diễn viên (bên ngoài ranh giới)
+- Các hình bầu dục cho trường hợp sử dụng (bên trong ranh giới)
+- Các dòng kết nối diễn viên với các trường hợp sử dụng của họ
+
+Giữ cho dễ đọc:
+- Nhóm các trường hợp sử dụng liên quan lại với nhau
+- Nếu quá tắc, tạo nhiều sơ đồ theo từng lĩnh vực chức năng
+
+**Kết Quả Đầu Ra:**
+- DOC 2.1-A: Sơ Đồ Trường Hợp Sử Dụng (1-2 trang)
+- DOC 2.1-B: Tài Liệu Đặc Tả Trường Hợp Sử Dụng (8-15 trang)
+
+**Cấu Trúc DOC 2.1-B:**
+- Danh Mục Trường Hợp Sử Dụng: Danh sách ngắn gọn tất cả 8-15 trường hợp sử dụng (1-2 trang)
+- Đặc Tả Chi Tiết: Chi tiết đầy đủ cho 4-6 trường hợp sử dụng ưu tiên cao (theo mẫu trên)
+
+-------------------------------------------------------------------------------
+
+2.2 Mô Hình Hóa Quy Trình (CẤP THIẾT - 4-5 giờ)
+-------------------------------------------------------------------------------
+
+**Mục Đích:**
+Trực quan hóa cách các quy trình kinh doanh chảy qua hệ thống, hiển thị quyết định, trình tự và chuyển đổi dữ liệu. Các mô hình quy trình giúp bạn thấy độ phức tạp của quy trình mà khó nắm bắt chỉ bằng văn bản.
+
+**Tiền Điều Kiện:**
+- DOC 2.1-B: Tài Liệu Đặc Tả Trường Hợp Sử Dụng
+
+**Các Nhiệm Vụ:**
+
+**Nhiệm Vụ 2.2.1: Chọn Các Quy Trình Để Mô Hình Hóa**
+
+Chọn 3-4 trường hợp sử dụng cần sơ đồ luồng công việc trực quan.
+
+Chọn những gì:
+- Các trường hợp sử dụng với nhiều điểm quyết định
+- Các trường hợp sử dụng liên quan đến nhiều diễn viên
+- Những trường hợp sử dụng phức tạp nhất hoặc quan trọng nhất
+
+Công việc cần làm:
+- Xem lại các đặc tả trường hợp sử dụng chi tiết của bạn
+- Chọn 3-4 cái phức tạp nhất
+- Ghi chú tại sao mỗi cái cần sơ đồ quy trình
+
+**Nhiệm Vụ 2.2.2: Tạo Sơ Đồ Hoạt Động**
+
+Chuyển đổi các luồng trường hợp sử dụng thành sơ đồ hoạt động trực quan.
+
+Vẽ những gì:
+- Nút bắt đầu (hình tròn đầy đủ)
+- Hoạt động (hình chữ nhật tròn với động từ hành động)
+- Hình thoi quyết định (cho các nhánh if/then)
+- Mũi tên hiển thị luồng
+- Nút kết thúc (hình đục lỗ)
+- Lãi sử dụng hiển thị ai làm gì (tùy chọn nhưng hữu ích)
+
+Từ trường hợp sử dụng sang sơ đồ:
+- Mỗi bước luồng chính → hoạt động
+- Mỗi luồng thay thế → hình thoi quyết định với các nhánh
+- Mỗi ngoại lệ → đường dẫn luồng lỗi
+
+Giữ sơ đồ đơn giản:
+- Tối đa 10-15 hoạt động trên mỗi sơ đồ
+- Nhãn rõ ràng trên các nhánh quyết định
+- Chỉ hiển thị một cấp độ chi tiết (không đi quá sâu)
+
+**Nhiệm Vụ 2.2.3: Thêm Chú Thích Cơ Bản**
+
+Ghi chú các chi tiết quan trọng trên sơ đồ.
+
+Ghi chú những gì:
+- Yêu cầu về thời gian (nếu được đề cập trong yêu cầu)
+- Dữ liệu cần thiết ở các điểm quyết định
+- Các điểm tắc nghẽn hoặc rủi ro đã biết
+
+Giữ cho đơn giản:
+- Chỉ một vài chú thích chính
+- Không làm sơ đồ quá đông đúc
+
+**Kết Quả Đầu Ra:**
+DOC 2.2-A: Sơ Đồ Luồng Quy Trình (3-5 trang)
+
+Đối với mỗi 3-4 quy trình:
+- Tên quy trình và mục đích (1 đoạn)
+- Sơ đồ hoạt động (1 trang)
+- Các chú thích chính được ghi chú trên hoặc dưới sơ đồ
+
+-------------------------------------------------------------------------------
+
+2.3 Tạo Mô Hình Dữ Liệu Ban Đầu (CẤP THIẾT - 5-6 giờ)
+-------------------------------------------------------------------------------
+
+**Mục Đích:**
+Xác định các khái niệm kinh doanh chính (thực thể) và mối quan hệ của chúng. Mô hình khái niệm này thiết lập thông tin nào mà hệ thống quản lý, độc lập với bất kỳ công nghệ cơ sở dữ liệu nào.
+
+**Tiền Điều Kiện:**
+- DOC 2.1-B: Tài Liệu Đặc Tả Trường Hợp Sử Dụng
+- DOC 2.2-A: Sơ Đồ Luồng Quy Trình
+
+**Các Nhiệm Vụ:**
+
+**Nhiệm Vụ 2.3.1: Xác Định Thực Thể**
+
+Tìm những "thứ" quan trọng mà hệ thống cần theo dõi.
+
+Cách tìm thực thể:
+- Tìm những danh từ được đề cập lặp đi lặp lại trong các trường hợp sử dụng
+- Tìm những thứ có nhiều thuộc tính
+- Tìm những thứ có vòng đời (được tạo, cập nhật, xóa)
+
+Công việc cần làm:
+- Đọc qua các đặc tả trường hợp sử dụng
+- Gạch dưới danh từ đại diện cho các khái niệm kinh doanh
+- Tạo danh sách 6-12 thực thể ứng viên
+- Xác minh: Mỗi cái có tồn tại độc lập không? Có nhiều thuộc tính không?
+
+Các loại thực thể phổ biến:
+- Thực thể cốt lõi: Customer, Order, Product
+- Tham chiếu/tra cứu: OrderStatus, PaymentMethod, Country
+- Kết hợp: OrderItem (liên kết Order với Product)
+
+**Nhiệm Vụ 2.3.2: Xác Định Mối Quan Hệ**
+
+Xác định cách các thực thể kết nối với nhau.
+
+Câu hỏi chính:
+- Bao nhiêu A liên quan đến bao nhiêu B?
+- A có thể tồn tại mà không có B không? (bắt buộc vs tùy chọn)
+- Mối quan hệ có cần các thuộc tính riêng của nó không? (nếu có, tạo thực thể kết hợp)
+
+Công việc cần làm:
+- Đối với mỗi cặp thực thể, hỏi xem chúng có liên quan không
+- Đánh dấu cardinality bằng ký hiệu chân quạ:
+  * Một-đến-một (||—||)
+  * Một-đến-nhiều (||—o{)
+  * Nhiều-đến-nhiều (}o—o{) → giải quyết bằng thực thể kết hợp
+- Đặt tên mối quan hệ bằng cụm động từ có thể đọc cả hai hướng
+
+Ví dụ:
+Customer ||--o{ Order: "places" / "is placed by"
+(Một khách hàng đặt hàng không hoặc nhiều đơn hàng)
+
+**Nhiệm Vụ 2.3.3: Thêm Thuộc Tính Chính**
+
+Đối với mỗi thực thể, liệt kê 3-5 thuộc tính quan trọng nhất.
+
+Những gì cần bao gồm:
+- Định danh (những gì làm cho mỗi thực thể duy nhất)
+- 3-4 thuộc tính mô tả chính
+- Giữ các loại dữ liệu đơn giản (text, number, date, yes/no)
+
+Những gì KHÔNG bao gồm thêm:
+- Khóa ngoài (mối quan hệ hiển thị điều này)
+- Các loại dữ liệu chi tiết (VARCHAR(50) đến sau)
+- TẤT CẢ các thuộc tính có thể (chỉ những cái chính)
+
+Ví dụ:
+Order: OrderID (định danh), OrderDate, TotalAmount, Status
+
+**Nhiệm Vụ 2.3.4: Ghi Chép Quy Tắc Kinh Doanh**
+
+Liệt kê các quy tắc quan trọng điều chỉnh dữ liệu của bạn.
+
+Quy tắc để nắm bắt:
+- Quy tắc xác thực (chiết khấu không được vượt quá 50%)
+- Quy tắc tính toán (tổng = tổng mục + thuế)
+- Quy tắc vòng đời (đơn hàng phải được phê duyệt trước khi giao hàng)
+
+Công việc cần làm:
+- Trích xuất quy tắc từ các đặc tả trường hợp sử dụng
+- Đánh số chúng (BR-001, BR-002, v.v.)
+- Viết bằng ngôn ngữ kinh doanh rõ ràng
+- Hướng tới 8-12 quy tắc chính
+
+**Nhiệm Vụ 2.3.5: Vẽ Sơ Đồ ERD Khái Niệm**
+
+Tạo sơ đồ thực thể-mối quan hệ bằng ký hiệu chân quạ.
+
+Vẽ những gì:
+- Thực thể dưới dạng hình chữ nhật với tên thực thể và các thuộc tính chính
+- Mối quan hệ dưới dạng các dòng với dấu chân quạ
+- Các định danh được gạch dưới hoặc đánh dấu bằng (PK)
+
+Mẹo bố trí:
+- Đặt các thực thể liên quan gần nhau
+- Giảm thiểu các đường giao nhau
+- Giữ nó dễ đọc (sử dụng toàn bộ trang)
+
+Không bao gồm:
+- Các cột khóa ngoài (mối quan hệ hiển thị các kết nối)
+- Các loại dữ liệu chi tiết
+- Chi tiết cụ thể của cơ sở dữ liệu
+
+**Kết Quả Đầu Ra:**
+DOC 2.3-A: Sơ Đồ ERD Khái Niệm (4-6 trang)
+
+Nội dung:
+1. **Sơ Đồ ERD Khái Niệm** (1-2 trang):
+   - Sơ đồ sạch với tất cả các thực thể và mối quan hệ
+   - Chú giải giải thích ký hiệu chân quạ
+
+2. **Danh Mục Thực Thể** (1-2 trang):
+   Bảng với các cột:
+   - Tên Thực Thể
+   - Định Nghĩa
+   - Loại (Core/Lookup/Associative)
+   - Ví dụ thực thể
+
+3. **Danh Mục Mối Quan Hệ** (1 trang):
+   Bảng với các cột:
+   - Thực Thể A | Thực Thể B
+   - Tên Mối Quan Hệ
+   - Cardinality
+   - Ý Nghĩa Kinh Doanh
+
+4. **Quy Tắc Kinh Doanh** (1 trang):
+   - BR-001: Phát biểu quy tắc...
+   - BR-002: Phát biểu quy tắc...
+   - (8-12 quy tắc)
