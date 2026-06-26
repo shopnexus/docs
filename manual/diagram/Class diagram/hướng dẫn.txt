@@ -1,0 +1,193 @@
+# Hướng dẫn vẽ Class Diagram
+
+## Class Diagram là gì?
+
+Sơ đồ lớp (Class Diagram) mô tả **cấu trúc các lớp** (classes), **thuộc tính** (attributes), **phương thức** (methods), và **quan hệ** (relationships) giữa các lớp trong hệ thống hướng đối tượng.
+
+## Cách đọc ví dụ mẫu
+
+**Hệ thống Order (Đặt hàng)** gồm:
+- **Classes:** Customer, Order, OrderDetail, Item, Payment (abstract), Cash, Check, Credit
+- **Relationships:** 
+  - Customer → Order (Association 0..*)
+  - Order → OrderDetail (Aggregation 1..*)
+  - Order → Payment (Generalization 1..*)
+  - OrderDetail → Item (Association 0..*)
+
+## Cách vẽ Class
+
+### Cấu trúc 1 Class (3 phần)
+
+```
+┌─────────────────┐
+│   ClassName     │ ← Tên lớp
+├─────────────────┤
+│ -attribute      │ ← Thuộc tính
+│ -attribute2     │
+├─────────────────┤
+│ +method()       │ ← Phương thức
+│ +method2()      │
+└─────────────────┘
+```
+
+**Ví dụ: Class Order**
+```
+Order
+─────────────
+-date : date
+-status : String
+─────────────
++calcSubTotal()
++calcTax()
++calcTotal()
++calcTotalWeight()
+```
+
+### Phần 1: Class Name
+- Tên lớp viết **PascalCase** (chữ cái đầu viết hoa)
+- **Abstract class:** In nghiêng hoặc thêm *{abstract}*
+- Ví dụ: `Payment` (abstract class)
+
+### Phần 2: Attributes (Thuộc tính)
+
+**Cú pháp:**
+```
+visibility name : dataType
+```
+
+**Visibility (Phạm vi truy cập):**
+- **+** : public (công khai)
+- **-** : private (riêng tư)
+- **#** : protected (bảo vệ)
+- **~** : package (gói)
+
+**Ví dụ:**
+```
+Customer
+─────────────
+-name : String
+-address : String
+```
+
+### Phần 3: Operations/Methods (Phương thức)
+
+**Cú pháp:**
+```
+visibility methodName(parameters) : returnType
+```
+
+**Ví dụ:**
+```
+Item
+─────────────
++getPriceForQuantity() : float
++getTax() : float
++inStock() : boolean
+```
+
+## Các loại Relationships (Quan hệ)
+
+### 1. Association (Liên kết)
+
+**Ký hiệu:** Đường thẳng nối 2 class
+
+**Multiplicity (Bản số):**
+- **1** : Đúng 1
+- **0..1** : 0 hoặc 1 (tùy chọn)
+- **1..*** : Ít nhất 1
+- **0..*** hoặc **\*** : Không giới hạn
+
+**Ví dụ trong sơ đồ:**
+```
+Customer ────── 0..* Order
+```
+→ 1 Customer có 0 hoặc nhiều Orders
+
+**Role name:**
+- Ghi tên vai trò trên đường nối
+- Ví dụ: `line item` (vai trò của OrderDetail trong Order)
+
+### 2. Aggregation (Tập hợp)
+
+**Ký hiệu:** Đường nối + hình thoi rỗng ở class "chứa"
+
+**Ý nghĩa:** Quan hệ "has-a" (có), phần tử CÓ THỂ tồn tại độc lập
+
+**Ví dụ:**
+```
+Order ◇────── 1..* OrderDetail
+```
+→ Order **chứa** nhiều OrderDetails
+→ OrderDetail có thể tồn tại mà không cần Order
+
+### 3. Composition (Hợp thành)
+
+**Ký hiệu:** Đường nối + hình thoi đặc ở class "chứa"
+
+**Ý nghĩa:** Quan hệ "has-a" mạnh, phần tử KHÔNG thể tồn tại độc lập
+
+**Ví dụ:**
+```
+House ◆────── Room
+```
+→ House chứa Rooms, khi House bị xóa thì Rooms cũng bị xóa
+
+### 4. Generalization (Kế thừa)
+
+**Ký hiệu:** Đường nối + mũi tên tam giác rỗng trỏ về class cha
+
+**Ý nghĩa:** Quan hệ "is-a" (là), lớp con kế thừa lớp cha
+
+**Ví dụ trong sơ đồ:**
+```
+        Payment (abstract)
+           △
+     ┌─────┼─────┐
+     │     │     │
+   Cash  Check  Credit
+```
+→ Cash, Check, Credit **là** các loại Payment
+
+### 5. Dependency (Phụ thuộc)
+
+**Ký hiệu:** Đường nét đứt + mũi tên
+
+**Ý nghĩa:** Class A sử dụng Class B (tạm thời, không lưu trữ)
+
+```
+ClassA -----> ClassB
+```
+
+## Tips vẽ Class Diagram
+
+### 1. **Chỉ vẽ những gì cần thiết**
+- Không cần vẽ TOÀN BỘ attributes/methods
+- Chỉ vẽ các phần QUAN TRỌNG cho mục đích thiết kế
+
+### 2. **Sắp xếp hợp lý**
+- Class cha ở **trên**, class con ở **dưới**
+- Class chính ở **giữa**, class phụ ở **xung quanh**
+- Tránh đường nối chéo nhau
+
+### 3. **Nhóm theo logic**
+- Các class liên quan đặt gần nhau
+- Dùng package/module để nhóm
+
+### 4. **Đặt tên rõ ràng**
+- Class name: Danh từ (Customer, Order, Payment)
+- Method name: Động từ (calculate, get, set)
+- Attribute name: Danh từ (name, date, status)
+
+## Công cụ vẽ
+
+- **StarUML, Visual Paradigm:** Chuyên nghiệp
+- **draw.io, Lucidchart:** Đơn giản, online
+- **PlantUML:** Vẽ bằng code (text-based)
+
+## Mục đích
+
+Class Diagram giúp:
+- Thiết kế cấu trúc OOP
+- Hiểu quan hệ giữa các lớp
+- Lập trình theo thiết kế rõ ràng
+- Communication giữa developers

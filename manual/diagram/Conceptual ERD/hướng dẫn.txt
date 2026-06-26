@@ -1,0 +1,144 @@
+# Hướng dẫn vẽ Entity-Relationship Diagram (ERD)
+
+## Cách đọc lược đồ mẫu
+
+**Sơ đồ mô tả:** Cơ sở dữ liệu ngân hàng với các thực thể và quan hệ giữa chúng.
+
+**Các thành phần chính:**
+
+1. **Entity (Thực thể):**
+   - Hình chữ nhật: BANK, BANK_BRANCH, ACCOUNT, LOAN, CUSTOMER
+   - Đại diện cho đối tượng lưu trữ dữ liệu
+
+2. **Attribute (Thuộc tính):**
+   - Hình OVAL: Code, Name, Addr, Acct_no, Balance, Loan_no, Amount, Type, San, Phone
+   - Đặc điểm/thông tin của Entity
+
+3. **Relationship (Quan hệ):**
+   - Hình THOI: BRANCHES, ACCTS, LOANS, A_C, L_C
+   - Mối liên kết giữa các Entity
+
+4. **Cardinality (Bản số):**
+   - Ký hiệu 1, N, M trên đường nối
+   - Cho biết số lượng quan hệ giữa các entity
+
+## Cách vẽ ERD
+
+### Bước 1: Xác định Entities (Thực thể)
+
+**Hỏi:** Hệ thống cần lưu trữ thông tin về cái gì?
+- Danh từ quan trọng trong yêu cầu
+- Đối tượng có thuộc tính riêng
+- Ví dụ: BANK, BRANCH, CUSTOMER, ACCOUNT, LOAN
+
+**Vẽ:**
+- Hình chữ nhật
+- Ghi tên Entity bằng CHỮ HOA
+- Sắp xếp hợp lý trên sơ đồ
+
+### Bước 2: Xác định Attributes (Thuộc tính)
+
+**Hỏi:** Mỗi Entity cần lưu thông tin gì?
+- Đặc điểm mô tả Entity
+- Dữ liệu cần lưu trữ
+
+**Phân loại Attributes:**
+
+**Primary Key (Khóa chính):**
+- Thuộc tính xác định DUY NHẤT từng instance
+- Gạch chân tên thuộc tính
+- Ví dụ: Code (BANK), Acct_no (ACCOUNT), Loan_no (LOAN)
+
+**Normal Attributes:**
+- Thuộc tính thông thường
+- Ví dụ: Name, Addr, Balance, Amount, Type
+
+**Vẽ:**
+- Hình oval nối với Entity
+- Gạch chân nếu là Primary Key
+
+### Bước 3: Xác định Relationships (Quan hệ)
+
+**Hỏi:** Các Entity có liên kết với nhau như thế nào?
+- Entity A có liên quan đến Entity B không?
+- Mối quan hệ nghiệp vụ là gì?
+
+**Ví dụ trong sơ đồ:**
+- BANK có nhiều BRANCHES (Chi nhánh)
+- BANK_BRANCH quản lý nhiều ACCOUNTS và LOANS
+- CUSTOMER có nhiều ACCOUNTS và LOANS
+
+**Vẽ:**
+- Hình thoi giữa 2 Entity
+- Ghi tên quan hệ (động từ hoặc danh từ)
+- Nối bằng đường thẳng
+
+### Bước 4: Xác định Cardinality (Bản số)
+
+**Các loại Cardinality:**
+
+**One-to-One (1:1):**
+- 1 instance Entity A ↔ 1 instance Entity B
+- Ký hiệu: 1 — 1
+
+**One-to-Many (1:N):**
+- 1 instance Entity A ↔ Nhiều instances Entity B
+- Ký hiệu: 1 — N
+- Ví dụ: BANK (1) — (N) BANK_BRANCH
+
+**Many-to-Many (M:N):**
+- Nhiều instances Entity A ↔ Nhiều instances Entity B
+- Ký hiệu: M — N
+- Ví dụ: ACCOUNT (M) — (N) CUSTOMER qua A_C
+
+**Cách đọc trong sơ đồ:**
+- BANK → BRANCHES → BANK_BRANCH: **1:N** (1 ngân hàng có N chi nhánh)
+- BANK_BRANCH → ACCTS → ACCOUNT: **1:M** (1 chi nhánh có M tài khoản)
+- ACCOUNT → A_C → CUSTOMER: **M:N** (M tài khoản có N khách hàng, N khách hàng có M tài khoản)
+
+### Bước 5: Sắp xếp và hoàn thiện
+
+**Nguyên tắc sắp xếp:**
+- Entity chính/cha ở trên hoặc bên trái
+- Entity phụ/con ở dưới hoặc bên phải
+- Relationship ở giữa
+- Attributes xung quanh Entity
+
+**Kiểm tra:**
+- ✓ Mọi Entity có ít nhất 1 Primary Key
+- ✓ Relationship nối đúng 2 Entity
+- ✓ Cardinality rõ ràng, logic nghiệp vụ
+- ✓ Tên Entity, Attribute, Relationship có ý nghĩa
+
+## Các ký hiệu quan trọng
+
+| Ký hiệu | Tên | Ý nghĩa |
+|---------|-----|---------|
+| ▭ | Entity | Thực thể (đối tượng dữ liệu) |
+| ◯ | Attribute | Thuộc tính (thông tin) |
+| ◯ (gạch chân) | Primary Key | Khóa chính (định danh duy nhất) |
+| ◆ | Relationship | Quan hệ giữa các Entity |
+| 1, N, M | Cardinality | Bản số quan hệ |
+
+## Lưu ý quan trọng
+
+**Primary Key:**
+- MỖI Entity PHẢI có Primary Key
+- Có thể là 1 thuộc tính hoặc kết hợp nhiều thuộc tính (Composite Key)
+
+**Relationship Naming:**
+- Dùng động từ: HAS, MANAGES, OWNS
+- Hoặc danh từ mô tả quan hệ: BRANCHES, ACCTS, LOANS
+
+**Many-to-Many:**
+- Trong thiết kế database thực tế, M:N cần phân rá thành 2 quan hệ 1:N với bảng trung gian
+- Ví dụ: ACCOUNT ← ACCOUNT_CUSTOMER → CUSTOMER
+
+**Cardinality vs Participation:**
+- Cardinality: Số lượng (1, N, M)
+- Participation: Bắt buộc hay tùy chọn (không mô tả trong sơ đồ này, nhưng có thể dùng đường nét liền = bắt buộc, nét đứt = tùy chọn)
+
+**Mục đích ERD:**
+- Thiết kế cấu trúc cơ sở dữ liệu
+- Hiểu mối quan hệ giữa các đối tượng
+- Làm cơ sở để tạo database schema

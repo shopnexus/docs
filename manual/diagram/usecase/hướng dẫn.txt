@@ -1,0 +1,83 @@
+I'll examine the use case diagram to provide clear instructions on how to read and draw it.# Hướng dẫn vẽ Use Case Diagram
+
+## Cách đọc lược đồ mẫu
+
+**Các thành phần chính:**
+
+1. **System Boundary (Ranh giới hệ thống):**
+   - Hình chữ nhật lớn có nhãn "System Boundary"
+   - Chứa tất cả các use case thuộc hệ thống
+
+2. **Actors (Tác nhân):**
+   - Biểu tượng người que (stick figure) ở BÊN NGOÀI system boundary
+   - Ví dụ trong sơ đồ: "Customer" (trên), "Waiter" (trái), "Chef" (phải), "Cashier" (dưới)
+
+3. **Use Cases (Chức năng):**
+   - Hình OVAL (bầu dục) ở BÊN TRONG system boundary
+   - Ví dụ: "place order", "receive order", "confirm order", "facilitate payment", "pay", "accept payment"
+
+4. **Relationships (Quan hệ):**
+   - **Đường nét liền:** Kết nối Actor với Use Case (actor tham gia use case)
+   - **Đường nét đứt với mũi tên:** Quan hệ <<extend>> hoặc <<include>>
+   - **<<extend>>:** Use case mở rộng (có điều kiện), ví dụ: "{if wine was ordered}"
+
+## Cách vẽ Use Case Diagram
+
+### Bước 1: Vẽ System Boundary
+- Vẽ hình chữ nhật lớn
+- Ghi tên hệ thống ở góc trên (ví dụ: "Restaurant Management System")
+
+### Bước 2: Xác định và vẽ Actors
+- Liệt kê TẤT CẢ vai trò tương tác với hệ thống
+- Vẽ stick figures BÊN NGOÀI system boundary
+- Ghi tên vai trò bên dưới mỗi actor
+
+### Bước 3: Xác định và vẽ Use Cases
+- Liệt kê các chức năng chính mà actors thực hiện
+- Vẽ OVAL bên TRONG system boundary
+- Ghi tên use case bằng động từ (ví dụ: "place order", "confirm order")
+- Dùng tên ngắn gọn, dễ hiểu
+
+### Bước 4: Vẽ các quan hệ
+
+**A. Association (Quan hệ tham gia):**
+- Vẽ đường thẳng nối Actor với Use Case
+- Actor nào THỰC HIỆN use case đó
+
+**B. Extend Relationship (Quan hệ mở rộng):**
+- Đường nét đứt + mũi tên trỏ về use case gốc
+- Ghi nhãn <<extend>>
+- Thêm điều kiện nếu cần: {if condition}
+- Ví dụ: "facilitate payment" <<extend>> "place order" {if wine was ordered}
+- **Ý nghĩa:** Use case mở rộng chỉ xảy ra KHI có điều kiện đặc biệt
+
+**C. Include Relationship (Quan hệ bao gồm):**
+- Đường nét đứt + mũi tên trỏ về use case được dùng chung
+- Ghi nhãn <<include>>
+- **Ý nghĩa:** Use case này LUÔN LUÔN cần use case kia
+
+### Bước 5: Kiểm tra và hoàn thiện
+- Đảm bảo actors ở NGOÀI, use cases ở TRONG
+- Kiểm tra tất cả quan hệ có đúng hướng mũi tên
+- Xác nhận tên use case rõ ràng, dễ hiểu
+
+## Lưu ý quan trọng
+
+**Về Actors:**
+- Có thể là: Người dùng, Hệ thống bên ngoài, Thiết bị phần cứng
+- MỘT actor có thể tham gia NHIỀU use cases
+- NHIỀU actors có thể tham gia MỘT use case
+
+**Về Use Cases:**
+- Mỗi use case = 1 mục tiêu nghiệp vụ hoàn chỉnh
+- KHÔNG vẽ các bước nhỏ bên trong (để cho Use Case Specification)
+- Mức độ: High-level (tổng quan chức năng hệ thống)
+
+**Về quan hệ Extend vs Include:**
+- **Extend:** Chức năng PHỤ, chỉ xảy ra KHI có điều kiện (tùy chọn)
+- **Include:** Chức năng BẮT BUỘC, luôn được gọi (bắt buộc)
+
+**Mục đích sơ đồ:**
+- Hiểu NHỮNG AI sử dụng hệ thống
+- Hiểu hệ thống CÓ NHỮNG CHỨC NĂNG GÌ
+- Hiểu quan hệ giữa các chức năng

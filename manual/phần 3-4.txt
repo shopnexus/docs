@@ -1,0 +1,612 @@
+# HOÀN THÀNH YÊU CẦU VÀ KIẾN TRÚC - BẢN ĐƠN GIẢN CHO SINH VIÊN
+# Tuần 3-4 (tổng cộng 8 tuần cho giai đoạn thiết kế)
+# Dành cho sinh viên năm thứ 3
+
+===============================================================================
+TUẦN 3: HOÀN THÀNH YÊU CẦU
+===============================================================================
+
+-------------------------------------------------------------------------------
+
+3.1 Yêu Cầu Chức Năng (ĐƠN GIẢN HÓA - 4-5 giờ)
+-------------------------------------------------------------------------------
+
+**Mục Đích:**
+Chuyển đổi các trường hợp sử dụng thành các phát biểu yêu cầu rõ ràng, có thể kiểm tra. Mỗi yêu cầu trở thành một hợp đồng cụ thể có thể được xác minh.
+
+**Tiền Điều Kiện:**
+- DOC 2.1-B: Tài Liệu Đặc Tả Trường Hợp Sử Dụng
+- DOC 2.3-A: Sơ Đồ ERD Khái Niệm
+
+**Các Nhiệm Vụ:**
+
+**Nhiệm Vụ 3.1.1: Trích Xuất Yêu Cầu Từ Trường Hợp Sử Dụng**
+
+Chuyển đổi các bước trường hợp sử dụng thành các phát biểu yêu cầu riêng lẻ.
+
+Công việc cần làm:
+- Đi qua mỗi trường hợp sử dụng chi tiết
+- Đối với mỗi bước, hỏi: "Hệ thống phải làm gì?"
+- Viết yêu cầu riêng cho mỗi hành vi của hệ thống
+- Trích xuất yêu cầu từ luồng chính, luồng thay thế và luồng ngoại lệ
+
+Ví dụ:
+Từ UC-003 Bước 6 "System validates address":
+- REQ-012: Hệ thống phải xác thực định dạng địa chỉ giao hàng
+- REQ-013: Hệ thống phải từ chối địa chỉ không hợp lệ
+- REQ-014: Hệ thống phải hiển thị lỗi cho địa chỉ không hợp lệ
+
+**Nhiệm Vụ 3.1.2: Viết Các Phát Biểu Yêu Cầu Rõ Ràng**
+
+Định dạng yêu cầu bằng cấu trúc tiêu chuẩn.
+
+Định dạng: "Hệ thống phải [hành động] [đối tượng] [điều kiện]"
+
+Yêu cầu tốt có:
+- Rõ ràng (chỉ một giải thích)
+- Có thể kiểm tra (bạn có thể xác minh nó được hoàn thành)
+- Nguyên tử (một điều, không phải hợp chất)
+- Được đánh số (REQ-001, REQ-002, v.v.)
+
+Ví dụ:
+- Tốt: REQ-015: Hệ thống phải tính tổng đơn hàng bằng cách cộng giá mục và thêm thuế
+- Xấu: Hệ thống nên xử lý các đơn hàng đúng cách và nhanh chóng
+
+Những gì cần tránh:
+- Những từ yếu (should, might, adequate)
+- Những thuật ngữ mơ hồ (fast, user-friendly, secure)
+- Nhiều yêu cầu trong một (sử dụng "and/or")
+
+**Nhiệm Vụ 3.1.3: Tổ Chức và Xác Thực Tính Đầy Đủ**
+
+Nhóm yêu cầu và kiểm tra độ bao phủ.
+
+Công việc cần làm:
+- Nhóm các yêu cầu liên quan (xác thực, đơn hàng, báo cáo, v.v.)
+- Gán ID duy nhất
+- Liên kết mỗi yêu cầu với nguồn trường hợp sử dụng
+- Tạo kiểm tra CRUD đơn giản: Mỗi thực thể có yêu cầu Create, Read, Update, Delete không?
+
+Mục tiêu: 15-25 yêu cầu chức năng tổng cộng
+
+Ma Trận CRUD Đơn Giản:
+| Thực Thể  | Tạo     | Đọc     | Cập Nhật | Xóa     |
+|-----------|---------|---------|----------|---------|
+| Customer  | REQ-002 | REQ-003 | REQ-004  | REQ-005 |
+| Order     | REQ-006 | REQ-007 | REQ-008  | REQ-009 |
+
+**Kết Quả Đầu Ra:**
+DOC 3.1-A: Danh Sách Yêu Cầu Chức Năng (6-10 trang)
+
+Nội dung:
+1. **Yêu Cầu Theo Lĩnh Vực Tính Năng** (5-8 trang):
+   Mỗi yêu cầu bao gồm:
+   - ID: REQ-XXX
+   - Phát biểu: "Hệ thống phải..."
+   - Nguồn: Trường hợp sử dụng nào
+   - Ưu tiên: High/Medium/Low
+
+2. **Ma Trận CRUD** (1 trang):
+   - Hiển thị yêu cầu nào bao phủ những hoạt động nào cho mỗi thực thể
+   - Xác định bất kỳ khoảng trống nào
+
+3. **Khả Năng Truy Xuất** (1 trang):
+   - Bảng hiển thị: ID Yêu Cầu | Trường Hợp Sử Dụng Nguồn | Thực Thể Bị Ảnh Hưởng
+
+-------------------------------------------------------------------------------
+
+3.2 Yêu Cầu Phi Chức Năng (ĐƠN GIẢN HÓA - 3-4 giờ)
+-------------------------------------------------------------------------------
+
+**Mục Đích:**
+Xác định các thuộc tính chất lượng mà hệ thống phải thỏa mãn: nhanh như thế nào, bảo mật như thế nào, khả dụng như thế nào, dễ sử dụng như thế nào.
+
+**Tiền Điều Kiện:**
+- DOC 1.1-A: Tài Liệu Tầm Nhìn Dự Án
+- DOC 3.1-A: Danh Sách Yêu Cầu Chức Năng
+
+**Các Nhiệm Vụ:**
+
+**Nhiệm Vụ 3.2.1: Xác Định Yêu Cầu Về Hiệu Năng**
+
+Chỉ định thời gian phản hồi và thông lượng.
+
+Câu hỏi chính:
+- Các hoạt động chính nên phản hồi nhanh như thế nào?
+- Bao nhiêu người dùng đồng thời?
+- Những khối lượng dữ liệu nào được dự kiến?
+
+Những gì cần viết:
+- Mục tiêu thời gian phản hồi (ví dụ: "< 2 giây cho tìm kiếm")
+- Số lượng người dùng đồng thời (ví dụ: "hỗ trợ 100 người dùng đồng thời")
+- Kỳ vọng về khối lượng dữ liệu (ví dụ: "xử lý 1000 đơn hàng mỗi ngày")
+
+Mục tiêu: 2-3 yêu cầu hiệu năng
+
+**Nhiệm Vụ 3.2.2: Xác Định Yêu Cầu Bảo Mật**
+
+Chỉ định xác thực, ủy quyền và bảo vệ dữ liệu.
+
+Những gì cần bao gồm:
+- Cách người dùng đăng nhập (username/password, xác minh email)
+- Ai có thể làm gì (vai trò người dùng và quyền)
+- Dữ liệu nào cần mã hóa (mật khẩu, thông tin thanh toán)
+
+Mục tiêu: 3-4 yêu cầu bảo mật
+
+Ví dụ:
+- NFR-010: Hệ thống phải xác thực người dùng bằng email và mật khẩu
+- NFR-011: Hệ thống phải mã hóa tất cả mật khẩu bằng hashing tiêu chuẩn ngành
+- NFR-012: Hệ thống phải hạn chế xóa đơn hàng chỉ cho vai trò quản trị viên
+
+**Nhiệm Vụ 3.2.3: Xác Định Yêu Cầu Về Khả Năng Sử Dụng Và Các Yêu Cầu Khác**
+
+Chỉ định khả năng sử dụng, khả dụng và các ràng buộc.
+
+Khả năng sử dụng:
+- Trình duyệt/thiết bị được hỗ trợ
+- Nhu cầu về khả năng tiếp cận
+- Kỳ vọng về thời gian đào tạo
+
+Khả dụng:
+- Giờ kinh doanh hay 24/7?
+- Thời gian chết có thể chấp nhận
+
+Ràng buộc:
+- Yêu cầu công nghệ (phải sử dụng nền tảng cụ thể)
+- Nhu cầu tuân thủ (nếu có)
+
+Mục tiêu: 3-5 yêu cầu bổ sung
+
+**Nhiệm Vụ 3.2.4: Làm Cho Yêu Cầu Cụ Thể Và Có Thể Đo Lường**
+
+Đảm bảo mọi NFR đều có thể kiểm tra.
+
+Kiểm tra mỗi yêu cầu:
+- Nó có một số cụ thể hoặc tiêu chí không?
+- Chúng ta có thể kiểm tra nếu nó được đáp ứng không?
+
+Trước: "Hệ thống phải nhanh"
+Sau: "Hệ thống phải phản hồi tìm kiếm sản phẩm trong 2 giây"
+
+Trước: "Hệ thống phải bảo mật"
+Sau: "Hệ thống phải yêu cầu mật khẩu 8+ ký tự có chữ hoa và số"
+
+**Kết Quả Đầu Ra:**
+DOC 3.2-A: Đặc Tả Yêu Cầu Phi Chức Năng (4-6 trang)
+
+Nội dung được tổ chức theo danh mục:
+1. **Hiệu Năng** (2-3 yêu cầu)
+2. **Bảo Mật** (3-4 yêu cầu)
+3. **Khả Năng Sử Dụng** (2-3 yêu cầu)
+4. **Khả Dụng** (1-2 yêu cầu)
+5. **Ràng Buộc** (1-2 yêu cầu)
+
+Mỗi yêu cầu bao gồm:
+- ID: NFR-XXX
+- Danh mục
+- Phát biểu với tiêu chí đo lường cụ thể
+- Ưu tiên: High/Medium/Low
+
+Tổng: 10-15 yêu cầu phi chức năng
+
+-------------------------------------------------------------------------------
+
+3.3 Mô Phỏng UI (Độ Trung Thực Thấp) (CẤP THIẾT - 5-6 giờ)
+-------------------------------------------------------------------------------
+
+**Mục Đích:**
+Vẽ cấu trúc giao diện người dùng để xác thực hiểu biết trước khi thiết kế chi tiết. Wireframes hiển thị bố trí và nội dung, không phải thiết kế trực quan.
+
+**Tiền Điều Kiện:**
+- DOC 1.2-A: Tài Liệu Persona Người Dùng
+- DOC 2.1-B: Tài Liệu Đặc Tả Trường Hợp Sử Dụng
+- DOC 3.1-A: Danh Sách Yêu Cầu Chức Năng
+
+**Các Nhiệm Vụ:**
+
+**Nhiệm Vụ 3.3.1: Xác Định Các Màn Hình Cần Thiết**
+
+Liệt kê tất cả các màn hình/trang cần thiết để hỗ trợ các trường hợp sử dụng.
+
+Công việc cần làm:
+- Xem lại mỗi trường hợp sử dụng chi tiết
+- Xác định màn hình được đề cập (đăng nhập, bảng điều khiển, biểu mẫu đơn hàng, v.v.)
+- Nhóm các màn hình liên quan
+- Ưu tiên những màn hình quan trọng nhất
+
+Mục tiêu: 6-10 màn hình chính để vẽ wireframes
+
+**Nhiệm Vụ 3.3.2: Vẽ Wireframes**
+
+Vẽ các bố trí hộp đơn giản cho mỗi màn hình.
+
+Những gì hiển thị:
+- Cấu trúc trang (tiêu đề, thanh điều hướng, nội dung chính, chân trang)
+- Khu vực nội dung (thông tin nào xuất hiện ở đâu)
+- Các trường nhập liệu (biểu mẫu)
+- Các nút và hành động
+- Danh sách hoặc bảng
+
+Những gì KHÔNG bao gồm:
+- Màu sắc (chỉ sử dụng xám/đen/trắng)
+- Phông chữ hoặc kiểu chữ
+- Hình ảnh hoặc biểu tượng (sử dụng hình ảnh giữ chỗ)
+- Kiểu dáng chính xác
+
+Các công cụ bạn có thể sử dụng:
+- Vẽ tay (hoàn toàn ổn!)
+- Balsamiq, Figma, hoặc công cụ tương tự
+- PowerPoint hoặc Google Slides
+
+Đối với mỗi màn hình:
+- Hiển thị những phần tử nào xuất hiện
+- Gắn nhãn các phần chính
+- Cho biết điều hướng (cách đến đây, nơi đi tiếp)
+
+**Nhiệm Vụ 3.3.3: Tạo Luồng Điều Hướng**
+
+Hiển thị cách người dùng di chuyển giữa các màn hình.
+
+Những gì vẽ:
+- Các hộp cho mỗi màn hình
+- Mũi tên hiển thị các đường dẫn điều hướng
+- Nhãn trên mũi tên (nhấp chuột nút, liên kết, gửi)
+
+Ví dụ đơn giản:
+Login → Dashboard → [New Order, View Orders, Profile]
+New Order → Product Selection → Review → Confirmation → Dashboard
+
+**Nhiệm Vụ 3.3.4: Xác Thực Với Trường Hợp Sử Dụng**
+
+Kiểm tra wireframes hỗ trợ tất cả các luồng trường hợp sử dụng.
+
+Những gì cần xác minh:
+- Bạn có thể đi qua mỗi trường hợp sử dụng bằng cách sử dụng wireframes không?
+- Tất cả các trường bắt buộc có xuất hiện không?
+- Tất cả các hành động (nút) có xuất hiện không?
+- Điều hướng có hợp lý không?
+
+**Kết Quả Đầu Ra:**
+- DOC 3.3-A: Tài Liệu Wireframes UI (8-12 trang)
+- DOC 3.3-B: Sơ Đồ Luồng Điều Hướng (1-2 trang)
+
+**Nội Dung DOC 3.3-A:**
+- Danh mục màn hình (bảng liệt kê tất cả các màn hình)
+- Wireframe cho mỗi 6-10 màn hình (1 trang mỗi cái)
+  * Tên màn hình và mục đích
+  * Vẽ có độ trung thực thấp hiển thị bố trí
+  * Ghi chú về các trường, nút, dữ liệu hiển thị
+  * Trường hợp sử dụng nào được hỗ trợ
+
+**Nội Dung DOC 3.3-B:**
+- Sơ đồ luồng điều hướng hiển thị tất cả các màn hình và kết nối
+- Mô tả ngắn về các đường dẫn người dùng chính
+
+===============================================================================
+ĐIỂM KIỂM TRA TUẦN 3
+===============================================================================
+
+Phiên xem xét/xác thực ngắn (1-2 giờ):
+- Đảm bảo yêu cầu rõ ràng và có thể kiểm tra
+- Xác minh wireframes hỗ trợ tất cả các trường hợp sử dụng
+- Nhận phản hồi nhanh từ giảng viên/bạn cùng lớp
+
+===============================================================================
+TUẦN 4: ĐỊNH NGHĨA KIẾN TRÚC
+===============================================================================
+
+-------------------------------------------------------------------------------
+
+4.1 Trích Xuất Các Yếu Tố Kiến Trúc (NHANH CHÓNG - 1-2 giờ)
+-------------------------------------------------------------------------------
+
+**Mục Đích:**
+Xác định các yêu cầu quan trọng nhất sẽ định hình kiến trúc của bạn. Không phải tất cả các yêu cầu đều ảnh hưởng đến kiến trúc—tập trung vào những yêu cầu quan trọng.
+
+**Tiền Điều Kiện:**
+- DOC 1.1-A: Tài Liệu Tầm Nhìn Dự Án
+- DOC 3.1-A: Danh Sách Yêu Cầu Chức Năng
+- DOC 3.2-A: Đặc Tả Yêu Cầu Phi Chức Năng
+
+**Các Nhiệm Vụ:**
+
+**Nhiệm Vụ 4.1.1: Xác Định Các Thuộc Tính Chất Lượng Chính**
+
+Chọn 3-5 yêu cầu phi chức năng quan trọng nhất.
+
+Những gì tìm kiếm:
+- Yêu cầu về hiệu năng (nếu khó khăn)
+- Yêu cầu bảo mật (nếu dữ liệu nhạy cảm)
+- Nhu cầu về khả năng mở rộng (nếu số lượng người dùng cao dự kiến)
+- Yêu cầu tích hợp (nếu nhiều hệ thống bên ngoài)
+
+Công việc cần làm:
+- Xem lại NFRs của bạn
+- Đánh dấu 3-5 yêu cầu quan trọng nhất
+- Ghi chú lý do tại sao mỗi yêu cầu quan trọng
+
+**Nhiệm Vụ 4.1.2: Xác Định Các Ràng Buộc Chính**
+
+Liệt kê bất kỳ ràng buộc công nghệ hoặc kinh doanh nào.
+
+Các ràng buộc phổ biến:
+- Phải sử dụng nền tảng cụ thể (nhà cung cấp đám mây, ngôn ngữ)
+- Hạn chế ngân sách
+- Ràng buộc thời gian
+- Kỹ năng nhóm (những gì bạn đã biết)
+
+Công việc cần làm:
+- Kiểm tra tài liệu giao dự án để tìm yêu cầu
+- Liệt kê 2-3 ràng buộc chính
+- Ghi chú những ràng buộc nào linh hoạt so với cứng nhắc
+
+**Kết Quả Đầu Ra:**
+DOC 4.1-A: Tài Liệu Các Yếu Tố Kiến Trúc (1-2 trang)
+
+Nội dung:
+1. **Các Thuộc Tính Chất Lượng Quan Trọng** (3-5 mục)
+   - NFR nào
+   - Tại sao nó định hình kiến trúc
+   - Nó có nghĩa gì đối với thiết kế
+
+2. **Các Ràng Buộc Chính** (2-3 mục)
+   - Ràng buộc là gì
+   - Tại sao nó tồn tại
+   - Nó hạn chế những lựa chọn nào
+
+-------------------------------------------------------------------------------
+
+4.2 Chọn Stack Công Nghệ (ĐƠN GIẢN HÓA - 2-3 giờ)
+-------------------------------------------------------------------------------
+
+**Mục Đích:**
+Chọn các công nghệ bạn sẽ sử dụng để triển khai. Các quyết định bao gồm các ngôn ngữ lập trình, khung công tác, cơ sở dữ liệu và nền tảng.
+
+**Tiền Điều Kiện:**
+- DOC 4.1-A: Tài Liệu Các Yếu Tố Kiến Trúc
+
+**Các Nhiệm Vụ:**
+
+**Nhiệm Vụ 4.2.1: Chọn Ngôn Ngữ Lập Trình và Khung Công Tác**
+
+Chọn những gì bạn sẽ viết mã.
+
+Xem xét:
+- Nhóm của bạn biết gì?
+- Bài tập yêu cầu gì?
+- Điều gì phù hợp với loại ứng dụng? (web, mobile, desktop)
+
+Những lựa chọn sinh viên phổ biến:
+- Backend: Java/Spring Boot, Python/Django, Node.js/Express, C#/.NET
+- Frontend: React, Vue, Angular, hoặc HTML/CSS/JavaScript đơn giản
+
+Công việc cần làm:
+- Liệt kê 2-3 tùy chọn
+- Chọn một dựa trên: kỹ năng nhóm, yêu cầu bài tập, sự phù hợp
+- Ghi chép lựa chọn của bạn và lý do ngắn gọn
+
+**Nhiệm Vụ 4.2.2: Chọn Cơ Sở Dữ Liệu**
+
+Chọn cách bạn sẽ lưu trữ dữ liệu.
+
+Quyết định đơn giản:
+- Cơ sở dữ liệu quan hệ cho hầu hết các dự án sinh viên (dữ liệu có cấu trúc, mối quan hệ)
+  * PostgreSQL, MySQL, SQLite
+- NoSQL chỉ nếu có nhu cầu cụ thể (lưu trữ tài liệu, tính linh hoạt cao)
+
+Công việc cần làm:
+- Dựa trên mô hình dữ liệu của bạn, chọn cơ sở dữ liệu thích hợp
+- Chọn sản phẩm cụ thể (khuyến nghị PostgreSQL để học)
+- Ghi chú phiên bản
+
+**Nhiệm Vụ 4.2.3: Chọn Công Nghệ Hỗ Trợ**
+
+Chọn các công cụ và dịch vụ bổ sung.
+
+Những gì bạn có thể cần:
+- Nền tảng triển khai (Heroku, AWS, Azure, cục bộ)
+- Kiểm soát phiên bản (Git/GitHub - thường bắt buộc)
+- Khung kiểm tra (JUnit, pytest, Jest, v.v.)
+
+Công việc cần làm:
+- Liệt kê công nghệ hỗ trợ cần thiết
+- Giữ đơn giản (không quá kỹ thuật hóa)
+- Sử dụng những gì bài tập yêu cầu hoặc những gì bạn biết
+
+**Kết Quả Đầu Ra:**
+DOC 4.2-A: Tài Liệu Quyết Định Stack Công Nghệ (2-3 trang)
+
+Nội dung:
+1. **Tổng Quan Stack Công Nghệ**
+   Bảng đơn giản:
+   - Lớp | Công Nghệ | Phiên Bản
+   - Frontend | React | 18.x
+   - Backend | Java/Spring Boot | 3.x
+   - Database | PostgreSQL | 15.x
+   - Deployment | Heroku | N/A
+
+2. **Lý Giải Lựa Chọn** (1 đoạn cho mỗi lựa chọn chính)
+   - Tại sao công nghệ này?
+   - Yêu cầu hoặc ràng buộc nào đã thúc đẩy nó?
+   - Lựa chọn thay thế nào được xem xét?
+
+3. **Rủi Ro Công Nghệ** (ngắn gọn)
+   - Cái gì là mới cho nhóm?
+   - Cái gì có thể gây khó khăn?
+   - Làm thế nào để giảm thiểu?
+
+-------------------------------------------------------------------------------
+
+4.3 Xác Định Kiến Trúc Hệ Thống (CẤP THIẾT - 5-6 giờ)
+-------------------------------------------------------------------------------
+
+**Mục Đích:**
+Thiết kế cấu trúc cấp cao hiển thị các thành phần chính và cách chúng tương tác. Đây là bản vẽ cho hệ thống của bạn.
+
+**Tiền Điều Kiện:**
+- DOC 1.3-A: Sơ Đồ Bối Cảnh Hệ Thống
+- DOC 4.1-A: Tài Liệu Các Yếu Tố Kiến Trúc
+- DOC 4.2-A: Tài Liệu Quyết Định Stack Công Nghệ
+
+**Các Nhiệm Vụ:**
+
+**Nhiệm Vụ 4.3.1: Chọn Mẫu Kiến Trúc**
+
+Chọn cấu trúc tổng thể cho hệ thống của bạn.
+
+Các mẫu phổ biến cho dự án sinh viên:
+- **Layered/3-Tier** (phổ biến nhất, được khuyến nghị)
+  * Presentation Layer (UI)
+  * Business Logic Layer (services)
+  * Data Access Layer (database)
+
+- **MVC (Model-View-Controller)**
+  * Model (dữ liệu)
+  * View (UI)
+  * Controller (logic)
+
+- **Client-Server**
+  * Frontend client
+  * Backend server
+  * Database
+
+Công việc cần làm:
+- Chọn layered/3-tier cho hầu hết các dự án (đơn giản nhất, được hiểu rõ)
+- Ghi chép lựa chọn mẫu của bạn
+- Giải thích ngắn gọn tại sao nó phù hợp
+
+Khi KHÔNG sử dụng:
+- Microservices (quá phức tạp cho dự án sinh viên)
+- Event-driven (trừ khi được yêu cầu cụ thể)
+
+**Nhiệm Vụ 4.3.2: Xác Định Các Thành Phần Chính**
+
+Chia hệ thống của bạn thành 5-10 thành phần/mô-đun chính.
+
+Cách xác định:
+- Nhìn vào nhóm yêu cầu chức năng của bạn
+- Mỗi lĩnh vực tính năng chính = thành phần
+- Tách riêng theo lớp (thành phần UI, thành phần kinh doanh, thành phần dữ liệu)
+
+Các thành phần ví dụ:
+- Presentation: Web UI, Mobile UI
+- Business Logic: Order Service, Customer Service, Authentication Service
+- Data Access: Order Repository, Customer Repository
+- External: Payment Gateway Integration, Email Service
+
+Công việc cần làm:
+- Liệt kê 5-10 thành phần chính
+- Gán mỗi cái cho một lớp
+- Cho mỗi cái một trách nhiệm rõ ràng (1-2 câu)
+
+**Nhiệm Vụ 4.3.3: Xác Định Tương Tác Giữa Các Thành Phần**
+
+Chỉ định cách các thành phần giao tiếp.
+
+Những gì cần xác định:
+- Những thành phần nào nói chuyện với nhau?
+- Phong cách giao tiếp là gì?
+  * Web UI ↔ Backend: REST API (HTTP)
+  * Backend ↔ Database: SQL queries
+  * Backend ↔ External Services: API calls
+
+Công việc cần làm:
+- Đối với mỗi cặp thành phần giao tiếp, ghi chú:
+  * Từ thành phần → Đến thành phần
+  * Phương pháp giao tiếp (REST, SQL, v.v.)
+  * Dữ liệu nào chảy
+
+**Nhiệm Vụ 4.3.4: Tạo Sơ Đồ Kiến Trúc**
+
+Vẽ cấu trúc hệ thống hiển thị các lớp và thành phần.
+
+Những gì vẽ:
+- Các lớp ngang hoặc các lớp dọc
+- Các thành phần trong mỗi lớp (hộp)
+- Mũi tên hiển thị giao tiếp giữa các thành phần
+- Các hệ thống bên ngoài từ sơ đồ bối cảnh
+- Cơ sở dữ liệu được hiển thị trong lớp dữ liệu
+
+Mẹo bố trí:
+- Lớp presentation ở trên
+- Lớp logic kinh doanh ở giữa
+- Lớp dữ liệu ở dưới
+- Các hệ thống bên ngoài ở các bên
+
+Nhãn:
+- Tên thành phần
+- Các giao thức giao tiếp trên mũi tên
+- Các lựa chọn công nghệ cho mỗi thành phần
+
+**Nhiệm Vụ 4.3.5: Ghi Chép Các Quyết Định Kiến Trúc Chính**
+
+Ghi lại các quyết định chính và lý do bạn đưa ra chúng.
+
+Ghi chép 2-3 quyết định:
+- Lựa chọn mẫu kiến trúc
+- Cách bạn tổ chức các thành phần
+- Bất kỳ sự đánh đổi quan trọng nào
+
+Định dạng đơn giản cho mỗi quyết định:
+- Quyết định: Bạn quyết định gì?
+- Lý giải: Tại sao lựa chọn này?
+- Lựa chọn thay thế: Bạn đã nghĩ về cái gì khác?
+
+**Kết Quả Đầu Ra:**
+- DOC 4.3-A: Sơ Đồ Kiến Trúc Hệ Thống (3-4 trang)
+- DOC 4.3-B: Bản Ghi Quyết Định Kiến Trúc (1-2 trang)
+
+**Nội Dung DOC 4.3-A:**
+1. **Tổng Quan Kiến Trúc** (1 đoạn)
+   - Mẫu được chọn và tại sao
+   - Cấu trúc tổng thể
+
+2. **Sơ Đồ Kiến Trúc** (1-2 trang)
+   - Hình ảnh hiển thị các lớp/lớp
+   - Tất cả các thành phần chính
+   - Các đường dẫn giao tiếp
+   - Các hệ thống bên ngoài
+   - Nhãn công nghệ
+
+3. **Mô Tả Thành Phần** (1 trang)
+   Bảng với:
+   - Tên Thành Phần | Lớp | Trách Nhiệm | Công Nghệ
+
+4. **Ma Trận Giao Tiếp** (1 trang)
+   Bảng với:
+   - Từ Thành Phần | Đến Thành Phần | Giao Thức | Mục Đích
+
+**Nội Dung DOC 4.3-B:**
+2-3 quyết định kiến trúc được ghi chép:
+- **Tiêu Đề Quyết Định**
+- **Bối Cảnh**: Vấn đề hoặc câu hỏi là gì?
+- **Quyết Định**: Bạn chọn cái gì?
+- **Lựa Chọn Thay Thế**: Những gì khác được xem xét?
+- **Lý Giải**: Tại sao lựa chọn này?
+
+===============================================================================
+ĐIỂM KIỂM TRA TUẦN 4
+===============================================================================
+
+Tại thời điểm này bạn có:
+- Yêu cầu hoàn chỉnh (chức năng và phi chức năng)
+- Wireframes UI hiển thị cấu trúc giao diện
+- Stack công nghệ được chọn
+- Kiến trúc hệ thống được xác định với các thành phần chính
+
+===============================================================================
+TÓM TẮT CÁC KỂ QUẢ ĐẦU RA: TUẦN 3-4
+===============================================================================
+
+Kết Quả Đầu Ra Tuần 3:
+- DOC 3.1-A: Danh Sách Yêu Cầu Chức Năng (15-25 yêu cầu)
+- DOC 3.2-A: Đặc Tả Yêu Cầu Phi Chức Năng (10-15 yêu cầu)
+- DOC 3.3-A: Tài Liệu Wireframes UI (6-10 màn hình)
+- DOC 3.3-B: Sơ Đồ Luồng Điều Hướng
+
+Kết Quả Đầu Ra Tuần 4:
+- DOC 4.1-A: Tài Liệu Các Yếu Tố Kiến Trúc (được đơn giản hóa)
+- DOC 4.2-A: Tài Liệu Quyết Định Stack Công Nghệ
+- DOC 4.3-A: Sơ Đồ Kiến Trúc Hệ Thống
+- DOC 4.3-B: Bản Ghi Quyết Định Kiến Trúc (2-3 quyết định)

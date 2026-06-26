@@ -1,0 +1,165 @@
+2.3 Create Initial Data Model
+
+Purpose:
+Identify key business concepts (entities) and their relationships to understand what information the system must manage. This conceptual model is business-focused, establishing the data foundation before any implementation decisions.
+
+Prerequisite deliverables from previous steps:
+- DOC 2.1-B: Use Case Specifications Document (from step 2.1)
+- DOC 2.2-A: Process Flow Diagrams (from step 2.2)
+
+Tasks:
+
+Task 2.3.1: Identify Entities from Use Cases and Processes
+    Mine use case specifications (DOC 2.1-B) and process diagrams (DOC 2.2-A) to identify nouns that represent important business concepts the system must track.
+    
+    Guiding questions:
+    - What "things" are mentioned repeatedly in use cases? (customers, orders, products)
+    - What information does the system create, store, or manage? (from process annotations)
+    - What appears on forms, reports, or screens mentioned in use cases?
+    - What has independent existence? (entity vs. just an attribute)
+    - What has a lifecycle or changes over time?
+    
+    Acceptance criteria:
+    - 8-15 candidate entities identified
+    - Each entity represents a significant business concept
+    - Entities distinguished from attributes (Address may be attribute or entity depending on complexity)
+    - Entity types categorized: core entities (Customer, Order), lookup/reference (OrderStatus, Country), associative (OrderItem linking Order-Product)
+    
+    Example:
+    "From UC-001 'Submit Order': Entities identified: Customer, Order, Product, ShippingAddress, Payment. From process diagram annotations: OrderItem (associative), OrderStatus (lookup), PaymentMethod (reference)."
+    
+    Red flags to watch for:
+    - Attributes mistaken as entities (CustomerName is attribute, not entity)
+    - Technology concepts as entities (Database, Screen - not business concepts)
+    - Verbs identified as entities (Processing, Validation - these are actions)
+    - Missing obvious entities mentioned in multiple use cases
+
+Task 2.3.2: Define Relationships and Cardinality
+    Determine how entities relate to each other by analyzing use case flows and process activities that connect entities.
+    
+    Guiding questions:
+    - How do these entities relate to each other? (uses use case scenarios)
+    - Can one entity exist without the other? (existence dependency)
+    - How many of entity A can relate to entity B? (1:1, 1:M, M:M)
+    - Is the relationship mandatory or optional? (every order must have customer? customer must have orders?)
+    - Does the relationship itself need attributes? (if yes, create associative entity)
+    
+    Acceptance criteria:
+    - All entity pairs evaluated for relationships
+    - Cardinality marked using crow's foot notation (one-to-many, many-to-many)
+    - Optionality specified (mandatory vs. optional participation)
+    - Relationship names verb phrases readable in both directions
+    - Many-to-many relationships resolved with associative entities
+    
+    Example:
+    "Customer ||--o{ Order: One customer places zero or many orders (customer mandatory for order, orders optional for customer). Order }|--|| OrderStatus: Many orders have one status (mandatory both sides). Order }o--o{ Product becomes: Order ||--o{ OrderItem }o--|| Product (M:M resolved)."
+    
+    Red flags to watch for:
+    - Unresolved many-to-many relationships (should create associative entity)
+    - Missing relationships between obviously related entities
+    - Circular dependencies (may indicate missing entity)
+    - Cardinality doesn't match business rules from use cases
+
+Task 2.3.3: Add Key Attributes and Identifiers
+    For each entity, identify the primary identifier and 3-5 most critical descriptive attributes. This is conceptual level—don't need complete attribute lists yet.
+    
+    Guiding questions:
+    - What uniquely identifies each instance? (natural key or surrogate ID)
+    - What are the essential attributes mentioned in use cases? (from preconditions, postconditions, data needs)
+    - What data is needed for business rules or calculations? (from process annotations)
+    - What attributes determine entity state or lifecycle?
+    
+    Acceptance criteria:
+    - Primary identifier specified for each entity
+    - 3-5 key attributes per entity (focus on most important)
+    - Data types at conceptual level only (text, number, date, boolean)
+    - Derived attributes identified but not detailed yet
+    - Foreign keys noted for relationships but not as attributes yet
+    
+    Example:
+    "Order entity: OrderID (identifier), OrderDate (date), TotalAmount (number/derived), Status (text/lookup). Customer entity: CustomerID (identifier), Name (text), Email (text), PhoneNumber (text)."
+    
+    Red flags to watch for:
+    - Too many attributes per entity (this is conceptual, not exhaustive)
+    - Implementation details (varchar(50), NOT NULL - too early)
+    - Foreign keys shown as attributes (relationships capture this already)
+    - Missing identifiers (every entity needs one)
+
+Task 2.3.4: Document Business Rules Governing Entities
+    Extract business rules from use case specifications (DOC 2.1-B) that constrain entities, attributes, or relationships. These rules will validate the model and inform later requirements.
+    
+    Guiding questions:
+    - What validation rules apply? (from use case exception flows)
+    - What calculations or derivations exist? (from process diagram annotations)
+    - What structural rules govern relationships? (mandatory/optional)
+    - What procedural rules affect entity lifecycle? (order must be approved before shipping)
+    - What constraints are mentioned in use case business rules sections?
+    
+    Acceptance criteria:
+    - 10-15 business rules documented with unique IDs
+    - Rules categorized: structural, validation, derivation, procedural
+    - Each rule linked to affected entities/attributes
+    - Rules stated in business language (not technical constraints)
+    
+    Example:
+    "BR-001 (Structural): Each Order must belong to exactly one Customer. BR-002 (Validation): Discount cannot exceed 50% of OrderTotal. BR-003 (Derivation): OrderTotal = sum of OrderItems + Tax + Shipping. BR-004 (Procedural): Order status must be 'Approved' before changing to 'Shipped'."
+    
+    Red flags to watch for:
+    - Technology constraints instead of business rules (database constraints - not yet)
+    - Missing rules mentioned in use case specifications
+    - Rules that conflict with entity relationships
+    - Vague rules without measurable criteria
+
+Task 2.3.5: Create Conceptual ERD
+    Draw entity-relationship diagram using crow's foot notation showing entities, relationships, cardinality, and key attributes. Keep at business/conceptual level.
+    
+    Guiding questions:
+    - Is the diagram readable and well-organized?
+    - Are all entities and relationships shown?
+    - Does the model support all use cases identified?
+    - Does this represent the business domain accurately?
+    
+    Acceptance criteria:
+    - All entities shown as rectangles
+    - All relationships shown with crow's foot notation
+    - Cardinality and optionality clearly marked
+    - Key attributes listed in each entity box
+    - Identifiers marked (underlined or with key symbol)
+    - Diagram organized logically (related entities near each other)
+    - No technology or implementation details
+    
+    Red flags to watch for:
+    - Cluttered, unreadable diagram (reorganize layout)
+    - Physical database details (indexes, foreign key columns)
+    - Missing entities needed to support major use cases
+    - Inconsistencies with process flows
+
+Deliverable:
+DOC 2.3-A: Conceptual ERD
+
+Output format:
+Document containing (5-8 pages):
+
+1. **Conceptual Entity-Relationship Diagram (1-2 pages):**
+   - Visual ERD using crow's foot notation
+   - Entities as rectangles with entity name and key attributes
+   - Relationships as labeled lines with cardinality marks
+   - Legend explaining notation (crow's foot symbols)
+   - Clean, organized layout
+
+2. **Entity Catalog (2-3 pages):**
+   - Table with columns: Entity Name, Definition, Type (Core/Lookup/Associative), Volume Estimate, Examples
+   - One row per entity
+
+3. **Relationship Catalog (1-2 pages):**
+   - Table with columns: Entities, Relationship Name (both directions), Cardinality, Business Rule Reference
+   - One row per relationship
+
+4. **Business Rules Catalog (1-2 pages):**
+   - Rule ID, Rule Statement, Type, Entities/Attributes Affected, Source
+   - 10-15 key business rules
+
+5. **Notes:**
+   - Data modeling assumptions
+   - Open questions requiring clarification
+   - Note that this is conceptual—details will be added in later steps

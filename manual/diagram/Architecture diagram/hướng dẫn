@@ -1,0 +1,131 @@
+# Hướng dẫn vẽ Architecture Diagram
+
+## Architecture Diagram là gì?
+
+Sơ đồ kiến trúc hệ thống mô tả **cấu trúc tổng thể** của phần mềm/hệ thống, bao gồm các thành phần, dịch vụ, và cách chúng tương tác với nhau.
+
+## Đa dạng trong cách trình bày
+
+Architecture diagram **KHÔNG CÓ CHUẨN DUY NHẤT**. Tùy mục đích và đối tượng, có thể vẽ theo nhiều phong cách:
+
+### Phong cách 1: Chi tiết kỹ thuật (Ảnh 1 - Doluna)
+- **Mục đích:** Mô tả đầy đủ luồng dữ liệu và tích hợp
+- **Đặc điểm:**
+  - Nhiều thành phần nhỏ, chi tiết
+  - Đánh số thứ tự luồng (1, 2, 3...)
+  - Icon thực tế (GPS, SMS, Database)
+  - Mũi tên 2 chiều cho tương tác
+
+### Phong cách 2: Cloud-based (Ảnh 2 - AWS)
+- **Mục đích:** Triển khai trên nền tảng cloud
+- **Đặc điểm:**
+  - Nhóm theo vùng (Region - khung nét đứt)
+  - Icon dịch vụ cloud chuẩn (S3, Lambda, API Gateway)
+  - Phân lớp rõ ràng (Ingestion → Processing → Storage)
+  - Màu sắc theo loại dịch vụ
+
+### Phong cách 3: Layer-based (Ảnh 3 - Cloud Network)
+- **Mục đích:** Hiển thị phân tầng hệ thống
+- **Đặc điểm:**
+  - Chia theo tầng ngang (Frontend, Backend, Database)
+  - Nhóm logic (khung nét đứt)
+  - Luồng từ trái sang phải
+  - Icon đơn giản, tối thiểu
+
+## Cách vẽ Architecture Diagram
+
+### Bước 1: Xác định mục đích
+- **Technical audience?** → Chi tiết, nhiều layer
+- **Business audience?** → Đơn giản, tổng quan
+- **Deployment focus?** → Cloud services, infrastructure
+
+### Bước 2: Xác định các thành phần chính
+
+**Phân loại thành phần:**
+- **External entities:** User, Mobile, Browser
+- **Frontend/Client:** Web app, Mobile app
+- **Backend services:** API, Microservices, Auth
+- **Data layer:** Database, Cache, Storage
+- **Infrastructure:** Cloud services, Network
+
+### Bước 3: Chọn cách nhóm
+
+**Nhóm theo layer (tầng):**
+```
+[Client Layer] → [Application Layer] → [Data Layer]
+```
+
+**Nhóm theo domain (nghiệp vụ):**
+```
+[User Management] [Order Processing] [Payment]
+```
+
+**Nhóm theo vị trí (location):**
+```
+[On-Premise] [Cloud Region 1] [Cloud Region 2]
+```
+
+### Bước 4: Vẽ thành phần
+
+**Sử dụng hình khối:**
+- **Hình chữ nhật:** Services, components
+- **Hình tròn/icon:** External actors (user, mobile)
+- **Database icon:** Data storage
+- **Cloud icon:** Cloud services
+
+**Sử dụng khung nhóm:**
+- **Khung nét đứt:** Logical grouping
+- **Khung nét liền:** Physical boundary (server, network)
+- **Nền màu khác:** Phân biệt layer
+
+### Bước 5: Vẽ kết nối
+
+**Các loại mũi tên:**
+- **Nét liền →:** Data flow (luồng dữ liệu)
+- **Nét đứt →:** Async communication
+- **Mũi tên 2 chiều ↔:** Bidirectional sync
+
+**Ghi chú trên mũi tên:**
+- Protocol: HTTP, gRPC, MQTT
+- Data type: JSON, XML
+- Timing: Sync/Async
+
+### Bước 6: Thêm chi tiết
+
+**Tùy mức độ chi tiết:**
+- **High-level:** Chỉ tên component
+- **Medium:** Thêm công nghệ (Node.js, PostgreSQL)
+- **Detailed:** Thêm version, config, ports
+
+**Đánh số luồng (nếu cần):**
+- Giúp hiểu thứ tự xử lý
+- Ví dụ: 1→2→3→4
+
+## Nguyên tắc vẽ tốt
+
+### ✓ NÊN:
+- Nhóm các thành phần liên quan
+- Dùng màu sắc nhất quán
+- Giữ hướng luồng rõ ràng (trái→phải, trên→dưới)
+- Thêm chú thích (legend) nếu dùng nhiều ký hiệu
+
+### ✗ TRÁNH:
+- Quá nhiều thành phần (split thành nhiều diagram)
+- Mũi tên chéo chéo, rối
+- Dùng quá nhiều màu sắc khác nhau
+- Thiếu nhãn/tên thành phần
+
+## Công cụ vẽ
+
+- **Online:** Draw.io, Lucidchart, Cloudcraft (AWS)
+- **Desktop:** Microsoft Visio, OmniGraffle
+- **Code-based:** PlantUML, Mermaid, Structurizr
+
+## Tùy chỉnh theo ngữ cảnh
+
+**Không có "cách vẽ đúng" duy nhất**. Chọn phong cách phù hợp với:
+- Đối tượng xem (developer, manager, client)
+- Mục đích (design, deployment, documentation)
+- Độ phức tạp hệ thống
+
+**Quan trọng nhất:** Sơ đồ phải TRUYỀN ĐẠT được thông tin rõ ràng cho người xem.

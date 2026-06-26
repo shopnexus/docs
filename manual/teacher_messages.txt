@@ -1,0 +1,25 @@
+C22
+Nền tảng TMĐT trên kiến trúc Microservices
+- Tìm hiểu kiến trúc microservice và sự khác biệt với các kiến trúc khác 
+- Tìm hiểu nghiệp vụ thương mại điện tử
+- Tìm hiểu và lựa chọn công nghệ cho frontend, backend, database
+
+Phân tích và thiết kế hệ thống
+Xây dựng nền tảng với các chức năng 
+Chức năng chung 
+- Đăng nhập, đăng kí, quản lý tài khoản 
+- Quản lý thông tin cá nhân 
+Chức năng cụ thể 
+(1) Quản trị viên:
+- Quản lý tài khoản trên hệ thống 
+- Quản lý nền tảng 
+(2) Người bán
+- Quản lý cửa hàng của mình
+- Đăng bán 
+- Đăng khuyến mãi
+(3) Người mua 
+- Tìm kiếm hàng hóa
+- Mua hàng, có giỏ hàng 
+- Đánh sao nhận xét sau khi mua 
+
+------------------------

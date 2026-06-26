@@ -1,0 +1,187 @@
+# Hướng dẫn vẽ Activity Diagram (Swimlane)
+
+## Cách đọc lược đồ mẫu
+
+**Cấu trúc tổng quan:**
+Sơ đồ mô tả quy trình rút tiền ATM với 3 tác nhân (Customer, ATM Machine, Bank) thực hiện các hoạt động theo trình tự logic.
+
+**Các thành phần chính trong sơ đồ:**
+
+1. **Swimlane (Partition/Làn bơi):**
+   - 3 cột dọc: Customer | ATM Machine | Bank
+   - Mỗi cột = 1 tác nhân/hệ thống chịu trách nhiệm
+
+2. **Initial Node (Nút bắt đầu):**
+   - Hình tròn đặc màu đen ở đầu quy trình
+
+3. **Action (Hoạt động):**
+   - Hình chữ nhật bo góc màu xanh
+   - Ví dụ: "Insert Card", "Enter PIN", "Authorize", "Check Account Balance"
+
+4. **Control Flow (Luồng điều khiển):**
+   - Mũi tên nối các hoạt động
+   - Cho biết thứ tự thực hiện
+
+5. **Decision Node (Nút quyết định):**
+   - Hình th菱 (diamond) màu xanh nhạt
+   - Có 2+ nhánh rẽ ra với điều kiện
+   - Ví dụ: [valid PIN] vs [invalid PIN], [balance >= amount] vs [balance < amount]
+
+6. **Fork Node (Nút tách luồng):**
+   - Thanh ngang màu đen dày
+   - Tách 1 luồng thành NHIỀU luồng song song
+
+7. **Join Node (Nút hợp luồng):**
+   - Thanh ngang màu đen dày
+   - Gộp NHIỀU luồng song song thành 1
+
+8. **Merge Node (Nút gộp):**
+   - Hình thoi (diamond) rỗng
+   - Gộp các nhánh từ Decision Node về 1 luồng
+
+9. **Final Node (Nút kết thúc):**
+   - Hình tròn đặc bên trong vòng tròn rỗng
+
+## Cách vẽ Activity Diagram (Swimlane)
+
+### Bước 1: Xác định Swimlanes (Các làn)
+
+**Hỏi:** Ai/cái gì tham gia vào quy trình?
+- Liệt kê TẤT CẢ tác nhân: người, hệ thống, phòng ban
+- Ví dụ: Customer, ATM Machine, Bank
+
+**Vẽ:**
+- Chia sơ đồ thành các cột dọc
+- Ghi tên tác nhân ở đầu mỗi cột
+- Dùng đường kẻ dọc để phân cách
+
+### Bước 2: Xác định flow chính (Happy path)
+
+**Hỏi:** Quy trình thành công diễn ra như thế nào?
+- Xác định điểm BẮT ĐẦU
+- Liệt kê các hoạt động THEO THỨ TỰ
+- Xác định điểm KẾT THÚC
+
+**Trong ví dụ ATM:**
+1. Customer: Insert Card
+2. Customer: Enter PIN
+3. Bank: Authorize
+4. Customer: Enter Amount
+5. Bank: Check Account Balance
+6. Bank: Debit Account
+7. ATM: Eject Card / Customer: Take Money
+
+### Bước 3: Vẽ Initial Node và Actions
+
+**Initial Node:**
+- Vẽ hình tròn đặc màu đen ở swimlane của tác nhân bắt đầu
+- Trong ví dụ: ở cột Customer
+
+**Actions:**
+- Vẽ hình chữ nhật bo góc
+- Đặt trong swimlane của tác nhân CHỊU TRÁCH NHIỆM thực hiện
+- Ghi tên hoạt động (động từ + danh từ)
+- Ví dụ: "Insert Card" trong cột Customer, "Authorize" trong cột Bank
+
+### Bước 4: Vẽ Control Flow (Mũi tên)
+
+**Quy tắc:**
+- Nối các hoạt động theo THỨ TỰ thời gian
+- Mũi tên CÓ THỂ đi ngang qua các swimlane (khi trách nhiệm chuyển từ tác nhân này sang tác nhân khác)
+- Ví dụ: "Enter PIN" (Customer) → "Authorize" (Bank)
+
+### Bước 5: Thêm Decision Nodes (Nút quyết định)
+
+**Khi nào cần Decision Node?**
+- Khi có điều kiện rẽ nhánh (if-else)
+- Khi kết quả có thể KHÁC NHAU
+
+**Cách vẽ:**
+1. Vẽ hình thoi (diamond)
+2. Có ít nhất 2 mũi tên RA
+3. Ghi điều kiện trên mỗi nhánh: [condition]
+4. Ví dụ:
+   - Sau "Authorize" → Diamond → [valid PIN] đi tiếp, [invalid PIN] quay lại "Enter PIN"
+   - Sau "Check Balance" → Diamond → [balance >= amount] đi tiếp, [balance < amount] quay lại "Enter Amount"
+
+### Bước 6: Thêm Fork/Join Nodes (nếu có hoạt động song song)
+
+**Fork Node (Tách luồng):**
+- Vẽ thanh ngang màu đen dày
+- 1 mũi tên VÀO
+- 2+ mũi tên RA (các hoạt động xảy ra ĐỒNG THỜI)
+- Trong ví dụ: Sau khi debit account → Fork → "Take Money" (Customer) VÀ "Eject Card" (ATM) xảy ra song song
+
+**Join Node (Hợp luồng):**
+- Vẽ thanh ngang màu đen dày
+- 2+ mũi tên VÀO
+- 1 mũi tên RA (chờ TẤT CẢ luồng hoàn thành)
+- Trong ví dụ: "Take Money" VÀ "Eject Card" → Join → "Show Balance"
+
+### Bước 7: Thêm Merge Node (gộp nhánh Decision)
+
+**Khi nào cần Merge Node?**
+- Khi các nhánh từ Decision Node CẦN hợp lại thành 1 luồng
+
+**Cách vẽ:**
+- Vẽ hình thoi (diamond) rỗng
+- Nhiều mũi tên VÀO (từ các nhánh Decision)
+- 1 mũi tên RA
+- Trong ví dụ: Sau "Show Balance" có Merge Node
+
+### Bước 8: Vẽ Final Node
+
+**Vẽ:**
+- Hình tròn đặc BÊN TRONG vòng tròn rỗng (bull's eye)
+- Đặt ở swimlane của tác nhân kết thúc quy trình
+- Trong ví dụ: ở cột Customer sau "Take Card"
+
+### Bước 9: Thêm Guard Conditions
+
+**Guard (Điều kiện bảo vệ):**
+- Ghi điều kiện trong dấu [ ]
+- Đặt TRÊN hoặc BÊN CẠNH mũi tên rẽ nhánh
+- Ví dụ: [valid PIN], [invalid PIN], [balance >= amount], [balance < amount]
+
+## Các ký hiệu quan trọng
+
+| Ký hiệu | Tên | Ý nghĩa |
+|---------|-----|---------|
+| ● (đặc) | Initial Node | Điểm bắt đầu |
+| ◉ (bull's eye) | Final Node | Điểm kết thúc |
+| ▭ (bo góc) | Action | Hoạt động |
+| ◆ (thoi đặc) | Decision Node | Rẽ nhánh theo điều kiện |
+| ◇ (thoi rỗng) | Merge Node | Gộp các nhánh |
+| ▬ (thanh ngang đen) | Fork/Join Node | Tách/gộp luồng song song |
+| → | Control Flow | Luồng điều khiển |
+
+## Lưu ý quan trọng
+
+**Về Swimlanes:**
+- Hoạt động PHẢI nằm trong swimlane của tác nhân chịu trách nhiệm
+- Mũi tên CÓ THỂ đi qua các swimlane (chuyển giao trách nhiệm)
+
+**Về Decision vs Merge:**
+- **Decision Node:** Có ĐIỀU KIỆN trên các nhánh ra
+- **Merge Node:** KHÔNG có điều kiện, chỉ gộp luồng
+
+**Về Fork vs Merge:**
+- **Fork/Join:** Cho hoạt động SONG SONG (xảy ra cùng lúc)
+- **Decision/Merge:** Cho hoạt động RẼ NHÁNH (chỉ 1 nhánh xảy ra)
+
+**Về Guard Conditions:**
+- Phải BỔ SUNG (exclusive): [condition1], [condition2],... 
+- Tổng xác suất = 100%
+
+**Kiểm tra chất lượng:**
+- ✓ Mọi luồng đều có điểm BẮT ĐẦU và KẾT THÚC
+- ✓ Decision Node có ít nhất 2 nhánh RA
+- ✓ Fork Node có 2+ nhánh song song
+- ✓ Join Node đợi TẤT CẢ luồng trước khi tiếp tục
+- ✓ Không có hoạt động "lơ lửng" không nối với luồng chính
+
+**Mục đích sơ đồ:**
+- Hiểu QUY TRÌNH nghiệp vụ từ đầu đến cuối
+- Phân định TRÁCH NHIỆM của từng tác nhân
+- Xác định các ĐIỂM RẼ NHÁNH và xử lý NGOẠI LỆ
+- Phát hiện hoạt động SONG SONG để tối ưu

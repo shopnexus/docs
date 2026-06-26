@@ -1,0 +1,3339 @@
+1.1 Define Project Vision
+
+Purpose:
+Establish clear understanding of what problem the system solves, what success looks like, and the strategic value it delivers to the business. This creates alignment among all stakeholders and provides the foundation for all subsequent requirements work.
+
+Prerequisite deliverable from previous step:
+- Project assignment document or initial problem statement (provided by instructor/client)
+
+Tasks:
+
+Task 1.1.1: Identify Business Drivers
+    Use the project assignment to understand strategic context and interview sponsors to uncover the real motivations behind the project.
+    
+    Guiding questions:
+    - Why is this system needed now? What changed?
+    - What business problem does this solve?
+    - What happens if we don't build this system?
+    - How does this support company strategy?
+    - What are the expected business benefits (ROI, cost savings, revenue)?
+    
+    Acceptance criteria:
+    - Strategic initiatives identified and documented
+    - Market pressures or competitive threats articulated
+    - Regulatory or compliance drivers identified (if applicable)
+    - Operational issues or inefficiencies clearly stated
+    
+    Example:
+    "Customer complaints about order tracking have increased 40% in the past year. Competitors offer real-time tracking. We need this capability to retain customers and remain competitive."
+    
+    Red flags to watch for:
+    - Vague justifications like "we need to modernize"
+    - Solution looking for a problem
+    - Conflicting drivers from different stakeholders
+
+Task 1.1.2: Define Project Objectives and Success Metrics
+    Transform business drivers into specific, measurable objectives that define what the project will accomplish.
+    
+    Guiding questions:
+    - What defines success for this project?
+    - How will success be measured?
+    - What are the quantitative targets (time saved, cost reduced, revenue increased)?
+    - What are the qualitative goals (user satisfaction, process improvement)?
+    
+    Acceptance criteria:
+    - At least 3-5 SMART objectives defined (Specific, Measurable, Achievable, Relevant, Time-bound)
+    - Both quantitative and qualitative metrics identified
+    - Success criteria agreed upon by key stakeholders
+    
+    Example:
+    "Reduce customer service calls about order status by 60% within 6 months of launch. Achieve 80% customer satisfaction rating for order tracking feature."
+    
+    Red flags to watch for:
+    - Unmeasurable objectives ("improve customer experience")
+    - Too many objectives (lack of focus)
+    - No timeline for achieving objectives
+
+Task 1.1.3: Define Scope Boundaries
+    Clearly establish what is in scope and explicitly state what is out of scope to manage expectations and prevent scope creep.
+    
+    Guiding questions:
+    - What business processes are in scope? Out of scope?
+    - What user groups are included? Excluded?
+    - What features must be in version 1? What can wait for later?
+    - What existing systems will be replaced? What will remain unchanged?
+    
+    Acceptance criteria:
+    - In-scope items clearly listed
+    - Out-of-scope items explicitly documented
+    - Scope boundaries agreed upon by sponsor
+    - Future phases/releases identified (if applicable)
+    
+    Example:
+    "In scope: Customer order tracking for retail orders. Out of scope: Wholesale orders, inventory management, supplier integration (deferred to Phase 2)."
+    
+    Red flags to watch for:
+    - Everything is "in scope" (unrealistic)
+    - Out-of-scope list is empty (scope creep likely)
+    - Disagreement on what's in/out among stakeholders
+
+Deliverable:
+DOC 1.1-A: Project Vision Document
+
+Output format:
+2-3 page document containing:
+1. Executive Summary (1 paragraph overview)
+2. Business Problem and Opportunity
+   - Current situation and pain points
+   - Business drivers and strategic context
+3. Project Objectives
+   - Specific objectives (3-5 SMART goals)
+   - Success metrics and targets
+4. Scope Statement
+   - In scope (business processes, user groups, features)
+   - Out of scope (explicitly stated exclusions)
+   - Future phases (if applicable)
+5. High-level Constraints
+   - Budget and timeline expectations
+   - Technology or platform constraints
+6. Assumptions
+   - Key assumptions being made
+7. Risks
+   - Major risks that could prevent success
+
+The document should be concise, business-focused, and understandable by non-technical stakeholders. It serves as the project's north star throughout requirements and design phases.
+
+1.2 Identify Users and Stakeholders
+
+Purpose:
+Identify everyone who will use, be affected by, or has interest in the system to ensure all perspectives are captured during requirements gathering. This prevents missing critical requirements and helps manage competing interests throughout the project.
+
+Prerequisite deliverable from previous step:
+- DOC 1.1-A: Project Vision Document (from step 1.1)
+
+Tasks:
+
+Task 1.2.1: Discover and Categorize Stakeholders
+    Use the vision document to identify initial stakeholders, then employ snowball technique by asking each stakeholder "who else should we talk to?"
+    
+    Guiding questions:
+    - Who requested this system? (identify champion/sponsor)
+    - Who currently performs these tasks manually? (identify users)
+    - Who will use this system daily? Weekly? Monthly?
+    - Whose work will change because of this system?
+    - Who makes decisions about this area of the business?
+    - Who is impacted if this system fails?
+    - Who has authority to approve requirements and budget?
+    
+    Acceptance criteria:
+    - Primary stakeholders identified (direct users by role)
+    - Secondary stakeholders identified (affected but don't use directly)
+    - Project stakeholders identified (sponsor, PM, dev team, QA, operations, security, legal)
+    - Each stakeholder categorized by role and influence level
+    
+    Example:
+    "Primary: Customer Service Reps (20 users), Sales Team (15 users). Secondary: Customers (receive tracking emails), Warehouse Staff (affected by new process). Project: VP of Sales (sponsor), IT Manager (approver), Compliance Officer (regulatory requirements)."
+    
+    Red flags to watch for:
+    - Only senior management identified (missing actual users)
+    - Missing key groups (operations, support, security often forgotten)
+    - Stakeholders who are unavailable for engagement
+    - Proxy stakeholders instead of actual users
+
+Task 1.2.2: Create User Personas
+    Develop 2-3 detailed representative profiles of primary user types to humanize requirements and guide design decisions.
+    
+    Guiding questions:
+    - What are the different types of users? (by role, frequency, technical skill)
+    - What are their goals and motivations?
+    - What are their pain points with current process?
+    - What is their technical proficiency level?
+    - How frequently will they use the system?
+    - What is their work environment like?
+    
+    Acceptance criteria:
+    - 2-3 personas created representing main user segments
+    - Each persona includes: name, role, demographics, goals, pain points, technical proficiency, usage frequency
+    - Personas validated with actual users
+    - Personas cover range of user types (novice to expert, frequent to occasional)
+    
+    Example:
+    "Sarah Chen - Customer Service Rep: 5 years experience, handles 50+ calls/day, moderate technical skills, frustrated by switching between 4 different systems to find order info, needs fast access to customer history."
+    
+    Red flags to watch for:
+    - Generic personas that don't reflect real users
+    - Too many personas (loses focus, aim for 2-3 primary)
+    - Personas based on assumptions not validated with real users
+    - All personas are power users (missing novice perspective)
+
+Task 1.2.3: Analyze Stakeholder Influence and Engagement Strategy
+    Assess each stakeholder's power and interest to determine appropriate engagement approach and avoid conflicts later.
+    
+    Guiding questions:
+    - What is each stakeholder's level of authority? (decision-making power)
+    - What is each stakeholder's level of interest? (engagement, concern)
+    - Who are the skeptics or opponents? (important to include)
+    - What are potential conflicts between stakeholder groups?
+    - How available is each stakeholder for requirements activities?
+    
+    Acceptance criteria:
+    - Power/interest grid completed (high/low power × high/low interest)
+    - Engagement strategy defined for each stakeholder type
+    - RACI matrix started for major decisions
+    - Communication plan outlined (who gets what info, when, how)
+    
+    Example:
+    "VP Sales: High power, high interest → Manage closely, weekly updates. Warehouse Manager: Low power, high interest → Keep informed, include in workshops. CFO: High power, low interest → Keep satisfied, monthly executive summary."
+    
+    Red flags to watch for:
+    - Conflicting authority (multiple people think they're the approver)
+    - High-power stakeholders who are disengaged
+    - Ignoring skeptics or opponents (they have valid concerns)
+    - No plan for hard-to-reach stakeholders (executives, field workers, customers)
+
+Deliverables:
+- DOC 1.2-A: User Personas Document
+- DOC 1.2-B: Stakeholder Register
+
+Output format:
+DOC 1.2-A: User Personas Document (3-5 pages)
+- One page per persona containing:
+  - Photo or illustration (makes it real)
+  - Name, role, demographics (age range, experience level)
+  - Background and work context
+  - Goals and motivations ("I want to...")
+  - Pain points and frustrations ("I'm frustrated by...")
+  - Technical proficiency (novice/intermediate/expert)
+  - Usage pattern (frequency, duration, context)
+  - Success scenario ("A good day is when...")
+  - Quote (memorable statement capturing their perspective)
+
+DOC 1.2-B: Stakeholder Register (spreadsheet or table)
+Columns:
+- Name, Title, Role
+- Organization/Department
+- Category (Primary/Secondary/Project/Tertiary)
+- Contact Information (email, phone)
+- Power/Interest Classification (High/Low for each)
+- Engagement Strategy (manage closely/keep satisfied/keep informed/monitor)
+- Key Concerns or Focus Areas
+- Availability/Accessibility
+- Notes
+
+1.3 Define System Context
+
+Purpose:
+Understand the environment in which the system will operate - what external systems it connects to, who interacts with it, and where boundaries exist. This prevents scope creep and identifies integration requirements early.
+
+Prerequisite deliverable from previous step:
+- DOC 1.1-A: Project Vision Document (from step 1.1)
+- DOC 1.2-A: User Personas Document (from step 1.2)
+- DOC 1.2-B: Stakeholder Register (from step 1.2)
+
+Tasks:
+
+Task 1.3.1: Identify External Entities
+    Use the vision document's scope statement and stakeholder register to identify all entities (users, systems, devices) outside the system boundary that will interact with it.
+    
+    Guiding questions:
+    - Who are all the user types? (from personas document)
+    - What external systems will send data to this system?
+    - What external systems will receive data from this system?
+    - What third-party services will be used? (payment gateways, email, maps, etc.)
+    - What hardware devices will interact? (mobile devices, sensors, kiosks)
+    
+    Acceptance criteria:
+    - All user types identified as external actors (derived from personas)
+    - All external systems identified with owner contact info
+    - All third-party services identified
+    - All hardware devices identified
+    
+    Example:
+    "External actors: Customer (from persona), Customer Service Rep (from persona), Admin. External systems: Legacy Order System, Payment Gateway API, Email Service. Devices: Mobile apps (iOS/Android)."
+    
+    Red flags to watch for:
+    - Internal components listed as external entities (stay at boundary level)
+    - Missing obvious integrations (authentication, email)
+    - Vague system names ("the database" - which one?)
+
+Task 1.3.2: Map High-Level Data Flows
+    For each external entity identified, determine what information flows in and out of the system boundary. Use vision document to ensure flows align with project scope.
+    
+    Guiding questions:
+    - What data comes into the system and from where?
+    - What data goes out of the system and to where?
+    - What triggers each data flow? (user action, scheduled batch, event)
+    - How often does data flow? (real-time, daily batch, on-demand)
+    
+    Acceptance criteria:
+    - Data flows identified for each external entity
+    - Flow direction clearly marked (in, out, or bidirectional)
+    - Data type/description provided (not detailed schema, just high-level)
+    - Frequency/timing noted (real-time, batch, on-demand)
+    
+    Example:
+    "Customer → System: Order submission (real-time). System → Payment Gateway: Payment request (real-time). Payment Gateway → System: Payment confirmation (real-time). System → Customer: Order confirmation email (real-time)."
+    
+    Red flags to watch for:
+    - Detailed data structures (too early, that's for data modeling)
+    - Internal system data flows (stay at boundary only)
+    - Missing return flows (request sent but no response shown)
+
+Task 1.3.3: Create System Context Diagram
+    Create Level 0 Data Flow Diagram showing the system as a single process with all external entities and data flows. This is a visual boundary definition.
+    
+    Guiding questions:
+    - Is the system boundary clear and unambiguous?
+    - Are all external entities shown?
+    - Are all major data flows shown?
+    - Does this align with the scope in the vision document?
+    
+    Acceptance criteria:
+    - Single circle/rectangle representing the system
+    - All external entities shown as boxes or stick figures
+    - All data flows shown as labeled arrows
+    - Diagram is readable and not cluttered
+    - Legend provided explaining symbols
+    
+    Example:
+    [System boundary box labeled "Order Tracking System" in center, with arrows showing: Customer → [Submit Order], [Order Status] → Customer, System → [Payment Request] → Payment Gateway, etc.]
+    
+    Red flags to watch for:
+    - Multiple system boxes (should be single boundary at this level)
+    - Internal components shown (database, modules - too detailed)
+    - Bidirectional arrows without separate labels (unclear what flows each way)
+    - Technology details mentioned (REST API, HTTPS - not relevant yet)
+
+Deliverable:
+DOC 1.3-A: System Context Diagram
+
+Output format:
+Single-page diagram containing:
+- System boundary (single box/circle representing the entire system)
+- External entities (users from personas, external systems, devices)
+- Data flows (labeled arrows showing information exchange)
+- Legend (explaining symbols used)
+- Brief annotations noting:
+  - Communication frequency (real-time, batch, on-demand)
+  - Critical dependencies or constraints
+
+Keep diagram simple and high-level - this is about boundary and environment, not internal design or technology choices.
+
+2.1 Use Case Modeling
+
+Purpose:
+Document functional requirements from user perspective as end-to-end scenarios showing what users want to accomplish with the system. Use cases bridge business needs and technical specifications by describing system behavior in user-centric terms.
+
+Prerequisite deliverables from previous steps:
+- DOC 1.2-A: User Personas Document (from step 1.2)
+- DOC 1.3-A: System Context Diagram (from step 1.3)
+
+Tasks:
+
+Task 2.1.1: Identify Actors and Goals
+    Use personas document to identify primary actors (users) and context diagram to identify secondary actors (external systems). For each actor, brainstorm what they want to accomplish.
+    
+    Guiding questions:
+    - What does each persona (from 1.2-A) want to achieve using this system?
+    - What external systems (from 1.3-A) need to interact with our system?
+    - What are the user's end-goals? (not individual actions, but complete objectives)
+    - Are there different roles with different goals?
+    
+    Acceptance criteria:
+    - All personas mapped to actors
+    - All external entities from context diagram evaluated as potential actors
+    - Actor-goal pairs documented (Actor: Customer, Goal: Track my order status)
+    - Primary actors (initiate use cases) distinguished from secondary actors (system interacts with)
+    
+    Example:
+    "Customer (from Sarah Chen persona): Track order status, Modify delivery address, Request refund. Customer Service Rep: Process return, Update order notes. Payment Gateway (external system): Verify payment."
+    
+    Red flags to watch for:
+    - Goals that are too granular (Click button, Enter data - these are steps not goals)
+    - Missing key actors from personas or context diagram
+    - Internal system components listed as actors (database, module)
+
+Task 2.1.2: Create Use Case Catalog
+    Transform actor-goal pairs into named use cases using verb-noun format. Create brief one-sentence description for each to build complete inventory.
+    
+    Guiding questions:
+    - What action verb describes what the actor does? (Submit, Track, Generate, Process)
+    - What is the noun/object? (Order, Report, Payment, Request)
+    - Is this a complete user goal or just a step within larger goal?
+    - Are there related use cases that should be grouped?
+    
+    Acceptance criteria:
+    - 10-20 use cases identified for typical project
+    - Each use case named with verb-noun pattern
+    - Brief description (1 sentence) for each
+    - Use cases organized by actor or functional area
+    - Priority assigned (high/medium/low) based on vision document objectives
+    
+    Example:
+    "UC-001: Submit Order - Customer enters product selections and shipping information to create new order. UC-002: Track Order Status - Customer views current status and location of their order."
+    
+    Red flags to watch for:
+    - Use cases that are really system functions not user goals (Validate data, Store record)
+    - Duplicate use cases with different names
+    - Missing obvious user goals from personas' pain points
+
+Task 2.1.3: Develop Detailed Use Case Specifications
+    Select 5-8 most critical/complex use cases and write fully detailed specifications including preconditions, main flow, alternatives, exceptions, and postconditions.
+    
+    Guiding questions:
+    - What must be true before this use case starts? (preconditions)
+    - What is the happy path step-by-step? (main flow)
+    - What variations exist on the happy path? (alternatives)
+    - What can go wrong and how is it handled? (exceptions)
+    - What is guaranteed after successful completion? (postconditions)
+    - What business rules apply?
+    
+    Acceptance criteria:
+    - Fully dressed template completed for high-priority use cases
+    - Main flow written as numbered actor-system steps (3-10 steps typical)
+    - At least 2-3 alternative flows per complex use case
+    - Exception flows address error conditions
+    - Preconditions and postconditions clearly stated
+    - Business rules referenced by ID
+    
+    Example:
+    "UC-001 Main Flow: 1. Customer selects 'New Order'. 2. System displays product catalog. 3. Customer selects products and quantities. 4. System calculates total. 5. Customer enters shipping address. 6. System validates address. 7. Customer confirms order. 8. System creates order record and displays confirmation."
+    
+    Red flags to watch for:
+    - Implementation details (SQL queries, button colors - that's design)
+    - Missing exception handling (what if address invalid? payment fails?)
+    - Inconsistent detail level (some steps very detailed, others vague)
+    - No alternative flows (every use case has variations)
+
+Task 2.1.4: Create Use Case Diagram
+    Create visual overview showing actors, use cases, and relationships (include, extend, generalization).
+    
+    Guiding questions:
+    - Are all actors shown?
+    - Are all use cases shown?
+    - Are include/extend relationships needed for common subfunctions?
+    - Does diagram communicate system scope clearly?
+    
+    Acceptance criteria:
+    - System boundary box drawn
+    - Actors shown outside boundary as stick figures
+    - Use cases shown inside boundary as ovals
+    - Lines connect actors to their use cases
+    - Include/extend relationships shown where applicable
+    - Diagram is readable (not cluttered)
+    
+    Red flags to watch for:
+    - Too many use cases (hard to read - create multiple diagrams by subsystem)
+    - Crossing lines everywhere (reorganize layout)
+    - Missing actors or use cases from catalog
+
+Deliverables:
+- DOC 2.1-A: Use Case Diagram
+- DOC 2.1-B: Use Case Specifications Document
+
+Output format:
+DOC 2.1-A: Use Case Diagram (1-2 pages)
+- Visual diagram using UML notation
+- System boundary clearly marked
+- All actors and use cases from catalog
+- Include/extend relationships if applicable
+- Legend explaining notation
+
+DOC 2.1-B: Use Case Specifications Document (15-30 pages)
+- Use case catalog: Brief descriptions of all use cases (1-2 pages)
+- Fully dressed specifications for 5-8 critical use cases containing:
+  - Use Case ID and Name
+  - Actors (primary and secondary)
+  - Brief Description
+  - Preconditions
+  - Main Success Scenario (numbered steps)
+  - Alternative Flows (3a, 3b notation)
+  - Exception Flows (error handling)
+  - Postconditions
+  - Business Rules (referenced by ID)
+  - Special Requirements (performance, usability specific to this use case)
+  - Frequency of Use
+  - Open Issues/Assumptions
+
+2.2 Process Modeling
+
+Purpose:
+Visualize how business processes flow through the system, showing sequence, decisions, parallel activities, and data transformations. Process models reveal workflow complexity, bottlenecks, and data requirements that aren't obvious from use case text alone.
+
+Prerequisite deliverable from previous step:
+- DOC 2.1-B: Use Case Specifications Document (from step 2.1)
+
+Tasks:
+
+Task 2.2.1: Select Processes to Model
+    Review use case specifications (DOC 2.1-B) to identify which processes are complex enough to warrant visual modeling. Focus on processes with multiple decision points, parallel activities, or cross-functional workflows.
+    
+    Guiding questions:
+    - Which use cases have complex main flows with many decision points?
+    - Which use cases involve multiple actors or departments (cross-functional)?
+    - Which use cases have parallel activities happening simultaneously?
+    - Which processes have performance concerns or known bottlenecks?
+    - Which processes are critical to business objectives (from vision doc)?
+    
+    Acceptance criteria:
+    - 3-5 key processes selected for detailed modeling
+    - Selection rationale documented (why these processes need visual models)
+    - Processes cover range of system functionality
+    - High-priority use cases from catalog are included
+    
+    Example:
+    "Selected processes: 1) Order Processing (complex workflow, multiple decision points), 2) Return Authorization (cross-functional: customer, CSR, warehouse), 3) Inventory Replenishment (parallel activities, batch processing), 4) Payment Processing (critical, has performance requirements)."
+    
+    Red flags to watch for:
+    - Selecting only simple, linear processes (those don't need visual models)
+    - Too many processes selected (diminishing returns beyond 5-6)
+    - Missing the most complex/risky processes
+
+Task 2.2.2: Create Activity Diagrams with Swimlanes
+    Transform use case main flows and alternative flows (from DOC 2.1-B) into visual activity diagrams. Use swimlanes to show which actor/system performs each activity.
+    
+    Guiding questions:
+    - What is the starting event that triggers this process?
+    - What activities occur in sequence? (from use case main flow)
+    - Where are the decision points? (from alternative/exception flows)
+    - What activities can happen in parallel?
+    - Which actor or system component performs each activity?
+    - What is the end state(s) of the process?
+    
+    Acceptance criteria:
+    - Start and end nodes clearly marked
+    - Activities represented as rounded rectangles with action verbs
+    - Decision diamonds for every if/then branch in use case
+    - Swimlanes show actor/system responsibility for each activity
+    - Parallel activities shown with fork/join bars where applicable
+    - Flow arrows clearly labeled for decision branches
+    - Diagram is readable (not more than 15-20 activities per diagram)
+    
+    Example:
+    "Order Processing diagram: Customer swimlane: 'Select Products', 'Enter Shipping Info'. System swimlane: 'Validate Address' (decision: valid?), 'Calculate Total'. Payment Gateway swimlane: 'Process Payment'. Fork to parallel activities: 'Send Confirmation Email' and 'Update Inventory'."
+    
+    Red flags to watch for:
+    - Linear flow with no decisions (probably oversimplified)
+    - Missing swimlanes (unclear who does what)
+    - Too many activities (break into sub-processes)
+    - No connection to use case flows (should trace directly)
+
+Task 2.2.3: Annotate Process Characteristics
+    Add annotations to diagrams identifying bottlenecks, timing requirements, data transformations, and business rules that weren't obvious in use case text.
+    
+    Guiding questions:
+    - Where are the bottlenecks or time-consuming steps?
+    - What data is needed at each decision point?
+    - What data is created, updated, or transformed at each step?
+    - Are there timing constraints? (must complete within X minutes)
+    - What business rules govern decisions?
+    - What volumes are expected? (transactions per hour)
+    
+    Acceptance criteria:
+    - Time estimates noted for time-critical activities
+    - Data inputs/outputs annotated on key activities
+    - Business rules referenced on decision points
+    - Performance requirements noted (e.g., "must complete in < 2 seconds")
+    - Volume expectations documented (transactions/hour, concurrent users)
+    - Bottlenecks or risks highlighted
+    
+    Example:
+    "Annotate 'Validate Address' activity: Requires customer address data, calls external address validation API, must complete in < 1 second, business rule BR-003: PO boxes not allowed for expedited shipping."
+    
+    Red flags to watch for:
+    - No annotations (missing valuable context)
+    - Implementation details in annotations (API endpoints, database names - too early)
+    - Missing data flows (what information is passed between steps?)
+
+Task 2.2.4: Validate Process Flows with Stakeholders
+    Review diagrams with users who actually perform these processes to ensure accuracy and completeness. Use walkthrough technique to verify real-world scenarios.
+    
+    Guiding questions:
+    - Does this match how you actually do the work?
+    - What exceptions or special cases are we missing?
+    - Where do errors commonly occur?
+    - What happens when [exception scenario]?
+    - Are the timing estimates realistic?
+    
+    Acceptance criteria:
+    - Diagrams reviewed with at least one person per actor role
+    - Feedback documented and incorporated
+    - Exception scenarios validated and added if missing
+    - Process bottlenecks confirmed by actual users
+    - Stakeholder sign-off that diagrams are accurate
+    
+    Example:
+    "Validated Order Processing with CSR Sarah Chen: She identified missing alternative flow for 'address validation fails but customer confirms it's correct' - added manual override path with supervisor approval."
+    
+    Red flags to watch for:
+    - Stakeholders say "I guess that's right" (not confident - dig deeper)
+    - Discovering major steps missing during validation (use case was incomplete)
+    - Process doesn't match documented procedures or actual practice
+
+Deliverable:
+DOC 2.2-A: Process Flow Diagrams
+
+Output format:
+Document containing 3-5 detailed activity diagrams (1-2 pages each):
+- Process name and purpose
+- Activity diagram using standard notation:
+  - Start node (filled circle)
+  - End node (bull's eye)
+  - Activities (rounded rectangles with verb-noun labels)
+  - Decision diamonds (with guard conditions on outgoing arrows)
+  - Fork/join bars (for parallel activities)
+  - Swimlanes (labeled with actor/system names)
+- Annotations noting:
+  - Timing requirements or estimates
+  - Data inputs/outputs
+  - Business rules (by ID reference)
+  - Volume expectations
+  - Known bottlenecks or risks
+- Legend explaining notation
+- Validation notes (who reviewed, when, key feedback)
+
+Include narrative description (1-2 paragraphs) for each diagram explaining the overall process flow, key decision points, and any special considerations.
+
+2.3 Create Initial Data Model
+
+Purpose:
+Identify key business concepts (entities) and their relationships to understand what information the system must manage. This conceptual model is business-focused, establishing the data foundation before any implementation decisions.
+
+Prerequisite deliverables from previous steps:
+- DOC 2.1-B: Use Case Specifications Document (from step 2.1)
+- DOC 2.2-A: Process Flow Diagrams (from step 2.2)
+
+Tasks:
+
+Task 2.3.1: Identify Entities from Use Cases and Processes
+    Mine use case specifications (DOC 2.1-B) and process diagrams (DOC 2.2-A) to identify nouns that represent important business concepts the system must track.
+    
+    Guiding questions:
+    - What "things" are mentioned repeatedly in use cases? (customers, orders, products)
+    - What information does the system create, store, or manage? (from process annotations)
+    - What appears on forms, reports, or screens mentioned in use cases?
+    - What has independent existence? (entity vs. just an attribute)
+    - What has a lifecycle or changes over time?
+    
+    Acceptance criteria:
+    - 8-15 candidate entities identified
+    - Each entity represents a significant business concept
+    - Entities distinguished from attributes (Address may be attribute or entity depending on complexity)
+    - Entity types categorized: core entities (Customer, Order), lookup/reference (OrderStatus, Country), associative (OrderItem linking Order-Product)
+    
+    Example:
+    "From UC-001 'Submit Order': Entities identified: Customer, Order, Product, ShippingAddress, Payment. From process diagram annotations: OrderItem (associative), OrderStatus (lookup), PaymentMethod (reference)."
+    
+    Red flags to watch for:
+    - Attributes mistaken as entities (CustomerName is attribute, not entity)
+    - Technology concepts as entities (Database, Screen - not business concepts)
+    - Verbs identified as entities (Processing, Validation - these are actions)
+    - Missing obvious entities mentioned in multiple use cases
+
+Task 2.3.2: Define Relationships and Cardinality
+    Determine how entities relate to each other by analyzing use case flows and process activities that connect entities.
+    
+    Guiding questions:
+    - How do these entities relate to each other? (uses use case scenarios)
+    - Can one entity exist without the other? (existence dependency)
+    - How many of entity A can relate to entity B? (1:1, 1:M, M:M)
+    - Is the relationship mandatory or optional? (every order must have customer? customer must have orders?)
+    - Does the relationship itself need attributes? (if yes, create associative entity)
+    
+    Acceptance criteria:
+    - All entity pairs evaluated for relationships
+    - Cardinality marked using crow's foot notation (one-to-many, many-to-many)
+    - Optionality specified (mandatory vs. optional participation)
+    - Relationship names verb phrases readable in both directions
+    - Many-to-many relationships resolved with associative entities
+    
+    Example:
+    "Customer ||--o{ Order: One customer places zero or many orders (customer mandatory for order, orders optional for customer). Order }|--|| OrderStatus: Many orders have one status (mandatory both sides). Order }o--o{ Product becomes: Order ||--o{ OrderItem }o--|| Product (M:M resolved)."
+    
+    Red flags to watch for:
+    - Unresolved many-to-many relationships (should create associative entity)
+    - Missing relationships between obviously related entities
+    - Circular dependencies (may indicate missing entity)
+    - Cardinality doesn't match business rules from use cases
+
+Task 2.3.3: Add Key Attributes and Identifiers
+    For each entity, identify the primary identifier and 3-5 most critical descriptive attributes. This is conceptual level—don't need complete attribute lists yet.
+    
+    Guiding questions:
+    - What uniquely identifies each instance? (natural key or surrogate ID)
+    - What are the essential attributes mentioned in use cases? (from preconditions, postconditions, data needs)
+    - What data is needed for business rules or calculations? (from process annotations)
+    - What attributes determine entity state or lifecycle?
+    
+    Acceptance criteria:
+    - Primary identifier specified for each entity
+    - 3-5 key attributes per entity (focus on most important)
+    - Data types at conceptual level only (text, number, date, boolean)
+    - Derived attributes identified but not detailed yet
+    - Foreign keys noted for relationships but not as attributes yet
+    
+    Example:
+    "Order entity: OrderID (identifier), OrderDate (date), TotalAmount (number/derived), Status (text/lookup). Customer entity: CustomerID (identifier), Name (text), Email (text), PhoneNumber (text)."
+    
+    Red flags to watch for:
+    - Too many attributes per entity (this is conceptual, not exhaustive)
+    - Implementation details (varchar(50), NOT NULL - too early)
+    - Foreign keys shown as attributes (relationships capture this already)
+    - Missing identifiers (every entity needs one)
+
+Task 2.3.4: Document Business Rules Governing Entities
+    Extract business rules from use case specifications (DOC 2.1-B) that constrain entities, attributes, or relationships. These rules will validate the model and inform later requirements.
+    
+    Guiding questions:
+    - What validation rules apply? (from use case exception flows)
+    - What calculations or derivations exist? (from process diagram annotations)
+    - What structural rules govern relationships? (mandatory/optional)
+    - What procedural rules affect entity lifecycle? (order must be approved before shipping)
+    - What constraints are mentioned in use case business rules sections?
+    
+    Acceptance criteria:
+    - 10-15 business rules documented with unique IDs
+    - Rules categorized: structural, validation, derivation, procedural
+    - Each rule linked to affected entities/attributes
+    - Rules stated in business language (not technical constraints)
+    
+    Example:
+    "BR-001 (Structural): Each Order must belong to exactly one Customer. BR-002 (Validation): Discount cannot exceed 50% of OrderTotal. BR-003 (Derivation): OrderTotal = sum of OrderItems + Tax + Shipping. BR-004 (Procedural): Order status must be 'Approved' before changing to 'Shipped'."
+    
+    Red flags to watch for:
+    - Technology constraints instead of business rules (database constraints - not yet)
+    - Missing rules mentioned in use case specifications
+    - Rules that conflict with entity relationships
+    - Vague rules without measurable criteria
+
+Task 2.3.5: Create Conceptual ERD
+    Draw entity-relationship diagram using crow's foot notation showing entities, relationships, cardinality, and key attributes. Keep at business/conceptual level.
+    
+    Guiding questions:
+    - Is the diagram readable and well-organized?
+    - Are all entities and relationships shown?
+    - Does the model support all use cases identified?
+    - Does this represent the business domain accurately?
+    
+    Acceptance criteria:
+    - All entities shown as rectangles
+    - All relationships shown with crow's foot notation
+    - Cardinality and optionality clearly marked
+    - Key attributes listed in each entity box
+    - Identifiers marked (underlined or with key symbol)
+    - Diagram organized logically (related entities near each other)
+    - No technology or implementation details
+    
+    Red flags to watch for:
+    - Cluttered, unreadable diagram (reorganize layout)
+    - Physical database details (indexes, foreign key columns)
+    - Missing entities needed to support major use cases
+    - Inconsistencies with process flows
+
+Deliverable:
+DOC 2.3-A: Conceptual ERD
+
+Output format:
+Document containing (5-8 pages):
+
+1. **Conceptual Entity-Relationship Diagram (1-2 pages):**
+   - Visual ERD using crow's foot notation
+   - Entities as rectangles with entity name and key attributes
+   - Relationships as labeled lines with cardinality marks
+   - Legend explaining notation (crow's foot symbols)
+   - Clean, organized layout
+
+2. **Entity Catalog (2-3 pages):**
+   - Table with columns: Entity Name, Definition, Type (Core/Lookup/Associative), Volume Estimate, Examples
+   - One row per entity
+
+3. **Relationship Catalog (1-2 pages):**
+   - Table with columns: Entities, Relationship Name (both directions), Cardinality, Business Rule Reference
+   - One row per relationship
+
+4. **Business Rules Catalog (1-2 pages):**
+   - Rule ID, Rule Statement, Type, Entities/Attributes Affected, Source
+   - 10-15 key business rules
+
+5. **Notes:**
+   - Data modeling assumptions
+   - Open questions requiring clarification
+   - Note that this is conceptual—details will be added in later steps
+
+3.1 Functional Requirements
+Purpose:
+Transform use cases into clear, testable, traceable statements of what the system must do. Each requirement becomes a specific, verifiable contract that developers and testers can work from, eliminating ambiguity from use case narratives.
+Prerequisite deliverables from previous steps:
+
+DOC 2.1-B: Use Case Specifications Document (from step 2.1)
+DOC 2.3-A: Conceptual ERD (from step 2.3)
+
+Tasks:
+Task 3.1.1: Extract Requirements from Use Cases
+Systematically analyze each use case specification (DOC 2.1-B) to identify specific system behaviors, converting narrative steps into atomic requirement statements.
+Guiding questions:
+- What must the system do at each step? (extract from main flow)
+- What system behaviors are implied by alternative flows?
+- What validations occur? (from exception flows)
+- What calculations or business logic apply? (from business rules)
+- What data must be captured, displayed, or modified?
+
+Acceptance criteria:
+- Each use case step analyzed for extractable requirements
+- System responses isolated from user actions
+- Each requirement states one specific system behavior
+- Requirements cover main flow, alternatives, and exceptions
+- Candidate list contains 20-40 raw requirements (before refinement)
+
+Example:
+"From UC-001 Step 6 'System validates address': Extract requirements: REQ-012: System shall validate shipping address against postal service database. REQ-013: System shall reject addresses not found in postal database. REQ-014: System shall display address validation error message to user."
+
+Red flags to watch for:
+- Requirements describing user actions not system behavior
+- Design decisions mixed with requirements (use specific database)
+- Multiple behaviors in one requirement statement
+- Missing requirements for error conditions
+Task 3.1.2: Write Well-Formed Requirements
+Transform raw requirements into clear, testable statements using standard format: "The system shall [action] [object] [conditions] [criterion]." Use "shall" for mandatory, "should" for optional.
+Guiding questions:
+- Is this requirement unambiguous? (only one interpretation)
+- Is it testable? (can we verify when it's met?)
+- Is it atomic? (one behavior, not compound with "and")
+- Does it state what, not how? (requirement not design)
+- Is it quantified where needed? (specific numbers, not "fast" or "secure")
+
+Acceptance criteria:
+- Each requirement uses "shall" or "should" consistently
+- Active voice throughout
+- No weak words (adequate, easy, flexible, user-friendly)
+- Specific numbers replace vague terms (< 2 seconds, not "fast")
+- No compound requirements with "and/or"
+- Requirements at consistent abstraction level
+
+Example:
+"Good: REQ-012: The system shall validate shipping address by querying USPS API within 3 seconds of user submission. Bad: The system should quickly validate the address using some kind of postal service and make sure it's correct and properly formatted."
+
+Red flags to watch for:
+- Subjective language (easy, intuitive, user-friendly)
+- Implementation details (REST API, SQL query)
+- Passive voice (address shall be validated by...)
+- Unmeasurable criteria (adequate performance, sufficient security)
+Task 3.1.3: Define Acceptance Criteria for Each Requirement
+Specify how each requirement will be verified using Given-When-Then format, making requirements testable and preventing misinterpretation.
+Guiding questions:
+- What conditions must exist before testing? (Given)
+- What action triggers the behavior? (When)
+- What is the expected outcome? (Then)
+- What are edge cases or boundary conditions?
+- How will we know it's working correctly?
+
+Acceptance criteria:
+- Each functional requirement has 1-3 acceptance criteria
+- Criteria use Given-When-Then format
+- Positive and negative test cases included
+- Boundary conditions specified where applicable
+- Measurable outcomes defined
+
+Example:
+"REQ-012 acceptance criteria: AC-1: Given user submits shipping address, When address exists in USPS database, Then system marks address as valid and proceeds to next step. AC-2: Given user submits address, When USPS API returns no match, Then system displays 'Address not found' error and highlights address fields."
+
+Red flags to watch for:
+- No acceptance criteria (requirement untestable)
+- Vague outcomes (system responds appropriately)
+- Missing negative test cases (what if it fails?)
+- Acceptance criteria describing implementation not behavior
+Task 3.1.4: Organize and Number Requirements
+Group related requirements by functional area or use case, assign unique IDs, and establish traceability to source use cases.
+Guiding questions:
+- What is the logical grouping? (by feature, by use case, by subsystem)
+- What numbering scheme supports traceability? (REQ-UC01-001)
+- Which use case(s) does each requirement support?
+- What priority is each requirement? (from vision objectives)
+
+Acceptance criteria:
+- Unique ID for each requirement (REQ-XXX format)
+- Requirements grouped logically (authentication, order processing, reporting)
+- Traceability column links each requirement to source use case(s)
+- Priority assigned (High/Medium/Low or MoSCoW)
+- Total of 15-30 finalized functional requirements
+
+Example:
+"Authentication group: REQ-001 through REQ-005. Order Processing group: REQ-006 through REQ-020. Each requirement shows: ID, Description, Source Use Case(s), Priority, Acceptance Criteria."
+
+Red flags to watch for:
+- Duplicate requirement IDs
+- Requirements without source traceability
+- Inconsistent numbering (gaps or overlaps)
+- All requirements marked high priority (unrealistic)
+Task 3.1.5: Validate Completeness with CRUD Matrix
+Create matrix mapping entities (from DOC 2.3-A) to Create/Read/Update/Delete operations, ensuring all necessary data operations have corresponding requirements. Return to step 2.3 to add missing entities if gaps found.
+Guiding questions:
+- Does each entity have Create requirements? (or is data loaded externally?)
+- Can users Read/view each entity? (how will they access it?)
+- Are Update requirements present where needed?
+- Should users be able to Delete? (or soft delete/archive?)
+- Are there orphaned operations? (create but no read?)
+
+Acceptance criteria:
+- CRUD matrix created with entities as rows, operations as columns
+- Each cell marked with requirement IDs that provide that operation
+- Gaps identified and justified (intentional vs. missing requirement)
+- Missing requirements added to functional requirements list
+- New entities discovered are added to data model (DOC 2.3-A updated)
+
+Example:
+"CRUD Matrix: Customer entity - Create: REQ-002, Read: REQ-003/REQ-015, Update: REQ-004, Delete: REQ-005 (soft delete). Gap found: No Read requirement for OrderStatus entity - added REQ-021 for status lookup display."
+
+Red flags to watch for:
+- Entities with no Create operation (where does data come from?)
+- Create but no Read (users can't view what they created)
+- Update but no Read (how do they know what to update?)
+- Missing entities referenced in requirements (update data model)
+Deliverable:
+DOC 3.1-A: Functional Requirements List
+Output format:
+Document containing (10-15 pages):
+
+Requirements by Functional Area (8-10 pages):
+Each requirement includes:
+
+Requirement ID: Unique identifier (REQ-XXX)
+Requirement Statement: "The system shall..." format
+Description: Additional context if needed (1-2 sentences)
+Source: Use case ID(s) this requirement derives from
+Priority: High/Medium/Low (or Must/Should/Could/Won't)
+Acceptance Criteria: Given-When-Then statements (1-3 per requirement)
+Business Rules: Referenced rule IDs (BR-XXX)
+
+
+CRUD Matrix (1 page):
+
+Rows: All entities from data model
+Columns: Create, Read, Update, Delete
+Cells: Requirement IDs providing each operation
+Notes on intentional gaps (read-only entities, soft deletes, etc.)
+
+
+Requirements Traceability Matrix (1-2 pages):
+
+Requirement ID
+Source Use Case(s)
+Related Requirements (dependencies)
+Affected Entities (from data model)
+
+
+Summary Statistics:
+
+Total requirements count
+Count by priority level
+Coverage metrics (use cases addressed, entities covered)
+
+
+
+IMPORTANT: After creating this document, update DOC 2.3-A (Conceptual ERD) if CRUD analysis revealed missing entities or relationships.
+
+3.2 Non-Functional Requirements
+
+Purpose:
+Define quality attributes and constraints (performance, security, usability, reliability, etc.) that the system must satisfy. NFRs shape architecture decisions and technology choices by specifying how well the system must perform, not just what it must do.
+
+Prerequisite deliverables from previous steps:
+- DOC 1.1-A: Project Vision Document (from step 1.1)
+- DOC 1.3-A: System Context Diagram (from step 1.3)
+- DOC 2.2-A: Process Flow Diagrams (from step 2.2)
+- DOC 2.3-A: Conceptual ERD (from step 2.3)
+- DOC 3.1-A: Functional Requirements List (from step 3.1)
+
+Tasks:
+
+Task 3.2.1: Identify Performance and Scalability Requirements
+    Use process flow diagrams (DOC 2.2-A) to identify time-critical operations and volume expectations. Use vision document (DOC 1.1-A) success metrics to set performance targets.
+    
+    Guiding questions:
+    - What are acceptable response times for each critical operation? (from process annotations in 2.2-A)
+    - How many concurrent users must be supported? (from vision objectives)
+    - What transaction volumes are expected? (peak vs. average)
+    - What is the expected growth over 1, 3, 5 years?
+    - Which operations have performance constraints mentioned in functional requirements?
+    
+    Acceptance criteria:
+    - Response time targets specified for all user-facing operations (< 2 seconds typical)
+    - Throughput requirements defined (transactions per second/minute/hour)
+    - Concurrent user counts specified (peak and average)
+    - Data volume and growth expectations documented
+    - Scalability requirements stated (horizontal vs. vertical)
+    
+    Example:
+    "NFR-001: System shall respond to order submission within 2 seconds for 95% of requests during peak usage. NFR-002: System shall support 500 concurrent users during peak hours (3pm-5pm). NFR-003: System shall handle 10,000 orders per day with capability to scale to 50,000 within 2 years."
+    
+    Red flags to watch for:
+    - Vague performance terms (fast, responsive) without numbers
+    - No distinction between average and peak loads
+    - Unrealistic targets (100% of requests in < 1 second)
+    - No consideration of growth over time
+
+Task 3.2.2: Define Security Requirements
+    Use context diagram (DOC 1.3-A) to identify security boundaries and data flows requiring protection. Review functional requirements (DOC 3.1-A) for sensitive data and access control needs.
+    
+    Guiding questions:
+    - What data is sensitive? (PII, financial, health from data model 2.3-A)
+    - How should users authenticate? (password complexity, MFA, SSO)
+    - What authorization model is needed? (role-based access control)
+    - What data must be encrypted? (in transit, at rest)
+    - What audit trail is required? (who accessed what, when)
+    - Are there regulatory requirements? (GDPR, HIPAA, PCI-DSS)
+    
+    Acceptance criteria:
+    - Authentication mechanism specified
+    - Authorization model defined (RBAC with specific roles)
+    - Encryption requirements stated (TLS 1.2+, AES-256)
+    - Audit logging requirements detailed (what events, retention period)
+    - Compliance requirements identified if applicable
+    - Password policy specified (complexity, expiration, history)
+    
+    Example:
+    "NFR-010: System shall authenticate users via username/password with minimum 8 characters including uppercase, lowercase, number, and special character. NFR-011: System shall encrypt all customer PII using AES-256 encryption at rest. NFR-012: System shall log all user authentication attempts, data access, and modifications with timestamp and user ID, retained for 7 years."
+    
+    Red flags to watch for:
+    - Generic "system shall be secure" statements
+    - Missing encryption requirements for sensitive data
+    - No audit requirements (compliance risk)
+    - Weak authentication (no MFA for sensitive operations)
+
+Task 3.2.3: Specify Availability and Reliability Requirements
+    Use vision document (DOC 1.1-A) to understand business criticality and acceptable downtime. Use process flows (DOC 2.2-A) to identify mission-critical operations.
+    
+    Guiding questions:
+    - What are business hours requiring system availability?
+    - What is the cost of downtime? (revenue loss, reputation)
+    - What uptime percentage is required? (99%, 99.9%, 99.99%)
+    - What are acceptable maintenance windows?
+    - What are recovery time objectives (RTO) and recovery point objectives (RPO)?
+    - What error rates are acceptable?
+    
+    Acceptance criteria:
+    - Uptime target specified as percentage (e.g., 99.9% = 8.76 hours/year downtime)
+    - Business hours or 24/7 requirement stated
+    - Planned maintenance windows defined
+    - RTO and RPO specified for disaster recovery
+    - Error rate tolerance defined (< 1% failed transactions)
+    
+    Example:
+    "NFR-020: System shall maintain 99.9% uptime during business hours (6am-10pm EST, Monday-Saturday). NFR-021: Planned maintenance shall occur only during Sunday 2am-6am window with 48-hour advance notice. NFR-022: System shall recover from failure with RTO of 4 hours and RPO of 15 minutes (maximum data loss)."
+    
+    Red flags to watch for:
+    - Impossible targets (100% uptime)
+    - No defined maintenance windows
+    - Missing disaster recovery requirements
+    - Availability without reliability (uptime but high error rate)
+
+Task 3.2.4: Define Usability and Accessibility Requirements
+    Use personas (referenced in use cases DOC 2.1-B) to understand user technical proficiency and use context diagram (DOC 1.3-A) to identify device types and access methods.
+    
+    Guiding questions:
+    - What is users' technical skill level? (from personas)
+    - How much training is acceptable?
+    - What devices must be supported? (desktop, tablet, mobile from context)
+    - What browsers must be supported?
+    - What accessibility standards apply? (WCAG 2.1, Section 508)
+    - What languages must be supported?
+    
+    Acceptance criteria:
+    - User training time target specified (e.g., novice productive within 30 minutes)
+    - Supported browsers and versions listed
+    - Device types and screen sizes specified
+    - Accessibility compliance level stated (WCAG 2.1 Level AA)
+    - Language support requirements defined
+    
+    Example:
+    "NFR-030: Novice users shall complete basic order entry within 30 minutes of completing training. NFR-031: System shall support Chrome, Firefox, Safari, Edge (current and previous versions). NFR-032: System UI shall be responsive, supporting desktop (1920x1080), tablet (768x1024), and mobile (375x667) viewports. NFR-033: System shall comply with WCAG 2.1 Level AA accessibility standards."
+    
+    Red flags to watch for:
+    - Subjective requirements (easy to use, intuitive)
+    - Missing accessibility requirements (legal risk)
+    - No mobile support when users need it
+    - All browsers ever made (unrealistic)
+
+Task 3.2.5: Document Constraints and Additional Quality Attributes
+    Review all prerequisite documents to identify technical, regulatory, operational, and business constraints that limit solution options.
+    
+    Guiding questions:
+    - What technology mandates exist? (must use certain platforms from vision doc)
+    - What systems must we integrate with? (from context diagram 1.3-A)
+    - What regulatory compliance is required?
+    - What budget or timeline constraints exist? (from vision doc)
+    - Are there maintainability requirements? (code standards, documentation)
+    - Are there portability needs? (cloud vendor independence)
+    
+    Acceptance criteria:
+    - Technical constraints documented (required platforms, integrations)
+    - Regulatory/compliance requirements listed
+    - Operational constraints stated (budget, timeline, staffing)
+    - Maintainability requirements specified if applicable
+    - Interoperability standards identified
+    
+    Example:
+    "NFR-040 (Constraint): System shall integrate with existing SAP ERP system via REST API. NFR-041 (Constraint): System shall run on Azure cloud platform per IT standards. NFR-042 (Compliance): System shall comply with PCI-DSS Level 1 for payment card data handling. NFR-043 (Maintainability): Code shall maintain minimum 80% unit test coverage."
+    
+    Red flags to watch for:
+    - Constraints that are actually design decisions (should be questioned)
+    - Missing integration constraints from context diagram
+    - Overlooked regulatory requirements
+    - No maintainability requirements (long-term risk)
+
+Task 3.2.6: Make Requirements Measurable and Testable
+    Review all NFR statements to ensure each has specific, measurable criteria that can be verified through testing.
+    
+    Guiding questions:
+    - How will we test this requirement?
+    - What specific numbers or criteria define success?
+    - Can this be objectively measured?
+    - What tools or methods will verify compliance?
+    
+    Acceptance criteria:
+    - Every NFR includes measurable criterion (percentage, time, count)
+    - Vague terms eliminated (fast, secure, reliable)
+    - Test approach specified for each NFR
+    - Acceptance threshold clearly stated
+    
+    Example:
+    "Before: System shall be fast. After: System shall respond to search queries within 1 second for 95% of requests under load of 500 concurrent users, measured using JMeter load testing tool."
+    
+    Red flags to watch for:
+    - Subjective language without metrics
+    - "Shall be compliant" without specifying standard
+    - No defined measurement method
+    - Impossible to verify (untestable)
+
+Deliverable:
+DOC 3.2-A: Non-Functional Requirements Specification
+
+Output format:
+Document containing (8-12 pages):
+
+1. **Introduction (1 page):**
+   - Purpose and scope of NFRs
+   - How NFRs relate to functional requirements
+   - Organization of this document
+
+2. **Performance Requirements (1-2 pages):**
+   - Response time requirements (by operation type)
+   - Throughput requirements (transactions per time)
+   - Resource utilization limits (CPU, memory, disk)
+   - Scalability requirements
+
+3. **Security Requirements (2-3 pages):**
+   - Authentication requirements
+   - Authorization/access control requirements
+   - Data protection requirements (encryption)
+   - Audit and logging requirements
+   - Compliance requirements
+
+4. **Availability and Reliability Requirements (1 page):**
+   - Uptime targets
+   - Maintenance windows
+   - Disaster recovery (RTO/RPO)
+   - Error rate tolerance
+
+5. **Usability and Accessibility Requirements (1 page):**
+   - User training requirements
+   - Browser/device support
+   - Accessibility compliance
+   - Internationalization/localization
+
+6. **Constraints (1-2 pages):**
+   - Technical constraints (platforms, integrations)
+   - Regulatory constraints
+   - Operational constraints (budget, timeline)
+
+7. **Other Quality Attributes (1 page):**
+   - Maintainability requirements
+   - Portability requirements
+   - Interoperability requirements
+
+Each requirement includes:
+- **NFR ID:** Unique identifier (NFR-XXX)
+- **Category:** Performance, Security, etc.
+- **Requirement Statement:** "The system shall..." with measurable criteria
+- **Priority:** High/Medium/Low
+- **Rationale:** Why this requirement exists (business need)
+- **Verification Method:** How it will be tested
+- **Source:** Which prerequisite document(s) informed this requirement
+
+3.3 UI Mockups (Low-Fidelity)
+
+Purpose:
+Visualize user interface structure and navigation flow to validate understanding with stakeholders early, before investing in detailed design. Low-fidelity wireframes focus on layout, content, and flow—not colors, fonts, or visual polish.
+
+Prerequisite deliverables from previous steps:
+- DOC 1.2-A: User Personas Document (from step 1.2)
+- DOC 2.1-B: Use Case Specifications Document (from step 2.1)
+- DOC 2.2-A: Process Flow Diagrams (from step 2.2)
+- DOC 3.1-A: Functional Requirements List (from step 3.1)
+
+Tasks:
+
+Task 3.3.1: Identify Required Screens
+    Analyze use case flows (DOC 2.1-B) and functional requirements (DOC 3.1-A) to determine what screens/pages the system needs to support user tasks.
+    
+    Guiding questions:
+    - What screens are mentioned in use case main flows and alternatives?
+    - What data entry is required? (creates input forms)
+    - What information do users need to view? (creates display screens)
+    - What decisions do users make? (may need confirmation dialogs)
+    - What are the main user workflows? (from process diagrams 2.2-A)
+    
+    Acceptance criteria:
+    - Screen inventory created listing all required screens
+    - Each screen mapped to use case(s) and requirements it supports
+    - Screen types identified (form, list, detail, dashboard, dialog)
+    - Priority assigned based on use case priority
+    - 8-15 key screens identified for wireframing
+    
+    Example:
+    "Screens needed: Login (UC-001), Customer Dashboard (UC-002), Order Entry Form (UC-003), Order Search/List (UC-004, REQ-015), Order Detail View (UC-005), Address Validation Dialog (UC-003 alt flow), Order Confirmation (UC-003 postcondition)."
+    
+    Red flags to watch for:
+    - Missing screens for key use cases
+    - Too granular (every button click = new screen)
+    - Screens with no clear use case or requirement linkage
+
+Task 3.3.2: Create Low-Fidelity Wireframes
+    Sketch structure and content of each key screen using simple boxes, labels, and placeholders. Focus on what goes where, not visual design. Use personas (DOC 1.2-A) to inform content priority and organization.
+    
+    Guiding questions:
+    - What information must appear on this screen? (from requirements)
+    - What actions can users take? (buttons, links from use cases)
+    - What is the logical grouping and hierarchy? (most important first)
+    - What fits users' mental model? (from personas)
+    - What input fields are required vs. optional? (from use case preconditions)
+    
+    Acceptance criteria:
+    - Wireframes show page structure using boxes/placeholders
+    - All required data fields present (from functional requirements)
+    - Navigation elements included (menus, buttons, breadcrumbs)
+    - Content hierarchy clear (size/position indicates importance)
+    - Annotations explain functionality where needed
+    - No colors, fonts, or visual styling (gray/black/white only)
+    - Tool-agnostic (hand sketches, Balsamiq, Figma wireframe mode all acceptable)
+    
+    Example:
+    "Order Entry wireframe: Header with logo/nav, main area with product selection (dropdowns/search), quantity inputs, shipping address form (linked to REQ-012 address validation), price calculator display, Submit/Cancel buttons. Annotations: 'Address validates on blur per REQ-012', 'Total updates real-time per REQ-018'."
+    
+    Red flags to watch for:
+    - High-fidelity design elements (specific colors, fonts, images)
+    - Missing required fields from functional requirements
+    - Unclear affordances (can't tell what's clickable)
+    - Inconsistent layout patterns between related screens
+
+Task 3.3.3: Map Navigation Flow
+    Create diagram showing how users move between screens, using process flows (DOC 2.2-A) to ensure navigation supports actual workflows.
+    
+    Guiding questions:
+    - How does user get from screen A to screen B? (click, submit, link)
+    - What are the main user paths? (from use case main flows)
+    - Where can users go from each screen? (all possible navigation)
+    - How do users return to previous screens? (back, cancel, breadcrumbs)
+    - Are there dead ends? (screen with no way forward or back)
+    
+    Acceptance criteria:
+    - Flow diagram shows all screens as boxes
+    - Arrows show navigation paths with trigger labels
+    - Main user workflows highlighted (from common use cases)
+    - Entry points identified (where users start)
+    - Exit points identified (logout, complete, abandon)
+    - No orphaned screens (unreachable or no exit)
+    
+    Example:
+    "Navigation: Login → Dashboard. Dashboard → [New Order, Search Orders, My Account]. New Order → Product Selection → Shipping Info → Review → Confirmation → Dashboard. Each transition labeled: 'click New Order button', 'submit form', 'click Cancel returns to Dashboard'."
+    
+    Red flags to watch for:
+    - Screens not reachable from any workflow
+    - No way to cancel/go back from forms
+    - Overly complex navigation (too many clicks to common tasks)
+    - Navigation contradicts process flows from step 2.2
+
+Task 3.3.4: Validate Wireframes with Stakeholders
+    Review wireframes and navigation with actual users (from personas) to identify usability issues, missing functionality, or workflow problems before detailed design begins.
+    
+    Guiding questions:
+    - Can users find what they need on each screen?
+    - Is the workflow logical and efficient?
+    - Are there missing fields or actions?
+    - Is terminology clear? (labels match users' language)
+    - Can users complete their tasks? (walk through use cases)
+    
+    Acceptance criteria:
+    - Wireframes reviewed with representatives of each persona type
+    - Walkthrough conducted for 3-5 key use cases
+    - Feedback documented (usability issues, missing elements, confusion)
+    - Critical issues resolved (updated wireframes)
+    - Stakeholder confirmation that structure supports their needs
+    
+    Example:
+    "Validation session with CSR persona: Identified missing 'Customer History' link on Order Detail screen (added). User confused by 'Submit' vs 'Confirm' buttons (standardized to 'Submit'). Requested quick-access to common actions on Dashboard (added shortcuts panel)."
+    
+    Red flags to watch for:
+    - Users struggle to complete basic tasks
+    - Users ask "where is [obvious feature]?" (missing functionality)
+    - Users say "I guess this works" (not confident)
+    - Feedback contradicts use case flows (use cases may be wrong)
+
+Deliverables:
+- DOC 3.3-A: UI Wireframes Document
+- DOC 3.3-B: Navigation Flow Diagram
+
+Output format:
+DOC 3.3-A: UI Wireframes Document (10-20 pages)
+- Introduction: Purpose, fidelity level, wireframe conventions used
+- Screen inventory table:
+  - Screen name, purpose, use case(s) supported, priority
+- Wireframes for 8-15 key screens (1-2 pages each):
+  - Screen name and purpose
+  - Low-fidelity sketch/wireframe (boxes, labels, placeholders)
+  - Annotations explaining:
+    - Field requirements (required/optional, validation rules)
+    - Actions/interactions (what happens when clicked)
+    - Business rules applied (requirement IDs)
+    - Dynamic content (what changes, when)
+  - Linked requirements (REQ-XXX)
+  - Open questions or design notes
+- Common UI patterns identified:
+  - Standard layouts, navigation, error handling
+
+DOC 3.3-B: Navigation Flow Diagram (2-3 pages)
+- Visual flow diagram showing:
+  - All screens as boxes/nodes
+  - Navigation paths as arrows with labels (trigger)
+  - Entry and exit points marked
+  - Main user workflows highlighted in color/bold
+- Navigation matrix (table format):
+  - From Screen | To Screen | Trigger | User Action | Use Case
+- Notes on navigation patterns:
+  - Breadcrumbs, back buttons, cancel behavior
+  - How errors redirect users
+  - Session timeout/logout behavior
+
+**Note:** Low-fidelity means gray boxes, simple labels, no visual design. Focus is structure, content, and flow—NOT colors, fonts, images, or branding. These wireframes will be refined into high-fidelity mockups in step 6.3.
+
+4.1 Extract Architecture Drivers
+
+Purpose:
+Identify the key requirements and constraints that will fundamentally shape the system architecture. Not all requirements are architecturally significant—this step separates the critical drivers that determine architectural patterns and technology choices from those addressed during detailed design.
+
+Prerequisite deliverables from previous steps:
+- DOC 1.1-A: Project Vision Document (from step 1.1)
+- DOC 1.3-A: System Context Diagram (from step 1.3)
+- DOC 3.2-A: Non-Functional Requirements Specification (from step 3.2)
+- DOC 3.4-A: Prioritized Requirements Matrix (from step 3.4)
+
+Tasks:
+
+Task 4.1.1: Identify Architecturally Significant Functional Requirements
+    Use the prioritized requirements matrix (DOC 3.4-A) to identify which functional requirements have architectural implications.
+    
+    Guiding questions:
+    - Which requirements involve high transaction volumes or data volumes?
+    - Which requirements need many external integrations? (cross-reference context diagram 1.3-A)
+    - Which requirements need real-time or computationally intensive processing?
+    
+    Acceptance criteria:
+    - Each "Must Have" functional requirement evaluated for architectural significance
+    - High-volume requirements identified with specific numbers
+    - Integration requirements mapped to external systems from context diagram
+    - 5-10 architecturally significant functional requirements extracted
+    
+    Example:
+    "FR-015 'Process 100,000 orders/day with 500 orders/minute peaks' requires scalable architecture, async processing. FR-023 'Integrate with 15 external APIs' drives need for integration layer, circuit breakers."
+    
+    Red flags to watch for:
+    - Treating all requirements as architecturally significant
+    - Missing integration complexity from context diagram
+    - No specific volume/scale numbers
+
+Task 4.1.2: Analyze Quality Attribute Requirements
+    Use the non-functional requirements specification (DOC 3.2-A) to identify which quality attributes will most significantly constrain architectural choices.
+    
+    Guiding questions:
+    - What are the most demanding performance, availability, and scalability requirements?
+    - What security/compliance requirements are mandatory?
+    - Are there conflicting quality attributes requiring trade-offs?
+    
+    Acceptance criteria:
+    - Each NFR category from DOC 3.2-A evaluated for architectural impact
+    - Specific measurable targets extracted (< 200ms p95, not "fast")
+    - Trade-offs between conflicting attributes identified
+    - Quality attributes ranked by criticality to business objectives (from vision doc 1.1-A)
+    
+    Example:
+    "NFR-001 'p95 < 200ms under 1000 users' drives caching strategy. NFR-010 'PCI-DSS compliance' mandates encryption, tokenization, network segmentation architecture."
+    
+    Red flags to watch for:
+    - Treating all NFRs equally without prioritization
+    - Ignoring conflicts (can't have strong consistency and high availability everywhere)
+    - No connection to business objectives from vision document
+
+Task 4.1.3: Document Constraints and Prioritize Drivers
+    Extract constraints from vision document (DOC 1.1-A) and context diagram (DOC 1.3-A), then rank all drivers by architectural significance using business objectives.
+    
+    Guiding questions:
+    - What technology, budget, timeline, or regulatory constraints limit options?
+    - What existing systems must we integrate with? (from context diagram)
+    - Which drivers have highest business risk if not met? (from vision objectives)
+    - Which drivers conflict and how do we resolve trade-offs?
+    
+    Acceptance criteria:
+    - All constraints from vision document and context diagram listed and categorized
+    - Flexibility of each constraint assessed (hard vs preference)
+    - All drivers ranked using consistent criteria (critical/important/desirable)
+    - Trade-offs between conflicting drivers documented with resolution approach
+    - Top 8-12 drivers identified as primary architectural shapers
+    
+    Example:
+    "Constraint: Must deploy on Azure (enterprise agreement). Constraint: Must integrate with legacy SAP via SOAP (from context diagram). Ranking: 1) CRITICAL: PCI-DSS (regulatory), 2) CRITICAL: 99.9% availability (vision objective), 3) IMPORTANT: Scale to 50K users in 2 years (vision growth target)."
+    
+    Red flags to watch for:
+    - Everything marked "critical" (defeats prioritization)
+    - Accepting constraints without questioning rationale
+    - No stakeholder validation of priorities
+
+Deliverable:
+DOC 4.1-A: Architectural Drivers Document
+
+Output format:
+Document containing (5-8 pages):
+
+1. **Executive Summary:** Key drivers, critical trade-offs
+2. **Architecturally Significant Functional Requirements:** Table with Requirement ID, Description, Architectural Significance, specific metrics
+3. **Quality Attribute Drivers:** Organized by category with measurable targets, business rationale (from vision), priority, trade-off resolutions
+4. **Constraints:** Table with Constraint, Type, Flexibility, Impact, Source
+5. **Prioritized Drivers Matrix:** All drivers ranked with business impact and risk assessment, top 8-12 highlighted
+6. **Assumptions and Open Questions**
+
+This document serves as the foundation for architecture decisions in steps 4.2 (technology selection) and 4.3 (architecture pattern selection). Every major architectural decision should trace back to drivers documented here.
+
+4.2 Select Technology Stack
+
+Purpose:
+Choose specific technologies, frameworks, and platforms based on architectural drivers and constraints. Technology decisions have long-term implications—they affect development speed, scalability, hiring, and maintenance for years. The goal is selecting technologies that best satisfy drivers while minimizing risk.
+
+Prerequisite deliverables from previous steps:
+- DOC 3.2-A: Non-Functional Requirements Specification (from step 3.2)
+- DOC 4.1-A: Architectural Drivers Document (from step 4.1)
+
+Tasks:
+
+Task 4.2.1: Evaluate Programming Languages and Frameworks
+    Use architectural drivers (DOC 4.1-A) to identify language/framework requirements, then evaluate candidates against these requirements and team capabilities.
+    
+    Guiding questions:
+    - What performance requirements drive language choice? (from drivers document)
+    - What does the team already know? What's the learning curve?
+    - What ecosystem/libraries are needed? (web frameworks, ML libraries, data processing)
+    - Can we hire developers for this language?
+    - Does this language support required platforms? (from constraints in drivers)
+    
+    Acceptance criteria:
+    - Language candidates identified for backend, frontend, and specialized needs
+    - Each candidate evaluated against: performance requirements (from 4.1-A), team expertise, ecosystem maturity, hiring availability, platform support
+    - Web framework selected (if applicable) with rationale
+    - Testing frameworks identified
+    - Evaluation matrix completed comparing candidates
+    
+    Example:
+    "Backend: Evaluated Java vs Go vs Python. Selected Java—team expertise high, mature ecosystem, meets performance targets (p95 < 200ms from NFR-001), strong enterprise library support. Frontend: React—team knows JavaScript, component ecosystem, meets interactive UI requirements."
+    
+    Red flags to watch for:
+    - Choosing "cool" technology without team expertise
+    - Ignoring hiring market realities
+    - Not validating performance assumptions against drivers
+    - Technology doesn't run on required platform (from constraints)
+
+Task 4.2.2: Select Data Storage Technologies
+    Use data requirements from NFRs (DOC 3.2-A) and architectural drivers (DOC 4.1-A) to select appropriate database(s), caching, and storage solutions.
+    
+    Guiding questions:
+    - What are data access patterns? (from use cases and drivers)
+    - What consistency requirements exist? (from NFRs and drivers)
+    - What are volume and scalability requirements? (from drivers)
+    - Do we need relational (complex queries, transactions) or NoSQL (flexibility, scale)?
+    - What caching strategy supports performance targets? (from NFRs)
+    - Where will files be stored? (local, object storage, CDN)
+    
+    Acceptance criteria:
+    - Primary database selected with rationale tied to drivers
+    - Caching solution selected if performance drivers require it
+    - File storage solution chosen based on volume/access patterns
+    - Search engine selected if full-text search required
+    - Polyglot persistence justified if multiple database types needed
+    - Each choice mapped to specific architectural drivers
+    
+    Example:
+    "Primary DB: PostgreSQL—relational data model fits domain, ACID transactions needed (from NFR-020), handles 100K orders/day (from driver AD-001), team expertise. Caching: Redis—achieves p95 < 200ms target (NFR-001), distributed caching for horizontal scaling. Object storage: S3—scalable file storage, integrates with CloudFront CDN for global delivery."
+    
+    Red flags to watch for:
+    - NoSQL without clear need (relational often simpler)
+    - Multiple databases without strong justification (operational complexity)
+    - No caching when performance drivers demand it
+    - Database doesn't support required scale from drivers
+
+Task 4.2.3: Select Infrastructure and Supporting Technologies
+    Choose cloud platform, message queues, authentication, monitoring, and other infrastructure based on constraints and drivers from DOC 4.1-A.
+    
+    Guiding questions:
+    - What platform constraints exist? (from constraints in drivers document)
+    - Do availability/scalability drivers require cloud? (from 4.1-A)
+    - Is message queue needed for async processing? (from drivers)
+    - What authentication mechanism? (from security requirements in NFRs)
+    - What monitoring/logging tools support operational requirements?
+    
+    Acceptance criteria:
+    - Cloud platform selected (or on-premises justified) based on constraints
+    - Message queue selected if async processing required by drivers
+    - Authentication solution chosen based on security NFRs
+    - Logging/monitoring stack selected supporting observability needs
+    - CI/CD tools identified
+    - Each selection traceable to constraint or architectural driver
+    
+    Example:
+    "Platform: Azure—mandated constraint from drivers doc. Message queue: RabbitMQ—handles async order processing (driver AD-001), reliable delivery for payment workflows. Auth: OAuth 2.0 with Auth0—meets SSO requirement (NFR-015), reduces security implementation risk. Monitoring: DataDog—comprehensive observability, supports 99.9% availability target (driver AD-002)."
+    
+    Red flags to watch for:
+    - Ignoring mandated platform constraints
+    - Over-engineering (Kafka when simple queue suffices)
+    - Building authentication instead of proven solutions
+    - No monitoring strategy for availability-critical systems
+
+Deliverable:
+DOC 4.2-A: Technology Stack Decision Document
+
+Output format:
+Document containing (4-6 pages):
+
+1. **Technology Stack Overview:** Visual diagram showing all selected technologies across layers (presentation, application, data, infrastructure)
+
+2. **Technology Decisions by Category:**
+   - **Languages & Frameworks:** Backend, frontend, mobile (if applicable) with versions and rationale
+   - **Data Storage:** Database(s), caching, file storage, search engine with rationale mapped to drivers
+   - **Infrastructure:** Platform, containers, orchestration, message queue
+   - **Security:** Authentication, secrets management
+   - **DevOps:** CI/CD, monitoring, logging
+
+3. **Decision Matrix:** Comparison table for major decisions (e.g., Java vs Go, PostgreSQL vs MongoDB) showing evaluation criteria from drivers and scores
+
+4. **Traceability:** Each technology mapped to architectural driver(s) or constraint that drove selection
+
+5. **Risks and Mitigation:** Technology risks identified (new to team, vendor lock-in, version compatibility) with mitigation strategies
+
+6. **Assumptions:** Technology availability, licensing, team training needs
+
+4.3 Define System Architecture
+
+Purpose:
+Select the overall architectural pattern and create high-level structure showing major subsystems, components, and their relationships. This establishes the blueprint that guides all detailed design decisions and ensures the architecture satisfies architectural drivers.
+
+Prerequisite deliverables from previous steps:
+- DOC 1.3-A: System Context Diagram (from step 1.3)
+- DOC 4.1-A: Architectural Drivers Document (from step 4.1)
+- DOC 4.2-A: Technology Stack Decision Document (from step 4.2)
+
+Tasks:
+
+Task 4.3.1: Select Architectural Pattern
+    Use architectural drivers (DOC 4.1-A) to choose the overall architectural style that best satisfies requirements and constraints.
+    
+    Guiding questions:
+    - What scale/complexity level do drivers indicate? (from 4.1-A)
+    - How many developers/teams will work on this?
+    - Do different parts need independent scaling? (from scalability drivers)
+    - What's the team's operational maturity?
+    - Are there clear service boundaries? (from context diagram 1.3-A)
+    - What deployment frequency is needed? (from constraints)
+    
+    Acceptance criteria:
+    - Architectural style selected: Monolithic, Microservices, Event-Driven, Layered, or hybrid
+    - Selection justified against top architectural drivers from DOC 4.1-A
+    - Trade-offs explicitly documented (complexity vs scalability, etc.)
+    - Team capabilities and constraints considered
+    - Alternative patterns considered and rejected with rationale
+    
+    Example:
+    "Selected: Modular Monolith. Rationale: Team size (5 devs) too small for microservices complexity, single deployment simplifies operations matching current maturity, meets performance drivers (p95 < 200ms), clear internal module boundaries enable future extraction if needed. Rejected microservices: operational overhead exceeds benefit at current scale."
+    
+    Red flags to watch for:
+    - Choosing microservices for small team/simple domain
+    - Selecting pattern based on hype, not drivers
+    - Ignoring operational maturity constraints from drivers doc
+    - Pattern contradicts scalability or availability drivers
+
+Task 4.3.2: Decompose into Major Components
+    Break system into cohesive, loosely-coupled components based on technology stack (DOC 4.2-A) and external systems from context diagram (DOC 1.3-A).
+    
+    Guiding questions:
+    - What are the major functional areas? (from requirements)
+    - What has different scaling needs? (from drivers)
+    - What needs independent deployment? (from constraints)
+    - What external systems require integration? (from context diagram 1.3-A)
+    - How does chosen technology stack map to layers? (from 4.2-A)
+    - Where are transaction boundaries?
+    
+    Acceptance criteria:
+    - 5-12 major components/subsystems identified
+    - Each component has clear responsibility and boundary
+    - Components organized by architectural layers (presentation, application, data)
+    - Integration points with external systems (from context diagram) clearly shown
+    - Technology assignments from stack decision (DOC 4.2-A) mapped to components
+    - Data ownership defined (which component owns which data)
+    
+    Example:
+    "Components: Web UI (React from tech stack), API Gateway (handles external traffic), Authentication Service (Auth0 integration per tech stack), Order Service (owns order data), Payment Service (integrates with Payment Gateway from context diagram), Notification Service (async email/SMS), PostgreSQL Database (per tech stack). Clear boundaries: each service owns its data, communicates via REST APIs."
+    
+    Red flags to watch for:
+    - Too many components (over-decomposition)
+    - Unclear responsibilities (overlapping concerns)
+    - Shared database across components (tight coupling)
+    - Missing integration components for external systems from context diagram
+
+Task 4.3.3: Define Communication Patterns and Create Architecture Diagram
+    Specify how components interact and create visual architecture showing structure, relationships, and deployment. Document major decisions as ADRs.
+    
+    Guiding questions:
+    - Which interactions are synchronous vs asynchronous? (from performance drivers)
+    - What protocols? (REST, gRPC, message queue from tech stack)
+    - How do components discover each other?
+    - Where are the layers and tiers? (logical vs physical separation)
+    - What goes on which deployment nodes? (servers, containers, cloud services)
+    - What are the key architectural decisions needing documentation?
+    
+    Acceptance criteria:
+    - Communication style defined for each interaction (sync/async, protocol)
+    - Architecture diagram shows: all major components, layers/tiers, external systems (from context diagram), data stores, communication patterns, deployment nodes
+    - Diagram uses consistent notation with legend
+    - Architecture Decision Records (ADRs) created for 3-5 key decisions
+    - Each ADR includes: context, problem, options considered, decision, consequences
+    
+    Example:
+    "Communication: Web UI ↔ API Gateway (HTTPS/REST sync), API Gateway ↔ Services (REST sync, circuit breaker pattern), Services → Notification (RabbitMQ async per tech stack), Services → Database (connection pool). Diagram shows: 3-tier separation (presentation/application/data), containers for each service, external Payment Gateway integration from context diagram. ADR-001: Selected REST over gRPC—team expertise, adequate performance for current drivers."
+    
+    Red flags to watch for:
+    - No distinction between logical and physical architecture
+    - Missing external systems from context diagram
+    - Unclear communication patterns between components
+    - Synchronous calls everywhere (performance bottleneck)
+    - No ADRs for controversial decisions
+
+Deliverables:
+- DOC 4.3-A: System Architecture Diagram
+- DOC 4.3-B: Architecture Decision Records (ADRs)
+
+Output format:
+
+DOC 4.3-A: System Architecture Diagram (3-5 pages)
+1. **Architecture Overview:** Narrative describing chosen pattern, key characteristics, how it satisfies drivers from DOC 4.1-A
+2. **Logical Architecture Diagram:** Component view showing major components, responsibilities, relationships, data ownership
+3. **Deployment Architecture Diagram:** Physical view showing deployment nodes, network zones, load balancers, how components map to infrastructure (cloud services, containers)
+4. **Communication Patterns:** Table with From Component, To Component, Protocol, Style (Sync/Async), Purpose
+5. **External Integration Points:** All external systems from context diagram (DOC 1.3-A) with integration approach
+6. **Technology Mapping:** How technology stack (DOC 4.2-A) maps to architecture (which tech for which component)
+
+DOC 4.3-B: Architecture Decision Records (2-4 pages)
+One ADR per major decision (3-5 ADRs typical):
+- **ADR Title:** Short descriptive name
+- **Status:** Proposed/Accepted/Superseded
+- **Context:** Problem requiring decision, relevant drivers from DOC 4.1-A
+- **Options Considered:** 2-4 alternatives with pros/cons
+- **Decision:** What was chosen and why
+- **Consequences:** Positive and negative outcomes, trade-offs accepted, impacts on other decisions
+- **Date and Participants**
+
+Example ADR topics: Architectural pattern selection, monolith vs microservices, sync vs async communication, API gateway vs direct access, database per service vs shared
+
+5.1 Component Design
+
+Purpose:
+Break down the high-level architecture into detailed components with clearly defined responsibilities and interfaces. This step transforms the architectural blueprint into specific, implementable modules that development teams can build independently.
+
+Prerequisite deliverables from previous steps:
+- DOC 3.1-A: Functional Requirements List (from step 3.1)
+- DOC 3.3-A: UI Wireframes Document (from step 3.3)
+- DOC 4.3-A: System Architecture Diagram (from step 4.3)
+
+Tasks:
+
+Task 5.1.1: Decompose Major Components into Detailed Components
+    Use the system architecture diagram (DOC 4.3-A) to break each major component/subsystem into smaller, cohesive sub-components with specific responsibilities.
+    
+    Guiding questions:
+    - What are the distinct responsibilities within each major component?
+    - Which functional requirements (from 3.1-A) does each component fulfill?
+    - What UI screens (from 3.3-A) require backend components?
+    - What components handle business logic vs data access vs presentation?
+    - Can components be developed and tested independently?
+    
+    Acceptance criteria:
+    - Each major component from architecture diagram broken into 3-8 detailed components
+    - Each component has single, clear responsibility (high cohesion)
+    - Components organized by layer: presentation, application/business, data access
+    - UI components mapped to wireframes from DOC 3.3-A
+    - Backend components support functional requirements from DOC 3.1-A
+    - Total 15-30 detailed components identified across system
+    
+    Example:
+    "Order Service (from architecture) decomposed into: OrderController (REST endpoints), OrderValidator (validation rules), OrderProcessor (business logic), PaymentOrchestrator (coordinates payment), OrderRepository (data access), OrderNotifier (events). Each maps to functional requirements: OrderValidator implements REQ-012 (address validation), OrderProcessor implements REQ-015 (order total calculation)."
+    
+    Red flags to watch for:
+    - Components too granular (one class per component - too fine-grained)
+    - Components too coarse (entire layer in one component)
+    - Unclear responsibilities (component does "everything for orders")
+    - Missing components needed for functional requirements
+
+Task 5.1.2: Define Component Interfaces and Dependencies
+    Specify what each component exposes (public interface) and what it depends on (other components, external systems, databases).
+    
+    Guiding questions:
+    - What operations does each component provide? (public methods/APIs)
+    - What does each component need from others? (dependencies)
+    - Which components communicate? (from architecture diagram communication patterns)
+    - Are dependencies unidirectional? (avoid circular dependencies)
+    - What data does each component need/produce?
+    
+    Acceptance criteria:
+    - Public interface defined for each component (methods/APIs it exposes)
+    - Dependencies listed for each component (what it calls/uses)
+    - Component dependency diagram shows relationships with arrows
+    - Circular dependencies identified and eliminated
+    - External dependencies (databases, message queues, APIs) clearly marked
+    - Dependency direction follows layering rules (upper layers depend on lower, not reverse)
+    
+    Example:
+    "OrderController exposes: createOrder(orderData), getOrder(orderId), updateOrder(orderId, changes). Depends on: OrderValidator, OrderProcessor, AuthenticationService. OrderProcessor exposes: processOrder(order), calculateTotal(items). Depends on: PaymentOrchestrator, OrderRepository, ProductService (for pricing)."
+    
+    Red flags to watch for:
+    - Circular dependencies (A → B → A)
+    - Too many dependencies (component coupled to everything)
+    - Violating layering (data access layer calling presentation layer)
+    - Missing dependencies (component needs data but no source identified)
+
+Task 5.1.3: Create Component Responsibility Matrix
+    Map each component to the functional requirements (DOC 3.1-A) it implements and the architectural responsibilities it fulfills.
+    
+    Guiding questions:
+    - Which functional requirements does each component implement?
+    - Are all functional requirements covered by at least one component?
+    - Are responsibilities distributed appropriately? (no god components)
+    - Which components are most complex? (many requirements = high risk)
+    
+    Acceptance criteria:
+    - Matrix created with components as rows, functional requirements as columns
+    - Each component mapped to 2-8 functional requirements (not too few/many)
+    - All functional requirements from DOC 3.1-A covered by components
+    - No single component responsible for >20% of requirements (avoid god component)
+    - Complex components flagged for special attention in detailed design
+    
+    Example:
+    "OrderController: REQ-006, REQ-007, REQ-008 (order CRUD operations). OrderValidator: REQ-012, REQ-013 (address validation). OrderProcessor: REQ-015, REQ-016, REQ-018 (business logic, calculations). Coverage analysis: All 30 requirements covered, most distributed across 3-5 components, OrderProcessor highest complexity (8 requirements)."
+    
+    Red flags to watch for:
+    - Requirements not covered by any component (gap)
+    - One component handles many unrelated requirements (god component)
+    - Requirements split across too many components (excessive coupling)
+
+Deliverables:
+- DOC 5.1-A: Component Diagram
+- DOC 5.1-B: Component Responsibility Matrix
+
+Output format:
+
+DOC 5.1-A: Component Diagram (3-4 pages)
+1. **Component Hierarchy:** Tree view showing decomposition from major components (architecture diagram) to detailed components
+2. **Component Diagram:** UML component diagram showing all detailed components, interfaces (lollipop notation), and dependencies (arrows)
+3. **Component Catalog:** Table with Component Name, Layer, Responsibility, Public Interface, Dependencies, Technology
+4. **External Dependencies:** Components' dependencies on databases, message queues, external APIs
+
+DOC 5.1-B: Component Responsibility Matrix (2-3 pages)
+1. **Requirements Coverage Matrix:** Rows = components, Columns = functional requirement IDs (from DOC 3.1-A), Cells = checkmarks or role (primary/supporting)
+2. **Component Complexity Analysis:** Components ranked by number of requirements, flagged if high complexity
+3. **Completeness Check:** All functional requirements accounted for, gaps identified
+
+5.2 API Design
+
+Purpose:
+Specify all interfaces between components and external systems, defining contracts for communication. Well-defined APIs enable independent development, facilitate testing with mocks, and prevent integration issues by establishing clear contracts upfront.
+
+Prerequisite deliverables from previous steps:
+- DOC 1.3-A: System Context Diagram (from step 1.3)
+- DOC 3.3-A: UI Wireframes Document (from step 3.3)
+- DOC 5.1-A: Component Diagram (from step 5.1)
+- DOC 5.1-B: Component Responsibility Matrix (from step 5.1)
+
+Tasks:
+
+Task 5.2.1: Identify Required APIs
+    Use component dependencies (DOC 5.1-A) and UI wireframes (DOC 3.3-A) to determine what APIs are needed for component communication and external integrations.
+    
+    Guiding questions:
+    - Which components need to communicate? (from component diagram dependencies)
+    - What operations do UI screens require? (from wireframes 3.3-A)
+    - What external systems need APIs? (from context diagram 1.3-A)
+    - Which APIs are public (external clients) vs internal (between components)?
+    - What data needs to flow between components?
+    
+    Acceptance criteria:
+    - APIs identified for each component dependency in diagram
+    - UI wireframes mapped to backend API endpoints needed
+    - External integrations from context diagram have API specifications
+    - Public vs internal APIs distinguished
+    - APIs organized by component/service from component diagram
+    
+    Example:
+    "Order Service APIs: POST /orders (Create Order screen from wireframe), GET /orders/{id} (Order Detail screen), GET /orders?customerId={id} (Order List screen), PUT /orders/{id}/status (status updates). External: POST /webhooks/payment (Payment Gateway callback from context diagram)."
+    
+    Red flags to watch for:
+    - Missing APIs needed by UI wireframes
+    - No APIs for component dependencies shown in diagram
+    - External system integrations from context diagram not specified
+
+Task 5.2.2: Design REST API Endpoints
+    Define URL structure, HTTP methods, request/response formats, and status codes for each API following REST conventions.
+    
+    Guiding questions:
+    - What resources are being manipulated? (nouns, not verbs)
+    - What HTTP method fits the operation? (GET/POST/PUT/DELETE)
+    - What request data is needed? (headers, path params, query params, body)
+    - What should the response contain? (data structure, pagination)
+    - What status codes indicate success/failure? (200, 201, 400, 404, 500)
+    - What pagination/filtering is needed? (for list endpoints)
+    
+    Acceptance criteria:
+    - Each endpoint documented: HTTP method, URL pattern, description
+    - Request specification: path parameters, query parameters, headers, body schema
+    - Response specification: status codes, headers, body schema (success and error cases)
+    - Pagination defined for list endpoints (page/limit or cursor-based)
+    - Filtering/sorting parameters specified where needed
+    - Examples provided for each endpoint (request and response)
+    
+    Example:
+    "GET /api/v1/orders?status={status}&page={page}&limit={limit}
+    Response 200: { data: [orders], pagination: { page, limit, total } }
+    Response 400: { error: { code: 'INVALID_STATUS', message: '...' } }
+    
+    POST /api/v1/orders
+    Request: { customerId, items: [{productId, quantity}], shippingAddress }
+    Response 201: { orderId, status, total, createdAt }
+    Response 400: { error: { code: 'VALIDATION_FAILED', details: [...] } }"
+    
+    Red flags to watch for:
+    - Verbs in URLs (/getOrder instead of GET /orders)
+    - Wrong HTTP methods (GET to create, POST to retrieve)
+    - Inconsistent naming (camelCase vs snake_case mixed)
+    - Missing error responses
+    - No pagination for potentially large lists
+
+Task 5.2.3: Define Authentication, Versioning, and Error Standards
+    Specify cross-cutting API concerns including security, versioning strategy, and standardized error format.
+    
+    Guiding questions:
+    - How will APIs authenticate requests? (API keys, OAuth, JWT)
+    - How will APIs be versioned? (URL, header, query param)
+    - What's the standard error response format?
+    - What rate limiting applies?
+    - What headers are required/optional?
+    
+    Acceptance criteria:
+    - Authentication mechanism specified (for public and internal APIs)
+    - Versioning strategy defined (recommended: URL versioning /v1/)
+    - Standard error response format documented with error codes
+    - Rate limiting policy specified if applicable
+    - Common headers documented (Content-Type, Authorization, correlation IDs)
+    - CORS policy defined for public APIs
+    
+    Example:
+    "Authentication: JWT Bearer tokens (Authorization: Bearer {token}). Versioning: URL-based (/api/v1/). Standard error format: { error: { code, message, details[], timestamp, requestId } }. Rate limit: 1000 requests/hour per API key, returns 429 with Retry-After header. Required headers: Content-Type: application/json."
+    
+    Red flags to watch for:
+    - No authentication for sensitive APIs
+    - No versioning strategy (breaking changes will break clients)
+    - Inconsistent error formats across endpoints
+    - No rate limiting on public APIs
+
+Deliverable:
+DOC 5.2-A: API Specification Document
+
+Output format:
+Document in OpenAPI/Swagger format (8-15 pages):
+
+1. **API Overview:** Purpose, base URLs, authentication summary, versioning approach
+
+2. **Authentication & Security:** Mechanism details, token format, required headers, permissions
+
+3. **Endpoint Specifications:** For each endpoint:
+   - HTTP method and URL pattern
+   - Description and use case
+   - Request: path params, query params, headers, body schema (JSON)
+   - Response: status codes, headers, body schema for each status
+   - Example requests and responses
+   - Organized by resource/component
+
+4. **Common Data Models:** Shared schemas used across endpoints (Order, Customer, Error, Pagination)
+
+5. **Error Handling:** Standard error format, common error codes catalog, HTTP status code usage
+
+6. **Versioning & Evolution:** Versioning strategy, backward compatibility rules, deprecation policy
+
+7. **Rate Limiting & Quotas:** Limits, headers, throttling behavior
+
+This document enables frontend and backend teams to develop in parallel and serves as contract for integration testing.
+
+5.3 Physical Data Architecture
+
+Purpose:
+Transform the conceptual data model into physical database design with implementation details, selecting data types, defining keys, and organizing the database schema. This bridges the business-focused conceptual model and the production-ready detailed specifications created in step 6.4.
+
+Prerequisite deliverables from previous steps:
+- DOC 2.3-A: Conceptual ERD (from step 2.3)
+- DOC 3.1-A: Functional Requirements List (from step 3.1)
+- DOC 4.2-A: Technology Stack Decision Document (from step 4.2)
+- DOC 5.1-B: Component Responsibility Matrix (from step 5.1)
+
+Tasks:
+
+Task 5.3.1: Transform Conceptual Entities to Physical Tables
+    Use the conceptual ERD (DOC 2.3-A) and technology stack decision (DOC 4.2-A) to convert business entities into database tables with appropriate data types for the selected database platform.
+    
+    Guiding questions:
+    - What are the physical table names? (naming conventions)
+    - What data types does the selected database support? (from tech stack 4.2-A)
+    - What precision/length is needed for each attribute? (from requirements 3.1-A)
+    - Which attributes should be nullable vs required?
+    - Are there platform-specific considerations? (PostgreSQL vs MySQL vs MongoDB)
+    
+    Acceptance criteria:
+    - Each entity from conceptual ERD transformed to physical table
+    - Table naming convention defined and applied consistently
+    - Data types specified for each column using database-specific types
+    - Column lengths/precision specified (VARCHAR(255), DECIMAL(10,2))
+    - Nullability defined for each column (NOT NULL vs nullable)
+    - Audit columns added if needed (created_at, updated_at, created_by, updated_by)
+    
+    Example:
+    "Conceptual 'Customer' entity → physical 'customers' table (lowercase, plural). Attributes: customer_id (BIGINT), name (VARCHAR(100) NOT NULL), email (VARCHAR(255) NOT NULL), phone (VARCHAR(20)), registration_date (TIMESTAMP NOT NULL), created_at (TIMESTAMP DEFAULT NOW()), updated_at (TIMESTAMP)."
+    
+    Red flags to watch for:
+    - Inconsistent naming (mixed camelCase and snake_case)
+    - Insufficient column lengths (VARCHAR(10) for addresses)
+    - No consideration of internationalization (UTF-8 support)
+    - Missing audit columns for compliance requirements
+
+Task 5.3.2: Define Primary and Foreign Keys
+    Establish primary keys, foreign keys, and referential integrity constraints based on relationships from conceptual ERD (DOC 2.3-A).
+    
+    Guiding questions:
+    - What uniquely identifies each row? (natural key or surrogate)
+    - How are relationships implemented? (foreign keys)
+    - What referential integrity actions? (CASCADE, RESTRICT, SET NULL)
+    - Are composite keys needed? (multiple columns as primary key)
+    - Which columns need uniqueness constraints? (email, username)
+    
+    Acceptance criteria:
+    - Primary key defined for every table
+    - Foreign keys defined for all relationships from conceptual ERD
+    - Referential integrity actions specified (ON DELETE, ON UPDATE)
+    - Unique constraints identified (beyond primary keys)
+    - Many-to-many relationships implemented via junction tables
+    - Naming conventions for constraints defined (pk_, fk_, uk_ prefixes)
+    
+    Example:
+    "customers table: PRIMARY KEY (customer_id). orders table: PRIMARY KEY (order_id), FOREIGN KEY (customer_id) REFERENCES customers(customer_id) ON DELETE RESTRICT ON UPDATE CASCADE. order_items junction table: PRIMARY KEY (order_id, product_id), FOREIGN KEY (order_id) REFERENCES orders, FOREIGN KEY (product_id) REFERENCES products."
+    
+    Red flags to watch for:
+    - No primary key on tables
+    - Foreign keys without ON DELETE/UPDATE behavior defined
+    - Unresolved many-to-many relationships (missing junction tables)
+    - Circular foreign key dependencies
+
+Task 5.3.3: Map Data Ownership to Components and Organize Schema
+    Use component responsibility matrix (DOC 5.1-B) to assign table ownership and organize schema structure for data access patterns.
+    
+    Guiding questions:
+    - Which component owns which tables? (from component diagram)
+    - Should tables be grouped into separate schemas/databases? (microservices)
+    - Are there shared reference tables? (lookup data)
+    - Is partitioning needed for large tables? (date-based, hash-based)
+    - What's the data access boundary for each component?
+    
+    Acceptance criteria:
+    - Each table assigned to owning component from DOC 5.1-B
+    - Schema organization defined (single schema vs multiple schemas)
+    - Shared/reference tables identified and access rules defined
+    - Partitioning strategy specified for high-volume tables if needed
+    - Cross-component data access rules established (direct vs via API)
+    - Naming reflects ownership where applicable
+    
+    Example:
+    "order_service schema owns: orders, order_items, order_status_history. customer_service schema owns: customers, customer_addresses. Shared schema owns: countries, states (reference data, read-only for all). orders table partitioned by order_date (monthly partitions for archival). Rule: Components access only their own schema directly, cross-component access via APIs only."
+    
+    Red flags to watch for:
+    - Multiple components sharing write access to same tables (tight coupling)
+    - No partitioning strategy for tables expected to have millions of rows
+    - Unclear ownership (multiple components claim same table)
+    - Microservices architecture with shared database (defeats purpose)
+
+Deliverables:
+- DOC 5.3-A: Physical ERD
+- DOC 5.3-B: Database Schema Specification
+
+Output format:
+
+DOC 5.3-A: Physical ERD (2-3 pages)
+1. **Physical ERD Diagram:** All tables with columns, data types, primary keys (underlined), foreign keys (arrows), NOT NULL indicators, organized by schema/ownership
+2. **Notation Legend:** Symbols for PK, FK, NOT NULL, unique constraints
+3. **Schema Organization:** Visual grouping showing which tables belong to which component/schema
+
+DOC 5.3-B: Database Schema Specification (4-6 pages)
+1. **Database Platform:** Selected database from tech stack (DOC 4.2-A), version, configuration notes
+2. **Naming Conventions:** Tables, columns, constraints, indexes naming rules
+3. **Table Specifications:** For each table:
+   - Table name and owning component
+   - Purpose/description
+   - Columns with: name, data type, length/precision, nullability, default value
+   - Primary key definition
+   - Foreign key definitions with referential actions
+   - Unique constraints
+   - Estimated row volume
+4. **Schema Organization:** Schema/database names, purpose, tables contained, access rules
+5. **Partitioning Strategy:** Which tables, partition key, partition type, retention policy
+6. **Shared/Reference Data:** Common lookup tables, update frequency, ownership
+
+**Note:** Detailed specifications (complete data dictionary, indexes, constraints, DDL scripts) will be completed in step 6.4 Database Design Details. This document establishes the physical structure and organization.
+
+5.4 Security Design
+
+Purpose:
+Define security mechanisms for authentication, authorization, data protection, and threat mitigation. Security must be designed into the architecture from the start—retrofitting security is expensive, risky, and often inadequate for compliance requirements.
+
+Prerequisite deliverables from previous steps:
+- DOC 3.2-A: Non-Functional Requirements Specification (from step 3.2)
+- DOC 4.3-A: System Architecture Diagram (from step 4.3)
+- DOC 5.1-A: Component Diagram (from step 5.1)
+- DOC 5.2-A: API Specification Document (from step 5.2)
+
+Tasks:
+
+Task 5.4.1: Design Authentication and Authorization
+    Use security NFRs (DOC 3.2-A) and API specifications (DOC 5.2-A) to define how users and systems prove identity and access controls.
+    
+    Guiding questions:
+    - What authentication mechanism meets security requirements? (from NFRs 3.2-A)
+    - Is multi-factor authentication required? (from compliance requirements in NFRs)
+    - What authorization model fits the access patterns? (RBAC, ABAC)
+    - How are API requests authenticated? (from API spec 5.2-A)
+    - What roles/permissions are needed?
+    - How are service-to-service calls authenticated?
+    
+    Acceptance criteria:
+    - Authentication mechanism specified: method, credentials, token format
+    - MFA approach defined if required by security NFRs
+    - Authorization model selected (RBAC recommended for most systems)
+    - Roles identified with permissions mapped to API endpoints (from 5.2-A)
+    - Service-to-service authentication defined (API keys, mutual TLS, OAuth client credentials)
+    - Session management strategy specified (timeout, renewal, logout)
+    - Password policy defined if applicable (complexity, expiration, history)
+    
+    Example:
+    "Authentication: JWT tokens via OAuth 2.0 (meets NFR-015 SSO requirement). Login returns access token (15 min TTL) and refresh token (7 days). MFA required for admin roles (NFR-016 compliance). Authorization: RBAC with roles: Customer (read own data), CSR (read/update customer data), Admin (full access). Permissions mapped to API endpoints: POST /orders requires 'orders:create' permission. Service-to-service: Mutual TLS between internal services."
+    
+    Red flags to watch for:
+    - Passwords stored in plain text or weak hashing (MD5, SHA1)
+    - No session timeout or overly long sessions
+    - Everyone has admin access (no role differentiation)
+    - No API authentication (public APIs without protection)
+
+Task 5.4.2: Design Data Protection and Encryption
+    Use security NFRs (DOC 3.2-A), component diagram (DOC 5.1-A), and architecture (DOC 4.3-A) to specify encryption, key management, and sensitive data handling across all components.
+    
+    Guiding questions:
+    - What data is sensitive? (PII, payment data, health data from NFRs)
+    - What encryption is required? (from compliance requirements in 3.2-A)
+    - Where is encryption needed? (in transit, at rest, application level)
+    - How are encryption keys managed? (where stored, rotation)
+    - Which components handle sensitive data? (from component diagram 5.1-A)
+    - What are the security boundaries? (from architecture diagram 4.3-A)
+    
+    Acceptance criteria:
+    - Encryption in transit specified (TLS 1.2+ for all external APIs from 5.2-A)
+    - Encryption at rest specified (database, backups, file storage)
+    - Sensitive data fields identified for encryption/masking
+    - Key management solution specified (AWS KMS, HashiCorp Vault, cloud provider)
+    - Key rotation policy defined
+    - Data masking rules for logs and non-production environments
+    - Security zones defined in architecture (DMZ, trusted, restricted)
+    
+    Example:
+    "Encryption in transit: TLS 1.3 for all APIs (meets NFR-012). Encryption at rest: Database encryption enabled (AES-256), backups encrypted. Sensitive fields: SSN, credit_card_number encrypted at application level before storage (meets PCI-DSS NFR-018). Key management: AWS KMS with automatic 90-day rotation. Logs: mask SSN (show last 4 digits only), never log passwords or tokens. Security zones: Public zone (API Gateway), DMZ (web servers), Trusted zone (application servers, databases)."
+    
+    Red flags to watch for:
+    - No encryption for sensitive data (violates compliance)
+    - Encryption keys hardcoded or in version control
+    - Sensitive data in logs or error messages
+    - Using deprecated protocols (TLS 1.0, SSL)
+
+Task 5.4.3: Define Security Controls and Threat Mitigations
+    Identify security threats based on architecture (DOC 4.3-A) and define controls, monitoring, and incident response procedures.
+    
+    Guiding questions:
+    - What are the attack vectors? (public APIs, admin interfaces, integrations)
+    - How do we prevent common attacks? (SQL injection, XSS, CSRF, DDoS)
+    - What security monitoring is needed? (from NFRs 3.2-A)
+    - What needs audit logging? (sensitive operations, compliance requirements)
+    - How do we detect and respond to security incidents?
+    
+    Acceptance criteria:
+    - Input validation rules defined (prevent SQL injection, XSS)
+    - Security headers specified (CSP, HSTS, X-Frame-Options)
+    - Rate limiting strategy for APIs (prevent DDoS, brute force)
+    - Audit logging requirements (what events, retention period from NFRs)
+    - Security monitoring alerts defined (failed auth attempts, anomalies)
+    - Incident response procedures outlined
+    - Vulnerability management process defined (scanning, patching)
+    
+    Example:
+    "Input validation: Parameterized queries only (prevent SQL injection), output encoding for all user content (prevent XSS). Security headers: Content-Security-Policy: default-src 'self', X-Frame-Options: DENY, Strict-Transport-Security. Rate limiting: 1000 req/hour per IP, 100 login attempts/hour. Audit log: all authentication events, data access, privilege changes, retained 7 years (NFR-020 compliance). Alerts: >10 failed logins in 5 min, privilege escalation, unauthorized data access. Incident response: security team notified within 15 min, documented playbooks for common scenarios."
+    
+    Red flags to watch for:
+    - No input validation (SQL injection vulnerable)
+    - No rate limiting (brute force attacks possible)
+    - No audit logging (compliance violation)
+    - No incident response plan (chaos during breach)
+
+Deliverable:
+DOC 5.4-A: Security Design Document
+
+Output format:
+Document containing (6-10 pages):
+
+1. **Security Overview:** Security goals, threat model summary, compliance requirements from NFRs (DOC 3.2-A)
+
+2. **Authentication Design:** Mechanism, flow diagrams, token format, MFA details, password policy, session management
+
+3. **Authorization Design:** Model (RBAC/ABAC), roles and permissions matrix, permission-to-API mapping (from 5.2-A), enforcement points in architecture
+
+4. **Data Protection:** 
+   - Encryption: in transit (TLS), at rest (database, files, backups), application-level
+   - Key management: solution, storage, rotation, access control
+   - Sensitive data: classification, handling rules, masking in logs
+
+5. **Security Controls:**
+   - Input validation and sanitization rules
+   - Output encoding (XSS prevention)
+   - Security headers
+   - CSRF protection
+   - Rate limiting and throttling
+
+6. **Audit Logging:** Events to log, format, retention period (from compliance NFRs), access controls, tamper protection
+
+7. **Security Monitoring:** Alerts, thresholds, notification channels, SIEM integration
+
+8. **Network Security:** Security zones from architecture (DOC 4.3-A), firewall rules, network segmentation
+
+9. **Secrets Management:** What secrets exist, where stored, access control, rotation
+
+10. **Incident Response:** Detection procedures, escalation paths, response playbooks, communication plan
+
+11. **Compliance Mapping:** Security controls mapped to compliance requirements (GDPR, HIPAA, PCI-DSS from NFRs)
+
+6.1 Class Design
+
+Purpose:
+Design detailed class structure for each component including attributes, methods, and relationships. This translates architectural components into specific object-oriented designs that developers can directly implement, serving as the blueprint for code.
+
+Prerequisite deliverables from previous steps:
+- DOC 2.3-A: Conceptual ERD (from step 2.3)
+- DOC 5.1-A: Component Diagram (from step 5.1)
+- DOC 5.2-A: API Specification Document (from step 5.2)
+- DOC 5.3-A: Physical ERD (from step 5.3)
+
+Tasks:
+
+Task 6.1.1: Identify Classes from Domain Model and Components
+    Use the conceptual ERD (DOC 2.3-A), physical ERD (DOC 5.3-A), and component diagram (DOC 5.1-A) to identify all classes needed for implementation.
+    
+    Guiding questions:
+    - What entities from the ERD become domain classes?
+    - What additional classes are needed per component? (controllers, services, repositories)
+    - What value objects are needed? (Money, Address, DateRange)
+    - What DTOs are needed for API requests/responses? (from API spec 5.2-A)
+    - What utility/helper classes are needed?
+    
+    Acceptance criteria:
+    - Domain/entity classes identified from ERD (2.3-A and 5.3-A)
+    - Controller classes identified for each API endpoint group (from 5.2-A)
+    - Service classes identified for business logic (from components 5.1-A)
+    - Repository/DAO classes for data access (one per entity)
+    - DTO classes for API contracts (from API spec 5.2-A)
+    - Value object classes for domain concepts
+    - Classes organized by component from component diagram
+    
+    Example:
+    "Order component classes: OrderController (handles API endpoints from 5.2-A), OrderService (business logic), OrderRepository (data access for orders table from 5.3-A), Order (entity from ERD 2.3-A), OrderItem (entity), OrderDTO (API request/response from 5.2-A), OrderStatus (enum), Money (value object for amounts)."
+    
+    Red flags to watch for:
+    - Missing repository classes for entities
+    - No DTOs (exposing entities directly in APIs)
+    - God classes (one class does everything)
+    - Entities not matching ERD tables
+
+Task 6.1.2: Design Class Attributes and Methods
+    Define attributes, methods, visibility, and signatures for each class using the physical ERD (DOC 5.3-A) for entity attributes and API spec (DOC 5.2-A) for controller methods.
+    
+    Guiding questions:
+    - What data does each class hold? (from ERD for entities)
+    - What operations does each class perform?
+    - What visibility for each member? (private, protected, public)
+    - What are method signatures? (parameters, return types from API spec)
+    - Are classes mutable or immutable? (value objects should be immutable)
+    - What validation logic belongs in each class?
+    
+    Acceptance criteria:
+    - Attributes defined with: name, type, visibility, default value
+    - Entity attributes match physical ERD columns (DOC 5.3-A)
+    - Methods defined with: name, parameters, return type, visibility
+    - Controller methods match API endpoints (DOC 5.2-A)
+    - Constructors defined (with parameter validation)
+    - Getters/setters defined following conventions
+    - Business methods identified and documented
+    - Validation methods included where needed
+    
+    Example:
+    "Order class: Attributes: -orderId: Long, -customerId: Long, -items: List<OrderItem>, -totalAmount: Money, -status: OrderStatus, -createdAt: LocalDateTime (from ERD 5.3-A). Methods: +addItem(product, quantity): void, +calculateTotal(): Money, +canCancel(): boolean, +cancel(): void, +getOrderId(): Long. OrderController: +createOrder(orderDTO: OrderDTO): ResponseEntity<OrderDTO> (from POST /orders in 5.2-A), +getOrder(orderId: Long): ResponseEntity<OrderDTO> (from GET /orders/{id})."
+    
+    Red flags to watch for:
+    - Public attributes (should be private with getters/setters)
+    - Missing validation in constructors
+    - Mismatch between entity attributes and database columns
+    - Controller methods don't match API spec
+
+Task 6.1.3: Define Relationships and Apply Design Patterns
+    Specify relationships between classes (inheritance, composition, association) and apply appropriate design patterns to solve common problems.
+    
+    Guiding questions:
+    - What inheritance hierarchies make sense? (is-a relationships)
+    - What composition relationships exist? (has-a, strong ownership)
+    - What associations are needed? (uses, knows about)
+    - What design patterns fit? (Strategy, Factory, Repository, Observer, etc.)
+    - How are objects created? (constructors, factories, builders)
+    - How are dependencies injected?
+    
+    Acceptance criteria:
+    - Relationships defined: inheritance (generalization), composition, aggregation, association, dependency
+    - Multiplicity specified (1, 0..1, 0..*, 1..*)
+    - At least 3-5 design patterns applied and documented
+    - Factory or Builder pattern for complex object creation
+    - Repository pattern for data access
+    - Strategy pattern for variable algorithms
+    - Dependency injection points identified
+    - SOLID principles verified (especially Single Responsibility, Dependency Inversion)
+    
+    Example:
+    "Relationships: Order contains (composition) OrderItem [1..*]. OrderService depends on (dependency) OrderRepository, PaymentService. Patterns: Repository pattern for OrderRepository, CustomerRepository. Factory pattern: OrderFactory.createFromDTO(orderDTO). Strategy pattern: PaymentStrategy interface with CreditCardPayment, PayPalPayment implementations. Builder pattern: OrderDTO.builder().customerId(1).items(list).build(). Dependency Injection: OrderService constructor receives OrderRepository, PaymentService via DI."
+    
+    Red flags to watch for:
+    - Inappropriate inheritance (prefer composition)
+    - Circular dependencies between classes
+    - No design patterns (reinventing solutions)
+    - Violating SOLID principles (classes with multiple responsibilities)
+
+Deliverable:
+DOC 6.1-A: Detailed Class Diagrams
+
+Output format:
+Document containing (10-20 pages):
+
+1. **Class Diagram Overview:** High-level package/namespace structure showing how classes are organized
+
+2. **Detailed Class Diagrams by Component:** For each component from DOC 5.1-A (3-5 diagrams):
+   - All classes with stereotypes (<<entity>>, <<controller>>, <<service>>, <<repository>>)
+   - Attributes with: visibility (+/-/#), name, type
+   - Methods with: visibility, name(parameters): returnType
+   - Relationships with arrows: inheritance (hollow triangle), composition (filled diamond), association (line), dependency (dashed arrow)
+   - Multiplicity on associations
+
+3. **Class Specifications:** For each class (table format):
+   - Class name, stereotype, purpose
+   - Attributes: name, type, visibility, default, description
+   - Methods: signature, purpose, preconditions, postconditions
+   - Relationships: related classes and relationship type
+
+4. **Design Patterns Applied:** 
+   - Pattern name, problem solved, classes involved, diagram showing pattern structure
+   - 3-5 patterns documented (Repository, Factory, Strategy, Builder, etc.)
+
+5. **Entity-Table Mapping:** Matrix showing which entity classes map to which database tables (from DOC 5.3-A)
+
+6. **DTO-API Mapping:** Which DTO classes correspond to which API requests/responses (from DOC 5.2-A)
+
+7. **Dependency Injection Configuration:** What dependencies each class receives, how they're injected (constructor, setter)
+
+6.2 Sequence Diagrams
+
+Purpose:
+Show detailed object interactions over time for key use cases, revealing method calls, parameters, return values, and control flow. Sequence diagrams validate that designed classes can actually accomplish required behaviors and expose missing methods or incorrect responsibilities before coding begins.
+
+Prerequisite deliverables from previous steps:
+- DOC 2.1-B: Use Case Specifications Document (from step 2.1)
+- DOC 2.2-A: Process Flow Diagrams (from step 2.2)
+- DOC 5.2-A: API Specification Document (from step 5.2)
+- DOC 6.1-A: Detailed Class Diagrams (from step 6.1)
+
+Tasks:
+
+Task 6.2.1: Select Use Cases for Sequence Diagrams
+    Use the use case specifications (DOC 2.1-B) and process flows (DOC 2.2-A) to identify which scenarios need detailed sequence diagrams.
+    
+    Guiding questions:
+    - Which use cases are most complex? (multiple decision points from 2.2-A)
+    - Which use cases are highest priority or risk?
+    - Which use cases involve many classes/components? (from class diagram 6.1-A)
+    - Which use cases have intricate workflows? (from process flows 2.2-A)
+    - Which use cases need detailed specification for developers?
+    
+    Acceptance criteria:
+    - 5-8 use cases selected for detailed sequence diagrams
+    - Selection includes main success scenarios and key alternative flows
+    - Complex use cases with multiple decision points prioritized
+    - Use cases covering critical business operations included
+    - Use cases spanning multiple components/layers included
+    
+    Example:
+    "Selected: UC-003 Submit Order (complex workflow, multiple validations, external payment call), UC-005 Process Return (cross-component coordination), UC-008 Generate Invoice (calculations, data aggregation), UC-001 User Login (authentication flow), UC-015 Update Inventory (concurrency handling)."
+    
+    Red flags to watch for:
+    - Only simple CRUD operations selected (missing complex scenarios)
+    - Too many diagrams planned (diminishing returns beyond 8-10)
+    - No alternative flows diagrammed (only happy paths)
+
+Task 6.2.2: Create Sequence Diagrams with Detailed Interactions
+    Map use case flows (DOC 2.1-B) to object interactions using classes from DOC 6.1-A and APIs from DOC 5.2-A, showing exact method calls, parameters, and returns.
+    
+    Guiding questions:
+    - What object initiates the interaction? (controller, service)
+    - What sequence of method calls accomplishes the use case? (from 2.1-B flows)
+    - What parameters are passed? What values returned?
+    - How are API calls represented? (from API spec 5.2-A)
+    - Where are decisions made? (alt/opt fragments for conditionals)
+    - How are loops represented? (loop fragments from process flows 2.2-A)
+    - How are errors handled? (exception flows)
+    
+    Acceptance criteria:
+    - Participants (objects/actors) shown at top with lifelines
+    - Messages (method calls) shown as arrows with method signatures
+    - Return values shown as dashed arrows
+    - Conditional logic shown using alt/opt fragments (from alternative flows)
+    - Loops shown using loop fragments (from process flows)
+    - Exception handling shown (throwing, catching)
+    - API calls match endpoint specifications from DOC 5.2-A
+    - Database calls shown to repository objects
+    - Activation bars show when objects are active
+    - Each diagram traceable to specific use case flow from DOC 2.1-B
+    
+    Example:
+    "UC-003 Submit Order sequence: Actor → OrderController.createOrder(orderDTO). OrderController → OrderValidator.validate(orderDTO) returns validationResult. [alt: valid] OrderController → OrderService.processOrder(orderDTO). OrderService → ProductService.checkAvailability(items). OrderService → OrderRepository.save(order) returns savedOrder. OrderService → PaymentService.processPayment(payment). PaymentService → PaymentGatewayAPI.charge(details) (from external system API 5.2-A). [alt: payment fails] throw PaymentException. OrderService → NotificationService.sendConfirmation(order)."
+    
+    Red flags to watch for:
+    - Vague method names (process() instead of specific operations)
+    - Missing parameters or return values
+    - No error handling shown
+    - Methods called on objects that don't have those methods (inconsistent with 6.1-A)
+    - Direct database access from controllers (violating layers)
+
+Task 6.2.3: Validate and Iterate with Class Diagrams
+    Review sequence diagrams against class diagrams (DOC 6.1-A) to ensure consistency, identifying missing methods or classes requiring updates.
+    
+    Guiding questions:
+    - Does every method call exist in the class diagram? (from 6.1-A)
+    - Are method signatures consistent? (parameters, return types)
+    - Are any classes missing that are needed for interactions?
+    - Are responsibilities correctly assigned?
+    - Do sequence diagrams reveal simpler interaction patterns?
+    
+    Acceptance criteria:
+    - All methods in sequence diagrams exist in class diagrams (or identified as additions)
+    - Method signatures match between diagrams and class specifications
+    - Missing classes or methods documented for addition to DOC 6.1-A
+    - Responsibility mismatches identified and resolved
+    - Both diagrams kept in sync through iterative updates
+    
+    Example:
+    "Validation found: OrderService.processOrder() calls OrderValidator.validateAddress() but method missing from OrderValidator class in 6.1-A—added to class diagram. PaymentService needs refund() method for return processing—added to class diagram. Discovered OrderController doesn't need direct OrderRepository access—removed dependency."
+    
+    Red flags to watch for:
+    - Methods in sequence diagrams don't exist in classes
+    - Controllers directly accessing repositories (skip service layer)
+    - Sequence diagrams don't match use case flows from 2.1-B
+    - No iteration back to update class diagrams
+
+Deliverable:
+DOC 6.2-A: Sequence Diagrams
+
+Output format:
+Document containing (12-20 pages):
+
+1. **Overview:** Purpose, notation guide, relationship to use cases
+
+2. **Sequence Diagrams:** One diagram per selected use case (5-8 diagrams, 1-2 pages each):
+   - Use case ID and name (from DOC 2.1-B)
+   - Scenario being diagrammed (main flow or specific alternative)
+   - UML sequence diagram showing:
+     - Participants/objects across top
+     - Lifelines (vertical dashed lines)
+     - Method calls (solid arrows with signatures)
+     - Returns (dashed arrows with values)
+     - Alt/opt/loop fragments for control flow
+     - Exception handling
+   - Annotations explaining complex interactions
+   - References to APIs used (from DOC 5.2-A)
+
+3. **Cross-Reference Matrix:** Use case ID → Classes involved → Methods called
+
+4. **Design Notes:** 
+   - Patterns observed in interactions
+   - Consistency issues discovered
+   - Updates needed to class diagrams (DOC 6.1-A)
+
+**Iterative Note:** Creating sequence diagrams often reveals missing or incorrect class designs. Return to step 6.1 to update class diagrams as needed, maintaining consistency between DOC 6.1-A and DOC 6.2-A throughout detailed design.
+
+6.3 UI Design (High-Fidelity)
+
+Purpose:
+Create pixel-perfect, production-ready UI designs with complete visual specifications by transforming wireframes into polished mockups. High-fidelity designs establish the exact visual appearance developers will implement, ensuring consistent, professional user interfaces.
+
+Prerequisite deliverables from previous steps:
+- DOC 1.2-A: User Personas Document (from step 1.2)
+- DOC 2.1-B: Use Case Specifications Document (from step 2.1)
+- DOC 3.1-A: Functional Requirements List (from step 3.1)
+- DOC 3.3-A: UI Wireframes Document (from step 3.3)
+- DOC 3.3-B: Navigation Flow Diagram (from step 3.3)
+
+Tasks:
+
+Task 6.3.1: Define Visual Design System
+    Establish comprehensive design standards including colors, typography, spacing, and component styles that will be applied consistently across all screens.
+    
+    Guiding questions:
+    - What are the brand colors? (primary, secondary, accent, neutral palette)
+    - What typography serves personas' needs? (from 1.2-A—technical vs general users)
+    - What spacing scale ensures consistency? (4px, 8px, 16px, 24px, etc.)
+    - What accessibility standards must be met? (from NFRs—WCAG AA)
+    - What visual style fits the domain? (professional, playful, minimal)
+    
+    Acceptance criteria:
+    - Color palette defined: primary, secondary, accent, neutral, semantic (success, warning, error, info)
+    - All color combinations tested for WCAG contrast ratios (4.5:1 minimum for text)
+    - Typography system defined: font families, sizes (14px-48px range), weights, line heights
+    - Spacing scale established and documented (consistent increments)
+    - Shadow system defined for depth/elevation
+    - Border radius standards defined
+    - Icon library selected with consistent sizing
+    - Grid system defined (12-column typical)
+    
+    Example:
+    "Colors: Primary #2563EB (blue), Secondary #64748B (slate), Success #10B981 (green), Error #EF4444 (red), Neutral scale #F8FAFC to #0F172A. Typography: Inter font family, sizes 14px (body), 16px (emphasized), 20px (h3), 24px (h2), 32px (h1). Spacing: 4px base unit (4, 8, 12, 16, 24, 32, 48, 64px). Shadows: sm (0 1px 2px), md (0 4px 6px), lg (0 10px 15px). Border radius: 4px (buttons, inputs), 8px (cards)."
+    
+    Red flags to watch for:
+    - Colors failing contrast requirements (accessibility violation)
+    - Inconsistent spacing (arbitrary values instead of system)
+    - Too many font sizes (creates visual chaos)
+    - No design system documentation
+
+Task 6.3.2: Create High-Fidelity Mockups for All Screens
+    Transform wireframes (DOC 3.3-A) into pixel-perfect designs applying the design system, designing for all states and responsive breakpoints.
+    
+    Guiding questions:
+    - How does each wireframe look with full visual design applied?
+    - What are all interactive states? (default, hover, focus, active, disabled, error, loading)
+    - How does design adapt to breakpoints? (mobile 375px, tablet 768px, desktop 1440px)
+    - What micro-interactions enhance usability? (transitions, animations)
+    - Do designs meet personas' expectations? (from 1.2-A)
+    - Are functional requirements visually represented? (from 3.1-A)
+    
+    Acceptance criteria:
+    - High-fidelity mockup created for every wireframe screen (from 3.3-A)
+    - All interactive states designed (hover, focus, disabled, error, loading)
+    - Responsive variations designed for 3 breakpoints minimum
+    - Forms show validation states (error messages, success indicators)
+    - Empty states designed (no data, no search results)
+    - Loading states designed (skeletons or spinners)
+    - Success/error feedback designed (toasts, alerts, inline messages)
+    - Navigation flow maintained from DOC 3.3-B
+    - Use cases (from 2.1-B) visually walkable through screens
+    
+    Example:
+    "Order Entry screen mockup: Header with navigation, product selection form with dropdown (shows hover state), quantity inputs with +/- buttons (shows focus state), shipping address section with validation errors shown inline, price calculator showing real-time updates, primary 'Submit Order' button (default, hover, loading, disabled states), secondary 'Cancel' button. Mobile version: stacked single column, larger touch targets (48px minimum), bottom sheet for product selection."
+    
+    Red flags to watch for:
+    - Missing states (only showing default state)
+    - Inconsistent design system application (different button styles)
+    - No responsive designs (mobile users can't use)
+    - Designs don't match wireframe structure (lost stakeholder approval)
+
+Task 6.3.3: Create Design Specifications and Assets
+    Document all design specifications and export assets developers need for implementation.
+    
+    Guiding questions:
+    - What measurements do developers need? (spacing, sizing)
+    - What assets need exporting? (icons, images, logos)
+    - What CSS specifications? (colors as hex, shadows as CSS)
+    - How are designs shared with developers? (Figma, Zeplin, design files)
+    - What image formats and resolutions? (SVG for icons, PNG/WebP for photos, @2x for retina)
+    
+    Acceptance criteria:
+    - Design specifications documented: exact spacing, sizing, colors (hex/RGB)
+    - Component library created showing all reusable components with specifications
+    - Assets exported: icons (SVG), images (PNG/WebP/JPG), logos (multiple formats)
+    - Design handoff prepared (inspect mode, annotations, developer notes)
+    - Interaction specifications documented (animations, transitions, timing)
+    - Accessibility annotations (ARIA labels, alt text, semantic structure)
+    
+    Example:
+    "Component specs: Primary button height 40px, padding 12px 24px, border-radius 4px, background #2563EB, hover #1D4ED8, shadow md on hover. Typography: h1 Inter 32px/40px weight 700. Assets exported: 24 icons (SVG), logo (SVG, PNG @1x @2x @3x), product images (WebP 800x600). Animations: button hover transition 200ms ease, modal fade-in 300ms ease-out."
+    
+    Red flags to watch for:
+    - No specifications (developers guess measurements)
+    - Low-resolution assets (pixelated on retina displays)
+    - No component documentation (inconsistent implementation)
+    - Missing accessibility annotations
+
+Deliverables:
+- DOC 6.3-A: High-Fidelity UI Mockups
+- DOC 6.3-B: UI Design System Documentation
+
+Output format:
+
+DOC 6.3-A: High-Fidelity UI Mockups (20-40 pages in design tool)
+1. **All Screen Mockups:** Pixel-perfect designs for every screen from wireframes (DOC 3.3-A)
+2. **State Variations:** Interactive states for each screen (hover, focus, error, loading, empty, disabled)
+3. **Responsive Variations:** Mobile, tablet, desktop versions
+4. **Component States:** All UI component variations with specifications
+5. **Design Annotations:** Developer notes, measurements, interaction specifications
+
+DOC 6.3-B: UI Design System Documentation (8-12 pages)
+1. **Design Principles:** Visual style guide, tone
+2. **Color System:** Palette with hex codes, usage guidelines, accessibility notes
+3. **Typography System:** Fonts, sizes, weights, line heights, usage examples
+4. **Spacing System:** Scale with examples
+5. **Component Library:** All components (buttons, inputs, cards, etc.) with specifications, states, code snippets
+6. **Grid System:** Columns, gutters, breakpoints
+7. **Iconography:** Icon set, sizing, usage
+8. **Interaction Patterns:** Animations, transitions, micro-interactions with timing
+9. **Accessibility Guidelines:** Contrast, keyboard navigation, ARIA usage
+10. **Asset Exports:** Icon files, image files, logo files in multiple formats
+
+6.4 Database Design Details
+
+Purpose:
+Complete all database specifications for production including detailed data dictionary, comprehensive constraints, index optimization, and DDL scripts. This step transforms the physical data architecture from step 5.3 into production-ready database specifications developers can execute.
+
+Prerequisite deliverables from previous steps:
+- DOC 3.1-A: Functional Requirements List (from step 3.1)
+- DOC 5.2-A: API Specification Document (from step 5.2)
+- DOC 5.3-A: Physical ERD (from step 5.3)
+- DOC 5.3-B: Database Schema Specification (from step 5.3)
+
+Tasks:
+
+Task 6.4.1: Create Complete Data Dictionary
+    Expand the database schema specification (DOC 5.3-B) with comprehensive field-level details including descriptions, valid values, and sample data.
+    
+    Guiding questions:
+    - What does each field mean in business terms?
+    - What are valid values or ranges? (from functional requirements 3.1-A)
+    - What are examples of valid data?
+    - What fields contain sensitive data? (encryption needed)
+    - What fields are used for business rules? (from requirements)
+    
+    Acceptance criteria:
+    - Every column documented with: name, data type, length/precision, nullable, default value, description, valid values/range, example data, sensitivity classification
+    - Enumeration values listed for status/type fields
+    - Computed/derived fields documented with calculation logic
+    - Foreign key relationships documented with business meaning
+    - Sample data provided for each table
+    
+    Example:
+    "orders.order_status: VARCHAR(20) NOT NULL DEFAULT 'PENDING'. Description: Current status of order in workflow. Valid values: PENDING, CONFIRMED, SHIPPED, DELIVERED, CANCELLED. Example: 'CONFIRMED'. Business rule: Status transitions follow REQ-025 state machine. Sensitivity: Internal use only."
+    
+    Red flags to watch for:
+    - Fields without descriptions (future maintainers won't understand)
+    - No validation ranges documented (allows invalid data)
+    - Missing sensitive data classification (security risk)
+
+Task 6.4.2: Design Complete Index Strategy
+    Use API specifications (DOC 5.2-A) and functional requirements (DOC 3.1-A) to define comprehensive indexing supporting all query patterns efficiently.
+    
+    Guiding questions:
+    - What queries are most frequent? (from API endpoints in 5.2-A)
+    - What columns appear in WHERE clauses? (from requirements)
+    - What columns are used in JOINs?
+    - What columns need ORDER BY/GROUP BY?
+    - What's the read/write ratio? (heavy writes need fewer indexes)
+    - What queries are slowest? (prioritize these for indexing)
+    
+    Acceptance criteria:
+    - Index defined for every foreign key
+    - Indexes defined for frequently queried columns (from API spec)
+    - Composite indexes for multi-column queries
+    - Unique indexes for uniqueness constraints
+    - Each index justified with specific query patterns from API spec
+    - Index naming convention applied consistently (idx_tablename_columns)
+    - Covering indexes identified where beneficial
+    - Index impact on write performance considered
+    
+    Example:
+    "CREATE INDEX idx_orders_customer_date ON orders(customer_id, order_date DESC). Justification: Supports GET /api/v1/orders?customerId={id} (API endpoint from 5.2-A showing customer's recent orders, sorted by date). Composite index avoids sort operation. CREATE UNIQUE INDEX idx_customers_email ON customers(email). Justification: Enforces unique email (REQ-003) and supports login query."
+    
+    Red flags to watch for:
+    - No indexes on foreign keys (JOIN performance issues)
+    - Over-indexing (every column indexed, hurts write performance)
+    - No justification for indexes (arbitrary decisions)
+    - Missing indexes for API query patterns from 5.2-A
+
+Task 6.4.3: Define Complete Constraints and Write DDL Scripts
+    Specify all check constraints, defaults, and triggers, then create production-ready DDL scripts for database creation.
+    
+    Guiding questions:
+    - What business rules need database constraints? (from requirements 3.1-A)
+    - What check constraints validate data? (price > 0, date ranges)
+    - What default values simplify application code?
+    - What triggers maintain data integrity? (audit timestamps)
+    - What sequences/identity columns generate keys?
+    
+    Acceptance criteria:
+    - Check constraints defined for validation rules (from requirements)
+    - Default values specified for appropriate columns
+    - Triggers documented if needed (audit, denormalization)
+    - Sequences/identity columns defined for auto-increment keys
+    - DDL scripts created in order: schemas, tables, indexes, foreign keys, constraints
+    - Scripts are idempotent (can run multiple times safely)
+    - Rollback scripts provided
+    - Scripts tested on target database platform
+    
+    Example:
+    "CHECK constraint: CHECK (unit_price >= 0.01) enforces REQ-018 'prices must be positive'. Default: created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP. Trigger: audit_trigger updates updated_at on row modification. DDL script structure: 01_create_schemas.sql, 02_create_tables.sql, 03_create_indexes.sql, 04_create_foreign_keys.sql, 05_create_constraints.sql, 06_seed_reference_data.sql."
+    
+    Red flags to watch for:
+    - No check constraints (validation only in application)
+    - Scripts create foreign keys before tables exist (wrong order)
+    - No rollback scripts (can't undo deployment)
+    - Scripts not tested on target database
+
+Deliverables:
+- DOC 6.4-A: Complete Data Dictionary
+- DOC 6.4-B: DDL Scripts
+
+Output format:
+
+DOC 6.4-A: Complete Data Dictionary (15-30 pages)
+1. **Database Overview:** Platform version, character set, collation
+2. **Complete Table Specifications:** For each table:
+   - Table name, schema, purpose, estimated rows
+   - **Complete Column Specifications:** Column name, data type with precision, nullable, default value, description, valid values/ranges, constraints, example data, sensitivity classification, indexed (yes/no)
+   - Primary key definition
+   - Foreign keys with descriptions
+   - Unique constraints
+   - Check constraints with business rule references
+   - Indexes with justification
+3. **Reference Data:** Lookup tables with complete enumeration values
+4. **Sensitive Data Catalog:** All fields containing PII, payment data, or sensitive information with encryption requirements
+
+DOC 6.4-B: DDL Scripts (actual .sql files)
+1. **Schema Creation:** Scripts to create schemas/databases
+2. **Table Creation:** CREATE TABLE statements with all columns, data types, constraints
+3. **Index Creation:** CREATE INDEX statements with all indexes
+4. **Foreign Key Creation:** ALTER TABLE statements adding foreign keys
+5. **Additional Constraints:** Check constraints, triggers, sequences
+6. **Reference Data:** INSERT statements for lookup tables
+7. **Rollback Scripts:** DROP statements in reverse order
+8. **README:** Execution order, prerequisites, test verification queries
+
+**Note:** Scripts should be version-controlled, include comments referencing requirements, and be tested on target database platform before deployment.
+
+7.1 Algorithm Design
+
+Purpose:
+Specify complex business logic algorithms in detailed pseudocode before implementation to verify correctness, identify edge cases, and provide clear implementation guidance. This step focuses on algorithmic logic requiring careful design—not simple CRUD operations already specified in classes and sequences.
+
+Prerequisite deliverables from previous steps:
+- DOC 2.1-B: Use Case Specifications Document (from step 2.1)
+- DOC 3.1-A: Functional Requirements List (from step 3.1)
+- DOC 6.1-A: Detailed Class Diagrams (from step 6.1)
+
+Tasks:
+
+Task 7.1.1: Identify Complex Algorithms Requiring Specification
+    Use functional requirements (DOC 3.1-A) and class methods (DOC 6.1-A) to identify logic complex enough to warrant detailed algorithmic design before implementation.
+    
+    Guiding questions:
+    - Which business rules involve multiple conditions or calculations? (from 3.1-A)
+    - Which methods have complex logic? (from class diagrams 6.1-A)
+    - Where are calculations with multiple steps? (pricing, tax, discounts, scoring)
+    - Where is sorting, searching, or optimization needed?
+    - Which algorithms have performance concerns? (large data sets)
+    - Which logic is error-prone if not specified carefully?
+    
+    Acceptance criteria:
+    - 5-10 complex algorithms identified for detailed specification
+    - Simple CRUD or trivial logic excluded (don't over-specify)
+    - Each algorithm mapped to requirement(s) from DOC 3.1-A
+    - Each algorithm mapped to class method(s) from DOC 6.1-A
+    - Algorithms prioritized by complexity and business criticality
+    - Performance-critical algorithms flagged
+    
+    Example:
+    "Identified algorithms: 1) CalculateOrderDiscount (REQ-018, OrderService.calculateDiscount) - complex rules with loyalty tiers, promotional codes, volume discounts. 2) ValidateShippingAddress (REQ-012, AddressValidator.validate) - multi-step validation with external API. 3) MatchCustomerOrders (REQ-034, OrderMatcher.findSimilar) - fuzzy matching algorithm. 4) GenerateRecommendations (REQ-040, RecommendationEngine.generate) - collaborative filtering algorithm."
+    
+    Red flags to watch for:
+    - Specifying trivial logic (getters, simple assignments)
+    - Missing complex calculations mentioned in requirements
+    - No algorithms for performance-critical operations
+    - Too many algorithms (diminishing returns beyond 10-12)
+
+Task 7.1.2: Write Detailed Pseudocode and Flowcharts
+    Create structured pseudocode using plain language and flowcharts for complex decision trees, specifying exact logic, conditions, and calculations.
+    
+    Guiding questions:
+    - What are the inputs and outputs?
+    - What are the step-by-step operations?
+    - What conditions and branches exist?
+    - What loops are needed?
+    - How are edge cases handled?
+    - What helper functions/methods are called?
+    - What data structures are used?
+    
+    Acceptance criteria:
+    - Pseudocode written in structured format (indentation, clear control structures)
+    - Each algorithm includes: purpose, inputs, outputs, preconditions, postconditions
+    - All conditions explicitly stated (if/else if/else)
+    - All loops explicitly stated (for each, while)
+    - Variable names meaningful (not x, y, z)
+    - Edge cases handled (empty input, nulls, boundary values)
+    - Flowcharts created for algorithms with complex decision trees (>5 branches)
+    - Pseudocode readable by non-programmers (structured English, not programming syntax)
+    
+    Example:
+    ```
+    Algorithm: CalculateOrderDiscount
+    Input: order (Order object), customer (Customer object)
+    Output: discount amount (Money)
+    Precondition: order.totalAmount > 0, customer exists
+    
+    BEGIN
+        Set baseDiscount = 0
+        
+        // Loyalty tier discount
+        IF customer.loyaltyTier == "GOLD" THEN
+            Set baseDiscount = order.totalAmount × 0.15
+        ELSE IF customer.loyaltyTier == "SILVER" THEN
+            Set baseDiscount = order.totalAmount × 0.10
+        ELSE IF customer.loyaltyTier == "BRONZE" THEN
+            Set baseDiscount = order.totalAmount × 0.05
+        END IF
+        
+        // Volume discount (takes precedence if higher)
+        IF order.totalAmount > 500 THEN
+            Set volumeDiscount = order.totalAmount × 0.20
+            Set baseDiscount = MAX(baseDiscount, volumeDiscount)
+        ELSE IF order.totalAmount > 200 THEN
+            Set volumeDiscount = order.totalAmount × 0.12
+            Set baseDiscount = MAX(baseDiscount, volumeDiscount)
+        END IF
+        
+        // Promotional code (highest of all)
+        IF customer.hasActivePromoCode THEN
+            Set promoDiscount = ApplyPromoCode(order, customer.promoCode)
+            Set baseDiscount = MAX(baseDiscount, promoDiscount)
+        END IF
+        
+        // Cap at 50% (business rule REQ-018)
+        Set finalDiscount = MIN(baseDiscount, order.totalAmount × 0.50)
+        
+        RETURN finalDiscount
+    END
+    
+    Postcondition: 0 ≤ discount ≤ order.totalAmount × 0.50
+    ```
+    
+    Red flags to watch for:
+    - Vague pseudocode (lacks detail, ambiguous)
+    - Programming language syntax used (not pseudocode)
+    - Missing edge case handling (null, empty, boundary)
+    - No specification of error conditions
+    - Complex logic without flowchart visualization
+
+Task 7.1.3: Analyze Complexity and Edge Cases
+    Analyze algorithmic complexity (time/space) and systematically document edge cases requiring special handling.
+    
+    Guiding questions:
+    - What is time complexity? (Big O notation: O(1), O(n), O(n log n), O(n²))
+    - What is space complexity? (memory usage)
+    - Does performance meet requirements? (from NFRs)
+    - What are boundary conditions? (min/max values, empty sets)
+    - What are special cases? (nulls, duplicates, zero, negative)
+    - What invalid inputs must be rejected?
+    - Can algorithm be optimized?
+    
+    Acceptance criteria:
+    - Time complexity analyzed and documented (Big O notation)
+    - Space complexity analyzed
+    - Performance validated against requirements (response time, throughput)
+    - Edge cases documented systematically: empty input, single item, maximum values, nulls, duplicates, invalid data
+    - Optimization opportunities identified if performance inadequate
+    - Worst-case scenarios documented
+    
+    Example:
+    "CalculateOrderDiscount complexity: Time O(1) - constant time regardless of order size, all operations are simple comparisons and arithmetic. Space O(1) - fixed variables only. Performance: <1ms execution, meets REQ-055 requirement (<10ms for checkout). Edge cases: Empty order (return 0), negative amounts (validation rejects), expired promo code (treat as no code), multiple applicable discounts (algorithm takes highest), order total exactly $500 (volume discount applies at >$500, not ≥)."
+    
+    Red flags to watch for:
+    - No complexity analysis (potential performance issues)
+    - Algorithm exceeds performance requirements (needs optimization)
+    - Missing obvious edge cases (will cause bugs)
+    - No worst-case scenario consideration
+
+Deliverable:
+DOC 7.1-A: Algorithm Specifications
+
+Output format:
+Document containing (10-15 pages):
+
+1. **Algorithm Catalog:** Table with Algorithm Name, Purpose, Requirement ID (from 3.1-A), Class/Method (from 6.1-A), Complexity, Priority
+
+2. **Detailed Algorithm Specifications:** For each algorithm (1-2 pages each):
+   - **Header:** Name, purpose, related requirement(s), implementing class/method
+   - **Signature:** Inputs with types, output with type
+   - **Preconditions:** Assumptions that must be true
+   - **Pseudocode:** Structured, detailed, readable
+   - **Flowchart:** If complex decision logic (>5 branches)
+   - **Postconditions:** Guarantees after execution
+   - **Complexity Analysis:** Time and space complexity with justification
+   - **Edge Cases:** Systematic documentation of special cases and handling
+   - **Examples:** Input/output examples showing algorithm behavior
+   - **Optimization Notes:** If performance critical or optimization possible
+
+3. **Performance Requirements Validation:** Each algorithm validated against relevant NFRs, noting which meet/exceed requirements
+
+4. **Algorithm Dependencies:** Which algorithms call which other algorithms/methods
+
+7.2 Error Handling Design
+
+Purpose:
+Define comprehensive error handling strategy for consistent error management across the system. Well-designed error handling ensures users receive helpful feedback, developers can quickly diagnose issues, and the system fails gracefully without exposing sensitive information or security vulnerabilities.
+
+Prerequisite deliverables from previous steps:
+- DOC 2.1-B: Use Case Specifications Document (from step 2.1)
+- DOC 5.2-A: API Specification Document (from step 5.2)
+- DOC 6.1-A: Detailed Class Diagrams (from step 6.1)
+
+Tasks:
+
+Task 7.2.1: Define Exception Hierarchy and Error Categories
+    Use use case exception flows (DOC 2.1-B) and class design (DOC 6.1-A) to categorize errors and design exception class hierarchy.
+    
+    Guiding questions:
+    - What types of errors can occur? (validation, business rule, system, integration)
+    - How are exceptions related? (inheritance hierarchy)
+    - Which errors are recoverable vs fatal?
+    - Which errors indicate client mistakes vs server problems?
+    - What information should each exception carry?
+    
+    Acceptance criteria:
+    - Base exception class defined for application
+    - Exception categories defined: ValidationException, BusinessRuleException, SystemException, IntegrationException, NotFoundException, AuthorizationException
+    - Inheritance hierarchy designed (specialized exceptions extend base)
+    - Each exception class includes: error code, message, timestamp, optional details/context
+    - Checked vs unchecked strategy defined (language-dependent)
+    - Exception flows from use cases (2.1-B) mapped to exception types
+    
+    Example:
+    "Exception hierarchy: ApplicationException (base) → ValidationException (invalid input, maps to HTTP 400), BusinessRuleException (e.g., InsufficientInventoryException, maps to HTTP 422), SystemException (database failures, maps to HTTP 500), IntegrationException (external API failures, maps to HTTP 502/503), NotFoundException (resource not found, maps to HTTP 404), AuthorizationException (permission denied, maps to HTTP 403). Each includes: errorCode, message, timestamp, requestId, optionalDetails."
+    
+    Red flags to watch for:
+    - Generic exceptions only (no specific error types)
+    - Too many exception classes (over-engineering)
+    - Exceptions not mapped to use case exception flows
+    - Missing exception information (hard to diagnose)
+
+Task 7.2.2: Design Error Codes and User-Facing Messages
+    Create comprehensive error code catalog with user-friendly messages and developer details, using API specifications (DOC 5.2-A) for consistency.
+    
+    Guiding questions:
+    - What error codes do we need? (one per error type)
+    - What do users need to know? (what happened, what to do)
+    - What do developers need to know? (technical details for debugging)
+    - How do error codes map to HTTP status codes? (for APIs from 5.2-A)
+    - What language/tone for error messages? (helpful, not technical jargon)
+    
+    Acceptance criteria:
+    - Error code naming convention defined (UPPER_SNAKE_CASE)
+    - 20-30 error codes defined covering common scenarios
+    - Each error code includes: code, HTTP status, user message, developer message, suggested action
+    - User messages friendly and actionable (no stack traces, no technical details)
+    - Developer messages detailed (include context for debugging)
+    - Error codes mapped to API endpoints from DOC 5.2-A
+    - Internationalization considered (message keys, not hardcoded text)
+    
+    Example:
+    "INVALID_EMAIL: HTTP 400. User message: 'Email address format is invalid. Please check and try again.' Developer message: 'Email validation failed: {email}. Regex pattern: {pattern}.' Suggested action: 'Verify email format includes @ and valid domain.'
+
+    INSUFFICIENT_INVENTORY: HTTP 422. User message: 'Sorry, we only have {availableQuantity} items in stock. Please adjust your order.' Developer message: 'Inventory check failed. ProductId: {productId}, Requested: {requestedQty}, Available: {availableQty}.' Suggested action: 'Reduce quantity or check back later.'
+
+    DATABASE_CONNECTION_FAILED: HTTP 500. User message: 'We're experiencing technical difficulties. Please try again in a few moments.' Developer message: 'Database connection timeout after {timeoutMs}ms. Connection pool exhausted. Host: {dbHost}.' Suggested action: 'User: retry. Developer: check database health, connection pool settings.'"
+    
+    Red flags to watch for:
+    - Technical jargon in user messages (confusing)
+    - Exposing internal details to users (security risk)
+    - Generic error messages only ("An error occurred")
+    - No suggested actions (users don't know what to do)
+
+Task 7.2.3: Define Error Handling Patterns and Logging Strategy
+    Specify how errors are caught, logged, and propagated through system layers using class design from DOC 6.1-A.
+    
+    Guiding questions:
+    - Where should errors be caught? (at layer boundaries)
+    - What should be logged at each level? (ERROR, WARN, INFO)
+    - How do errors propagate between layers?
+    - When to retry vs fail immediately?
+    - How are errors returned to clients? (API error response format from 5.2-A)
+    - What's the global exception handler strategy?
+    
+    Acceptance criteria:
+    - Layer-specific error handling defined: presentation layer (catch all, return formatted response), business layer (catch and wrap with context), data layer (let propagate or wrap integration errors)
+    - Logging levels specified per error type: ValidationException (INFO), BusinessRuleException (WARN), SystemException (ERROR)
+    - Retry strategy defined: transient failures (network timeouts) with exponential backoff, non-transient failures (validation) fail immediately
+    - Global exception handler specified for uncaught exceptions
+    - Error response format standardized (matches API spec 5.2-A)
+    - Circuit breaker pattern for external integrations
+    - Sensitive data scrubbing rules (never log passwords, tokens, PII)
+    
+    Example:
+    "Error handling layers: Controller catches all exceptions, maps to HTTP response using error code catalog, logs with correlation ID. Service layer catches data/integration exceptions, adds business context, re-throws as BusinessRuleException with original cause. Repository lets SQLException propagate (wrapped as SystemException at service boundary). 
+
+    Logging: ValidationException → INFO log 'Validation failed: {details}', BusinessRuleException → WARN log with business context, SystemException → ERROR log with full stack trace, IntegrationException → ERROR with external system details.
+
+    Retry: Transient failures (HTTP 5xx, timeouts) retry 3 times with exponential backoff (100ms, 400ms, 1600ms). ValidationException, BusinessRuleException never retry. Circuit breaker opens after 5 consecutive failures, half-open after 30 seconds.
+
+    Standard error response (matches 5.2-A): { error: { code, message, details[], timestamp, requestId } }. Never expose stack traces to clients."
+    
+    Red flags to watch for:
+    - Catching and swallowing exceptions (silent failures)
+    - Logging sensitive data (security violation)
+    - Retrying non-idempotent operations (data corruption)
+    - Stack traces exposed to users (information leakage)
+
+Deliverable:
+DOC 7.2-A: Error Handling Specification
+
+Output format:
+Document containing (8-12 pages):
+
+1. **Error Handling Overview:** Philosophy, goals, scope
+
+2. **Exception Class Hierarchy:** UML diagram showing exception inheritance, each class with attributes (errorCode, message, timestamp, details)
+
+3. **Error Code Catalog:** Table with columns: Error Code, HTTP Status, User Message, Developer Message, Suggested Action, Related Exception Class. 20-30 entries covering validation errors, business rule violations, system errors, integration failures, not found, authorization failures
+
+4. **Error Response Format:** JSON structure for API responses (from 5.2-A), examples for each error category
+
+5. **Layer-Specific Handling:** For each layer (presentation, business, data): what to catch, what to log, how to transform/propagate errors
+
+6. **Logging Strategy:** What to log per error type, log level, required context (correlation IDs, user IDs), sensitive data exclusions
+
+7. **Retry and Circuit Breaker Policies:** Which errors retry, backoff strategy, circuit breaker thresholds, timeout values
+
+8. **Global Exception Handler:** Catches uncaught exceptions, logs, returns generic error to client
+
+9. **Error Handling Patterns:** Try-catch guidelines, exception chaining, fail-fast vs graceful degradation
+
+10. **Monitoring and Alerting:** Error rate thresholds triggering alerts, error tracking integration (Sentry, Rollbar)
+
+7.3 Testing Strategy
+
+Purpose:
+Define comprehensive testing approach covering unit, integration, system, and acceptance testing to ensure all requirements are validated. A clear testing strategy ensures quality, provides confidence for deployment, and establishes traceability between requirements and verification.
+
+Prerequisite deliverables from previous steps:
+- DOC 2.1-B: Use Case Specifications Document (from step 2.1)
+- DOC 3.1-A: Functional Requirements List (from step 3.1)
+- DOC 3.2-A: Non-Functional Requirements Specification (from step 3.2)
+- DOC 5.2-A: API Specification Document (from step 5.2)
+- DOC 6.1-A: Detailed Class Diagrams (from step 6.1)
+- DOC 6.2-A: Sequence Diagrams (from step 6.2)
+- DOC 7.1-A: Algorithm Specifications (from step 7.1)
+- DOC 7.2-A: Error Handling Specification (from step 7.2)
+
+Tasks:
+
+Task 7.3.1: Define Testing Levels and Scope
+    Establish what types of testing will be performed, defining scope and objectives for each level using requirements from DOC 3.1-A and DOC 3.2-A.
+    
+    Guiding questions:
+    - What unit testing is needed? (classes, methods from 6.1-A)
+    - What integration testing is needed? (component interactions from 6.2-A)
+    - What system testing is needed? (end-to-end use cases from 2.1-B)
+    - What acceptance testing validates business requirements? (from 3.1-A)
+    - What non-functional testing is required? (performance, security from 3.2-A)
+    - What testing can be automated vs manual?
+    
+    Acceptance criteria:
+    - Testing pyramid defined: unit tests (70%), integration tests (20%), system/E2E tests (10%)
+    - Unit testing scope: all business logic methods, algorithms from 7.1-A, error handling from 7.2-A
+    - Integration testing scope: API endpoints from 5.2-A, database access, external integrations
+    - System testing scope: complete use case flows from 2.1-B
+    - UAT scope: business acceptance criteria from functional requirements
+    - Performance testing scope: load, stress, endurance tests for NFRs from 3.2-A
+    - Security testing scope: authentication, authorization, input validation, penetration testing
+    - Target code coverage: 80% minimum for unit tests
+    
+    Example:
+    "Unit tests: All service classes (OrderService, CustomerService), algorithm implementations (CalculateOrderDiscount from 7.1-A), validators, mappers. Target: 80% code coverage. Integration tests: All REST APIs from 5.2-A, database repositories, Payment Gateway integration. System tests: 8 critical use case flows (UC-001 Login, UC-003 Submit Order from 2.1-B). UAT: 30 business scenarios covering all Must-Have requirements. Performance: Load test 1000 concurrent users (NFR-001), response time <200ms p95 (NFR-002). Security: Penetration testing, OWASP Top 10 validation."
+    
+    Red flags to watch for:
+    - Only manual testing (no automation)
+    - Testing pyramid inverted (more E2E than unit tests)
+    - Missing NFR testing (performance, security from 3.2-A)
+    - No acceptance testing with business stakeholders
+
+Task 7.3.2: Create Test Cases with Traceability
+    Write detailed test cases for each testing level, ensuring every requirement from DOC 3.1-A has corresponding test cases and establishing traceability.
+    
+    Guiding questions:
+    - What validates each functional requirement? (from 3.1-A)
+    - What test data is needed?
+    - What are expected results? (from acceptance criteria in 3.1-A)
+    - What negative test cases catch errors? (from 7.2-A error catalog)
+    - What boundary conditions need testing? (from algorithm edge cases 7.1-A)
+    - How are API contracts tested? (from 5.2-A specifications)
+    
+    Acceptance criteria:
+    - Test cases written for each functional requirement from DOC 3.1-A
+    - Each test case includes: ID, title, requirement reference, preconditions, test steps, test data, expected result, priority
+    - Positive and negative test cases included
+    - Boundary value testing for algorithms (from 7.1-A edge cases)
+    - API test cases validate all endpoints from DOC 5.2-A (requests, responses, status codes)
+    - Error handling test cases validate error codes from DOC 7.2-A
+    - Sequence diagram scenarios from DOC 6.2-A become integration test cases
+    - Test data defined (valid, invalid, boundary, edge cases)
+    
+    Example:
+    "TC-015: Test Order Discount Calculation (traces to REQ-018, Algorithm CalculateOrderDiscount from 7.1-A). Preconditions: Customer with GOLD loyalty tier exists, active promo code exists. Steps: 1) Create order $300 total. 2) Apply loyalty discount. 3) Verify discount amount. Test data: order total $300, customer tier GOLD, promo code SAVE20. Expected: Discount = $60 (20% promo higher than 15% loyalty), final total $240. 
+
+    TC-016: Test Invalid Email Format (traces to REQ-003, validates INVALID_EMAIL error from 7.2-A). Steps: 1) POST /api/v1/customers with invalid email. 2) Verify response. Test data: email 'invalid@'. Expected: HTTP 400, error code INVALID_EMAIL, message 'Email address format is invalid.'"
+    
+    Red flags to watch for:
+    - Test cases without requirement traceability
+    - Only happy path testing (no negative cases)
+    - Missing boundary/edge case tests from algorithms
+    - Vague expected results (not specific, measurable)
+
+Task 7.3.3: Define Test Environment and Data Strategy
+    Specify test environments, test data management, and automation approach needed to execute testing strategy.
+    
+    Guiding questions:
+    - What environments are needed? (dev, test, staging)
+    - How is test data created? (scripts, anonymized production data, synthetic)
+    - What tools for automation? (JUnit, pytest, Selenium, JMeter, Postman)
+    - How are tests executed? (CI/CD pipeline, manual)
+    - How are defects tracked?
+    - What's the test execution schedule?
+    
+    Acceptance criteria:
+    - Test environments specified with configurations
+    - Test data creation strategy defined (how to generate, refresh, anonymize)
+    - Automation tools selected for each test level
+    - CI/CD integration defined (tests run on commit, PR, nightly)
+    - Defect tracking process established (severity levels, workflow)
+    - Test execution schedule defined
+    - Success criteria and exit criteria specified
+    
+    Example:
+    "Environments: Dev (developer local), Test (continuous integration), Staging (pre-production mirror). Test data: Synthetic data generated via scripts, anonymized production subset for UAT, refreshed weekly. Tools: JUnit (unit tests), Postman/Newman (API integration tests), Selenium (UI tests), JMeter (performance tests). CI/CD: Unit tests run on every commit (must pass), integration tests on PR, full regression nightly, performance tests weekly. Defects tracked in Jira: Blocker (P0), Critical (P1), Major (P2), Minor (P3). Exit criteria: All P0/P1 defects resolved, 80% code coverage, all Must-Have requirements validated."
+    
+    Red flags to watch for:
+    - No test environment (testing in production)
+    - Production data used without anonymization (privacy violation)
+    - No automated testing (manual only, slow and error-prone)
+    - Tests not integrated into CI/CD (discovered late)
+
+Deliverables:
+- DOC 7.3-A: Test Plan Document
+- DOC 7.3-B: Test Case Specifications
+- DOC 7.3-C: Test Coverage Matrix
+
+Output format:
+
+DOC 7.3-A: Test Plan Document (8-12 pages)
+1. **Testing Overview:** Objectives, scope, approach, testing levels
+2. **Test Strategy:** Testing pyramid breakdown, automation vs manual, risk-based prioritization
+3. **Test Levels Definition:** Unit, integration, system, UAT, performance, security testing scopes
+4. **Test Environment:** Environment descriptions, configurations, access, data
+5. **Test Data Strategy:** Generation approach, refresh frequency, anonymization
+6. **Tools and Automation:** Tools per test level, automation framework, CI/CD integration
+7. **Roles and Responsibilities:** Who performs which testing activities
+8. **Schedule:** Test phases, milestones, dependencies
+9. **Defect Management:** Tracking, severity levels, workflow
+10. **Entry and Exit Criteria:** When testing starts, when testing completes
+11. **Risks and Mitigation:** Testing risks (environment availability, data quality)
+
+DOC 7.3-B: Test Case Specifications (20-40 pages)
+Organized by test level and feature/component:
+- **Test Case ID:** Unique identifier (TC-XXX)
+- **Title:** Brief descriptive name
+- **Requirement Traceability:** Which requirements tested (from 3.1-A, 3.2-A)
+- **Priority:** High/Medium/Low
+- **Type:** Positive/Negative/Boundary
+- **Preconditions:** Setup required
+- **Test Steps:** Numbered steps
+- **Test Data:** Specific data values
+- **Expected Result:** Specific, measurable outcome
+- **Actual Result:** (filled during execution)
+- **Status:** Pass/Fail/Blocked
+
+DOC 7.3-C: Test Coverage Matrix (2-4 pages)
+- **Requirements Coverage:** Matrix showing each requirement (from 3.1-A) mapped to test case IDs
+- **Use Case Coverage:** Each use case (from 2.1-B) mapped to system test cases
+- **API Coverage:** Each endpoint (from 5.2-A) mapped to integration test cases
+- **Algorithm Coverage:** Each algorithm (from 7.1-A) mapped to unit test cases
+- **Error Coverage:** Each error code (from 7.2-A) mapped to test cases
+- **Coverage Metrics:** Percentage of requirements with test cases, gaps identified
+
+7.4 Development Standards
+
+Purpose:
+Establish coding conventions, naming standards, and code quality rules for consistent, maintainable code across the team. Well-defined standards reduce code review friction, improve readability, and prevent technical debt from inconsistent practices.
+
+Prerequisite deliverables from previous steps:
+- DOC 4.2-A: Technology Stack Decision Document (from step 4.2)
+- DOC 6.1-A: Detailed Class Diagrams (from step 6.1)
+
+Tasks:
+
+Task 7.4.1: Define Naming Conventions and Code Organization
+    Use technology stack (DOC 4.2-A) and class design (DOC 6.1-A) to establish naming rules and file organization standards appropriate for selected technologies.
+    
+    Guiding questions:
+    - What naming conventions fit the language? (Java: camelCase, Python: snake_case)
+    - How should packages/namespaces be organized?
+    - What file naming conventions?
+    - How are classes, interfaces, methods, variables named?
+    - What naming for test files?
+    
+    Acceptance criteria:
+    - Naming convention defined for: packages/namespaces, classes, interfaces, methods, variables, constants, files
+    - Conventions aligned with language idioms from tech stack (DOC 4.2-A)
+    - Package/namespace organization specified (layers, components)
+    - File organization rules (one class per file, related files grouped)
+    - Examples provided for each convention
+    - Test file naming convention (e.g., ClassNameTest, test_function_name)
+    
+    Example:
+    "Java conventions: Classes PascalCase (OrderService), methods camelCase (calculateDiscount), constants UPPER_SNAKE_CASE (MAX_RETRY_COUNT), private fields with underscore prefix (_repository). Packages: com.company.project.layer.component (com.company.orderapp.service.order). One public class per file matching class name. Test classes: ClassNameTest (OrderServiceTest)."
+    
+    Red flags to watch for:
+    - Conventions conflicting with language standards
+    - Inconsistent naming (mixed styles)
+    - No test naming convention
+
+Task 7.4.2: Define Code Style and Formatting Standards
+    Specify code formatting rules for readability and consistency, configuring automated tools to enforce standards.
+    
+    Guiding questions:
+    - What indentation? (spaces vs tabs, how many)
+    - What line length limit?
+    - Where do braces go? (same line vs new line)
+    - How is whitespace used? (around operators, blank lines)
+    - What tools enforce formatting? (Prettier, Black, gofmt)
+    - What linting rules apply?
+    
+    Acceptance criteria:
+    - Indentation standard (spaces recommended: 2 or 4)
+    - Line length limit (80-120 characters)
+    - Brace placement consistent
+    - Whitespace rules defined
+    - Import/using statement ordering
+    - Linter configuration file created (ESLint, Pylint, Checkstyle)
+    - Formatter configuration file created (Prettier, Black)
+    - Pre-commit hooks configured to enforce
+    
+    Example:
+    "TypeScript: 2 spaces indentation, 100 char line limit, single quotes, trailing commas, semicolons required. ESLint config: no-unused-vars (error), no-console (warn), complexity max 10. Prettier config: printWidth 100, singleQuote true, trailingComma all. Pre-commit hook runs Prettier + ESLint. Import order: external libraries, internal modules, relative imports."
+    
+    Red flags to watch for:
+    - No automated enforcement (manual, inconsistent)
+    - Line length too long (>120 chars, hard to review)
+    - No linter configuration
+
+Task 7.4.3: Define Documentation and Quality Standards
+    Establish documentation requirements, code comment guidelines, and quality practices including security and performance considerations.
+    
+    Guiding questions:
+    - When should code be commented?
+    - What documentation comments required? (JavaDoc, XML Doc)
+    - What code quality metrics? (complexity, coverage)
+    - What security practices are mandatory?
+    - What performance practices?
+    
+    Acceptance criteria:
+    - Comment guidelines: when to comment (complex logic, non-obvious decisions), what not to comment (obvious code)
+    - Documentation comment standard for: public classes, public methods, complex algorithms
+    - Code quality thresholds: cyclomatic complexity (<10), method length (<50 lines), code coverage (>80%)
+    - Security rules: no hardcoded secrets, input validation required, parameterized queries only, sanitize user input
+    - Performance guidelines: avoid N+1 queries, use pagination for lists, close resources properly, prefer immutability
+    - Code review checklist defined
+    
+    Example:
+    "Comments: Explain why, not what (code shows what). Require JavaDoc for public methods with @param, @return, @throws. Complexity: max 10 per method (refactor higher), max 50 lines per method. Security: Never hardcode credentials (use config), always validate input, use PreparedStatement (never string concatenation SQL), sanitize HTML output. Performance: Use connection pooling, implement pagination for collections >100 items, close JDBC resources in try-with-resources."
+    
+    Red flags to watch for:
+    - "Comment everything" (noise, unmaintained)
+    - No security guidelines (vulnerabilities)
+    - No complexity limits (unmaintainable code)
+
+Deliverables:
+- DOC 7.4-A: Coding Standards Document
+- DOC 7.4-B: Linter/Formatter Configuration Files
+
+Output format:
+
+DOC 7.4-A: Coding Standards Document (6-10 pages)
+1. **Overview:** Purpose, scope, enforcement approach
+2. **Naming Conventions:** Classes, methods, variables, files, packages with examples
+3. **Code Formatting:** Indentation, line length, braces, whitespace with examples
+4. **Code Organization:** File structure, package/namespace organization, import ordering
+5. **Documentation:** When to comment, documentation comment format (JavaDoc/etc.), README requirements
+6. **Code Quality:** Complexity limits, method size, duplication, code coverage targets
+7. **Best Practices:** Error handling patterns, null handling, immutability preferences, concurrency guidelines
+8. **Security Standards:** Input validation, SQL injection prevention, XSS prevention, secrets management, authentication/authorization patterns
+9. **Performance Guidelines:** Database access, caching, resource management, algorithm efficiency
+10. **Code Review Checklist:** Items reviewers must check
+
+DOC 7.4-B: Linter/Formatter Configuration Files
+- Language-specific configuration files (.eslintrc, .prettierrc, pylintrc, checkstyle.xml, etc.)
+- Pre-commit hook scripts
+- IDE configuration files (optional, for team consistency)
+- Installation and setup instructions
+
+7.5 Implementation Plan
+
+Purpose:
+Break down the detailed design into implementable tasks, estimate effort, sequence work, and create a development roadmap. This translates design documents into actionable work items that development teams can execute, with clear priorities, dependencies, and risk mitigation strategies.
+
+Prerequisite deliverables from previous steps:
+- DOC 3.4-A: Prioritized Requirements Matrix (from step 3.4)
+- DOC 5.1-B: Component Responsibility Matrix (from step 5.1)
+- DOC 6.1-A: Detailed Class Diagrams (from step 6.1)
+- All LLD documents (DOCs 6.x and 7.1-7.4)
+
+Tasks:
+
+Task 7.5.1: Create Work Breakdown Structure
+    Use component responsibilities (DOC 5.1-B), class diagrams (DOC 6.1-A), and all LLD documents to decompose the design into granular, estimable tasks.
+    
+    Guiding questions:
+    - What are the major work packages? (by component, by layer, by feature)
+    - What tasks for each class? (implement, write tests, code review)
+    - What database tasks? (schema creation, migrations, seed data)
+    - What infrastructure tasks? (environment setup, CI/CD, deployment)
+    - What testing tasks? (beyond unit tests with classes)
+    - What documentation tasks?
+    
+    Acceptance criteria:
+    - Tasks organized hierarchically (feature → component → class → methods)
+    - Each task granular enough to estimate (1-5 days ideal)
+    - All classes from DOC 6.1-A have implementation tasks
+    - Database tasks from DOC 6.4-B included
+    - Infrastructure and DevOps tasks included
+    - Testing tasks from DOC 7.3-A included (separate from dev tasks)
+    - Effort estimates in story points or hours
+    - Each task assigned to skill set (backend, frontend, database, DevOps)
+    
+    Example:
+    "WBS: 1.0 Order Management Component. 1.1 Order Service (5 days): 1.1.1 OrderService class implementation (2 days), 1.1.2 OrderRepository implementation (1 day), 1.1.3 Unit tests (1.5 days), 1.1.4 Code review and fixes (0.5 days). 1.2 Order API (3 days): 1.2.1 OrderController endpoints (1.5 days), 1.2.2 Integration tests (1 day), 1.2.3 API documentation (0.5 days). 1.3 Database (2 days): 1.3.1 Create orders schema DDL (0.5 days), 1.3.2 Create indexes (0.5 days), 1.3.3 Seed test data (1 day)."
+    
+    Red flags to watch for:
+    - Tasks too large (>5 days, hard to estimate/track)
+    - Missing infrastructure or testing tasks
+    - No effort estimates (can't plan)
+    - Tasks don't cover all classes in design
+
+Task 7.5.2: Identify Dependencies and Create Schedule
+    Determine task dependencies, sequence work respecting constraints, and create sprint/iteration plan using requirement priorities (DOC 3.4-A).
+    
+    Guiding questions:
+    - What must be built before what? (technical dependencies)
+    - What can be built in parallel?
+    - What's the critical path? (longest dependency chain)
+    - How do priorities affect order? (from requirements matrix 3.4-A)
+    - What's a reasonable sprint/iteration length? (2 weeks typical)
+    - What milestones mark progress?
+    
+    Acceptance criteria:
+    - Dependencies identified for each task (predecessors, successors)
+    - Critical path identified (tasks that delay everything if delayed)
+    - Tasks grouped into sprints/iterations (2-week sprints typical)
+    - Must-Have requirements prioritized early (from DOC 3.4-A)
+    - Parallel work identified to maximize throughput
+    - Milestones defined (database ready, APIs complete, UI complete, integration testing)
+    - Team capacity considered (don't overload sprints)
+    
+    Example:
+    "Dependencies: Database schema must complete before repository implementation. OrderService depends on OrderRepository. OrderController depends on OrderService. Order UI depends on Order API. Sprint 1: Database setup, authentication (foundation). Sprint 2: Order Service + Repository (Must-Have REQ-006). Sprint 3: Order API, Customer Service (Must-Have REQ-002, REQ-006). Critical path: Authentication → Order Service → Order API → Order UI (8 weeks). Parallel work: Customer module while Order UI being built."
+    
+    Red flags to watch for:
+    - No parallel work (inefficient, team idle)
+    - Critical path not identified (risks invisible)
+    - Low-priority features scheduled before high-priority (wrong order)
+
+Task 7.5.3: Identify Implementation Risks and Mitigation
+    Analyze technical risks during implementation and define mitigation strategies.
+    
+    Guiding questions:
+    - What technical risks exist? (new technology, complex integration, performance)
+    - What dependencies are risky? (third-party APIs, team availability)
+    - What has high uncertainty? (needs spike/PoC)
+    - What's the impact if risk materializes?
+    - What's the probability?
+    - How do we mitigate?
+    
+    Acceptance criteria:
+    - 10-15 implementation risks identified
+    - Each risk assessed: likelihood (Low/Med/High), impact (Low/Med/High), score
+    - Mitigation strategy defined for each risk
+    - High-priority risks have contingency plans
+    - Risk owners assigned
+    - Risk review frequency defined (weekly/bi-weekly)
+    
+    Example:
+    "RISK-001: Payment Gateway integration complexity. Likelihood: Medium, Impact: High. Mitigation: Schedule 2-day spike in Sprint 1 to validate integration, allocate buffer time, identify backup payment provider. Owner: Backend Lead. RISK-002: Team unfamiliar with React. Likelihood: High, Impact: Medium. Mitigation: 1-week training before Sprint 2, pair programming for first sprint, allocate 20% extra time for frontend tasks. Owner: Tech Lead."
+    
+    Red flags to watch for:
+    - No risks identified (unrealistic optimism)
+    - No mitigation strategies (reactive, not proactive)
+    - Ignoring team skill gaps
+
+Deliverables:
+- DOC 7.5-A: Work Breakdown Structure (WBS)
+- DOC 7.5-B: Implementation Schedule
+- DOC 7.5-C: Risk Register
+
+Output format:
+
+DOC 7.5-A: Work Breakdown Structure (8-12 pages)
+- Hierarchical task list with IDs, descriptions, effort estimates, skill requirements
+- Summary: total effort, effort by role, effort by component
+
+DOC 7.5-B: Implementation Schedule (4-6 pages)
+- Sprint/iteration plan with tasks assigned to each sprint
+- Dependency diagram (Gantt chart or network diagram)
+- Critical path highlighted
+- Milestones with dates
+- Team capacity planning
+
+DOC 7.5-C: Risk Register (3-5 pages)
+- Risk ID, description, category, likelihood, impact, risk score, mitigation strategy, contingency plan, owner, status
+

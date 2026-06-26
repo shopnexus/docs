@@ -1,0 +1,99 @@
+# Hướng dẫn vẽ Sequence Diagram đơn giản (Swimlane style)
+
+## Cách đọc ví dụ mẫu
+
+**Use case:** Thêm nhân viên
+
+**Các actors/systems:**
+- Quản lý dịch vụ hàng (người dùng)
+- Trang thích thiện viên (UI)
+- Quản lý nhân viên (Logic)
+- User (System)
+
+**Luồng:**
+1. Quản lý dịch vụ nhấp nút "Thêm nhân viên"
+2. UI gửi thông tin đến Quản lý nhân viên
+3. Kiểm tra thông tin
+4. Kiểm tra vai trò với hệ thống User
+5. **Thành công:** Hiển thị kết quả → Thông báo thành công
+6. **Thất bại:** Thông báo thất lỗi → Hiển thị thông báo lỗi
+
+## Cách vẽ đơn giản
+
+### Bước 1: Chia cột dọc (Swimlanes)
+
+```
+┌──────────┬──────────┬──────────┬──────────┐
+│  Actor   │   UI     │  Logic   │  System  │
+│          │          │          │          │
+```
+
+Mỗi cột = 1 tác nhân/hệ thống con
+
+### Bước 2: Vẽ thời gian từ trên xuống
+
+**Đường nét đứt dọc:** Lifeline của mỗi actor/system
+
+### Bước 3: Vẽ mũi tên ngang
+
+**Mũi tên nét liền →**
+- Từ TRÁI sang PHẢI: Request (yêu cầu)
+- Từ PHẢI sang TRÁI: Response (phản hồi)
+
+**Ghi nhãn trên mũi tên:**
+- Tên hành động ngắn gọn
+- Ví dụ: "Nhấp thông tin nhân viên", "Gửi thông tin"
+
+### Bước 4: Đánh dấu kết quả
+
+**Vùng màu (Optional):**
+- **Xanh lá:** Thành công (Success)
+- **Đỏ:** Thất bại (Failure)
+
+**Alternative paths:**
+- Vẽ 2 nhánh song song cho success/failure
+
+## So sánh với Sequence Diagram chuẩn
+
+| Đặc điểm | Chuẩn UML | Đơn giản (Swimlane) |
+|----------|-----------|---------------------|
+| Activation box | Có | Không |
+| Đánh số message | Có (1, 1.1, 1.2) | Không |
+| Combined fragments | Có (loop, alt, opt) | Dùng vùng màu |
+| Self message | Có | Không |
+| Return message | Nét đứt ← | Nét liền ← |
+
+## Khi nào dùng style nào?
+
+**Dùng UML chuẩn khi:**
+- Thiết kế kỹ thuật chi tiết
+- Cần thể hiện nested calls (1.1.1)
+- Làm việc với developers
+
+**Dùng style đơn giản khi:**
+- Trình bày cho stakeholders
+- Tài liệu người dùng
+- Business process flow
+- Cần dễ hiểu, ít kỹ thuật
+
+## Tips vẽ nhanh
+
+1. **Ít cột hơn = dễ đọc hơn:** 3-5 cột là tối ưu
+2. **Nhãn ngắn gọn:** "Gửi thông tin" thay vì "Gửi dữ liệu nhân viên đến backend để xử lý"
+3. **Màu sắc:** Dùng màu để phân biệt success/failure/warning
+4. **Không cần quá chi tiết:** Bỏ qua return messages nếu hiển nhiên
+
+## Công cụ vẽ đơn giản
+
+- **Draw.io:** Swimlane template
+- **Lucidchart:** Business Process template
+- **PowerPoint/Google Slides:** Vẽ tay với shapes + arrows
+- **Miro/FigJam:** Whiteboard style
+
+## Mục đích
+
+Style đơn giản giúp:
+- Người KHÔNG kỹ thuật hiểu được flow
+- Nhanh chóng sketch ý tưởng
+- Tài liệu người dùng dễ tiếp cận
+- Meeting/workshop với business team

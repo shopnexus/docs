@@ -1,0 +1,138 @@
+2.2 Process Modeling
+
+Purpose:
+Visualize how business processes flow through the system, showing sequence, decisions, parallel activities, and data transformations. Process models reveal workflow complexity, bottlenecks, and data requirements that aren't obvious from use case text alone.
+
+Prerequisite deliverable from previous step:
+- DOC 2.1-B: Use Case Specifications Document (from step 2.1)
+
+Tasks:
+
+Task 2.2.1: Select Processes to Model
+    Review use case specifications (DOC 2.1-B) to identify which processes are complex enough to warrant visual modeling. Focus on processes with multiple decision points, parallel activities, or cross-functional workflows.
+    
+    Guiding questions:
+    - Which use cases have complex main flows with many decision points?
+    - Which use cases involve multiple actors or departments (cross-functional)?
+    - Which use cases have parallel activities happening simultaneously?
+    - Which processes have performance concerns or known bottlenecks?
+    - Which processes are critical to business objectives (from vision doc)?
+    
+    Acceptance criteria:
+    - 3-5 key processes selected for detailed modeling
+    - Selection rationale documented (why these processes need visual models)
+    - Processes cover range of system functionality
+    - High-priority use cases from catalog are included
+    
+    Example:
+    "Selected processes: 1) Order Processing (complex workflow, multiple decision points), 2) Return Authorization (cross-functional: customer, CSR, warehouse), 3) Inventory Replenishment (parallel activities, batch processing), 4) Payment Processing (critical, has performance requirements)."
+    
+    Red flags to watch for:
+    - Selecting only simple, linear processes (those don't need visual models)
+    - Too many processes selected (diminishing returns beyond 5-6)
+    - Missing the most complex/risky processes
+
+Task 2.2.2: Create Activity Diagrams with Swimlanes
+    Transform use case main flows and alternative flows (from DOC 2.1-B) into visual activity diagrams. Use swimlanes to show which actor/system performs each activity.
+    
+    Guiding questions:
+    - What is the starting event that triggers this process?
+    - What activities occur in sequence? (from use case main flow)
+    - Where are the decision points? (from alternative/exception flows)
+    - What activities can happen in parallel?
+    - Which actor or system component performs each activity?
+    - What is the end state(s) of the process?
+    
+    Acceptance criteria:
+    - Start and end nodes clearly marked
+    - Activities represented as rounded rectangles with action verbs
+    - Decision diamonds for every if/then branch in use case
+    - Swimlanes show actor/system responsibility for each activity
+    - Parallel activities shown with fork/join bars where applicable
+    - Flow arrows clearly labeled for decision branches
+    - Diagram is readable (not more than 15-20 activities per diagram)
+    
+    Example:
+    "Order Processing diagram: Customer swimlane: 'Select Products', 'Enter Shipping Info'. System swimlane: 'Validate Address' (decision: valid?), 'Calculate Total'. Payment Gateway swimlane: 'Process Payment'. Fork to parallel activities: 'Send Confirmation Email' and 'Update Inventory'."
+    
+    Red flags to watch for:
+    - Linear flow with no decisions (probably oversimplified)
+    - Missing swimlanes (unclear who does what)
+    - Too many activities (break into sub-processes)
+    - No connection to use case flows (should trace directly)
+
+Task 2.2.3: Annotate Process Characteristics
+    Add annotations to diagrams identifying bottlenecks, timing requirements, data transformations, and business rules that weren't obvious in use case text.
+    
+    Guiding questions:
+    - Where are the bottlenecks or time-consuming steps?
+    - What data is needed at each decision point?
+    - What data is created, updated, or transformed at each step?
+    - Are there timing constraints? (must complete within X minutes)
+    - What business rules govern decisions?
+    - What volumes are expected? (transactions per hour)
+    
+    Acceptance criteria:
+    - Time estimates noted for time-critical activities
+    - Data inputs/outputs annotated on key activities
+    - Business rules referenced on decision points
+    - Performance requirements noted (e.g., "must complete in < 2 seconds")
+    - Volume expectations documented (transactions/hour, concurrent users)
+    - Bottlenecks or risks highlighted
+    
+    Example:
+    "Annotate 'Validate Address' activity: Requires customer address data, calls external address validation API, must complete in < 1 second, business rule BR-003: PO boxes not allowed for expedited shipping."
+    
+    Red flags to watch for:
+    - No annotations (missing valuable context)
+    - Implementation details in annotations (API endpoints, database names - too early)
+    - Missing data flows (what information is passed between steps?)
+
+Task 2.2.4: Validate Process Flows with Stakeholders
+    Review diagrams with users who actually perform these processes to ensure accuracy and completeness. Use walkthrough technique to verify real-world scenarios.
+    
+    Guiding questions:
+    - Does this match how you actually do the work?
+    - What exceptions or special cases are we missing?
+    - Where do errors commonly occur?
+    - What happens when [exception scenario]?
+    - Are the timing estimates realistic?
+    
+    Acceptance criteria:
+    - Diagrams reviewed with at least one person per actor role
+    - Feedback documented and incorporated
+    - Exception scenarios validated and added if missing
+    - Process bottlenecks confirmed by actual users
+    - Stakeholder sign-off that diagrams are accurate
+    
+    Example:
+    "Validated Order Processing with CSR Sarah Chen: She identified missing alternative flow for 'address validation fails but customer confirms it's correct' - added manual override path with supervisor approval."
+    
+    Red flags to watch for:
+    - Stakeholders say "I guess that's right" (not confident - dig deeper)
+    - Discovering major steps missing during validation (use case was incomplete)
+    - Process doesn't match documented procedures or actual practice
+
+Deliverable:
+DOC 2.2-A: Process Flow Diagrams
+
+Output format:
+Document containing 3-5 detailed activity diagrams (1-2 pages each):
+- Process name and purpose
+- Activity diagram using standard notation:
+  - Start node (filled circle)
+  - End node (bull's eye)
+  - Activities (rounded rectangles with verb-noun labels)
+  - Decision diamonds (with guard conditions on outgoing arrows)
+  - Fork/join bars (for parallel activities)
+  - Swimlanes (labeled with actor/system names)
+- Annotations noting:
+  - Timing requirements or estimates
+  - Data inputs/outputs
+  - Business rules (by ID reference)
+  - Volume expectations
+  - Known bottlenecks or risks
+- Legend explaining notation
+- Validation notes (who reviewed, when, key feedback)
+
+Include narrative description (1-2 paragraphs) for each diagram explaining the overall process flow, key decision points, and any special considerations.

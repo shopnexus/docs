@@ -1,0 +1,39 @@
+# Hướng dẫn vẽ System Context Diagram
+
+## Cách đọc lược đồ mẫu
+
+**Hệ thống trung tâm:**
+- Hình tròn ở giữa: NPOESS Data Exploitation (NDE) - đây là hệ thống cần phát triển
+
+**Các thực thể bên ngoài:**
+- Các hình chữ nhật xung quanh: Là các hệ thống khác, tổ chức, hoặc người dùng tương tác với hệ thống trung tâm
+- Ví dụ: IDPS, MMC, Product Developers, IPO (bên trái); CUSTOMERS, CLASS, Management (bên phải)
+
+**Ý nghĩa:**
+- Sơ đồ cho thấy hệ thống NDE nằm ở trung tâm và giao tiếp/trao đổi dữ liệu với 7 thực thể bên ngoài
+- Ranh giới rõ ràng: Những gì BÊN TRONG hệ thống vs. BÊN NGOÀI hệ thống
+
+## Cách vẽ System Context Diagram
+
+**Bước 1:** Vẽ hệ thống chính
+- Hình tròn hoặc hình chữ nhật bo tròn ở giữa
+- Ghi tên hệ thống cần phát triển
+
+**Bước 2:** Xác định các External Entities
+- Hệ thống bên ngoài tích hợp
+- Người dùng/vai trò chính
+- Tổ chức/bộ phận liên quan
+- Hệ thống cũ (legacy systems)
+
+**Bước 3:** Vẽ External Entities
+- Hình chữ nhật xung quanh hệ thống trung tâm
+- Sắp xếp hợp lý (nhóm theo chức năng nếu cần)
+
+**Bước 4:** Thêm mũi tên (tùy chọn)
+- Mũi tên chỉ hướng luồng dữ liệu chính
+- Có thể ghi nhãn luồng dữ liệu nếu cần chi tiết
+
+**Lưu ý quan trọng:**
+- Giữ sơ đồ SIMPLE - chỉ hiển thị mức cao nhất
+- KHÔNG vẽ chi tiết bên trong hệ thống
+- Mục đích: Hiểu ranh giới và bối cảnh hoạt động của hệ thống
