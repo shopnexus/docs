@@ -1,0 +1,26 @@
+---
+title: "Service Layers"
+description: "The internal layering and design patterns used within each service."
+---
+
+Each ShopNexus service is organized into clear internal layers so that business logic stays
+isolated from transport and infrastructure concerns.
+
+## Layers
+
+| Layer | Responsibility |
+| --- | --- |
+| **Transport** | Receives requests (HTTP/gRPC) and translates them into application calls. |
+| **Application** | Orchestrates use cases; coordinates domain objects and external calls. |
+| **Domain** | Encapsulates business rules and invariants. Has no infrastructure dependencies. |
+| **Infrastructure** | Implements persistence, messaging, and third-party integrations. |
+
+## Dependency direction
+
+Dependencies point **inward**: outer layers depend on inner layers, never the reverse. The
+domain layer is the stable core and knows nothing about how it is delivered or stored.
+
+<Tip>
+  Keeping the domain free of framework and database details makes business rules testable in
+  isolation and resistant to infrastructure churn.
+</Tip>

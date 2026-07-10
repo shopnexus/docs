@@ -1,0 +1,37 @@
+---
+title: "Introduction"
+description: "ShopNexus — a service-oriented e-commerce platform."
+---
+
+ShopNexus is an e-commerce platform built on a **service-oriented architecture (SOA)**.
+The system is decomposed into independent services that own their data, communicate over
+well-defined contracts, and can be developed, deployed, and scaled independently.
+
+<Note>
+  This documentation covers the platform's architecture, services, APIs, and operations.
+  It is the developer-facing companion to the engineering report.
+</Note>
+
+## What you'll find here
+
+<CardGroup cols={2}>
+  <Card title="Architecture" icon="sitemap" href="/architecture/overview">
+    SOA principles, service layers, communication patterns, Saga, CQRS, and DDD.
+  </Card>
+  <Card title="Services" icon="cubes" href="/services/service-catalog">
+    The catalog of services, their responsibilities, and ownership boundaries.
+  </Card>
+  <Card title="API Reference" icon="code" href="/api/api-design">
+    Contract-first API design and external integrations.
+  </Card>
+  <Card title="Operations" icon="rocket" href="/operations/deployment">
+    How services are packaged, deployed, and run.
+  </Card>
+</CardGroup>
+
+## Design goals
+
+- **Loose coupling** — services interact through contracts, not shared databases.
+- **High cohesion** — each service owns a single business capability.
+- **Independent deployability** — services ship on their own cadence.
+- **Resilience** — failures are isolated and handled with explicit strategies.

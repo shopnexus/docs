@@ -1,0 +1,31 @@
+---
+title: "Deployment"
+description: "How ShopNexus services are packaged, deployed, and operated."
+---
+
+Each ShopNexus service is **independently deployable**. Services are packaged as containers
+and released on their own cadence without a lockstep deploy of the whole platform.
+
+## Pipeline
+
+<Steps>
+  <Step title="Build">Compile and package the service as a container image.</Step>
+  <Step title="Test">Run unit, integration, and contract tests in CI.</Step>
+  <Step title="Publish">Push the versioned image to the registry.</Step>
+  <Step title="Deploy">Roll out to the target environment with health checks.</Step>
+</Steps>
+
+## Operational concerns
+
+| Concern | Approach |
+| --- | --- |
+| Configuration | Per-environment config and secrets injected at runtime. |
+| Health checks | Liveness and readiness endpoints per service. |
+| Observability | Centralized logs, metrics, and distributed tracing. |
+| Scaling | Scale services independently based on their own load. |
+| Rollout | Progressive rollout with the ability to roll back. |
+
+<Note>
+  Replace these placeholders with the platform's concrete toolchain (CI system, registry,
+  orchestrator, and observability stack) as they are finalized.
+</Note>

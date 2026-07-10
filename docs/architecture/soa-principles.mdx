@@ -1,0 +1,33 @@
+---
+title: "SOA Principles"
+description: "The principles that shape ShopNexus's service boundaries."
+---
+
+Service-oriented architecture organizes the system around **business capabilities** exposed
+as services. The following principles guide how ShopNexus draws and maintains its boundaries.
+
+## Principles
+
+<AccordionGroup>
+  <Accordion title="Loose coupling">
+    Services depend on published contracts, never on another service's database or internal
+    types. A change inside one service must not force a change in another.
+  </Accordion>
+  <Accordion title="High cohesion">
+    Each service owns one business capability end to end. Related behavior and data live
+    together; unrelated concerns live elsewhere.
+  </Accordion>
+  <Accordion title="Service autonomy">
+    A service controls its own data, schema, and deployment lifecycle. It can be released
+    without coordinating a lockstep deploy with its peers.
+  </Accordion>
+  <Accordion title="Contract-first">
+    Interfaces are defined before implementation and treated as a stable, versioned promise
+    to consumers.
+  </Accordion>
+</AccordionGroup>
+
+## Why it matters
+
+These principles trade some local simplicity for **independent evolvability** — the ability
+to change, scale, and deploy one capability without disturbing the rest of the platform.

@@ -1,0 +1,30 @@
+---
+title: "Service Catalog"
+description: "The services that make up the ShopNexus platform."
+---
+
+This catalog lists the services in ShopNexus, their responsibilities, and the data they own.
+Fill in each row as services are confirmed against the source repositories.
+
+<Note>
+  Each service owns its data and exposes a contract. Other services interact only through that
+  contract — never by reaching into another service's database.
+</Note>
+
+## Services
+
+| Service | Responsibility | Owns |
+| --- | --- | --- |
+| API Gateway | Single entry point; routing, auth, rate limiting | — |
+| Account | Users, authentication, profiles | User & credential data |
+| Catalog | Products, categories, search | Product data |
+| Cart | Shopping cart lifecycle | Cart state |
+| Order | Order placement and lifecycle | Order data |
+| Payment | Payments and refunds | Payment records |
+| Inventory | Stock levels and reservations | Inventory data |
+| Notification | Email / push / in-app messages | Delivery state |
+
+<Info>
+  Adjust this table to match the actual ShopNexus services. Add a dedicated page per service
+  under the **Services** group as documentation deepens.
+</Info>

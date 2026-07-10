@@ -1,0 +1,42 @@
+---
+title: "API Design"
+description: "Contract-first API design conventions for ShopNexus services."
+---
+
+ShopNexus APIs are **contract-first**: the interface is defined and reviewed before
+implementation, then published as a stable, versioned promise to consumers.
+
+## Conventions
+
+- **Contract-first** — define the schema (OpenAPI for HTTP, Protobuf for gRPC) up front.
+- **Versioning** — breaking changes ship under a new version; consumers migrate deliberately.
+- **Consistent errors** — a uniform error shape across services.
+- **Idempotency** — state-changing operations are safe to retry.
+
+## Error shape
+
+```json
+{
+  "error": {
+    "code": "RESOURCE_NOT_FOUND",
+    "message": "Order 123 was not found.",
+    "details": []
+  }
+}
+```
+
+## Generating reference docs from OpenAPI
+
+Mintlify can render interactive API reference pages from an OpenAPI specification. Add the spec
+and point a navigation entry at it:
+
+```json
+{
+  "group": "Endpoints",
+  "openapi": "/api/openapi.json"
+}
+```
+
+<Tip>
+  Run `mint openapi-check` to validate a specification before publishing the reference.
+</Tip>

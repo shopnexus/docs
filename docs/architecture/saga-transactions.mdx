@@ -1,0 +1,36 @@
+---
+title: "Saga Transactions"
+description: "Maintaining consistency across services without distributed transactions."
+---
+
+Because each service owns its own database, ShopNexus cannot use a single ACID transaction
+across services. The **Saga pattern** coordinates a business transaction as a sequence of
+local transactions, each with a compensating action to undo its effect on failure.
+
+## Styles
+
+<Tabs>
+  <Tab title="Choreography">
+    Each service reacts to events and emits the next event. No central coordinator.
+
+    - Decentralized and loosely coupled.
+    - Harder to follow the end-to-end flow as steps grow.
+  </Tab>
+  <Tab title="Orchestration">
+    A coordinator tells each service what step to run and reacts to the outcome.
+
+    - Centralized flow that is easy to trace and change.
+    - The orchestrator becomes a component to design and operate carefully.
+  </Tab>
+</Tabs>
+
+## Compensation
+
+When a step fails, previously completed steps are rolled back with **compensating
+transactions** (e.g. release reserved stock, refund a payment) rather than a database
+rollback.
+
+<Warning>
+  Sagas provide eventual consistency, not isolation. Design steps to be idempotent and handle
+  out-of-order or duplicate messages.
+</Warning>

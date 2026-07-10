@@ -1,0 +1,51 @@
+---
+title: "Quickstart"
+description: "Run the ShopNexus platform locally and preview these docs."
+---
+
+## Preview the documentation
+
+This documentation is built with [Mintlify](https://mintlify.com).
+
+<Steps>
+  <Step title="Install the CLI">
+    ```bash
+    npm i -g mintlify
+    ```
+  </Step>
+  <Step title="Start the dev server">
+    From the `docs/` directory:
+    ```bash
+    mint dev
+    ```
+    The site is served at `http://localhost:3000`.
+  </Step>
+  <Step title="Validate before publishing">
+    ```bash
+    mint validate
+    mint broken-links
+    ```
+  </Step>
+</Steps>
+
+## Run the platform
+
+<Warning>
+  The application source code lives in the sibling `shopnexus/` repositories.
+  Fill in the concrete commands for your environment.
+</Warning>
+
+<Steps>
+  <Step title="Clone the services">
+    Clone the service repositories you intend to run.
+  </Step>
+  <Step title="Configure environment">
+    Provide each service its required environment variables and secrets.
+  </Step>
+  <Step title="Start dependencies">
+    Bring up shared infrastructure (database, message broker, cache).
+  </Step>
+  <Step title="Launch services">
+    Start each service and verify health endpoints respond.
+  </Step>
+</Steps>
