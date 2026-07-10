@@ -1,0 +1,79 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "ShopNexus",
+  "description": "Developer documentation for ShopNexus, a service-oriented e-commerce platform.",
+  "colors": {
+    "primary": "#0D9373",
+    "light": "#55D799",
+    "dark": "#007A5A"
+  },
+  "favicon": "/favicon.svg",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "architecture/overview"
+            ]
+          },
+          {
+            "group": "Architecture",
+            "pages": [
+              "architecture/soa-principles",
+              "architecture/service-layers",
+              "architecture/inter-service-communication",
+              "architecture/saga-transactions",
+              "architecture/cqrs",
+              "architecture/domain-driven-design"
+            ]
+          },
+          {
+            "group": "Services",
+            "pages": [
+              "services/service-catalog"
+            ]
+          },
+          {
+            "group": "Operations",
+            "pages": [
+              "operations/deployment"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "api/api-design",
+              "api/external-integrations"
+            ]
+          },
+          {
+            "group": "HTTP Gateway",
+            "openapi": "api/openapi.json"
+          }
+        ]
+      }
+    ]
+  },
+  "navbar": {
+    "primary": {
+      "type": "github",
+      "href": "https://github.com/shopnexus"
+    }
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/shopnexus"
+    }
+  }
+}

@@ -1,0 +1,38 @@
+---
+title: "Domain-Driven Design"
+description: "Modeling ShopNexus business logic with DDD building blocks."
+---
+
+ShopNexus models business logic with **Domain-Driven Design (DDD)**. Service boundaries align
+with **bounded contexts**, so each service speaks one consistent domain language.
+
+## Building blocks
+
+<AccordionGroup>
+  <Accordion title="Bounded context">
+    An explicit boundary within which a domain model and its language are consistent. Each
+    service typically maps to one bounded context.
+  </Accordion>
+  <Accordion title="Aggregate">
+    A cluster of domain objects treated as a single unit for changes. The aggregate root
+    enforces invariants and is the only entry point for modifications.
+  </Accordion>
+  <Accordion title="Entity & Value Object">
+    Entities have identity that persists over time; value objects are defined entirely by
+    their attributes and are immutable.
+  </Accordion>
+  <Accordion title="Domain event">
+    A record of something meaningful that happened in the domain, used to communicate change
+    within and across services.
+  </Accordion>
+  <Accordion title="Repository">
+    Provides collection-like access to aggregates, hiding the persistence mechanism from the
+    domain.
+  </Accordion>
+</AccordionGroup>
+
+## Ubiquitous language
+
+Within a bounded context, code, conversations, and documentation use the **same terms** for
+the same concepts. This shared language reduces translation errors between domain experts and
+developers.

@@ -1,0 +1,29 @@
+---
+title: "External Integrations"
+description: "How ShopNexus integrates with third-party providers."
+---
+
+ShopNexus depends on external providers for capabilities outside its core domain (for example
+payments and notifications). Integrations are isolated behind adapters so a provider can be
+swapped without touching domain logic.
+
+## Integration principles
+
+- **Anti-corruption layer** — translate provider models into the domain's own terms.
+- **Resilience** — apply timeouts, retries with backoff, and circuit breakers to outbound calls.
+- **Webhooks** — verify signatures and treat inbound events as idempotent.
+- **Secrets** — store provider credentials outside the codebase; never commit them.
+
+## Example: handling a webhook
+
+<Steps>
+  <Step title="Verify">Validate the provider signature before processing.</Step>
+  <Step title="Deduplicate">Ignore events already processed (idempotency key).</Step>
+  <Step title="Translate">Map the provider payload to a domain event.</Step>
+  <Step title="React">Publish the domain event for interested services.</Step>
+</Steps>
+
+<Warning>
+  Never trust webhook payloads without signature verification — they are publicly reachable
+  endpoints.
+</Warning>
