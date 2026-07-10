@@ -2,7 +2,7 @@
 #   docker compose up --build   →  http://localhost:5000
 # For authoring with hot-reload use the Mintlify dev server instead:
 #   cd docs && npx mint@latest dev
-name: shopnexus-docs
+name: docs
 services:
   docs:
     build: .
