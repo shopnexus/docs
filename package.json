@@ -1,0 +1,8 @@
+{
+  "name": "shopnexus-docs",
+  "private": true,
+  "scripts": {
+    "spec": "curl -fsSL https://raw.githubusercontent.com/shopnexus/server/main/api/openapi.gen.yaml -o docs/api/openapi.yaml",
+    "dev": "npm run spec && npx mint@latest dev"
+  }
+}
