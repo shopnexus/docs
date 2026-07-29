@@ -1,2 +1,5 @@
 # Build artifacts của Typst (tái tạo từ .typ bằng `typst compile`)
 *.pdf
+
+# Fetched from the server repo at build time (see Dockerfile).
+docs/api/openapi.yaml
