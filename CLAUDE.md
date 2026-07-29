@@ -4,23 +4,34 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this repository is
 
-This is the **documentation/report repository** for a graduation internship report (báo cáo thực tập tốt nghiệp), subject INT1448 — *Phát triển phần mềm hướng dịch vụ* (Service-Oriented Software Development). The report's subject system is **ShopNexus**, an e-commerce platform built on a service-oriented / microservices architecture. The actual ShopNexus source code lives elsewhere (sibling `shopnexus/` repos); this repo only holds writing, diagrams, and the typeset deliverable.
+This is the **documentation/report repository** for a graduation internship (thực tập tốt nghiệp) at PTIT HCM. The subject system is **ShopNexus**, a C2C e-commerce platform built on a service-oriented / durable-microservices architecture. The actual ShopNexus source code lives elsewhere (sibling `shopnexus/` repos); this repo only holds writing, diagrams, and the typeset deliverables.
+
+The internship produces three kinds of report — weekly progress reports, periodic reports, and one final report — all typeset from `typst/`.
 
 The content is written in **Vietnamese**. Preserve Vietnamese diacritics in all edits.
 
 ## Build
 
-The deliverables are typeset with **Typst** (currently v0.15.0). Build from inside `typst/`:
+The deliverables are typeset with **Typst** (v0.15+). Always build through the Makefile from inside `typst/`:
 
 ```bash
 cd typst
-typst compile main.typ main.pdf      # the report
-typst compile slides.typ slides.pdf  # the presentation slides
+make            # list targets
+make all        # everything
+make tuan       # 3 weekly reports
+make dinh-ky    # 2 periodic reports
+make cuoi       # final report
+make spec       # project source-of-truth document
+make watch SRC=bao-cao-cuoi/main.typ    # live preview
 ```
 
-Live preview while editing: `typst watch main.typ main.pdf`.
+PDFs land in `typst/out/` (gitignored). **Do not call `typst compile` bare** — every
+document imports from `common/`, so `--root .` is mandatory, and the submission font
+lives in `common/fonts`, so `--font-path` is too. The Makefile supplies both.
 
-Required fonts (must be installed system-wide or passed via `--font-path`): **TeX Gyre Termes** (serif body), **TeX Gyre Heros** (sans headings/slides), **DejaVu Sans Mono** (code). Typst packages (`codly`, `fletcher`) are fetched automatically from the Typst preview registry on first compile.
+Required system fonts: **TeX Gyre Termes** (serif body), **TeX Gyre Heros** (sans headings),
+**DejaVu Sans Mono** (code). `SVN-Times New Roman` ships in `common/fonts/`.
+The `fletcher` package is fetched from the Typst preview registry on first compile.
 
 ## Repository structure
 
@@ -32,25 +43,38 @@ Two top-level areas with very different roles:
   - `*.txt` (`total recipe.txt`, `delivarable.txt`, `phần *.txt`) — long-form drafts and the consolidated brief.
   - `teacher_messages.txt` — the original assignment brief / scope from the instructor.
 
-- **`typst/`** — the compiled deliverable. This is the source of truth for the final document:
-  - `main.typ` — report entry point. Sets up cover → front matter (Roman numerals) → table of contents → main body (Arabic numerals), then `#include`s the 13 chapter files **in order**. To add/reorder chapters, edit the include list here.
-  - `slides.typ` — standalone 16:9 presentation; self-contained (does not import `lib/`), but keeps its color/font palette in sync with the report by convention.
-  - `chapters/01-…` … `13-tai-lieu-tham-khao.typ` — one file per chapter, numbered by filename.
-  - `lib/theme.typ` — global theme; `lib/cover.typ`, `lib/front.typ` — title page and acknowledgements/work-split tables.
-  - `assets/` — images referenced by chapters (ER diagrams `er-*.png`, flows, `PTIT.png` logo).
-  - `refs.bib` — bibliography (BibTeX).
+- **`typst/`** — the compiled deliverables. See `typst/README.md` for the full map. There are
+  **three kinds of report**, one directory each:
+
+  | Kind | Directory | Count |
+  |---|---|---|
+  | Weekly progress report | `bao-cao-tuan/` | 3 |
+  | Periodic report (báo cáo định kỳ) | `bao-cao-dinh-ky/lan-1/`, `lan-2/` | 2 |
+  | Final report (báo cáo cuối) | `bao-cao-cuoi/` | 1 |
+
+  Plus `spec/source-of-truth.typ` — the project reference document, not a submitted report.
+
+  Shared code lives in `typst/common/` and is the single source for everything:
+  - `info.typ` — team, topic, advisor, class, student list. Change it here, every report follows.
+  - `tokens.typ` — fonts, grayscale palette, fletcher diagram helpers (`fig`, `nt`, `np`, …), `note`, `wireframe`, `sechead`, `mockup`. Re-exports `fletcher` so chapters need only this one import.
+  - `style-quyen.typ` — bound-volume template per QĐ 923/QĐ-HV (periodic + final reports).
+  - `style-a4.typ` — lighter A4 template (weekly reports + spec).
+  - `refs.bib`, `assets/` (incl. `assets/mockups/`), `fonts/`.
 
 ## Typst authoring conventions
 
-- **Apply the theme once.** `main.typ` calls `#show: report-theme` (from `lib/theme.typ`). Chapter files assume this is already active and do **not** re-apply it.
-- **Every chapter file imports what it needs at the top.** Pattern: `#import "../lib/theme.typ": diag, c-primary, c-soft, c-mid, c-line` and, for diagrams, `#import "@preview/fletcher:0.5.7" as fletcher: diagram, node, edge`. Match the existing import style of neighboring chapters.
-- **Diagrams** are drawn inline with **fletcher** and wrapped in the `diag(content, caption:, label:)` helper from `theme.typ`, which produces a `figure` with `kind: "diagram"` and supplement `[Hình]`. Use `diag` (not bare `figure`) so the figure appears in the *Danh mục hình* (list of figures) generated in `main.typ`. Imported diagram images go through `image("assets/…")` instead.
-- **Code blocks** use **codly** (configured in `theme.typ` with line numbers, soft-gray fill). Just use fenced ```` ```go ```` blocks; styling is global.
-- **Visual style is intentionally grayscale/academic.** The report palette (`c-primary`, `c-accent`, `c-soft`, `c-mid`, `c-line`) is defined in `theme.typ`; reuse these tokens rather than hardcoding colors. Slides add one PTIT-red accent (`#b3122b`).
-- **Headings** are auto-numbered (level 1 = `I.`, deeper = `1.1.1.`) and level-1 headings force a page break. Don't hand-number headings.
+- **Apply the template once**, in each report's `main.typ` (`#show: quyen.with(...)` or `#show: a4.with(...)`). Chapter files never re-apply it.
+- **One import per chapter file:** `#import "../../common/tokens.typ": *`. Do not import `@preview/fletcher` again — `tokens.typ` re-exports it.
+- **Never redefine design tokens in a chapter.** Duplicated palette/helper blocks were consolidated into `common/tokens.typ`; don't reintroduce them.
+- **Never hardcode team/topic strings** — read them from `common/info.typ`.
+- **Diagrams** are drawn inline with **fletcher** and wrapped in `fig(caption, ...)`, which produces a `figure` with `kind: image` so it lands in the *Danh mục các hình*. Bare `figure` for a diagram is a bug. UI screenshots go through `mockup("name")`.
+- **Code blocks**: plain fenced blocks; the templates style raw blocks globally.
+- **Visual style is intentionally grayscale/academic** (reports are printed black-and-white). Reuse tokens from `common/tokens.typ` rather than hardcoding colors.
+- **Headings are auto-numbered** — `CHƯƠNG n:` / `n.m` / `n.m.k` in volumes, `1.1.` in A4 docs. Numbered level-1 headings force a page break; unnumbered sections use `sechead(...)` and need an explicit `#pagebreak()`.
 
 ## Working with this repo
 
 - When writing or revising a chapter, the corresponding `manual/technique/*.txt` guide and `manual/diagram/*/hướng dẫn.txt` notes are the intended source material — consult them for the methodology and intended figures.
-- Keep `refs.bib` entries consistent with the existing style; cite with Typst's `@key` syntax.
-- This repo contains no application code, tests, or linters — "verification" means the Typst document compiles cleanly and the PDF renders as intended.
+- Keep `common/refs.bib` entries consistent with the existing style; cite with Typst's `@key` syntax.
+- This repo contains no application code, tests, or linters — "verification" means `make all` compiles cleanly with no warnings and the PDFs render as intended.
+- `typst/tmp/` holds retired drafts and unused files; it is gitignored and safe to ignore.

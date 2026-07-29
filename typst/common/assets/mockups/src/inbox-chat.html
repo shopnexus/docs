@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ShopNexus - Messenger</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&amp;family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Manrope:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">tailwind.config = {darkMode: "class", theme: {extend: {colors: {"surface-container-highest": "#e2e3e0", "surface-bright": "#f9f9f7", "surface-variant": "#e2e3e0", "on-primary-fixed": "#00201d", "inverse-on-surface": "#f1f1ef", "secondary-fixed": "#abefe7", surface: "#f9f9f7", "on-secondary-fixed": "#00201d", "secondary-fixed-dim": "#8fd3cb", primary: "#004e47", "on-secondary-fixed-variant": "#00504b", "on-secondary-container": "#266d67", "surface-container": "#eeeeec", "on-primary": "#ffffff", "surface-container-lowest": "#ffffff", "on-tertiary-container": "#ffc9b6", "surface-tint": "#066a61", outline: "#6e7977", "error-container": "#ffdad6", tertiary: "#742f13", "surface-container-low": "#f4f4f1", "tertiary-fixed": "#ffdbcf", "on-primary-fixed-variant": "#005049", "surface-dim": "#dadad8", "on-tertiary": "#ffffff", "on-surface-variant": "#3e4947", "secondary-container": "#a8ece4", "inverse-surface": "#2f3130", "primary-fixed-dim": "#85d5c9", error: "#ba1a1a", "on-primary-container": "#93e4d8", "on-secondary": "#ffffff", secondary: "#216963", "surface-container-high": "#e8e8e6", "primary-fixed": "#a1f1e5", "primary-container": "#00685f", "on-tertiary-fixed-variant": "#773215", "on-error": "#ffffff", "tertiary-container": "#924628", "on-tertiary-fixed": "#380d00", "tertiary-fixed-dim": "#ffb59a", "on-background": "#1a1c1b", "on-error-container": "#93000a", "on-surface": "#1a1c1b", background: "#f9f9f7", "outline-variant": "#bec9c6", "inverse-primary": "#85d5c9"}, borderRadius: {DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px"}, spacing: {xs: "4px", "margin-mobile": "1rem", lg: "24px", gutter: "1rem", xl: "32px", sm: "8px", "margin-desktop": "2rem", md: "16px", "3xl": "64px", "2xl": "48px"}, fontFamily: {"headline-md": ["Manrope"], "body-lg": ["Inter"], "label-md": ["Inter"], "headline-lg": ["Manrope"], "price-sm": ["Inter"], "body-md": ["Inter"], "display-lg": ["Manrope"], "body-sm": ["Inter"], "price-lg": ["Inter"], "headline-sm": ["Manrope"], "display-lg-mobile": ["Manrope"], "label-sm": ["Inter"], headline: ["Manrope"], display: ["Manrope"], body: ["Inter"], label: ["Inter"]}, fontSize: {"headline-md": ["24px", {lineHeight: "32px", letterSpacing: "-0.01em", fontWeight: "700"}], "body-lg": ["18px", {lineHeight: "28px", fontWeight: "400"}], "label-md": ["14px", {lineHeight: "16px", letterSpacing: "0.01em", fontWeight: "600"}], "headline-lg": ["2rem", {lineHeight: "1.2", fontWeight: "700"}], "price-sm": ["0.875rem", {lineHeight: "1", fontWeight: "500"}], "body-md": ["16px", {lineHeight: "24px", fontWeight: "400"}], "display-lg": ["48px", {lineHeight: "56px", letterSpacing: "-0.02em", fontWeight: "800"}], "body-sm": ["14px", {lineHeight: "20px", fontWeight: "400"}], "price-lg": ["1.25rem", {lineHeight: "1", fontWeight: "700"}], "headline-sm": ["20px", {lineHeight: "28px", fontWeight: "600"}], "display-lg-mobile": ["36px", {lineHeight: "44px", letterSpacing: "-0.02em", fontWeight: "800"}], "label-sm": ["12px", {lineHeight: "14px", letterSpacing: "0.02em", fontWeight: "500"}]}}}};</script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1;
+        }
+        
+        /* Custom scrollbar for message areas */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: theme('colors.outline-variant');
+            border-radius: 20px;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background h-screen flex flex-col overflow-hidden">
+<!-- TopNavBar -->
+<header class="sticky top-0 z-50 flex flex-col w-full bg-surface dark:bg-surface border-b border-outline-variant dark:border-outline shadow-sm">
+<div class="flex items-center justify-between px-gutter py-sm max-w-[1400px] mx-auto w-full">
+<div class="flex items-center gap-md">
+<a class="font-headline-lg text-headline-lg font-bold text-primary dark:text-primary-fixed-dim" href="#">ShopNexus</a>
+</div>
+<div class="flex-1 max-w-2xl mx-gutter hidden md:block">
+<!-- Search bar omitted for context of messenger, but could go here -->
+</div>
+<div class="flex items-center gap-sm">
+<button class="p-2 rounded-full hover:bg-surface-container-high transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined">video_library</span>
+</button>
+<button class="p-2 rounded-full hover:bg-surface-container-high transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined">favorite</span>
+</button>
+<button class="p-2 rounded-full text-primary bg-primary-container/20 transition-colors relative">
+<span class="material-symbols-outlined fill">inbox</span>
+<span class="absolute top-1 right-1 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<button class="p-2 rounded-full hover:bg-surface-container-high transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+<button class="ml-2 px-4 py-2 bg-primary text-on-primary rounded-full font-label-md text-label-md flex items-center gap-2 hover:bg-on-secondary-fixed-variant transition-colors shadow-sm">
+                    ＋ Bán
+                </button>
+</div>
+</div>
+</header>
+<!-- Main Messenger Layout -->
+<main class="flex-1 flex w-full max-w-[1400px] mx-auto overflow-hidden">
+<!-- Left Pane: Conversation List -->
+<aside class="w-80 border-r border-outline-variant flex flex-col bg-surface flex-shrink-0">
+<div class="p-gutter border-b border-outline-variant flex justify-between items-center bg-surface-container-lowest">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Tin nhắn</h2>
+<div class="flex gap-2">
+<button class="p-1 rounded hover:bg-surface-container-high text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">filter_list</span>
+</button>
+<button class="p-1 rounded hover:bg-surface-container-high text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">edit_square</span>
+</button>
+</div>
+</div>
+<div class="p-sm">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-surface-container-low border border-outline-variant rounded-full font-body-sm text-body-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all" placeholder="Tìm kiếm tin nhắn..." type="text"/>
+</div>
+</div>
+<!-- Tabs -->
+<div class="flex border-b border-outline-variant px-sm">
+<button class="flex-1 py-2 font-label-md text-label-md text-primary border-b-2 border-primary text-center">Tất cả</button>
+<button class="flex-1 py-2 font-label-md text-label-md text-on-surface-variant hover:text-on-surface text-center">Chưa đọc</button>
+<button class="flex-1 py-2 font-label-md text-label-md text-on-surface-variant hover:text-on-surface text-center">Mua/Bán</button>
+</div>
+<div class="flex-1 overflow-y-auto custom-scrollbar">
+<!-- Active Conversation Item -->
+<div class="flex items-center gap-sm p-3 hover:bg-surface-container-high cursor-pointer bg-primary-container/10 border-l-4 border-primary transition-colors" tabindex="0">
+<div class="relative flex-shrink-0">
+<img class="w-12 h-12 rounded-full object-cover border border-outline-variant" data-alt="A close up portrait of a young vietnamese woman smiling warmly in soft natural light, perfect for a profile picture on a modern marketplace." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA1qM-JvN5CssQKr8ebdufZpJ2rRanH3k_8errq-ufOV3tcC-gyo_UaChVIGvaKE_vgzzogaBIA9_B0ve-X2fuwNhJejzGz6MNCl1vgUn5xgyn-7wPsx7x9aX-wmwzKhLDl_jgba0H9kvnDuNn34EAE-g3hijtN3Q9oHyEcqAPPNFkPyYJwgydrJvPVUTrY81x66dyuTYc0imUmMVxIO7lyLaoc3NnMNrXw59P_INAXDrK_U5ffrOkwZYpoKiRNA8V2XjB9uGQ-h8Y"/>
+<div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-surface"></div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-baseline mb-1">
+<span class="font-label-md text-label-md text-on-surface truncate pr-2">Nguyễn Trần Trà My</span>
+<span class="text-xs text-on-surface-variant flex-shrink-0">10:42 AM</span>
+</div>
+<div class="flex justify-between items-center">
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Dạ, anh có thể bớt chút được không ạ?</p>
+</div>
+</div>
+</div>
+<!-- Unread Conversation Item -->
+<div class="flex items-center gap-sm p-3 hover:bg-surface-container-high cursor-pointer transition-colors" tabindex="0">
+<div class="relative flex-shrink-0">
+<img class="w-12 h-12 rounded-full object-cover border border-outline-variant" data-alt="A portrait of a middle aged vietnamese man with a friendly expression, wearing a casual polo shirt, soft lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD9lZ3RNjy4qlHXPZfocKlL61g8B0O0O7qmXks3iE6WmXVRXAZ_OAI5i_tPCf7oD9OAS3Oy4gWYZCK5GhHUfu1yl-Ff9BjBIzBkZ70cbzgyNA2MfdWIYqaA_ecrD5dQ2eeN7SPXQgrtkLKPUM9eNOLTAuxPiRD7ePqBxD8OZG_WYcNTgyUynjJ-yyuH32Mvh7UDi4LTKKasaCAZFkkE8ujLS9s6alx7XBjnJ0xB8RUgJdo_6j-2itegfdlV_HjAwrNR_rytKd_TDv0"/>
+<div class="absolute bottom-0 right-0 w-3 h-3 bg-surface-variant rounded-full border-2 border-surface"></div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-baseline mb-1">
+<span class="font-label-md text-label-md text-on-surface font-bold truncate pr-2">Lê Văn Hùng</span>
+<span class="text-xs text-primary font-bold flex-shrink-0">Hôm qua</span>
+</div>
+<div class="flex justify-between items-center">
+<p class="font-body-sm text-body-sm text-on-surface font-semibold truncate">Bạn còn giữ hộp của sản phẩm không?</p>
+<span class="w-5 h-5 bg-primary text-on-primary rounded-full flex items-center justify-center text-[10px] font-bold">2</span>
+</div>
+</div>
+</div>
+<!-- Read Conversation Item -->
+<div class="flex items-center gap-sm p-3 hover:bg-surface-container-high cursor-pointer transition-colors" tabindex="0">
+<div class="relative flex-shrink-0">
+<div class="w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant font-headline-sm">
+                            H
+                        </div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-baseline mb-1">
+<span class="font-label-md text-label-md text-on-surface truncate pr-2">Hoàng Nam</span>
+<span class="text-xs text-on-surface-variant flex-shrink-0">T2</span>
+</div>
+<div class="flex justify-between items-center">
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Ok, mai mình qua lấy nhé.</p>
+<span class="material-symbols-outlined text-[14px] text-on-surface-variant">done_all</span>
+</div>
+</div>
+</div>
+</div>
+</aside>
+<!-- Center Pane: Active Chat Thread -->
+<section class="flex-1 flex flex-col bg-surface-bright relative">
+<!-- Chat Header -->
+<div class="h-16 px-gutter border-b border-outline-variant flex items-center justify-between bg-surface/80 backdrop-blur-md z-10">
+<div class="flex items-center gap-3">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="A close up portrait of a young vietnamese woman smiling warmly in soft natural light, perfect for a profile picture on a modern marketplace." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA1XjaCEzxQIIcocqX6yr1UvwVdefMj71dxyrjHXVD2DwnJgwTNZR9G42s03WsHCfAkXh9jpl8fltzPS7VLP6g3qlmGpLFB02b6gYYusuTjg30HrNN33dUJb2czuG9EpP22cS4Y15qYcXCaFQs1oo6fx03RuzDlYjibVy4BtqPnG0jn5IhfVctJXkivsUTfHxP-OGMAB3PeGXGHLQKFMVhMqm-70JmUm2AhpQoUThPr7FKVpMmpW3OY7l1t9tiUCLXbNEOvr9gK_Rw"/>
+<div>
+<h3 class="font-label-md text-label-md text-on-surface leading-tight">Nguyễn Trần Trà My</h3>
+<p class="text-xs text-primary flex items-center gap-1">
+<span class="w-2 h-2 bg-green-500 rounded-full inline-block"></span> Đang hoạt động
+                        </p>
+</div>
+</div>
+<div class="flex gap-1">
+<button class="p-2 rounded-full hover:bg-surface-container-high text-on-surface-variant transition-colors" title="Gọi điện">
+<span class="material-symbols-outlined">call</span>
+</button>
+<button class="p-2 rounded-full hover:bg-surface-container-high text-on-surface-variant transition-colors" title="Video call">
+<span class="material-symbols-outlined">videocam</span>
+</button>
+<button class="p-2 rounded-full hover:bg-surface-container-high text-on-surface-variant transition-colors md:hidden" title="Thông tin">
+<span class="material-symbols-outlined">info</span>
+</button>
+</div>
+</div>
+<!-- Chat Messages Area -->
+<div class="flex-1 overflow-y-auto p-gutter custom-scrollbar flex flex-col gap-4 bg-surface-container-lowest">
+<div class="text-center my-2">
+<span class="text-xs bg-surface-container-low text-on-surface-variant px-3 py-1 rounded-full border border-outline-variant">Hôm nay</span>
+</div>
+<!-- Context Bubble (System message) -->
+<div class="flex justify-center my-2">
+<div class="bg-surface-container-low border border-outline-variant rounded-lg p-3 max-w-sm flex items-center gap-3 text-sm">
+<img class="w-12 h-12 object-cover rounded bg-surface" data-alt="A modern minimalist wooden dining chair with a curved backrest, photographed against a clean light grey background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDPbtde4f9ThFLH2wud6GUec211_315VtWAktuI-TN2cdWH-YkGxuXPhIcUPPtBD5JzRB3P9D1kumFC0SBlMZ_wpGesfgoolmk0PviMBvIDp3M-AGP7Ia0EaegSEN9AngFHGyxzIMNKPeAXTzBGTeVVScuOC8Mt3XTAwK4dQRdx3TzsnHF5edn4Xjk8IMumGUi_zPy8aXUOuGe341GPcW6JEaDEDLsH-bHMyiRPPhjYLe2BLBHv59n0_01BLlBWVkg5RxJ3P7pb3a4"/>
+<div>
+<p class="font-semibold text-on-surface">Ghế gỗ Sồi phong cách Minimalist</p>
+<p class="text-primary font-bold">1,200,000 đ</p>
+</div>
+</div>
+</div>
+<!-- Received Message -->
+<div class="flex items-end gap-2 max-w-[75%] self-start">
+<img class="w-8 h-8 rounded-full object-cover mb-1" data-alt="A close up portrait of a young vietnamese woman smiling warmly in soft natural light, perfect for a profile picture on a modern marketplace." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAo5c19LyOyS-E2G2mgieUZB-mBlrcwP05Z8CwJrmkEFbi1Ita7hidRm1jbajfwL_GXs3ubZxVhQq7LBbWZpy8z6JvZ62dZtr3bgO9Wb-egy__x4NYybNjtSVSVp_iUVH7BZZtbooSVeZpM5PBKL7NFCcQCxBLol3oOi7XNA3E6EAGF9m1n67_h12j0qv56npf3_1LBTl8MFrP-B4lsp6TLhEYyufAT2uFYXrt9xZpOZkOY_SE2U2mYcBKPOmDNwDDCCQzJ3YmQfO0"/>
+<div class="bg-surface-container flex flex-col gap-1 p-3 rounded-2xl rounded-bl-sm text-on-surface border border-outline-variant shadow-sm">
+<p class="font-body-md text-body-md">Chào anh, chiếc ghế này còn không ạ?</p>
+<span class="text-[10px] text-on-surface-variant self-end mt-1">10:30 AM</span>
+</div>
+</div>
+<!-- Sent Message -->
+<div class="flex flex-col gap-1 max-w-[75%] self-end items-end">
+<div class="bg-primary text-on-primary p-3 rounded-2xl rounded-br-sm shadow-sm">
+<p class="font-body-md text-body-md">Chào bạn, ghế vẫn còn nhé. Hàng mới 99% không xước xát gì ạ.</p>
+</div>
+<div class="flex items-center gap-1 text-[10px] text-on-surface-variant">
+<span>10:35 AM</span>
+<span class="material-symbols-outlined text-[14px] text-primary">done_all</span>
+</div>
+</div>
+<!-- Received Image Message -->
+<div class="flex items-end gap-2 max-w-[75%] self-start mt-2">
+<img class="w-8 h-8 rounded-full object-cover mb-1" data-alt="A close up portrait of a young vietnamese woman smiling warmly in soft natural light, perfect for a profile picture on a modern marketplace." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAMAUDlvdaSlvxEg-yYH9Vo6eghtZyp2LsvrXxyJPNo21L4yd_Ga0CtqvmZTzXoGvQzOvT9i094okAlKNQMi9f05oICMkQywJyydZj2CJPZHZZKfF1ke3985-6FEqu9viWjOnF623cfHKGvQCIm0jgU6gT9M6flsHiyNbiN1CnheXYiW1QSRUVO5wG6ujyPRBqhjzRbH0QWwllgwtm2ZyItGxaNqTJw0NPou_GBIDitECPVOxBTPXRUrPgPg5w_TdPvnXB8v2nH-oo"/>
+<div class="bg-surface-container p-2 rounded-2xl rounded-bl-sm border border-outline-variant shadow-sm">
+<img class="rounded-xl w-64 h-auto object-cover border border-outline-variant" data-alt="A photo showing a small scratch on the leg of a wooden chair, taken in natural indoor lighting to highlight the texture of the wood." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDqvM-z3DtaMOO1mlBYF4dZkz9PT2oHuYUwX-hitoDPV9Zhg8m929dpQ8vz_csAPuxChZNWIPT_yU4Mp0zND6Wmp0gadm7wWzaOGJie-IpE-LQDkRHuAF90wkYc2ElfOijx5ImRQtT8aiigKENqWHBmLel8UpBXO5m0yoE9w7StKg_CTONfl-Ed5EkVKc3enzwcXF7iwRaiFGBP4LlzmQEkFsDMuTdTFK4ml09HPLtmTdM0echKGeUkFc5P9WRsd2_18xdDxPc1vPY"/>
+<div class="flex justify-between items-center mt-2 px-1">
+<p class="font-body-sm text-body-sm text-on-surface">Trong ảnh thứ 3, chỗ chân ghế có vết này là sao vậy anh?</p>
+</div>
+<span class="text-[10px] text-on-surface-variant block text-right mt-1 px-1">10:38 AM</span>
+</div>
+</div>
+<!-- Sent Message -->
+<div class="flex flex-col gap-1 max-w-[75%] self-end items-end">
+<div class="bg-primary text-on-primary p-3 rounded-2xl rounded-br-sm shadow-sm">
+<p class="font-body-md text-body-md">À đó là vân gỗ tự nhiên thôi bạn ơi, không phải xước đâu. Để mình gửi thêm ảnh cận cảnh nhé.</p>
+</div>
+<div class="flex items-center gap-1 text-[10px] text-on-surface-variant">
+<span>10:40 AM</span>
+<span class="material-symbols-outlined text-[14px] text-primary">done_all</span>
+</div>
+</div>
+<!-- Received Message (The unread one) -->
+<div class="flex items-end gap-2 max-w-[75%] self-start mt-4">
+<img class="w-8 h-8 rounded-full object-cover mb-1" data-alt="A close up portrait of a young vietnamese woman smiling warmly in soft natural light, perfect for a profile picture on a modern marketplace." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFcE5fjKkE1_FWgG4D0-04g9TT6UPPm7azr7lMBEBp-tAUKZNB82d8txm8xkCsZ5DFL0DMPrj6Q6sCMFiN4HL2UUEDwDBQ1jl8V_IlfpcDtoIf0yFIxLGLENCli5vs1Vqh_ULxZdWnVXXyOyyaE91LV1wX94h2zFFNOczjTlw_lbVHdaNu2c2Oashm8ijviY2FHNGDhlR3vcey46qH1oO3HdFs1sKsg-2ullXP9hbri79hnCkXOwJ8bVIGJShpRf6TsayAd6Uitxo"/>
+<div class="bg-surface-container flex flex-col gap-1 p-3 rounded-2xl rounded-bl-sm text-on-surface border border-outline-variant shadow-sm">
+<p class="font-body-md text-body-md">Dạ, anh có thể bớt chút được không ạ?</p>
+<span class="text-[10px] text-on-surface-variant self-end mt-1">10:42 AM</span>
+</div>
+</div>
+</div>
+<!-- Chat Input Area -->
+<div class="p-4 bg-surface border-t border-outline-variant">
+<div class="flex items-end gap-2 bg-surface-container-lowest border border-outline-variant rounded-2xl p-2 focus-within:ring-2 focus-within:ring-primary focus-within:border-transparent transition-shadow shadow-sm">
+<button aria-label="Thêm đính kèm" class="p-2 text-on-surface-variant hover:text-primary transition-colors rounded-full hover:bg-surface-container-high flex-shrink-0">
+<span class="material-symbols-outlined">add_circle</span>
+</button>
+<button aria-label="Gửi ảnh" class="p-2 text-on-surface-variant hover:text-primary transition-colors rounded-full hover:bg-surface-container-high flex-shrink-0">
+<span class="material-symbols-outlined">image</span>
+</button>
+<textarea class="flex-1 max-h-32 bg-transparent border-none focus:ring-0 resize-none py-2 font-body-md text-body-md custom-scrollbar outline-none" placeholder="Nhập tin nhắn..." rows="1" style="min-height: 40px;"></textarea>
+<button aria-label="Gửi tin nhắn" class="p-2 text-primary hover:bg-primary-container/20 transition-colors rounded-full flex-shrink-0">
+<span class="material-symbols-outlined fill">send</span>
+</button>
+</div>
+<div class="text-[10px] text-center text-on-surface-variant mt-2">Nhấn Enter để gửi, Shift + Enter để xuống dòng</div>
+</div>
+</section>
+<!-- Right Pane: Context & Actions -->
+<aside class="w-80 border-l border-outline-variant bg-surface flex flex-col hidden lg:flex flex-shrink-0 overflow-y-auto custom-scrollbar">
+<div class="p-gutter border-b border-outline-variant bg-surface-container-lowest sticky top-0 z-10">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Thông tin giao dịch</h2>
+</div>
+<div class="p-gutter flex flex-col gap-xl">
+<!-- Product Card Small -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow group cursor-pointer">
+<div class="relative h-48 w-full bg-surface-variant">
+<img class="w-full h-full object-cover" data-alt="A modern minimalist wooden dining chair with a curved backrest, photographed against a clean light grey background, soft natural lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC4_gtwiAVirmTj3iTaef7JL5nPHUyq4VeFFekYbkda-Xs-nQNZTtyfqKXQp6BgroLLuaEWr8jSa3_ls3SlJG2nInC40D4KexLirgt7t2Jg1DyiK5SjCN64pQo8zUyI409L9ZDu-YxUd_GlWzrcgU9yW0VOwXgotJVM7HvH3Z7sLZfCs3lh-77lpr1XTRFp8VCGCxkMHWb7X-Z-mGDHyG6pBQM7_ZzNsza_V7CHugfKIv90DqLuM4Y2NiuUO8tsgdzoLJ_5e6_gpEk"/>
+<div class="absolute top-2 right-2 bg-surface/90 backdrop-blur px-2 py-1 rounded text-xs font-bold text-on-surface">Đang bán</div>
+</div>
+<div class="p-4 flex flex-col gap-2">
+<h3 class="font-label-md text-label-md text-on-surface group-hover:text-primary transition-colors line-clamp-2">Ghế gỗ Sồi phong cách Minimalist (Mới 99%)</h3>
+<div class="flex items-baseline gap-2">
+<span class="font-price-lg text-price-lg text-primary">1,200,000 đ</span>
+</div>
+</div>
+</div>
+<!-- Transaction Actions -->
+<div class="flex flex-col gap-3">
+<button class="w-full py-3 bg-primary text-on-primary rounded-lg font-label-md text-label-md shadow-sm hover:bg-on-secondary-fixed-variant transition-colors flex justify-center items-center gap-2">
+<span class="material-symbols-outlined text-sm">local_offer</span>
+                        Đề nghị giá
+                    </button>
+<button class="w-full py-3 border border-outline bg-surface text-on-surface rounded-lg font-label-md text-label-md hover:bg-surface-container-low transition-colors">
+                        Đánh dấu đã bán
+                    </button>
+</div>
+<hr class="border-outline-variant"/>
+<!-- Seller/Buyer Profile -->
+<div>
+<h4 class="font-label-md text-label-md text-on-surface-variant mb-4">Thông tin người mua</h4>
+<div class="flex items-center gap-3 mb-4">
+<img class="w-14 h-14 rounded-full object-cover border-2 border-surface-container-high" data-alt="A close up portrait of a young vietnamese woman smiling warmly in soft natural light, perfect for a profile picture on a modern marketplace." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAUVzvYSOsBpazfnh6gCs7LhusbYG6pTuRW4npT6pXuUsk5VBcs6Izt1lgJabHxJcq2KiQxT7AVarIf-OxfMMYIZhCf7Bjf-p0lFs1K5ANmvVEXXAywF_VM2ct1d7upkmxFA6XfS6c7L8Zy50DaMHVImjJ_lhXlLA2y2D7A5wMCcN8yf_WiiN3ZIpCGIrY8nCoW1xbIZKpUhPIjV5jSqyCofAfPmg_UmJcP4BX8-12d-j7XT8auq2Kj5n0VRWmp8KjSmt-6YS9iXhY"/>
+<div>
+<p class="font-headline-sm text-headline-sm text-on-surface leading-tight">Trà My</p>
+<div class="flex items-center gap-1 text-sm text-on-surface-variant mt-1">
+<span class="material-symbols-outlined text-[16px] text-[#f59e0b] fill">star</span>
+<span class="font-semibold">4.9</span>
+<span>(24 đánh giá)</span>
+</div>
+</div>
+</div>
+<div class="space-y-3 text-sm text-on-surface-variant">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">location_on</span>
+<span>Hà Nội, Việt Nam</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">calendar_today</span>
+<span>Tham gia: Tháng 3, 2023</span>
+</div>
+</div>
+<button class="mt-4 w-full py-2 text-primary hover:bg-primary-container/10 rounded font-label-md text-label-md transition-colors text-center border border-transparent hover:border-primary-container">
+                        Xem hồ sơ chi tiết
+                    </button>
+</div>
+</div>
+</aside>
+</main>
+</body></html>

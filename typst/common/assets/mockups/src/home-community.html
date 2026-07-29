@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+
+<html class="light" lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ShopNexus - Khám phá Cộng đồng</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container-high": "#e8e8e6",
+                      "on-tertiary-fixed-variant": "#773215",
+                      "error": "#ba1a1a",
+                      "secondary": "#216963",
+                      "outline-variant": "#bec9c6",
+                      "surface-tint": "#066a61",
+                      "tertiary-container": "#924628",
+                      "secondary-container": "#a8ece4",
+                      "on-tertiary-container": "#ffc9b6",
+                      "surface-dim": "#dadad8",
+                      "tertiary-fixed-dim": "#ffb59a",
+                      "surface-bright": "#f9f9f7",
+                      "on-tertiary": "#ffffff",
+                      "inverse-primary": "#85d5c9",
+                      "surface-variant": "#e2e3e0",
+                      "on-error-container": "#93000a",
+                      "on-surface-variant": "#3e4947",
+                      "surface": "#f9f9f7",
+                      "error-container": "#ffdad6",
+                      "tertiary-fixed": "#ffdbcf",
+                      "on-primary-fixed": "#00201d",
+                      "secondary-fixed": "#abefe7",
+                      "on-secondary-fixed-variant": "#00504b",
+                      "on-error": "#ffffff",
+                      "on-background": "#1a1c1b",
+                      "on-primary": "#ffffff",
+                      "surface-container-low": "#f4f4f1",
+                      "primary-container": "#00685f",
+                      "on-secondary-container": "#266d67",
+                      "inverse-surface": "#2f3130",
+                      "tertiary": "#742f13",
+                      "surface-container-lowest": "#ffffff",
+                      "primary-fixed": "#a1f1e5",
+                      "on-secondary": "#ffffff",
+                      "on-primary-fixed-variant": "#005049",
+                      "background": "#f9f9f7",
+                      "surface-container-highest": "#e2e3e0",
+                      "primary-fixed-dim": "#85d5c9",
+                      "on-surface": "#1a1c1b",
+                      "primary": "#004e47",
+                      "on-tertiary-fixed": "#380d00",
+                      "secondary-fixed-dim": "#8fd3cb",
+                      "surface-container": "#eeeeec",
+                      "on-primary-container": "#93e4d8",
+                      "inverse-on-surface": "#f1f1ef",
+                      "outline": "#6e7977",
+                      "on-secondary-fixed": "#00201d"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.5rem",
+                      "sm": "0.25rem",
+                      "md": "0.75rem",
+                      "lg": "1rem",
+                      "xl": "1.5rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                  "xs": "4px",
+                  "sm": "8px",
+                  "md": "16px",
+                  "lg": "24px",
+                  "xl": "32px",
+                  "2xl": "48px",
+                  "3xl": "64px"
+              },
+              "fontFamily": {
+                      "headline": [
+                              "Manrope", "sans-serif"
+                      ],
+                      "display": [
+                              "Manrope", "sans-serif"
+                      ],
+                      "body": [
+                              "Inter", "sans-serif"
+                      ],
+                      "label": [
+                              "Inter", "sans-serif"
+                      ]
+              },
+              "fontSize": {
+                  "display-lg": ["48px", { lineHeight: "56px", letterSpacing: "-0.02em", fontWeight: "800" }],
+                  "display-lg-mobile": ["36px", { lineHeight: "44px", letterSpacing: "-0.02em", fontWeight: "800" }],
+                  "headline-md": ["24px", { lineHeight: "32px", letterSpacing: "-0.01em", fontWeight: "700" }],
+                  "headline-sm": ["20px", { lineHeight: "28px", fontWeight: "600" }],
+                  "body-lg": ["18px", { lineHeight: "28px", fontWeight: "400" }],
+                  "body-md": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+                  "body-sm": ["14px", { lineHeight: "20px", fontWeight: "400" }],
+                  "label-md": ["14px", { lineHeight: "16px", letterSpacing: "0.01em", fontWeight: "600" }],
+                  "label-sm": ["12px", { lineHeight: "14px", letterSpacing: "0.02em", fontWeight: "500" }]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined[data-weight="fill"] {
+            font-variation-settings: 'FILL' 1;
+        }
+        
+        /* Smooth scrolling */
+        html { scroll-behavior: smooth; }
+        
+        /* Bento Grid Layouts */
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+        @media (min-width: 768px) {
+            .bento-grid {
+                grid-template-columns: repeat(4, 1fr);
+                grid-auto-rows: 240px;
+            }
+            .bento-item-large { grid-column: span 2; grid-row: span 2; }
+            .bento-item-wide { grid-column: span 2; }
+            .bento-item-tall { grid-row: span 2; }
+        }
+        
+        /* Glassmorphism utility */
+        .glass-panel {
+            background: rgba(249, 249, 247, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+        
+        /* Hide scrollbar but keep functionality */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body antialiased selection:bg-primary-container selection:text-on-primary-container pt-[72px] pb-[80px] md:pb-0">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 flex justify-between items-center px-6 py-4 max-w-[1440px] mx-auto bg-background/80 dark:bg-background/80 backdrop-blur-md bg-transparent">
+<div class="flex items-center gap-8">
+<a class="font-headline font-extrabold text-xl tracking-tighter text-primary dark:text-primary-fixed" href="#">ShopNexus</a>
+<div class="hidden md:flex gap-6">
+<a class="text-primary dark:text-primary-fixed font-bold border-b-2 border-primary dark:border-primary-fixed pb-1 font-headline text-label-md uppercase tracking-wider" href="#">Khám phá</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors duration-300 font-headline text-label-md uppercase tracking-wider" href="#">Kho lưu trữ</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors duration-300 font-headline text-label-md uppercase tracking-wider" href="#">Tuyển tập</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<!-- Search Bar -->
+<div class="hidden md:flex relative group">
+<input class="w-64 pl-4 pr-10 py-2 bg-surface-container rounded-full text-body-sm focus:outline-none focus:ring-2 focus:ring-primary focus:bg-surface transition-all duration-300 border border-outline/20" placeholder="Tìm kiếm địa phương..." type="text"/>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+</div>
+<button class="text-on-surface-variant hover:text-primary transition-colors duration-300">
+<span class="material-symbols-outlined">shopping_bag</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors duration-300">
+<span class="material-symbols-outlined">person</span>
+</button>
+<button class="hidden md:flex items-center gap-2 bg-primary text-on-primary px-4 py-2 rounded-lg font-label-md hover:bg-primary-container hover:text-on-primary-container transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[20px]">add</span>
+<span>Đăng tin</span>
+</button>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="max-w-[1280px] mx-auto px-4 md:px-6 flex flex-col gap-xl md:gap-3xl mt-md">
+<!-- Hero Section: Community Discovery -->
+<section class="relative w-full rounded-[24px] overflow-hidden bg-surface-container-low min-h-[500px] flex items-center shadow-sm">
+<div class="absolute inset-0 z-0">
+<img class="w-full h-full object-cover opacity-80" data-alt="A candid, high-quality photograph of two young adults in a well-lit, modern apartment exchanging a vintage film camera. The lighting is bright and warm, emphasizing the human connection and trust in a peer-to-peer marketplace. The aesthetic is clean, professional, and slightly soft, aligned with a modern light-mode UI featuring subtle teal accents." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAvu65Eijk9ATuiPfVHqtza2-kQ2Tybr0IAHU0M0Z53N8YhNEd1NyuCGUjB4G9pG9Gjm3mKisG_dfOj9Frhq73tyyoR4CqrSALcdwdUh00cG2c0orKkQsbPPrFMhKGroaCUNqvkx9dJEfFEraA2ZNfNzg89Atg7xjnEmUwzXYbdyG4Ugoz2lNffAWiAxfBce61V8DoVnl2MIzz1xsRGBnN2GS33Fb7PY5p30fGxbsNEZEONUk-UxvZ7YyeiIZz6JotelTMYHZ4uqJA"/>
+<div class="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent"></div>
+</div>
+<div class="relative z-10 w-full md:w-1/2 p-8 md:p-12 flex flex-col gap-6">
+<h1 class="font-display text-display-lg-mobile md:text-display-lg text-on-surface">Kết nối thực,<br/><span class="text-primary">Giá trị thực.</span></h1>
+<p class="font-body text-body-lg text-on-surface-variant">Khám phá những món đồ độc đáo từ chính những người hàng xóm của bạn. Không phí ẩn, chỉ có sự tin tưởng.</p>
+<!-- Local Quick Search -->
+<div class="bg-surface p-4 rounded-xl shadow-md border border-outline-variant flex flex-col gap-4 mt-4">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary" data-weight="fill">location_on</span>
+<span class="font-label-md text-on-surface">Đang xem xu hướng tại: <strong>Quận 1, TP.HCM</strong></span>
+</div>
+<div class="flex gap-2 overflow-x-auto no-scrollbar pb-2">
+<button class="px-4 py-1.5 rounded-full bg-secondary-container text-on-secondary-container font-label-sm whitespace-nowrap">Máy ảnh cũ</button>
+<button class="px-4 py-1.5 rounded-full bg-surface-container text-on-surface-variant font-label-sm whitespace-nowrap hover:bg-surface-container-high">Đồ nội thất</button>
+<button class="px-4 py-1.5 rounded-full bg-surface-container text-on-surface-variant font-label-sm whitespace-nowrap hover:bg-surface-container-high">Xe đạp</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Discovery Stream (Bento Grid) -->
+<section class="flex flex-col gap-md">
+<div class="flex justify-between items-end mb-4">
+<h2 class="font-headline text-headline-md text-on-surface">Dòng Khám Phá</h2>
+<button class="text-primary font-label-md hover:underline decoration-2 underline-offset-4">Xem tất cả</button>
+</div>
+<div class="bento-grid">
+<!-- Large Item (Featured) -->
+<article class="bento-item-large group relative rounded-xl overflow-hidden bg-surface shadow-sm hover:shadow-md transition-shadow">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="A beautifully composed flat lay of a pristine vintage typewriter on a clean, light wood desk. The lighting is soft and natural, casting minimal shadows. The image has a warm, high-end aesthetic consistent with a premium peer-to-peer marketplace, featuring subtle teal undertones to match the UI theme." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAUFp-Dwk5_qCdYa0jLUsoFZZKhI0YjOVki0kV46P_3nJs5c82bMFflgeXvGjOzh6cjdFAzPRFuddAfsW0muqTLrhCaal2We_DGOA48JvDxjDuV4Jgom_eeK5sWouIvJsY6l7k6XoNs2BiaekrTSb6gpwiPEWjYtoFA2yz16-uFIp-ww7YSS8U27F-DNEocfEnOpCgGjbXlLRJJL52EK8FR6mSBz59wF4Kz4FDK_UHniG_BRCquPQvQB_pIy-Cpt9NmS9SV93TyRyo"/>
+<div class="absolute bottom-0 w-full p-6 bg-gradient-to-t from-black/70 via-black/40 to-transparent">
+<div class="flex justify-between items-end">
+<div>
+<h3 class="font-headline text-headline-sm text-white mb-1">Máy đánh chữ Vintage 1970</h3>
+<p class="font-label-md text-primary-fixed-dim">2.500.000 ₫</p>
+</div>
+<button class="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/40 transition-colors">
+<span class="material-symbols-outlined">favorite</span>
+</button>
+</div>
+</div>
+<!-- Seller Badge Overlay -->
+<div class="absolute top-4 left-4 glass-panel rounded-full px-3 py-1.5 flex items-center gap-2">
+<img class="w-6 h-6 rounded-full object-cover" data-alt="A small, circular avatar portrait of a friendly young Vietnamese woman smiling warmly. The lighting is bright and even, set against a neutral background. The aesthetic conveys trust and approachability suitable for a marketplace seller profile." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDYdIdN1IDy_C6TTTvlLnJiJFyImj411jlytRWfBd-MPDTS8_7FvlOdrCbysYiSdLMG8RdvKAyemOuuPSv8vovMdhY8TqdBDy3f4nsi2X1-6ZaxIN0unFqblLrun3AVb5r-EzdfXlE6U2yey-snww9556K1n3UkWddi2neEfZIfXNwXTHGLecvywbXnSwaF-0br9m-MuiEYVBToT4XXhy73OWNzF2SXGcyeS9lqvhDMzVWxGb05uQvBQGEf4yPbmT9OqUI5azW7Sr4"/>
+<span class="font-label-sm text-on-surface">Minh Thư (Đã xác minh)</span>
+</div>
+</article>
+<!-- Wide Item (Seller Highlight) -->
+<article class="bento-item-wide rounded-xl bg-secondary text-on-secondary p-6 flex flex-col justify-between relative overflow-hidden shadow-sm">
+<div class="absolute right-[-20%] bottom-[-20%] opacity-10">
+<span class="material-symbols-outlined text-[200px]" data-weight="fill">verified_user</span>
+</div>
+<div>
+<span class="inline-block px-3 py-1 bg-white/20 rounded-full font-label-sm mb-4">Câu chuyện người bán</span>
+<h3 class="font-headline text-headline-sm mb-2">"Tôi tìm thấy niềm vui khi trao góc nhỏ của mình cho người khác."</h3>
+<p class="font-body text-body-sm opacity-90">Hải Nam • Người sưu tầm đồ nội thất</p>
+</div>
+<div class="flex items-center gap-4 mt-4">
+<div class="flex -space-x-2">
+<div class="w-8 h-8 rounded-full bg-white/30 border-2 border-secondary flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">chair</span></div>
+<div class="w-8 h-8 rounded-full bg-white/30 border-2 border-secondary flex items-center justify-center"><span class="material-symbols-outlined text-[16px]">qr_code_2</span></div>
+</div>
+<span class="font-label-sm">Khám phá gian hàng của Nam</span>
+</div>
+</article>
+<!-- Standard Items -->
+<article class="rounded-xl overflow-hidden bg-surface flex flex-col shadow-sm hover:shadow-md transition-shadow border border-surface-container-high group">
+<div class="relative h-40 overflow-hidden">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="A clean, minimalist product shot of a nearly new mechanical keyboard resting on a white surface. The image is brightly lit with a soft, diffused light, maintaining a professional and airy aesthetic. Subtle shadows add depth, aligning with a premium light-mode UI design." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDHpw-J8MKXBXXYYUht_4kBCVehuQxWxYJqbxF6teaFbBt6M1XNpsWtNNh5yFjTtHkIbIJdHLpRLvLwQoPbXSX4-3PAcd-XAq1Cvk4Yi37yo3SndskD9HJQIbxTacTtuEgRak9UKlS3rb9pOyia69DctQBbCJr-hDFa_LVJtJnHGfebeiuld3h-YbUixYSHjtX8YBqnY2ix6zPH2bWOjd9pXSkZsElbpX_xSaMwVcg20Qq7f9Qh8x_BsE76Ag4CJ6X1iaFngRaJs3w"/>
+<div class="absolute top-2 right-2 px-2 py-1 bg-surface/90 backdrop-blur-sm rounded-full font-label-sm text-on-surface text-[10px]">Cách bạn 2km</div>
+</div>
+<div class="p-4 flex-1 flex flex-col justify-between">
+<div>
+<h3 class="font-headline text-body-md font-semibold text-on-surface line-clamp-2">Bàn phím cơ Keychron K8 Pro</h3>
+<p class="font-label-md text-primary mt-1">1.800.000 ₫</p>
+</div>
+</div>
+</article>
+<article class="rounded-xl overflow-hidden bg-surface flex flex-col shadow-sm hover:shadow-md transition-shadow border border-surface-container-high group">
+<div class="relative h-40 overflow-hidden">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="A high-quality photo of a healthy, green Monstera houseplant in a modern ceramic pot, placed on a light wooden floor next to a white wall. The lighting is natural and bright, evoking a fresh, organic, and clean aesthetic suitable for a modern marketplace." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCz91bLxvHxfalB7oAjsosSuQfC1KZmqzRcUna9AX9zrWp97G32NkpK0rDy6DnM0hRmBUaL48mZnBtrLGDrGUCYQQvElK3HwfoyaTQqtQdwh72ZdLmOk1mFCqTBhn89LCjE4C5fZQcJJHO2vYWT1uMoVoZBzS1CQH1F-wIdM7HU1e62mMhBIwWxFORVKzPjjHWiNLeQNw9maFwL5IIsyy0MeLrkiR2VY-WX0WkZMEYMKfJRn_hIEP7SjHbDGGkz6LkIq2ji-ro-UMU"/>
+</div>
+<div class="p-4 flex-1 flex flex-col justify-between">
+<div>
+<h3 class="font-headline text-body-md font-semibold text-on-surface line-clamp-2">Cây Monstera Nam Mỹ</h3>
+<p class="font-label-md text-primary mt-1">350.000 ₫</p>
+</div>
+</div>
+</article>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-3 md:hidden bg-surface dark:bg-surface-dim shadow-[0_-4px_20px_0_rgba(0,0,0,0.05)] dark:shadow-none rounded-t-xl">
+<a class="flex flex-col items-center justify-center bg-secondary-container dark:bg-secondary text-on-secondary-container dark:text-on-secondary rounded-full px-5 py-1.5 transition-transform duration-150 scale-95" href="#">
+<span class="material-symbols-outlined" data-weight="fill">explore</span>
+<span class="font-label text-label-sm mt-1">Nexus</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:scale-110 transition-transform" href="#">
+<span class="material-symbols-outlined">search</span>
+<span class="font-label text-label-sm mt-1">Search</span>
+</a>
+<!-- Prominent FAB for mobile selling -->
+<a class="relative -top-6 flex items-center justify-center w-14 h-14 bg-primary text-on-primary rounded-full shadow-lg border-4 border-background" href="#">
+<span class="material-symbols-outlined text-[28px]">add</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:scale-110 transition-transform" href="#">
+<span class="material-symbols-outlined">favorite</span>
+<span class="font-label text-label-sm mt-1">Saved</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant hover:scale-110 transition-transform" href="#">
+<span class="material-symbols-outlined">chat_bubble</span>
+<span class="font-label text-label-sm mt-1">Inbox</span>
+</a>
+</nav>
+<!-- Footer -->
+<footer class="w-full py-16 px-8 flex flex-col md:flex-row justify-between items-center gap-8 bg-surface-container-highest dark:bg-inverse-surface mt-3xl">
+<div class="flex flex-col items-center md:items-start gap-4">
+<span class="font-headline font-bold text-lg text-primary dark:text-primary-fixed">ShopNexus</span>
+<p class="font-body text-body-sm text-on-surface dark:text-inverse-on-surface">© 2024 ShopNexus. Human-centric commerce.</p>
+</div>
+<div class="flex flex-wrap justify-center gap-6">
+<a class="font-body text-body-sm text-on-surface-variant dark:text-outline-variant hover:underline decoration-primary decoration-2 underline-offset-4 transition-all duration-200" href="#">The Manifesto</a>
+<a class="font-body text-body-sm text-on-surface-variant dark:text-outline-variant hover:underline decoration-primary decoration-2 underline-offset-4 transition-all duration-200" href="#">Transparency</a>
+<a class="font-body text-body-sm text-on-surface-variant dark:text-outline-variant hover:underline decoration-primary decoration-2 underline-offset-4 transition-all duration-200" href="#">Safety Hub</a>
+<a class="font-body text-body-sm text-on-surface-variant dark:text-outline-variant hover:underline decoration-primary decoration-2 underline-offset-4 transition-all duration-200" href="#">Help</a>
+</div>
+</footer>
+</body></html>
