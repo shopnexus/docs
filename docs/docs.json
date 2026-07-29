@@ -42,7 +42,8 @@
           {
             "group": "Operations",
             "pages": [
-              "operations/deployment"
+              "operations/deployment",
+              "operations/analytics-rybbit"
             ]
           }
         ]

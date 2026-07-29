@@ -1,0 +1,58 @@
+---
+title: "Analytics (Rybbit)"
+description: "Self-hosted product and web analytics for the storefront, and how it differs from backend telemetry."
+---
+
+Rybbit handles **product & web analytics** (traffic, funnels, retention, session
+replay, Core Web Vitals) for the marketplace **frontend**. It is a **separate
+self-hosted stack** — it runs its own ClickHouse, Postgres, backend, client, and
+Caddy — and is deliberately **not** wired into the backend's `docker-compose.yml`.
+The Go backend does not depend on it; instrumentation is client-side.
+
+Split of responsibilities:
+
+- **Rybbit** → frontend user behavior (anonymous/product analytics). ClickHouse.
+- **`observability` module** (backend) → backend operational telemetry (HTTP RED,
+  Go runtime, bus events) in TimescaleDB + Grafana.
+- **Recommendation/personalization** (per-user, if/when built) → first-party
+  interaction data server-side in TimescaleDB, joinable with catalog — not Rybbit.
+
+## Deploy
+
+Run on its own VPS (min 2 GB RAM), with a domain pointed at it (DNS A record).
+The setup script generates env/secrets, builds the containers, and configures
+Caddy for automatic TLS.
+
+```bash
+git clone https://github.com/rybbit-io/rybbit.git
+cd rybbit
+chmod +x *.sh
+./setup.sh your.analytics.domain
+```
+
+For local runs or putting it behind an existing reverse proxy, follow Rybbit's
+[self-hosting docs](https://rybbit.com/docs/self-hosting).
+
+## Instrument the frontend
+
+After setup, open the Rybbit dashboard, create a **Site**, and copy the tracking
+snippet it shows into the storefront's `<head>`:
+
+```html
+<script defer src="https://your.analytics.domain/api/script.js" data-site-id="YOUR_SITE_ID"></script>
+```
+
+Use the exact `src` and `data-site-id` from the dashboard. The snippet lives in
+the storefront app, not the backend.
+
+## Optional: server-side events
+
+For events the browser cannot see (for example `order.placed`), you can POST to
+Rybbit's track API from the backend. Prefer keeping such domain signals
+first-party in TimescaleDB if they feed recommendations; only forward to Rybbit
+for product-analytics dashboards.
+
+<Warning>
+Do not vendor Rybbit's source into any ShopNexus repo — deploy it from its own
+repository so it upgrades independently.
+</Warning>
