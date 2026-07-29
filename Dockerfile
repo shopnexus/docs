@@ -4,23 +4,18 @@
 # the result — proper static hosting, not the `mint dev` server.
 FROM node:22-bookworm-slim AS builder
 RUN apt-get update \
- && apt-get install -y --no-install-recommends unzip curl ca-certificates \
+ && apt-get install -y --no-install-recommends unzip ca-certificates \
  && rm -rf /var/lib/apt/lists/*
 WORKDIR /build
 # The Mintlify project (docs.json + .mdx) lives in the repo's docs/ subdir.
 COPY docs/ ./docs/
 WORKDIR /build/docs
-# The API reference is generated from the backend's handlers, so it is fetched
-# rather than vendored — a committed copy goes stale the first time anyone edits
-# a handler. docs.json points the "HTTP Gateway" group at api/openapi.yaml.
-# -f so a 404 fails the build instead of writing an HTML error page into the spec.
-# The grep is a sanity check on the payload, not just the status code. It scans the
-# whole file rather than the first line: specgen emits root keys alphabetically, so
-# the document opens with `components:` and `openapi:` sits ~4k lines down.
-ARG OPENAPI_URL=https://raw.githubusercontent.com/shopnexus/server/main/api/openapi.gen.yaml
-RUN curl -fsSL "$OPENAPI_URL" -o api/openapi.yaml \
- && grep -q '^openapi: ' api/openapi.yaml \
- && echo "openapi spec fetched: $(wc -c < api/openapi.yaml) bytes"
+# api/openapi.yaml is git-ignored and fetched BEFORE the build (CI step, or
+# `npm run spec` locally) so it arrives through the COPY above. Fetching it in a
+# RUN here would be wrong: Docker caches RUN by instruction text, so the layer is
+# reused and the spec silently freezes.
+RUN test -s api/openapi.yaml && grep -q '^openapi: ' api/openapi.yaml \
+ || { echo "api/openapi.yaml missing or not a spec — run 'npm run spec' first"; exit 1; }
 # export needs network (fetches the Mintlify runtime); fine in CI.
 RUN npx -y mint@latest export --output /tmp/export.zip \
  && mkdir -p /out && unzip -q /tmp/export.zip -d /out
