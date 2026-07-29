@@ -1,11 +1,15 @@
 name: Build & Push docs image
 
 # Builds the Mintlify site (mint export) into an nginx static image and pushes
-# to GHCR. Deployment is GitOps (Argo CD in the umbrella repo). Runs on push to
-# main (force-push included) and manual dispatch.
+# to GHCR. Deployment is GitOps (Argo CD in the umbrella repo).
+#
+# `spec-updated` is sent by the server repo's build workflow so the API reference
+# follows the backend's OpenAPI spec, which this build fetches (see below).
 on:
   push:
     branches: [main]
+  repository_dispatch:
+    types: [spec-updated]
   workflow_dispatch:
 
 concurrency:
