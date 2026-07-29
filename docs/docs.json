@@ -59,7 +59,7 @@
           },
           {
             "group": "HTTP Gateway",
-            "openapi": "api/openapi.json"
+            "openapi": "api/openapi.yaml"
           }
         ]
       }

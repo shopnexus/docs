@@ -1,0 +1,922 @@
+#import "@preview/fletcher:0.5.8" as fletcher: diagram, node, edge
+#import fletcher.shapes: diamond, pill, circle, hexagon
+
+#let font-body = "TeX Gyre Termes"
+#let font-head = "TeX Gyre Heros"
+#let font-mono = "DejaVu Sans Mono"
+// ============================================================
+//  DESIGN TOKENS
+// ============================================================
+// Academic monochrome palette
+#let ink      = rgb("#1A1A1A")
+#let blue     = rgb("#1A1A1A")   // emphasis  -> near-black
+#let blue-l   = rgb("#FFFFFF")   // process fill -> white
+#let blue-s   = rgb("#4D4D4D")   // stroke    -> gray
+#let teal     = rgb("#4D4D4D")
+#let teal-l   = rgb("#ECECEC")   // terminal fill -> light gray
+#let amber    = rgb("#4D4D4D")
+#let amber-l  = rgb("#FFFFFF")   // decision fill -> white
+#let green    = rgb("#4D4D4D")
+#let green-l  = rgb("#ECECEC")
+#let red      = rgb("#4D4D4D")
+#let red-l    = rgb("#FFFFFF")
+#let muted    = rgb("#666666")
+#let hairline = rgb("#C9C9C9")
+#let soft     = rgb("#FFFFFF")
+#let headfill = rgb("#ECECEC")
+
+// ============================================================
+//  DIAGRAM HELPERS (fletcher)
+// ============================================================
+#let nt(p, b)        = node(p, b, shape: pill, fill: teal-l, stroke: 1pt + teal)             // terminal
+#let np(p, b, ..a)   = node(p, b, fill: blue-l, stroke: 1pt + blue-s, ..a)                   // process
+#let nd(p, b)        = node(p, b, shape: diamond, fill: amber-l, stroke: 1pt + amber)        // decision
+#let ng(p, b)        = node(p, b, fill: green-l, stroke: 1pt + green)                        // success
+#let nr(p, b)        = node(p, b, fill: white, stroke: (paint: ink, thickness: 0.9pt, dash: "dashed")) // reject (dashed)
+#let ncore(p, b)     = node(p, text(weight: 700, b), fill: rgb("#E4E4E4"),
+                            stroke: 1pt + ink, corner-radius: 5pt, extrude: (0, 3))
+#let nact(p, b)      = node(p, text(size: 8pt, b), shape: circle, fill: teal-l, stroke: 1pt + teal)
+
+// scale diagram to fill the available width: shrink wide diagrams to avoid
+// overflow, and enlarge small/narrow diagrams (capped) so text reads bigger
+// and side whitespace is reduced.
+#let fitw(body) = layout(sz => {
+  let m = measure(body)
+  let s = if m.width > 0pt { calc.min(sz.width / m.width, 1.28) } else { 1.0 }
+  box(scale(x: s * 100%, y: s * 100%, reflow: true, body))
+})
+
+#let fig(cap, ..diag) = figure(
+  block(
+    width: 100%, radius: 8pt, fill: soft, stroke: 1pt + hairline, inset: 7pt,
+    align(center, fitw({
+      set text(size: 10.5pt)
+      diagram(
+        node-stroke: 1pt, node-corner-radius: 4pt, node-inset: 8pt,
+        edge-stroke: 1.1pt + muted, mark-scale: 80%,
+        ..diag,
+      )
+    })),
+  ),
+  caption: cap,
+)
+
+// academic note box: thin border, italic
+#let note(body) = block(
+  width: 100%, inset: (x: 11pt, y: 8pt), radius: 0pt,
+  fill: rgb("#F6F6F6"), stroke: 0.5pt + rgb("#9A9A9A"),
+)[#text(size: 10pt, style: "italic", body)]
+
+// wireframe helper
+#let wireframe(title, width: 100%, body) = block(
+  width: width, stroke: 1.2pt + ink, inset: 10pt, radius: 4pt, fill: white,
+  stack(spacing: 8pt,
+    align(center, text(weight: 700, size: 10pt, title)),
+    line(length: 100%, stroke: 0.5pt + hairline),
+    body
+  )
+)
+
+// ============================================================
+//  GLOBAL STYLES
+// ============================================================
+#set text(font: font-body, size: 11pt, fill: ink, lang: "vi")
+#show raw: set text(font: font-mono)
+#show raw.where(block: true): it => block(
+  width: 100%, fill: rgb("#F6F6F6"), stroke: 0.5pt + hairline,
+  inset: (x: 9pt, y: 8pt), radius: 3pt,
+  text(size: 8.5pt, it),
+)
+#set par(justify: true, leading: 0.72em, spacing: 1.05em)
+// chỉ căn đều text bên trong bảng
+#show table: it => {
+  set par(justify: false)
+  it
+}
+#set heading(numbering: "1.1.")
+#set figure(supplement: [Hình])
+#show figure.caption: set text(size: 9pt, fill: muted)
+
+// tables: academic, light-gray header, thin gray gridlines
+#set table(inset: (x: 8pt, y: 6pt), stroke: 0.5pt + hairline,
+  fill: (x, y) => if y == 0 { headfill } else { white })
+#show table.cell.where(y: 0): set text(weight: 700)
+
+// headings, plain, monochrome
+#show heading.where(level: 1): it => {
+  set text(size: 14pt, weight: 800, font: font-head)
+  block(above: 1.8em, below: 0.35em, it.body)
+  line(length: 100%, stroke: 1.2pt + ink)
+  v(0.55em)
+}
+
+#show heading.where(level: 2): it => block(above: 1.4em, below: 0.55em, {
+  set text(size: 12.5pt, weight: 700, font: font-head)
+  grid(columns: (auto, 1fr), column-gutter: 8pt,
+    counter(heading).display(), it.body)
+})
+
+#show heading.where(level: 3): it => block(above: 1em, below: 0.4em, {
+  set text(size: 11pt, weight: 700, style: "italic", font: font-head)
+  grid(columns: (auto, 1fr), column-gutter: 6pt,
+    counter(heading).display(), it.body)
+})
+
+#set page(paper: "a4", margin: (top: 2.4cm, bottom: 2.2cm, x: 2cm))
+
+// ============================================================
+//  COVER (PTIT HCM Internship Report Style)
+// ============================================================
+#block(
+  width: 100%,
+  height: 100%,
+  stroke: 1.5pt + ink,
+  inset: (x: 20pt, y: 25pt),
+)[
+  #align(center)[
+    #text(size: 11pt, weight: 700)[BỘ KHOA HỌC VÀ CÔNG NGHỆ] \
+    #text(size: 11pt, weight: 700)[HỌC VIỆN CÔNG NGHỆ BƯU CHÍNH VIỄN THÔNG] \
+    #text(size: 10.5pt, weight: 700)[CƠ SỞ TẠI THÀNH PHỐ HỒ CHÍ MINH] \
+    #text(size: 10.5pt, weight: 700)[KHOA CÔNG NGHỆ THÔNG TIN 2]
+
+    #v(0.2cm)
+    #line(length: 30%, stroke: 1pt + ink)
+    #v(0.8cm)
+
+    #image("Logo_PTIT_University.png", width: 3.2cm)
+
+    #v(1cm)
+    #text(size: 18pt, weight: 800)[BÁO CÁO TIẾN ĐỘ HÀNG TUẦN] \
+    #text(size: 13pt, weight: 700)[(TUẦN 5, TUẦN 6 & TUẦN 7)]
+
+    #v(1.2cm)
+    #text(size: 12pt, weight: 700)[ĐỀ TÀI THỰC TẬP:] \
+    #v(0.2cm)
+    #text(size: 14pt, weight: 800)[Nền tảng Thương mại Điện tử trên kiến trúc Microservices]
+  ]
+
+  #v(2cm)
+  #align(center, block(width: 85%)[
+    #set text(size: 10.5pt)
+    #grid(
+      text(weight: 700)[Giảng viên hướng dẫn:], [Th.S Nguyễn Đức Thịnh],
+      text(weight: 700)[Lớp:], [D22CQCNPM01-N],
+      columns: (auto, 1fr),
+      row-gutter: 9pt,
+      column-gutter: 15pt,
+      text(weight: 700)[Sinh viên thực hiện:], [
+        1. Đậu Văn Đăng Khoa, N22DCCN040 \
+        2. Hồ Công Toản, N22DCCN086 \
+        3. Nguyễn Tấn Khoa, N22DCCN042
+      ],
+    )
+  ])
+
+  #v(2cm)
+  #align(center)[
+    #text(size: 10.5pt, weight: 700)[TP. HỒ CHÍ MINH, NĂM 2026]
+  ]
+]
+#pagebreak()
+
+// ============================================================
+//  HEADER / FOOTER + TABLE OF CONTENTS
+// ============================================================
+#set page(
+  header: {
+    set text(size: 8pt, fill: muted)
+    grid(columns: (1fr, auto), align: (left, right),
+      [Học viện Công nghệ Bưu chính Viễn thông, Cơ sở TP. HCM], [Báo cáo tiến độ Tuần 5, 6 & 7])
+    v(-7pt)
+    line(length: 100%, stroke: 0.5pt + hairline)
+  },
+  footer: context {
+    set text(size: 8pt, fill: muted)
+    line(length: 100%, stroke: 0.5pt + hairline)
+    v(2pt)
+    grid(columns: (1fr, auto), align: (left, right),
+      [],
+      [Trang #counter(page).get().first() / #counter(page).final().first()])
+  },
+)
+#counter(page).update(1)
+
+#{
+  show outline.entry.where(level: 1): it => { v(6pt, weak: true); strong(it) }
+  set text(size: 10.5pt)
+  block(text(size: 15pt, weight: 800, fill: blue)[Mục lục])
+  v(4pt)
+  outline(title: none, indent: auto, depth: 3)
+}
+#pagebreak()
+
+
+// ============================================================
+= BÁO CÁO TIẾN ĐỘ TUẦN 5: THIẾT KẾ CẤP CAO
+
+Tuần 5 chuyển từ kiến trúc tổng thể (Tuần 4) sang thiết kế cấp cao: chia hệ thống thành các thành phần có trách nhiệm rõ ràng, đặc tả giao diện API giữa frontend và backend, thiết kế cơ sở dữ liệu vật lý và các biện pháp bảo mật. Toàn bộ thiết kế bám theo kiến trúc Durable Microservices trên Restate và mô hình Database-per-service đã chốt ở Tuần 4.
+
+== Thiết Kế Thành Phần (DOC 5.1-A)
+
+=== Sơ đồ thành phần phân lớp
+Mỗi service trong hệ thống được tổ chức theo ba lớp: *Presentation* (giao diện & handler nhận request), *Business Logic* (service nghiệp vụ, validator) và *Data Access* (repository truy cập CSDL). Nguyên tắc phụ thuộc một chiều: lớp trên phụ thuộc lớp dưới, không có phụ thuộc vòng. Sơ đồ dưới đây minh họa lát cắt tiêu biểu (Account, Catalog, Order); các service còn lại (Chat, Inventory, Analytic, Common) tuân theo cùng khuôn mẫu.
+
+=== Danh mục thành phần
+Bảng dưới đây liệt kê các thành phần chính trên cả ba lớp, kèm trách nhiệm, yêu cầu chức năng triển khai và phụ thuộc.
+
+#table(
+  columns: (1fr, 0.7fr, 1.5fr, 0.6fr, 1.1fr),
+  align: (left, center, left, center, left),
+  [Thành phần], [Lớp], [Trách nhiệm], [REQ], [Phụ thuộc],
+  [`AuthHandler`], [Presentation], [Nhận request đăng ký/đăng nhập, xác thực token, định tuyến vào service.], [REQ-001…009], [`AccountService`],
+  [`OrderHandler`], [Presentation], [Nhận request đặt hàng/thanh toán/hoàn tiền, kiểm tra quyền sở hữu.], [REQ-016…026], [`OrderService`],
+  [`AccountService`], [Business], [Đăng ký, đăng nhập, phân quyền, quản lý hồ sơ và số dư ví (khả dụng/Escrow).], [REQ-001…009, 036…038], [`AccountRepository`],
+  [`CatalogService`], [Business], [Đăng bán, cập nhật trạng thái listing, tìm kiếm hybrid, gợi ý.], [REQ-010…012, 030…032], [`CatalogRepository`],
+  [`ChatOfferService`], [Business], [Tin nhắn thời gian thực, tạo/chấp nhận Offer Card, tạo đơn tạm.], [REQ-013…016], [`ChatRepository`, `OrderService`],
+  [`OrderService` (Durable)], [Business], [Checkout, kết nối cổng thanh toán, khóa/giải ngân Escrow, hồ sơ hoàn tiền & tranh chấp.], [REQ-016…026], [`AccountService`, `CatalogService`, `InventoryService`],
+  [`InventoryService`], [Business], [Reserve/release tồn kho theo serial, audit biến động kho.], [REQ-033…035], [`InventoryRepository`],
+  [`AnalyticService`], [Business], [Ghi nhận tương tác, tính điểm phổ biến, cập nhật gợi ý.], [REQ-032], [`AnalyticRepository`],
+  [`Validators`], [Business], [Kiểm tra dữ liệu đầu vào (giá > 0, đủ trường bắt buộc, định dạng email…).], [REQ-002…003, 012], [(không)],
+  [`AccountRepository`], [Data Access], [Truy vấn/ghi bảng `account`, `profile`, `transaction` bằng SQLC + pgx.], [(không)], [PostgreSQL (account)],
+  [`CatalogRepository`], [Data Access], [Truy vấn `product_spu/sku`, `category`; hybrid search qua pgvector.], [(không)], [PostgreSQL (catalog)],
+  [`OrderRepository`], [Data Access], [Truy vấn/ghi `order`, `refund_request`, `dispute_case`, `payment_session`.], [(không)], [PostgreSQL (order)],
+)
+
+=== Ma trận trách nhiệm
+Ma trận dưới đây đối chiếu thành phần Business với nhóm yêu cầu chức năng (dấu ✓ = thành phần triển khai nhóm REQ đó).
+
+#table(
+  columns: (1.5fr, 0.7fr, 0.8fr, 0.7fr, 0.9fr, 0.9fr, 0.8fr, 0.7fr),
+  align: (left, center, center, center, center, center, center, center),
+  [Thành phần \ (Business)], [Auth], [Listing], [Chat/ Offer], [Order/ Escrow], [Refund/ Dispute], [Search], [Ví],
+  [`AccountService`], [✓], [], [], [], [], [], [✓],
+  [`CatalogService`], [], [✓], [], [], [], [✓], [],
+  [`ChatOfferService`], [], [], [✓], [✓], [], [], [],
+  [`OrderService`], [], [], [], [✓], [✓], [], [✓],
+  [`InventoryService`], [], [], [], [✓], [], [], [],
+  [`AnalyticService`], [], [], [], [], [], [✓], [],
+)
+
+#pagebreak()
+== Thiết Kế API (DOC 5.2-A)
+
+=== Tổng quan API
+- *Base URL:* `/api` (qua Ingress cho lệnh ghi; các endpoint đọc gọi thẳng service qua HTTP/2).
+- *Xác thực:* JWT Bearer trong header `Authorization: Bearer <token>` (xem 5.4).
+- *Định dạng:* toàn bộ request/response dùng JSON (UTF-8).
+- *Phân loại:* mỗi endpoint được đánh dấu *M* (mutation, đi qua Restate Ingress, idempotent) hoặc *Q* (query, đọc trực tiếp).
+- *Mã lỗi chung:* `400` dữ liệu không hợp lệ, `401` chưa xác thực, `403` không đủ quyền, `404` không tìm thấy, `409` xung đột trạng thái, `422` vi phạm ràng buộc nghiệp vụ, `5xx` lỗi hệ thống/bên thứ ba (chi tiết ở 7.2).
+
+=== Đặc tả endpoint
+Bảng dưới liệt kê các endpoint chính, nhóm theo tài nguyên.
+
+#table(
+  columns: (0.5fr, 2fr, 0.4fr, 2.2fr, 0.9fr),
+  align: (center, left, center, left, center),
+  [PT], [Đường dẫn], [Loại], [Mô tả], [Quyền],
+  [POST], [`/api/auth/register`], [M], [Đăng ký tài khoản User mới.], [Công khai],
+  [POST], [`/api/auth/login`], [M], [Đăng nhập, trả access + refresh token.], [Công khai],
+  [POST], [`/api/auth/refresh`], [M], [Cấp lại access token từ refresh token.], [Công khai],
+  [POST], [`/api/auth/logout`], [M], [Thu hồi refresh token hiện tại.], [User],
+  [GET], [`/api/products`], [Q], [Danh sách/duyệt sản phẩm, phân trang.], [Công khai],
+  [GET], [`/api/products/{id}`], [Q], [Chi tiết một sản phẩm (SPU/SKU).], [Công khai],
+  [GET], [`/api/search`], [Q], [Tìm kiếm hybrid + lọc danh mục/giá/tình trạng.], [Công khai],
+  [POST], [`/api/products`], [M], [Đăng bán sản phẩm C2C (giá cố định / thương lượng).], [User],
+  [GET], [`/api/chats/{id}/messages`], [Q], [Lịch sử tin nhắn của một hội thoại.], [User],
+  [POST], [`/api/chats/{id}/messages`], [M], [Gửi tin nhắn văn bản/ảnh/video.], [User],
+  [POST], [`/api/chats/{id}/offers`], [M], [Người bán tạo Offer Card (giá mới + lý do).], [User (seller)],
+  [POST], [`/api/offers/{id}/accept`], [M], [Người mua chấp nhận Offer, tạo đơn tạm.], [User (buyer)],
+  [POST], [`/api/orders/checkout`], [M], [Tạo đơn từ mục chờ, tính phí ship (quote).], [User (buyer)],
+  [POST], [`/api/orders/{id}/pay`], [M], [Khởi tạo phiên thanh toán tạm giữ Escrow.], [User (buyer)],
+  [GET], [`/api/orders/{id}`], [Q], [Chi tiết & trạng thái một đơn hàng.], [Chủ sở hữu],
+  [POST], [`/api/orders/{id}/confirm-received`], [M], [Xác nhận đã nhận hàng (khởi động đếm ngược).], [User (buyer)],
+  [POST], [`/api/orders/{id}/refunds`], [M], [Gửi yêu cầu hoàn tiền (kèm video/ảnh).], [User (buyer)],
+  [POST], [`/api/refunds/{id}/seller-decision`], [M], [Người bán chấp nhận / từ chối hoàn tiền.], [User (seller)],
+  [POST], [`/api/disputes/{id}/resolve`], [M], [Moderator ra phán quyết tranh chấp.], [Moderator],
+  [POST], [`/api/seller/pending/{id}/confirm`], [M], [Người bán xác nhận mục chờ, tạo vận đơn.], [User (seller)],
+  [GET], [`/api/wallet`], [Q], [Số dư khả dụng / tạm giữ + lịch sử biến động.], [User],
+  [POST], [`/api/wallet/withdrawals`], [M], [Yêu cầu rút số dư khả dụng về ngân hàng.], [User],
+  [POST], [`/api/admin/moderators`], [M], [Admin cấp phát tài khoản Moderator.], [Admin],
+)
+
+=== Ví dụ request / response
+*Đăng bán sản phẩm (REQ-010…012):*
+```json
+POST /api/products
+{
+  "name": "iPhone 13 Pro Max cũ",
+  "category_id": 12,
+  "price": 12500000,
+  "condition": "USED",
+  "pricing_mode": "NEGOTIABLE",
+  "images": ["rs_9f1c", "rs_9f1d"],
+  "description": "Máy đẹp 98%, pin 85%."
+}
+
+201 Created
+{ "spu_id": 4821, "sku_id": 9310, "status": "ACTIVE" }
+```
+
+*Gửi Offer Card (REQ-015):*
+```json
+POST /api/chats/771/offers
+{ "sku_id": 9310, "new_price": 12200000, "reason": "Bớt 300k hỗ trợ phí ship" }
+
+201 Created
+{ "offer_id": 5567, "status": "PENDING", "expires_at": "..." }
+```
+
+*Thanh toán tạm giữ Escrow (REQ-017…019):*
+```json
+POST /api/orders/1092/pay
+{ "payment_option": "SEPAY" }
+
+200 OK
+{ "payment_url": "https://.../pay/abc", "session_id": "ps_77c2", "amount": 12235000 }
+```
+
+Endpoint xác thực gồm ba thao tác chính: đăng nhập (`/api/auth/login`) trả về cặp *access token* (ngắn hạn) + *refresh token* (dài hạn); làm mới (`/api/auth/refresh`) cấp lại access token; đăng xuất (`/api/auth/logout`) thu hồi refresh token trong CSDL.
+
+#pagebreak()
+== Kiến Trúc Dữ Liệu Vật Lý (DOC 5.3-A)
+
+=== Quy ước & tổng quan
+Nền tảng: *PostgreSQL 16*, mô hình *Database-per-service* (mỗi module một schema riêng: `account`, `catalog`, `chat`, `order`, `inventory`, `analytic`, `common`). Quy ước: tên bảng chữ thường số ít theo domain, khóa chính `<bảng>_id` kiểu `BIGINT` (`BIGSERIAL`/định danh ứng dụng), thời điểm dùng `TIMESTAMPTZ`. Không khai báo khóa ngoại vật lý xuyên schema; liên kết giữa module là tham chiếu logic, resolve qua RPC (xem ADR-02, Tuần 4).
+
+=== Sơ đồ ERD vật lý (lát cắt module `order` + tham chiếu)
+#fig(
+  [Sơ đồ ERD vật lý lát cắt module `order` và các tham chiếu logic (Physical ERD)],
+  spacing: (34mm, 15mm),
+  ncore((1.5, 1), [order\ PK order_id]),
+  np((0, 0), [account\ PK account_id]),
+  np((3, 0), [product_sku\ PK sku_id]),
+  np((0, 2), [refund_request\ PK refund_id\ FK order_id]),
+  np((3, 2), [payment_session\ PK session_id\ FK order_id]),
+  np((1.5, 2.4), [serial\ PK serial_id]),
+  edge((1.5, 1), (0, 0), "-|>", stroke: (dash: "dashed"), text(size: 7.5pt)[buyer_id/seller_id]),
+  edge((1.5, 1), (3, 0), "-|>", stroke: (dash: "dashed"), text(size: 7.5pt)[sku_id (snapshot)]),
+  edge((0, 2), (1.5, 1), "-|>", text(size: 7.5pt)[order_id]),
+  edge((3, 2), (1.5, 1), "-|>", text(size: 7.5pt)[order_id]),
+  edge((1.5, 1), (1.5, 2.4), "-|>", stroke: (dash: "dashed"), text(size: 7.5pt)[serial_ids]),
+)
+
+=== Đặc tả bảng (chọn lọc)
+*Bảng `account.account`:*
+#table(
+  columns: (1.3fr, 1.3fr, 0.6fr, 2fr),
+  align: (left, left, center, left),
+  [Cột], [Kiểu], [Null], [Ràng buộc / ghi chú],
+  [`account_id`], [`BIGSERIAL`], [No], [PRIMARY KEY],
+  [`email`], [`VARCHAR(255)`], [No], [UNIQUE, CHECK định dạng email],
+  [`password_hash`], [`VARCHAR(72)`], [No], [Bcrypt, không lưu plaintext],
+  [`role`], [`VARCHAR(16)`], [No], [CHECK IN (`USER`,`MODERATOR`,`ADMIN`), DEFAULT `USER`],
+  [`status`], [`VARCHAR(16)`], [No], [DEFAULT `ACTIVE`],
+  [`created_at`], [`TIMESTAMPTZ`], [No], [DEFAULT `now()`],
+)
+
+*Bảng `catalog.product_sku`:*
+#table(
+  columns: (1.3fr, 1.3fr, 0.6fr, 2fr),
+  align: (left, left, center, left),
+  [Cột], [Kiểu], [Null], [Ràng buộc / ghi chú],
+  [`sku_id`], [`BIGSERIAL`], [No], [PRIMARY KEY],
+  [`spu_id`], [`BIGINT`], [No], [FK → `product_spu` (trong schema)],
+  [`price`], [`DECIMAL(14,2)`], [No], [CHECK `price > 0`],
+  [`pricing_mode`], [`VARCHAR(12)`], [No], [CHECK IN (`FIXED`,`NEGOTIABLE`)],
+  [`condition`], [`VARCHAR(12)`], [No], [CHECK IN (`NEW`,`USED`)],
+  [`embedding`], [`vector(1024)`], [Yes], [pgvector, sinh bằng bge-m3],
+  [`status`], [`VARCHAR(12)`], [No], [DEFAULT `ACTIVE`],
+)
+
+*Bảng `order.order`:*
+#table(
+  columns: (1.3fr, 1.3fr, 0.6fr, 2fr),
+  align: (left, left, center, left),
+  [Cột], [Kiểu], [Null], [Ràng buộc / ghi chú],
+  [`order_id`], [`BIGSERIAL`], [No], [PRIMARY KEY],
+  [`buyer_id`], [`BIGINT`], [No], [Tham chiếu logic → `account`],
+  [`seller_id`], [`BIGINT`], [No], [Tham chiếu logic → `account`],
+  [`sku_id`], [`BIGINT`], [No], [Tham chiếu logic → `catalog`],
+  [`sku_name`], [`VARCHAR(255)`], [No], [Snapshot tại thời điểm đặt],
+  [`total_amount`], [`DECIMAL(14,2)`], [No], [CHECK `total_amount >= 0`],
+  [`status`], [`VARCHAR(24)`], [No], [CHECK IN các trạng thái đơn hợp lệ],
+  [`created_at`], [`TIMESTAMPTZ`], [No], [DEFAULT `now()`],
+)
+
+*Bảng `order.refund_request`:*
+#table(
+  columns: (1.3fr, 1.3fr, 0.6fr, 2fr),
+  align: (left, left, center, left),
+  [Cột], [Kiểu], [Null], [Ràng buộc / ghi chú],
+  [`refund_id`], [`BIGSERIAL`], [No], [PRIMARY KEY],
+  [`order_id`], [`BIGINT`], [No], [FK → `order` (cùng schema)],
+  [`reason`], [`TEXT`], [No], [Lý do khiếu nại],
+  [`evidence_rs_ids`], [`BIGINT[]`], [No], [Trỏ tới `common.resource` (video/ảnh)],
+  [`status`], [`VARCHAR(24)`], [No], [`REQUESTED`/`SELLER_APPROVED`/`DISPUTED`/`RESOLVED`],
+  [`created_at`], [`TIMESTAMPTZ`], [No], [DEFAULT `now()`],
+)
+
+=== Ràng buộc & chỉ mục tiêu biểu
+- *Ràng buộc:* `UNIQUE(email)` trên `account`; `CHECK(price > 0)` trên `product_sku`; `CHECK(total_amount >= 0)` và `CHECK(status IN …)` trên `order`; `UNIQUE` một phần (partial unique index) cho phương thức thanh toán mặc định của mỗi ví.
+- *Chỉ mục:* index trên các cột tham chiếu logic (`order.buyer_id`, `order.seller_id`) phục vụ truy vấn "đơn của tôi"; index `order.created_at DESC` cho danh sách đơn gần đây; HNSW index trên `product_sku.embedding` cho tìm kiếm ANN; index `refund_request.order_id`.
+
+#pagebreak()
+== Thiết Kế Bảo Mật (DOC 5.4-A)
+
+=== Thiết kế xác thực
+- *Đăng nhập:* Email + mật khẩu. Mật khẩu được băm bằng *Bcrypt* trước khi lưu, không bao giờ lưu/log plaintext (NFR-002).
+- *Token:* Đăng nhập thành công trả về *access token* (JWT, sống 15-30 phút, ký HS256/RS256) và *refresh token* (sống tối đa 7 ngày, lưu dạng hash trong CSDL, có thể thu hồi), NFR-003.
+- *Chống dò mật khẩu:* khóa tạm tài khoản sau 5 lần sai liên tiếp trong 15 phút, kèm rate-limit theo IP (NFR-004).
+
+=== Thiết kế ủy quyền
+Áp dụng RBAC ở tầng Ingress kết hợp kiểm tra quyền sở hữu cấp đối tượng ở tầng service (NFR-005, NFR-006).
+
+#table(
+  columns: (0.9fr, 2.6fr),
+  align: (left, left),
+  [Vai trò], [Quyền tiêu biểu],
+  [`User`], [Đăng bán, chat, đặt hàng/thanh toán, gửi hoàn tiền, xem/rút ví, chỉ trên tài nguyên thuộc sở hữu của mình.],
+  [`Moderator`], [Xem hồ sơ tranh chấp, ra phán quyết; không truy cập chức năng quản trị hệ thống.],
+  [`Admin`], [Cấp phát tài khoản Moderator, quản trị nền tảng; không tự ý can thiệp dòng tiền ngoài quy trình.],
+)
+
+Mọi request ghi được xác minh hai lớp: (1) Ingress kiểm claim vai trò trong JWT; (2) service kiểm quyền sở hữu đối tượng (VD: `order.buyer_id` phải khớp chủ thể gọi) trước khi thực thi.
+
+=== Bảo vệ dữ liệu
+- *Trên đường truyền:* toàn bộ giao tiếp Client–Server và nội bộ qua TLS.
+- *Dữ liệu nhạy cảm:* mật khẩu (luôn hash), thông tin định danh (PII), số dư ví, lịch sử giao dịch, xử lý theo nguyên tắc tối thiểu hóa lộ dữ liệu.
+- *Không bao giờ ghi log:* mật khẩu, token, thông tin thanh toán thô.
+
+=== Điều khiển bảo mật cơ bản
+- *Validate & sanitize* toàn bộ input ở tầng API để chống SQL Injection/XSS/Command Injection (NFR-007).
+- *Truy vấn an toàn:* dùng prepared statement qua SQLC + pgx, không nối chuỗi SQL thủ công.
+- *Rate-limiting* theo IP/tài khoản cho các API nhạy cảm (đăng ký, đăng nhập, tạo Offer, gửi hoàn tiền), NFR-008.
+- *Audit log bất biến* (append-only) cho mọi biến động ví và thao tác nhạy cảm của Admin/Moderator (NFR-009, NFR-010).
+
+#pagebreak()
+// ============================================================
+= BÁO CÁO TIẾN ĐỘ TUẦN 6: THIẾT KẾ CHI TIẾT
+
+Tuần 6 chi tiết hóa thiết kế cấp cao thành bản vẽ mà lập trình viên trực tiếp làm theo: cấu trúc lớp (thuộc tính, phương thức), sơ đồ trình tự ở mức lời gọi phương thức, thiết kế UI độ trung thực cao và tập lệnh DDL hoàn chỉnh.
+
+== Thiết Kế Lớp (DOC 6.1-A)
+
+=== Tổ chức package
+Mã nguồn tổ chức theo service, mỗi service chia lớp theo khuôn mẫu: `handler` (nhận request) → `service` (nghiệp vụ) → `repository` (truy cập CSDL) → `model` (entity) và `dto` (đối tượng request/response). Quy ước phụ thuộc một chiều trùng với sơ đồ thành phần 5.1.
+
+=== Sơ đồ lớp cụm Order
+#fig(
+  [Sơ đồ lớp cụm nghiệp vụ Order (Class Diagram)],
+  spacing: (34mm, 17mm),
+  np((0, 0), [*OrderHandler*\ + Checkout(req)\ + Pay(req)\ + CreateRefund(req)]),
+  np((0, 1), [*OrderService*\ + Checkout()\ + Pay()\ + ConfirmReceived()\ + CreateRefund()]),
+  np((2, 1), [*OrderValidator*\ + Validate(req)]),
+  np((0, 2), [*OrderRepository*\ + Save(o)\ + FindById(id)\ + UpdateStatus()]),
+  np((2, 2), [*Order* (entity)\ - order_id\ - total_amount\ - status\ + CanRefund()]),
+  np((2, 0), [*RefundWorkflow*\ (durable)\ + Run(refund_id)]),
+  edge((0, 0), (0, 1), "-|>", text(size: 7.5pt)[dùng]),
+  edge((0, 1), (2, 1), "-|>", text(size: 7.5pt)[dùng]),
+  edge((0, 1), (0, 2), "-|>", text(size: 7.5pt)[dùng]),
+  edge((0, 2), (2, 2), "-|>", text(size: 7.5pt)[trả về]),
+  edge((0, 1), (2, 0), "-|>", stroke: (dash: "dashed"), text(size: 7.5pt)[khởi động]),
+)
+
+=== Đặc tả lớp (cụm Order)
+#table(
+  columns: (1fr, 1.5fr, 2.2fr),
+  align: (left, left, left),
+  [Lớp], [Thuộc tính chính], [Phương thức chính],
+  [`Order` (entity)], [`order_id`, `buyer_id`, `seller_id`, `total_amount`, `status`], [`CanRefund() bool`, `CanCancel() bool`, `MarkPaid()`],
+  [`OrderService`], [`repo: OrderRepository`, `account: AccountService`, `inventory: InventoryService`], [`Checkout(req) Order`, `Pay(id, opt) Session`, `ConfirmReceived(id)`, `CreateRefund(req) Refund`],
+  [`OrderRepository`], [`db: *pgx.Pool`], [`Save(o Order) error`, `FindById(id) (Order,error)`, `UpdateStatus(id, s) error`],
+  [`RefundWorkflow`], [`ctx: restate.Context`, `refund_id`], [`Run(refund_id)`: chờ hàng về, chờ seller review, phân xử],
+  [`OrderValidator`], [(không)], [`Validate(req) error`: kiểm tra quyền sở hữu, trạng thái hợp lệ],
+)
+
+#pagebreak()
+== Sơ Đồ Trình Tự (DOC 6.2-A)
+
+Ở Tuần 4 đã có sơ đồ trình tự mức nghiệp vụ durable (Escrow, Refund). Phần này bổ sung ba sơ đồ ở mức *lời gọi phương thức* giữa các lớp (Handler → Service → Repository → DB), xác thực rằng thiết kế lớp 6.1 thực sự chạy được, gồm một luồng Create, một Query và một Update có xử lý lỗi.
+
+#fig(
+  [Trình tự Đăng bán sản phẩm (Create, REQ-010…012],
+  spacing: (26mm, 8mm),
+  np((0, 0), [User]),
+  np((1, 0), [Catalog\ Handler]),
+  np((2, 0), [Catalog\ Service]),
+  np((3, 0), [Validator]),
+  np((4, 0), [Catalog\ Repo]),
+  edge((0, 0.4), (0, 8), stroke: (paint: hairline, dash: "dashed")),
+  edge((1, 0.4), (1, 8), stroke: (paint: hairline, dash: "dashed")),
+  edge((2, 0.4), (2, 8), stroke: (paint: hairline, dash: "dashed")),
+  edge((3, 0.4), (3, 8), stroke: (paint: hairline, dash: "dashed")),
+  edge((4, 0.4), (4, 8), stroke: (paint: hairline, dash: "dashed")),
+  edge((0, 1), (1, 1), "-|>", text(size: 7pt)[POST /api/products]),
+  edge((1, 2), (2, 2), "-|>", text(size: 7pt)[CreateListing(req)]),
+  edge((2, 3), (3, 3), "-|>", text(size: 7pt)[Validate(req)]),
+  edge((3, 4), (2, 4), "-|>", stroke: (dash: "dashed"), text(size: 7pt)[ok / lỗi 400]),
+  edge((2, 5), (4, 5), "-|>", text(size: 7pt)[Save(sku) + embed bge-m3]),
+  edge((4, 6), (2, 6), "-|>", stroke: (dash: "dashed"), text(size: 7pt)[sku_id]),
+  edge((1, 7), (0, 7), "-|>", stroke: (dash: "dashed"), text(size: 7pt)[201 Created]),
+)
+
+#fig(
+  [Trình tự Tìm kiếm sản phẩm (Query, REQ-030…031],
+  spacing: (30mm, 8mm),
+  np((0, 0), [User]),
+  np((1, 0), [Catalog Handler]),
+  np((2, 0), [Catalog Service]),
+  np((3, 0), [PostgreSQL\ + pgvector]),
+  edge((0, 0.4), (0, 6), stroke: (paint: hairline, dash: "dashed")),
+  edge((1, 0.4), (1, 6), stroke: (paint: hairline, dash: "dashed")),
+  edge((2, 0.4), (2, 6), stroke: (paint: hairline, dash: "dashed")),
+  edge((3, 0.4), (3, 6), stroke: (paint: hairline, dash: "dashed")),
+  edge((0, 1), (1, 1), "-|>", text(size: 7pt)[GET /api/search?q=... (HTTP/2 trực tiếp)]),
+  edge((1, 2), (2, 2), "-|>", text(size: 7pt)[Search(q, filters)]),
+  edge((2, 3), (3, 3), "-|>", text(size: 7pt)[hybrid query (dense+sparse) + lọc scalar]),
+  edge((3, 4), (2, 4), "-|>", stroke: (dash: "dashed"), text(size: 7pt)[rows xếp theo độ liên quan]),
+  edge((1, 5), (0, 5), "-|>", stroke: (dash: "dashed"), text(size: 7pt)[200 OK (danh sách)]),
+)
+
+#fig(
+  [Trình tự Checkout → Thanh toán (Update, có xử lý lỗi, REQ-017…019],
+  spacing: (24mm, 8mm),
+  np((0, 0), [Buyer]),
+  ncore((1, 0), [Order\ Service]),
+  np((2, 0), [Inventory\ Service]),
+  np((3, 0), [Payment GW]),
+  np((4, 0), [Order Repo]),
+  edge((0, 0.4), (0, 9), stroke: (paint: hairline, dash: "dashed")),
+  edge((1, 0.4), (1, 9), stroke: (paint: hairline, dash: "dashed")),
+  edge((2, 0.4), (2, 9), stroke: (paint: hairline, dash: "dashed")),
+  edge((3, 0.4), (3, 9), stroke: (paint: hairline, dash: "dashed")),
+  edge((4, 0.4), (4, 9), stroke: (paint: hairline, dash: "dashed")),
+  edge((0, 1), (1, 1), "-|>", text(size: 7pt)[Checkout / Pay]),
+  edge((1, 2), (2, 2), "-|>", text(size: 7pt)[Reserve(serial)]),
+  edge((2, 3), (1, 3), "-|>", stroke: (dash: "dashed"), text(size: 7pt)[ok]),
+  edge((1, 4), (3, 4), "-|>", text(size: 7pt)[CreateSession(amount)]),
+  edge((3, 5), (1, 5), "-|>", stroke: (dash: "dashed"), text(size: 7pt)[webhook OK / timeout]),
+  ng((1, 6), text(size: 7pt)[OK: khóa Escrow]),
+  edge((1, 6.9), (4, 6.9), "-|>", text(size: 7pt)[UpdateStatus(PAID)]),
+  nr((1, 7.8), text(size: 7pt)[Lỗi/timeout: release kho (saga) → 4xx]),
+)
+
+#pagebreak()
+== Thiết Kế UI Độ Trung Thực Cao (DOC 6.3-A)
+
+=== Hệ thống thiết kế
+Kế thừa bố cục từ wireframe Tuần 3, bổ sung màu sắc, typography và thang khoảng cách cụ thể để hướng dẫn triển khai frontend.
+
+#table(
+  columns: (1fr, 2.5fr),
+  align: (left, left),
+  [Hạng mục], [Đặc tả],
+  [Màu chính], [`#1A1A1A` (nút chính, nhấn mạnh) trên nền trắng `#FFFFFF`],
+  [Màu phụ / nhấn], [PTIT-red `#B3122B` cho cảnh báo/hành động quan trọng],
+  [Trung tính], [`#4D4D4D` (chữ phụ), `#ECECEC` (nền khối), `#C9C9C9` (đường kẻ)],
+  [Trạng thái], [Thành công `#2E7D32`, Lỗi `#C62828`],
+  [Typography], [Tiêu đề: sans (Heros/Inter) 20–32px; thân: 16px; chú thích 12–14px],
+  [Thang khoảng cách], [Bội số 8px: 8 / 16 / 24 / 32 / 48],
+  [Nút], [Cao 40px, bo góc 4px, padding ngang 16px; nút chính nền đậm chữ trắng],
+  [Trường nhập], [Cao 40px, viền 1px `#C9C9C9`, focus đổi viền màu chính],
+)
+
+=== Thư viện thành phần
+#grid(
+  columns: (1fr, 1fr),
+  column-gutter: 12pt, row-gutter: 12pt,
+  wireframe("Nút (Button)")[
+    #v(3pt)
+    #grid(columns: (1fr, 1fr), column-gutter: 8pt,
+      rect(width: 100%, height: 18pt, fill: ink, radius: 4pt, align(center + horizon, text(fill: white, size: 8pt)[Primary])),
+      rect(width: 100%, height: 18pt, stroke: 0.8pt + ink, radius: 4pt, align(center + horizon, text(size: 8pt)[Secondary])),
+    )
+    #v(4pt)
+    #text(size: 7pt, fill: muted)[Cao 40px · bo 4px · padding 16px]
+  ],
+  wireframe("Trường nhập (Input)")[
+    #v(3pt)
+    #rect(width: 100%, height: 16pt, stroke: 0.8pt + hairline, radius: 3pt, align(left + horizon, text(size: 7.5pt, fill: muted)[ Nhập nội dung...]))
+    #v(4pt)
+    #text(size: 7pt, fill: muted)[Viền 1px `#C9C9C9`, focus đổi viền `#1A1A1A`]
+  ],
+  wireframe("Thẻ sản phẩm (Card)")[
+    #v(3pt)
+    #grid(columns: (auto, 1fr), column-gutter: 6pt,
+      rect(width: 30pt, height: 30pt, stroke: 0.6pt + hairline, align(center + horizon, text(size: 6.5pt)[ảnh])),
+      stack(spacing: 3pt,
+        text(size: 7.5pt, weight: 700)[Tên sản phẩm],
+        text(size: 8pt, fill: rgb("#B3122B"), weight: 700)[12.500.000đ],
+        text(size: 6.5pt, fill: muted)[~thương lượng]))
+  ],
+  wireframe("Nhãn trạng thái (Badge)")[
+    #v(3pt)
+    #grid(columns: (1fr, 1fr), column-gutter: 6pt,
+      rect(width: 100%, height: 14pt, fill: rgb("#E8F5E9"), radius: 8pt, align(center + horizon, text(size: 7pt, fill: rgb("#2E7D32"))[Đã giao])),
+      rect(width: 100%, height: 14pt, fill: rgb("#FFEBEE"), radius: 8pt, align(center + horizon, text(size: 7pt, fill: rgb("#C62828"))[Tranh chấp])),
+    )
+  ],
+)
+
+Ba màn hình quan trọng nhất (Chi tiết sản phẩm C2C, Khung Chat & Offer Card, Thanh toán Escrow) được thiết kế độ trung thực cao dựa trên wireframe Tuần 3, áp dụng palette và typography ở trên; mỗi màn hình kèm chú thích khoảng cách (8px scale) và ghi chú cho lập trình viên. Bản mockup chi tiết được trình bày ngay dưới đây.
+
+=== Mockup độ trung thực cao (Hi-fidelity Mockups)
+Từ hệ thống thiết kế và thư viện thành phần ở trên, nhóm dựng bản mockup độ trung thực cao cho các màn hình chính của sàn ShopNexus, thống nhất màu chủ đạo xanh mòng két (`#004E47`) và bộ chữ Manrope/Inter. Ba màn hình cốt lõi của luồng giao dịch C2C được trình bày trước, tiếp theo là các màn hình bổ sung trong hành trình người dùng.
+
+#figure(
+  image("../images/shopnexus_product_detail/screen.png", height: 14cm),
+  caption: [Màn hình Chi tiết sản phẩm C2C: giá và mức giảm, uy tín người bán, nút "Chat ngay" / "Mua ngay".],
+)
+
+#figure(
+  image("../images/shopnexus_inbox_chat/screen.png", width: 95%),
+  caption: [Màn hình Nhắn tin & Đề nghị giá (Offer): trao đổi, gửi ảnh thực tế, thông tin giao dịch và nút "Đề nghị giá".],
+)
+
+#figure(
+  image("../images/shopnexus_checkout/screen.png", height: 15cm),
+  caption: [Màn hình Thanh toán: địa chỉ nhận hàng, phí vận chuyển động, phương thức thanh toán và tổng thanh toán.],
+)
+
+Ngoài ba màn hình cốt lõi, nhóm hoàn thiện mockup cho các màn hình còn lại của hành trình người dùng (trang chủ, tìm kiếm, đăng bán, quản lý bán hàng...). Toàn bộ bộ mockup được lưu trong thư mục `images/`.
+
+#figure(
+  grid(
+    columns: (1fr, 1fr), column-gutter: 10pt, row-gutter: 12pt,
+    align: center + horizon,
+    image("../images/shopnexus_home_comprehensive_merged_layout/screen.png", height: 5cm),
+    image("../images/shopnexus_search_results/screen.png", height: 5cm),
+    image("../images/shopnexus_seller_dashboard/screen.png", height: 5cm),
+    image("../images/shopnexus_list_an_item/screen.png", height: 5cm),
+  ),
+  caption: [Các màn hình bổ sung (từ trái sang, trên xuống): Trang chủ, Kết quả tìm kiếm, Bảng điều khiển người bán, Đăng bán sản phẩm.],
+)
+
+#pagebreak()
+// == Chi Tiết Thiết Kế Cơ Sở Dữ Liệu (DDL) (DOC 6.4-A)
+
+// Tập lệnh DDL cụ thể hóa thiết kế vật lý 5.3 thành mã SQL chạy được, tổ chức thành các tệp theo thứ tự phụ thuộc.
+
+// === Tạo bảng (`01_create_tables.sql`)
+// ```sql
+// CREATE TABLE account.account (
+//     account_id     BIGSERIAL PRIMARY KEY,
+//     email          VARCHAR(255) NOT NULL UNIQUE,
+//     password_hash  VARCHAR(72)  NOT NULL,
+//     role           VARCHAR(16)  NOT NULL DEFAULT 'USER',
+//     status         VARCHAR(16)  NOT NULL DEFAULT 'ACTIVE',
+//     created_at     TIMESTAMPTZ  NOT NULL DEFAULT now(),
+//     CONSTRAINT email_format CHECK (email LIKE '%@%'),
+//     CONSTRAINT valid_role   CHECK (role IN ('USER','MODERATOR','ADMIN'))
+// );
+
+// CREATE TABLE "order"."order" (
+//     order_id      BIGSERIAL PRIMARY KEY,
+//     buyer_id      BIGINT NOT NULL,          -- tham chiếu logic -> account
+//     seller_id     BIGINT NOT NULL,          -- tham chiếu logic -> account
+//     sku_id        BIGINT NOT NULL,          -- tham chiếu logic -> catalog
+//     sku_name      VARCHAR(255) NOT NULL,    -- snapshot lúc đặt
+//     total_amount  DECIMAL(14,2) NOT NULL,
+//     status        VARCHAR(24) NOT NULL DEFAULT 'PENDING',
+//     created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+//     CONSTRAINT positive_amount CHECK (total_amount >= 0),
+//     CONSTRAINT valid_status CHECK (status IN
+//         ('PENDING','PAID','SHIPPED','DELIVERED',
+//          'REFUND_REQUESTED','DISPUTED','COMPLETED','CANCELLED'))
+// );
+
+// CREATE TABLE "order".refund_request (
+//     refund_id         BIGSERIAL PRIMARY KEY,
+//     order_id          BIGINT NOT NULL,
+//     reason            TEXT   NOT NULL,
+//     evidence_rs_ids   BIGINT[] NOT NULL,
+//     status            VARCHAR(24) NOT NULL DEFAULT 'REQUESTED',
+//     created_at        TIMESTAMPTZ NOT NULL DEFAULT now(),
+//     CONSTRAINT fk_order FOREIGN KEY (order_id)
+//         REFERENCES "order"."order"(order_id)
+// );
+// ```
+
+// === Tạo chỉ mục (`02_create_indexes.sql`)
+// ```sql
+// -- Truy vấn "đơn hàng của tôi" (buyer/seller)
+// CREATE INDEX idx_order_buyer  ON "order"."order"(buyer_id);
+// CREATE INDEX idx_order_seller ON "order"."order"(seller_id);
+// -- Danh sách đơn gần đây
+// CREATE INDEX idx_order_created ON "order"."order"(created_at DESC);
+// -- Tìm kiếm vector ANN (pgvector HNSW)
+// CREATE INDEX idx_sku_embedding ON catalog.product_sku
+//     USING hnsw (embedding vector_cosine_ops);
+// ```
+
+// === Dữ liệu tham chiếu (`03_insert_reference_data.sql`)
+// ```sql
+// INSERT INTO "order".order_status (code, label) VALUES
+//     ('PENDING','Chờ xử lý'), ('PAID','Đã thanh toán (Escrow)'),
+//     ('DELIVERED','Đã giao'), ('REFUND_REQUESTED','Yêu cầu trả hàng'),
+//     ('DISPUTED','Đang tranh chấp'), ('COMPLETED','Hoàn tất'),
+//     ('CANCELLED','Đã hủy');
+// ```
+
+// === Tổ chức & thứ tự chạy
+// Các tệp chạy theo thứ tự: `01_create_tables.sql` (bảng không phụ thuộc trước, bảng có FK sau) → `02_create_indexes.sql` (sau khi bảng tồn tại) → `03_insert_reference_data.sql`. Kèm `README.md` mô tả điều kiện tiên quyết (mỗi schema module phải tồn tại) và lệnh chạy migration.
+
+// #pagebreak()
+// ============================================================
+= BÁO CÁO TIẾN ĐỘ TUẦN 7: LẬP KẾ HOẠCH TRIỂN KHAI
+
+Tuần 7 khép lại giai đoạn thiết kế: đặc tả các thuật toán nghiệp vụ phức tạp, chiến lược xử lý lỗi, kế hoạch kiểm thử, chuẩn phát triển và lịch triển khai chi tiết cho giai đoạn code.
+
+== Thiết Kế Thuật Toán (DOC 7.1-A)
+
+Ba phần logic phức tạp nhất được đặc tả bằng mã giả trước khi triển khai.
+
+=== Thuật toán 1: Xếp hạng tìm kiếm hybrid (bge-m3)
+Lớp/phương thức: `CatalogService.Search()`. Đầu vào: truy vấn `q`, bộ lọc `filters`. Đầu ra: danh sách SKU xếp theo độ liên quan.
+```
+Thuật toán: HybridSearchRank
+Đầu vào: q (chuỗi), filters (danh mục, giá, tình trạng)
+
+sinh (dense_vec, sparse_vec) = bge_m3.embed(q)
+ứng viên = SQL:
+    SELECT sku, (0.5 * cosine(embedding, dense_vec)
+               + 0.5 * sparse_score(sparse_vec)) AS score
+    FROM product_sku
+    WHERE status = 'ACTIVE' AND thỏa(filters)
+    ORDER BY score DESC
+    LIMIT 100
+
+VỚI MỖI item TRONG ứng viên:
+    item.final = 0.7 * item.score + 0.3 * popularity(item.sku)
+
+Trả về sắp_xếp_giảm_dần(ứng viên theo final)[0:20]
+```
+
+=== Thuật toán 2: Tính tổng thanh toán & khóa Escrow
+Lớp/phương thức: `OrderService.Pay()`.
+```
+Thuật toán: ComputeAndLockEscrow
+Đầu vào: order, ship_quote, payer
+
+item_total = order.sku_price
+NẾU order.pricing_mode = 'NEGOTIABLE' VÀ có offer đã chấp nhận THÌ
+    item_total = offer.new_price
+KẾT THÚC NẾU
+
+ship_fee = ship_quote.fee
+total = item_total + ship_fee
+
+NẾU balance_khả_dụng(payer) < total VÀ không dùng cổng ngoài THÌ
+    NÉM LỖI 422 (không đủ số dư)
+KẾT THÚC NẾU
+
+session = payment_gateway.create_session(total)   -- durable step
+CHỜ webhook xác nhận (Restate journal)
+KHI OK: chuyển total vào ví Escrow (khóa), order.status = 'PAID'
+Trả về session
+```
+
+=== Thuật toán 3: Đếm ngược Escrow & tự giải ngân
+Lớp/phương thức: `OrderService.ConfirmReceived()` + Restate durable timer.
+```
+Thuật toán: EscrowCountdown
+Đầu vào: order (đã 'DELIVERED')
+
+hẹn_giờ durable = 3 ngày   -- Restate timer, bền qua crash/restart
+
+CHỜ (hết_giờ HOẶC có_khiếu_nại):
+    NẾU có_khiếu_nại TRƯỚC KHI hết_giờ THÌ
+        khởi động RefundWorkflow(refund_id); DỪNG
+    KHÁC NẾU hết_giờ THÌ
+        giải ngân Escrow -> ví khả dụng của seller
+        order.status = 'COMPLETED'
+    KẾT THÚC NẾU
+```
+
+== Thiết Kế Xử Lý Lỗi (DOC 7.2-A)
+
+=== Định dạng phản hồi lỗi
+Mọi lỗi trả về theo cấu trúc JSON thống nhất, thông báo bằng tiếng Việt dễ hiểu, không lộ stack trace:
+```json
+{ "error": "Thông báo lỗi ngắn gọn", "details": "Chi tiết cụ thể (tùy chọn)" }
+```
+
+=== Các tình huống lỗi phổ biến
+#table(
+  columns: (0.5fr, 1.6fr, 2fr),
+  align: (center, left, left),
+  [Mã], [Tình huống], [Thông báo mẫu],
+  [400], [Dữ liệu đầu vào không hợp lệ (thiếu trường, sai định dạng).], ["Dữ liệu không hợp lệ"],
+  [401], [Chưa đăng nhập / token hết hạn.], ["Vui lòng đăng nhập lại"],
+  [403], [Không đủ quyền / không sở hữu tài nguyên.], ["Bạn không có quyền thực hiện"],
+  [404], [Không tìm thấy tài nguyên (đơn, sản phẩm).], ["Không tìm thấy đối tượng"],
+  [409], [Xung đột trạng thái / gửi trùng (idempotency).], ["Thao tác đã được xử lý"],
+  [422], [Vi phạm ràng buộc nghiệp vụ (giá ≤ 0, không đủ số dư).], ["Không thể thực hiện: (lý do cụ thể)"],
+  [500], [Lỗi hệ thống nội bộ.], ["Có lỗi xảy ra, vui lòng thử lại"],
+  [502/504], [Cổng thanh toán / vận chuyển lỗi hoặc timeout.], ["Dịch vụ tạm thời gián đoạn"],
+)
+
+=== Hướng dẫn nơi bắt lỗi
+- *Biên handler:* mọi lỗi được chuyển thành mã HTTP + JSON chuẩn ở tầng handler; service chỉ trả `error` có phân loại.
+- *Restate:* phân biệt *lỗi tạm thời* (mạng, cổng thanh toán) để Restate tự retry, và *lỗi vĩnh viễn* (`TerminalError`, VD vi phạm nghiệp vụ) để dừng và bù trừ (saga) thay vì retry vô hạn.
+
+#pagebreak()
+== Chiến Lược Kiểm Thử (DOC 7.3-A)
+
+=== Cách tiếp cận
+Áp dụng ba mức: *Unit* (logic service, thuật toán), *Integration* (endpoint API + luồng Restate), *Manual* (UI end-to-end). Mục tiêu bao phủ code ≥ 70% cho các service cốt lõi (order, account, catalog).
+
+=== Tình huống kiểm thử (chọn lọc)
+#table(
+  columns: (0.8fr, 1.4fr, 2fr),
+  align: (center, left, left),
+  [Mức], [Đối tượng], [Kịch bản tiêu biểu],
+  [Unit], [`ComputeAndLockEscrow`], [Giá thương lượng, cộng phí ship, số dư không đủ → 422.],
+  [Unit], [`Order.CanRefund()`], [Trong hạn 3 ngày → true; quá hạn → false.],
+  [Unit], [`HybridSearchRank`], [Kết hợp dense+sparse+popularity, xếp hạng đúng thứ tự.],
+  [Integration], [`POST /api/products`], [Đăng bán hợp lệ → 201; thiếu ảnh/giá ≤ 0 → 400.],
+  [Integration], [`POST /api/orders/{id}/pay`], [Webhook OK → khóa Escrow; timeout → release kho.],
+  [Integration], [Refund idempotency], [Gửi trùng `CreateRefund` → chỉ tạo một workflow.],
+  [Manual], [Luồng C2C end-to-end], [Đăng bán → chat → Offer → checkout → Escrow → nhận hàng → giải ngân.],
+  [Manual], [Luồng tranh chấp], [Buyer khiếu nại → seller từ chối → Moderator phán quyết.],
+)
+
+=== Công cụ
+- *Unit/Integration:* Go `testing` + `testify`; mock repository qua interface.
+- *Bên thứ ba:* mock server SePay/Stripe và GHN/GHTK để kiểm thử không phụ thuộc SLA ngoài (xem R-02, Tuần 4).
+- *API thủ công:* REST client / Postman; *tải:* k6 cho kịch bản đọc nhiều.
+
+=== Ví dụ trường hợp kiểm thử
+```
+Test: Pay_InsufficientBalance_Returns422
+Đầu vào: order total = 12.235.000đ; ví khả dụng = 5.000.000đ; không dùng cổng ngoài
+Kỳ vọng: ném lỗi 422, kho được release, order giữ trạng thái PENDING
+```
+
+== Tiêu Chuẩn Phát Triển (DOC 7.4-A)
+
+=== Quy ước đặt tên
+#table(
+  columns: (1fr, 2.5fr),
+  align: (left, left),
+  [Ngữ cảnh], [Quy ước],
+  [Go: kiểu/struct], [PascalCase (`OrderService`, `RefundRequest`)],
+  [Go: hàm/biến], [PascalCase nếu export, camelCase nếu nội bộ],
+  [SQL: bảng/cột], [snake_case số ít (`order`, `refund_id`, `total_amount`)],
+  [REST: đường dẫn], [danh từ số nhiều, chữ thường (`/api/orders`, `/api/products`)],
+  [Frontend: component], [PascalCase (`ProductCard`, `OfferCard`)],
+)
+
+=== Định dạng & tổ chức
+- *Go:* `gofmt` + `golangci-lint`; tab thụt lề; dòng ≤ 100 ký tự.
+- *Web (Next.js/TS):* Prettier + ESLint; *Mobile (Flutter):* `dart format`.
+- *Comment:* giải thích *tại sao* (quyết định nghiệp vụ, bù trừ saga), không diễn giải lại code hiển nhiên.
+- *Tổ chức repo:* monorepo, mỗi service một thư mục chia `handler/service/repository/model/dto`; tài liệu thiết kế trong `docs/`.
+
+#pagebreak()
+== Lập Kế Hoạch Triển Khai (DOC 7.5-A)
+
+=== Danh sách tác vụ chính
+#table(
+  columns: (0.5fr, 1.5fr, 2fr, 0.8fr),
+  align: (center, left, left, center),
+  [ID], [Hạng mục], [Tác vụ], [Ước tính],
+  [T1], [Database], [Tạo schema, chạy DDL, seed dữ liệu tham chiếu.], [2 ngày],
+  [T2], [Backend cốt lõi], [Model + Repository (SQLC/pgx) cho 7 service.], [5 ngày],
+  [T3], [Backend nghiệp vụ], [Service + Validator; tích hợp Restate cho order.], [7 ngày],
+  [T4], [API], [Handler + định tuyến Ingress/HTTP2; xác thực JWT.], [5 ngày],
+  [T5], [Tích hợp ngoài], [Cổng thanh toán SePay/Stripe, vận chuyển GHN/GHTK (+ mock).], [4 ngày],
+  [T6], [Frontend Web], [Next.js: các màn hình chính + gọi API.], [7 ngày],
+  [T7], [Frontend Mobile], [Flutter: mua/bán, chat, thanh toán.], [6 ngày],
+  [T8], [Kiểm thử], [Unit + integration + manual E2E; mock bên thứ ba.], [5 ngày],
+  [T9], [Triển khai], [Docker hóa, k3s, health check, CI/CD.], [3 ngày],
+)
+
+=== Lịch biểu 8 tuần triển khai
+#table(
+  columns: (0.7fr, 2.6fr, 1.3fr),
+  align: (center, left, left),
+  [Tuần], [Công việc], [Mốc quan trọng],
+  [1], [Database setup, khung dự án, CI cơ bản (T1).], [DB sẵn sàng],
+  [2–3], [Model, Repository; service nền (account, catalog) (T2, một phần T3).], [Backend cốt lõi chạy],
+  [3–4], [Service nghiệp vụ + Restate cho Order/Escrow (T3).], [Luồng Escrow durable],
+  [4–5], [API handler + xác thực + tích hợp ngoài (T4, T5).], [API hoàn chỉnh],
+  [5–6], [Frontend Web + Mobile (T6, T7).], [Giao diện gọi được API],
+  [6–7], [Tích hợp toàn hệ thống + kiểm thử (T8).], [E2E xanh],
+  [8], [Sửa lỗi, đánh bóng, triển khai & tài liệu (T9).], [Bản demo bàn giao],
+)
+
+=== Đăng ký rủi ro
+#table(
+  columns: (0.5fr, 1.8fr, 0.6fr, 0.6fr, 1.8fr),
+  align: (center, left, center, center, left),
+  [ID], [Rủi ro], [Xác suất], [Tác động], [Giảm thiểu],
+  [RR-1], [Đường cong học Restate/Go làm chậm tiến độ.], [Trung bình], [Cao], [Học sớm qua prototype luồng Escrow; giới hạn durable cho luồng thật sự cần.],
+  [RR-2], [Tích hợp SePay/Stripe & GHN/GHTK không ổn định.], [Trung bình], [Cao], [Mock server từ đầu; circuit breaker + polling dự phòng (NFR-015).],
+  [RR-3], [Dữ liệu lệch giữa các service (distributed).], [Thấp], [Cao], [Restate journal + append-only audit log (NFR-009) để đối soát.],
+  [RR-4], [Chi phí vận hành Kubernetes vượt dự kiến.], [Trung bình], [Trung bình], [Dùng k3s nhẹ cho demo; Docker Compose cho dev.],
+  [RR-5], [Quản lý thời gian nhóm 3 người / 8 tuần.], [Trung bình], [Cao], [Bám lịch tuần, ưu tiên luồng cốt lõi, cắt tính năng phụ.],
+  [RR-6], [Mở rộng phạm vi (scope creep).], [Trung bình], [Trung bình], [Khóa phạm vi theo 13 use case + 38 REQ đã chốt.],
+)
+
+Kết thúc Tuần 7, toàn bộ tài liệu thiết kế cấp cao (thành phần, API, CSDL vật lý, bảo mật) và cấp thấp (lớp, trình tự, UI, DDL) cùng kế hoạch triển khai đã hoàn tất, sẵn sàng cho giai đoạn hiện thực hóa hệ thống ShopNexus C2C.

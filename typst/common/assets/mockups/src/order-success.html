@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Order Success - ShopNexus</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&amp;family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">tailwind.config = {darkMode: "class", theme: {extend: {colors: {"surface-variant": "#e2e3e0", "surface-container-highest": "#e2e3e0", surface: "#f9f9f7", "surface-bright": "#f9f9f7", "on-tertiary": "#ffffff", "on-primary-container": "#93e4d8", "on-tertiary-fixed-variant": "#773215", "inverse-on-surface": "#f1f1ef", "on-secondary-fixed-variant": "#00504b", "error-container": "#ffdad6", "surface-dim": "#dadad8", primary: "#004e47", secondary: "#216963", "on-secondary": "#ffffff", "secondary-container": "#a8ece4", "on-tertiary-container": "#ffc9b6", "on-primary-fixed": "#00201d", "primary-container": "#00685f", "outline-variant": "#bec9c6", "on-primary": "#ffffff", "on-background": "#1a1c1b", "surface-container-low": "#f4f4f1", "tertiary-fixed-dim": "#ffb59a", "surface-tint": "#066a61", "surface-container-high": "#e8e8e6", "on-surface": "#1a1c1b", "on-error": "#ffffff", "tertiary-container": "#924628", "tertiary-fixed": "#ffdbcf", "primary-fixed": "#a1f1e5", error: "#ba1a1a", "surface-container": "#eeeeec", "inverse-surface": "#2f3130", "surface-container-lowest": "#ffffff", "secondary-fixed-dim": "#8fd3cb", "on-primary-fixed-variant": "#005049", "on-error-container": "#93000a", "on-tertiary-fixed": "#380d00", "on-secondary-fixed": "#00201d", background: "#f9f9f7", "primary-fixed-dim": "#85d5c9", outline: "#6e7977", tertiary: "#742f13", "secondary-fixed": "#abefe7", "on-surface-variant": "#3e4947", "on-secondary-container": "#266d67", "inverse-primary": "#85d5c9"}, borderRadius: {DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px"}, spacing: {md: "16px", "margin-desktop": "2rem", "margin-mobile": "1rem", lg: "24px", xs: "4px", xl: "32px", sm: "8px", gutter: "1rem", "3xl": "64px", "2xl": "48px"}, fontFamily: {"label-md": ["Inter"], "headline-sm": ["Manrope"], "body-md": ["Inter"], "body-sm": ["Inter"], "price-lg": ["Inter"], "headline-lg": ["Manrope"], "display-lg": ["Manrope"], "headline-md": ["Manrope"], "body-lg": ["Inter"], "price-sm": ["Inter"], "display-lg-mobile": ["Manrope"], "label-sm": ["Inter"], headline: ["Manrope"], display: ["Manrope"], body: ["Inter"], label: ["Inter"]}, fontSize: {"label-md": ["14px", {lineHeight: "16px", letterSpacing: "0.01em", fontWeight: "600"}], "headline-sm": ["20px", {lineHeight: "28px", fontWeight: "600"}], "body-md": ["16px", {lineHeight: "24px", fontWeight: "400"}], "body-sm": ["14px", {lineHeight: "20px", fontWeight: "400"}], "price-lg": ["1.25rem", {lineHeight: "1", fontWeight: "700"}], "headline-lg": ["2rem", {lineHeight: "1.2", fontWeight: "700"}], "display-lg": ["48px", {lineHeight: "56px", letterSpacing: "-0.02em", fontWeight: "800"}], "headline-md": ["24px", {lineHeight: "32px", letterSpacing: "-0.01em", fontWeight: "700"}], "body-lg": ["18px", {lineHeight: "28px", fontWeight: "400"}], "price-sm": ["0.875rem", {lineHeight: "1", fontWeight: "500"}], "display-lg-mobile": ["36px", {lineHeight: "44px", letterSpacing: "-0.02em", fontWeight: "800"}], "label-sm": ["12px", {lineHeight: "14px", letterSpacing: "0.02em", fontWeight: "500"}]}}}};</script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col antialiased">
+<!-- TopNavBar (Suppressed for Transactional Intent based on guidelines, but leaving logo header for branding context in a success page) -->
+<header class="w-full flex justify-center items-center h-16 border-b border-outline-variant bg-surface sticky top-0 z-10 px-margin-mobile md:px-margin-desktop">
+<div class="font-headline-md text-headline-md font-bold text-primary">ShopNexus</div>
+</header>
+<main class="flex-grow flex items-center justify-center py-12 px-margin-mobile md:px-margin-desktop w-full max-w-[1440px] mx-auto">
+<div class="max-w-2xl w-full flex flex-col items-center text-center space-y-8 animate-fade-in-up">
+<!-- Success Hero -->
+<div class="flex flex-col items-center space-y-4">
+<div class="w-24 h-24 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center mb-2">
+<span class="material-symbols-outlined text-[48px]" data-icon="check_circle">check_circle</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-primary">Thank you for your order!</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-lg">
+                    Your order <span class="font-bold text-on-surface">#ORD-12345</span> from 2 sellers has been placed successfully.
+                </p>
+</div>
+<!-- Content Cards Container (Bento-style layout on desktop) -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter w-full mt-8">
+<!-- What's Next Card -->
+<div class="bg-surface rounded-xl border border-outline-variant p-6 flex flex-col text-left h-full">
+<h2 class="font-headline-sm text-headline-sm text-on-surface mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary" data-icon="pending_actions">pending_actions</span>
+                        What's Next?
+                    </h2>
+<ul class="space-y-6 flex-grow">
+<li class="flex items-start gap-4 relative">
+<!-- Timeline line -->
+<div class="absolute left-4 top-8 bottom-[-24px] w-0.5 bg-outline-variant"></div>
+<div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center flex-shrink-0 z-10 border border-outline-variant">
+<span class="material-symbols-outlined text-on-surface-variant text-[16px]" data-icon="inventory_2">inventory_2</span>
+</div>
+<div>
+<h3 class="font-label-md text-label-md text-on-surface">Preparing Items</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Sellers are currently preparing your items for shipment.</p>
+</div>
+</li>
+<li class="flex items-start gap-4 relative">
+<!-- Timeline line -->
+<div class="absolute left-4 top-8 bottom-[-24px] w-0.5 bg-outline-variant"></div>
+<div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center flex-shrink-0 z-10 border border-outline-variant">
+<span class="material-symbols-outlined text-on-surface-variant text-[16px]" data-icon="mail">mail</span>
+</div>
+<div>
+<h3 class="font-label-md text-label-md text-on-surface">Shipping Confirmation</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">You'll receive an email notification when they ship.</p>
+</div>
+</li>
+<li class="flex items-start gap-4">
+<div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center flex-shrink-0 z-10 border border-outline-variant">
+<span class="material-symbols-outlined text-on-surface-variant text-[16px]" data-icon="local_shipping">local_shipping</span>
+</div>
+<div>
+<h3 class="font-label-md text-label-md text-on-surface">Delivery</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Estimated delivery based on seller timelines.</p>
+</div>
+</li>
+</ul>
+</div>
+<!-- Order Summary Card -->
+<div class="bg-surface-container-low rounded-xl border border-outline-variant p-6 flex flex-col text-left h-full">
+<h2 class="font-headline-sm text-headline-sm text-on-surface mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary" data-icon="receipt_long">receipt_long</span>
+                        Order Summary
+                    </h2>
+<div class="flex-grow space-y-4">
+<!-- Seller 1 Items -->
+<div class="pb-4 border-b border-outline-variant border-dashed">
+<div class="flex items-center gap-2 mb-3">
+<img class="w-6 h-6 rounded-full object-cover" data-alt="A small circular avatar of a seller profile picture in a modern marketplace UI. Crisp, well-lit, professional photography style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAF61JZMxsogCmWxOkANDZHKmwYRUGiRZ9MxeH4Gq4Di1qZnFFkTuwMwhV6ATnqyZoEWtveTI0nYemV-v7fh-rD8b2IbZHpRb0In3ttevNwGEjFLVIIICKrZShocGhp6XQMYPOUI8_2NAp1Pa1lRmafE9Rb2UabCs4PsL4i_RTaxmlYSR7aEe4P7kjxlApC3zJlMO5bW54qySnBm6Vp6IlpTLEHpjDaHfdjSL2ygjBPEuNnv4jgT-vFG8Kw7oxEYgxRnYGU297qT-0"/>
+<span class="font-label-md text-label-md text-on-surface-variant">Seller: TechHaven</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-body-sm text-body-sm text-on-surface line-clamp-1 pr-4">Vintage Mechanical Keyboard...</span>
+<span class="font-label-md text-label-md text-on-surface">$125.00</span>
+</div>
+</div>
+<!-- Seller 2 Items -->
+<div class="pb-4 border-b border-outline-variant">
+<div class="flex items-center gap-2 mb-3">
+<img class="w-6 h-6 rounded-full object-cover" data-alt="Another small circular avatar of a seller profile picture in a modern marketplace UI. Bright, clean, trustworthy aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXd75ypIumr0tPO5IYYt5xDoz354lZ2NBdZfebkPlVkfn8GGbzeHxCCQh6pjbg_lVsmLH-sEYScBf3o-Cx6Yr6LXoId_xz00cHlqRUhW-mOwPVmJqDqAY_7ormd-Qhy6XYJCyVhmXgI4BEA8eRLw3_4JNwox2eS_op4CZUNfwu18L2wSu4dHiT89Lfh6kWRWYeBrbGKcT5Ud3xcCNcK41l-pFjXG-aDU0SF_u5OW_bmteCrXcqgug5ppT-ORXADHWGUvLw7ivwQLc"/>
+<span class="font-label-md text-label-md text-on-surface-variant">Seller: ArtisanGoods</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-body-sm text-body-sm text-on-surface line-clamp-1 pr-4">Handcrafted Leather Mousepad...</span>
+<span class="font-label-md text-label-md text-on-surface">$45.00</span>
+</div>
+</div>
+</div>
+<div class="pt-4 mt-auto">
+<div class="flex justify-between items-center">
+<span class="font-headline-sm text-headline-sm text-on-surface">Total Paid</span>
+<span class="font-price-lg text-price-lg text-primary">$170.00</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="flex flex-col sm:flex-row gap-4 w-full mt-10 justify-center">
+<button class="bg-primary hover:bg-primary-container text-on-primary font-label-md text-label-md h-[44px] px-8 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 shadow-sm hover:shadow-md">
+                    Track Your Order
+                    <span class="material-symbols-outlined text-[20px]" data-icon="arrow_forward">arrow_forward</span>
+</button>
+<button class="bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md h-[44px] px-8 rounded-lg transition-all duration-200 border border-outline-variant flex items-center justify-center">
+                    Continue Shopping
+                </button>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full py-xl bg-surface-container border-t border-outline-variant mt-auto">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-gutter px-margin-desktop max-w-[1440px] mx-auto text-center md:text-left">
+<div class="font-headline-sm text-headline-sm font-bold text-on-surface mb-4 md:mb-0">ShopNexus</div>
+<div class="md:col-span-3 flex flex-wrap justify-center md:justify-end gap-4 md:gap-8">
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-secondary hover:underline transition-all" href="#">Terms of Service</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-secondary hover:underline transition-all" href="#">Privacy Policy</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-secondary hover:underline transition-all" href="#">Help Center</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-secondary hover:underline transition-all" href="#">Safety Tips</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-secondary hover:underline transition-all" href="#">Sell on ShopNexus</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-secondary hover:underline transition-all" href="#">Contact Us</a>
+</div>
+<div class="md:col-span-4 text-center mt-8 font-body-sm text-body-sm text-on-surface-variant">
+                © 2024 ShopNexus C2C Marketplace. All rights reserved.
+            </div>
+</div>
+</footer>
+<style>
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .animate-fade-in-up {
+            animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+    </style>
+</body></html>

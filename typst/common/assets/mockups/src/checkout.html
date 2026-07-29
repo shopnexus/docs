@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Thanh toán - ShopNexus</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&amp;family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">tailwind.config = {darkMode: "class", theme: {extend: {colors: {"surface-container-highest": "#e2e3e0", "surface-bright": "#f9f9f7", "surface-variant": "#e2e3e0", "on-primary-fixed": "#00201d", "inverse-on-surface": "#f1f1ef", "secondary-fixed": "#abefe7", surface: "#f9f9f7", "on-secondary-fixed": "#00201d", "secondary-fixed-dim": "#8fd3cb", primary: "#004e47", "on-secondary-fixed-variant": "#00504b", "on-secondary-container": "#266d67", "surface-container": "#eeeeec", "on-primary": "#ffffff", "surface-container-lowest": "#ffffff", "on-tertiary-container": "#ffc9b6", "surface-tint": "#066a61", outline: "#6e7977", "error-container": "#ffdad6", tertiary: "#742f13", "surface-container-low": "#f4f4f1", "tertiary-fixed": "#ffdbcf", "on-primary-fixed-variant": "#005049", "surface-dim": "#dadad8", "on-tertiary": "#ffffff", "on-surface-variant": "#3e4947", "secondary-container": "#a8ece4", "inverse-surface": "#2f3130", "primary-fixed-dim": "#85d5c9", error: "#ba1a1a", "on-primary-container": "#93e4d8", "on-secondary": "#ffffff", secondary: "#216963", "surface-container-high": "#e8e8e6", "primary-fixed": "#a1f1e5", "primary-container": "#00685f", "on-tertiary-fixed-variant": "#773215", "on-error": "#ffffff", "tertiary-container": "#924628", "on-tertiary-fixed": "#380d00", "tertiary-fixed-dim": "#ffb59a", "on-background": "#1a1c1b", "on-error-container": "#93000a", "on-surface": "#1a1c1b", background: "#f9f9f7", "outline-variant": "#bec9c6", "inverse-primary": "#85d5c9"}, borderRadius: {DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px"}, spacing: {xs: "4px", "margin-mobile": "1rem", lg: "24px", gutter: "1rem", xl: "32px", sm: "8px", "margin-desktop": "2rem", md: "16px", "3xl": "64px", "2xl": "48px"}, fontFamily: {"headline-md": ["Manrope"], "body-lg": ["Inter"], "label-md": ["Inter"], "headline-lg": ["Manrope"], "price-sm": ["Inter"], "body-md": ["Inter"], "display-lg": ["Manrope"], "body-sm": ["Inter"], "price-lg": ["Inter"], "headline-sm": ["Manrope"], "display-lg-mobile": ["Manrope"], "label-sm": ["Inter"], headline: ["Manrope"], display: ["Manrope"], body: ["Inter"], label: ["Inter"]}, fontSize: {"headline-md": ["24px", {lineHeight: "32px", letterSpacing: "-0.01em", fontWeight: "700"}], "body-lg": ["18px", {lineHeight: "28px", fontWeight: "400"}], "label-md": ["14px", {lineHeight: "16px", letterSpacing: "0.01em", fontWeight: "600"}], "headline-lg": ["2rem", {lineHeight: "1.2", fontWeight: "700"}], "price-sm": ["0.875rem", {lineHeight: "1", fontWeight: "500"}], "body-md": ["16px", {lineHeight: "24px", fontWeight: "400"}], "display-lg": ["48px", {lineHeight: "56px", letterSpacing: "-0.02em", fontWeight: "800"}], "body-sm": ["14px", {lineHeight: "20px", fontWeight: "400"}], "price-lg": ["1.25rem", {lineHeight: "1", fontWeight: "700"}], "headline-sm": ["20px", {lineHeight: "28px", fontWeight: "600"}], "display-lg-mobile": ["36px", {lineHeight: "44px", letterSpacing: "-0.02em", fontWeight: "800"}], "label-sm": ["12px", {lineHeight: "14px", letterSpacing: "0.02em", fontWeight: "500"}]}}}};</script>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col">
+<!-- TopNavBar (Nav suppressed due to transactional intent, just header) -->
+<header class="sticky top-0 z-50 flex flex-col w-full bg-surface border-b border-outline-variant shadow-sm py-sm">
+<div class="max-w-[1200px] mx-auto w-full px-gutter flex items-center justify-between h-16">
+<a class="font-headline-lg text-headline-lg font-bold text-primary flex items-center gap-2" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">shopping_bag</span>
+                ShopNexus
+            </a>
+<div class="font-headline-sm text-headline-sm text-on-surface">Thanh toán</div>
+</div>
+</header>
+<main class="flex-grow w-full max-w-[1200px] mx-auto px-gutter py-xl">
+<!-- Progress Indicator -->
+<div class="mb-xl flex items-center justify-center max-w-2xl mx-auto">
+<div class="flex items-center w-full">
+<div class="flex flex-col items-center relative flex-1">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-label-md text-label-md z-10">
+<span class="material-symbols-outlined text-[20px]">check</span>
+</div>
+<span class="font-label-md text-label-md mt-sm text-primary">Vận chuyển</span>
+</div>
+<div class="flex-1 h-[2px] bg-primary -mx-4 z-0 self-start mt-4"></div>
+<div class="flex flex-col items-center relative flex-1">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-label-md text-label-md z-10">
+                        2
+                    </div>
+<span class="font-label-md text-label-md mt-sm text-primary">Thanh toán</span>
+</div>
+<div class="flex-1 h-[2px] bg-outline-variant -mx-4 z-0 self-start mt-4"></div>
+<div class="flex flex-col items-center relative flex-1">
+<div class="w-8 h-8 rounded-full bg-surface-container-high border-2 border-outline-variant text-on-surface-variant flex items-center justify-center font-label-md text-label-md z-10">
+                        3
+                    </div>
+<span class="font-label-md text-label-md mt-sm text-on-surface-variant">Xác nhận</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col lg:flex-row gap-xl">
+<!-- Left Column: Checkout Details -->
+<div class="flex-1 flex flex-col gap-lg">
+<!-- Delivery Address -->
+<section class="bg-surface border border-outline-variant rounded-lg p-lg">
+<div class="flex justify-between items-center mb-md">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Địa chỉ nhận hàng</h2>
+<button class="text-primary font-label-md text-label-md hover:underline">Thay đổi</button>
+</div>
+<div class="font-body-md text-body-md text-on-surface">
+<p class="font-bold">Nguyễn Văn A | 0901234567</p>
+<p class="text-on-surface-variant mt-1">123 Đường Lê Lợi, Phường Bến Thành, Quận 1, TP. Hồ Chí Minh</p>
+</div>
+</section>
+<!-- Order Items Grouped by Seller -->
+<section class="bg-surface border border-outline-variant rounded-lg p-lg">
+<h2 class="font-headline-sm text-headline-sm text-on-surface mb-lg">Sản phẩm</h2>
+<!-- Seller 1 -->
+<div class="mb-xl pb-lg border-b border-outline-variant last:border-b-0 last:mb-0 last:pb-0">
+<div class="flex items-center gap-2 mb-md text-on-surface font-label-md text-label-md">
+<span class="material-symbols-outlined text-[20px]">storefront</span>
+<span>TechStore VN</span>
+</div>
+<!-- Item -->
+<div class="flex gap-md mb-md">
+<img class="w-20 h-20 object-cover rounded bg-surface-container-high" data-alt="A high quality product shot of a sleek modern smartphone on a clean white background, brightly lit to show details, electronics, minimalist aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBaZvRABBUMyfPXJfiOpZpk_LFAXlSQ0yS9orjWCtQ8ecx5WRuHeCnw3rfgQvKmRy0f661TYm_WyX1LoXt-4JTLSurZAi5_-BTLLk44qvqthUyEW_AHuVrzfBJ4Bp4u53Xsht1ZFA9vAwRtrskCOzI8yZXjiTX6VPiZ5Ww12disCF2ThlgQVSEeg2JD-QXsFQ0DBTdHMHXEiIQo8O5QcZcTOgN923OIE34kSha_46D78NNxL3yPnyvSCpJPlUu4z_ehfrT9C1FFkIk"/>
+<div class="flex-1 flex flex-col justify-between">
+<div>
+<h3 class="font-body-md text-body-md text-on-surface line-clamp-2">Điện thoại thông minh X Pro 256GB - Hàng chính hãng</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Phân loại: Đen</p>
+</div>
+<div class="flex justify-between items-end mt-2">
+<span class="font-body-sm text-body-sm text-on-surface-variant">x1</span>
+<span class="font-price-lg text-price-lg text-on-surface">15.990.000 ₫</span>
+</div>
+</div>
+</div>
+<!-- Shipping Options -->
+<div class="bg-surface-container-low p-md rounded mt-md">
+<h4 class="font-label-md text-label-md text-on-surface mb-2">Đơn vị vận chuyển</h4>
+<div class="flex items-center justify-between p-2 border border-primary rounded bg-surface">
+<div class="flex items-center gap-3">
+<input checked="" class="text-primary focus:ring-primary w-4 h-4" name="shipping_seller1" type="radio"/>
+<div>
+<p class="font-body-md text-body-md text-on-surface">Giao Hàng Nhanh</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Nhận hàng vào 12 Th10 - 14 Th10</p>
+</div>
+</div>
+<span class="font-price-sm text-price-sm text-on-surface">35.000 ₫</span>
+</div>
+</div>
+</div>
+<!-- Seller 2 -->
+<div>
+<div class="flex items-center gap-2 mb-md text-on-surface font-label-md text-label-md">
+<span class="material-symbols-outlined text-[20px]">storefront</span>
+<span>Fashion Hub</span>
+</div>
+<!-- Item -->
+<div class="flex gap-md mb-md">
+<img class="w-20 h-20 object-cover rounded bg-surface-container-high" data-alt="A high-quality lifestyle shot of a modern casual t-shirt folded neatly on a wooden table, soft natural lighting, clothing, simple composition." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBlnhFex6_dEvrZO4pC0L9rYfj8ec8GX2iccBbh8e9HdScYBA_JCR0ZRCCgwxyPsiaVh58p2a1j8nk2ZU6RzGJvJ30bknRsZ3O-3NiemUiW3m39lqrxeZ7cZ3rMlvXluCCMJdGhawiImvw5-IsiSJrKQ8NoPLbaOjNg6YuspU-odcTQRr-a71GkCwhgkk7HzWPV1Xv6lmwsf8maXKItxKCwFg5207Pq1HEzk_Vxue6wPi0OFirNYBXOvE6Uxwdl_LxqbqSNHR3MRP8"/>
+<div class="flex-1 flex flex-col justify-between">
+<div>
+<h3 class="font-body-md text-body-md text-on-surface line-clamp-2">Áo thun cotton basic nam nữ unisex</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Phân loại: Trắng, Size L</p>
+</div>
+<div class="flex justify-between items-end mt-2">
+<span class="font-body-sm text-body-sm text-on-surface-variant">x2</span>
+<span class="font-price-lg text-price-lg text-on-surface">199.000 ₫</span>
+</div>
+</div>
+</div>
+<!-- Shipping Options -->
+<div class="bg-surface-container-low p-md rounded mt-md">
+<h4 class="font-label-md text-label-md text-on-surface mb-2">Đơn vị vận chuyển</h4>
+<div class="flex items-center justify-between p-2 border border-primary rounded bg-surface">
+<div class="flex items-center gap-3">
+<input checked="" class="text-primary focus:ring-primary w-4 h-4" name="shipping_seller2" type="radio"/>
+<div>
+<p class="font-body-md text-body-md text-on-surface">Giao Hàng Tiết Kiệm</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Nhận hàng vào 13 Th10 - 15 Th10</p>
+</div>
+</div>
+<span class="font-price-sm text-price-sm text-on-surface">20.000 ₫</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Payment Method -->
+<section class="bg-surface border border-outline-variant rounded-lg p-lg">
+<h2 class="font-headline-sm text-headline-sm text-on-surface mb-lg">Phương thức thanh toán</h2>
+<div class="flex flex-col gap-sm">
+<label class="flex items-center p-md border border-outline-variant rounded cursor-pointer hover:bg-surface-container-low transition-colors">
+<input class="text-primary focus:ring-primary w-4 h-4" name="payment_method" type="radio" value="cod"/>
+<div class="ml-3 flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant">local_shipping</span>
+<span class="font-body-md text-body-md text-on-surface">Thanh toán khi nhận hàng (COD)</span>
+</div>
+</label>
+<label class="flex items-center p-md border border-primary rounded bg-surface-container-lowest cursor-pointer">
+<input checked="" class="text-primary focus:ring-primary w-4 h-4" name="payment_method" type="radio" value="card"/>
+<div class="ml-3 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">credit_card</span>
+<span class="font-body-md text-body-md text-on-surface">Thẻ Tín dụng / Ghi nợ</span>
+</div>
+</label>
+</div>
+<!-- Credit Card Details (Mock) -->
+<div class="mt-md p-md bg-surface-container-low rounded border border-outline-variant" id="card-details">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<div class="col-span-1 md:col-span-2">
+<label class="block font-label-md text-label-md text-on-surface mb-1">Số thẻ</label>
+<input class="w-full border border-outline-variant rounded p-2 font-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none text-on-surface bg-surface" placeholder="XXXX XXXX XXXX XXXX" type="text"/>
+</div>
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-1">Ngày hết hạn</label>
+<input class="w-full border border-outline-variant rounded p-2 font-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none text-on-surface bg-surface" placeholder="MM/YY" type="text"/>
+</div>
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-1">Mã CVC</label>
+<input class="w-full border border-outline-variant rounded p-2 font-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none text-on-surface bg-surface" placeholder="123" type="text"/>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Column: Sticky Order Summary -->
+<div class="w-full lg:w-[380px]">
+<div class="sticky top-[88px] bg-surface border border-outline-variant rounded-lg p-lg shadow-sm">
+<h2 class="font-headline-sm text-headline-sm text-on-surface mb-lg">Đơn hàng</h2>
+<div class="flex flex-col gap-sm mb-lg border-b border-outline-variant pb-lg">
+<div class="flex justify-between font-body-md text-body-md text-on-surface">
+<span>Tổng tiền hàng</span>
+<span>16.388.000 ₫</span>
+</div>
+<div class="flex justify-between font-body-md text-body-md text-on-surface">
+<span>Phí vận chuyển</span>
+<span>55.000 ₫</span>
+</div>
+<div class="flex justify-between font-body-md text-body-md text-secondary">
+<span>Giảm giá vận chuyển</span>
+<span>-20.000 ₫</span>
+</div>
+</div>
+<div class="flex justify-between items-center mb-lg">
+<span class="font-body-lg text-body-lg text-on-surface">Tổng thanh toán</span>
+<span class="font-headline-md text-headline-md text-primary font-bold">16.423.000 ₫</span>
+</div>
+<button class="w-full bg-primary text-on-primary font-label-md text-label-md py-3 rounded-full hover:opacity-90 transition-opacity flex justify-center items-center gap-2">
+                        Đặt hàng
+                    </button>
+<p class="font-body-sm text-body-sm text-on-surface-variant text-center mt-md">
+                        Bằng việc đặt hàng, bạn đồng ý với <a class="text-primary hover:underline" href="#">Điều khoản</a> của ShopNexus.
+                    </p>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer Component -->
+<footer class="w-full py-xl px-gutter flex flex-col md:flex-row justify-between items-center max-w-[1200px] mx-auto border-t border-outline-variant bg-surface-container-highest dark:bg-inverse-surface mt-xl">
+<div class="font-headline-sm text-headline-sm font-bold text-on-surface mb-md md:mb-0">
+            © 2024 ShopNexus C2C Marketplace. All rights reserved.
+        </div>
+<div class="flex flex-wrap justify-center gap-md">
+<a class="font-body-sm text-body-sm text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface dark:hover:text-inverse-on-surface underline" href="#">Về chúng tôi</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface dark:hover:text-inverse-on-surface underline" href="#">Trung tâm hỗ trợ</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface dark:hover:text-inverse-on-surface underline" href="#">Điều khoản sử dụng</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface dark:hover:text-inverse-on-surface underline" href="#">Chính sách bảo mật</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface dark:hover:text-inverse-on-surface underline" href="#">Liên hệ</a>
+</div>
+</footer>
+<script>
+        // Simple toggle for payment details based on selection
+        const paymentRadios = document.querySelectorAll('input[name="payment_method"]');
+        const cardDetails = document.getElementById('card-details');
+
+        paymentRadios.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                if (e.target.value === 'card') {
+                    cardDetails.style.display = 'block';
+                } else {
+                    cardDetails.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body></html>

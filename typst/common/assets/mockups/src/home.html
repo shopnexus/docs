@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+
+<html lang="en" style=""><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ShopNexus - Giao dịch an tâm, mua bán dễ dàng</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&amp;family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "surface-container-low": "#f4f4f1",
+                "on-secondary": "#ffffff",
+                "on-error": "#ffffff",
+                "on-primary-fixed": "#00201d",
+                "on-tertiary-fixed": "#380d00",
+                "surface-dim": "#dadad8",
+                "on-secondary-fixed": "#00201d",
+                "tertiary": "#742f13",
+                "surface-tint": "#066a61",
+                "outline": "#6e7977",
+                "on-error-container": "#93000a",
+                "primary": "#004e47",
+                "inverse-primary": "#85d5c9",
+                "on-secondary-container": "#266d67",
+                "on-secondary-fixed-variant": "#00504b",
+                "secondary-fixed-dim": "#8fd3cb",
+                "primary-container": "#00685f",
+                "secondary-fixed": "#abefe7",
+                "tertiary-container": "#924628",
+                "surface-container-high": "#e8e8e6",
+                "on-background": "#1a1c1b",
+                "surface-bright": "#f9f9f7",
+                "primary-fixed-dim": "#85d5c9",
+                "surface-variant": "#e2e3e0",
+                "on-tertiary": "#ffffff",
+                "surface-container-lowest": "#ffffff",
+                "tertiary-fixed-dim": "#ffb59a",
+                "on-tertiary-container": "#ffc9b6",
+                "on-primary-fixed-variant": "#005049",
+                "error": "#ba1a1a",
+                "outline-variant": "#bec9c6",
+                "background": "#f9f9f7",
+                "inverse-on-surface": "#f1f1ef",
+                "on-primary": "#ffffff",
+                "secondary": "#216963",
+                "on-tertiary-fixed-variant": "#773215",
+                "tertiary-fixed": "#ffdbcf",
+                "secondary-container": "#a8ece4",
+                "error-container": "#ffdad6",
+                "surface-container-highest": "#e2e3e0",
+                "primary-fixed": "#a1f1e5",
+                "on-surface": "#1a1c1b",
+                "surface-container": "#eeeeec",
+                "surface": "#f9f9f7",
+                "on-surface-variant": "#3e4947",
+                "on-primary-container": "#93e4d8",
+                "inverse-surface": "#2f3130"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+        },
+        "spacing": {
+          "xs": "4px",
+          "sm": "8px",
+          "md": "16px",
+          "lg": "24px",
+          "xl": "32px",
+          "2xl": "48px",
+          "3xl": "64px"
+        },
+        "fontFamily": {
+                "headline": [
+                        "Manrope"
+                ],
+                "display": [
+                        "Manrope"
+                ],
+                "body": [
+                        "Inter"
+                ],
+                "label": [
+                        "Inter"
+                ]
+        },
+        "fontSize": {
+          "body-lg": ["18px", {lineHeight: "28px", fontWeight: "400"}],
+          "headline-sm": ["20px", {lineHeight: "28px", fontWeight: "600"}],
+          "body-sm": ["14px", {lineHeight: "20px", fontWeight: "400"}],
+          "label-md": ["14px", {lineHeight: "16px", letterSpacing: "0.01em", fontWeight: "600"}],
+          "display-lg": ["48px", {lineHeight: "56px", letterSpacing: "-0.02em", fontWeight: "800"}],
+          "body-md": ["16px", {lineHeight: "24px", fontWeight: "400"}],
+          "headline-md": ["24px", {lineHeight: "32px", letterSpacing: "-0.01em", fontWeight: "700"}],
+          "display-lg-mobile": ["36px", {lineHeight: "44px", letterSpacing: "-0.02em", fontWeight: "800"}],
+          "label-sm": ["12px", {lineHeight: "14px", letterSpacing: "0.02em", fontWeight: "500"}]
+        }
+},
+    },
+  }
+</script>
+<style>
+    /* Masonry Layout */
+    .masonry-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        grid-auto-rows: 20px;
+        gap: 16px;
+    }
+    .masonry-item { border-radius: 0.5rem; overflow: hidden; position: relative; }
+    .masonry-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+</style>
+</head>
+<body class="bg-background text-on-background font-body antialiased selection:bg-primary-container selection:text-on-primary-container min-h-screen flex flex-col">
+<!-- TopNavBar (Shared Component) with Enhanced Search Banner -->
+<header class="flex flex-col w-full z-50 shadow-sm relative">
+<div class="bg-primary text-on-primary w-full pb-xl pt-lg relative overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-r from-primary via-primary to-secondary opacity-90 z-0"></div>
+<!-- decorative elements -->
+<div class="absolute top-0 right-0 w-64 h-64 bg-primary-container rounded-full mix-blend-multiply filter blur-2xl opacity-70 animate-pulse z-0"></div>
+<div class="absolute -bottom-10 -left-10 w-48 h-48 bg-secondary-container rounded-full mix-blend-multiply filter blur-xl opacity-60 z-0"></div>
+<div class="max-w-[1200px] mx-auto w-full px-md md:px-lg relative z-10 flex flex-col gap-lg">
+<!-- Top Row: Logo & Actions -->
+<div class="flex items-center justify-between">
+<!-- Brand Logo -->
+<a class="font-headline font-bold text-headline-md md:text-display-lg-mobile text-on-primary flex items-center gap-xs" href="#">
+                    ShopNexus
+                </a>
+<!-- Actions -->
+<div class="flex items-center gap-sm md:gap-md">
+<div class="hidden md:flex items-center gap-xs">
+<button aria-label="favorite" class="p-sm rounded-lg text-on-primary hover:bg-white/10 transition-colors duration-200">
+<span class="material-symbols-outlined">favorite</span>
+</button>
+<button aria-label="notifications" class="p-sm rounded-lg text-on-primary hover:bg-white/10 transition-colors duration-200">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button aria-label="chat" class="p-sm rounded-lg text-on-primary hover:bg-white/10 transition-colors duration-200 flex items-center gap-xs px-md">
+<span class="material-symbols-outlined">chat</span>
+<span class="font-label text-label-md hidden lg:inline">Liên hệ</span>
+</button>
+<button aria-label="account_circle" class="p-sm rounded-lg text-on-primary hover:bg-white/10 transition-colors duration-200 flex items-center gap-xs px-md">
+<span class="material-symbols-outlined">account_circle</span>
+<span class="font-label text-label-md hidden lg:inline">Quản lý tin</span>
+</button>
+</div>
+<!-- Trailing Primary Action -->
+<button class="bg-surface text-primary font-label text-label-md h-[40px] px-md md:px-lg rounded-lg hover:bg-surface-container-low transition-colors flex items-center gap-xs shadow-sm whitespace-nowrap">
+                        Đăng tin
+                    </button>
+<div class="hidden md:flex items-center gap-xs ml-sm border-l border-white/20 pl-sm">
+<img alt="User Avatar" class="w-8 h-8 rounded-lg border border-white/40" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBMPxazp0qpx0y2QcvTDV1-m_tW2BS5bRts6oB8COUhlEHprP-P_1RWqvD1CkMElSoBHebClI7-ZWLHHrCoHpbXty-z_DPFyTzOt75yFQtPmIdCC2vorqOkGIB-0g5S-JmLe5rNbMuN3UFvVJFiKMBHqO5wlijtt8dvVTVEBQqXFfc6vcFryQPWWsOiyEcf2SjZANDrN-R6qZPdj8zFgOQUtcZu6l_1mG6fankfVfULZ_T-uiZuZf1qrB50_F8_xJwQt85EiRqUXqs"/>
+<span class="material-symbols-outlined text-white/80">expand_more</span>
+</div>
+</div>
+</div>
+<!-- Center Tagline -->
+<div class="text-center md:py-md">
+<h1 class="font-headline text-headline-md md:text-display-lg text-on-primary font-extrabold drop-shadow-sm">Giá tốt, gần bạn, chốt nhanh!</h1>
+</div>
+<!-- Search Bar Component -->
+<div class="w-full max-w-4xl mx-auto flex flex-col md:flex-row gap-xs bg-surface p-xs rounded-lg shadow-lg">
+<div class="flex-1 relative flex items-center">
+<span class="material-symbols-outlined absolute left-md text-on-surface-variant pointer-events-none">search</span>
+<input class="w-full h-[48px] pl-[48px] pr-md rounded-l-lg bg-transparent border-none focus:ring-0 outline-none font-body text-body-md text-on-surface placeholder:text-on-surface-variant" placeholder="Tìm sản phẩm..." type="text"/>
+</div>
+<div class="h-[48px] w-[1px] bg-outline-variant/30 hidden md:block"></div>
+<div class="relative flex items-center min-w-[160px] md:border-none border-t border-outline-variant/30 px-sm">
+<span class="material-symbols-outlined text-on-surface-variant ml-sm">location_on</span>
+<select class="w-full h-[48px] bg-transparent border-none focus:ring-0 outline-none font-label text-label-md text-on-surface cursor-pointer appearance-none pl-sm pr-lg text-ellipsis overflow-hidden whitespace-nowrap">
+<option>Chọn khu vực</option>
+<option>Hà Nội</option>
+<option>TP.HCM</option>
+<option>Đà Nẵng</option>
+</select>
+<span class="material-symbols-outlined absolute right-md text-on-surface-variant pointer-events-none">expand_more</span>
+</div>
+<button class="bg-primary text-on-primary font-label text-label-md h-[48px] px-lg rounded-lg hover:bg-primary/90 transition-colors shrink-0 m-xs">
+                        Tìm kiếm
+                    </button>
+</div>
+<!-- Search Suggestions -->
+<div class="flex items-center justify-center gap-sm overflow-x-auto no-scrollbar pb-xs max-w-4xl mx-auto w-full">
+<a class="flex items-center gap-xs bg-white/20 hover:bg-white/30 backdrop-blur-sm text-on-primary font-label text-label-sm px-sm py-1 rounded-lg whitespace-nowrap transition-colors" href="#">
+<span class="material-symbols-outlined text-[14px]">schedule</span> ram 16gb ddr4 l... <span class="bg-error text-on-error text-[10px] px-1 rounded-sm">+99</span>
+<span class="material-symbols-outlined text-[14px] ml-1 opacity-70">close</span>
+</a>
+<a class="flex items-center gap-xs bg-white/20 hover:bg-white/30 backdrop-blur-sm text-on-primary font-label text-label-sm px-sm py-1 rounded-lg whitespace-nowrap transition-colors" href="#">
+<span class="material-symbols-outlined text-[14px]">schedule</span> mặt sau thinkpa... <span class="bg-error text-on-error text-[10px] px-1 rounded-sm">+99</span>
+<span class="material-symbols-outlined text-[14px] ml-1 opacity-70">close</span>
+</a>
+<a class="flex items-center gap-xs bg-white/20 hover:bg-white/30 backdrop-blur-sm text-on-primary font-label text-label-sm px-sm py-1 rounded-lg whitespace-nowrap transition-colors" href="#">
+<span class="material-symbols-outlined text-[14px]">schedule</span> google pixel 8a <span class="bg-error text-on-error text-[10px] px-1 rounded-sm">+15</span>
+<span class="material-symbols-outlined text-[14px] ml-1 opacity-70">close</span>
+</a>
+</div>
+</div>
+</div>
+</header>
+<!-- Dense Category Navigation -->
+<nav class="bg-surface w-full shadow-sm relative z-40 border-b border-outline-variant -mt-md rounded-t-lg">
+<div class="max-w-[1200px] mx-auto w-full px-md md:px-lg py-md">
+<div class="flex items-start gap-md md:gap-lg overflow-x-auto no-scrollbar pb-xs">
+<a class="flex flex-col items-center gap-xs min-w-[72px] group" href="#">
+<div class="w-[48px] h-[48px] rounded-lg bg-surface-container-low flex items-center justify-center group-hover:bg-primary-container transition-colors shadow-sm border border-outline-variant/30">
+<span class="material-symbols-outlined text-primary text-[24px]">apartment</span>
+</div>
+<span class="font-label text-label-sm text-center text-on-surface group-hover:text-primary transition-colors leading-tight">Bất động<br/>sản</span>
+</a>
+<a class="flex flex-col items-center gap-xs min-w-[72px] group" href="#">
+<div class="w-[48px] h-[48px] rounded-lg bg-surface-container-low flex items-center justify-center group-hover:bg-primary-container transition-colors shadow-sm border border-outline-variant/30">
+<span class="material-symbols-outlined text-primary text-[24px]">directions_car</span>
+</div>
+<span class="font-label text-label-sm text-center text-on-surface group-hover:text-primary transition-colors leading-tight">Xe cộ</span>
+</a>
+<a class="flex flex-col items-center gap-xs min-w-[72px] group" href="#">
+<div class="w-[48px] h-[48px] rounded-lg bg-surface-container-low flex items-center justify-center group-hover:bg-primary-container transition-colors shadow-sm border border-outline-variant/30">
+<span class="material-symbols-outlined text-primary text-[24px]">work</span>
+</div>
+<span class="font-label text-label-sm text-center text-on-surface group-hover:text-primary transition-colors leading-tight">Việc làm</span>
+</a>
+<a class="flex flex-col items-center gap-xs min-w-[72px] group" href="#">
+<div class="w-[48px] h-[48px] rounded-lg bg-surface-container-low flex items-center justify-center group-hover:bg-primary-container transition-colors shadow-sm border border-outline-variant/30">
+<span class="material-symbols-outlined text-primary text-[24px]">smartphone</span>
+</div>
+<span class="font-label text-label-sm text-center text-on-surface group-hover:text-primary transition-colors leading-tight">Điện tử</span>
+</a>
+<a class="flex flex-col items-center gap-xs min-w-[72px] group" href="#">
+<div class="w-[48px] h-[48px] rounded-lg bg-surface-container-low flex items-center justify-center group-hover:bg-primary-container transition-colors shadow-sm border border-outline-variant/30">
+<span class="material-symbols-outlined text-primary text-[24px]">pets</span>
+</div>
+<span class="font-label text-label-sm text-center text-on-surface group-hover:text-primary transition-colors leading-tight">Thú cưng</span>
+</a>
+<a class="flex flex-col items-center gap-xs min-w-[72px] group" href="#">
+<div class="w-[48px] h-[48px] rounded-lg bg-surface-container-low flex items-center justify-center group-hover:bg-primary-container transition-colors shadow-sm border border-outline-variant/30">
+<span class="material-symbols-outlined text-primary text-[24px]">ac_unit</span>
+</div>
+<span class="font-label text-label-sm text-center text-on-surface group-hover:text-primary transition-colors leading-tight">Điện lạnh</span>
+</a>
+<a class="flex flex-col items-center gap-xs min-w-[72px] group" href="#">
+<div class="w-[48px] h-[48px] rounded-lg bg-surface-container-low flex items-center justify-center group-hover:bg-primary-container transition-colors shadow-sm border border-outline-variant/30">
+<span class="material-symbols-outlined text-primary text-[24px]">chair</span>
+</div>
+<span class="font-label text-label-sm text-center text-on-surface group-hover:text-primary transition-colors leading-tight">Nội thất, cây<br/>cảnh</span>
+</a>
+<a class="flex flex-col items-center gap-xs min-w-[72px] group" href="#">
+<div class="w-[48px] h-[48px] rounded-lg bg-surface-container-low flex items-center justify-center group-hover:bg-primary-container transition-colors shadow-sm border border-outline-variant/30">
+<span class="material-symbols-outlined text-primary text-[24px]">print</span>
+</div>
+<span class="font-label text-label-sm text-center text-on-surface group-hover:text-primary transition-colors leading-tight">Văn phòng,<br/>công nông..</span>
+</a>
+<a class="flex flex-col items-center gap-xs min-w-[72px] group" href="#">
+<div class="w-[48px] h-[48px] rounded-lg bg-surface-container-low flex items-center justify-center group-hover:bg-primary-container transition-colors shadow-sm border border-outline-variant/30">
+<span class="material-symbols-outlined text-primary text-[24px]">piano</span>
+</div>
+<span class="font-label text-label-sm text-center text-on-surface group-hover:text-primary transition-colors leading-tight">Sở thích</span>
+</a>
+<a class="flex flex-col items-center gap-xs min-w-[72px] group" href="#">
+<div class="w-[48px] h-[48px] rounded-lg bg-surface-container-low flex items-center justify-center group-hover:bg-primary-container transition-colors shadow-sm border border-outline-variant/30">
+<span class="material-symbols-outlined text-primary text-[24px]">checkroom</span>
+</div>
+<span class="font-label text-label-sm text-center text-on-surface group-hover:text-primary transition-colors leading-tight">Thời trang</span>
+</a>
+<a class="flex flex-col items-center gap-xs min-w-[72px] group" href="#">
+<div class="w-[48px] h-[48px] rounded-lg bg-surface-container-low flex items-center justify-center group-hover:bg-primary-container transition-colors shadow-sm border border-outline-variant/30">
+<span class="material-symbols-outlined text-primary text-[24px]">child_care</span>
+</div>
+<span class="font-label text-label-sm text-center text-on-surface group-hover:text-primary transition-colors leading-tight">Mẹ và bé</span>
+</a>
+<a class="flex flex-col items-center gap-xs min-w-[72px] group" href="#">
+<div class="w-[48px] h-[48px] rounded-lg bg-surface-container-low flex items-center justify-center group-hover:bg-primary-container transition-colors shadow-sm border border-outline-variant/30">
+<span class="material-symbols-outlined text-primary text-[24px]">restaurant</span>
+</div>
+<span class="font-label text-label-sm text-center text-on-surface group-hover:text-primary transition-colors leading-tight">Thực phẩm</span>
+</a>
+<a class="flex flex-col items-center gap-xs min-w-[72px] group" href="#">
+<div class="w-[48px] h-[48px] rounded-lg bg-surface-container-low flex items-center justify-center group-hover:bg-primary-container transition-colors shadow-sm border border-outline-variant/30">
+<span class="material-symbols-outlined text-primary text-[24px]">explore</span>
+</div>
+<span class="font-label text-label-sm text-center text-on-surface group-hover:text-primary transition-colors leading-tight">Dịch vụ, Du<br/>lịch</span>
+</a>
+<!-- View More button -->
+<a class="flex flex-col items-center gap-xs min-w-[72px] group justify-center pt-xs" href="#">
+<div class="w-[32px] h-[32px] rounded-lg bg-surface flex items-center justify-center border border-outline-variant text-on-surface-variant group-hover:bg-surface-container-low transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[20px]">chevron_right</span>
+</div>
+<span class="font-label text-label-sm text-center text-on-surface-variant group-hover:text-on-surface transition-colors leading-tight">Xem thêm</span>
+</a>
+</div>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-1 w-full max-w-[1200px] mx-auto px-md md:px-lg py-lg flex flex-col gap-xl">
+<!-- Fluid Product Section -->
+<section class="grid grid-cols-1 lg:grid-cols-4 gap-8 bg-transparent border-none shadow-none p-0"><aside class="lg:col-span-1 flex flex-col gap-6"><div class="bg-surface p-6 rounded-2xl shadow-sm border border-outline-variant"><h3 class="font-headline font-bold text-lg text-primary mb-4 flex items-center gap-2"><span class="material-symbols-outlined text-secondary">location_on</span> Khu Vực Của Bạn </h3><div class="h-48 rounded-xl bg-surface-variant mb-4 flex items-center justify-center overflow-hidden"><img class="object-cover w-full h-full opacity-70 mix-blend-multiply" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD4DsZ2YyR9rx5DM0dhyYIL4CICd9ciDV9aQl7dp555OZ84YwgCYIsczyXCmOQzEMwoQoUNtYktQme5hI1iLF4xu8-VoYlmfhLewEnXirT1BMiAHQ8jOgzttKIc4LEIlXntPL4btC6TFFhGWOq0csUYeL3L96dM8vNt9rHyxtJfh7quJGQkUX_EZ2H4SqAtLsRUtw1l37dvSwDqgCTW6sMYAaxE2F9VpIZllfhIkuJyn2ownlyxPXGCAuzoC-CzJSmhyU3hGoRmgFg"/></div><ul class="space-y-3 font-body text-sm text-on-surface"><li class="flex justify-between items-center"><span class="flex items-center gap-2"><span class="material-symbols-outlined text-xs">trending_up</span> Bán chạy nhất</span> <strong>Nội thất gỗ</strong></li><li class="flex justify-between items-center"><span class="flex items-center gap-2"><span class="material-symbols-outlined text-xs">group</span> Hoạt động sôi nổi</span> <strong>Quận 3</strong></li></ul></div><div class="bg-secondary-container p-6 rounded-2xl shadow-sm text-on-secondary-container"><h4 class="font-headline font-semibold mb-2">Góc Sưu Tầm</h4><p class="font-body text-sm mb-4">Khám phá những món đồ độc bản được tuyển chọn từ cộng đồng.</p><button class="text-sm font-bold border-b border-on-secondary-container pb-1 hover:opacity-70 transition-opacity">Khám phá ngay</button></div></aside><div class="lg:col-span-3 bg-surface rounded-lg shadow-sm border border-outline-variant p-md md:p-lg"><div class="flex items-center gap-lg border-b border-outline-variant/50 pb-sm overflow-x-auto no-scrollbar mb-4"><button class="font-headline text-headline-sm text-primary border-b-2 border-primary pb-sm whitespace-nowrap">Dành cho bạn</button><button class="font-headline text-headline-sm text-on-surface-variant hover:text-on-surface transition-colors pb-sm whitespace-nowrap">Mới nhất</button><button class="font-headline text-headline-sm text-on-surface-variant hover:text-on-surface transition-colors pb-sm whitespace-nowrap flex items-center gap-xs">Video <span class="material-symbols-outlined text-primary text-[14px]">play_circle</span></button></div><div class="masonry-grid" id="masonry-grid"><div class="masonry-item bg-surface-container-lowest shadow-sm border border-outline-variant/30 hover:shadow-md transition-shadow group flex flex-col" style="grid-row-end: span 18;"><div class="relative flex-1 overflow-hidden rounded-t-lg min-h-[200px]"><img class="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAOjoUQ8i93TGWrVErr57-EzYofGi8XkOaC4QxI8qgYUpNJacwKm0UDJwdI8gcSoTMI73na3wwwPmm2jc9h3QHlVDBFkdTiYBZlJp9w-wJDUIg4yLXdtkfioTHJ1K5QB5p-_8kj1FneiAh6SM8aseqJGJwoSng3nRbCneUXqENupOwJM0VR4wC1YBC-VLemzcSyJr2n1J8NldutptJXPLxHf7Su6Gybsq5Wr6k4S81lktyBJCHEzNWWEUDP2qll5fmWVc7IpeehRPE"/><div class="absolute top-3 left-3 bg-surface/90 backdrop-blur text-primary text-xs font-bold px-2 py-1 rounded-lg flex items-center gap-1 shadow-sm"><span class="material-symbols-outlined text-[14px]">local_fire_department</span> Hot</div></div><div class="p-4 flex flex-col gap-1"><h3 class="font-headline font-semibold text-body-lg line-clamp-1 text-on-surface">Leica M3 Tình Trạng Hoàn Hảo</h3><p class="font-headline text-error font-bold mt-1">24.500.000 đ</p><div class="flex items-center gap-2 mt-2"><div class="w-6 h-6 rounded-lg bg-surface-variant overflow-hidden"><img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCxs1T83mQts7ytXIq-zrWbzMSfKWOhB0yZyo4IqnubeOoD--eWlhjD9V_MEChZbAFfIVjfsrqLl12RY_ck8MUA2aL77xokkpJ9q-gJib-x6VmEZ9yr2_ShehkTWWmA939AkP7frsG0ih39ZWT_bedmVJ1uxPeM7UBxzZLrH-YS6weUGaQAq5BEguoXkYSn3rHbS4n6Kwx5B7W6fWzJwi1fVt6JUjTBV-3vRQhwdvZqetti3Yr7Oo-tmzMCV3YRnlLEoMs0wYIQCXU"/></div><span class="font-body text-xs text-on-surface-variant">Minh Tâm • Q1</span></div></div></div></div></div></section>
+<!-- About ShopNexus -->
+<section class="bg-surface-container-low rounded-lg p-lg md:p-xl flex flex-col gap-lg border border-outline-variant shadow-sm">
+<div class="text-center">
+<h2 class="font-headline text-headline-md md:text-display-lg-mobile text-on-surface font-bold">Về ShopNexus</h2>
+<p class="font-body text-body-md text-on-surface-variant mt-sm max-w-2xl mx-auto">Nền tảng thương mại điện tử C2C uy tín hàng đầu, kết nối người mua và người bán một cách an toàn, minh bạch và tiện lợi.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-lg">
+<div class="flex flex-col items-center text-center gap-sm">
+<div class="w-16 h-16 rounded-lg bg-primary-container text-on-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-[32px]">shield_locked</span>
+</div>
+<h3 class="font-headline text-headline-sm text-on-surface font-bold">Giao dịch an toàn</h3>
+<p class="font-body text-body-sm text-on-surface-variant">Thanh toán được bảo đảm, hoàn tiền 100% nếu sản phẩm lỗi hoặc không đúng mô tả.</p>
+</div>
+<div class="flex flex-col items-center text-center gap-sm">
+<div class="w-16 h-16 rounded-lg bg-secondary-container text-on-secondary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-[32px]">verified_user</span>
+</div>
+<h3 class="font-headline text-headline-sm text-on-surface font-bold">Người bán xác thực</h3>
+<p class="font-body text-body-sm text-on-surface-variant">Tất cả tài khoản người bán đều trải qua quy trình xác minh danh tính nghiêm ngặt.</p>
+</div>
+<div class="flex flex-col items-center text-center gap-sm">
+<div class="w-16 h-16 rounded-lg bg-tertiary-container text-on-tertiary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-[32px]">support_agent</span>
+</div>
+<h3 class="font-headline text-headline-sm text-on-surface font-bold">Hỗ trợ 24/7</h3>
+<p class="font-body text-body-sm text-on-surface-variant">Đội ngũ chăm sóc khách hàng luôn sẵn sàng giải đáp mọi thắc mắc của bạn.</p>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer (Shared Component) -->
+<footer class="w-full border-t border-outline-variant bg-surface-container-highest">
+<div class="max-w-[1200px] mx-auto w-full py-xl px-md md:px-lg flex flex-col md:flex-row justify-between items-center gap-md">
+<span class="font-headline text-headline-sm font-bold text-on-surface">ShopNexus</span>
+<div class="flex flex-wrap justify-center gap-md">
+<a class="font-body text-body-sm text-on-surface-variant hover:text-on-surface hover:underline transition-colors" href="#">Về chúng tôi</a>
+<a class="font-body text-body-sm text-on-surface-variant hover:text-on-surface hover:underline transition-colors" href="#">Trung tâm hỗ trợ</a>
+<a class="font-body text-body-sm text-on-surface-variant hover:text-on-surface hover:underline transition-colors" href="#">Điều khoản sử dụng</a>
+<a class="font-body text-body-sm text-on-surface-variant hover:text-on-surface hover:underline transition-colors" href="#">Chính sách bảo mật</a>
+<a class="font-body text-body-sm text-on-surface-variant hover:text-on-surface hover:underline transition-colors" href="#">Liên hệ</a>
+</div>
+<p class="font-body text-body-sm text-on-surface-variant">© 2024 ShopNexus C2C Marketplace. All rights reserved.</p>
+</div>
+</footer>
+</body></html>

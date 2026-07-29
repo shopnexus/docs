@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+
+<html class="light" lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Order Details &amp; Tracking - C2C Market</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&amp;family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Manrope:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">tailwind.config = {darkMode: "class", theme: {extend: {colors: {"inverse-surface": "#2f3130", "secondary-fixed": "#abefe7", "on-secondary": "#ffffff", "tertiary-container": "#924628", secondary: "#216963", "on-tertiary-container": "#ffc9b6", "on-error-container": "#93000a", "surface-container-high": "#e8e8e6", "primary-container": "#00685f", primary: "#004e47", "surface-bright": "#f9f9f7", "secondary-container": "#a8ece4", "on-surface": "#1a1c1b", "primary-fixed": "#a1f1e5", "on-tertiary": "#ffffff", "on-secondary-container": "#266d67", background: "#f9f9f7", "primary-fixed-dim": "#85d5c9", "on-background": "#1a1c1b", "surface-variant": "#e2e3e0", "on-tertiary-fixed-variant": "#773215", "on-secondary-fixed": "#00201d", "on-primary-fixed-variant": "#005049", tertiary: "#742f13", "surface-container-lowest": "#ffffff", "inverse-on-surface": "#f1f1ef", "on-error": "#ffffff", "on-primary-container": "#93e4d8", "surface-dim": "#dadad8", "outline-variant": "#bec9c6", outline: "#6e7977", "secondary-fixed-dim": "#8fd3cb", "tertiary-fixed": "#ffdbcf", error: "#ba1a1a", "tertiary-fixed-dim": "#ffb59a", "surface-container-low": "#f4f4f1", "on-primary": "#ffffff", "error-container": "#ffdad6", "surface-container": "#eeeeec", surface: "#f9f9f7", "on-primary-fixed": "#00201d", "surface-tint": "#066a61", "on-tertiary-fixed": "#380d00", "surface-container-highest": "#e2e3e0", "on-secondary-fixed-variant": "#00504b", "on-surface-variant": "#3e4947", "inverse-primary": "#85d5c9"}, borderRadius: {DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px"}, spacing: {"margin-mobile": "1rem", xs: "4px", xl: "32px", md: "16px", "margin-desktop": "2rem", lg: "24px", gutter: "1rem", sm: "8px", "3xl": "64px", "2xl": "48px"}, fontFamily: {"price-lg": ["Inter"], "body-md": ["Inter"], "price-sm": ["Inter"], "headline-lg": ["Manrope"], "display-lg": ["Manrope"], "body-lg": ["Inter"], "body-sm": ["Inter"], "headline-sm": ["Manrope"], "headline-md": ["Manrope"], "label-md": ["Inter"], "display-lg-mobile": ["Manrope"], "label-sm": ["Inter"], headline: ["Manrope"], display: ["Manrope"], body: ["Inter"], label: ["Inter"]}, fontSize: {"price-lg": ["1.25rem", {lineHeight: "1", fontWeight: "700"}], "body-md": ["16px", {lineHeight: "24px", fontWeight: "400"}], "price-sm": ["0.875rem", {lineHeight: "1", fontWeight: "500"}], "headline-lg": ["2rem", {lineHeight: "1.2", fontWeight: "700"}], "display-lg": ["48px", {lineHeight: "56px", letterSpacing: "-0.02em", fontWeight: "800"}], "body-lg": ["18px", {lineHeight: "28px", fontWeight: "400"}], "body-sm": ["14px", {lineHeight: "20px", fontWeight: "400"}], "headline-sm": ["20px", {lineHeight: "28px", fontWeight: "600"}], "headline-md": ["24px", {lineHeight: "32px", letterSpacing: "-0.01em", fontWeight: "700"}], "label-md": ["14px", {lineHeight: "16px", letterSpacing: "0.01em", fontWeight: "600"}], "display-lg-mobile": ["36px", {lineHeight: "44px", letterSpacing: "-0.02em", fontWeight: "800"}], "label-sm": ["12px", {lineHeight: "14px", letterSpacing: "0.02em", fontWeight: "500"}]}}}};</script>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col font-body-md">
+<!-- Top Navigation (Shell suppressed as this is a focused task/detail page, but keeping a simplified header for context per standard practice for order details) -->
+<header class="bg-surface border-b border-outline-variant py-sm px-margin-mobile md:px-margin-desktop sticky top-0 z-40">
+<div class="max-w-[1200px] mx-auto flex items-center justify-between">
+<div class="flex items-center gap-sm cursor-pointer hover:text-primary transition-colors duration-200">
+<span class="material-symbols-outlined text-outline">arrow_back</span>
+<span class="font-label-md text-label-md text-on-surface-variant">Quay lại danh sách đơn hàng</span>
+</div>
+<div class="font-headline-sm text-headline-sm font-bold text-primary">C2C Market</div>
+<div class="w-8"></div> <!-- Spacer for centering -->
+</div>
+</header>
+<main class="flex-grow max-w-[1200px] w-full mx-auto px-margin-mobile md:px-margin-desktop py-lg grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<!-- Left Column: Order Content -->
+<div class="md:col-span-8 flex flex-col gap-lg">
+<!-- Header & Breadcrumbs -->
+<div class="flex flex-col gap-xs">
+<nav class="flex items-center gap-xs text-on-surface-variant font-body-sm text-body-sm mb-sm">
+<span class="hover:text-primary cursor-pointer">Trang chủ</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="hover:text-primary cursor-pointer">Cá nhân</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="text-on-surface">Đơn hàng #12345</span>
+</nav>
+<div class="flex justify-between items-end">
+<div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface">Chi tiết đơn hàng</h1>
+<p class="font-body-md text-body-md text-on-surface-variant mt-xs">Đặt ngày 12 Tháng 10, 2024</p>
+</div>
+<div class="bg-primary-container text-on-primary-container px-md py-xs rounded-full flex items-center gap-xs font-label-md text-label-md">
+<span class="material-symbols-outlined text-[18px]">local_shipping</span>
+                        Đang giao hàng
+                    </div>
+</div>
+</div>
+<!-- Progress Tracker -->
+<section class="bg-surface border border-outline-variant rounded-xl p-lg">
+<div class="relative flex justify-between items-center w-full">
+<!-- Connecting Lines (Background) -->
+<div class="absolute top-1/2 left-0 w-full h-[2px] bg-surface-container-highest -z-10 -translate-y-1/2"></div>
+<!-- Connecting Lines (Active) -->
+<div class="absolute top-1/2 left-0 w-[75%] h-[2px] bg-primary -z-10 -translate-y-1/2 transition-all duration-500"></div>
+<!-- Steps -->
+<div class="flex flex-col items-center gap-xs bg-surface px-xs">
+<div class="w-10 h-10 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-[20px]">shopping_cart_checkout</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface text-center whitespace-nowrap">Đã đặt hàng</span>
+</div>
+<div class="flex flex-col items-center gap-xs bg-surface px-xs">
+<div class="w-10 h-10 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-[20px]">fact_check</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface text-center whitespace-nowrap">Chờ xác nhận</span>
+</div>
+<div class="flex flex-col items-center gap-xs bg-surface px-xs">
+<div class="w-10 h-10 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-[20px]">payments</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface text-center whitespace-nowrap">Đã thanh toán</span>
+</div>
+<div class="flex flex-col items-center gap-xs bg-surface px-xs">
+<div class="w-10 h-10 rounded-full bg-primary-container text-on-primary-container border-2 border-primary flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-[20px]">local_shipping</span>
+</div>
+<span class="font-label-md text-label-md text-primary font-bold text-center whitespace-nowrap">Đang giao hàng</span>
+</div>
+<div class="flex flex-col items-center gap-xs bg-surface px-xs">
+<div class="w-10 h-10 rounded-full bg-surface-container-high text-outline flex items-center justify-center border border-outline-variant">
+<span class="material-symbols-outlined text-[20px]">inventory_2</span>
+</div>
+<span class="font-label-md text-label-md text-outline text-center whitespace-nowrap">Giao thành công</span>
+</div>
+</div>
+</section>
+<!-- Order Items -->
+<section class="bg-surface border border-outline-variant rounded-xl p-lg flex flex-col gap-md">
+<h2 class="font-headline-md text-headline-md text-on-surface border-b border-outline-variant pb-xs">Sản phẩm</h2>
+<!-- Item 1 -->
+<div class="flex gap-md py-sm items-start">
+<img alt="Mechanical Keyboard" class="w-24 h-24 object-cover rounded-lg border border-outline-variant shrink-0" data-alt="A modern minimalist mechanical keyboard with teal and white keycaps resting on a clean wooden desk setup. Soft, warm natural lighting from a nearby window. Corporate C2C marketplace aesthetic, clean, bright." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBaswWiVeGmnPsdvt-5h8zfFJ8fU2gT8UCjSWLfyGnpiHSYlQ29Dyrdh8uG7q2_9TOiugPM8Davl9Ane2kDiJAE5uscRgN15hSMHqXQ5EZFm_uTJS_2J2FLI3shsAAth_gTclmNip1dYmPBN6k_JnA5JhMKawZQS3XSXZ7AJZoShfeNlpJnAUBM06MBkEYyUF6BmUuzXGBQ1j4yMWUM7hbhGTCW6PKkEpPug9F9OC7g6v80YpRbsrFksBB2FIp_ZGLrTM4q67Q9gOw"/>
+<div class="flex-grow flex flex-col justify-between h-full">
+<div>
+<h3 class="font-body-lg text-body-lg text-on-surface font-medium line-clamp-2">Bàn phím cơ không dây Keychron K2 V2 (Bản nhôm)</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">Phân loại: Red Switch, Nhôm nguyên khối</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Người bán: <span class="text-primary hover:underline cursor-pointer">TechGear VN</span></p>
+</div>
+<div class="flex justify-between items-center mt-sm">
+<span class="font-price-lg text-price-lg text-on-surface">1.850.000 ₫</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">x1</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Tracking History -->
+<section class="bg-surface border border-outline-variant rounded-xl p-lg flex flex-col gap-md">
+<h2 class="font-headline-md text-headline-md text-on-surface border-b border-outline-variant pb-xs">Lịch sử giao hàng</h2>
+<div class="relative pl-6 flex flex-col gap-lg border-l-2 border-surface-container-highest ml-3 mt-sm">
+<!-- Event 1 -->
+<div class="relative">
+<div class="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-primary ring-4 ring-surface-bright"></div>
+<p class="font-label-md text-label-md text-on-surface">Đơn hàng đã đến trạm phân loại trung tâm (Hồ Chí Minh)</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">Hôm nay, 14:30 - Shipper: Nguyễn Văn A (0901234567)</p>
+</div>
+<!-- Event 2 -->
+<div class="relative">
+<div class="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-surface-container-highest ring-4 ring-surface-bright border border-outline-variant"></div>
+<p class="font-body-md text-body-md text-on-surface-variant">Đơn hàng đã rời kho người bán</p>
+<p class="font-body-sm text-body-sm text-outline mt-xs">Hôm qua, 09:15</p>
+</div>
+<!-- Event 3 -->
+<div class="relative">
+<div class="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-surface-container-highest ring-4 ring-surface-bright border border-outline-variant"></div>
+<p class="font-body-md text-body-md text-on-surface-variant">Người bán đã đóng gói và giao cho bưu cục</p>
+<p class="font-body-sm text-body-sm text-outline mt-xs">12 Th10, 16:45</p>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Column: Shipping Info & Summary -->
+<div class="md:col-span-4 flex flex-col gap-lg">
+<!-- Shipping Details -->
+<section class="bg-surface border border-outline-variant rounded-xl p-lg flex flex-col gap-md">
+<h2 class="font-headline-md text-headline-md text-on-surface border-b border-outline-variant pb-xs flex items-center gap-xs">
+<span class="material-symbols-outlined text-on-surface-variant">location_on</span>
+                    Địa chỉ nhận hàng
+                </h2>
+<div class="flex flex-col gap-xs">
+<p class="font-label-md text-label-md text-on-surface">Trần Tuấn Anh</p>
+<p class="font-body-md text-body-md text-on-surface-variant">(+84) 987 654 321</p>
+<p class="font-body-md text-body-md text-on-surface-variant mt-xs">
+                        Tòa nhà Landmark 81, 720A Điện Biên Phủ,<br/>
+                        Phường 22, Quận Bình Thạnh,<br/>
+                        TP. Hồ Chí Minh
+                    </p>
+</div>
+<div class="w-full h-32 bg-surface-container-high rounded-lg overflow-hidden border border-outline-variant mt-sm relative">
+<img alt="Map Location" class="w-full h-full object-cover opacity-80" data-alt="A clean, minimalist abstract map showing a pin location in a dense urban area, soft mint and light grey color palette, UI style, top-down view." data-location="Ho Chi Minh City" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAauuGq3P87KOLVoWx8tUVdmKZIbR7oj9gSb7cQzjOR2MrXwDhyGZ8AFjjPO-r9ayuDSNhmeP-ACVB3OBdx-H68sjzidhQy_uQKa2CixHlbWkQNQ7PVy3qLAmRXtkzmx7jcMSAaa-TH4pmRqz9i7l-i3EUFYhha63lNC_cnXQ3YEIGSF1uo6jRsTZFy1UPYePAvgfMbaQ07xH4gapB_1w1Fa0Wnvn9VhRVNv3L7-j4gkrWohOX-_gVGhqv2DcOnqjvVw3ZbW2edEZk"/>
+</div>
+</section>
+<!-- Payment Summary -->
+<section class="bg-surface-container-low border border-outline-variant rounded-xl p-lg flex flex-col gap-md">
+<h2 class="font-headline-md text-headline-md text-on-surface border-b border-outline-variant pb-xs">Thanh toán</h2>
+<div class="flex flex-col gap-sm">
+<div class="flex justify-between items-center">
+<span class="font-body-md text-body-md text-on-surface-variant">Tạm tính (1 sản phẩm)</span>
+<span class="font-body-md text-body-md text-on-surface">1.850.000 ₫</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-body-md text-body-md text-on-surface-variant">Phí vận chuyển</span>
+<span class="font-body-md text-body-md text-on-surface">35.000 ₫</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-body-md text-body-md text-on-surface-variant">Mã giảm giá</span>
+<span class="font-body-md text-body-md text-primary">-50.000 ₫</span>
+</div>
+</div>
+<div class="border-t border-outline-variant pt-md flex justify-between items-end mt-xs">
+<span class="font-label-md text-label-md text-on-surface">Tổng cộng</span>
+<span class="font-display-lg text-display-lg text-primary">1.835.000 ₫</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant text-right">Đã thanh toán qua VNPay</p>
+</section>
+<!-- Quick Actions -->
+<section class="flex flex-col gap-sm mt-md">
+<button class="w-full bg-primary hover:bg-on-primary-fixed-variant text-on-primary font-label-md text-label-md py-3 px-4 rounded-lg flex items-center justify-center gap-xs transition-colors duration-200">
+<span class="material-symbols-outlined">chat</span>
+                    Liên hệ người bán
+                </button>
+<button class="w-full bg-surface hover:bg-surface-variant text-on-surface border border-outline-variant font-label-md text-label-md py-3 px-4 rounded-lg flex items-center justify-center gap-xs transition-colors duration-200">
+<span class="material-symbols-outlined">assignment_return</span>
+                    Yêu cầu Trả hàng / Hoàn tiền
+                </button>
+<div class="text-center mt-sm">
+<a class="font-body-sm text-body-sm text-primary hover:underline flex items-center justify-center gap-xs" href="#">
+<span class="material-symbols-outlined text-[16px]">help</span>
+                        Bạn cần hỗ trợ thêm?
+                    </a>
+</div>
+</section>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full mt-xl bg-surface-container-low border-t border-outline-variant py-lg">
+<div class="max-w-[1200px] mx-auto px-margin-mobile md:px-margin-desktop flex flex-col md:flex-row justify-between items-center gap-md">
+<div class="font-headline-sm text-headline-sm font-bold text-on-surface">
+                C2C Market
+            </div>
+<div class="flex gap-md font-label-md text-label-md text-on-surface-variant">
+<a class="hover:underline decoration-primary" href="#">Về chúng tôi</a>
+<a class="hover:underline decoration-primary" href="#">Điều khoản</a>
+<a class="hover:underline decoration-primary" href="#">Hỗ trợ</a>
+<a class="hover:underline decoration-primary" href="#">Trung tâm an toàn</a>
+</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">
+                © 2024 C2C Market. All rights reserved.
+            </div>
+</div>
+</footer>
+</body></html>

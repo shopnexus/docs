@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ShopNexus - Product Detail</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&amp;family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">tailwind.config = {darkMode: "class", theme: {extend: {colors: {"on-surface": "#1a1c1b", "on-tertiary-fixed": "#380d00", "inverse-on-surface": "#f1f1ef", "on-primary-fixed": "#00201d", "error-container": "#ffdad6", error: "#ba1a1a", "on-primary-fixed-variant": "#005049", "on-secondary-fixed": "#00201d", primary: "#004e47", tertiary: "#742f13", "on-background": "#1a1c1b", background: "#f9f9f7", "surface-container-high": "#e8e8e6", "tertiary-fixed-dim": "#ffb59a", "surface-tint": "#066a61", "on-tertiary-fixed-variant": "#773215", "surface-container-lowest": "#ffffff", "surface-container": "#eeeeec", "inverse-surface": "#2f3130", "on-secondary-container": "#266d67", "surface-container-highest": "#e2e3e0", "primary-fixed-dim": "#85d5c9", surface: "#f9f9f7", outline: "#6e7977", "surface-container-low": "#f4f4f1", "secondary-fixed": "#abefe7", "on-primary": "#ffffff", "on-surface-variant": "#3e4947", "secondary-container": "#a8ece4", "surface-bright": "#f9f9f7", "on-tertiary": "#ffffff", "surface-dim": "#dadad8", "primary-fixed": "#a1f1e5", "on-error": "#ffffff", "on-secondary": "#ffffff", "inverse-primary": "#85d5c9", secondary: "#216963", "on-secondary-fixed-variant": "#00504b", "tertiary-fixed": "#ffdbcf", "on-tertiary-container": "#ffc9b6", "secondary-fixed-dim": "#8fd3cb", "surface-variant": "#e2e3e0", "on-error-container": "#93000a", "primary-container": "#00685f", "outline-variant": "#bec9c6", "tertiary-container": "#924628", "on-primary-container": "#93e4d8"}, borderRadius: {DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px"}, spacing: {sm: "8px", gutter: "1rem", xl: "32px", unit: "4px", md: "16px", xs: "4px", lg: "24px", "container-max": "1200px", "2xl": "48px", "3xl": "64px"}, fontFamily: {"body-sm": ["Inter"], "headline-md": ["Manrope"], "headline-sm": ["Manrope"], "body-md": ["Inter"], "price-md": ["Inter"], "headline-lg": ["Manrope"], "body-lg": ["Inter"], "label-md": ["Inter"], "price-lg": ["Inter"], "headline-xl": ["Manrope"], "label-sm": ["Inter"], "display-lg": ["Manrope"], "display-lg-mobile": ["Manrope"], headline: ["Manrope"], display: ["Manrope"], body: ["Inter"], label: ["Inter"]}, fontSize: {"body-sm": ["14px", {lineHeight: "20px", fontWeight: "400"}], "headline-md": ["24px", {lineHeight: "32px", letterSpacing: "-0.01em", fontWeight: "700"}], "headline-sm": ["20px", {lineHeight: "28px", fontWeight: "600"}], "body-md": ["16px", {lineHeight: "24px", fontWeight: "400"}], "price-md": ["1rem", {lineHeight: "1", fontWeight: "700"}], "headline-lg": ["2rem", {lineHeight: "1.2", fontWeight: "700"}], "body-lg": ["18px", {lineHeight: "28px", fontWeight: "400"}], "label-md": ["14px", {lineHeight: "16px", letterSpacing: "0.01em", fontWeight: "600"}], "price-lg": ["1.25rem", {lineHeight: "1", fontWeight: "700"}], "headline-xl": ["2.5rem", {lineHeight: "1.2", fontWeight: "700"}], "label-sm": ["12px", {lineHeight: "14px", letterSpacing: "0.02em", fontWeight: "500"}], "display-lg": ["48px", {lineHeight: "56px", letterSpacing: "-0.02em", fontWeight: "800"}], "display-lg-mobile": ["36px", {lineHeight: "44px", letterSpacing: "-0.02em", fontWeight: "800"}]}}}};</script>
+<style>
+        .tabular-nums { font-variant-numeric: tabular-nums; }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col font-body-md">
+<!-- TopNav -->
+<header class="sticky top-0 z-50 flex flex-col w-full bg-surface shadow-sm border-b border-outline-variant">
+<div class="max-w-[1200px] mx-auto w-full flex items-center justify-between px-gutter py-md">
+<!-- Brand -->
+<a class="font-headline-lg text-headline-lg font-bold text-primary" href="#">ShopNexus</a>
+<!-- Search -->
+<div class="flex-1 max-w-xl mx-xl relative hidden md:block">
+<input class="w-full h-12 pl-12 pr-4 bg-surface-container-highest border-none rounded-[14px] focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface text-on-surface placeholder-on-surface-variant font-body-md" placeholder="Tìm kiếm sản phẩm..." type="text"/>
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+</div>
+<!-- Actions -->
+<div class="flex items-center gap-md">
+<button class="bg-primary text-on-primary rounded-[18px] px-lg py-sm font-label-md hover:opacity-90 transition-opacity">
+                    ＋ Bán
+                </button>
+<div class="flex items-center gap-sm text-primary">
+<button class="p-xs hover:bg-surface-container-high rounded-full transition-colors"><span class="material-symbols-outlined">video_library</span></button>
+<button class="p-xs hover:bg-surface-container-high rounded-full transition-colors"><span class="material-symbols-outlined">favorite</span></button>
+<button class="p-xs hover:bg-surface-container-high rounded-full transition-colors"><span class="material-symbols-outlined">inbox</span></button>
+<button class="p-xs hover:bg-surface-container-high rounded-full transition-colors"><span class="material-symbols-outlined">account_circle</span></button>
+</div>
+</div>
+</div>
+</header>
+<!-- SideNav (Horizontal Variant for Detail Page Context) -->
+<nav class="max-w-[1200px] mx-auto w-full flex items-center gap-lg px-gutter py-sm bg-surface-container-low hidden md:flex border-b border-outline-variant">
+<a class="flex items-center gap-xs text-on-surface-variant hover:text-on-surface pb-2 font-label-md group transition-colors" href="#">
+<span class="material-symbols-outlined group-hover:bg-surface-container-high rounded-md p-xs transition-all">menu</span> Tất cả danh mục
+        </a>
+<a class="flex items-center gap-xs text-on-surface-variant hover:text-on-surface pb-2 font-label-md group transition-colors" href="#">
+<span class="material-symbols-outlined group-hover:bg-surface-container-high rounded-md p-xs transition-all">smartphone</span> Điện thoại
+        </a>
+<a class="flex items-center gap-xs text-on-surface-variant hover:text-on-surface pb-2 font-label-md group transition-colors" href="#">
+<span class="material-symbols-outlined group-hover:bg-surface-container-high rounded-md p-xs transition-all">checkroom</span> Thời trang
+        </a>
+<a class="flex items-center gap-xs text-on-surface-variant hover:text-on-surface pb-2 font-label-md group transition-colors" href="#">
+<span class="material-symbols-outlined group-hover:bg-surface-container-high rounded-md p-xs transition-all">home</span> Nội thất
+        </a>
+<a class="flex items-center gap-xs text-on-surface-variant hover:text-on-surface pb-2 font-label-md group transition-colors" href="#">
+<span class="material-symbols-outlined group-hover:bg-surface-container-high rounded-md p-xs transition-all">directions_car</span> Xe cộ
+        </a>
+<a class="flex items-center gap-xs text-on-surface-variant hover:text-on-surface pb-2 font-label-md group transition-colors" href="#">
+<span class="material-symbols-outlined group-hover:bg-surface-container-high rounded-md p-xs transition-all">kitchen</span> Đồ gia dụng
+        </a>
+</nav>
+<main class="flex-1 max-w-[1200px] mx-auto w-full px-gutter py-xl flex flex-col gap-xl">
+<!-- Breadcrumb -->
+<nav class="flex items-center gap-sm text-on-surface-variant font-body-sm">
+<a class="hover:text-primary transition-colors" href="#">Trang chủ</a>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+<a class="hover:text-primary transition-colors" href="#">Điện thoại</a>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+<span class="text-on-surface">iPhone 14 Pro Max 256GB - VN/A</span>
+</nav>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-xl">
+<!-- Left: Gallery -->
+<div class="lg:col-span-5 flex flex-col gap-md">
+<div class="w-full aspect-square bg-surface-container-low rounded-xl overflow-hidden relative border border-outline-variant group">
+<img class="w-full h-full object-cover" data-alt="A pristine, high-resolution photograph of a deep purple iPhone 14 Pro Max resting on a clean, modern white surface. Soft, diffused lighting highlights the phone's sleek titanium edges and glossy glass back. The composition is minimalist and premium, perfectly aligned with a high-end corporate marketplace aesthetic. Subtle reflections add depth without distracting from the product." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA7ptNegKVvuawlU3SX5f-6MvnFAjZk7RBPOa3POCf_s0rxp5IzpEguU_22Yx7YY_RGnBlknpVsa228NOXLmWMtGtd6EtcjKazZ9MRoPedCyaS1Ib3OD-UE_d4gaDbiEHrMrTZTMdUrXKk5DYAs7aK0yuz_nfZU4oL7FEAFHwm12QMz2LDJmqjN4PBzb8cnqp0NzOMt56GcarQ7RPSZVf73yOaKlRjsbc8OvxpabJIqLh9agFN_6F0I-h39kqP7yga4P0fXNxN_CVo"/>
+<!-- Live Chip Example if needed
+                    <div class="absolute top-md left-md bg-error text-on-error px-sm py-xs rounded-full flex items-center gap-xs font-label-md text-xs shadow-md">
+                        <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span> LIVE
+                    </div>
+                    -->
+</div>
+<!-- Thumbnails -->
+<div class="grid grid-cols-5 gap-sm">
+<button class="aspect-square bg-surface-container-low rounded-lg overflow-hidden border-2 border-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+<img class="w-full h-full object-cover" data-alt="A close-up shot of the iPhone 14 Pro Max's triple camera system, showcasing the large lenses and metallic rings. High-contrast lighting emphasizes the premium build quality. Minimalist and clean style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCdhA_OWvQXQPtl6YOGkmn-2mLef1t4ZWd1d_zsbjgrwEeXDyDja4cqii-9OTyr_cm1WcKWoZX4AflDf4NJP9C-eN9KKHp1bau1VSAbg4igThSBOoJwApAz7qYi3iK8liAd4bRhAL-IUzADgVyfeWK2vnGZjhkfDjNKY6cT3Meh_9o-Su5hjAUdRC7sMSXsmx2WBg8Hh1M_UqZre8pmoCne1qdap0RS87DEOEd3Ykjx-58dflS189BJHvHReZEDzlImQh0pWNWsqp8"/>
+</button>
+<button class="aspect-square bg-surface-container-low rounded-lg overflow-hidden border border-outline-variant hover:border-outline focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-colors">
+<img class="w-full h-full object-cover" data-alt="The front screen of the iPhone 14 Pro Max displaying a sleek, dark-themed lock screen. The Dynamic Island is visible at the top. Clean, corporate lighting on a light background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBVIZ85XjmwKzVRW5NCniirGmdwhZJcbV-Eeyu-zRBstDNjGsXOQfd83ZPwBBoV0zt3_xrVU-ANNS2r4QoqbNE2Jz-9dKnLJSn0-L3ToWUhusFejh7T2cyBeGgAsj6HkO6Le7FOC6jSqmpgKne9Gti_A_GY9CelE2UAd7w5qHqswCYJlO2J-XC880FUnjgxDPosRqvowBtITIamMlbkavHopZqSk6ruiDNafRVQ5NJy7FJCIllwdNz2wwglheL0OGtZc0Uf72qheo4"/>
+</button>
+<button class="aspect-square bg-surface-container-low rounded-lg overflow-hidden border border-outline-variant hover:border-outline focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-colors">
+<img class="w-full h-full object-cover" data-alt="Side profile of the iPhone 14 Pro Max, highlighting the flat stainless steel edges and volume buttons. Soft shadows on a white surface, professional product photography style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA_N9cRfRBQN52fU3XiDjABADJYTmWhKoQyBb8tu-SHzKitmfo-T_1fVlVbEOWw6NQTLcaGibodPDkjoutCVaea9DQQoriBjOhFWEmbtao25KyuUXr-jowxoBYiDgPRFqbU4qTzdnyYKi35xqtFpUWNIAOVbwDNC7rGNn9w2AWiOohcZT5j9dTja38LQrlv0Cn4ebbn2KMMe_LU0uMqnZMcbm1f1kCmSaV0nNJtRSBhND2rzJUrrKZHNJgq7A4tqQHxiFpK84h1fsE"/>
+</button>
+<button class="aspect-square bg-surface-container-low rounded-lg overflow-hidden border border-outline-variant hover:border-outline focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-colors">
+<img class="w-full h-full object-cover" data-alt="The iPhone 14 Pro Max in its original retail box, partially opened to reveal the device inside. High-quality unboxing aesthetic, bright and airy feel." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDiWQZEblEXodzSYX_I-IqY5k73O-y2rdAiuCIwVm_693b88fnb8JWHkxYdBMOcFE_ynYaJs4gTpmviV2Zkj8GXqaXRBDGCea7sbEoEAaXdCwbaanfwzBxZH7zvZj897IO8M4ebElTACKq7gHEAYQB339fPvtzhw6WlhnKqR1F69lmISyDRwRK6xfNJyobQwHfMawRgXvtn7NbMc1TohykzqnnpO_cjjsmK3SnwNMJVEvrk4nSXBXwnIS_983vnOY8s-E2mLqPO0mk"/>
+</button>
+<div class="aspect-square bg-surface-container-highest rounded-lg flex items-center justify-center border border-outline-variant text-on-surface-variant font-label-md cursor-pointer hover:bg-surface-dim transition-colors">
+                        +3
+                    </div>
+</div>
+</div>
+<!-- Right: Info -->
+<div class="lg:col-span-7 flex flex-col gap-lg">
+<!-- Title & Actions -->
+<div class="flex justify-between items-start gap-md">
+<h1 class="font-headline-xl text-headline-xl text-on-surface">iPhone 14 Pro Max 256GB - VN/A Màu Tím Mới 99%</h1>
+<div class="flex gap-sm shrink-0">
+<button aria-label="Share" class="p-sm rounded-full bg-surface-container-low hover:bg-surface-container-high transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined">share</span>
+</button>
+<button aria-label="Save" class="p-sm rounded-full bg-surface-container-low hover:bg-surface-container-high transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined">favorite_border</span>
+</button>
+</div>
+</div>
+<!-- Price Block -->
+<div class="bg-surface-container-lowest p-md rounded-xl border border-surface-variant shadow-sm flex flex-col gap-xs">
+<div class="flex items-baseline gap-md">
+<span class="font-price-lg text-headline-xl text-primary tabular-nums">21.500.000 ₫</span>
+<span class="font-body-md text-secondary line-through tabular-nums">24.000.000 ₫</span>
+<span class="bg-error-container text-on-error-container px-2 py-0.5 rounded text-sm font-bold">-10%</span>
+</div>
+<p class="font-body-sm text-on-surface-variant flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px] text-status-success">verified</span>
+                        Cam kết chính hãng. Miễn phí vận chuyển toàn quốc.
+                    </p>
+</div>
+<!-- Sell One Like This -->
+<div class="flex justify-start">
+<button class="flex items-center gap-sm text-primary font-label-md hover:underline bg-primary-container/10 px-md py-sm rounded-lg transition-colors">
+<span class="material-symbols-outlined text-[20px]">add_circle</span>
+                        Bán sản phẩm tương tự
+                    </button>
+</div>
+<!-- Seller Profile Card -->
+<div class="bg-surface p-md rounded-xl border border-outline-variant shadow-[0_2px_8px_rgba(0,0,0,0.04)] flex flex-col gap-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-md">
+<div class="w-16 h-16 rounded-full overflow-hidden bg-surface-container-high border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a friendly young man, the seller. He is smiling warmly, set against a clean, light grey background. High-quality lighting, modern corporate aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBE5T4X_-_Liyne8xdSTzjIxJHdlJxDhpJDrouuR-rg49b9BjB76wzUfApL0ifhB-Zzx_LDNhsDmvY-8hWvQSdIxtAfZ-zRTIavrJPZ7-1D5-k6TeLnDk52__nUbh2HVTUmS_mX3yF7WtQ5oImFeIJvRBxJtC9aXsC8EK74DkWIWMs4JI6z0eEQe55jqAqRnw_Z31dYguV049J419N8LvFjPkym__bdq7j981Dj5Po43GfEKq-1Mq67eH6HNs0lLquA1fFXwIv-pYQ"/>
+</div>
+<div class="flex flex-col">
+<h3 class="font-headline-sm text-headline-sm text-on-surface flex items-center gap-xs">
+                                    Thanh Tùng Mobile
+                                    <span class="material-symbols-outlined text-[18px] text-primary" style="font-variation-settings: 'FILL' 1;">verified</span>
+</h3>
+<div class="flex items-center gap-md text-on-surface-variant font-body-sm mt-1">
+<span class="flex items-center gap-xs"><span class="material-symbols-outlined text-[16px] text-tertiary" style="font-variation-settings: 'FILL' 1;">star</span> 4.9 (120 đánh giá)</span>
+<span>•</span>
+<span>Đã bán: 350+</span>
+</div>
+<p class="font-body-sm text-on-surface-variant mt-1 text-sm">Hoạt động 2 giờ trước</p>
+</div>
+</div>
+<div class="flex flex-col gap-sm">
+<button class="bg-primary text-on-primary rounded-[18px] px-md py-sm font-label-md hover:opacity-90 transition-opacity flex items-center justify-center gap-xs">
+<span class="material-symbols-outlined text-[18px]">chat</span> Chat ngay
+                            </button>
+<button class="bg-surface-container border border-outline-variant text-on-surface rounded-[18px] px-md py-sm font-label-md hover:bg-surface-container-high transition-colors flex items-center justify-center gap-xs">
+<span class="material-symbols-outlined text-[18px]">storefront</span> Xem Shop
+                            </button>
+</div>
+</div>
+</div>
+<!-- Description & Details -->
+<div class="flex flex-col gap-md mt-sm">
+<h2 class="font-headline-md text-headline-md text-on-surface border-b border-outline-variant pb-xs">Chi tiết sản phẩm</h2>
+<ul class="grid grid-cols-2 gap-y-sm text-on-surface font-body-md bg-surface-container-low p-md rounded-lg">
+<li class="flex flex-col"><span class="text-on-surface-variant text-sm">Tình trạng</span><span class="font-semibold">Đã qua sử dụng (99%)</span></li>
+<li class="flex flex-col"><span class="text-on-surface-variant text-sm">Thương hiệu</span><span class="font-semibold">Apple</span></li>
+<li class="flex flex-col"><span class="text-on-surface-variant text-sm">Bảo hành</span><span class="font-semibold">Còn bảo hành Apple Care 3 tháng</span></li>
+<li class="flex flex-col"><span class="text-on-surface-variant text-sm">Xuất xứ</span><span class="font-semibold">Chính hãng VN/A</span></li>
+</ul>
+<div class="font-body-md text-on-surface leading-relaxed mt-2 whitespace-pre-line">
+                        Máy mua đập hộp tại TopZone, dùng cực kỳ giữ gìn, dán ốp lưng cường lực từ lúc mới mua nên không một vết xước dăm.
+                        Pin nguyên bản 95%, chưa từng tháo mở hay sửa chữa.
+                        Phụ kiện đi kèm: Hộp zin trùng IMEI, cáp sạc zin chưa dùng.
+                        Bao test thoải mái, giao dịch trực tiếp tại nhà riêng hoặc cơ quan.
+                    </div>
+</div>
+</div>
+</div>
+</main>
+<!-- Sticky Buy Bar -->
+<div class="sticky bottom-0 w-full bg-surface border-t border-outline-variant shadow-[0_-4px_16px_rgba(0,0,0,0.05)] py-md px-gutter z-40">
+<div class="max-w-[1200px] mx-auto flex items-center justify-between gap-xl">
+<div class="hidden md:flex flex-col">
+<span class="font-body-sm text-on-surface-variant">Tổng thanh toán:</span>
+<span class="font-price-lg text-primary text-xl tabular-nums">21.500.000 ₫</span>
+</div>
+<div class="flex items-center gap-md w-full md:w-auto">
+<button class="flex-1 md:w-48 bg-surface-container-high border-2 border-primary text-primary rounded-[18px] px-lg py-3 font-label-md hover:bg-primary-container hover:text-on-primary-container transition-colors flex items-center justify-center gap-xs">
+<span class="material-symbols-outlined text-[20px]">add_shopping_cart</span> Thêm vào giỏ
+                </button>
+<button class="flex-1 md:w-48 bg-primary text-on-primary rounded-[18px] px-lg py-3 font-label-md hover:opacity-90 transition-opacity flex items-center justify-center">
+                    Mua ngay
+                </button>
+</div>
+</div>
+</div>
+<!-- Footer -->
+<footer class="w-full bg-surface-container-highest py-xl px-gutter mt-xl border-t border-outline-variant">
+<div class="max-w-[1200px] mx-auto flex flex-col md:flex-row justify-between items-center gap-md">
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface">ShopNexus</span>
+<div class="flex flex-wrap items-center justify-center gap-lg font-body-sm text-on-surface-variant">
+<a class="hover:text-on-surface hover:underline transition-colors" href="#">Về chúng tôi</a>
+<a class="hover:text-on-surface hover:underline transition-colors" href="#">Trung tâm hỗ trợ</a>
+<a class="hover:text-on-surface hover:underline transition-colors" href="#">Điều khoản sử dụng</a>
+<a class="hover:text-on-surface hover:underline transition-colors" href="#">Chính sách bảo mật</a>
+<a class="hover:text-on-surface hover:underline transition-colors" href="#">Liên hệ</a>
+</div>
+<p class="font-body-sm text-on-surface-variant text-center md:text-right">
+                © 2024 ShopNexus C2C Marketplace. All rights reserved.
+            </p>
+</div>
+</footer>
+</body></html>

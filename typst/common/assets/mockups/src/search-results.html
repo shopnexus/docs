@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ShopNexus - Điện thoại</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&amp;family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=Manrope:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">tailwind.config = {darkMode: "class", theme: {extend: {colors: {"on-surface": "#1a1c1b", "on-tertiary-fixed": "#380d00", "inverse-on-surface": "#f1f1ef", "on-primary-fixed": "#00201d", "error-container": "#ffdad6", error: "#ba1a1a", "on-primary-fixed-variant": "#005049", "on-secondary-fixed": "#00201d", primary: "#004e47", tertiary: "#742f13", "on-background": "#1a1c1b", background: "#f9f9f7", "surface-container-high": "#e8e8e6", "tertiary-fixed-dim": "#ffb59a", "surface-tint": "#066a61", "on-tertiary-fixed-variant": "#773215", "surface-container-lowest": "#ffffff", "surface-container": "#eeeeec", "inverse-surface": "#2f3130", "on-secondary-container": "#266d67", "surface-container-highest": "#e2e3e0", "primary-fixed-dim": "#85d5c9", surface: "#f9f9f7", outline: "#6e7977", "surface-container-low": "#f4f4f1", "secondary-fixed": "#abefe7", "on-primary": "#ffffff", "on-surface-variant": "#3e4947", "secondary-container": "#a8ece4", "surface-bright": "#f9f9f7", "on-tertiary": "#ffffff", "surface-dim": "#dadad8", "primary-fixed": "#a1f1e5", "on-error": "#ffffff", "on-secondary": "#ffffff", "inverse-primary": "#85d5c9", secondary: "#216963", "on-secondary-fixed-variant": "#00504b", "tertiary-fixed": "#ffdbcf", "on-tertiary-container": "#ffc9b6", "secondary-fixed-dim": "#8fd3cb", "surface-variant": "#e2e3e0", "on-error-container": "#93000a", "primary-container": "#00685f", "outline-variant": "#bec9c6", "tertiary-container": "#924628", "on-primary-container": "#93e4d8"}, borderRadius: {DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px"}, spacing: {sm: "8px", gutter: "1rem", xl: "32px", unit: "4px", md: "16px", xs: "4px", lg: "24px", "container-max": "1200px", "2xl": "48px", "3xl": "64px"}, fontFamily: {"body-sm": ["Inter"], "headline-md": ["Manrope"], "headline-sm": ["Manrope"], "body-md": ["Inter"], "price-md": ["Inter"], "headline-lg": ["Manrope"], "body-lg": ["Inter"], "label-md": ["Inter"], "price-lg": ["Inter"], "headline-xl": ["Manrope"], "label-sm": ["Inter"], "display-lg": ["Manrope"], "display-lg-mobile": ["Manrope"], headline: ["Manrope"], display: ["Manrope"], body: ["Inter"], label: ["Inter"]}, fontSize: {"body-sm": ["14px", {lineHeight: "20px", fontWeight: "400"}], "headline-md": ["24px", {lineHeight: "32px", letterSpacing: "-0.01em", fontWeight: "700"}], "headline-sm": ["20px", {lineHeight: "28px", fontWeight: "600"}], "body-md": ["16px", {lineHeight: "24px", fontWeight: "400"}], "price-md": ["1rem", {lineHeight: "1", fontWeight: "700"}], "headline-lg": ["2rem", {lineHeight: "1.2", fontWeight: "700"}], "body-lg": ["18px", {lineHeight: "28px", fontWeight: "400"}], "label-md": ["14px", {lineHeight: "16px", letterSpacing: "0.01em", fontWeight: "600"}], "price-lg": ["1.25rem", {lineHeight: "1", fontWeight: "700"}], "headline-xl": ["2.5rem", {lineHeight: "1.2", fontWeight: "700"}], "label-sm": ["12px", {lineHeight: "14px", letterSpacing: "0.02em", fontWeight: "500"}], "display-lg": ["48px", {lineHeight: "56px", letterSpacing: "-0.02em", fontWeight: "800"}], "display-lg-mobile": ["36px", {lineHeight: "44px", letterSpacing: "-0.02em", fontWeight: "800"}]}}}};</script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1;
+        }
+        /* Custom scrollbar for horizontal lists */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased selection:bg-primary-container selection:text-on-primary-container">
+<!-- JSON Component: TopNavBar -->
+<header class="sticky top-0 z-50 flex flex-col w-full bg-surface dark:bg-surface border-b border-outline-variant dark:border-outline shadow-sm">
+<div class="max-w-[1200px] mx-auto w-full px-gutter py-md flex items-center justify-between gap-xl">
+<!-- Brand -->
+<a class="font-headline-lg text-headline-lg font-bold text-primary dark:text-primary-fixed-dim shrink-0" href="#">
+                ShopNexus
+            </a>
+<!-- Search Bar (on_left configuration) -->
+<div class="flex-1 max-w-2xl hidden md:flex items-center bg-surface-container rounded-full px-4 py-2 border border-outline-variant focus-within:border-primary focus-within:ring-2 focus-within:ring-primary-container transition-all">
+<span class="material-symbols-outlined text-on-surface-variant mr-2">search</span>
+<input aria-label="Search" class="bg-transparent border-none focus:ring-0 w-full text-body-md font-body-md text-on-surface placeholder:text-on-surface-variant p-0" placeholder="Tìm kiếm sản phẩm, người bán..." type="text"/>
+</div>
+<!-- Trailing Actions -->
+<div class="flex items-center gap-md shrink-0">
+<div class="hidden md:flex items-center gap-sm">
+<button aria-label="video_library" class="p-2 rounded-full hover:bg-surface-container-high transition-colors duration-200 text-on-surface-variant hover:text-primary">
+<span class="material-symbols-outlined">video_library</span>
+</button>
+<button aria-label="favorite" class="p-2 rounded-full hover:bg-surface-container-high transition-colors duration-200 text-on-surface-variant hover:text-primary">
+<span class="material-symbols-outlined">favorite</span>
+</button>
+<button aria-label="inbox" class="p-2 rounded-full hover:bg-surface-container-high transition-colors duration-200 text-on-surface-variant hover:text-primary">
+<span class="material-symbols-outlined">inbox</span>
+</button>
+<button aria-label="account_circle" class="p-2 rounded-full hover:bg-surface-container-high transition-colors duration-200 text-on-surface-variant hover:text-primary">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+<button class="bg-primary text-on-primary font-label-md text-label-md px-lg py-sm rounded-[18px] hover:opacity-90 transition-opacity whitespace-nowrap shadow-sm">
+                    ＋ Bán
+                </button>
+</div>
+</div>
+</header>
+<!-- JSON Component: SideNavBar (Rendered as Category Strip based on layout instructions) -->
+<nav class="w-full bg-surface-container-low dark:bg-surface-container-low border-b border-outline-variant">
+<div class="max-w-[1200px] mx-auto w-full flex items-center gap-lg px-gutter py-sm overflow-x-auto hide-scrollbar">
+<!-- Active Tab: Điện thoại -->
+<a class="flex items-center gap-2 shrink-0 text-on-surface-variant hover:text-on-surface pb-2 hover:bg-surface-container-high transition-all font-label-md text-label-md rounded-md px-2 pt-2" href="#">
+<span class="material-symbols-outlined text-[20px]">menu</span>
+<span>Tất cả danh mục</span>
+</a>
+<a aria-current="page" class="flex items-center gap-2 shrink-0 text-primary border-b-4 border-primary font-bold pb-2 font-label-md text-label-md px-2 pt-2" href="#">
+<span class="material-symbols-outlined text-[20px]">smartphone</span>
+<span>Điện thoại</span>
+</a>
+<a class="flex items-center gap-2 shrink-0 text-on-surface-variant hover:text-on-surface pb-2 hover:bg-surface-container-high transition-all font-label-md text-label-md rounded-md px-2 pt-2" href="#">
+<span class="material-symbols-outlined text-[20px]">checkroom</span>
+<span>Thời trang</span>
+</a>
+<a class="flex items-center gap-2 shrink-0 text-on-surface-variant hover:text-on-surface pb-2 hover:bg-surface-container-high transition-all font-label-md text-label-md rounded-md px-2 pt-2" href="#">
+<span class="material-symbols-outlined text-[20px]">home</span>
+<span>Nội thất</span>
+</a>
+<a class="flex items-center gap-2 shrink-0 text-on-surface-variant hover:text-on-surface pb-2 hover:bg-surface-container-high transition-all font-label-md text-label-md rounded-md px-2 pt-2" href="#">
+<span class="material-symbols-outlined text-[20px]">directions_car</span>
+<span>Xe cộ</span>
+</a>
+<a class="flex items-center gap-2 shrink-0 text-on-surface-variant hover:text-on-surface pb-2 hover:bg-surface-container-high transition-all font-label-md text-label-md rounded-md px-2 pt-2" href="#">
+<span class="material-symbols-outlined text-[20px]">kitchen</span>
+<span>Đồ gia dụng</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="max-w-[1200px] mx-auto w-full px-gutter py-xl flex flex-col md:flex-row gap-xl items-start">
+<!-- Left Sidebar (Filter Panel) -->
+<aside class="w-full md:w-64 shrink-0 flex flex-col gap-lg sticky top-32">
+<div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface mb-md">Bộ lọc tìm kiếm</h2>
+<!-- Category Filter -->
+<div class="mb-lg">
+<h3 class="font-label-md text-label-md text-on-surface-variant mb-sm uppercase tracking-wide">Danh mục phụ</h3>
+<div class="flex flex-col gap-sm">
+<label class="flex items-center gap-3 cursor-pointer group">
+<input checked="" class="rounded border-outline-variant text-primary focus:ring-primary w-4 h-4" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface group-hover:text-primary transition-colors">Điện thoại thông minh</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<input class="rounded border-outline-variant text-primary focus:ring-primary w-4 h-4" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface group-hover:text-primary transition-colors">Máy tính bảng</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<input class="rounded border-outline-variant text-primary focus:ring-primary w-4 h-4" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface group-hover:text-primary transition-colors">Phụ kiện điện thoại</span>
+</label>
+</div>
+</div>
+<hr class="border-outline-variant opacity-50 mb-lg"/>
+<!-- Price Range -->
+<div class="mb-lg">
+<h3 class="font-label-md text-label-md text-on-surface-variant mb-sm uppercase tracking-wide">Khoảng giá</h3>
+<div class="flex items-center gap-2">
+<input class="w-full bg-surface border border-outline-variant rounded-md px-3 py-2 font-body-sm text-body-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none" placeholder="Từ" type="number"/>
+<span class="text-on-surface-variant">-</span>
+<input class="w-full bg-surface border border-outline-variant rounded-md px-3 py-2 font-body-sm text-body-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none" placeholder="Đến" type="number"/>
+</div>
+<button class="w-full mt-3 bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md py-2 rounded-md transition-colors border border-outline-variant">
+                        Áp dụng
+                    </button>
+</div>
+<hr class="border-outline-variant opacity-50 mb-lg"/>
+<!-- Location -->
+<div class="mb-lg">
+<h3 class="font-label-md text-label-md text-on-surface-variant mb-sm uppercase tracking-wide">Khu vực</h3>
+<div class="flex flex-col gap-sm">
+<label class="flex items-center gap-3 cursor-pointer group">
+<input class="rounded border-outline-variant text-primary focus:ring-primary w-4 h-4" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface group-hover:text-primary transition-colors">Hà Nội</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<input class="rounded border-outline-variant text-primary focus:ring-primary w-4 h-4" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface group-hover:text-primary transition-colors">TP. Hồ Chí Minh</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<input class="rounded border-outline-variant text-primary focus:ring-primary w-4 h-4" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface group-hover:text-primary transition-colors">Đà Nẵng</span>
+</label>
+</div>
+</div>
+<hr class="border-outline-variant opacity-50 mb-lg"/>
+<!-- Seller Verification -->
+<div class="mb-lg">
+<label class="flex items-center justify-between cursor-pointer group">
+<span class="font-body-sm text-body-sm text-on-surface font-semibold flex items-center gap-2">
+<span class="material-symbols-outlined text-primary fill text-[18px]">verified</span>
+                            Người bán xác thực
+                        </span>
+<div class="relative">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-9 h-5 bg-surface-container-high peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+</div>
+</label>
+</div>
+</div>
+</aside>
+<!-- Product Grid Area -->
+<section class="flex-1 flex flex-col w-full">
+<!-- Top Controls -->
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-md gap-4">
+<div aria-atomic="true" aria-live="polite" class="font-body-lg text-body-lg text-on-surface">
+                    Tìm thấy <span class="font-bold text-primary">1,245</span> kết quả cho "Điện thoại"
+                </div>
+<div class="flex items-center gap-3">
+<label class="font-label-md text-label-md text-on-surface-variant whitespace-nowrap" for="sort">Sắp xếp theo:</label>
+<select class="bg-surface border border-outline-variant text-on-surface font-body-sm text-body-sm rounded-md py-1.5 pl-3 pr-8 focus:ring-primary focus:border-primary outline-none" id="sort">
+<option>Mới nhất</option>
+<option>Độ liên quan</option>
+<option>Giá: Thấp đến Cao</option>
+<option>Giá: Cao đến Thấp</option>
+</select>
+</div>
+</div>
+<!-- Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-md">
+<!-- Product Card 1 (Discounted, Verified) -->
+<article class="bg-surface rounded-xl overflow-hidden border border-subtle shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] transition-shadow duration-300 flex flex-col group cursor-pointer">
+<div class="relative aspect-[4/3] bg-surface-container overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A sleek, modern smartphone resting on a minimalist white table next to a succulent plant. The lighting is bright and natural, casting soft shadows, highlighting the phone's metallic edges and glossy screen. The overall aesthetic is clean, premium, and contemporary." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAyWfMN6cI6dgXM82dsiCWn91ULYOGycBzrS3gcuBz4Gbce_CadaIFepktS7DYuDJLlYw2gGbqdmDzRtS5eR6UW3iE3z3dxEf05Qb9LwfEKr5MrrAqawP1OlVrNipJpJf0t2Df-TW8FaFjllAbHT3uJoDXfp-hY5gFOmJYnUGcx-lO7p5vpdxUrIc_31l88XiCK-IicU_41mvgQqQviYwOz28t5FFKLj7lpH1AvAkykZGcB3WrB9PQ4yI-IL_J8jI2RIzjmdY0L0t4"/>
+<div class="absolute top-2 left-2 bg-error text-on-error font-label-md text-[10px] px-2 py-1 rounded-full font-bold uppercase tracking-wider">
+                            -15%
+                        </div>
+</div>
+<div class="p-3 flex flex-col flex-1 gap-2">
+<div class="flex items-center gap-1">
+<img class="w-5 h-5 rounded-full object-cover" data-alt="A small circular avatar showing a stylized, friendly robotic face with a teal background, conveying a modern and trustworthy seller profile." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDNtgCJ9qNCaPcbS5jJ4b_htLzujvaPar_az2CPe4yQY-ZHz9UYdpclgdQn0xeqGEQhaDuIAM_TyVgisxOJaphUg2H7HNGaGO14Sorh1_OtqUXiFgeNcdu4iTbuBYzj7ur9UoqXH5a8WPYms88WuLLfAlx0o4czad4T50zSTf4VhRuEPGNROZ24OAOo6g3eG-Ho3CsErzwEWFwKOppIvtpQBElVGZZy8ZG0R2BGWbhN_0BgQwN3Vmx4aXIDKlOZeAx5j0tJm4zAVcE"/>
+<span class="font-body-sm text-[11px] text-on-surface-variant truncate">TechStore VN</span>
+<span class="material-symbols-outlined text-primary fill text-[14px]" title="Người bán xác thực">verified</span>
+</div>
+<h3 class="font-headline-sm text-[15px] leading-snug text-on-surface line-clamp-2 mt-1">iPhone 13 Pro Max 256GB Xanh Dương Mới 99%</h3>
+<div class="mt-auto pt-2">
+<div class="flex items-baseline gap-2">
+<span class="font-price-lg text-price-lg text-primary">15.500.000 ₫</span>
+</div>
+<div class="font-body-sm text-[12px] text-on-surface-variant line-through">18.200.000 ₫</div>
+<div class="flex items-center justify-between mt-2 pt-2 border-t border-outline-variant/30">
+<span class="font-body-sm text-[11px] text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">location_on</span> Hà Nội
+                                </span>
+<span class="font-body-sm text-[11px] text-on-surface-variant">2 giờ trước</span>
+</div>
+</div>
+</div>
+</article>
+<!-- Product Card 2 (Standard) -->
+<article class="bg-surface rounded-xl overflow-hidden border border-subtle shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] transition-shadow duration-300 flex flex-col group cursor-pointer">
+<div class="relative aspect-[4/3] bg-surface-container overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A close-up shot of a dark gray smartphone held in a person's hand against a blurred urban background. The lighting is late afternoon golden hour, giving a warm glow to the device's matte finish. The image is crisp, focusing on the camera module." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA2ZhjYoFSDfE-dZthJFNFEM9j5QFpUZz6Uk0ty93qKFlLTTpNvkCF4RGJrsfZ5nrjsxOcJtUjIm4VrASMdPRuUh9oRJcTGpH7ZyNizxzQorvAgF70ePlfychku5pqoSGVlwSpXO37sLkEXXjDdui5fbaJwEoWUFP430IqbfSTECG2iyHqPA7OG_aZ77HXEp6G6NB7YKFKEwyW-0PUQPs1sJbWCneYrX5fhAs_Uo-qNXo9_bIsKSo2HOh2O1ILznIMy9XsiACs8-7I"/>
+</div>
+<div class="p-3 flex flex-col flex-1 gap-2">
+<div class="flex items-center gap-1">
+<div class="w-5 h-5 rounded-full bg-secondary-container flex items-center justify-center text-[10px] font-bold text-on-surface">H</div>
+<span class="font-body-sm text-[11px] text-on-surface-variant truncate">Hoàng Phúc</span>
+</div>
+<h3 class="font-headline-sm text-[15px] leading-snug text-on-surface line-clamp-2 mt-1">Samsung Galaxy S22 Ultra Chính Hãng SSVN</h3>
+<div class="mt-auto pt-2">
+<div class="flex items-baseline gap-2">
+<span class="font-price-lg text-price-lg text-primary">12.800.000 ₫</span>
+</div>
+<div class="flex items-center justify-between mt-2 pt-2 border-t border-outline-variant/30">
+<span class="font-body-sm text-[11px] text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">location_on</span> TP. Hồ Chí Minh
+                                </span>
+<span class="font-body-sm text-[11px] text-on-surface-variant">5 giờ trước</span>
+</div>
+</div>
+</div>
+</article>
+<!-- Product Card 3 (Multi-currency example, Live) -->
+<article class="bg-surface rounded-xl overflow-hidden border border-subtle shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] transition-shadow duration-300 flex flex-col group cursor-pointer">
+<div class="relative aspect-[4/3] bg-surface-container overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A brightly lit, top-down view of several colorful smartphone cases scattered artistically on a pastel yellow background. The lighting is flat and even, typical of modern pop-art style product photography. The cases have glossy and matte textures." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCXuGHWqVmgQVtsYPmwhypPoN6di42knT2WXmZ7x4MFwYf8GOKciilKDqM8nigdUrmS1Waw6PG-lqf5wtK82C6Ikm48FDm4eBSHTPfRYF9HWLnEB7wkfeyGF3dKdWJ8YqIxuyRXbMjsGzQ0S994j0KdLOt08BElbU2td9hYaK7lJo2jKcixKDp8_mMf9mLomPNBTB42HZLNRVzEVbd_R9rIJJCKeyUyVHccqWZrwKlHGZKIYywgT3g17VtY5IV8AryN7PtzM18CAiE"/>
+<div class="absolute top-2 right-2 bg-error text-white font-label-md text-[10px] px-2 py-1 rounded-full flex items-center gap-1 font-bold">
+<span class="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></span> LIVE
+                        </div>
+</div>
+<div class="p-3 flex flex-col flex-1 gap-2">
+<div class="flex items-center gap-1">
+<img class="w-5 h-5 rounded-full object-cover" data-alt="A stylized logo featuring a minimalist shopping bag icon in bright coral and white, set against a light grey background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCIdpYubRc4UMGneoH1q0E3r0SqCx_-jHxnchaN5ps1SrnNchQJQCXcwQc9a0Za37g0q5CZoH33wHCOuEWRXEUHaf203DG4GtGygtrtl2J0HYkyqI4-0_gyG-ApB82d5nZL_ZGrZu1N6UjW8H2YEYs5Hve9tpi8k2Qna5qNwA_sUQSwIKPDCWGwYVaxuFA6siqtAFziboIY9TLkMjoDjmFA0LCPS7muSCK82YASfZdlu8iWGGgfcs7XKPfSLUszMKXZjOK_58dyx44"/>
+<span class="font-body-sm text-[11px] text-on-surface-variant truncate">Phụ Kiện Xịn</span>
+<span class="material-symbols-outlined text-primary fill text-[14px]" title="Người bán xác thực">verified</span>
+</div>
+<h3 class="font-headline-sm text-[15px] leading-snug text-on-surface line-clamp-2 mt-1">Lô Ốp Lưng iPhone Đa Dạng Mẫu Mã - Nhập Mỹ</h3>
+<div class="mt-auto pt-2">
+<div class="flex items-baseline gap-2">
+<span class="font-price-lg text-price-lg text-primary">~ $25.00</span>
+</div>
+<div class="font-body-sm text-[12px] text-on-surface-variant">630.000 ₫</div>
+<div class="flex items-center justify-between mt-2 pt-2 border-t border-outline-variant/30">
+<span class="font-body-sm text-[11px] text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">location_on</span> Đà Nẵng
+                                </span>
+<span class="font-body-sm text-[11px] text-on-surface-variant">Vừa xong</span>
+</div>
+</div>
+</div>
+</article>
+<!-- Product Card 4 -->
+<article class="bg-surface rounded-xl overflow-hidden border border-subtle shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] transition-shadow duration-300 flex flex-col group cursor-pointer">
+<div class="relative aspect-[4/3] bg-surface-container overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A vintage flip phone resting on a rustic wooden table, illuminated by a warm, single spotlight from above. The shadows are deep, emphasizing the retro texture of the phone's keypad and screen. The mood is nostalgic and tactile." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD9hvkeZKLt7MW5m5nzNOX2mOkw9AwaCeiNoVK5_zSODKtSEtruNOI4-_QBGjsYv055bZridcnWD-pqW0C4IgrlyAFuqYnwzI_59mNWbaVQosTS3olYrTYfuz9quPrLLsexhYaFWWJd8A4oAvnuUStEdYZldvYxAED40YFZG8fvVmYBEiISExawCVqR27zqY0zOXrckokxD7xmql309-3m78p7_T0Vsx0JZdAkzBp4XXmo3OWE4SrX2PJr8WDjC6o0fMbk0PTGJc_4"/>
+</div>
+<div class="p-3 flex flex-col flex-1 gap-2">
+<div class="flex items-center gap-1">
+<div class="w-5 h-5 rounded-full bg-tertiary-container flex items-center justify-center text-[10px] font-bold text-on-tertiary-container">L</div>
+<span class="font-body-sm text-[11px] text-on-surface-variant truncate">Linh Đồ Cổ</span>
+</div>
+<h3 class="font-headline-sm text-[15px] leading-snug text-on-surface line-clamp-2 mt-1">Motorola Razr V3 Zin Nguyên Bản Sưu Tầm</h3>
+<div class="mt-auto pt-2">
+<div class="flex items-baseline gap-2">
+<span class="font-price-lg text-price-lg text-primary">2.500.000 ₫</span>
+</div>
+<div class="flex items-center justify-between mt-2 pt-2 border-t border-outline-variant/30">
+<span class="font-body-sm text-[11px] text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">location_on</span> Hà Nội
+                                </span>
+<span class="font-body-sm text-[11px] text-on-surface-variant">1 ngày trước</span>
+</div>
+</div>
+</div>
+</article>
+</div>
+<!-- Load More -->
+<div class="mt-xl flex justify-center">
+<button class="bg-surface border-2 border-primary text-primary font-label-md text-label-md px-xl py-sm rounded-full hover:bg-primary-container hover:text-on-primary-container transition-colors shadow-sm">
+                    Xem thêm kết quả
+                </button>
+</div>
+</section>
+</main>
+<!-- JSON Component: Footer -->
+<footer class="w-full bg-surface-container-highest dark:bg-inverse-surface border-t border-outline-variant mt-xl">
+<div class="w-full py-xl px-gutter flex flex-col md:flex-row justify-between items-center max-w-[1200px] mx-auto gap-lg">
+<div class="font-headline-sm text-headline-sm font-bold text-on-surface">
+                ShopNexus
+            </div>
+<nav class="flex flex-wrap justify-center gap-md md:gap-lg">
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface dark:hover:text-inverse-on-surface underline font-body-sm text-body-sm transition-colors" href="#">Về chúng tôi</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface dark:hover:text-inverse-on-surface underline font-body-sm text-body-sm transition-colors" href="#">Trung tâm hỗ trợ</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface dark:hover:text-inverse-on-surface underline font-body-sm text-body-sm transition-colors" href="#">Điều khoản sử dụng</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface dark:hover:text-inverse-on-surface underline font-body-sm text-body-sm transition-colors" href="#">Chính sách bảo mật</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface dark:hover:text-inverse-on-surface underline font-body-sm text-body-sm transition-colors" href="#">Liên hệ</a>
+</nav>
+<div class="font-body-sm text-body-sm text-on-surface-variant">
+                © 2024 ShopNexus C2C Marketplace. All rights reserved.
+            </div>
+</div>
+</footer>
+</body></html>
