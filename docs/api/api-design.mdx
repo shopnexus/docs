@@ -6,6 +6,17 @@ description: "Contract-first API design conventions for ShopNexus services."
 ShopNexus APIs are **contract-first**: the interface is defined and reviewed before
 implementation, then published as a stable, versioned promise to consumers.
 
+<Note>
+  **Where to read, where to try.** These pages are the reference: every operation,
+  parameter and schema, generated from the gateway's OpenAPI document. They do not
+  send live requests — the Send button is off on purpose.
+
+  To actually call the API, use the playground the gateway serves itself at
+  **`/api/v1/docs`**. It is same-origin with the API, so requests work with no CORS
+  configuration and no proxy, and it is served from the same binary as the endpoints
+  — it cannot drift from them.
+</Note>
+
 ## Conventions
 
 - **Contract-first** — define the schema (OpenAPI for HTTP, Protobuf for gRPC) up front.

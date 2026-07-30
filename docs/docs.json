@@ -76,5 +76,10 @@
     "socials": {
       "github": "https://github.com/shopnexus"
     }
+  },
+  "api": {
+    "playground": {
+      "display": "simple"
+    }
   }
 }
