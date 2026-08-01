@@ -352,46 +352,53 @@ nên chúng là phụ thuộc thật chứ không phải ý định thiết kế
 
 #fig(
   [Sơ đồ thành phần: assembly connector giữa các module nghiệp vụ],
-  spacing: (30mm, 14mm),
+  spacing: (32mm, 12mm),
 
-  ball((0, -0.75), <p-t>), ilbl((0, -1.15), "trust"),
-  ball((2.6, -0.75), <p-o>), ilbl((2.6, -1.15), "order"),
+  // Tầng 3 — chỉ yêu cầu, không ai yêu cầu nó
+  comp((1, 0), "trust", name: <d-t>),
 
-  comp((0, 0), "trust", name: <d-t>),
-  comp((2.6, 0), "order", name: <d-o>),
-  prov(<d-t>, <p-t>),
+  // Tầng 2
+  ball((1, 1), <p-o>), ilbl((1.8, 1), "order"),
+  comp((1, 2), "order", name: <d-o>),
   prov(<d-o>, <p-o>),
   req(<d-t>, <p-o>),
 
-  ball((0, 0.75), <p-c>), ilbl((0.34, 0.75), "catalog"),
-  ball((1.3, 0.75), <p-f>), ilbl((1.64, 0.75), "finance"),
-  ball((2.6, 0.75), <p-ch>), ilbl((2.94, 0.75), "chat"),
-
-  comp((0, 1.5), "catalog", name: <d-c>),
-  comp((1.3, 1.5), "finance", name: <d-f>),
-  comp((2.6, 1.5), "chat", name: <d-ch>),
+  // Tầng 1
+  ball((0, 3), <p-c>), ilbl((-0.34, 3), "catalog"),
+  ball((1, 3), <p-f>), ilbl((1.4, 3), "finance"),
+  ball((2, 3), <p-ch>), ilbl((2.42, 3), "chat"),
+  comp((0, 4), "catalog", name: <d-c>),
+  comp((1, 4), "finance", name: <d-f>),
+  comp((2, 4), "chat", name: <d-ch>),
   prov(<d-c>, <p-c>), prov(<d-f>, <p-f>), prov(<d-ch>, <p-ch>),
 
-  req(<d-t>, <p-c>),
-  req(<d-o>, <p-c>),
-  req(<d-o>, <p-f>),
-  req(<d-o>, <p-ch>),
-  req(<d-t>, <p-ch>),
+  req(<d-o>, <p-c>), req(<d-o>, <p-f>), req(<d-o>, <p-ch>),
+  req(<d-t>, <p-c>), req(<d-t>, <p-ch>),
 
-  ball((1.3, 2.25), <p-a>), ilbl((1.64, 2.25), "account"),
-  comp((1.3, 3), "account", name: <d-a>),
+  // Tầng 0 — gốc của đồ thị. Năm nhánh gộp về một điểm rồi mới cắm vào quả cầu,
+  // thay vì năm ổ cắm chồng lên nhau ở cùng một chỗ.
+  node((1, 4.9), none, radius: 0.5pt, stroke: none, fill: none, name: <j-a>),
+  ball((1, 5.4), <p-a>), ilbl((1.4, 5.4), "account"),
+  comp((1, 6.3), "account", name: <d-a>),
   prov(<d-a>, <p-a>),
-  req(<d-c>, <p-a>), req(<d-f>, <p-a>), req(<d-ch>, <p-a>),
-  req(<d-t>, <p-a>, bend: 40deg),
-  req(<d-o>, <p-a>, bend: -40deg),
+  req(<j-a>, <p-a>),
+  edge(<d-c>, <j-a>, "-", stroke: 0.9pt + ink),
+  edge(<d-f>, <j-a>, "-", stroke: 0.9pt + ink),
+  edge(<d-ch>, <j-a>, "-", stroke: 0.9pt + ink),
+  edge(<d-t>, (-0.8, 0), (-0.8, 4.9), <j-a>, "-", stroke: 0.9pt + ink, corner-radius: 7pt),
+  edge(<d-o>, (2.8, 2), (2.8, 4.9), <j-a>, "-", stroke: 0.9pt + ink, corner-radius: 7pt),
 )
 
 #note[
-  Mỗi quả cầu là giao diện `<tên>api.Service` do module cùng tên công bố; nhãn
-  chỉ ghi tên module cho gọn. Đọc theo chiều đi xuống: `account` ở đáy và không
-  yêu cầu giao diện nào, `order` và `trust` ở đỉnh và yêu cầu nhiều nhất — bốn
-  giao diện mỗi bên. Đây là *toàn bộ* phụ thuộc đồng bộ giữa các module; không
-  còn cạnh nào khác.
+  *Cách đọc.* Mỗi quả cầu là giao diện `<tên>api.Service` do module cùng tên công
+  bố; nhãn chỉ ghi tên module cho gọn. Sơ đồ xếp theo *tầng phụ thuộc*, mũi
+  hướng đi xuống: `account` ở đáy và không yêu cầu giao diện nào; `catalog`,
+  `finance`, `chat` ở tầng trên nó; `order` yêu cầu cả ba; `trust` ở đỉnh.
+  Hai nhánh chạy vòng ra lề trái và lề phải là của `trust` và `order` — chúng
+  vòng ra ngoài thay vì cắt ngang các hộp ở giữa. Năm nhánh cùng yêu cầu
+  `accountapi.Service` được gộp về một điểm rồi mới cắm vào quả cầu, để một ổ
+  cắm duy nhất thay cho năm ổ chồng lên nhau. Đây là *toàn bộ* phụ thuộc đồng bộ
+  giữa các module; không còn cạnh nào khác.
 ]
 
 === Kênh sự kiện bất đồng bộ
