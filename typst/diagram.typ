@@ -18,7 +18,13 @@
 //    cd typst && typst compile --root . --font-path common/fonts \
 //                              diagram.typ out/diagram.pdf
 // ============================================================
-#import "common/style-a4.typ": *
+// Tệp này vừa là tài liệu chính (cần `a4` từ style-a4.typ) vừa là nội dung
+// (cần `fig`, `note`, `np`, `nt`, … từ tokens.typ). Nhập khẩu tokens.typ tường
+// minh thay vì trông vào việc style-a4.typ tái xuất: cách tái xuất qua `import *`
+// không giống nhau giữa các phiên bản Typst, và một số bản LSP/preview đi kèm
+// phiên bản cũ hơn sẽ báo "Unknown variable: note".
+#import "common/tokens.typ": *
+#import "common/style-a4.typ": a4
 
 #show: a4.with(
   tieu-de: "SƠ ĐỒ KIẾN TRÚC VÀ SƠ ĐỒ LỚP",
