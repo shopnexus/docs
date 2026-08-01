@@ -78,9 +78,32 @@
 // Nhãn quan hệ cỡ nhỏ, dùng lặp lại trên các cạnh sơ đồ lớp
 #let rel(t) = text(size: 6.6pt, t)
 
+// ------------------------------------------------------------
+//  Ký hiệu sơ đồ thành phần (UML component diagram, ball-and-socket)
+//    comp  — hộp thành phần kèm khuôn mẫu «component»
+//    ball  — quả cầu: *giao diện cung cấp* (provided interface)
+//    ilbl  — nhãn tên giao diện, không khung
+//    prov  — nối thành phần cung cấp tới quả cầu (nét liền)
+//    req   — nối thành phần yêu cầu tới quả cầu, kết thúc bằng ổ cắm "("
+//            (required interface); prov + req ghép lại thành assembly connector
+// ------------------------------------------------------------
+#let comp(p, ten, ..a) = node(p, align(center)[
+    #text(size: 6.2pt, style: "italic", fill: muted)[«component»] \
+    #text(size: 8.4pt, weight: 700, raw(ten))
+  ], shape: rect, fill: white, stroke: 0.9pt + ink, ..a)
+
+#let ball(p, nm) = node(p, none, shape: circle, radius: 3.2pt,
+                        fill: white, stroke: 0.9pt + ink, name: nm)
+
+#let ilbl(p, t) = node(p, text(size: 6.6pt, raw(t)), stroke: none, fill: none, inset: 2pt)
+
+#let prov(c, b) = edge(c, b, "-", stroke: 0.9pt + ink)
+#let req(c, b, ..a) = edge(c, b, "-)", stroke: 0.9pt + ink, ..a)
+
 #note[
   *Phạm vi.* Tài liệu gồm hai phần: (1) sơ đồ kiến trúc hệ thống — khung triển
-  khai, khung phân lớp bên trong một module và luồng sự kiện – quan trắc;
+  khai, *sơ đồ thành phần* theo ký hiệu giao diện cung cấp/yêu cầu, khung phân
+  lớp bên trong một module và luồng sự kiện – quan trắc;
   (2) sơ đồ lớp *chia theo từng module*, vì toàn hệ thống có 47 bảng nghiệp vụ nên
   một sơ đồ lớp duy nhất sẽ không đọc được. Mỗi sơ đồ lớp đi kèm một bảng đối
   chiếu *lớp miền ↔ bảng CSDL ↔ trách nhiệm* để truy vết được từ bản vẽ xuống
@@ -175,7 +198,7 @@ Bốn hệ quả trực tiếp của quyết định này, và chúng chi phối
   edge((3, 5), (3, 6.2), "<->", stroke: (dash: "dashed")),
 
   // ---- Bên thứ ba ----
-  ng((4.7, -1), [*Nhà cung cấp ngoài*\ #text(size: 7pt)[payment · transport · KYC\ OAuth/OIDC · LLM · notify\ storage (S3/MinIO)]]),
+  ng((4.7, -1), [*Nhà cung cấp ngoài*\ #text(size: 7pt)[payment · transport · KYC\ OAuth/OIDC · notify · storage]]),
   edge((3, 2), (4.7, -1), "<->", rel[cổng thanh toán]),
   edge((3, -1), (4.7, -1), "<->", rel[OAuth · KYC · SMS/e-mail]),
 
@@ -241,6 +264,232 @@ Bốn hệ quả trực tiếp của quyết định này, và chúng chi phối
   ),
 )
 
+== Sơ đồ thành phần (Component Diagram)
+
+Sơ đồ triển khai ở mục trước trả lời câu hỏi "cái gì chạy ở đâu". Sơ đồ thành
+phần trả lời một câu hỏi khác và cụ thể hơn: *thành phần nào công bố giao diện
+nào, và thành phần nào phụ thuộc vào giao diện đó*. Đây là góc nhìn quan trọng
+nhất với hệ thống này, bởi vì các module không hề gọi thẳng vào nhau — chúng chỉ
+biết tới gói `api` của nhau, và Uber `fx` nối các đầu dây lại *theo kiểu giao
+diện* tại thời điểm khởi động. Nói cách khác, sơ đồ dưới đây chính là đồ thị mà
+`fx` dựng ra, chứ không phải một cách vẽ lại tùy ý.
+
+Ký hiệu theo chuẩn UML: hình tròn nhỏ #text(size: 9pt)[`──○`] gắn vào một thành
+phần là *giao diện cung cấp* (provided interface); nét nối kết thúc bằng ổ cắm
+ôm lấy hình tròn #text(size: 9pt)[`──(`] là *giao diện yêu cầu* (required
+interface). Hai nửa ghép lại thành một *assembly connector*. Nét đứt kèm mũi tên
+là kênh bất đồng bộ, không phải phụ thuộc có kiểu.
+
+=== Cổng vào và các giao diện được công bố
+
+Mỗi handler ở tầng gateway phụ thuộc vào *đúng một* `api.Service` và không gì
+khác — đó là điều làm cho tầng vận chuyển thực sự mỏng, và cũng là lý do có thể
+thay toàn bộ gateway bằng một giao thức khác mà không module nghiệp vụ nào phải
+sửa.
+
+#fig(
+  [Sơ đồ thành phần: cổng vào và các giao diện `api.Service` được công bố],
+  spacing: (17mm, 8mm),
+
+  comp((0, 2.5), "gateway.Router", name: <g-r>),
+
+  comp((1.2, 0), "handler.Account", name: <h-a>),
+  comp((1.2, 1), "handler.Catalog", name: <h-c>),
+  comp((1.2, 2), "handler.Chat", name: <h-ch>),
+  comp((1.2, 3), "handler.Finance", name: <h-f>),
+  comp((1.2, 4), "handler.Order", name: <h-o>),
+  comp((1.2, 5), "handler.Trust", name: <h-t>),
+
+  edge(<g-r>, <h-a>, "-", stroke: 0.9pt + ink),
+  edge(<g-r>, <h-c>, "-", stroke: 0.9pt + ink),
+  edge(<g-r>, <h-ch>, "-", stroke: 0.9pt + ink),
+  edge(<g-r>, <h-f>, "-", stroke: 0.9pt + ink),
+  edge(<g-r>, <h-o>, "-", stroke: 0.9pt + ink),
+  edge(<g-r>, <h-t>, "-", stroke: 0.9pt + ink),
+
+  ball((2.2, 0), <b-a>), ilbl((2.2, -0.42), "accountapi.Service"),
+  ball((2.2, 1), <b-c>), ilbl((2.2, 0.58), "catalogapi.Service"),
+  ball((2.2, 2), <b-ch>), ilbl((2.2, 1.58), "chatapi.Service"),
+  ball((2.2, 3), <b-f>), ilbl((2.2, 2.58), "financeapi.Service"),
+  ball((2.2, 4), <b-o>), ilbl((2.2, 3.58), "orderapi.Service"),
+  ball((2.2, 5), <b-t>), ilbl((2.2, 4.58), "trustapi.Service"),
+
+  req(<h-a>, <b-a>), req(<h-c>, <b-c>), req(<h-ch>, <b-ch>),
+  req(<h-f>, <b-f>), req(<h-o>, <b-o>), req(<h-t>, <b-t>),
+
+  comp((3.4, 0), "account", name: <m-a>),
+  comp((3.4, 1), "catalog", name: <m-c>),
+  comp((3.4, 2), "chat", name: <m-ch>),
+  comp((3.4, 3), "finance", name: <m-f>),
+  comp((3.4, 4), "order", name: <m-o>),
+  comp((3.4, 5), "trust", name: <m-t>),
+
+  prov(<m-a>, <b-a>), prov(<m-c>, <b-c>), prov(<m-ch>, <b-ch>),
+  prov(<m-f>, <b-f>), prov(<m-o>, <b-o>), prov(<m-t>, <b-t>),
+
+  // observability không có api.Service — nó cung cấp *Sink cho middleware
+  comp((1.2, 6.2), "observability", name: <m-ob>),
+  ball((2.2, 6.2), <b-ob>), ilbl((2.2, 5.78), "*observability.Sink"),
+  prov(<m-ob>, <b-ob>),
+  req(<g-r>, <b-ob>, bend: -20deg),
+)
+
+#note[
+  `observability` là thành phần *duy nhất* không công bố `api.Service`: không
+  module nào gọi nó, nó chỉ cung cấp `*Sink` cho middleware của router và được
+  dẫn động bởi bộ lấy mẫu cùng bus. Handler `Uploads` cũng là ngoại lệ nhưng
+  theo hướng ngược lại — nó phụ thuộc vào một kiểu *cụ thể* (`storage/local`)
+  chứ không phải một giao diện, và chỉ được lắp khi cấu hình chọn kho lưu trữ
+  cục bộ (`optional:"true"` trong đồ thị `fx`).
+]
+
+=== Phụ thuộc giữa các module
+
+Đồ thị phụ thuộc *đồng bộ* giữa các module là một đồ thị có hướng không chu
+trình, và `account` nằm ở đáy: nó không phụ thuộc vào module nào khác. Các cạnh
+dưới đây được đọc trực tiếp từ tham số hàm khởi tạo `NewService` của từng module,
+nên chúng là phụ thuộc thật chứ không phải ý định thiết kế.
+
+#fig(
+  [Sơ đồ thành phần: assembly connector giữa các module nghiệp vụ],
+  spacing: (30mm, 14mm),
+
+  ball((0, -0.75), <p-t>), ilbl((0, -1.15), "trust"),
+  ball((2.6, -0.75), <p-o>), ilbl((2.6, -1.15), "order"),
+
+  comp((0, 0), "trust", name: <d-t>),
+  comp((2.6, 0), "order", name: <d-o>),
+  prov(<d-t>, <p-t>),
+  prov(<d-o>, <p-o>),
+  req(<d-t>, <p-o>),
+
+  ball((0, 0.75), <p-c>), ilbl((0.34, 0.75), "catalog"),
+  ball((1.3, 0.75), <p-f>), ilbl((1.64, 0.75), "finance"),
+  ball((2.6, 0.75), <p-ch>), ilbl((2.94, 0.75), "chat"),
+
+  comp((0, 1.5), "catalog", name: <d-c>),
+  comp((1.3, 1.5), "finance", name: <d-f>),
+  comp((2.6, 1.5), "chat", name: <d-ch>),
+  prov(<d-c>, <p-c>), prov(<d-f>, <p-f>), prov(<d-ch>, <p-ch>),
+
+  req(<d-t>, <p-c>),
+  req(<d-o>, <p-c>),
+  req(<d-o>, <p-f>),
+  req(<d-o>, <p-ch>),
+  req(<d-t>, <p-ch>),
+
+  ball((1.3, 2.25), <p-a>), ilbl((1.64, 2.25), "account"),
+  comp((1.3, 3), "account", name: <d-a>),
+  prov(<d-a>, <p-a>),
+  req(<d-c>, <p-a>), req(<d-f>, <p-a>), req(<d-ch>, <p-a>),
+  req(<d-t>, <p-a>, bend: 40deg),
+  req(<d-o>, <p-a>, bend: -40deg),
+)
+
+#note[
+  Mỗi quả cầu là giao diện `<tên>api.Service` do module cùng tên công bố; nhãn
+  chỉ ghi tên module cho gọn. Đọc theo chiều đi xuống: `account` ở đáy và không
+  yêu cầu giao diện nào, `order` và `trust` ở đỉnh và yêu cầu nhiều nhất — bốn
+  giao diện mỗi bên. Đây là *toàn bộ* phụ thuộc đồng bộ giữa các module; không
+  còn cạnh nào khác.
+]
+
+=== Kênh sự kiện bất đồng bộ
+
+Ba quan hệ còn lại giữa các module *không* đi qua giao diện có kiểu mà qua
+`eventbus.Client`. Chúng được vẽ riêng vì mang ý nghĩa khác hẳn: bên gửi không
+biết ai đang nghe, và một bên nghe vắng mặt không làm bên gửi hỏng.
+
+#fig(
+  [Sơ đồ thành phần: kênh sự kiện bất đồng bộ qua `eventbus.Client`],
+  spacing: (34mm, 13mm),
+
+  comp((0, 0), "finance", name: <e-f>),
+  comp((0, 1), "order", name: <e-o>),
+  nt((1.15, 0.5), [*eventbus.Client*\ #text(size: 7pt)[Redis Streams]]),
+  comp((2.3, 0), "order", name: <e-o2>),
+  comp((2.3, 1), "trust", name: <e-t>),
+  comp((2.3, 2), "observability", name: <e-ob>),
+
+  edge(<e-f>, (1.15, 0.5), "-|>", stroke: (dash: "dashed"), rel[`finance.session_paid`]),
+  edge((1.15, 0.5), <e-o2>, "-|>", stroke: (dash: "dashed")),
+  edge(<e-o>, (1.15, 0.5), "-|>", stroke: (dash: "dashed"), rel[`order.settled`\ `order.placed`]),
+  edge((1.15, 0.5), <e-t>, "-|>", stroke: (dash: "dashed"), rel[`order.settled`]),
+  edge((1.15, 0.5), <e-ob>, "-|>", stroke: (dash: "dashed"), rel[`order.placed`]),
+)
+
+#note[
+  *Hai loại cạnh, hai ý nghĩa khác nhau.* Nét liền kèm quả cầu và ổ cắm là phụ
+  thuộc *đồng bộ, có kiểu*: `fx` phải phân giải được nó tại thời điểm khởi động,
+  thiếu một cạnh thì chương trình không dựng nổi đồ thị và dừng ngay. Nét đứt là
+  kênh bất đồng bộ. Nhờ tách hai loại ra, chuỗi `finance → order → trust` trên
+  nét đứt không hề mâu thuẫn với việc đồ thị nét liền là phi chu trình — cột bên
+  trái và bên phải của sơ đồ trên là *cùng* module `order`, vẽ hai lần để tách
+  vai trò bên phát và bên nghe.
+]
+
+#figure(
+  caption: [Ma trận giao diện cung cấp và giao diện yêu cầu của từng thành phần],
+  table(
+    columns: (0.85fr, 1fr, 2.55fr),
+    align: (left + horizon, left + horizon, left + horizon),
+    table.header([Thành phần], [Giao diện cung cấp], [Giao diện yêu cầu]),
+
+    [`gateway`], [`http.Handler`],
+    [6 × `<m>api.Service` (qua 6 handler), `*observability.Sink`,
+     `*token.Manager`, `*session.Store`, `*http.ServeMux` (webhook).],
+
+    [`account`], [`accountapi.Service`\ `port.Repository`],
+    [`cache.Client`, `*token.Manager`, `*session.Store`, `notify.Client`,
+     `oauth.Verifier`, `kyc.Client`, `common.Uploads`. *Không* phụ thuộc module
+     nào khác — đây là gốc của đồ thị.],
+
+    [`catalog`], [`catalogapi.Service`\ `port.Repository`],
+    [`accountapi.Service`, `common.Uploads`, `*validator.Validate`.],
+
+    [`chat`], [`chatapi.Service`\ `port.Repository`],
+    [`accountapi.Service`, `common.Uploads`, `*validator.Validate`.],
+
+    [`finance`], [`financeapi.Service`\ `port.Repository`\ `port.Options`],
+    [`accountapi.Service`, `payment.Client`, `eventbus.Client`,
+     `*validator.Validate`. Phát `finance.session_paid`.],
+
+    [`order`], [`orderapi.Service`\ `port.Repository`\ `port.Options`\ `port.Workflows`],
+    [`accountapi.Service`, `catalogapi.Service`, `financeapi.Service`,
+     `chatapi.Service`, `transport.Client`, `eventbus.Client`,
+     `*durable.Client` (Restate, `optional`), `common.Uploads`. Phát
+     `order.placed`, `order.settled`.],
+
+    [`trust`], [`trustapi.Service`\ `port.Repository`],
+    [`accountapi.Service`, `catalogapi.Service`, `orderapi.Service`,
+     `chatapi.Service`, `common.Uploads`, `*validator.Validate`; `eventbus.Client`
+     chỉ ở `fx.Invoke` để nghe `order.settled`.],
+
+    [`observability`], [`*observability.Sink`\ `port.Repository`\ `*eventbus.NATS`],
+    [`*eventbus.NATS` (telemetry) và `eventbus.Client` (sự kiện miền). Không công
+     bố `api.Service`.],
+  ),
+)
+
+#note[
+  *Hai bus phân biệt bằng kiểu Go, không phải bằng cấu hình.* `observability`
+  nhận `*eventbus.NATS` — kiểu *cụ thể* — cho telemetry, còn sự kiện miền đi qua
+  *giao diện* `eventbus.Client` (Redis Streams). Nếu lỡ khai báo telemetry theo
+  giao diện, `fx` sẽ nối bộ ghi telemetry vào đúng bus sự kiện miền mà không báo
+  bất kỳ lỗi nào — một hỏng hóc chỉ lộ ra khi bảng điều khiển trống trơn.
+]
+
+#note[
+  *Trạng thái các cổng ra ngoài.* `payment.Client`, `transport.Client` và
+  `storage.Client` hiện mới chỉ có một hiện thực: `mock` cho hai cổng đầu và
+  `local` cho kho lưu trữ — khớp với phạm vi "dựng bộ mock cho cổng thanh toán và
+  vận chuyển" đã nêu ở Báo cáo định kỳ lần 2. `kyc`, `notify` và `oauth` đã có
+  hiện thực thật bên cạnh bản mock (FPT.AI; SMTP và eSMS; OIDC Google/Apple).
+  Riêng `llm.Client` (LiteLLM) đã được định nghĩa nhưng *chưa được nối vào đồ thị
+  `fx`* — nó là một khớp nối để dành, chưa phải một phụ thuộc đang hoạt động, nên
+  không xuất hiện trên sơ đồ thành phần.
+]
+
 == Kiến trúc phân lớp bên trong một module
 
 Mọi module đều có cùng một hình dạng thư mục, và chiều phụ thuộc là bất biến
@@ -248,7 +497,7 @@ kiến trúc quan trọng nhất của hệ thống: mũi tên chỉ đi từ ng
 bao giờ ngược lại.
 
 #fig(
-  [Kiến trúc hexagon phân lớp của một module điển hình (Component Diagram)],
+  [Kiến trúc hexagon phân lớp bên trong một module điển hình],
   spacing: (30mm, 12mm),
 
   np((0, 0), [Client]),
@@ -275,7 +524,7 @@ bao giờ ngược lại.
   ng((2.3, 4), [PostgreSQL\ #text(size: 7pt)[lược đồ riêng của module]]),
 
   edge((1, 2), (2.3, 2), "<->", stroke: (dash: "dashed"), text(size: 7.5pt)[sự kiện · RPC]),
-  ng((2.3, 2), [Module khác qua `api.Service`\ #text(size: 7pt)[hoặc `bus.Client` / Restate]]),
+  ng((2.3, 2), [Module khác qua `api.Service`\ #text(size: 7pt)[hoặc `eventbus.Client` / Restate]]),
 
   edge((0, 4), (1, 4), "-|>", text(size: 7.5pt)[lắp ráp]),
   nt((0, 4), [*`fx.go`* — Uber fx\ #text(size: 7pt)[`fx.As(new(port.Repository))`\ `fx.As(new(<m>api.Service))`]]),
