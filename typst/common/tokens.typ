@@ -133,3 +133,23 @@
 
 // Ảnh mockup: dùng chung đường dẫn, khỏi phải nhớ ../..
 #let mockup(name, ..a) = image("assets/mockups/" + name + ".png", ..a)
+
+// Chỗ chờ ảnh chụp màn hình sản phẩm đã chạy. Vẫn là một figure kind: image nên nó
+// chiếm đúng vị trí và số hiệu hình thật, chỉ còn việc thay nội dung khối khi có ảnh.
+// huong-dan mô tả cần chụp màn hình nào, ở trạng thái nào, để người chụp không phải đoán.
+#let anh-cho(cap, huong-dan, cao: 5.4cm) = figure(
+  block(
+    width: 100%, height: cao, radius: 8pt, fill: rgb("#F2F2F2"),
+    stroke: (paint: muted, thickness: 1pt, dash: "dashed"), inset: 12pt,
+    align(center + horizon, {
+      set text(size: 10pt, fill: rgb("#444444"))
+      stack(
+        spacing: 7pt,
+        text(weight: 700, size: 10.5pt, [CHỖ CHỜ ẢNH CHỤP MÀN HÌNH]),
+        text(style: "italic", huong-dan),
+      )
+    }),
+  ),
+  caption: cap,
+  kind: image,
+)
