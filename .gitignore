@@ -1,5 +1,9 @@
 # Build artifacts của Typst (tái tạo từ .typ bằng `typst compile`)
 *.pdf
+typst/out/
+
+# Bản nháp đã nghỉ hưu và tệp không dùng: giữ trên đĩa, không theo dõi.
+typst/tmp/
 
 # Fetched from the server repo at build time (see Dockerfile).
 docs/api/openapi.yaml
