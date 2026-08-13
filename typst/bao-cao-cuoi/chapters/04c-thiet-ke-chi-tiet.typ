@@ -1005,7 +1005,7 @@ ghi chú thiết kế giải thích một quyết định không đọc được
   edge(<m-svc>, <m-aud>, "-->", rel[ghi]),
 )
 
-=== Mô tả vắn tắt từng module
+=== Mô tả từng module
 
 - *Tài khoản:* Một tài khoản vừa mua vừa bán trên cùng một định danh, nên module không tách hai vai ở mức lớp. Cả 3 cách định danh gồm số điện thoại, thư điện tử và tên đăng nhập đều tuỳ chọn nhưng phải có ít nhất một, và mật khẩu được phép rỗng với tài khoản chỉ đăng nhập bằng định danh liên kết. Hồ sơ được gộp thẳng vào tài khoản thay vì tách bảng riêng vì hai thứ luôn được đọc cùng nhau.
 
@@ -1023,7 +1023,7 @@ ghi chú thiết kế giải thích một quyết định không đọc được
 
 == Sơ đồ trình tự
 
-=== Quy ước ký hiệu
+=== Phạm vi và quy ước ký hiệu
 
 Mỗi cột là một bên tham gia: tác nhân là người thì ghi kèm dấu hai chấm ở đầu, còn lại là
 module chịu trách nhiệm về phần nghiệp vụ ấy, trong đó module chủ đạo của kịch bản được tô
@@ -1155,34 +1155,11 @@ phương thức, để hình đọc được mà không phải mở mã nguồn.
   rmsg(1, 0, 13, [11. Trả về phiên thanh toán; từ đây trình tự\ tiếp tục đúng như TT-A từ bước giữ tồn kho]),
 )
 
-=== TT-A: Đặt hàng và giữ ký quỹ
+=== Mô tả từng kịch bản
 
-Kịch bản bắt đầu khi người mua bấm mua và dừng ở bước mở phiên thanh toán; phần thu tiền và
-sinh đơn được mô tả bằng lời ngay sau hình. Ba quyết định thiết kế chi phối toàn bộ trình tự. Thứ nhất, quyền mua
-được chiếm trước khi tiền được hỏi tới: lượt ghi hủy phiếu mua chính là hành động chiếm,
-nên hai cú bấm liên tiếp chỉ mở được một phiên thanh toán; nếu chiếm sau, một thương vụ có
-hai phiên đã trả tiền là khoản tiền mà ký quỹ không hạch toán nổi. Thứ hai, phí vận
-chuyển do máy chủ hỏi hãng vận chuyển, không bao giờ do máy khách gửi lên, và một người
-bán chưa khai điểm lấy hàng sẽ làm hỏng lượt mua trước khi tiền bị thu. Thứ ba, chỉ
-thông báo từ cổng thanh toán mới kết toán một chặng tiền: trang mà người mua rơi vào sau
-khi trả tiền là thứ bất kỳ ai cũng giả mạo được.
+*TT-A đặt hàng và giữ ký quỹ.* Kịch bản bắt đầu khi người mua bấm mua và dừng ở bước mở phiên thanh toán; phần thu tiền và sinh đơn được mô tả bằng lời ngay sau hình. Ba quyết định thiết kế chi phối toàn bộ trình tự. Thứ nhất, quyền mua được chiếm trước khi tiền được hỏi tới: lượt ghi hủy phiếu mua chính là hành động chiếm, nên hai cú bấm liên tiếp chỉ mở được một phiên thanh toán; nếu chiếm sau, một thương vụ có hai phiên đã trả tiền là khoản tiền mà ký quỹ không hạch toán nổi. Thứ hai, phí vận chuyển do máy chủ hỏi hãng vận chuyển, không bao giờ do máy khách gửi lên, và một người bán chưa khai điểm lấy hàng sẽ làm hỏng lượt mua trước khi tiền bị thu. Thứ ba, chỉ thông báo từ cổng thanh toán mới kết toán một chặng tiền: trang mà người mua rơi vào sau khi trả tiền là thứ bất kỳ ai cũng giả mạo được.
 
+*TT-B yêu cầu hoàn tiền và leo thang thành phiếu hỗ trợ.* Đây là kịch bản cắt ngang nhiều module nhất. Nguyên tắc phân chia trách nhiệm ở đây là tranh chấp do module tín nhiệm quản lý dưới dạng một phiếu hỗ trợ, còn phán quyết làm dịch chuyển tiền thì ra ở nơi giữ tiền. Hai chi tiết chống lỗi đáng nêu: việc mở phiếu gọi sang module đơn hàng để leo thang trước khi ghi dòng phiếu, nên một yêu cầu không đủ điều kiện sẽ không để lại phiếu vô nghĩa; và một phán quyết đóng mọi phiếu đang mở về cùng đối tượng, vì cả hai bên đều có quyền leo thang mà loại phiếu này không giải quyết bằng tay được.
 
-=== TT-B: Yêu cầu hoàn tiền và leo thang thành phiếu hỗ trợ
+*TT-C thương lượng giá.* Kịch bản này chỉ vẽ tới lúc người mua bấm mua, vì từ bước giữ tồn kho trở đi nó trùng với TT-A. Điều dễ hiện thực sai nhất là đồng ý không phải bán được hàng: chỉ bên không đang giữ đề nghị mới được đồng ý, và việc đồng ý chỉ đóng băng giá 30 phút, người mua vẫn phải bấm mua để chọn hãng vận chuyển và trả tiền. Nhờ tách đôi như vậy, việc người bán đồng ý là an toàn vì chưa có đơn hàng và chưa đồng tiền nào dịch chuyển. Luồng hội thoại chỉ mang con trỏ tới cuộc thương lượng chứ không chép giá vào tin nhắn, để không còn lại trong luồng một mức giá đã hết hiệu lực.
 
-Đây là kịch bản cắt ngang nhiều module nhất. Nguyên tắc phân chia trách nhiệm ở đây là tranh
-chấp do module tín nhiệm quản lý dưới dạng một phiếu hỗ trợ, còn phán quyết làm dịch chuyển
-tiền thì ra ở nơi giữ tiền. Hai chi tiết chống lỗi đáng nêu: việc mở phiếu gọi sang module đơn
-hàng để leo thang trước khi ghi dòng phiếu, nên một yêu cầu không đủ điều kiện sẽ không để lại
-phiếu vô nghĩa; và một phán quyết đóng mọi phiếu đang mở về cùng đối tượng, vì cả hai bên đều
-có quyền leo thang mà loại phiếu này không giải quyết bằng tay được.
-
-=== TT-C: Thương lượng giá
-
-Kịch bản này chỉ vẽ tới lúc người mua bấm mua, vì từ bước giữ tồn kho trở đi nó trùng với
-TT-A. Điều dễ hiện thực sai nhất là đồng ý không phải bán được hàng: chỉ bên không đang giữ đề
-nghị mới được đồng ý, và việc đồng ý chỉ đóng băng giá 30 phút, người mua vẫn phải bấm mua để
-chọn hãng vận chuyển và trả tiền. Nhờ tách đôi như vậy, việc người bán đồng ý là an toàn vì
-chưa có đơn hàng và chưa đồng tiền nào dịch chuyển. Luồng hội thoại chỉ mang con trỏ tới cuộc
-thương lượng chứ không chép giá vào tin nhắn, để không còn lại trong luồng một mức giá đã hết
-hiệu lực.
