@@ -202,21 +202,17 @@
     // Phụ lục QĐ 922 quy định header/footer cách bìa 1,0cm. Trong Typst hai
     // tham số này là KHOẢNG HỞ giữa header/footer và khối thân bài, nên phải
     // lấy 2,0cm trừ đi 1,0cm và trừ tiếp chiều cao của chính dải header/footer.
-    header-ascent: 0.37cm,
-    footer-descent: 0.30cm,
+    header-ascent: 0.76cm,
+    footer-descent: 0.69cm,
     numbering: none,
-    header: context block(width: 100%, inset: (bottom: 2pt))[
+    header: context block(width: 100%)[
       #set text(font: font-quyen, size: 10pt, weight: "regular")
       #grid(
         columns: (1fr, auto),
         align(left, [#chay]), align(right, tieu-de-chay),
       )
-      #v(3pt)
-      #line(length: 100%, stroke: 0.5pt + black)
     ],
-    footer: context block(width: 100%, inset: (top: 2pt))[
-      #line(length: 100%, stroke: 0.5pt + black)
-      #v(3pt)
+    footer: context block(width: 100%)[
       #grid(
         columns: (1fr, 1fr),
         align(left, text(font: font-quyen, size: 10pt)[Nhóm #info.nhom]),
