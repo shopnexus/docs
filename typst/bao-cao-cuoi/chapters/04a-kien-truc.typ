@@ -48,11 +48,7 @@ sau đều truy ngược về ít nhất một mã trong số đó.
 === Kiểu kiến trúc và ranh giới triển khai
 
 
-Hệ thống được tổ chức theo Kiến trúc phân rã theo nhóm nghiệp vụ, chia thành 7 dịch vụ: `account`, `catalog`, `order`, `finance`, `chat`, `trust` và `observability`. Ranh giới giữa các dịch vụ này được cưỡng chế bằng cơ chế kỹ thuật thay vì chỉ là quy ước lỏng lẻo trên mã nguồn, thể hiện qua 3 nguyên tắc cốt lõi:
-
-- *Sở hữu dữ liệu độc quyền:* Mỗi dịch vụ làm chủ một lược đồ (schema) riêng. Bể kết nối (connection pool) bị ép buộc phải khóa đường dẫn tìm kiếm (search path) vào đúng lược đồ đó, cắt đứt hoàn toàn nguy cơ truy vấn chéo (ADR-01).
-- *Giao tiếp qua hợp đồng công bố:* Các dịch vụ chỉ gọi nhau qua tập giao diện (interface) công bố sẵn. Gói hợp đồng này không chứa logic và chỉ phụ thuộc thư viện chuẩn, đảm bảo rằng nếu cần tách một dịch vụ ra máy chủ khác, thao tác duy nhất là thay thế bản hiện thực bằng một máy khách gọi mạng mà bên gọi không phải sửa dòng mã nào.
-- *Tương tác bất đồng bộ qua trục sự kiện (Event bus):* Các luồng chạy nền giao tiếp với nhau bằng mạng lưới Pub/Sub. Thông điệp truyền đi luôn mang ý nghĩa "sự việc đã hoàn tất" (domain event), tuyệt đối không mang tính mệnh lệnh (command).
+Hệ thống được tổ chức theo Kiến trúc phân rã theo nhóm nghiệp vụ, chia thành 7 dịch vụ: `account`, `catalog`, `order`, `finance`, `chat`, `trust` và `observability`. Ranh giới giữa các dịch vụ này được cưỡng chế bằng cơ chế kỹ thuật thay vì chỉ là quy ước lỏng lẻo trên mã nguồn. Trước hết là quyền sở hữu dữ liệu độc quyền: mỗi dịch vụ làm chủ một lược đồ (schema) riêng, còn bể kết nối (connection pool) bị ép buộc khóa đường dẫn tìm kiếm (search path) vào đúng lược đồ đó nên nguy cơ truy vấn chéo bị cắt đứt hoàn toàn (ADR-01). Kế đến, các dịch vụ chỉ gọi nhau qua tập giao diện (interface) công bố sẵn; gói hợp đồng này không chứa logic và chỉ phụ thuộc thư viện chuẩn, nhờ đó khi cần tách một dịch vụ ra máy chủ khác thì thao tác duy nhất là thay bản hiện thực bằng một máy khách gọi mạng, còn bên gọi không phải sửa dòng mã nào. Cuối cùng, các luồng chạy nền tương tác bất đồng bộ với nhau qua trục sự kiện (Event bus) theo mạng lưới Pub/Sub, trong đó thông điệp truyền đi luôn mang ý nghĩa "sự việc đã hoàn tất" (domain event) chứ tuyệt đối không mang tính mệnh lệnh (command).
 
 Trong giai đoạn hiện tại, cả 7 dịch vụ được đóng gói và phát hành chung thành một đơn vị triển khai duy nhất.
 === Kiến trúc luận lý

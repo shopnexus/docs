@@ -251,10 +251,7 @@ Thiết kế bảo mật không phải một lớp màng lọc độc lập, mà
 
 === Bảo vệ dữ liệu và kiểm soát đầu vào
 
-Tuân thủ nguyên tắc Tối thiểu hóa dữ liệu (Data Minimization):
-- *Ngăn ngừa rò rỉ dữ liệu nhạy cảm:* Hệ thống không lưu trữ bản rõ các trường dữ liệu định danh như số Căn cước. Hồ sơ eKYC chỉ giữ kết luận phê duyệt và mã đối chiếu (Reference ID) của nhà cung cấp, vô hiệu hóa hoàn toàn giá trị của dữ liệu nếu xảy ra lộ lọt.
-- *Bảo mật tài sản số (Digital Assets):* Thông tin định danh của nhà cung cấp bên ngoài (API Keys) không lưu bản rõ trong CSDL mà chỉ giữ đường dẫn tham chiếu. Tệp tĩnh tải lên được cô lập bảo mật thông qua cơ chế Đường dẫn ký có thời hạn (Presigned URLs).
-- *Che giấu nhật ký (Log Masking):* Cưỡng chế cơ chế lọc nhật ký hệ thống, đảm bảo không ghi lại mật khẩu, Access Token hoặc nội dung bí mật một lần dưới mọi hình thức.
+Nguyên tắc Tối thiểu hóa dữ liệu (Data Minimization) được tuân thủ xuyên suốt hệ thống. Các trường dữ liệu định danh như số Căn cước không được lưu ở dạng bản rõ; hồ sơ eKYC chỉ giữ kết luận phê duyệt và mã đối chiếu (Reference ID) của nhà cung cấp, qua đó vô hiệu hóa hoàn toàn giá trị của dữ liệu nếu xảy ra lộ lọt. Tương tự, thông tin định danh của nhà cung cấp bên ngoài (API Keys) không nằm dưới dạng bản rõ trong cơ sở dữ liệu mà chỉ được giữ ở dạng đường dẫn tham chiếu, còn tệp tĩnh tải lên được cô lập bảo mật thông qua cơ chế Đường dẫn ký có thời hạn (Presigned URLs). Ở tầng nhật ký, cơ chế lọc được cưỡng chế nhằm bảo đảm mật khẩu, Access Token hoặc nội dung bí mật một lần không bị ghi lại dưới mọi hình thức.
 
 === Giới hạn tần suất, quản lý bí mật và vòng đời dữ liệu
 

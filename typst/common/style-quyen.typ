@@ -72,7 +72,7 @@
       #v(0.4cm)
       #block(width: 92%)[
         #set par(justify: false, leading: 0.65em)
-        #text(size: 16pt, weight: "bold")[Đề tài: “#info.de-tai-hoa”]
+        #text(size: 16pt, weight: "bold")[Đề tài: “#info.de-tai”]
       ]
 
       #v(0.6cm)
