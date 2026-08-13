@@ -44,16 +44,18 @@ Mặc dù đã có nhiều cố gắng, song do giới hạn về mặt thời g
   columns: (auto, 1.5fr, 2fr),
   align: (left, left, left),
   table.header([*Viết tắt*], [*Cụm từ đầy đủ*], [*Ý nghĩa*]),
-  [Access token], [], [Vé truy cập ngắn hạn, đính kèm mỗi lời gọi API để chứng minh danh tính],
+  [Access token], [], [Thẻ truy cập ngắn hạn, đính kèm mỗi lời gọi API để chứng minh danh tính],
   [ANN], [Approximate Nearest Neighbor], [Tìm láng giềng gần đúng (cho tìm kiếm vector)],
   [API], [Application Programming Interface], [Giao diện lập trình ứng dụng],
+  [AD], [Architectural Driver], [Yêu cầu có ý nghĩa kiến trúc (đánh mã AD-xx)],
   [BR], [Business Rule], [Quy tắc nghiệp vụ (đánh mã BR-xxx)],
+  [B2C], [Business to Consumer], [Giao dịch giữa doanh nghiệp và người tiêu dùng],
   [C2C], [Consumer to Consumer], [Giao dịch giữa các cá nhân người dùng],
   [CI/CD], [Continuous Integration / Continuous Deployment], [Tích hợp và triển khai liên tục],
   [CSDL], [], [Cơ sở dữ liệu],
   [Durable execution], [], [Thực thi bền: nền tảng bảo đảm một lời gọi chạy tới cùng dù tiến trình gặp sự cố],
   [Durable workflow], [], [Quy trình bền: quy trình nhiều bước chạy trên nền tảng durable execution],
-  [Embedding], [], [Véc-tơ nhúng biểu diễn ngữ nghĩa của văn bản, dùng cho tìm kiếm ngữ nghĩa],
+  [Embedding], [], [Vector nhúng biểu diễn ngữ nghĩa của văn bản, dùng cho tìm kiếm ngữ nghĩa],
   [ERD], [Entity–Relationship Diagram], [Sơ đồ thực thể – quan hệ],
   [Ký quỹ], [], [Cơ chế ký quỹ (trung gian) bảo vệ giao dịch],
   [Guarded write], [], [Lượt ghi có bảo vệ, nêu đích danh trạng thái nguồn nên một lượt đọc cũ luôn thua],
@@ -63,8 +65,11 @@ Mặc dù đã có nhiều cố gắng, song do giới hạn về mặt thời g
   [NFR], [Non-Functional Requirement], [Yêu cầu phi chức năng],
   [RBAC], [Role-Based Access Control], [Kiểm soát truy cập theo vai trò],
   [REQ], [Requirement], [Yêu cầu chức năng (đánh mã REQ-xxx)],
+  [RR], [Risk Register], [Sổ đăng ký rủi ro (đánh mã RR-xx)],
+  [SOA], [Service-Oriented Architecture], [Kiến trúc hướng dịch vụ],
+  [TC], [Test Case], [Ca kiểm thử (đánh mã TC-xx)],
+  [TMĐT], [], [Thương mại điện tử],
   [RPC], [Remote Procedure Call], [Lời gọi thủ tục từ xa giữa các dịch vụ],
-  [SSE], [Server-Sent Events], [Kênh đẩy sự kiện thời gian thực từ máy chủ],
   [TLS], [Transport Layer Security], [Mã hóa dữ liệu trên đường truyền],
   [UC], [Use Case], [Ca sử dụng (đánh mã UC-xxx)],
   [UML], [Unified Modeling Language], [Ngôn ngữ mô hình hóa thống nhất],
@@ -192,7 +197,7 @@ cơ chế bảo vệ giao dịch được thiết kế thành thuộc tính củ
 chính sách nằm ngoài phần mềm. Tiền của người mua được giữ ở tài khoản ký quỹ bởi
 chính luồng thanh toán, đơn hàng ra đời từ việc tiền đã về chứ không từ thao tác của ai,
 quy trình khiếu nại được hợp nhất về một dạng phiếu duy nhất, và đánh giá hai chiều được
-giữ kín cho tới khi cả hai bên đã gửi. Mỗi lựa chọn ấy loại bỏ một khoảng trống mà ở đó
+giữ kín cho tới khi cả 2 bên đã gửi. Mỗi lựa chọn ấy loại bỏ một khoảng trống mà ở đó
 một bên có thể gây thiệt hại cho bên kia.
 
 *Hạn chế.* Hệ thống chưa được tích hợp với một hãng vận chuyển thật nào, nên toàn bộ
@@ -233,7 +238,7 @@ mô hình dữ liệu.
 // "truy cập ngày". Không dịch tên hội nghị hay tên nước, vì dịch ra thì mục vừa sai
 // tên gốc vừa đọc như nửa Anh nửa Việt.
 // Xếp abc: hai nghị định theo tên tài liệu, phần tiếng Anh theo họ tác giả,
-// phần website theo tên tài nguyên. Số thứ tự chạy liên tục qua cả ba nhóm để
+// phần website theo tên tài nguyên. Số thứ tự chạy liên tục qua cả 3 nhóm để
 // trích dẫn trong thân bài (dạng [n]) không bị trùng.
 #let nhom-tltk(ten) = block(above: 1.1em, below: 0.5em)[#strong(ten)]
 

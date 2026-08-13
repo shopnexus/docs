@@ -119,7 +119,7 @@
 
 === Sơ đồ trạng thái vòng đời đơn hàng
 
-Đơn hàng có 4 trạng thái, và cả bốn đều được suy ra từ các mốc thời gian kết quả chứ
+Đơn hàng có 4 trạng thái, và cả 4 đều được suy ra từ các mốc thời gian kết quả chứ
 không lưu thành một trường trạng thái riêng, nhờ vậy không tồn tại khả năng trường trạng
 thái lệch với các mốc thời gian sinh ra nó. Sơ đồ dưới đây là hợp đồng mà tầng nghiệp vụ
 phải tuân thủ: mọi phép chuyển không xuất hiện trên sơ đồ đều bị từ chối.
@@ -180,7 +180,7 @@ phải tuân thủ: mọi phép chuyển không xuất hiện trên sơ đồ đ
     [REQ-50], [thu hồi phiên đăng nhập hiện tại khi người dùng đăng xuất, và thu hồi mọi phiên còn lại của tài khoản khi đổi mật khẩu hoặc khi tài khoản bị khoá.], [UC-02], [tài khoản], [BR-06],
 
     table.cell(colspan: 5, align: left)[*Nhóm 2. Xác minh danh tính*],
-    [REQ-07], [tiếp nhận hồ sơ giấy tờ tuỳ thân vào hàng đợi cho kiểm duyệt viên duyệt.], [UC-03, UC-27], [tài khoản], [BR-08],
+    [REQ-07], [tiếp nhận hồ sơ giấy tờ tuỳ thân vào hàng đợi cho điều phối viên duyệt.], [UC-03, UC-27], [tài khoản], [BR-08],
     [REQ-08], [từ chối tạo tin đăng và từ chối yêu cầu rút tiền của tài khoản chưa được xác minh danh tính.], [UC-03], [tài khoản, danh mục, tài chính], [BR-07],
 
     table.cell(colspan: 5, align: left)[*Nhóm 3. Tin đăng và kiểm duyệt*],
@@ -226,7 +226,7 @@ phải tuân thủ: mọi phép chuyển không xuất hiện trên sơ đồ đ
     [REQ-48], [cho phép người mua rút hồ sơ hoàn tiền khi người bán chưa trả lời, đưa hồ sơ về một trạng thái kết thúc riêng khác với bị bác bỏ, và trả đơn về danh sách chờ giải ngân.], [UC-19], [đơn hàng], [BR-37],
 
     table.cell(colspan: 5, align: left)[*Nhóm 9. Đánh giá, uy tín và ví*],
-    [REQ-38], [giữ đánh giá giao dịch ở dạng ẩn cho tới khi cả hai bên đã gửi hoặc hết 14 ngày, rồi công bố và cộng vào điểm uy tín trong cùng một giao dịch ghi.], [UC-21], [tín nhiệm], [BR-51, BR-52],
+    [REQ-38], [giữ đánh giá giao dịch ở dạng ẩn cho tới khi cả 2 bên đã gửi hoặc hết 14 ngày, rồi công bố và cộng vào điểm uy tín trong cùng một giao dịch ghi.], [UC-21], [tín nhiệm], [BR-51, BR-52],
     [REQ-39], [cho phép người đã mua viết nhận xét sản phẩm, người bán phản hồi và người dùng bình chọn hữu ích, đếm tách rời với đánh giá giao dịch.], [UC-22], [tín nhiệm, danh mục], [BR-52, BR-53],
     [REQ-40], [hiển thị số dư khả dụng, số dư đang giữ và sổ bút toán chỉ-thêm-mới của ví.], [UC-18], [tài chính], [BR-35],
     [REQ-41], [cho phép rút phần số dư khả dụng về tài khoản ngân hàng đã đăng ký, trừ ví ngay khi yêu cầu được tạo và hoàn lại khi bị từ chối.], [UC-18, UC-29], [tài chính], [BR-07, BR-36],
@@ -252,7 +252,7 @@ phải tuân thủ: mọi phép chuyển không xuất hiện trên sơ đồ đ
     table.header([Mã], [Phát biểu]),
 
     table.cell(colspan: 2, align: left)[*a) Bảo mật, phân quyền và kiểm toán*],
-    [NFR-01], [Mật khẩu có độ dài 8-72 ký tự, được xác thực tại mọi luồng nhập liệu. Mật khẩu được băm bằng thuật toán bcrypt với muối (salt) độc lập; bản rõ bị hủy ngay tại tầng dịch vụ. Cố ý không áp dụng các quy tắc ép buộc ký tự đặc biệt nhằm tránh việc người dùng thiết lập các biến thể dễ đoán.],
+    [NFR-01], [Mật khẩu có độ dài 8–72 ký tự, được xác thực tại mọi luồng nhập liệu. Mật khẩu được băm bằng thuật toán bcrypt với muối (salt) độc lập; bản rõ bị hủy ngay tại tầng dịch vụ. Cố ý không áp dụng các quy tắc ép buộc ký tự đặc biệt nhằm tránh việc người dùng thiết lập các biến thể dễ đoán.],
     [NFR-02], [Vòng đời Access Token tối đa 15 phút; phiên đăng nhập tối đa 30 ngày. Mọi yêu cầu API có xác thực đều phải đi qua bộ lọc kiểm tra trạng thái phiên tương ứng trước khi được xử lý.],
     [NFR-03], [Thao tác thu hồi phiên có hiệu lực tức thời ở yêu cầu API kế tiếp. Cơ chế thu hồi toàn bộ phiên của một tài khoản được thực thi bằng một phép cập nhật nguyên tử, không phụ thuộc vào số lượng thiết bị đang đăng nhập.],
     [NFR-04], [Mọi định danh thực thể công bố qua API đều được làm mờ (obfuscated) thông qua phép hoán vị bảo toàn định dạng (FPE) với khóa bí mật, ngăn chặn việc dò đoán quy mô bản ghi bằng cách tịnh tiến ID.],

@@ -13,7 +13,7 @@ Thị trường mua bán đồ cũ, hàng thanh lý và đồ thủ công cá nh
   - *Hạn chế:* Hoàn toàn thiếu các chuẩn mực của một nền tảng TMĐT chuyên nghiệp: không có hệ thống quản lý đơn hàng, không có tích hợp cổng thanh toán an toàn, không có cơ chế giữ cọc hay chính sách hoàn tiền. Các hành vi gian lận, tài khoản ảo (clone) lừa đảo chuyển khoản diễn ra rất phổ biến mà không có cơ chế kiểm duyệt hay hạn chế.
 - *Shopee / Lazada - Mô hình B2C bán chuyên (Managed Marketplace):*
   - *Ưu điểm:* Hệ sinh thái logistics, cổng thanh toán và chính sách bảo vệ người mua cực kỳ hoàn thiện (như Shopee Đảm Bảo).
-  - *Hạn chế:* Được thiết kế tối ưu cho mô hình B2C hoặc nhà bán hàng chuyên nghiệp. Quy trình đăng ký gian hàng và đăng bán sản phẩm rất rườm rà (đòi hỏi cấu hình mã SKU, thông tin doanh nghiệp/thuế, thiết lập kho hàng chuyên sâu), kèm theo mức phí sàn và phí hoa hồng cao (thường từ 8% - 15%). Mô hình này không hề phù hợp cho một cá nhân thông thường chỉ muốn thanh lý nhanh 1–2 món đồ cũ cá nhân. Bên cạnh đó, cơ chế trả giá thường bị ràng buộc bởi các mã giảm giá/voucher cố định, thiếu sự linh hoạt thương lượng giá trực tiếp từng đơn hàng trong khung chat giữa hai cá nhân.
+  - *Hạn chế:* Được thiết kế tối ưu cho mô hình B2C hoặc nhà bán hàng chuyên nghiệp. Quy trình đăng ký gian hàng và đăng bán sản phẩm rất rườm rà (đòi hỏi cấu hình mã SKU, thông tin doanh nghiệp/thuế, thiết lập kho hàng chuyên sâu), kèm theo mức phí sàn và phí hoa hồng cao (thường từ 8–15%). Mô hình này không hề phù hợp cho một cá nhân thông thường chỉ muốn thanh lý nhanh 1–2 món đồ cũ cá nhân. Bên cạnh đó, cơ chế trả giá thường bị ràng buộc bởi các mã giảm giá/voucher cố định, thiếu sự linh hoạt thương lượng giá trực tiếp từng đơn hàng trong khung chat giữa hai cá nhân.
 
 === Phân tích các vai trò người dùng (Persona)
 Hệ thống được thiết kế phục vụ cho 3 nhóm đối tác nhân chính, với các mục tiêu nghiệp vụ, đặc tính hành vi và ranh giới phân quyền rõ rệt:
@@ -118,11 +118,11 @@ Mỗi ca sử dụng dưới đây biểu diễn một mục tiêu trọn vẹn 
     table.cell(colspan: 4, align: left)[*Nhóm E. Hậu giao dịch và uy tín*],
     [UC-19], [Yêu cầu trả hàng và hoàn tiền], [Người mua], [Mở yêu cầu kèm lý do và bằng chứng bất kỳ lúc nào trước khi đơn kết thúc.],
     [UC-20], [Xử lý yêu cầu hoàn tiền], [Người bán], [Chấp nhận cho trả hàng, hoặc chuyển hồ sơ cho sàn phân xử; không có lựa chọn từ chối.],
-    [UC-21], [Đánh giá hai chiều theo cơ chế ẩn], [Người dùng], [Đánh giá đối tác sau khi đơn kết thúc; đánh giá bị ẩn cho tới khi cả hai bên gửi hoặc hết 14 ngày.],
+    [UC-21], [Đánh giá hai chiều theo cơ chế ẩn], [Người dùng], [Đánh giá đối tác sau khi đơn kết thúc; đánh giá bị ẩn cho tới khi cả 2 bên gửi hoặc hết 14 ngày.],
     [UC-22], [Đánh giá sản phẩm và bình chọn hữu ích], [Người mua], [Viết nhận xét cho sản phẩm đã mua; đánh dấu một nhận xét là hữu ích.],
 
     table.cell(colspan: 4, align: left)[*Nhóm F. Hỗ trợ, kiểm duyệt và quản trị*],
-    [UC-23], [Gửi phiếu hỗ trợ], [Người dùng], [Gửi mọi loại yêu cầu lên sàn: tố cáo, khiếu nại hoàn tiền, sự cố đơn, vướng mắc thanh toán, đề xuất.],
+    [UC-23], [Gửi phiếu hỗ trợ], [Người dùng], [Gửi mọi loại yêu cầu lên sàn: tố cáo, hồ sơ hoàn tiền, sự cố đơn, vướng mắc thanh toán, đề xuất.],
     [UC-24], [Tiếp nhận và trả lời phiếu hỗ trợ], [Điều phối viên], [Trả lời trong hội thoại của phiếu, ghi kết luận xử lý.],
     [UC-25], [Kiểm duyệt tin đăng và bản sửa], [Điều phối viên], [Duyệt hoặc từ chối tin đăng mới và bản sửa; gỡ một tin đang hiển thị khi có vi phạm.],
     [UC-26], [Phân xử yêu cầu hoàn tiền], [Điều phối viên], [Ra phán quyết cho hồ sơ đã chuyển lên sàn khi có tranh chấp liên quan.],
@@ -268,7 +268,7 @@ Mỗi ca sử dụng dưới đây biểu diễn một mục tiêu trọn vẹn 
   [Luồng thay thế và ngoại lệ], [*[1a]* Người mua huỷ giữa chừng: phiên bị huỷ, phần đã giành được trả lại. [3a] Hết 15 phút mà chưa trả tiền: phiên không còn trả được và phần đã giành được trả lại (BR-23). [4a] Người mua quay về trang kết quả trước khi thông báo tới: hệ thống hiển thị phiên đang chờ, vì trang đáp xuống ai cũng mở được nên không phải bằng chứng. [4b] Cổng gửi lặp thông báo: xử lý bất biến với lặp lại nên chỉ một đơn được tạo. [5a] Xử lý thông báo thất bại: trả lỗi để cổng gửi lại.],
   [Điều kiện sau], [Tiền hàng nằm trong ký quỹ, phí giao hàng ở khoản riêng, tồn tại đúng một đơn chờ người bán xác nhận, và đơn ghi rõ nó sinh ra từ phiếu mua tạm hay từ thương lượng.],
   [Quy tắc nghiệp vụ], [BR-21, BR-22, BR-23, BR-24, BR-25, BR-26, BR-56],
-  [Yêu cầu đặc biệt], [Quyền mua phải được giành trước khi phiên thanh toán được mở. Nếu giành sau, hai lần bấm sẽ mở hai phiên, và một lần bán có thể thu tiền hai lần.],
+  [Yêu cầu đặc biệt], [Quyền mua phải được giành trước khi phiên thanh toán được mở. Nếu giành sau, 2 lần bấm sẽ mở hai phiên, và một lần bán có thể thu tiền 2 lần.],
   [Giả định và vấn đề còn để mở], [Giả định: cổng thanh toán gửi lại thông báo cho tới khi hệ thống nhận thành công. Còn để mở: một phiên quá hạn tuy đã trả lại mọi phần đã giành nhưng vẫn nằm ở trạng thái chờ trong sổ sách, làm danh sách phiên dài ra vô ích.],
   [Tần suất], [Rất cao, là ca sử dụng trung tâm của toàn hệ thống.],
 )
@@ -306,7 +306,7 @@ Bộ quy tắc nghiệp vụ là tập ràng buộc bất biến mà mọi ca s�
     [BR-05], [Thủ tục], [Mật khẩu luôn được mã hoá một chiều trước khi lưu; không có khả năng truy xuất được bản gốc.],
     [BR-06], [Thủ tục], [Mọi yêu cầu đã xác thực đều tra cứu lại phiên tương ứng, nhờ đó thao tác đăng xuất, đổi mật khẩu hay khoá tài khoản có hiệu lực ngay lập tức với các mã định danh người dùng đang lưu hành.],
     [BR-07], [Kiểm tra], [Chỉ tài khoản đã xác minh danh tính mới tạo được tin đăng và rút được tiền; cổng kiểm tra đặt ở bước tạo tin, không ở bước công bố.],
-    [BR-08], [Thủ tục], [Phán quyết xác minh danh tính chỉ do kiểm duyệt viên đưa ra, đi qua đúng các bước chuyển trạng thái đã định: từ chối bắt buộc kèm lý do, và giấy tờ có thời hạn bắt buộc phải ghi ngày hết hạn.],
+    [BR-08], [Thủ tục], [Phán quyết xác minh danh tính chỉ do điều phối viên đưa ra, đi qua đúng các bước chuyển trạng thái đã định: từ chối bắt buộc kèm lý do, và giấy tờ có thời hạn bắt buộc phải ghi ngày hết hạn.],
     [BR-09], [Suy dẫn], [Mọi định danh công bố ra ngoài đều ở dạng mờ, không lộ số thứ tự bản ghi và không dò được bằng cách cộng trừ một đơn vị.],
     [BR-57], [Kiểm tra], [Mỗi loại địa chỉ có tối đa một bản ghi mặc định; quy tắc này trải trên tập địa chỉ chứ không phải một trường của tài khoản.],
 
@@ -316,7 +316,7 @@ Bộ quy tắc nghiệp vụ là tập ràng buộc bất biến mà mọi ca s�
     [BR-12], [Thủ tục], [Sửa một tin đang hiển thị không có hiệu lực ngay: bản sửa chờ duyệt trong khi bản đang hiển thị vẫn phục vụ người mua.],
     [BR-13], [Cấu trúc], [Tin bị điều phối viên gỡ khác tin do người bán tự ẩn: tin bị gỡ khi gửi lại phải quay về hàng đợi duyệt.],
     [BR-14], [Kiểm tra], [Chế độ giá chỉ quyết định tin có nhận trả giá hay không: tin giá cố định từ chối bị thương lượng, tin cho phép thương lượng vẫn mua thẳng theo giá niêm yết.],
-    [BR-15], [Kiểm tra], [Tồn kho theo từng phiên bản với ba bộ đếm tổng số, đang giữ và đã bán.],
+    [BR-15], [Kiểm tra], [Tồn kho theo từng phiên bản với 3 bộ đếm tổng số, đang giữ và đã bán.],
 
     table.cell(colspan: 3, align: left)[*c) Thương lượng giá*],
     [BR-16], [Thủ tục], [Người mua là bên mở thương lượng; hai bên luân phiên đề xuất, và bên được quyền chấp thuận luôn là bên không giữ đề xuất hiện hành.],
@@ -353,7 +353,7 @@ Bộ quy tắc nghiệp vụ là tập ràng buộc bất biến mà mọi ca s�
     [BR-40], [Thủ tục], [Người bán im lặng quá 48 giờ thì hồ sơ tự chuyển lên sàn phân xử; im lặng không phải là đồng ý, cũng không phải một phán quyết.],
     [BR-41], [Cấu trúc], [Người mua không bao giờ là bên chuyển hồ sơ lên sàn: bắt bên đang mất tiền phải khiếu nại lần thứ hai chính là bước làm họ mất luôn vụ việc.],
     [BR-42], [Thủ tục], [Chấp nhận hoàn tiền chưa phải là trả tiền: hàng phải quay về trước. Người bán xác nhận đã nhận hàng thì có 48 giờ kiểm hàng, hết hạn mà không có ý kiến thì tiền về người mua; người mua tự khai đã trả hàng thì hồ sơ đi thẳng lên sàn phân xử.],
-    [BR-43], [Thủ tục], [Một phán quyết đóng mọi phiếu đang mở nhắm vào cùng đối tượng, vì cả hai bên đều có thể đã mở phiếu về cùng một hồ sơ.],
+    [BR-43], [Thủ tục], [Một phán quyết đóng mọi phiếu đang mở nhắm vào cùng đối tượng, vì cả 2 bên đều có thể đã mở phiếu về cùng một hồ sơ.],
 
     table.cell(colspan: 3, align: left)[*g) Phiếu hỗ trợ, đánh giá và vận hành*],
     [BR-44], [Cấu trúc], [Mọi thứ người dùng gửi lên bộ phận hỗ trợ đều là một phiếu trong một hàng đợi duy nhất; loại phiếu là thứ duy nhất phân biệt chúng.],
@@ -363,8 +363,8 @@ Bộ quy tắc nghiệp vụ là tập ràng buộc bất biến mà mọi ca s�
     [BR-58], [Kiểm tra], [Mỗi cặp tài khoản có tối đa một hội thoại trực tiếp, mở ở lần nhắn đầu tiên và dùng lại về sau. Hội thoại của phiếu nằm ngoài quy tắc này.],
     [BR-48], [Kiểm tra], [Một người gửi chỉ có một phiếu đang mở về cùng một đối tượng.],
     [BR-49], [Cấu trúc], [Không ngưỡng số lượt tố cáo nào tự động ẩn một tin đăng; hệ thống chỉ cho điều phối viên thấy số phiếu đang mở về cùng đối tượng.],
-    [BR-50], [Kiểm tra], [Phiếu khiếu nại hoàn tiền không được kết luận bằng tay ở màn hình phiếu; nó chỉ đóng theo phán quyết ra ở nơi giữ tiền.],
-    [BR-51], [Suy dẫn], [Đánh giá giao dịch là hai chiều và ẩn: chiều đánh giá suy ra từ vị trí của người đánh giá trong đơn, và đánh giá chỉ hiện khi cả hai bên đã gửi hoặc sau 14 ngày.],
+    [BR-50], [Kiểm tra], [Phiếu hồ sơ hoàn tiền không được kết luận bằng tay ở màn hình phiếu; nó chỉ đóng theo phán quyết ra ở nơi giữ tiền.],
+    [BR-51], [Suy dẫn], [Đánh giá giao dịch là hai chiều và ẩn: chiều đánh giá suy ra từ vị trí của người đánh giá trong đơn, và đánh giá chỉ hiện khi cả 2 bên đã gửi hoặc sau 14 ngày.],
     [BR-52], [Thủ tục], [Công bố một đánh giá và cộng nó vào điểm uy tín là cùng một thao tác, nên đánh giá đã hiện ra luôn là đánh giá đã đếm. 2 loại đánh giá được đếm tách rời.],
     [BR-53], [Kiểm tra], [Chỉ người đã mua mới viết được nhận xét về sản phẩm, và mỗi người chỉ bình chọn một nhận xét là hữu ích một lần.],
     [BR-54], [Cấu trúc], [Cổng thanh toán và hãng vận chuyển được chọn theo từng dòng của sổ tuỳ chọn, không theo một tham số chung; một dòng bị tắt vẫn đọc được vì bản ghi cũ đã ghi tên nó.],
