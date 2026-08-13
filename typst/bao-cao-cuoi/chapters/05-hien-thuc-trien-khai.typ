@@ -30,7 +30,7 @@ Dịch vụ trò chuyện chịu trách nhiệm quản lý cả hội thoại mu
 Các hình ảnh minh hoạ giao diện dưới đây được trích xuất trực tiếp từ môi trường chạy thử của ứng dụng:
 Trang tìm kiếm phản ánh trực quan cơ chế truy vấn lai (hybrid search). Bộ lọc đa chiều bao gồm: danh mục, nhãn dán, khu vực (tỉnh/phường kèm bán kính), khoảng giá và tình trạng sản phẩm.
 #figure(
-  assets("web/web-01-tim-kiem.png", width: 92%),
+  assets("web/web-01-tim-kiem.png", width: 86%),
   caption: [Trang kết quả tìm kiếm với từ khoá tiếng Việt không dấu "ao thun nam"; rail bộ lọc bên trái cố định trên khung nhìn desktop, dải "cách khớp" cho chọn giữa khớp từ khoá, khớp ngữ nghĩa hay kết hợp cả 2],
 )
 

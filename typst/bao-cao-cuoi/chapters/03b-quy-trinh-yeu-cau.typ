@@ -2,6 +2,23 @@
 
 == Sơ đồ hoạt động: Thanh toán ký quỹ và sinh đơn hàng
 
+Sơ đồ dưới đây tách thành 3 luồng dọc theo tác nhân: người mua, hệ thống và nhà cung cấp thanh
+toán. Toàn bộ quy trình có 2 điểm rẽ nhánh, và cả 2 đều nhằm chặn một trạng thái nửa vời trước
+khi nó kịp hình thành. Điểm rẽ thứ nhất nằm ở khâu báo giá vận chuyển: hệ thống hỏi giá từng
+hãng đang bật cho tuyến đường, và nếu không hãng nào phục vụ được địa chỉ đó thì lượt mua
+dừng ngay tại đây, trước khi người mua bị hỏi tới tiền. Điểm rẽ thứ hai nằm ở khâu chờ báo
+đã trả tiền; nếu quá hạn mà chưa có báo về thì phiên hết hiệu lực và quyền dùng bản chốt giá
+được trả lại cho tin đăng.
+
+Ba chi tiết trong sơ đồ đáng được nói rõ vì chúng quyết định tính đúng đắn của dòng tiền. Thứ
+nhất, hệ thống chiếm quyền dùng bản chốt giá hoặc đề xuất đã chấp nhận ngay trước khi mở
+phiên thanh toán, chứ không phải sau khi thu được tiền; nhờ vậy 2 cú bấm mua liên tiếp trên
+cùng một mặt hàng chỉ mở được một phiên. Thứ hai, tiền hàng và phí vận chuyển được tách thành
+2 chặng riêng ngay từ lúc giữ ký quỹ, vì 2 khoản này có quy tắc hoàn khác nhau: tiền hàng hoàn
+được, còn phí vận chuyển đã dùng thì không. Thứ ba, đơn hàng chỉ được sinh ra sau khi tiền đã
+nằm trong ký quỹ, và việc sinh đơn đi kèm khởi động đồng hồ chờ người bán xác nhận; điều này
+có nghĩa trong hệ thống không tồn tại đơn hàng nào chưa được trả tiền.
+
 #let elabel(body) = box(fill: white, inset: (x: 2pt, y: 1pt), text(size: 8pt, body))
 #let lane-v = (paint: luma(60%), thickness: 0.6pt, dash: "dashed")
 #let lane-h = (paint: luma(75%), thickness: 0.5pt)

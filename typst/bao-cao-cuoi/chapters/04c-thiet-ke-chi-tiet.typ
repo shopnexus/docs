@@ -98,6 +98,13 @@ gian kết quả chứ không lưu thành cột riêng, theo thứ tự xét: đ
 bán xác nhận, đang mở; nhờ vậy hệ thống bớt một dữ kiện phải giữ cho đồng bộ. Người bán im
 lặng quá 48 giờ thì bộ phận vận hành được nhắc đi giục, chứ nền tảng không tự
 hủy đơn và cũng không tự gửi hàng thay người bán.
+Bảy lớp còn lại của module chia theo 3 chặng của một lượt mua. Trước khi có đơn, giỏ hàng giữ
+các dòng người mua chọn, phiếu mua là bản nháp đã chốt số lượng và giá, còn thương lượng là
+một đề xuất giá có hạn dùng gắn vào đúng một tin đăng. Tại thời điểm chốt mua, hệ thống chụp
+lại tin đăng và địa chỉ nhận thành 2 bản chụp riêng, để giá, mô tả và nơi giao của đơn không
+trôi theo tin đăng gốc về sau. Sau khi có đơn, dòng hàng là đơn vị nhỏ nhất mang trạng thái
+giao nhận, và chính các dòng chưa gắn đơn tạo nên danh sách chờ ghép đã nói ở trên.
+
 #fig-xoay(
     [Sơ đồ lớp module đơn hàng: từ giỏ hàng và thương lượng tới một đơn hàng],
     spacing: (8mm, 7mm),
@@ -232,6 +239,40 @@ cách rút tiền vận hành: không có bảng lệnh rút tiền. Một lư�
 toán mang loại riêng, cùng bảng và cùng vòng đời với một lượt thanh toán của người mua,
 chỉ khác chiều tiền; nhờ vậy trạng thái "đang xử lý", việc thử lại và bằng chứng đối soát
 với ngân hàng chỉ được viết một lần.
+Phiên thanh toán là đơn vị điều phối của mọi đường tiền. Mỗi phiên mang một loại trong 3
+giá trị, gồm người mua trả tiền, nền tảng trả tiền cho người bán và người bán rút tiền, cùng
+một trạng thái chạy từ chờ, đang xử lý, tới thành công, hủy hoặc thất bại. Định danh phiên
+được cấp phát trước khi bản ghi được ghi xuống, vì tham chiếu gửi sang nhà cung cấp phải có
+sẵn ngay lúc dựng yêu cầu. Hai đầu tiền của phiên đều ghi bằng định danh tài khoản, trong đó
+giá trị không mang nghĩa là chính nền tảng, nhờ vậy một lượt nạp tiền và một lượt trả tiền
+cho người bán dùng chung đúng một cấu trúc. Mỗi phiên sinh ra không hoặc nhiều chặng, mỗi
+chặng là một lần thực sự chạm vào kênh thanh toán bên ngoài và chỉ được thêm chứ không sửa.
+Chặng giữ tham chiếu của nhà cung cấp làm khóa chống lặp, giữ đường dẫn trang thanh toán, và
+giữ số tiền theo quy ước dương là thu vào còn âm là hoàn ra. Một lượt hoàn tiền không xóa
+chặng cũ mà tạo chặng mới trỏ ngược về chặng bị hoàn, nên lịch sử đối soát với ngân hàng
+không bao giờ mất dấu.
+
+Bên trong nền tảng, ví giữ số dư hiện thời của một tài khoản theo từng loại tiền và tách làm
+2 phần: phần tiêu hoặc rút được, và phần đang bị giữ trong ký quỹ. Sổ cái ví ghi từng lượt
+dịch chuyển kèm số dư sau lượt ấy và một số thứ tự tuyệt đối trong ví, nên trạng thái ví tại
+bất kỳ thời điểm nào cũng dựng lại được từ sổ. Lượt dịch chuyển mang một trong các loại nạp
+tiền, giữ ký quỹ, giải ngân ký quỹ, trả người bán, hoàn tiền, rút tiền, phí và điều chỉnh;
+các chân của cùng một lần dịch chuyển được gom bằng một mã nhóm, còn khóa chống lặp bảo đảm
+một sự kiện gửi tới 2 lần chỉ được ghi 1 lần. Phép biến đổi số dư được mô tả bằng một đối
+tượng giá trị chỉ gồm 2 độ lệch, một cho phần khả dụng và một cho phần bị giữ, nhờ đó 5 thao
+tác giữ, giải phóng, cộng, trừ và điều chỉnh đều đi qua đúng một đường mã. Ví và sổ chỉ được
+sửa cùng nhau trong một giao dịch, và các hàng ví luôn bị khóa theo một thứ tự cố định để 2
+lượt ngược chiều không khóa chéo nhau; đây cũng là điểm khác biệt duy nhất của kho dữ liệu
+module này so với 6 module còn lại.
+
+Bốn bất biến canh giữ đường tiền: mỗi kênh và mỗi tham chiếu nhà cung cấp chỉ được tính tiền
+một lần; mỗi chặng chỉ hoàn được một lần; một phiên chưa kết thúc có nhiều nhất một trang
+thanh toán còn sống trên mỗi kênh; và số tiền luôn lấy từ hàng chặng đã ghi chứ không bao giờ
+lấy từ nội dung thông báo do bên ngoài gửi tới. Hai lớp còn lại phục vụ khâu chi trả: tài
+khoản ngân hàng của người bán dùng xóa mềm và cho phép khai nhiều tài khoản nhưng nhiều nhất
+một tài khoản mặc định, còn hồ sơ thuế gắn một đối một với tài khoản, phân loại cá nhân, hộ
+kinh doanh hay doanh nghiệp, kèm trạng thái và nguồn xác minh.
+
 #fig-xoay(
     [Sơ đồ lớp module tài chính: phiên thanh toán, chặng tiền và sổ kép của ví],
     spacing: (8mm, 7mm),
@@ -385,6 +426,35 @@ nào không và một lý do tố cáo có được phép đi kèm hay không. 7
 bảng trước đây thực chất là cùng một vòng đời được viết 3 lần, và một người dùng hỏi "yêu
 cầu của tôi đang ở đâu" thì có 3 nơi phải tìm.
 
+Phiếu hỗ trợ có 11 loại chia làm 2 nhóm. Năm loại tố cáo nhắm vào tin đăng, tài khoản, tin
+nhắn, nhận xét và trả lời nhận xét; 6 loại còn lại là tranh chấp hoàn tiền, sự cố đơn hàng,
+sự cố thanh toán, sự cố tài khoản, đề nghị tính năng và loại khác. Kiểu đối tượng bị nhắc tới
+được suy ra từ loại phiếu chứ không do người gửi tự khai, nên không thể có một phiếu tố cáo
+tin đăng lại trỏ vào một tin nhắn. Trường lý do chỉ hợp lệ với nhóm tố cáo. Mỗi cặp người gửi
+và đối tượng chỉ có một phiếu đang mở, và vì loại việc này không xử lý thủ công từng cái
+được, một phán quyết phải đóng mọi phiếu còn mở về cùng đối tượng đó. Vòng đời phiếu chỉ còn
+3 trạng thái mở, đang xử lý và đã giải quyết, thay cho 7 trạng thái trải trên 3 bảng ở giai
+đoạn trước.
+
+Nhận xét gắn đồng thời vào tin đăng và vào đơn hàng, nên điều kiện phải mua rồi mới được viết
+đã nằm sẵn trong khóa ngoại chứ không cần một phép kiểm riêng. Định danh người bán được đóng
+băng vào bản ghi ngay lúc viết, để nhận xét không đổi chủ khi tin đăng bị xóa hay được sửa.
+Điểm chấm nằm trong khoảng 1 tới 5, kèm nội dung và tệp đính kèm. Người khác bình chọn nhận
+xét bằng giá trị âm một hoặc một và không có giá trị không, nên gỡ bình chọn là xóa hàng chứ
+không phải ghi số không. Người bán được trả lời từng nhận xét. Bản tổng hợp uy tín giữ sẵn
+tổng điểm và số lượt chấm theo từng vai trò mua và bán, nhờ đó việc hiển thị uy tín không
+phải quét lại toàn bộ nhận xét. Kết cục đơn hàng là một bảng chống lặp khóa theo đơn, bảo đảm
+một đơn chỉ được cộng vào uy tín đúng một lần dù sự kiện hoàn tất đơn có được phát lại nhiều
+lần.
+
+Điểm trung bình và số nhận xét của một tin đăng lại do module danh mục giữ sẵn ở dạng đã
+tính. Hai lược đồ nằm tách nhau nên không nối bảng được; module tín nhiệm tính lại rồi đẩy
+giá trị sang, chứ danh mục không đọc bảng của tín nhiệm. Theo chiều ngược lại, phiếu hỗ trợ
+nối ra 3 module khác: mỗi phiếu mở một luồng hội thoại bên module trò chuyện, người gửi và
+người xử lý tra sang module tài khoản, còn module đơn hàng vừa là nơi mở phiếu khi một khiếu
+nại hoàn tiền leo thang hoặc khi hết hạn xác nhận, vừa là nơi nhận lại kết quả khi phiếu được
+phán quyết và đóng.
+
 #fig-xoay(
   [Sơ đồ lớp module tín nhiệm: nhận xét tin đăng, điểm uy tín và phiếu hỗ trợ],
   spacing: (8mm, 7mm),
@@ -534,6 +604,12 @@ bán chưa khai điểm lấy hàng sẽ làm hỏng lượt mua trước khi ti
 thông báo từ cổng thanh toán mới kết toán một chặng tiền: trang mà người mua rơi vào sau
 khi trả tiền là thứ bất kỳ ai cũng giả mạo được.
 
+
+Hình vẽ dùng 5 đường sinh, lần lượt là người mua, module đơn hàng, module tài chính, module
+danh mục và hãng vận chuyển. Các bước có nền khác biệt là bước bền vững, tức bước được nền
+tảng thực thi ghi vào nhật ký trước khi chạy, nên nếu máy chủ sập giữa trình tự thì lượt chạy
+lại sẽ bỏ qua đúng những bước đã có kết quả. Thứ tự 10 bước trong hình vì thế không chỉ là
+thứ tự thời gian mà còn là thứ tự phục hồi.
 
 #fig-xoay(
     [Sơ đồ trình tự TT-A: đặt hàng và mở phiên thanh toán],
