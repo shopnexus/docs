@@ -464,7 +464,7 @@ Ranh giới với các module khác. Điểm trung bình và số nhận xét c�
       "        không có giá trị không",
     )),
 
-  cnote((2, 2), "Đồng bộ ngược sang danh mục", (
+  cnote((3, 0), "Đồng bộ ngược sang danh mục", (
     "Điểm trung bình và số nhận xét của một",
     "tin đăng được danh mục giữ sẵn ở dạng",
     "đã tính.",
@@ -481,7 +481,7 @@ Ranh giới với các module khác. Điểm trung bình và số nhận xét c�
       "- body: string",
     )),
 
-  cnote((3, 2), "Phiếu nối ra ngoài module", (
+  cnote((1, 0), "Phiếu nối ra ngoài module", (
     "-> chat     mỗi phiếu một luồng hội thoại",
     "-> account  người gửi và người xử lý",
     "<- order    leo thang hoàn tiền mở phiếu",
