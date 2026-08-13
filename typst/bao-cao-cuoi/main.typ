@@ -9,7 +9,7 @@
 
 #show: quyen.with(
   tieu-de: ("BÁO CÁO THỰC TẬP", "TỐT NGHIỆP ĐẠI HỌC"),
-  chay: "Báo cáo Thực tập tốt nghiệp",
+  chay: "Báo cáo TTTN Đại học",
   thoi-diem: "Tháng 08 năm 2026",
 )
 
@@ -19,7 +19,7 @@
 #muc-luc()
 #pagebreak()
 
-#sechead([LỜI CẢM ƠN])
+#sechead([LỜI CẢM ƠN], outlined: false)
 
 Chúng em xin chân thành cảm ơn Ban Giám hiệu Học viện Công nghệ Bưu chính Viễn thông Cơ sở tại TP. Hồ Chí Minh cùng quý Thầy, Cô trong Khoa Công nghệ Thông tin đã tạo điều kiện thuận lợi và trang bị những kiến thức nền tảng quý báu cho chúng em trong suốt quá trình học tập và nghiên cứu.
 
@@ -38,7 +38,7 @@ Mặc dù đã có nhiều cố gắng, song do giới hạn về mặt thời g
 
 #pagebreak()
 
-#sechead([DANH MỤC CÁC KÝ HIỆU VÀ CHỮ VIẾT TẮT])
+#sechead([DANH MỤC CÁC KÝ HIỆU VÀ CHỮ VIẾT TẮT], outlined: false)
 
 #table(
   columns: (auto, 1.5fr, 2fr),
@@ -83,7 +83,7 @@ Mặc dù đã có nhiều cố gắng, song do giới hạn về mặt thời g
 #danh-muc-hinh()
 #pagebreak()
 
-#sechead([KẾ HOẠCH THỰC HIỆN CÔNG VIỆC NHÓM])
+#sechead([KẾ HOẠCH THỰC HIỆN CÔNG VIỆC NHÓM], outlined: false)
 
 #v(0.5cm)
 #table(
@@ -118,15 +118,6 @@ Mặc dù đã có nhiều cố gắng, song do giới hạn về mặt thời g
   [25], [Tổng hợp và hoàn thiện báo cáo thực tập tốt nghiệp], [Cả nhóm], [Tuần 6], [Hoàn thành],
 )
 
-#v(0.2cm)
-#text(size: 11pt)[
-  *Mức độ hoàn thành.* “Hoàn thành”: hạng mục đã xong và có sản phẩm hoặc hồ sơ
-  kèm theo trong quyển. “Hoàn thành cơ bản”: phần lõi đã xong và chạy được, nhưng
-  còn hạn chế đã nêu đích danh ở mục 5.6 và 6.6: tích hợp nhà cung cấp thật chỉ dừng ở bộ
-  giả lập, dây chuyền tích hợp liên tục chưa chạy kiểm thử, nhóm kiểm thử tầng truy cập dữ
-  liệu chưa vào được dây chuyền, và hạ tầng quan trắc chưa có dữ liệu vận hành thật.
-]
-
 // ============================================================
 //  RUỘT — đánh số trang Ả Rập
 // ============================================================
@@ -136,38 +127,13 @@ Mặc dù đã có nhiều cố gắng, song do giới hạn về mặt thời g
 #pagebreak()
 #sechead([MỞ ĐẦU])
 
-*Bối cảnh và tính cấp thiết.* Thương mại điện tử giữa các cá nhân đã trở thành một
-kênh giao dịch quen thuộc tại Việt Nam, nhưng vẫn vận hành trên một nền tảng niềm tin
-mong manh. Người mua chuyển tiền cho một người lạ mà không có gì bảo đảm hàng sẽ tới;
-người bán gửi hàng đi mà không có gì bảo đảm sẽ được nhận tiền; và khi hai bên bất
-đồng thì không có bên thứ ba nào nắm đủ bằng chứng để phân xử. Thanh toán khi nhận
-hàng thường được xem là giải pháp, nhưng nó chỉ dịch chuyển rủi ro sang người bán chứ
-không loại bỏ rủi ro. Bài toán trung tâm của đề tài, vì vậy, không phải là dựng thêm
-một nơi để đăng tin, mà là dựng một cơ chế khiến hai người xa lạ có thể giao dịch mà
-không cần tin nhau.
 
-*Mục tiêu.* Đề tài xây dựng ShopNexus, một nền tảng thương mại điện tử giữa các cá
-nhân trên kiến trúc vi dịch vụ, trong đó tiền của người mua được giữ lại ở tài khoản
-trung gian cho tới khi hàng đã tới tay và thời hạn khiếu nại đã trôi qua. Xoay quanh
-cơ chế đó là một tập năng lực hỗ trợ: thương lượng giá ngay trong cuộc trò chuyện của
-hai bên, xác minh danh tính điện tử trước khi được bán hàng hay rút tiền, một quy trình
-khiếu nại thống nhất do bộ phận vận hành phân xử, và tìm kiếm kết hợp giữa từ khóa với ngữ nghĩa để món
-hàng cũ được mô tả bằng lời lẽ dân dã vẫn tìm ra được.
+Hiện nay, thương mại điện tử giữa các cá nhân đã trở thành một kênh giao dịch quen thuộc tại Việt Nam nhưng vẫn đang vận hành trên một nền tảng niềm tin mong manh. Người mua chuyển tiền đi mà không có gì bảo đảm hàng sẽ tới; người bán gửi hàng đi mà không chắc sẽ nhận được tiền; và khi bất đồng xảy ra thì không có bên thứ ba nào đứng ra xử lý. Cơ chế thanh toán khi nhận hàng thường được xem là giải pháp, nhưng thực chất nó chỉ chuyển rủi ro sang người bán chứ không loại bỏ hoàn toàn rủi ro.
+#v(0.2cm)
+Từ thực tế đó, bài toán trung tâm của đề tài không phải là dựng thêm một nơi để đăng tin rao vặt, mà là xây dựng một cơ chế khép kín giúp hai người xa lạ có thể giao dịch an toàn mà không cần phải tin tưởng nhau từ trước. Để làm được điều này, đề tài hướng tới xây dựng một nền tảng với cốt lõi là cơ chế thanh toán tạm giữ: tiền của người mua được hệ thống giữ lại ở tài khoản trung gian, và chỉ được giải ngân cho người bán khi hàng đã tới tay đồng thời thời hạn khiếu nại đã trôi qua.
+#v(0.2cm)
+Tuy nhiên, việc chỉ giữ tiền trung gian vẫn chưa đủ để giải quyết trọn vẹn bài toán niềm tin, vì tranh chấp còn có thể phát sinh từ sai lệch thông tin sản phẩm, gian lận danh tính hay bất đồng về giá cả. Vì vậy, nền tảng được thiết kế tích hợp thêm các quy trình bảo vệ xoay quanh vòng đời giao dịch: bắt buộc xác minh danh tính trước khi được bán hàng, cho phép thương lượng giá trực tiếp ngay trong cuộc trò chuyện, và cung cấp một bộ phận đứng ra phân xử tranh chấp dựa trên bằng chứng kỹ thuật từ hai phía. Sự kết hợp này giúp triệt tiêu tối đa các kẽ hở lừa đảo, từ đấy tạo một môi trường giao dịch minh bạch, an toàn và bảo vệ toàn diện quyền lợi hợp pháp của cả người mua lẫn người bán.
 
-*Phạm vi.* Báo cáo bao trùm trọn vòng đời phát triển của hệ thống: phân tích yêu cầu,
-thiết kế kiến trúc và thiết kế chi tiết, hiện thực hóa cả 3 thành phần gồm dịch vụ
-nền, ứng dụng web và ứng dụng di động, rồi kiểm thử trên sản phẩm đã chạy
-được. Những nội dung nằm ngoài phạm vi gồm vận hành thương mại thực tế, tích hợp với
-các đối tác vận chuyển và thanh toán ở môi trường sản xuất, cùng các nghĩa vụ pháp lý
-và thuế phát sinh khi nền tảng đi vào hoạt động.
-
-*Phương pháp.* Phần phân tích và thiết kế áp dụng mô hình hóa hướng đối tượng bằng ngôn
-ngữ mô hình hóa thống nhất, với sơ đồ ca sử dụng kèm đặc tả đầy đủ, sơ đồ hoạt động, sơ
-đồ trạng thái, sơ đồ trình tự, sơ đồ lớp và sơ đồ thực thể quan hệ. Yêu cầu được đặc tả
-dưới dạng nguyên tử kèm tiêu chí chấp nhận. Phần hiện thực tuân theo thiết kế
-hướng miền nghiệp vụ, trong đó mỗi dịch vụ sở hữu dữ liệu của riêng mình và chỉ giao
-tiếp với dịch vụ khác qua hợp đồng đã công bố. Phần đánh giá dựa trên bộ kiểm thử tự
-động của hệ thống.
 
 // ---- Các chương (template tự ngắt trang trước mỗi chương) --
 #include "chapters/01-tong-quan.typ"
