@@ -4,7 +4,7 @@
 
 Thị trường giao dịch trực tuyến giữa các cá nhân (C2C - Consumer-to-Consumer) tại Việt Nam đang chứng kiến sự tăng trưởng vượt bậc, đặc biệt trong các lĩnh vực mua bán đồ cũ, thanh lý thiết bị điện tử, sách giáo khoa, đồ gia dụng, thời trang và các sản phẩm thủ công (handmade). Tuy nhiên, khi các giao dịch diễn ra tự phát mà không có sự bảo lãnh tài chính và giám sát chuẩn mực, thị trường C2C truyền thống đang phải đối mặt với rào cản lớn nhất là khủng hoảng niềm tin giữa các bên tham gia giao dịch.
 
-Cụ thể, khi soi chiếu vào từng vai trò tham gia giao dịch cũng như vào cách hai bên trao đổi và thống nhất với nhau, có thể thấy những thách thức cốt lõi đang kìm hãm sự phát triển lành mạnh của hệ sinh thái này tập trung ở 3 nhóm sau:
+Cụ thể, khi đi sâu vào từng vai trò tham gia giao dịch cũng như vào cách hai bên trao đổi và thống nhất với nhau, có thể thấy những thách thức cốt lõi đang kìm hãm sự phát triển lành mạnh của hệ sinh thái này tập trung ở 3 nhóm sau:
 - *Rủi ro từ phía Người mua:* Khi phải đặt cọc hoặc thanh toán trước cho người bán cá nhân, người mua có nguy cơ bị lừa đảo như không giao hàng, giao sai sản phẩm, hàng giả hoặc hàng không đúng mô tả. Khi sự cố xảy ra, việc đòi hoàn tiền và bảo vệ quyền lợi thường gặp nhiều khó khăn do thiếu cơ chế trung gian xử lý.
 
 - *Rủi ro từ phía Người bán:* Hình thức COD giúp tăng niềm tin cho người mua nhưng lại khiến người bán đối mặt với tình trạng từ chối nhận hàng, phát sinh chi phí vận chuyển hai chiều và nguy cơ sản phẩm bị hư hỏng, thất lạc hoặc tráo đổi trong quá trình giao nhận.

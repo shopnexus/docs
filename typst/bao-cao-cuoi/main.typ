@@ -129,9 +129,9 @@ Mặc dù đã có nhiều cố gắng, song do giới hạn về mặt thời g
 
 
 Hiện nay, thương mại điện tử giữa các cá nhân đã trở thành một kênh giao dịch quen thuộc tại Việt Nam nhưng vẫn đang vận hành trên một nền tảng niềm tin mong manh. Người mua chuyển tiền đi mà không có gì bảo đảm hàng sẽ tới; người bán gửi hàng đi mà không chắc sẽ nhận được tiền; và khi bất đồng xảy ra thì không có bên thứ ba nào đứng ra xử lý. Cơ chế thanh toán khi nhận hàng thường được xem là giải pháp, nhưng thực chất nó chỉ chuyển rủi ro sang người bán chứ không loại bỏ hoàn toàn rủi ro.
-#v(0.2cm)
+
 Từ thực tế đó, bài toán trung tâm của đề tài không phải là dựng thêm một nơi để đăng tin rao vặt, mà là xây dựng một cơ chế khép kín giúp hai người xa lạ có thể giao dịch an toàn mà không cần phải tin tưởng nhau từ trước. Để làm được điều này, đề tài hướng tới xây dựng một nền tảng với cốt lõi là cơ chế thanh toán tạm giữ: tiền của người mua được hệ thống giữ lại ở tài khoản trung gian, và chỉ được giải ngân cho người bán khi hàng đã tới tay đồng thời thời hạn khiếu nại đã trôi qua.
-#v(0.2cm)
+
 Tuy nhiên, việc chỉ giữ tiền trung gian vẫn chưa đủ để giải quyết trọn vẹn bài toán niềm tin, vì tranh chấp còn có thể phát sinh từ sai lệch thông tin sản phẩm, gian lận danh tính hay bất đồng về giá cả. Vì vậy, nền tảng được thiết kế tích hợp thêm các quy trình bảo vệ xoay quanh vòng đời giao dịch: bắt buộc xác minh danh tính trước khi được bán hàng, cho phép thương lượng giá trực tiếp ngay trong cuộc trò chuyện, và cung cấp một bộ phận đứng ra phân xử tranh chấp dựa trên bằng chứng kỹ thuật từ hai phía. Sự kết hợp này giúp triệt tiêu tối đa các kẽ hở lừa đảo, từ đấy tạo một môi trường giao dịch minh bạch, an toàn và bảo vệ toàn diện quyền lợi hợp pháp của cả người mua lẫn người bán.
 
 
