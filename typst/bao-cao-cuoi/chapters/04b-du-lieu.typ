@@ -296,8 +296,6 @@ Về mô hình hoá, tin đăng không phải một mục trong danh mục sản
 Quyết định trung tâm: người bán không duyệt đơn; chính dòng tiền tạo ra đơn. Người mua mở một phiên mua hàng đóng băng giá người bán đang hỏi, trả tiền hàng cộng cước, và đơn hàng cùng vận đơn ra đời ngay khi phiên thanh toán hoàn tất, đó là lý do cột đơn hàng trên mục hàng cho phép rỗng. Vì có 2 nguồn hình thành đơn, cả bảng đơn lẫn bảng mục hàng đều mang 2 cột cho phép rỗng trỏ về phiếu mua tạm và về cuộc thương lượng, kèm ràng buộc buộc đúng một trong hai có giá trị.
 
 
-Hồ sơ hoàn tiền còn được thiết kế quanh nguyên tắc người bán không thể từ chối bằng lời của mình: người bán chỉ có hai lựa chọn xử lý là chấp nhận hoặc chuyển hồ sơ cho bộ phận hỗ trợ, nên bảng này không có cột lý do từ chối.
-
 === Lược đồ `finance`
 
 Lược đồ này giữ toàn bộ nguyên thể tiền tệ trong một chỗ, vì giữ tiền tạm và giải ngân phải nguyên tử nên phiên thanh toán, sổ cái giao dịch, ví, sổ cái ví và tài khoản ngân hàng đều phải ở cùng một ranh giới giao dịch. Điểm cần hiểu đúng nhất là 2 sổ cái với một ranh giới rõ ràng: bảng giao dịch chỉ ghi những chặng tiền đi qua kênh thanh toán bên ngoài, còn tiền chỉ di chuyển bên trong ví thì chỉ ghi vào sổ cái ví. Cả 2 sổ đều chỉ ghi thêm, nên hoàn tiền tạo bút toán mới mang dấu âm trỏ về bút toán bị đảo.
@@ -313,9 +311,6 @@ Thay đổi mô hình hoá lớn nhất: mọi thứ người dùng gửi lên �
 
 Một luồng hội thoại là một luồng cho mỗi cặp tài khoản, bất kể ai mua ai bán; ngữ cảnh sản phẩm không nằm ở luồng mà ở từng tin nhắn. Với thương lượng giá, tin nhắn chỉ mang định danh cuộc thương lượng trong siêu dữ liệu chứ tuyệt đối không chép giá vào, vì nếu chép thì một lần sửa đề xuất sẽ để lại trong luồng một mức giá không còn trên bàn đàm phán. Trạng thái đọc không lưu trên từng tin nhắn mà là hai dấu thời gian trên hàng hội thoại, vì bảng tin nhắn phân mảnh theo thời gian nên một cờ đã đọc trên từng tin sẽ biến mọi câu hỏi về tin chưa đọc thành phép đếm không có cận thời gian.
 
-
-Ở luồng phiếu hỗ trợ, phía bên kia là tài khoản riêng của bộ phận hỗ trợ, nhờ đó điều phối viên trả lời vẫn ẩn danh với người gửi và người tiếp nhận kế tiếp thừa hưởng đúng luồng cũ.
-
 === Các bảng dùng chung
 
 3 bảng cuối cần hiểu khác với 7 lược đồ trên: `common` không phải một module và không phải một lược đồ, nó không có giao diện dịch vụ và công cụ di trú không tạo ra lược đồ nào tên như vậy; cái nó cung cấp là phần định nghĩa dữ liệu được áp vào lược đồ của từng module nghiệp vụ.
@@ -329,7 +324,6 @@ Thiết kế bảo mật không phải một lớp màng lọc độc lập, mà
 
 - Cơ chế xác thực kép: Ứng dụng kết hợp Access Token tĩnh (JWT sống 15 phút, mang định danh mờ) và Trạng thái phiên động (Session lưu tại bộ nhớ đệm, sống 30 ngày). Mọi yêu cầu API bắt buộc phải tra cứu phiên song song với việc xác thực chữ ký JWT, đảm bảo thao tác thu hồi quyền (đăng xuất, đình chỉ) có hiệu lực tức thời.
 - Bảo mật phiên và mã thông báo (Token Rotation): Refresh Token được thiết lập xoay vòng ở mỗi lần cấp đổi.
-- Chiến lược mật khẩu: Ưu tiên độ dài thay vì độ phức tạp (tối thiểu 8, tối đa 72 ký tự do giới hạn của bcrypt). Cột mật khẩu cho phép Null để hỗ trợ luồng đăng nhập một lần (SSO). Trạng thái không mật khẩu được cố ý áp dụng cho tài khoản Điều phối viên, ngăn chặn rò rỉ qua các kênh thông thường.
 
 === Bảo vệ dữ liệu và kiểm soát đầu vào
 

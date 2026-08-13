@@ -4,9 +4,9 @@
 
 == Hiện thực dịch vụ nền
 
-Các dịch vụ dùng chung một bố cục thư mục và một cách công bố hợp đồng API, giúp đảm bảo tính nhất quán và giảm chi phí bảo trì hệ thống. Tính cô lập dữ liệu (data isolation) được thực thi triệt để thông qua mô hình Database-per-service.
+Các dịch vụ được tổ chức theo cùng một cấu trúc thư mục và cơ chế công bố hợp đồng API, qua đó bảo đảm tính nhất quán và thuận tiện trong quá trình phát triển, bảo trì hệ thống. Việc cô lập dữ liệu (data isolation) được thực hiện theo mô hình Database-per-service, trong đó mỗi dịch vụ quản lý độc lập dữ liệu thuộc phạm vi nghiệp vụ của mình.
 
-Dưới đây là các quyết định và kỹ thuật hiện thực chi tiết nhằm giải quyết bài toán cốt lõi tại từng miền nghiệp vụ:
+Các quyết định thiết kế và kỹ thuật hiện thực chính cho từng miền nghiệp vụ được trình bày như sau:
 
 === Quản lý Định danh và Phiên truy cập (Account Service)
 Điểm nhấn kỹ thuật của dịch vụ này nằm ở mô hình quản lý phiên (session) lai. Access token là một JSON Web Token (JWT) không trạng thái (stateless) có vòng đời 15 phút, trong khi phiên đăng nhập thực tế là một bản ghi mang trạng thái (stateful) lưu trữ tại Redis tồn tại 30 ngày. Bộ lọc xác thực tra cứu phiên trên mọi yêu cầu API; cơ chế này đảm bảo các thao tác đăng xuất, đổi mật khẩu hay khoá tài khoản lập tức có hiệu lực ngay cả khi JWT ở phía máy khách chưa hết hạn. Bài toán thu hồi toàn bộ phiên của một tài khoản được giải quyết với độ phức tạp thời gian $O(1)$ bằng cách tăng giá trị vòng đời (kỷ nguyên - session epoch), khiến chi phí tính toán hoàn toàn không phụ thuộc vào số lượng thiết bị đang đăng nhập.

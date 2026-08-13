@@ -77,12 +77,6 @@ sở dữ liệu riêng. 3 module được vẽ đầy đủ vì cấu trúc l�
 xuôi không nói nổi: đơn hàng; tài chính, với phiên thanh toán, chặng thanh toán, ví và 2 sổ cái; và tín
 nhiệm, nơi một bảng phiếu duy nhất gánh mọi loại khiếu nại.
 
-Ký hiệu thống nhất cho cả 3 sơ đồ lớp. Mỗi hộp lớp gồm 3 ngăn: tên lớp kèm khuôn mẫu, ngăn
-thuộc tính và ngăn phương thức. Nét liền là quan hệ nội module, có khóa ngoại thật và bội
-số ghi ở hai đầu cạnh; nét đứt kèm nhãn liên module là tham chiếu vượt lược đồ, trên cơ sở
-dữ liệu chỉ là một số nguyên trần không có khóa ngoại nào kiểm tra hộ, nên tầng nghiệp vụ
-phải tự giữ tính toàn vẹn ấy.
-
 === Module order
 
 Đây là module dày quy tắc nhất và cũng là module duy nhất có khai báo durable workflow. Có hai điều cần nói ngay, vì cả hai đều đảo ngược cách hiểu thông thường về một sàn giao dịch.
@@ -92,14 +86,6 @@ Thứ nhất, đơn hàng ra đời khi tiền về. Đơn được sinh ra bở
 Thứ hai, người bán vẫn phải xác nhận, nhưng thứ họ xác nhận không phải là tiền. Tiền đã nằm trong ký quỹ rồi; lượt xác nhận ấy chỉ mở khóa việc gọi hãng vận chuyển. Mục đích là để một tin đăng có tồn kho sai hay một người bán đã bỏ nghề không bị phát hiện bởi chính người mua đang ngồi chờ một kiện hàng không ai gửi.
 
 Trạng thái đơn hàng có 4 giá trị và được suy ra từ các mốc thời gian kết quả chứ không lưu thành cột riêng, theo thứ tự xét: đã hủy, hoàn thành, chờ người bán xác nhận, đang mở. Nhờ vậy hệ thống bớt một dữ kiện phải giữ cho đồng bộ. Người bán im lặng quá 48 giờ thì bộ phận vận hành được nhắc đi giục, chứ nền tảng không tự hủy đơn và cũng không tự gửi hàng thay người bán.
-
-Bảy lớp còn lại của module chia theo 3 chặng của một lượt mua:
-
-- Trước khi có đơn: giỏ hàng giữ các dòng người mua chọn, phiếu mua là bản nháp đã chốt số lượng và giá, còn thương lượng là một đề xuất giá có hạn dùng gắn vào đúng một tin đăng.
-
-- Tại thời điểm chốt mua: hệ thống chụp lại tin đăng và địa chỉ nhận thành 2 bản chụp riêng, để giá, mô tả và nơi giao của đơn không trôi theo tin đăng gốc về sau.
-
-- Sau khi có đơn: dòng hàng là đơn vị nhỏ nhất mang trạng thái giao nhận, và chính các dòng chưa gắn đơn tạo nên danh sách chờ ghép đã nói ở trên.
 
 #fig-xoay(
     [Sơ đồ lớp module order: từ giỏ hàng và thương lượng tới một đơn hàng],
@@ -116,7 +102,7 @@ Bảy lớp còn lại của module chia theo 3 chặng của một lượt mua:
       ops: (
         "4 durable workflow: thanh toán, vòng đời",
         "đơn, hoàn tiền, thương lượng",
-        "mọi lời gọi là cố-gắng-hết-sức",
+        "mọi lời gọi là best-effort",
       )),
     cls((0, 2), "port.Repository", stereo: "interface", name: <o-repo>,
       ops: (
@@ -584,16 +570,3 @@ mua dừng ngay, chứ không có trạng thái giữ được một phần.
     durable(1, 10.3, [9. Đặt hạn trả tiền: phiên tự hết\ hiệu lực sau 15 phút]),
     rmsg(1, 0, 11.3, [10. Trả về phiên thanh toán,\ danh sách hàng và phí]),
   )
-
-
-2 kịch bản tiếp nối TT-A được mô tả bằng lời vì trình tự của chúng tuyến tính. Khi đơn
-đã tồn tại, người bán có 48h để xác nhận, và cửa sổ ấy có 3 kết cục. Chấp
-nhận thì mốc xác nhận được ghi và cam kết trước, rồi hãng vận chuyển mới được gọi theo
-kiểu cố-gắng-hết-sức: tiền đã dịch chuyển rồi, nên một hãng không liên lạc được là một vận
-đơn phải đặt lại chứ không phải một đơn hàng phải từ chối. Từ chối thì đơn bị hủy kèm lý
-do bắt buộc và ký quỹ được hoàn toàn bộ, kể cả phí vận chuyển. Im lặng hết giờ thì hệ
-thống chỉ đóng một dấu hiệu đã leo thang và phát sự kiện để module trust mở một phiếu
-sự cố đơn. Sau khi kiện hàng tới nơi, người mua xác nhận đã nhận kèm bằng chứng mở hộp
-được chốt ngay tại thời điểm đó chứ không bổ sung về sau, vì một yêu cầu hoàn tiền sẽ được
-phán xử trên đúng những gì người mua trưng ra lúc mở hộp. Từ mốc ấy tiền nằm yên 72 giờ, rồi ký quỹ chuyển sang phần khả dụng của người bán và thời điểm hoàn tất được ghi
-lại như một dấu hiệu đã xong, khiến tập đơn cần thử lại đúng bằng tập đơn còn mắc kẹt.

@@ -2,23 +2,6 @@
 
 == Sơ đồ hoạt động: Thanh toán ký quỹ và sinh đơn hàng
 
-Sơ đồ dưới đây tách thành 3 luồng dọc theo tác nhân: người mua, hệ thống và nhà cung cấp thanh
-toán. Toàn bộ quy trình có 2 điểm rẽ nhánh, và cả 2 đều nhằm chặn một trạng thái nửa vời trước
-khi nó kịp hình thành. Điểm rẽ thứ nhất nằm ở khâu báo giá vận chuyển: hệ thống hỏi giá từng
-hãng đang bật cho tuyến đường, và nếu không hãng nào phục vụ được địa chỉ đó thì lượt mua
-dừng ngay tại đây, trước khi người mua bị hỏi tới tiền. Điểm rẽ thứ hai nằm ở khâu chờ báo
-đã trả tiền; nếu quá hạn mà chưa có báo về thì phiên hết hiệu lực và quyền dùng bản chốt giá
-được trả lại cho tin đăng.
-
-Ba chi tiết trong sơ đồ đáng được nói rõ vì chúng quyết định tính đúng đắn của dòng tiền. Thứ
-nhất, hệ thống chiếm quyền dùng bản chốt giá hoặc đề xuất đã chấp nhận ngay trước khi mở
-phiên thanh toán, chứ không phải sau khi thu được tiền; nhờ vậy 2 cú bấm mua liên tiếp trên
-cùng một mặt hàng chỉ mở được một phiên. Thứ hai, tiền hàng và phí vận chuyển được tách thành
-2 chặng riêng ngay từ lúc giữ ký quỹ, vì 2 khoản này có quy tắc hoàn khác nhau: tiền hàng hoàn
-được, còn phí vận chuyển đã dùng thì không. Thứ ba, đơn hàng chỉ được sinh ra sau khi tiền đã
-nằm trong ký quỹ, và việc sinh đơn đi kèm khởi động đồng hồ chờ người bán xác nhận; điều này
-có nghĩa trong hệ thống không tồn tại đơn hàng nào chưa được trả tiền.
-
 #let elabel(body) = box(fill: white, inset: (x: 2pt, y: 1pt), text(size: 8pt, body))
 #let lane-v = (paint: luma(60%), thickness: 0.6pt, dash: "dashed")
 #let lane-h = (paint: luma(75%), thickness: 0.5pt)
@@ -68,6 +51,12 @@ có nghĩa trong hệ thống không tồn tại đơn hàng nào chưa được
   edge((0, 4), (-0.6, 4), (-0.6, 12.6), (1, 12.6), (1, 12), "-|>", corner-radius: 5pt),
 )
 
+Sơ đồ gồm ba luồng dọc tương ứng với người mua, hệ thống và nhà cung cấp thanh toán. Quy trình có hai điểm rẽ nhánh chính: kiểm tra khả năng vận chuyển trước khi thanh toán và xử lý phiên thanh toán hết hạn sau 15 phút nếu chưa nhận được xác nhận thành công.
+
+Để bảo đảm tính nhất quán của dòng tiền, hệ thống khóa bản chốt giá trước khi mở phiên thanh toán, tách riêng tiền hàng và phí vận chuyển trong ký quỹ, đồng thời chỉ tạo đơn hàng sau khi thanh toán được xác nhận. Thời hạn 48 giờ chờ người bán xác nhận cũng bắt đầu từ thời điểm này.
+
+
+
 
 == Sơ đồ hoạt động: Trả hàng, hoàn tiền và leo thang thành phiếu hỗ trợ
 
@@ -95,7 +84,7 @@ có nghĩa trong hệ thống không tồn tại đơn hàng nào chưa được
 
   edge((2, 4), (1, 5), "-|>", elabel[Chấp nhận], label-side: left),
   np((1, 5), [Mở chặng trả hàng,\ không tính phí]),
-  edge((1, 5), (0, 6), "-|>"),
+  edge((1, 5), (0, 6), "-|>"), 
   np((0, 6), [Gửi hàng trả lại]),
   edge((0, 6), (2, 7), "-|>"),
   np((2, 7), [Xác nhận đã nhận hàng,\ bắt đầu 48 giờ kiểm hàng]),
@@ -133,13 +122,19 @@ có nghĩa trong hệ thống không tồn tại đơn hàng nào chưa được
   nt((1, 16), [Kết thúc]),
 )
 
+Quy trình trả hàng và hoàn tiền được thiết kế nhằm bảo vệ quyền lợi của cả người mua và người bán, trong đó hệ thống tự động điều phối các bước xử lý và bộ phận vận hành chỉ can thiệp khi phát sinh tranh chấp.
+
+Quy trình bắt đầu khi người mua gửi yêu cầu hoàn tiền kèm lý do và bằng chứng. Hệ thống tạm dừng giải ngân cho người bán và thiết lập thời hạn phản hồi 48 giờ. Từ đây, quy trình chia thành hai nhánh:
+
+- *Nhánh thỏa thuận:* Nếu người bán chấp nhận, người mua tiến hành gửi trả hàng. Sau khi nhận hàng, người bán có 48 giờ để xác nhận tình trạng sản phẩm. Nếu xác nhận hợp lệ hoặc quá thời hạn không phản hồi, hệ thống hoàn lại tiền hàng cho người mua và kết thúc hồ sơ.
+- *Nhánh phân xử:* Hồ sơ được chuyển cho bộ phận vận hành khi người bán yêu cầu phân xử, không phản hồi đúng hạn, phản đối tình trạng hàng hoàn trả hoặc phát sinh sự cố trong quá trình trả hàng. Bộ phận vận hành đối soát bằng chứng từ hai bên và đưa ra quyết định cuối cùng: hoàn tiền cho người mua hoặc tiếp tục giải ngân cho người bán.
+
+Sau khi có kết quả, hệ thống đóng các phiếu hỗ trợ liên quan, lưu lại quyết định và kết thúc quy trình hoàn tiền.
+
 
 == Sơ đồ trạng thái vòng đời đơn hàng
 
-Đơn hàng có 4 trạng thái, và cả 4 đều được suy ra từ các mốc thời gian kết quả chứ
-không lưu thành một trường trạng thái riêng, nhờ vậy không tồn tại khả năng trường trạng
-thái lệch với các mốc thời gian sinh ra nó. Sơ đồ dưới đây là hợp đồng mà tầng nghiệp vụ
-phải tuân thủ: mọi phép chuyển không xuất hiện trên sơ đồ đều bị từ chối.
+Đơn hàng gồm bốn trạng thái, được xác định trực tiếp từ các mốc thời gian phản ánh kết quả xử lý thay vì lưu trữ trong một trường trạng thái riêng. Cách tiếp cận này giúp tránh sai lệch giữa trạng thái đơn hàng và các mốc thời gian liên quan. Sơ đồ dưới đây thể hiện các chuyển đổi trạng thái hợp lệ mà tầng nghiệp vụ phải tuân thủ; mọi chuyển đổi không được định nghĩa trong sơ đồ đều bị từ chối.
 
 #fig(
   [Sơ đồ trạng thái vòng đời đơn hàng],
@@ -285,7 +280,7 @@ phải tuân thủ: mọi phép chuyển không xuất hiện trên sơ đồ đ
     [NFR-11], [Cấm tuyệt đối hiện tượng nhân đôi đơn hàng hoặc quyết toán kép. Nguyên tắc này được bảo vệ cứng ở tầng CSDL bằng các ràng buộc duy nhất (Unique Constraints), thay vì phụ thuộc vào phép kiểm tra logic (Check-then-Act) dễ sinh lỗi tương tranh.],
     [NFR-12], [Số dư ví không được phép âm, và tổng các biến động trong sổ bút toán phải luôn khớp với số dư hiện hành. Các bất biến này được cưỡng chế trực tiếp bằng ràng buộc kiểm tra (Check Constraints) tại CSDL, lập tức từ chối thao tác ghi gây sai lệch.],
     [NFR-13], [Áp dụng cơ chế khóa lạc quan (Optimistic Locking). Hai giao dịch đồng thời lên cùng một bản ghi phải khiến giao dịch đến sau thất bại bằng lỗi xung đột (Conflict), ngăn chặn việc âm thầm ghi đè lên dữ liệu đã bị biến đổi.],
-    [NFR-14], [Mỗi dịch vụ sở hữu độc quyền một lược đồ CSDL riêng, quản lý qua nhóm kết nối có đường dẫn tìm kiếm (search path) bị khóa cứng. Tuyệt đối không sử dụng khóa ngoại vật lý xuyên lược đồ. Hạn chế: Sự cô lập hiện tại được giữ bằng cấu hình định tuyến thay vì phân quyền tài khoản CSDL.],
+    [NFR-14], [Mỗi dịch vụ sở hữu độc quyền một lược đồ CSDL riêng, quản lý qua nhóm kết nối có đường dẫn tìm kiếm (search path) bị khóa cứng. Tuyệt đối không sử dụng khóa ngoại vật lý xuyên lược đồ. *Hạn chế:* Sự cô lập hiện tại được giữ bằng cấu hình định tuyến thay vì phân quyền tài khoản CSDL.],
 
     table.cell(colspan: 2, align: left)[*c) Khả năng bảo trì và ràng buộc kỹ thuật*],
     [NFR-15], [Mọi kết nối ra nhà cung cấp bên ngoài phải khai báo hạn định thời gian (Timeout) rõ ràng. Thao tác có đặc thù độ trễ khác biệt phải cấu hình Timeout độc lập. *Hạn chế:* Tiêu chuẩn này chưa đạt độ phủ toàn diện; hãng vận chuyển vẫn chưa khai báo Timeout hợp lệ.],
