@@ -142,9 +142,11 @@
     if p.len() == 1 { [CHƯƠNG #p.at(0): ] } else { [#p.map(str).join(".") ] }
   })
 
-  // Dấu đầu dòng dùng gạch ngang, và thụt vào 1cm cho thẳng với dòng đầu
-  // của đoạn văn — nếu để 0 thì gạch đầu dòng nhô ra trước cả văn xuôi.
-  set list(marker: [-], indent: 1cm)
+  // Dấu đầu dòng: cấp 1 dùng gạch ngang, cấp 2 dùng dấu cộng để hai cấp phân
+  // biệt được bằng mắt. Chỉ dùng tối đa 2 cấp; sâu hơn thì viết lại thành văn
+  // xuôi hoặc tách mục, không lồng tiếp.
+  // Thụt 1cm cho thẳng với dòng đầu của đoạn văn.
+  set list(marker: ([-], [+]), indent: 1cm)
   set enum(indent: 1cm)
 
   // Đánh số hình/bảng theo chương: hình đầu tiên của chương 3 là "Hình 3.1".
