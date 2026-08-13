@@ -1,11 +1,11 @@
 #import "../../common/tokens.typ": *
 
 // ------------------------------------------------------------
-//  Hộp lớp UML ba ngăn cho fletcher. Không phải design token nên không đưa
+//  Hộp lớp UML 3 ngăn cho fletcher. Không phải design token nên không đưa
 //  vào common/tokens.typ; đây là cùng một helper mà docs/typst/class_diagram.typ
 //  dùng, giữ nguyên để hai tài liệu vẽ ra cùng một ký hiệu.
 // ------------------------------------------------------------
-//  Nội dung hai ngăn dưới KHÔNG đặt bằng phông đơn cách. Không phông đơn cách nào có
+//  Nội dung 2 ngăn dưới KHÔNG đặt bằng phông đơn cách. Không phông đơn cách nào có
 //  sẵn ở đây phủ hết chữ Việt: một nguyên âm mang cả dấu phụ lẫn dấu thanh (ề, ộ, ặ, ữ)
 //  bị tách thành hai ký hiệu rời khi dựng chữ. Vì các ngăn này mang chú thích tiếng
 //  Việt, phông thân bài được dùng thay, và ký hiệu mã nguồn vẫn đọc được bình thường.
@@ -77,7 +77,7 @@ sở dữ liệu riêng. 3 module được vẽ đầy đủ vì cấu trúc l�
 xuôi không nói nổi: đơn hàng; tài chính, với phiên thanh toán, chặng thanh toán, ví và 2 sổ cái; và tín
 nhiệm, nơi một bảng phiếu duy nhất gánh mọi loại khiếu nại.
 
-Ký hiệu thống nhất cho cả ba sơ đồ lớp. Mỗi hộp lớp gồm ba ngăn: tên lớp kèm khuôn mẫu, ngăn
+Ký hiệu thống nhất cho cả 3 sơ đồ lớp. Mỗi hộp lớp gồm 3 ngăn: tên lớp kèm khuôn mẫu, ngăn
 thuộc tính và ngăn phương thức. Nét liền là quan hệ nội module, có khóa ngoại thật và bội
 số ghi ở hai đầu cạnh; nét đứt kèm nhãn liên module là tham chiếu vượt lược đồ, trên cơ sở
 dữ liệu chỉ là một số nguyên trần không có khóa ngoại nào kiểm tra hộ, nên tầng nghiệp vụ
@@ -86,12 +86,12 @@ phải tự giữ tính toàn vẹn ấy.
 === Module order
 
 Đây là module dày quy tắc nhất và cũng là module duy nhất có khai báo durable workflow. Hai
-điều cần nói ngay vì cả hai đảo ngược cách hiểu thông thường về một sàn giao dịch. Thứ
+điều cần nói ngay vì cả 2 đảo ngược cách hiểu thông thường về một sàn giao dịch. Thứ
 nhất, đơn hàng ra đời khi tiền về, do thông báo từ cổng thanh toán chứ không do ai bấm
 nút phê duyệt; vì thế dòng hàng đã mua có thể tồn tại trước đơn hàng, và chỉ mục các dòng
 chưa gắn đơn là một danh sách chờ ghép chứ không phải hộp thư chờ duyệt. Thứ hai, người
 bán vẫn phải xác nhận, nhưng thứ họ xác nhận không phải là tiền: tiền đã nằm trong ký quỹ
-rồi, và lượt xác nhận ấy chỉ mở khóa việc gọi hãng vận chuyển, để một bài đăng có tồn kho
+rồi, và lượt xác nhận ấy chỉ mở khóa việc gọi hãng vận chuyển, để một tin đăng có tồn kho
 sai hay một người bán đã bỏ nghề không bị phát hiện bởi chính người mua ngồi chờ một kiện
 hàng không ai gửi. Trạng thái đơn hàng có 4 giá trị và được suy ra từ các mốc thời
 gian kết quả chứ không lưu thành cột riêng, theo thứ tự xét: đã hủy, hoàn thành, chờ người
@@ -205,9 +205,9 @@ hủy đơn và cũng không tự gửi hàng thay người bán.
     cnote((3, 2), "Một đơn, một nguồn gốc", (
       "Đơn ra đời từ ĐÚNG MỘT nguồn: phiếu",
       "mua hoặc cuộc thương lượng, không bao",
-      "giờ cả hai và không bao giờ không có.",
+      "giờ cả 2 và không bao giờ không có.",
       "Ràng buộc duy nhất trên nguồn ấy chặn",
-      "một lời gọi lại bị giao hai lần sinh",
+      "một lời gọi lại bị giao 2 lần sinh",
       "ra hai đơn, ngay tại tầng dữ liệu.",
     ), name: <o-n2>),
 
@@ -227,7 +227,7 @@ Toàn bộ nguyên thủy tiền tệ nằm chung một module để các bướ
 tính nguyên tử. Ranh giới quan trọng nhất bên trong module là 2 sổ cái, một đường
 biên: một sổ ghi các chặng đi trên kênh thanh toán bên ngoài, sổ còn lại ghi mọi lần tiền
 dịch chuyển bên trong ví của nền tảng, và không bao giờ ghi cùng một lần dịch chuyển vào
-cả hai, vì như thế tổng tiền của hệ thống sẽ được đếm hai lần. Một chi tiết quyết định cả
+cả 2, vì như thế tổng tiền của hệ thống sẽ được đếm 2 lần. Một chi tiết quyết định cả
 cách rút tiền vận hành: không có bảng lệnh rút tiền. Một lượt rút là một phiên thanh
 toán mang loại riêng, cùng bảng và cùng vòng đời với một lượt thanh toán của người mua,
 chỉ khác chiều tiền; nhờ vậy trạng thái "đang xử lý", việc thử lại và bằng chứng đối soát
@@ -377,27 +377,27 @@ với ngân hàng chỉ được viết một lần.
 
 Module này tách 2 loại điểm số vốn hay bị gộp làm một. Loại thứ nhất trả lời giao dịch
 đã diễn ra thế nào: hai chiều, người mua chấm người bán và ngược lại, và ẩn cho tới khi
-cả hai cùng nộp hoặc hết cửa sổ 14 ngày, cách duy nhất để một điểm số không mang
+cả 2 cùng nộp hoặc hết cửa sổ 14 ngày, cách duy nhất để một điểm số không mang
 tính trả đũa. Loại thứ hai trả lời món hàng có đúng như mô tả không: một chiều, chỉ
-người đã mua mới viết được. Một đơn hàng có thể sinh ra cả hai, nên nếu cộng chung vào một
-cặp tổng thì chính đơn ấy đã bị đếm hai lần; vì vậy bản tổng hợp uy tín giữ hai cặp tổng
+người đã mua mới viết được. Một đơn hàng có thể sinh ra cả 2, nên nếu cộng chung vào một
+cặp tổng thì chính đơn ấy đã bị đếm 2 lần; vì vậy bản tổng hợp uy tín giữ hai cặp tổng
 riêng biệt.
 
 Thay đổi lớn nhất của module so với giai đoạn trước là không còn lớp tố cáo riêng. Mọi
-thứ người dùng gửi lên, từ tố cáo một bài đăng cho tới đề xuất tính năng, đều là một
+thứ người dùng gửi lên, từ tố cáo một tin đăng cho tới đề xuất tính năng, đều là một
 *phiếu hỗ trợ*, phân biệt bằng loại phiếu, vốn quyết định phiếu có trỏ vào một đối tượng
 nào không và một lý do tố cáo có được phép đi kèm hay không. 7 trạng thái trải trên 3
-bảng trước đây thực chất là cùng một vòng đời được viết ba lần, và một người dùng hỏi "yêu
-cầu của tôi đang ở đâu" thì có ba nơi phải tìm.
+bảng trước đây thực chất là cùng một vòng đời được viết 3 lần, và một người dùng hỏi "yêu
+cầu của tôi đang ở đâu" thì có 3 nơi phải tìm.
 
 #fig-xoay(
-  [Sơ đồ lớp module tín nhiệm: đánh giá hai chiều, nhận xét bài đăng và phiếu hỗ trợ],
+  [Sơ đồ lớp module tín nhiệm: đánh giá hai chiều, nhận xét tin đăng và phiếu hỗ trợ],
   spacing: (8mm, 7mm),
 
   cls((0, 0), "trustapi.Service", stereo: "cổng vào module", name: <t-svc>,
     ops: (
       "+ đánh giá hai chiều · công bố đến hạn",
-      "+ nhận xét bài đăng · trả lời · bình chọn",
+      "+ nhận xét tin đăng · trả lời · bình chọn",
       "+ điểm uy tín · ghi kết cục đơn hàng",
       "+ phiếu hỗ trợ · nhận xử lý · giải quyết",
     )),
@@ -421,7 +421,7 @@ cầu của tôi đang ở đâu" thì có ba nơi phải tìm.
     )),
 
   cnote((0, 2), "11 loại phiếu, một bảng", (
-    "5 loại tố cáo: bài đăng, tài khoản,",
+    "5 loại tố cáo: tin đăng, tài khoản,",
     "tin nhắn, nhận xét, trả lời.",
     "6 loại còn lại: tranh chấp hoàn tiền,",
     "sự cố đơn, thanh toán, tài khoản,",
@@ -492,7 +492,7 @@ cầu của tôi đang ở đâu" thì có ba nơi phải tìm.
 
   cnote((2, 2), "Đồng bộ ngược sang danh mục", (
     "Điểm trung bình và số nhận xét của một",
-    "bài đăng được danh mục giữ sẵn ở dạng",
+    "tin đăng được danh mục giữ sẵn ở dạng",
     "đã tính.",
     "2 lược đồ khác nhau nên không JOIN",
     "được; module tín nhiệm tính lại rồi đẩy",
@@ -534,7 +534,7 @@ cầu của tôi đang ở đâu" thì có ba nơi phải tìm.
   edge(<t-rev>, <t-rep>, "-->", rel[cộng dồn]),
   edge(<t-rev>, <t-rpl>, "-", rel[1 -> 0..\*  «composition»]),
   edge(<t-rev>, <t-vote>, "-", rel[1 -> 0..\*]),
-  edge(<t-rep>, <t-out>, "-->", stroke: (dash: "dashed"), rel[chặn đếm hai lần]),
+  edge(<t-rep>, <t-out>, "-->", stroke: (dash: "dashed"), rel[chặn đếm 2 lần]),
   edge(<t-fb>, <t-n3>, "-", stroke: (dash: "dashed")),
   edge(<t-rev>, <t-n2>, "-", stroke: (dash: "dashed")),
   edge(<t-tk>, <t-n1>, "-", stroke: (dash: "dashed")),

@@ -14,10 +14,10 @@ sau đều truy ngược về ít nhất một mã trong số đó.
     table.header([Mã], [Yêu cầu dẫn dắt], [Nguồn], [Ý nghĩa kiến trúc]),
 
     [AD-01], [Giữ tiền ký quỹ và giải ngân theo phán quyết], [REQ-26, REQ-32, REQ-36],
-    [Giao dịch tài chính đòi hỏi tính nguyên tử trên sổ cái nhưng lại bị kích hoạt từ ba miền rời rạc (đơn hàng, thanh toán, khiếu nại). Điều này buộc kiến trúc phải cô lập toàn bộ nghiệp vụ tiền tệ vào một dịch vụ duy nhất và tước quyền ghi sổ cái của mọi dịch vụ khác.],
+    [Giao dịch tài chính đòi hỏi tính nguyên tử trên sổ cái nhưng lại bị kích hoạt từ 3 miền rời rạc (đơn hàng, thanh toán, khiếu nại). Điều này buộc kiến trúc phải cô lập toàn bộ nghiệp vụ tiền tệ vào một dịch vụ duy nhất và tước quyền ghi sổ cái của mọi dịch vụ khác.],
 
     [AD-02], [Các chuyển trạng thái theo thời hạn], [REQ-21, REQ-24, REQ-29, REQ-32, REQ-35],
-    [5 loại hẹn giờ dài (hết hạn thanh toán, xác nhận đơn, hoàn tiền) có vòng đời từ vài chục phút đến nhiều ngày. Quãng thời gian này vượt quá giới hạn an toàn của bộ nhớ tiến trình, đòi hỏi một cơ chế thực thi bền vững (durable execution) để máy trạng thái không bị mất dữ liệu khi tái khởi động.],
+    [5 loại hẹn giờ dài (hết hạn thanh toán, xác nhận đơn, hoàn tiền) có vòng đời từ vài chục phút đến nhiều ngày. Quãng thời gian này vượt quá giới hạn an toàn của bộ nhớ tiến trình, đòi hỏi một cơ chế thực thi bền (durable execution) để máy trạng thái không bị mất dữ liệu khi tái khởi động.],
 
     [AD-03], [Tích hợp nhiều nhà cung cấp cùng loại], [REQ-23, REQ-25, REQ-43, NFR-15],
     [Dịch vụ thanh toán và vận chuyển vận hành qua nhiều đối tác; mỗi bản ghi giao dịch phải lưu vết cố định đối tác cung cấp dịch vụ. Kiến trúc phải thiết lập cơ chế sổ đăng ký (registry) để duy trì hoạt động song song của nhiều đối tác tại thời điểm chạy, thay vì định tuyến tĩnh ở cấp độ cấu hình.],
@@ -32,12 +32,12 @@ sau đều truy ngược về ít nhất một mã trong số đó.
     [Tệp phương tiện (video mở hộp, ảnh minh chứng) có dung lượng vượt quá khả năng xử lý của thân yêu cầu JSON. Buộc tách rời hoàn toàn đường tải tệp khỏi luồng nghiệp vụ API, và giao quyền quản lý vòng đời tài nguyên cho từng miền sở hữu.],
 
     [AD-07], [Một cửa tiếp nhận cho mọi khiếu nại], [REQ-34, REQ-36, REQ-37],
-    [Báo cáo vi phạm, khiếu nại hoàn tiền và yêu cầu hỗ trợ có chung bản chất: một bên gửi yêu cầu và một bên phân xử. Điều này định hướng việc gộp chúng thành một vòng đời phiếu (ticket) duy nhất, có tích hợp cơ chế ẩn danh nhằm bảo vệ điều phối viên.],
+    [Báo cáo vi phạm, hồ sơ hoàn tiền và yêu cầu hỗ trợ có chung bản chất: một bên gửi yêu cầu và một bên phân xử. Điều này định hướng việc gộp chúng thành một vòng đời phiếu (ticket) duy nhất, có tích hợp cơ chế ẩn danh nhằm bảo vệ điều phối viên.],
 
     [AD-08], [Nhật ký kiểm toán bất biến], [REQ-45, NFR-19],
     [Mọi thay đổi mang hệ quả tài chính hoặc hành chính bắt buộc để lại lưu vết bất biến. Nhật ký kiểm toán phải là một phần cốt lõi nằm chung giao dịch cơ sở dữ liệu với thao tác nghiệp vụ, không phải là một chức năng ghi ghép thêm ở tầng ứng dụng.],
 
-    [AD-09], [Hai giao diện khách trên một hợp đồng], [REQ-01…46, NFR-17],
+    [AD-09], [2 giao diện khách trên một hợp đồng], [REQ-01…46, NFR-17],
     [Hai nền tảng máy khách (Web, Mobile) cùng chia sẻ một tập giao diện lập trình. Bản đặc tả API phải trở thành tài sản trung tâm (API-First), được dùng để sinh mã máy khách và máy chủ giả lập, thay vì chỉ là tài liệu mô tả hậu lập trình.],
   )
 )
@@ -48,7 +48,7 @@ sau đều truy ngược về ít nhất một mã trong số đó.
 === Kiểu kiến trúc và ranh giới triển khai
 
 
-Hệ thống được tổ chức theo Kiến trúc phân rã theo nhóm nghiệp vụ, chia thành 7 dịch vụ: `account`, `catalog`, `order`, `finance`, `chat`, `trust` và `observability`. Ranh giới giữa các dịch vụ này được cưỡng chế bằng cơ chế kỹ thuật thay vì chỉ là quy ước lỏng lẻo trên mã nguồn, thể hiện qua ba nguyên tắc cốt lõi:
+Hệ thống được tổ chức theo Kiến trúc phân rã theo nhóm nghiệp vụ, chia thành 7 dịch vụ: `account`, `catalog`, `order`, `finance`, `chat`, `trust` và `observability`. Ranh giới giữa các dịch vụ này được cưỡng chế bằng cơ chế kỹ thuật thay vì chỉ là quy ước lỏng lẻo trên mã nguồn, thể hiện qua 3 nguyên tắc cốt lõi:
 
 - *Sở hữu dữ liệu độc quyền:* Mỗi dịch vụ làm chủ một lược đồ (schema) riêng. Bể kết nối (connection pool) bị ép buộc phải khóa đường dẫn tìm kiếm (search path) vào đúng lược đồ đó, cắt đứt hoàn toàn nguy cơ truy vấn chéo (ADR-01).
 - *Giao tiếp qua hợp đồng công bố:* Các dịch vụ chỉ gọi nhau qua tập giao diện (interface) công bố sẵn. Gói hợp đồng này không chứa logic và chỉ phụ thuộc thư viện chuẩn, đảm bảo rằng nếu cần tách một dịch vụ ra máy chủ khác, thao tác duy nhất là thay thế bản hiện thực bằng một máy khách gọi mạng mà bên gọi không phải sửa dòng mã nào.
@@ -81,7 +81,7 @@ Trong giai đoạn hiện tại, cả 7 dịch vụ được đóng gói và ph�
   band((0, 3), "NGHIỆP VỤ", (
     [account], [catalog], [order], [finance], [trust], [chat], [observability],
   ), cot: 7, rong: 150mm, nen: headfill,
-    ghi: [Mỗi dịch vụ gồm đúng hai phần: lớp dịch vụ điều phối quy tắc với kho dữ
+    ghi: [Mỗi dịch vụ gồm đúng 2 phần: lớp dịch vụ điều phối quy tắc với kho dữ
           liệu, kiểm vai người gọi và phát sự kiện; lớp quy tắc giữ thực thể, bất
           biến và toàn bộ lỗi có mã. Lớp quy tắc không biết cơ sở dữ liệu tồn tại, nên
           kiểm thử được mà không cần cơ sở dữ liệu.],
@@ -128,13 +128,13 @@ tài chính không ra lệnh tạo đơn, nó chỉ thông báo rằng tiền đ
 
 === Cơ chế bất đồng bộ và tích hợp bên ngoài
 
-3 cơ chế bất đồng bộ chạy song song và không được lẫn vào nhau. Trục sự kiện trên dòng Redis chuyển
-những sự việc đã xảy ra tới các nhóm tiêu thụ tương ứng, được chọn vì Redis đã có mặt cho phiên đăng
-nhập và mô hình nhóm người tiêu thụ đủ cho nhu cầu "mỗi nhóm dịch vụ nhận đúng một lần";
-7 loại sự kiện chạy trên trục này, phục vụ 5 nhóm tiêu thụ. Trục NATS mang những gì không
+3 cơ chế bất đồng bộ chạy song song và không được lẫn vào nhau. Trục sự kiện trên NATS JetStream chuyển
+những sự việc đã xảy ra tới các nhóm tiêu thụ tương ứng, với mô hình nhóm người tiêu thụ đủ cho
+nhu cầu "mỗi nhóm dịch vụ nhận đúng một lần";
+7 loại sự kiện chạy trên trục này, phục vụ 5 nhóm tiêu thụ. Cùng nền tảng ấy còn mang những gì không
 phải sự kiện nghiệp vụ: 4 luồng số đo vận hành đi qua JetStream, và tín hiệu đẩy thời gian thực
 phát tán giữa các bản sao cổng vào đi qua công bố–đăng ký thường, vì một tín hiệu đẩy mà không máy
-khách nào đang mở kết nối để nhận thì không đáng được lưu lại. Hai trục được phân biệt bằng
+khách nào đang mở kết nối để nhận thì không đáng được lưu lại. Hai luồng được phân biệt bằng
 kiểu dữ liệu chứ không bằng tên, để việc nối nhầm thành lỗi biên dịch. Cơ chế thứ ba là các hẹn giờ
 dài, với nguyên tắc 2 nguồn dẫn động, một định nghĩa: mọi khoảng chờ đều được viết đúng
 một lần dưới dạng một phương thức idempotent mà cả Restate lẫn bộ quét định kỳ cùng gọi.
@@ -150,7 +150,7 @@ một lần dưới dạng một phương thức idempotent mà cả Restate l�
 
 7 dịch vụ có cùng một hình dạng, và sự lặp lại này là một quyết định thiết kế: với nhóm 3
 người, việc một người mở mã của dịch vụ mình chưa từng làm và biết ngay mọi thứ nằm ở đâu có giá trị
-lớn hơn việc tối ưu từng dịch vụ theo đặc thù riêng. Mỗi dịch vụ có bốn phần cố định: gói hợp đồng
+lớn hơn việc tối ưu từng dịch vụ theo đặc thù riêng. Mỗi dịch vụ có 4 phần cố định: gói hợp đồng
 công bố, là thứ duy nhất các dịch vụ khác được phép biết; lớp dịch vụ, nơi duy nhất biết cả quy tắc
 lẫn kho dữ liệu; lớp quy tắc giữ thực thể, bất biến và toàn bộ lỗi có mã; và bộ điều hợp PostgreSQL
 hiện thực giao diện kho dữ liệu bằng SQL viết tay. Chiều phụ thuộc là một chiều, nhờ đó quy tắc
@@ -167,7 +167,7 @@ nghiệp vụ kiểm thử được mà không cần cơ sở dữ liệu.
     [Hợp đồng công bố (7)], [Nghiệp vụ], [Giao diện dịch vụ và đối tượng truyền dữ liệu kèm nhãn kiểm tra hợp lệ; thứ duy nhất dịch vụ khác được phép biết.], [(không)],
     [Lớp dịch vụ (7), lớp quy tắc (7), durable workflow (quy trình bền) và bộ nhận sự kiện], [Nghiệp vụ], [Dịch vụ điều phối quy tắc với kho dữ liệu, kiểm tra vai trò người gọi, phát sự kiện; lớp quy tắc giữ thực thể, bất biến và toàn bộ lỗi có mã; durable workflow giữ hẹn giờ và gọi lại phương thức idempotent khi đến hạn.], [Cổng dữ liệu, hợp đồng của dịch vụ khác, bộ durable execution, trục sự kiện],
     [Cổng kho dữ liệu (7), bộ điều hợp PostgreSQL (7) và kho dùng chung], [Truy cập dữ liệu], [SQL viết tay với tham số đặt tên; guarded write; ghi nhật ký kiểm toán cùng giao dịch.], [Lớp quy tắc, nhóm kết nối pgx],
-    [Bộ ghép nối phụ thuộc, sổ đăng ký nhà cung cấp, bộ quét định kỳ, bộ sinh embedding và bộ áp migration], [Hạ tầng], [Dựng đồ thị thành phần theo kiểu giao diện; phân giải hiện thực theo tên mà hàng dữ liệu ghi lại; gọi các phương thức idempotent theo chu kỳ; rút cạn dấu "đã cũ" trên 3 bảng nguồn của chỉ mục véc-tơ; tạo lược đồ rồi áp migration.], [Mọi thành phần, các gói tích hợp, mô hình embedding],
+    [Bộ ghép nối phụ thuộc, sổ đăng ký nhà cung cấp, bộ quét định kỳ, bộ sinh embedding và bộ áp migration], [Hạ tầng], [Dựng đồ thị thành phần theo kiểu giao diện; phân giải hiện thực theo tên mà hàng dữ liệu ghi lại; gọi các phương thức idempotent theo chu kỳ; rút cạn dấu "đã cũ" trên 3 bảng nguồn của chỉ mục vector; tạo lược đồ rồi áp migration.], [Mọi thành phần, các gói tích hợp, mô hình embedding],
   )
 )
 
@@ -176,7 +176,7 @@ nghiệp vụ kiểm thử được mà không cần cơ sở dữ liệu.
 === Nguyên tắc, phiên bản và xác thực
 
 Giao diện lập trình của hệ thống là hợp đồng công khai duy nhất của
-hệ thống: cả ba giao diện khách đều gọi cùng tập đường dẫn này, và mã máy khách của web lẫn di động
+hệ thống: cả 3 giao diện khách đều gọi cùng tập đường dẫn này, và mã máy khách của web lẫn di động
 đều sinh tự động từ đặc tả (AD-09). Mọi tuyến nằm dưới tiền tố kể cả tuyến nhận lời gọi
 lại từ nhà cung cấp, bởi một đường dẫn đứng cạnh tiền tố là một đường dẫn nữa mà mọi máy chủ uỷ
 nhiệm phía trước phải được cấu hình riêng. Xác thực dùng thẻ JWT sống 15 phút, nhưng phiên mới là
@@ -217,7 +217,7 @@ trong tài liệu OpenAPI sinh ra từ mã nguồn, phục vụ tại `/api/v1/o
 
     [POST], [`/login`], [Đăng nhập; trả access token và refresh token.], [Công khai],
     [GET], [`/listings`], [Duyệt và tìm kiếm, lọc theo danh mục, giá, tình trạng, vị trí, xếp hạng ngữ nghĩa.], [Công khai],
-    [POST], [`/listings`], [Đăng bán; đường duy nhất làm một bài đăng ra đời.], [Người dùng],
+    [POST], [`/listings`], [Đăng bán; đường duy nhất làm một tin đăng ra đời.], [Người dùng],
     [POST], [`/listings/suggestions`], [Gợi ý điền biểu mẫu đăng bán từ ảnh và lời mô tả; không ghi gì.], [Người dùng],
     [POST], [`/conversations/{id}/messages`], [Gửi tin nhắn văn bản hoặc đính kèm.], [Bên tham gia],
     [POST], [`/offers/{id}/acceptance`], [Chấp nhận điều khoản đang trên bàn; đóng băng giá 30 phút, chưa thu tiền.], [Bên đối diện],
@@ -225,7 +225,7 @@ trong tài liệu OpenAPI sinh ra từ mã nguồn, phục vụ tại `/api/v1/o
     [POST], [`/drafts/{id}/checkout`], [Chốt đơn nháp và mở phiên thanh toán gồm tiền hàng cộng phí vận chuyển.], [Người mua],
     [POST], [`/orders/{id}/confirmation`], [Người bán xác nhận đơn và khởi tạo chặng vận chuyển.], [Người bán],
     [POST], [`/orders/{id}/refunds`], [Mở hồ sơ hoàn tiền kèm bằng chứng.], [Người mua],
-    [POST], [`/admin/refunds/{id}/verdict`], [Phán quyết hồ sơ hoàn tiền, đóng mọi phiếu hỗ trợ liên quan.], [Kiểm duyệt viên],
+    [POST], [`/admin/refunds/{id}/verdict`], [Phán quyết hồ sơ hoàn tiền, đóng mọi phiếu hỗ trợ liên quan.], [Điều phối viên],
     [POST], [`/payment-sessions/{id}/payments`], [Khởi tạo một lượt trả tiền trên một đường tiền cụ thể.], [Người trả tiền],
     [GET], [`/wallets`], [Số dư khả dụng và số dư tạm giữ theo từng loại tiền.], [Chủ sở hữu],
     [POST], [`/orders/{orderID}/feedback`], [Đánh giá giao dịch mù hai chiều, chiều suy ra từ vai trò người gọi.], [Bên liên quan],

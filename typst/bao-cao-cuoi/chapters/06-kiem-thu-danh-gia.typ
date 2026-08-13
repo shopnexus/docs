@@ -14,10 +14,10 @@ Việc chọn ca kiểm thử xuất phát từ đặc thù nghiệp vụ của 
 đều mọi thành phần. ShopNexus là sàn giao dịch giữa các cá nhân, nơi tiền của người mua được
 giữ lại ở bên thứ ba cho tới khi giao dịch kết thúc. Vì vậy nhóm rủi ro đắt nhất không phải là
 giao diện hiển thị sai mà là các quy tắc điều khiển dòng tiền và trạng thái đơn hàng. Cụ thể,
-bốn tình huống sau được xác định là phải có ca kiểm thử trước mọi tình huống khác:
+4 tình huống sau được xác định là phải có ca kiểm thử trước mọi tình huống khác:
 
 - Một lần trả tiền sinh ra hai đơn hàng, hoặc một thông báo của cổng thanh toán được cổng gửi
-  lặp lại và người mua bị ghi nợ hai lần.
+  lặp lại và người mua bị ghi nợ 2 lần.
 - Một khoản tiền ký quỹ được giải ngân cho người bán trong khi hồ sơ hoàn tiền của người mua
   còn treo, hoặc ngược lại.
 - Một chuỗi thao tác bị dừng giữa đường mất kết nối, cổng thanh toán hết hạn chờ, hãng vận
@@ -55,14 +55,14 @@ nghịch chứ không chỉ nhánh thuận.
 
 == Đặc tả các ca kiểm thử trọng tâm
 
-3 ca dưới đây tương ứng với các tình huống rủi ro đã nêu ở mục 6.1. Cả ba đều nằm trong lượt
+3 ca dưới đây tương ứng với các tình huống rủi ro đã nêu ở mục 6.1. Cả 3 đều nằm trong lượt
 chạy mặc định và đều đạt.
 
 #tcspec(
   "TC-01", "Cổng thanh toán gửi lặp một thông báo đã được xử lý",
   [Yêu cầu liên quan], [Thanh toán qua cổng và ký gửi tiền ký quỹ (REQ-22); chống nhân đôi thu tiền (NFR-11)],
   [Mức / loại / ưu tiên], [Thành phần; nghịch (kiểm tính lũy đẳng); chặn],
-  [Điều kiện tiên quyết], [Một phiên thanh toán đã mở cho cặp người mua và người bán với tổng tiền 300 000 đồng; một lượt trả tiền đã được khởi tạo trên cổng giả lập; ví người mua rỗng, đúng như trường hợp thông thường],
+  [Điều kiện tiên quyết], [Một phiên thanh toán đã mở cho cặp người mua và người bán với tổng tiền 300.000 đồng; một lượt trả tiền đã được khởi tạo trên cổng giả lập; ví người mua rỗng, đúng như trường hợp thông thường],
   [Dữ liệu thử], [Thông báo của cổng được dựng lại đúng như cổng gửi về: mã tham chiếu của lượt trả tiền do nền tảng phát ra, kèm trạng thái thành công. Lần gửi thứ hai dùng đúng cùng một thông báo],
   [Các bước], [
     1. Gửi thông báo thành công lần thứ nhất.
@@ -71,8 +71,8 @@ chạy mặc định và đều đạt.
     4. Đọc lại ví người mua.
   ],
   [Kết quả mong đợi], [
-    Lần thứ nhất ghi có 300 000 đồng vào ví người mua, nhờ đó lệnh giữ tiền thành công và số dư
-    bị giữ của người bán bằng 300 000 đồng. \
+    Lần thứ nhất ghi có 300.000 đồng vào ví người mua, nhờ đó lệnh giữ tiền thành công và số dư
+    bị giữ của người bán bằng 300.000 đồng. \
     Lần thứ hai trả về thành công để cổng ngừng gửi lại, nhưng không phát sinh bút toán nào:
     lượt trả tiền đã kết thúc nên mọi lần xử lý sau được nhận ra và bỏ qua thay vì báo lỗi. \
     Ví người mua đọc lại có số dư khả dụng và số dư bị giữ đều bằng không: tiền đã chuyển đúng
@@ -86,7 +86,7 @@ chạy mặc định và đều đạt.
   [Yêu cầu liên quan], [Sinh đơn hàng từ phiên thanh toán đã trả (REQ-22); tính lũy đẳng của các chuyển đổi (NFR-10); chống nhân đôi đơn hàng (NFR-11)],
   [Mức / loại / ưu tiên], [Thành phần; nghịch (phục hồi sau lỗi); chặn],
   [Điều kiện tiên quyết], [Một phiên thanh toán một dòng hàng đã được trả tiền; phân hệ tài chính được đặt ở chế độ lệnh giữ tiền thất bại. Đây là tình huống khó nhất của luồng, vì đơn hàng đã được ghi trước khi lệnh giữ tiền chạy],
-  [Dữ liệu thử], [Đơn 100 000 đồng, một dòng hàng đã được giữ tồn kho từ lúc mở phiên],
+  [Dữ liệu thử], [Đơn 100.000 đồng, một dòng hàng đã được giữ tồn kho từ lúc mở phiên],
   [Các bước], [
     1. Gọi quyết toán phiên lần thứ nhất, với lệnh giữ tiền đang thất bại.
     2. Kiểm tra số tiền đã giữ và trạng thái tồn kho.
@@ -97,11 +97,11 @@ chạy mặc định và đều đạt.
   [Kết quả mong đợi], [
     Lần thứ nhất báo lỗi thay vì báo thành công, và không hiệu ứng nào sau bước ghi đơn xảy ra:
     tiền ký quỹ bằng 0 đồng, tồn kho chưa chuyển sang đã bán. \
-    Lần thứ hai hoàn tất phần còn lại: giữ đúng 100 000 đồng, tồn kho chuyển từ trạng thái đang
+    Lần thứ hai hoàn tất phần còn lại: giữ đúng 100.000 đồng, tồn kho chuyển từ trạng thái đang
     giữ sang đã bán. \
     Lần thứ ba không làm gì thêm: mỗi hiệu ứng được áp dụng đúng một lần, vì lệnh giữ tiền được
     khoá theo đơn hàng và lệnh trừ tồn kho được khoá theo dòng hàng. \
-    Suốt cả ba lần chỉ tồn tại một đơn hàng, và mọi dòng hàng của phiên đều đã gắn vào đơn đó.
+    Suốt cả 3 lần chỉ tồn tại một đơn hàng, và mọi dòng hàng của phiên đều đã gắn vào đơn đó.
   ],
   [Kết quả thực tế], [*Đạt.* Kết hợp với TC-01, 2 ca này khẳng định một lần trả tiền chỉ sinh một đơn hàng, dù thông báo bị gửi lặp hay chuỗi quyết toán bị chạy lại],
 )
@@ -111,7 +111,7 @@ chạy mặc định và đều đạt.
   [Yêu cầu liên quan], [Giải ngân sau thời hạn khiếu nại (REQ-25); hồ sơ hoàn tiền (REQ-26); ghi có kiểm soát trạng thái (NFR-12)],
   [Mức / loại / ưu tiên], [Thành phần; nghịch (tranh chấp đồng thời); chặn],
   [Điều kiện tiên quyết], [Một đơn hàng đã được người mua xác nhận nhận hàng; thời điểm nhận hàng bị đẩy về quá khứ để thời hạn giải ngân đã trôi qua, nhờ đó đơn nằm trong danh sách đến hạn của tác vụ quét],
-  [Dữ liệu thử], [Đơn 100 000 đồng đang được tạm giữ; hồ sơ hoàn tiền do người mua mở với lý do "không đúng như mô tả"],
+  [Dữ liệu thử], [Đơn 100.000 đồng đang được tạm giữ; hồ sơ hoàn tiền do người mua mở với lý do "không đúng như mô tả"],
   [Các bước], [
     1. Tác vụ quét đọc danh sách đơn đến hạn giải ngân, thu được đúng một đơn.
     2. *Trước khi* tác vụ giành đơn đó, người mua mở một hồ sơ hoàn tiền trên chính đơn ấy.
@@ -122,7 +122,7 @@ chạy mặc định và đều đạt.
     Phép giành đơn thất bại, vì câu hỏi "đơn này còn đến hạn giải ngân không" được hỏi lại dưới
     khoá của đơn thay vì tin vào danh sách đã đọc từ trước. \
     Lệnh giải ngân sau đó không báo lỗi nhưng cũng không chạm vào tiền: khoản tạm giữ vẫn là
-    100 000 đồng, số tiền đã giải ngân bằng 0. \
+    100.000 đồng, số tiền đã giải ngân bằng 0. \
     Ở trường hợp ngược lại, việc mở hồ sơ hoàn tiền bị từ chối: khoản tiền mà hồ sơ nhắm tới
     không còn được tạm giữ nữa.
   ],
@@ -146,14 +146,14 @@ thống từ chối đúng chỗ), và ca biên (kiểm chứng hành vi ở ran
     table.cell(colspan: 4, fill: rgb("#F7F7F7"))[*Dòng tiền, tiền ký quỹ và hồ sơ hoàn tiền*],
     [TC-04], [Ví từ chối mọi bút toán làm số dư âm, thay vì ghi rồi sửa sau], [Nghịch], [Đạt],
     [TC-05], [Điều chỉnh ví do quản trị viên thực hiện phải mang một khoá chống lặp: gọi lại cùng một khoá không ghi có thêm, và yêu cầu không có khoá thì bị từ chối thay vì ghi mà không được bảo vệ], [Nghịch], [Đạt],
-    [TC-06], [Tiền ký quỹ đi đúng một vòng giữ rồi giải ngân; lệnh giữ lặp lại bị từ chối thay vì giữ hai lần], [Biên], [Đạt],
+    [TC-06], [Tiền ký quỹ đi đúng một vòng giữ rồi giải ngân; lệnh giữ lặp lại bị từ chối thay vì giữ 2 lần], [Biên], [Đạt],
     [TC-07], [Khi hồ sơ hoàn tiền được xử, tiền phải chuyển xong trước khi hồ sơ chuyển sang trạng thái kết thúc; làm ngược lại thì một lần chuyển tiền thất bại sẽ không có gì chạy lại], [Nghịch], [Đạt],
     [TC-08], [Hai điều hành viên cùng phân xử một hồ sơ thì chỉ một quyết định được ghi nhận], [Nghịch], [Đạt],
     [TC-09], [Hồ sơ hoàn tiền quá hạn được thúc tự động, nhưng bỏ qua hồ sơ đã có nhân viên xử lý và nhường một lần khiếu nại mà nó chưa thấy], [Nghịch], [Đạt],
 
     table.cell(colspan: 4, fill: rgb("#F7F7F7"))[*Đặt hàng, tồn kho và thương lượng giá*],
     [TC-10], [Đặt hàng vượt tồn kho bị từ chối trước khi thu tiền], [Nghịch], [Đạt],
-    [TC-11], [Phiếu mua tạm phải được giành trước khi thu tiền, để hai lần bấm thanh toán không thành hai giao dịch], [Biên], [Đạt],
+    [TC-11], [Phiếu mua tạm phải được giành trước khi thu tiền, để 2 lần bấm thanh toán không thành hai giao dịch], [Biên], [Đạt],
     [TC-12], [Dòng hàng đã trả tiền không phải của người bán để huỷ, kể cả khi nó đang nằm trong danh sách chờ đặt vận đơn lại], [Nghịch], [Đạt],
     [TC-13], [Đề nghị đối ứng nhường một lần chấp nhận mà nó chưa thấy; mỗi biến thể hàng chỉ có một đề nghị đang hiệu lực], [Nghịch], [Đạt],
     [TC-14], [Phiếu mua tạm không được thanh toán thì hết hạn, và tồn kho đang giữ được trả lại], [Biên], [Đạt],
@@ -163,7 +163,7 @@ thống từ chối đúng chỗ), và ca biên (kiểm chứng hành vi ở ran
     [TC-16], [Hãng không phục vụ tuyến thì biến khỏi danh sách báo giá, các hãng còn lại vẫn báo giá bình thường], [Biên], [Đạt],
     [TC-17], [Hãng trả lời chậm vẫn bị cắt theo hạn chờ đã khai báo], [Nghịch], [Đạt],
     [TC-18], [Hãng gửi về một mã trạng thái mà nền tảng không mô hình hoá thì bị từ chối, thay vì suy đoán ra một trạng thái gần giống], [Nghịch], [Đạt],
-    [TC-19], [Mốc hành trình do hãng báo không phải của người mua hay người bán để tự ghi: cả hai bên đều bị từ chối và trạng thái vận đơn giữ nguyên nơi hãng để lại], [Nghịch], [Đạt],
+    [TC-19], [Mốc hành trình do hãng báo không phải của người mua hay người bán để tự ghi: cả 2 bên đều bị từ chối và trạng thái vận đơn giữ nguyên nơi hãng để lại], [Nghịch], [Đạt],
 
     table.cell(colspan: 4, fill: rgb("#F7F7F7"))[*Xác thực, phân quyền và che dữ liệu*],
     [TC-20], [Thẻ truy cập còn hạn nhưng thuộc một phiên đã bị thu hồi thì bị từ chối], [Nghịch], [Đạt],
@@ -218,22 +218,22 @@ khai, không thuộc về sản phẩm mà đề tài xây dựng.
 
     [NFR-05],
     [Phân quyền theo vai trò ở tầng dịch vụ],
-    [Cổng vào chỉ xử lý xác thực, nguồn gốc yêu cầu và nhật ký, không nơi nào đọc vai trò; phép kiểm vai trò nằm ở tầng dịch vụ, xuất hiện ở hơn 40 điểm trên sáu phân hệ, và có ca kiểm thử gọi chéo vai trò],
+    [Cổng vào chỉ xử lý xác thực, nguồn gốc yêu cầu và nhật ký, không nơi nào đọc vai trò; phép kiểm vai trò nằm ở tầng dịch vụ, xuất hiện ở hơn 40 điểm trên 6 phân hệ, và có ca kiểm thử gọi chéo vai trò],
     [Đạt],
 
     [NFR-06],
     [Che sự tồn tại bản ghi với người ngoài cuộc],
-    [TC-23 đạt trên bốn phân hệ. Vẫn còn vài chỗ trả về "bị cấm" thay vì "không tìm thấy", và quy tắc này chưa được cưỡng chế bằng một cơ chế dùng chung],
+    [TC-23 đạt trên 4 phân hệ. Vẫn còn vài chỗ trả về "bị cấm" thay vì "không tìm thấy", và quy tắc này chưa được cưỡng chế bằng một cơ chế dùng chung],
     [Đạt một phần],
 
     [NFR-10],
     [Tính lũy đẳng của các chuyển đổi theo thời hạn],
-    [Định nghĩa "đến hạn" nằm ở đúng một chỗ, dùng chung cho cả tác vụ quét lẫn luồng thực thi bền bỉ; TC-02, TC-03 và TC-09 đều khẳng định gọi lại không sinh thêm bút toán],
+    [Định nghĩa "đến hạn" nằm ở đúng một chỗ, dùng chung cho cả tác vụ quét lẫn luồng thực thi bền; TC-02, TC-03 và TC-09 đều khẳng định gọi lại không sinh thêm bút toán],
     [Đạt],
 
     [NFR-11],
     [Chống nhân đôi đơn hàng và nhân đôi thu tiền],
-    [TC-01, TC-02, TC-05 và TC-11 phủ nhóm này ở tầng dịch vụ. Bốn ràng buộc duy nhất ở tầng dữ liệu trên phiếu mua tạm, trên thương lượng, trên mã tham chiếu của nhà cung cấp và trên khoá chống lặp của bút toán ví là lớp phòng vệ thứ hai, chỉ kiểm chứng được khi có cơ sở dữ liệu thật],
+    [TC-01, TC-02, TC-05 và TC-11 phủ nhóm này ở tầng dịch vụ. 4 ràng buộc duy nhất ở tầng dữ liệu trên phiếu mua tạm, trên thương lượng, trên mã tham chiếu của nhà cung cấp và trên khoá chống lặp của bút toán ví là lớp phòng vệ thứ hai, chỉ kiểm chứng được khi có cơ sở dữ liệu thật],
     [Đạt một phần],
 
     [NFR-12, NFR-13],

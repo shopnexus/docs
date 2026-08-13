@@ -5,7 +5,7 @@
 
 == Thiết kế cơ sở dữ liệu vật lý
 
-Mô hình dữ liệu được hiện thực trên PostgreSQL chạy trên bản phân phối TimescaleDB, bộ ký tự UTF-8. Ngoài phần lõi quan hệ, thiết kế dựa vào 6 phần mở rộng, mỗi phần phục vụ một nhóm truy vấn mà nếu thiếu nó thì phải giải quyết bằng một hệ lưu trữ thứ hai: TimescaleDB cho bảng ghi theo thời gian, PostGIS cho toạ độ địa lý, pgvector cho vector ngữ nghĩa, `pg_trgm` cùng `unaccent` cho tìm kiếm gần đúng không dấu, và bộ công cụ thống kê của TimescaleDB cho phép tính phân vị. Cả sáu đều được cài vào lược đồ `public` chứ không vào lược đồ của mô-đun, vì một phần mở rộng chỉ thuộc về đúng một lược đồ trong mỗi cơ sở dữ liệu; đổi lại, mỗi mô-đun vẫn tự khai báo phần mở rộng mà nó cần, để khi tách sang cơ sở dữ liệu riêng nó mang theo đủ điều kiện tiên quyết của mình. Dữ liệu nghiệp vụ tổ chức thành 7 lược đồ (schema), mỗi lược đồ mang đúng tên mô-đun sở hữu nó; đây không phải ranh giới triển khai (hệ thống chạy như một tiến trình duy nhất) mà là ranh giới quyền ghi và ranh giới di chuyển.
+Mô hình dữ liệu được hiện thực trên PostgreSQL chạy trên bản phân phối TimescaleDB, bộ ký tự UTF-8. Ngoài phần lõi quan hệ, thiết kế dựa vào 6 phần mở rộng, mỗi phần phục vụ một nhóm truy vấn mà nếu thiếu nó thì phải giải quyết bằng một hệ lưu trữ thứ hai: TimescaleDB cho bảng ghi theo thời gian, PostGIS cho toạ độ địa lý, pgvector cho vector ngữ nghĩa, `pg_trgm` cùng `unaccent` cho tìm kiếm gần đúng không dấu, và bộ công cụ thống kê của TimescaleDB cho phép tính phân vị. Cả 6 đều được cài vào lược đồ `public` chứ không vào lược đồ của module, vì một phần mở rộng chỉ thuộc về đúng một lược đồ trong mỗi cơ sở dữ liệu; đổi lại, mỗi module vẫn tự khai báo phần mở rộng mà nó cần, để khi tách sang cơ sở dữ liệu riêng nó mang theo đủ điều kiện tiên quyết của mình. Dữ liệu nghiệp vụ tổ chức thành 7 lược đồ (schema), mỗi lược đồ mang đúng tên module sở hữu nó; đây không phải ranh giới triển khai (hệ thống chạy như một tiến trình duy nhất) mà là ranh giới quyền ghi và ranh giới di chuyển.
 
 #figure(
   kind: table,
@@ -15,7 +15,7 @@ Mô hình dữ liệu được hiện thực trên PostgreSQL chạy trên bản
     align: (left + horizon, left + horizon),
     table.header([Lược đồ], [Phạm vi dữ liệu]),
     [`account`], [Định danh, đăng nhập liên kết, hồ sơ hiển thị, sổ địa chỉ, thiết bị nhận đẩy, thông báo và tuỳ chọn kênh, đồ thị theo dõi, giấy tờ định danh.],
-    [`catalog`], [Danh mục, bài đăng, biến thể, thẻ, tồn kho và bút toán tồn kho, danh sách yêu thích, véc-tơ ngữ nghĩa của bài đăng, danh mục và thẻ.],
+    [`catalog`], [Danh mục, tin đăng, biến thể, thẻ, tồn kho và bút toán tồn kho, danh sách yêu thích, vector ngữ nghĩa của tin đăng, danh mục và thẻ.],
     [`order`], [Giỏ hàng, phiên mua hàng giá cố định, thương lượng giá, đơn hàng, mục hàng, vận đơn và hồ sơ hoàn tiền.],
     [`finance`], [Phiên thanh toán, sổ cái giao dịch trên kênh thanh toán ngoài, ví theo tài khoản và loại tiền, sổ cái ví, tài khoản ngân hàng nhận tiền, thông tin thuế.],
     [`trust`], [Phản hồi giao dịch hai chiều, đánh giá sản phẩm cùng trả lời và bình chọn hữu ích, điểm uy tín, phiếu hỗ trợ và idempotency key cho kết cục đơn hàng.],
@@ -26,17 +26,17 @@ Mô hình dữ liệu được hiện thực trên PostgreSQL chạy trên bản
 
 === Nguyên tắc thiết kế dữ liệu
 
-*Cô lập theo lược đồ.* Mỗi mô-đun sở hữu một lược đồ mang đúng tên nó và là thành phần duy nhất được phép ghi vào đó; không truy vấn nào nối bảng của 2 lược đồ khác nhau. Nguồn kết nối đặt đường tìm kiếm về lược đồ của mình cộng `public`, nên toàn bộ SQL viết không kèm tên lược đồ và một mô-đun có thể chuyển sang cơ sở dữ liệu khác mà không sửa một dòng SQL; hệ quả là mọi ràng buộc toàn vẹn tham chiếu chỉ tồn tại bên trong một lược đồ.
+*Cô lập theo lược đồ.* Mỗi module sở hữu một lược đồ mang đúng tên nó và là thành phần duy nhất được phép ghi vào đó; không truy vấn nào nối bảng của 2 lược đồ khác nhau. Nguồn kết nối đặt đường tìm kiếm về lược đồ của mình cộng `public`, nên toàn bộ SQL viết không kèm tên lược đồ và một module có thể chuyển sang cơ sở dữ liệu khác mà không sửa một dòng SQL; hệ quả là mọi ràng buộc toàn vẹn tham chiếu chỉ tồn tại bên trong một lược đồ.
 
-*Khoá thay thế là số nguyên 64 bit.* Mọi khoá thay thế đều là `BIGINT` sinh tự động, không có `UUID` ở bất kỳ đâu: khoá tuần tự cho chỉ mục dày đặc hơn và hàng nhỏ hơn, còn lý do thường viện dẫn cho `UUID` (không để lộ số lượng bản ghi) đã được giải quyết bằng định danh mờ. Đúng hai ngoại lệ, cả hai trong `finance`: phiên thanh toán và giao dịch cho phép ứng dụng chỉ định định danh, vì định danh phải được trao cho cổng thanh toán trước khi chèn hàng.
+*Khoá thay thế là số nguyên 64 bit.* Mọi khoá thay thế đều là `BIGINT` sinh tự động, không có `UUID` ở bất kỳ đâu: khoá tuần tự cho chỉ mục dày đặc hơn và hàng nhỏ hơn, còn lý do thường viện dẫn cho `UUID` (không để lộ số lượng bản ghi) đã được giải quyết bằng định danh mờ. Đúng 2 ngoại lệ, cả 2 trong `finance`: phiên thanh toán và giao dịch cho phép ứng dụng chỉ định định danh, vì định danh phải được trao cho cổng thanh toán trước khi chèn hàng.
 
-*Tham chiếu chéo lược đồ không dùng khoá ngoại.* Khoá ngoại chỉ khai báo khi cả 2 bảng cùng lược đồ; trỏ sang lược đồ khác thì cột tham chiếu là `BIGINT` trần, vì một khoá ngoại xuyên lược đồ là thứ duy nhất không thể đi theo mô-đun khi mô-đun đó tách ra. Toàn vẹn ở đó được giữ bằng 3 cơ chế: xoá mềm ở bảng bị trỏ tới, để một mục hàng cũ vẫn phân giải được tên bài đăng sau khi người bán gỡ tin; sao chép có chủ đích những giá trị phía kia có thể đổi; và idempotency key cho thao tác đi qua hàng đợi sự kiện vốn chỉ bảo đảm giao ít nhất một lần.
+*Tham chiếu chéo lược đồ không dùng khoá ngoại.* Khoá ngoại chỉ khai báo khi cả 2 bảng cùng lược đồ; trỏ sang lược đồ khác thì cột tham chiếu là `BIGINT` trần, vì một khoá ngoại xuyên lược đồ là thứ duy nhất không thể đi theo module khi module đó tách ra. Toàn vẹn ở đó được giữ bằng 3 cơ chế: xoá mềm ở bảng bị trỏ tới, để một mục hàng cũ vẫn phân giải được tên tin đăng sau khi người bán gỡ tin; sao chép có chủ đích những giá trị phía kia có thể đổi; và idempotency key cho thao tác đi qua hàng đợi sự kiện vốn chỉ bảo đảm giao ít nhất một lần.
 
-*3 bảng dùng chung, 18 hiện thân.* Nhật ký kiểm toán, bảng tài nguyên tệp và bảng tuỳ chọn được định nghĩa đúng một lần rồi áp vào 6 lược đồ nghiệp vụ, vì một bảng nhật ký kiểm toán toàn cục sẽ không thể đi theo một mô-đun khi mô-đun ấy tách sang cơ sở dữ liệu riêng; trước khi hợp nhất, 7 mô-đun đều tự chép một bản và bốn trong số đó đã trôi khác nhau.
+*3 bảng dùng chung, 18 hiện thân.* Nhật ký kiểm toán, bảng tài nguyên tệp và bảng tuỳ chọn được định nghĩa đúng một lần rồi áp vào 6 lược đồ nghiệp vụ, vì một bảng nhật ký kiểm toán toàn cục sẽ không thể đi theo một module khi module ấy tách sang cơ sở dữ liệu riêng; trước khi hợp nhất, 7 module đều tự chép một bản và 4 trong số đó đã trôi khác nhau.
 
 === Sơ đồ quan hệ thực thể mức vật lý
 
-Sơ đồ được tách thành ba lát cắt theo cụm nghiệp vụ, ký hiệu thống nhất: đường liền nét là khoá ngoại thật nên hai đầu luôn cùng một lược đồ, đường nét đứt là tham chiếu logic chéo lược đồ do tầng dịch vụ giữ đúng. Nhãn bản số đọc theo quy ước chân quạ, dấu hỏi biểu thị đầu tuỳ chọn.
+Sơ đồ được tách thành 3 lát cắt theo cụm nghiệp vụ, ký hiệu thống nhất: đường liền nét là khoá ngoại thật nên hai đầu luôn cùng một lược đồ, đường nét đứt là tham chiếu logic chéo lược đồ do tầng dịch vụ giữ đúng. Nhãn bản số đọc theo quy ước chân quạ, dấu hỏi biểu thị đầu tuỳ chọn.
 
  #fig(
     [Sơ đồ quan hệ thực thể mức vật lý, lát cắt `account` và `catalog`],
@@ -83,7 +83,7 @@ Sơ đồ được tách thành ba lát cắt theo cụm nghiệp vụ, ký hi�
     edge(<p1-ltag>, <p1-lst>, "n-1", text(size: 7pt)[gắn thẻ]),
     edge(<p1-ltag>, <p1-tag>, "n-1", text(size: 7pt)[thẻ]),
     edge(<p1-fav>, <p1-lst>, "n-1", text(size: 7pt)[yêu thích]),
-    edge(<p1-emb>, <p1-lst>, "1-1", text(size: 7pt)[véc-tơ]),
+    edge(<p1-emb>, <p1-lst>, "1-1", text(size: 7pt)[vector]),
 
     // ===== khoá ngoại xuyên lược đồ =====
     // luồn qua khoảng trống giữa NOTIFICATION_PREFERENCE và FOLLOW
@@ -206,7 +206,7 @@ Một tài khoản vừa là người mua vừa là người bán, nên lược 
 
 === Lược đồ `catalog`
 
-Về mô hình hoá, bài đăng không phải một mục trong danh mục sản phẩm dùng chung: hai người bán rao cùng một mẫu điện thoại là hai hàng độc lập, vì tình trạng món hàng, giá và người bán đều là thuộc tính của lời rao. Tồn kho tách thành bảng riêng dù quan hệ với biến thể là một-một, vì số giữ chỗ đổi theo từng lượt thanh toán còn hàng biến thể chỉ đổi khi người bán sửa tin. Hàng đợi tính lại véc-tơ ngữ nghĩa là một thuộc tính của chính dữ liệu chứ không phải một hàng đợi thông điệp, nhờ đó một hàng bị sửa trong lúc triển khai vẫn còn nguyên dấu sau đó.
+Về mô hình hoá, tin đăng không phải một mục trong danh mục sản phẩm dùng chung: hai người bán rao cùng một mẫu điện thoại là hai hàng độc lập, vì tình trạng món hàng, giá và người bán đều là thuộc tính của lời rao. Tồn kho tách thành bảng riêng dù quan hệ với biến thể là một-một, vì số giữ chỗ đổi theo từng lượt thanh toán còn hàng biến thể chỉ đổi khi người bán sửa tin. Hàng đợi tính lại vector ngữ nghĩa là một thuộc tính của chính dữ liệu chứ không phải một hàng đợi thông điệp, nhờ đó một hàng bị sửa trong lúc triển khai vẫn còn nguyên dấu sau đó.
 
 
 === Lược đồ `order`
@@ -223,7 +223,7 @@ Lược đồ này giữ toàn bộ nguyên thể tiền tệ trong một chỗ,
 
 === Lược đồ `trust`
 
-Phản hồi giao dịch ở đây là mù: một hàng phản hồi không hiển thị cho tới khi cả hai bên cùng gửi hoặc cửa sổ mù trôi qua, để một điểm số không thể là đòn trả đũa; chiều của phản hồi suy ra từ việc người gửi đứng ở phía nào của đơn hàng. Chính hành động công bố mới là hành động cộng điểm vào bảng uy tín, và cả hai diễn ra trong cùng một giao dịch, nên một điểm đã hiển thị luôn là một điểm đã được tính. Thay đổi mô hình hoá lớn nhất: mọi thứ người dùng gửi lên đều là một phiếu, và một bảng duy nhất chứa tất cả, nên không còn bảng tranh chấp riêng và bảng báo cáo vi phạm riêng.
+Phản hồi giao dịch ở đây là mù: một hàng phản hồi không hiển thị cho tới khi cả 2 bên cùng gửi hoặc cửa sổ mù trôi qua, để một điểm số không thể là đòn trả đũa; chiều của phản hồi suy ra từ việc người gửi đứng ở phía nào của đơn hàng. Chính hành động công bố mới là hành động cộng điểm vào bảng uy tín, và cả 2 diễn ra trong cùng một giao dịch, nên một điểm đã hiển thị luôn là một điểm đã được tính. Thay đổi mô hình hoá lớn nhất: mọi thứ người dùng gửi lên đều là một phiếu, và một bảng duy nhất chứa tất cả, nên không còn bảng tranh chấp riêng và bảng báo cáo vi phạm riêng.
 
 
 
@@ -232,11 +232,11 @@ Phản hồi giao dịch ở đây là mù: một hàng phản hồi không hi�
 Một luồng hội thoại là một luồng cho mỗi cặp tài khoản, bất kể ai mua ai bán; ngữ cảnh sản phẩm không nằm ở luồng mà ở từng tin nhắn. Với thương lượng giá, tin nhắn chỉ mang định danh cuộc thương lượng trong siêu dữ liệu chứ tuyệt đối không chép giá vào, vì nếu chép thì một lần sửa đề xuất sẽ để lại trong luồng một mức giá không còn trên bàn đàm phán. Trạng thái đọc không lưu trên từng tin nhắn mà là hai dấu thời gian trên hàng hội thoại, vì bảng tin nhắn phân mảnh theo thời gian nên một cờ đã đọc trên từng tin sẽ biến mọi câu hỏi về tin chưa đọc thành phép đếm không có cận thời gian.
 
 
-Ở luồng phiếu hỗ trợ, phía bên kia là tài khoản riêng của bộ phận hỗ trợ, nhờ đó kiểm duyệt viên trả lời vẫn ẩn danh với người gửi và người tiếp nhận kế tiếp thừa hưởng đúng luồng cũ.
+Ở luồng phiếu hỗ trợ, phía bên kia là tài khoản riêng của bộ phận hỗ trợ, nhờ đó điều phối viên trả lời vẫn ẩn danh với người gửi và người tiếp nhận kế tiếp thừa hưởng đúng luồng cũ.
 
 === Các bảng dùng chung
 
-3 bảng cuối cần hiểu khác với 7 lược đồ trên: `common` không phải một mô-đun và không phải một lược đồ, nó không có giao diện dịch vụ và công cụ di trú không tạo ra lược đồ nào tên như vậy; cái nó cung cấp là phần định nghĩa dữ liệu được áp vào lược đồ của từng mô-đun nghiệp vụ.
+3 bảng cuối cần hiểu khác với 7 lược đồ trên: `common` không phải một module và không phải một lược đồ, nó không có giao diện dịch vụ và công cụ di trú không tạo ra lược đồ nào tên như vậy; cái nó cung cấp là phần định nghĩa dữ liệu được áp vào lược đồ của từng module nghiệp vụ.
 
 
 == Thiết kế bảo mật

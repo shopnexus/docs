@@ -26,7 +26,7 @@ Trong một kiến trúc Microservices tuân thủ Database-per-service, thách 
 
 Nếu sử dụng mẫu thiết kế Saga (Choreography hoặc Orchestration) truyền thống, các kỹ sư phần mềm phải đối mặt với một gánh nặng phát triển cực lớn:
 - *Lập trình thủ công các hàm bù trừ:* Phải tự viết mã cho từng hàm thực thi xuôi (Action) kèm theo hàm bù trừ ngược (Compensation Action) tương ứng cho từng module để hoàn tác dữ liệu khi có lỗi xảy ra giữa chừng [4].
-- *Xử lý rủi ro hệ thống phân tán:* Khi xảy ra các sự cố hạ tầng như mất kết nối mạng chập chờn, lỗi timeout, server bị khởi động lại (restart/crash) hoặc tin nhắn hàng đợi bị gửi lặp lại (duplicate delivery), logic xử lý lỗi trong Saga thường phình to gấp nhiều lần mã nghiệp vụ chính, dễ gây sai lệch dòng tiền hoặc lặp giao dịch (ví dụ: trừ tiền hai lần hoặc hoàn kho sai) [6].
+- *Xử lý rủi ro hệ thống phân tán:* Khi xảy ra các sự cố hạ tầng như mất kết nối mạng chập chờn, lỗi timeout, server bị khởi động lại (restart/crash) hoặc tin nhắn hàng đợi bị gửi lặp lại (duplicate delivery), logic xử lý lỗi trong Saga thường phình to gấp nhiều lần mã nghiệp vụ chính, dễ gây sai lệch dòng tiền hoặc lặp giao dịch (ví dụ: trừ tiền 2 lần hoặc hoàn kho sai) [6].
 
 === Khái niệm durable execution và triết lý Journal-based Execution
 Để khắc phục triệt để các nhược điểm của Saga mà không làm tăng độ phức tạp của mã nguồn nghiệp vụ, dự án lựa chọn mô hình durable execution. Đây là mô hình lập trình trong đó nền tảng thực thi đảm bảo một hàm nghiệp vụ có thể chạy liên tục đến khi hoàn thành, tự động tạm dừng khi chờ sự kiện ngoại vi và tự động phục hồi về đúng trạng thái trước khi lỗi xảy ra nếu máy chủ bị sập.

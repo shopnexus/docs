@@ -21,19 +21,19 @@ Mang khối lượng mã nguồn lớn nhất, dịch vụ đơn hàng được 
 Dịch vụ tài chính đóng vai trò làm sổ cái (ledger) nội bộ, lưu trữ toàn bộ nguyên thể tiền tệ để đảm bảo các bút toán ký quỹ luôn tuân thủ nguyên tắc ACID. Trong quy trình thanh toán trực tuyến, nguyên tắc bất biến được áp dụng: trang đích mà người dùng được chuyển hướng về sau khi thanh toán không bao giờ được coi là bằng chứng xác nhận. Việc quyết toán chỉ được thực thi thông qua lời gọi ngược (webhook) từ máy chủ của cổng thanh toán. Mọi thao tác cập nhật số dư từ webhook đều được thiết kế idempotent, cho phép nhà cung cấp phát lại thông báo nhiều lần trong trường hợp nghẽn mạng mà không gây ra hiện tượng nhân đôi số dư.
 
 === Trò chuyện và Quản lý Tín nhiệm (Chat & Trust Services)
-Dịch vụ trò chuyện chịu trách nhiệm quản lý cả hội thoại mua bán cá nhân lẫn các luồng tin nhắn của phiếu hỗ trợ khiếu nại. Thách thức lớn nhất tại đây là cơ chế ẩn danh (anonymization) cho nhân viên kiểm duyệt; hệ thống phải che dấu danh tính nhân viên ở mọi hình chiếu dữ liệu (bao gồm cả dòng tin nhắn xem trước trong danh sách hộp thư) nhằm bảo vệ an toàn cho Moderator.
-Tại dịch vụ tín nhiệm, quy trình đánh giá giao dịch được hiện thực theo cơ chế Đánh giá mù (Blind Review): điểm số và nhận xét chỉ được hiển thị công khai khi cả hai bên đã hoàn tất đánh giá hoặc khi kết thúc thời hạn 14 ngày. Cơ chế này loại bỏ hoàn toàn tâm lý e ngại hoặc hành vi trả đũa bằng đánh giá xấu (retaliatory reviews) trong thương mại điện tử C2C.
+Dịch vụ trò chuyện chịu trách nhiệm quản lý cả hội thoại mua bán cá nhân lẫn các luồng tin nhắn của phiếu hỗ trợ khiếu nại. Thách thức lớn nhất tại đây là cơ chế ẩn danh (anonymization) cho điều phối viên; hệ thống phải che dấu danh tính nhân viên ở mọi hình chiếu dữ liệu (bao gồm cả dòng tin nhắn xem trước trong danh sách hộp thư) nhằm bảo vệ an toàn cho Moderator.
+Tại dịch vụ tín nhiệm, quy trình đánh giá giao dịch được hiện thực theo cơ chế Đánh giá mù (Blind Review): điểm số và nhận xét chỉ được hiển thị công khai khi cả 2 bên đã hoàn tất đánh giá hoặc khi kết thúc thời hạn 14 ngày. Cơ chế này loại bỏ hoàn toàn tâm lý e ngại hoặc hành vi trả đũa bằng đánh giá xấu (retaliatory reviews) trong thương mại điện tử C2C.
 
 == Hiện thực ứng dụng web
 
-Ứng dụng web được phát triển dựa trên kiến trúc App Router của Next.js. Hệ thống định tuyến được chia thành bốn phân hệ chính: vùng công khai, vùng xác thực, vùng người dùng đã đăng nhập và vùng quản trị. Cơ chế bảo vệ tuyến đường (route guard) được thực thi qua Middleware nhằm tối ưu trải nghiệm điều hướng, trong khi hàng rào bảo mật (security boundary) thực sự vẫn do các dịch vụ nền kiểm soát thông qua xác thực token trên từng yêu cầu API.
+Ứng dụng web được phát triển dựa trên kiến trúc App Router của Next.js. Hệ thống định tuyến được chia thành 4 phân hệ chính: vùng công khai, vùng xác thực, vùng người dùng đã đăng nhập và vùng quản trị. Cơ chế bảo vệ tuyến đường (route guard) được thực thi qua Middleware nhằm tối ưu trải nghiệm điều hướng, trong khi hàng rào bảo mật (security boundary) thực sự vẫn do các dịch vụ nền kiểm soát thông qua xác thực token trên từng yêu cầu API.
 
 
 Các hình ảnh minh hoạ giao diện dưới đây được trích xuất trực tiếp từ môi trường chạy thử của ứng dụng:
 Trang tìm kiếm phản ánh trực quan cơ chế truy vấn lai (hybrid search). Bộ lọc đa chiều bao gồm: danh mục, nhãn dán, khu vực (tỉnh/phường kèm bán kính), khoảng giá và tình trạng sản phẩm.
 #figure(
   assets("web/web-01-tim-kiem.png", width: 92%),
-  caption: [Trang kết quả tìm kiếm với từ khoá tiếng Việt không dấu "ao thun nam"; rail bộ lọc bên trái cố định trên khung nhìn desktop, dải "cách khớp" cho chọn giữa khớp từ khoá, khớp ngữ nghĩa hay kết hợp cả hai],
+  caption: [Trang kết quả tìm kiếm với từ khoá tiếng Việt không dấu "ao thun nam"; rail bộ lọc bên trái cố định trên khung nhìn desktop, dải "cách khớp" cho chọn giữa khớp từ khoá, khớp ngữ nghĩa hay kết hợp cả 2],
 )
 
 #figure(
@@ -45,7 +45,7 @@ Trang thanh toán hợp nhất 2 luồng nghiệp vụ: mua giá niêm yết và
 
 #figure(
   assets("web/web-05-theo-doi-don.png", width: 90%),
-  caption: [Chi tiết một đơn ở trạng thái đã giao và đang chờ người mua xác nhận: dải tiến trình bốn chặng, thông tin vận đơn, bảng tách tiền hàng với cước, hai lối đi tiếp là xác nhận đã nhận hàng hoặc mở yêu cầu hoàn tiền],
+  caption: [Chi tiết một đơn ở trạng thái đã giao và đang chờ người mua xác nhận: dải tiến trình 4 chặng, thông tin vận đơn, bảng tách tiền hàng với cước, hai lối đi tiếp là xác nhận đã nhận hàng hoặc mở yêu cầu hoàn tiền],
 )
 
 Dải tiến trình giao hàng phản ánh trạng thái vận đơn thực tế theo thời gian thực. Trạng thái "đã giao" được phân loại vào nhóm xử lý thay vì hoàn tất, bởi dòng tiền vẫn nằm trong sổ cái Ký quỹ cho đến khi người mua xác nhận hoặc hết thời hạn bảo lưu. Việc đếm ngược thời hạn Ký quỹ hiện tại chỉ khả dụng trên giao diện của người bán.
@@ -60,7 +60,7 @@ Giao diện khiếu nại được thiết kế hướng hành động (action-o
 
 == Hiện thực ứng dụng di động
 
-Ứng dụng di động được thiết kế theo Kiến trúc Hướng tính năng (Feature-Driven Architecture), phân chia thành 11 module nghiệp vụ độc lập. Thay vì phân mảnh theo tầng kỹ thuật (technical layers), mỗi module tự đóng gói lớp trình bày (presentation layer) và lớp dữ liệu (data layer), giúp tăng tính liền mạch và dễ bảo trì. Các phân hệ chứa quy tắc nghiệp vụ phức tạp, điển hình như quy trình khiếu nại hoàn tiền, được bổ sung thêm lớp miền (domain layer) nhằm quản lý độc lập các ràng buộc về thời hạn xử lý.
+Ứng dụng di động được thiết kế theo Kiến trúc Hướng tính năng (Feature-Driven Architecture), phân chia thành 11 module nghiệp vụ độc lập. Thay vì phân mảnh theo tầng kỹ thuật (technical layers), mỗi module tự đóng gói lớp trình bày (presentation layer) và lớp dữ liệu (data layer), giúp tăng tính liền mạch và dễ bảo trì. Các phân hệ chứa quy tắc nghiệp vụ phức tạp, điển hình như quy trình hồ sơ hoàn tiền, được bổ sung thêm lớp miền (domain layer) nhằm quản lý độc lập các ràng buộc về thời hạn xử lý.
 
 Hạ tầng kỹ thuật nền tảng được tập trung tại module lõi (core). Lớp giao tiếp mạng sử dụng máy khách HTTP tích hợp sẵn bộ đánh chặn (interceptor), tự động đính kèm và làm mới access token mà không can thiệp vào mã nghiệp vụ. Trạng thái phiên và dữ liệu đệm được quản lý qua kho lưu trữ cục bộ, song song với một bộ định tuyến (router) điều phối 40 tuyến đường phân cấp. Đối với nghiệp vụ thanh toán, hệ thống áp dụng cơ chế nhúng khung duyệt web (WebView) mở trực tiếp trang thanh toán an toàn. Cách tiếp cận này tuân thủ nguyên tắc bảo mật từ dịch vụ tài chính: máy khách chỉ chuyển hướng luồng thao tác và lắng nghe trạng thái phiên giao dịch từ máy chủ thông qua giao thức thời gian thực, tuyệt đối không sử dụng hành vi quay về ứng dụng (deep link return) làm bằng chứng xác nhận thanh toán.
 
@@ -111,7 +111,7 @@ Toàn bộ logic giao tiếp với các dịch vụ bên thứ ba (Third-party s
     columns: (0.62fr, 1.15fr, 0.9fr, 0.95fr),
     align: (left + top, left + top, left + top, left + top),
     table.header([Seam], [Nhà cung cấp đã hiện thực], [Cách chọn], [Hiện trạng]),
-    [Sinh vector], [Dịch vụ BGE-M3 tự vận hành; Bản giả lập], [Bộ chọn trong tệp cấu hình], [Máy khách đã viết xong, kiểm bằng máy chủ HTTP giả; chưa gọi dịch vụ thật],
+    [Sinh vector], [Dịch vụ bge-m3 tự vận hành; Bản giả lập], [Bộ chọn trong tệp cấu hình], [Máy khách đã viết xong, kiểm bằng máy chủ HTTP giả; chưa gọi dịch vụ thật],
     [Xác minh danh tính], [chỉ Bản giả lập], [Bộ chọn trong tệp cấu hình], [Máy khách đã viết xong, kiểm bằng máy chủ HTTP giả; chưa gọi dịch vụ thật],
     [Mô hình ngôn ngữ], [Proxy LiteLLM theo giao diện OpenAI; Bản giả lập], [Bộ chọn trong tệp cấu hình], [Máy khách đã viết xong, kiểm bằng máy chủ HTTP giả; chưa gọi dịch vụ thật],
     [Thông báo], [SMTP (Email); Bản giả lập], [Hai bộ chọn trong tệp cấu hình], [Cả 2 máy khách đã viết xong; eSMS kiểm bằng máy chủ HTTP giả, SMTP kiểm ở mức thông điệp dựng ra; chưa gửi thư hay tin nhắn thật],
