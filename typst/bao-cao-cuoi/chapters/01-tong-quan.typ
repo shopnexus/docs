@@ -11,7 +11,7 @@ Khi nghiên cứu kĩ vào từng vai trò tham gia giao dịch cũng như cách
 
 - *Sự phân mảnh trong giao tiếp và thỏa thuận:* Quá trình thương lượng giá, trao đổi hình ảnh và xác nhận thông tin thường diễn ra trên các ứng dụng bên ngoài nền tảng. Điều này làm cho giá đã thỏa thuận khó đồng bộ với đơn hàng, đồng thời khiến lịch sử trao đổi khó được xác minh và sử dụng làm bằng chứng khi phát sinh tranh chấp.
 
-Xét trên phương diện tổng thể, thương mại điện tử Việt Nam liên tục duy trì tốc độ tăng trưởng hai con số, song phần lớn các nền tảng rao vặt C2C hiện hữu như Chợ Tốt vẫn chủ yếu đóng vai trò kết nối thông tin, để hai bên tự thỏa thuận và tự chuyển tiền cho nhau mà không có cơ chế bảo lãnh dòng tiền tập trung. Về mặt pháp lý, hoạt động của các sàn giao dịch thương mại điện tử tại Việt Nam vừa bước sang một khung mới: Luật Thương mại điện tử số 122/2025/QH15 được Quốc hội thông qua ngày 10 tháng 12 năm 2025 và có hiệu lực từ ngày 1 tháng 7 năm 2026, thay cho cách điều chỉnh bằng nghị định trước đây. Luật xác lập trách nhiệm của nền tảng thương mại điện tử trong việc định danh và quản lý thông tin người bán, tiếp nhận và xử lý khiếu nại, đồng thời quy định trách nhiệm liên đới khi người tiêu dùng bị thiệt hại. Bổ trợ cho khung này, quyền được thông tin, được bảo vệ và được giải quyết tranh chấp của người mua được ghi nhận trong Luật Bảo vệ quyền lợi người tiêu dùng số 19/2023/QH15, hiệu lực từ ngày 1 tháng 7 năm 2024 [1] [2].
+Xét trên phương diện tổng thể, thương mại điện tử Việt Nam tiếp tục duy trì tốc độ tăng trưởng cao, nhưng nhiều nền tảng C2C như Chợ Tốt vẫn chủ yếu đóng vai trò kết nối, chưa cung cấp cơ chế bảo lãnh dòng tiền tập trung. Về pháp lý, Luật Thương mại điện tử số 122/2025/QH15, có hiệu lực từ ngày 1 tháng 7 năm 2026, đã xác lập rõ hơn trách nhiệm của nền tảng trong định danh người bán, xử lý khiếu nại và bảo vệ người tiêu dùng. Đồng thời, Luật Bảo vệ quyền lợi người tiêu dùng số 19/2023/QH15 tiếp tục bảo đảm các quyền được thông tin, bảo vệ và giải quyết tranh chấp của người mua [1] [2].
 
 Trước thực trạng và những khoảng trống lớn của thị trường, đề tài này được thực hiện nhằm nghiên cứu, phân tích và thiết kế một hệ sinh thái giao dịch C2C an toàn, minh bạch và hiện đại, đặt trọng tâm giải quyết bài toán "lòng tin" thông qua ba nhóm giải pháp cốt lõi sau:
 + *Cơ chế ký quỹ (escrow):* Sàn thương mại điện tử đóng vai trò bên thứ ba trung gian đáng tin cậy giữ tiền giao dịch. Dòng tiền của người mua được khóa bảo mật trong ví ký quỹ cho đến khi giao hàng thành công và người mua xác nhận hài lòng (hoặc hết thời hạn đếm ngược 3 ngày (72 giờ) mà không có khiếu nại).
@@ -69,14 +69,20 @@ Hệ thống được thiết kế bao phủ toàn bộ vòng đời giao dịch
 
 == Phương pháp nghiên cứu
 
-Đề tài kết hợp 3 phương pháp sau:
+Để giải quyết các bài toán phức tạp về nghiệp vụ và kiến trúc kỹ thuật đã đặt ra, đề tài kết hợp sử dụng các phương pháp nghiên cứu khoa học kỹ thuật phần mềm hiện đại sau:
 
-1. *Phân tích và thiết kế hướng đối tượng (OOAD):* Dùng ngôn ngữ mô hình hóa thống nhất (UML) để chuẩn hóa tài liệu thiết kế, gồm biểu đồ ca sử dụng, hoạt động, trình tự, lớp và thực thể quan hệ.
+1. *Phương pháp Phân tích và Thiết kế Hướng đối tượng (OOAD):* Sử dụng ngôn ngữ mô hình hóa thống nhất (UML) để chuẩn hóa tài liệu thiết kế: Biểu đồ ca sử dụng (Use Case Diagram), Biểu đồ hoạt động (Activity Diagram), Biểu đồ trình tự (Sequence Diagram), Biểu đồ lớp (Class Diagram) và Biểu đồ thực thể - quan hệ (ERD).
 
-2. *Kiến trúc hướng dịch vụ (SOA) và Microservices:* Áp dụng mẫu Database-per-service, mỗi dịch vụ sở hữu cơ sở dữ liệu riêng, nhờ đó không còn nghẽn cổ chai ở một CSDL tập trung và không thể truy cập dữ liệu chéo.
+2. *Phương pháp Kiến trúc Hướng dịch vụ (SOA) và mô hình Microservices:* Áp dụng mẫu thiết kế Database-per-service, đảm bảo mỗi dịch vụ sở hữu cấu trúc lưu trữ và cơ sở dữ liệu riêng biệt; triệt tiêu hiện tượng nghẽn cổ chai CSDL tập trung và ngăn chặn truy cập dữ liệu chéo trái phép.
 
 3. *Phương pháp durable execution:* Nghiên cứu và áp dụng nền tảng durable execution Restate dựa trên triết lý Journal-based Execution (thực thi dựa trên nhật ký ghi trước - Write-Ahead Log) [12].
 
 == Đóng góp của đề tài
 
-Đề tài mang lại 3 đóng góp. Về giải pháp nghiệp vụ, đề tài đề xuất và hiện thực hóa mô hình sàn C2C giải quyết bài toán khủng hoảng niềm tin và sự phân mảnh trong giao tiếp. Về kiến trúc phần mềm, đề tài triển khai mô hình Durable Microservices trên nền tảng Restate trong một hệ thống thương mại điện tử thực tế. Về sản phẩm, đề tài bàn giao bộ phần mềm chạy được trọn vẹn gồm ứng dụng web, ứng dụng di động và hệ thống dịch vụ nền.
+Đề tài nghiên cứu và xây dựng nền tảng ShopNexus mang lại 3 đóng góp quan trọng:
+
+1. *Đóng góp về giải pháp nghiệp vụ:* Đề xuất và hiện thực hóa mô hình sàn C2C giải quyết bài toán khủng hoảng niềm tin và sự phân mảnh trong giao tiếp.
+
+2. *Đóng góp về kiến trúc phần mềm:* Nghiên cứu và triển khai mô hình Durable Microservices trên nền tảng Restate trong một hệ thống thương mại điện tử thực tế.
+
+3. *Đóng góp về sản phẩm thực tiễn:* Bàn giao bộ phần mềm chạy được trọn vẹn, gồm giao diện người dùng viết bằng Next.js và Flutter cùng hệ thống dịch vụ nền hoàn chỉnh.

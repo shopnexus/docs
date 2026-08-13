@@ -1,19 +1,30 @@
 #import "../../common/tokens.typ": *
 
 = KIỂM THỬ VÀ ĐÁNH GIÁ
+
+Chương này trình bày phương pháp và kết quả kiểm thử hệ thống. Do thời gian thực hiện có hạn, công tác kiểm thử được tập trung vào cấp độ kiểm thử đơn vị (Unit Test) cho dịch vụ nền với 627 ca kiểm thử. Các ca kiểm thử trọng tâm được đặc tả chi tiết, các ca còn lại được thống kê trong danh mục tổng hợp kèm kết quả thực thi ở lần chạy gần nhất.
+
 == Mục tiêu và phạm vi kiểm thử
 
-Phạm vi kiểm thử tự động của hệ thống được thực hiện và dừng ở cấp độ đơn vị (Unit Test) cho tầng nghiệp vụ (Domain Layer).
+Phạm vi kiểm thử tự động tập trung vào cấp độ kiểm thử đơn vị của tầng nghiệp vụ (Domain Layer). Thay vì tập trung độ phủ giao diện người dùng, nhóm ưu tiên kiểm chứng tính đúng đắn của các quy tắc điều khiển dòng tiền, tài khoản ký quỹ và trạng thái đơn hàng nhằm giảm thiểu rủi ro giao dịch thực tế.
 
-Với chiến lược này, 4 tình huống sau được xác định là mục tiêu trọng tâm cần vét cạn bằng các ca kiểm thử:
+Theo ưu tiên đó, 4 tình huống sau được xác định là rủi ro cao và buộc phải kiểm chứng tự động:
 
-- Một lần trả tiền sinh ra hai đơn hàng, hoặc một thông báo của cổng thanh toán được cổng gửi lặp lại và người mua bị ghi nợ 2 lần.
+- Một lần trả tiền sinh ra hai đơn hàng, hoặc một thông báo của cổng thanh toán bị gửi lặp làm người mua bị ghi nợ hai lần.
 - Một khoản tiền ký quỹ được giải ngân cho người bán trong khi hồ sơ hoàn tiền của người mua còn treo, hoặc ngược lại.
-- Một chuỗi thao tác bị dừng giữa đường do mất kết nối, cổng thanh toán hết hạn chờ, hoặc hãng vận chuyển từ chối nhận kiện.
-- Hai thao tác đồng thời cùng thắng, dẫn tới tình trạng ghi đè trạng thái không hợp lệ.
+- Một chuỗi thao tác dừng giữa chừng do mất kết nối mạng, cổng thanh toán hết hạn chờ, hoặc hãng vận chuyển từ chối nhận kiện.
+- Hai thao tác tranh chấp cập nhật cùng một dữ liệu đồng thời, dẫn tới ghi đè trạng thái.
 
-Ngoài luồng tiền, hai nhóm hỗ trợ được ưu tiên kiểm thử là cơ chế kiểm soát truy cập (phiên, phân quyền) và tính nhất quán của hợp đồng giao tiếp (API Specification) giữa máy chủ với các ứng dụng khách.
+Ngoài luồng tiền, hai nhóm phụ trợ được ưu tiên kiểm chứng là cơ chế kiểm soát truy cập (phiên, phân quyền) và tính nhất quán của hợp đồng giao tiếp (API Specification) giữa máy chủ và các ứng dụng khách.
 
+== Môi trường và cách thực thi kiểm thử
+
+Kiến trúc hệ thống được thiết kế nhằm cô lập tầng nghiệp vụ khỏi tầng dữ liệu và mạng lưới vật lý. Nhờ vậy, kiểm thử đơn vị có thể bao phủ các kịch bản tương tác phức tạp mà không đòi hỏi hạ tầng thật.
+
+Mỗi phân hệ sở hữu một bản triển khai kho lưu trữ tạm trong bộ nhớ (In-memory Repository) dành riêng cho môi trường kiểm thử. Ca kiểm thử thiết lập các bối cảnh như ví tiền, phiên thanh toán và đơn hàng hoàn toàn trên bộ nhớ. Các nhà cung cấp bên ngoài (cổng thanh toán, vận chuyển) được thay thế bằng hệ thống giả lập (Mocking) chạy trực tiếp trong tiến trình kiểm thử.
+
+Môi trường giả lập cho phép truyền tham số để kích hoạt các tình huống ngoại lệ: cổng thanh toán gửi lặp thông báo, hãng vận chuyển từ chối nhận kiện, hay hãng phản hồi chậm quá thời gian chờ.
+#pagebreak()
 == Đặc tả các ca kiểm thử trọng tâm
 
 3 ca dưới đây tương ứng với các tình huống rủi ro đã nêu ở mục 6.1.
@@ -97,49 +108,49 @@ thống từ chối đúng chỗ), và ca biên (kiểm chứng hành vi ở ran
 
 #figure(
   kind: table,
-  caption: [Danh mục ca kiểm thử chính và kết quả thực thi],
+  caption: [Danh mục các ca kiểm thử chính và kết quả thực thi],
   table(
     columns: (0.09fr, 0.63fr, 0.14fr, 0.14fr),
     align: (left + top, left + top, left + top, left + top),
     table.header([Mã], [Ca kiểm thử và kết quả mong đợi], [Loại], [Kết quả]),
 
-    table.cell(colspan: 4, fill: rgb("#F7F7F7"))[*Dòng tiền, tiền ký quỹ và hồ sơ hoàn tiền*],
-    [TC-04], [Ví từ chối mọi bút toán làm số dư âm, thay vì ghi rồi sửa sau], [Nghịch], [Đạt],
-    [TC-05], [Điều chỉnh ví do quản trị viên thực hiện phải mang một khoá chống lặp: gọi lại cùng một khoá không ghi có thêm, và yêu cầu không có khoá thì bị từ chối thay vì ghi mà không được bảo vệ], [Nghịch], [Đạt],
-    [TC-06], [Tiền ký quỹ đi đúng một vòng giữ rồi giải ngân; lệnh giữ lặp lại bị từ chối thay vì giữ 2 lần], [Biên], [Đạt],
-    [TC-07], [Khi hồ sơ hoàn tiền được xử, tiền phải chuyển xong trước khi hồ sơ chuyển sang trạng thái kết thúc; làm ngược lại thì một lần chuyển tiền thất bại sẽ không có gì chạy lại], [Nghịch], [Đạt],
-    [TC-08], [Hai điều hành viên cùng phân xử một hồ sơ thì chỉ một quyết định được ghi nhận], [Nghịch], [Đạt],
-    [TC-09], [Hồ sơ hoàn tiền quá hạn được thúc tự động, nhưng bỏ qua hồ sơ đã có nhân viên xử lý và nhường một lần khiếu nại mà nó chưa thấy], [Nghịch], [Đạt],
+    table.cell(colspan: 4, fill: rgb("#F7F7F7"))[*Dòng tiền, ký quỹ và hoàn tiền*],
+    [TC-04], [Từ chối mọi bút toán làm số dư ví âm], [Nghịch], [Đạt],
+    [TC-05], [Mỗi điều chỉnh số dư ví của quản trị viên phải kèm khóa idempotency; yêu cầu lặp lại cùng khóa không được ghi nhận thêm, còn yêu cầu thiếu khóa phải bị từ chối], [Nghịch], [Đạt],
+    [TC-06], [Khoản ký quỹ chỉ được giữ và giải ngân một lần; yêu cầu giữ lặp lại phải bị từ chối], [Biên], [Đạt],
+    [TC-07], [Khoản hoàn tiền phải được xử lý thành công trước khi hồ sơ chuyển sang trạng thái kết thúc], [Nghịch], [Đạt],
+    [TC-08], [Khi hai điều hành viên đồng thời phân xử một hồ sơ, chỉ một quyết định được ghi nhận], [Nghịch], [Đạt],
+    [TC-09], [Hồ sơ hoàn tiền quá hạn được tự động chuyển xử lý, nhưng bỏ qua hồ sơ đã có nhân viên tiếp nhận hoặc vừa phát sinh khiếu nại chưa được đồng bộ], [Nghịch], [Đạt],
 
     table.cell(colspan: 4, fill: rgb("#F7F7F7"))[*Đặt hàng, tồn kho và thương lượng giá*],
-    [TC-10], [Đặt hàng vượt tồn kho bị từ chối trước khi thu tiền], [Nghịch], [Đạt],
-    [TC-11], [Phiếu mua tạm phải được giành trước khi thu tiền, để 2 lần bấm thanh toán không thành hai giao dịch], [Biên], [Đạt],
-    [TC-12], [Dòng hàng đã trả tiền không phải của người bán để huỷ, kể cả khi nó đang nằm trong danh sách chờ đặt vận đơn lại], [Nghịch], [Đạt],
-    [TC-13], [Đề nghị đối ứng nhường một lần chấp nhận mà nó chưa thấy; mỗi biến thể hàng chỉ có một đề nghị đang hiệu lực], [Nghịch], [Đạt],
-    [TC-14], [Phiếu mua tạm không được thanh toán thì hết hạn, và tồn kho đang giữ được trả lại], [Biên], [Đạt],
-    [TC-15], [Huỷ một đơn đã thanh toán thì hoàn tác lượt bán, không phải hoàn tác lượt giữ tồn kho], [Nghịch], [Đạt],
+    [TC-10], [Yêu cầu đặt hàng vượt tồn kho phải bị từ chối trước khi phát sinh thanh toán], [Nghịch], [Đạt],
+    [TC-11], [Phiếu mua tạm phải được khóa trước khi thanh toán để ngăn hai yêu cầu đồng thời tạo thành hai giao dịch], [Biên], [Đạt],
+    [TC-12], [Người bán không được phép hủy dòng hàng đã thanh toán, kể cả khi vận đơn đang chờ tạo lại], [Nghịch], [Đạt],
+    [TC-13], [Mỗi biến thể sản phẩm chỉ được tồn tại một đề nghị thương lượng đang hiệu lực; thao tác chấp nhận đồng thời chỉ ghi nhận một kết quả], [Nghịch], [Đạt],
+    [TC-14], [Phiếu mua tạm chưa thanh toán phải hết hạn và giải phóng phần tồn kho đã giữ], [Biên], [Đạt],
+    [TC-15], [Khi hủy đơn đã thanh toán, hệ thống hoàn tác lượt bán thay vì hoàn tác thao tác giữ tồn kho ban đầu], [Nghịch], [Đạt],
 
     table.cell(colspan: 4, fill: rgb("#F7F7F7"))[*Vận chuyển*],
-    [TC-16], [Hãng không phục vụ tuyến thì biến khỏi danh sách báo giá, các hãng còn lại vẫn báo giá bình thường], [Biên], [Đạt],
-    [TC-17], [Hãng trả lời chậm vẫn bị cắt theo hạn chờ đã khai báo], [Nghịch], [Đạt],
-    [TC-18], [Hãng gửi về một mã trạng thái mà nền tảng không mô hình hoá thì bị từ chối, thay vì suy đoán ra một trạng thái gần giống], [Nghịch], [Đạt],
-    [TC-19], [Mốc hành trình do hãng báo không phải của người mua hay người bán để tự ghi: cả 2 bên đều bị từ chối và trạng thái vận đơn giữ nguyên nơi hãng để lại], [Nghịch], [Đạt],
+    [TC-16], [Đơn vị vận chuyển không hỗ trợ tuyến phải bị loại khỏi danh sách báo giá, trong khi các đơn vị còn lại vẫn được xử lý bình thường], [Biên], [Đạt],
+    [TC-17], [Phản hồi vượt quá thời hạn từ đơn vị vận chuyển phải bị ngắt theo timeout đã cấu hình], [Nghịch], [Đạt],
+    [TC-18], [Mã trạng thái vận chuyển không được hệ thống hỗ trợ phải bị từ chối thay vì tự ánh xạ sang trạng thái gần nhất], [Nghịch], [Đạt],
+    [TC-19], [Người mua và người bán không được phép tự cập nhật mốc hành trình; trạng thái vận đơn chỉ thay đổi theo dữ liệu hợp lệ từ đơn vị vận chuyển], [Nghịch], [Đạt],
 
-    table.cell(colspan: 4, fill: rgb("#F7F7F7"))[*Xác thực, phân quyền và che dữ liệu*],
-    [TC-20], [Thẻ truy cập còn hạn nhưng thuộc một phiên đã bị thu hồi thì bị từ chối], [Nghịch], [Đạt],
-    [TC-21], [Đổi mật khẩu giữ lại phiên đang dùng và thu hồi mọi phiên còn lại], [Thuận], [Đạt],
-    [TC-22], [Đình chỉ tài khoản thì mọi phiên của tài khoản đó bị thu hồi và một bản ghi kiểm toán được thêm vào], [Thuận], [Đạt],
-    [TC-23], [Người ngoài cuộc nhận "không tìm thấy" thay vì "bị cấm", ở cả phiên thanh toán, hội thoại và bản nháp của người khác], [Nghịch], [Đạt],
-    [TC-24], [Thông báo từ cổng thanh toán mang chữ ký của một bí mật khác thì bị từ chối], [Nghịch], [Đạt],
-    [TC-25], [Địa chỉ trở về ngoài miền của nền tảng bị từ chối, để lối thanh toán không thành một phép chuyển hướng mở], [Nghịch], [Đạt],
+    table.cell(colspan: 4, fill: rgb("#F7F7F7"))[*Xác thực, phân quyền và bảo vệ dữ liệu*],
+    [TC-20], [Access token còn hiệu lực nhưng thuộc phiên đã bị thu hồi phải bị từ chối], [Nghịch], [Đạt],
+    [TC-21], [Đổi mật khẩu giữ lại phiên hiện tại và thu hồi toàn bộ các phiên còn lại], [Thuận], [Đạt],
+    [TC-22], [Khi tài khoản bị đình chỉ, toàn bộ phiên đăng nhập phải bị thu hồi và thao tác được ghi vào nhật ký kiểm toán], [Thuận], [Đạt],
+    [TC-23], [Người dùng không có quyền truy cập nhận phản hồi "không tìm thấy" đối với phiên thanh toán, hội thoại và bản nháp của người khác], [Nghịch], [Đạt],
+    [TC-24], [Webhook thanh toán có chữ ký không hợp lệ phải bị từ chối], [Nghịch], [Đạt],
+    [TC-25], [Địa chỉ chuyển hướng ngoài miền được cho phép phải bị từ chối để ngăn lỗ hổng open redirect], [Nghịch], [Đạt],
 
     table.cell(colspan: 4, fill: rgb("#F7F7F7"))[*Cấu hình và hợp đồng đặc tả*],
-    [TC-26], [Cấu hình thiếu một trường bắt buộc, hoặc chứa một khoá không được khai báo, đều làm tiến trình dừng khởi động kèm đúng đường dẫn cần sửa], [Nghịch], [Đạt],
-    [TC-27], [Cổng thanh toán được nêu tên trong cấu hình mà thiếu thông tin xác thực thì khởi động thất bại], [Biên], [Đạt],
-    [TC-28], [Mọi đường dẫn công bố trong đặc tả đều có một tuyến phục vụ thật, và mọi tham chiếu lược đồ đều phân giải được], [Thuận], [Đạt],
-    [TC-29], [Không đối tượng truyền dữ liệu nào bỏ khoá khi giá trị bằng rỗng hoặc bằng không; nếu bỏ, ứng dụng khách sẽ lỗi ngay dòng dữ liệu thật đầu tiên], [Thuận], [Đạt],
-    [TC-30], [Kênh thời gian thực tham chiếu đủ mọi loại thông điệp, và các thông điệp dùng chung một phong bì], [Thuận], [Đạt],
-    [TC-31], [Đặc tả đã lưu trùng khớp với đặc tả sinh lại từ hệ thống], [Thuận], [Đạt],
+    [TC-26], [Cấu hình thiếu trường bắt buộc hoặc chứa khóa không hợp lệ phải khiến tiến trình khởi động thất bại và chỉ rõ vị trí cấu hình cần sửa], [Nghịch], [Đạt],
+    [TC-27], [Cổng thanh toán đã được khai báo nhưng thiếu thông tin xác thực phải khiến hệ thống khởi động thất bại], [Biên], [Đạt],
+    [TC-28], [Mọi đường dẫn được công bố trong đặc tả phải có tuyến xử lý tương ứng và mọi tham chiếu lược đồ phải phân giải thành công], [Thuận], [Đạt],
+    [TC-29], [Các đối tượng truyền dữ liệu phải giữ nguyên các trường có giá trị rỗng hoặc bằng không theo hợp đồng đặc tả, tránh sai lệch dữ liệu phía ứng dụng khách], [Thuận], [Đạt],
+    [TC-30], [Kênh thời gian thực phải khai báo đầy đủ các loại thông điệp và sử dụng thống nhất một cấu trúc phong bì], [Thuận], [Đạt],
+    [TC-31], [Đặc tả đã lưu phải trùng khớp với đặc tả được sinh lại từ hệ thống], [Thuận], [Đạt],
   ),
 )
 
@@ -155,7 +166,7 @@ khai, không thuộc về sản phẩm mà đề tài xây dựng.
   kind: table,
   caption: [Đối chiếu các yêu cầu phi chức năng chính với bằng chứng kiểm thử],
   table(
-    columns: (0.14fr, 0.24fr, 0.43fr, 0.15fr),
+    columns: (0.25fr, 0.24fr, 0.43fr, 0.15fr),
     align: (left + top, left + top, left + top, left + top),
     table.header([Mã], [Nội dung], [Bằng chứng], [Kết luận]),
 

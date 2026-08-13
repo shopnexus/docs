@@ -41,7 +41,7 @@ Mặc dù đã có nhiều cố gắng, song do giới hạn về mặt thời g
 #sechead([DANH MỤC CÁC KÝ HIỆU VÀ CHỮ VIẾT TẮT], outlined: false)
 
 #table(
-  inset: (x: 8pt, y: 3.2pt),
+  inset: (x: 8pt, y: 4pt),
   columns: (auto, 1.5fr, 2fr),
   align: (left, left, left),
   table.header([*Viết tắt*], [*Cụm từ đầy đủ*], [*Ý nghĩa*]),
