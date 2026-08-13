@@ -136,168 +136,150 @@ Mô hình dữ liệu được hiện thực trên PostgreSQL chạy trên bản
 
 *3 bảng dùng chung, 18 hiện thân.* Nhật ký kiểm toán, bảng tài nguyên tệp và bảng tuỳ chọn được định nghĩa đúng một lần rồi áp vào 6 lược đồ nghiệp vụ, vì một bảng nhật ký kiểm toán toàn cục sẽ không thể đi theo một module khi module ấy tách sang cơ sở dữ liệu riêng; trước khi hợp nhất, 7 module đều tự chép một bản và 4 trong số đó đã trôi khác nhau.
 
-=== Sơ đồ quan hệ thực thể mức vật lý
+=== Sơ đồ cơ sở dữ liệu
 
-Sơ đồ được tách thành 3 lát cắt theo cụm nghiệp vụ, ký hiệu thống nhất: đường liền nét là khoá ngoại thật nên hai đầu luôn cùng một lược đồ, đường nét đứt là tham chiếu logic chéo lược đồ do tầng dịch vụ giữ đúng. Nhãn bản số đọc theo quy ước chân quạ, dấu hỏi biểu thị đầu tuỳ chọn.
+Sơ đồ cơ sở dữ liệu khác sơ đồ quan hệ thực thể ở mục trước cả về nội dung lẫn mục đích. Sơ đồ
+thực thể trả lời hệ thống nói về những khái niệm gì; sơ đồ dưới đây trả lời các khái niệm ấy
+được lưu thành bảng nào, khoá ra sao và ràng buộc gì giữ cho dữ liệu không sai. Vì vậy ở đây có
+đủ tên bảng thật, khoá chính, khoá ngoại kèm hành vi khi bản ghi cha bị xoá, và các ràng buộc
+duy nhất; đồng thời xuất hiện cả những bảng không phải khái niệm nghiệp vụ như bảng nối và bảng
+dẫn xuất.
 
- #fig(
-    [Sơ đồ quan hệ thực thể mức vật lý, lát cắt `account` và `catalog`],
-    spacing: (24mm, 11mm),
-    edge-stroke: 1pt + blue-s,
-    label-wrapper: wlabel,
+Năm hình dưới đây gom theo lược đồ sở hữu, đúng ranh giới đã chốt ở mục kiến trúc: mỗi module
+làm chủ một lược đồ và chỉ ghi vào lược đồ của mình. Ký hiệu trong ô đọc như sau. PK là khoá
+chính, có thể gồm nhiều cột. FK là khoá ngoại, ghi kèm bảng đích và hành vi khi bản ghi bên
+bảng đích bị xoá: xoá lan nghĩa là bản ghi con bị xoá theo, gán rỗng nghĩa là cột khoá được đặt
+về rỗng, chặn xoá nghĩa là không cho xoá chừng nào còn bản ghi con, còn không đổi nghĩa là cơ
+sở dữ liệu để nguyên và tầng dịch vụ tự chịu trách nhiệm. UQ là ràng buộc duy nhất, và một ràng
+buộc gồm nhiều cột nghĩa là bộ giá trị của các cột đó phải duy nhất chứ không phải từng cột
+riêng lẻ.
 
-    // ===== lược đồ account =====
-    nent((0, 0.6), <p1-oauth>, [OAUTH\_IDENTITY]),
-    nent((0, 1.5), <p1-dev>, [DEVICE]),
-    nent((0.9, 2.2), <p1-acc>, [ACCOUNT]),
-    nent((0, 3.2), <p1-contact>, [CONTACT]),
-    nent((0, 4.1), <p1-idoc>, [IDENTITY\_DOCUMENT]),
-    nent((1.8, 0.6), <p1-noti>, [NOTIFICATION]),
-    nent((1.8, 1.5), <p1-npref>, [NOTIFICATION\_PREFERENCE]),
-    nent((1.8, 3.2), <p1-follow>, [FOLLOW]),
-
-    // ===== lược đồ catalog =====
-    nent((3.6, 0), <p1-cat>, [CATEGORY]),
-    nent((3.6, 1.2), <p1-lst>, [LISTING]),
-    nent((3.6, 2.4), <p1-var>, [VARIANT]),
-    nent((3.6, 3.5), <p1-stock>, [STOCK]),
-    nent((4.9, 0.2), <p1-tag>, [TAG]),
-    nent((4.9, 1.0), <p1-ltag>, [LISTING\_TAG]),
-    nent((4.9, 1.7), <p1-fav>, [FAVORITE]),
-    nent((4.9, 2.5), <p1-emb>, [LISTING\_EMBEDDING]),
-    nent((4.9, 4.0), <p1-smv>, [STOCK\_MOVEMENT]),
-
-    // ===== quan hệ trong account =====
-    edge(<p1-oauth>, <p1-acc>, "n-1", text(size: 7pt)[liên kết]),
-    edge(<p1-dev>, <p1-acc>, "n-1", text(size: 7pt)[thiết bị]),
-    edge(<p1-contact>, <p1-acc>, "n-1", text(size: 7pt)[địa chỉ]),
-    edge(<p1-idoc>, <p1-acc>, "n-1", text(size: 7pt)[giấy tờ]),
-    edge(<p1-noti>, <p1-acc>, "n-1", text(size: 7pt)[thông báo]),
-    edge(<p1-npref>, <p1-acc>, "n-1", text(size: 7pt)[tuỳ chọn kênh]),
-    edge(<p1-follow>, <p1-acc>, "n-1", text(size: 7pt)[theo dõi hai đầu]),
-
-    // ===== quan hệ trong catalog =====
-    edge(<p1-cat>, <p1-cat>, "n-1?", bend: 130deg, text(size: 7pt)[danh mục cha]),
-    edge(<p1-lst>, <p1-cat>, "n-1", text(size: 7pt)[thuộc]),
-    edge(<p1-var>, <p1-lst>, "n-1", text(size: 7pt)[biến thể]),
-    edge(<p1-stock>, <p1-var>, "1-1", text(size: 7pt)[tồn kho]),
-    edge(<p1-smv>, <p1-var>, "n-1", text(size: 7pt)[bút toán kho]),
-    edge(<p1-ltag>, <p1-lst>, "n-1", text(size: 7pt)[gắn thẻ]),
-    edge(<p1-ltag>, <p1-tag>, "n-1", text(size: 7pt)[thẻ]),
-    edge(<p1-fav>, <p1-lst>, "n-1", text(size: 7pt)[yêu thích]),
-    edge(<p1-emb>, <p1-lst>, "1-1", text(size: 7pt)[vector]),
-
-    // ===== khoá ngoại xuyên lược đồ =====
-    // luồn qua khoảng trống giữa NOTIFICATION_PREFERENCE và FOLLOW
-    edge(<p1-lst>, (2.95, 2.5), <p1-acc>, "n-1", stroke: (dash: "dashed"),
-      text(size: 7pt)[người bán]),
-    // đi vòng dưới cả 2 nhóm, không cắt qua nút nào
-    edge(<p1-fav>, (5.9, 1.7), (5.9, 4.8), (0.9, 4.8), <p1-acc>, "n-1",
-      stroke: (dash: "dashed"), corner-radius: 4pt,
-      text(size: 7pt)[người lưu], label-pos: 0.62),
-
-    ngroup((<p1-oauth>, <p1-dev>, <p1-acc>, <p1-contact>, <p1-idoc>, <p1-noti>, <p1-npref>, <p1-follow>)),
-    gtitle((0.9, -0.5), [lược đồ `account`]),
-    ngroup((<p1-cat>, <p1-lst>, <p1-var>, <p1-stock>, <p1-smv>, <p1-tag>, <p1-ltag>, <p1-fav>, <p1-emb>)),
-    gtitle((4.2, -0.5), [lược đồ `catalog`]),
-  )
+Toàn hệ thống có 45 bảng nghiệp vụ với 36 khoá ngoại và 21 ràng buộc duy nhất. Đáng chú ý là
+khoá ngoại chỉ tồn tại bên trong một lược đồ, không có khoá ngoại nào bắc qua hai lược đồ. Đây
+là hệ quả trực tiếp của nguyên lý mỗi dịch vụ một cơ sở dữ liệu: một tham chiếu chéo lược đồ,
+ví dụ dòng hàng trỏ tới tin đăng, được giữ đúng bởi tầng dịch vụ chứ không bởi cơ sở dữ liệu,
+vì nếu ràng buộc bằng khoá ngoại thì 2 module sẽ không bao giờ tách rời được. Trong lược đồ `finance`, phần lớn bảng đứng rời nhau vì chúng gắn với tài khoản chứ
+không gắn với nhau, mà tài khoản lại nằm ở lược đồ khác nên quan hệ ấy không thể là khoá
+ngoại; ví và sổ cái ví liên hệ qua cặp cột tài khoản và loại tiền do tầng dịch vụ giữ đúng.
+Các bảng quan
+trắc không có trong 5 hình này vì chúng là dữ liệu ghi theo thời gian, được mô tả riêng ở phần
+hạ tầng quan trắc.
 
 #fig(
-  [Sơ đồ quan hệ thực thể mức vật lý, lát cắt `order` và `finance`],
-  spacing: (26mm, 12mm),
-  edge-stroke: 1pt + blue-s,
+  [Sơ đồ cơ sở dữ liệu, lược đồ `account`],
+  spacing: (48mm, 21mm),
+  edge-stroke: 0.9pt + blue-s,
   label-wrapper: wlabel,
 
-  // ===== NHÓM ORDER =====
-  nent((0.75, -0.5), <p2-cart>, [CART_ITEM]),
-  nent((0, 0.5), <p2-draft>, [DRAFT_ORDER]),
-  nent((0, 1.5), <p2-offer>, [OFFER]),
-  nent((0, 3.5), <p2-refund>, [REFUND]),
-  nent((1.5, 1.0), <p2-item>, [ITEM]),
-  nent((1.5, 2.5), <p2-order>, [ORDER]),
-  nent((1.5, 3.5), <p2-trans>, [TRANSPORT]),
+  nbang((1, 1), <b-account>, "account", [PK id], [UQ phone], [UQ email], [UQ username]),
+  nbang((0, 1), <b-identity_document>, "identity_document", [PK id], [FK account_id #sym.arrow.r account · xoá lan], [FK front_resource_id #sym.arrow.r resource · gán rỗng], [FK back_resource_id #sym.arrow.r resource · gán rỗng], [FK selfie_resource_id #sym.arrow.r resource · gán rỗng], [UQ provider, provider_ref]),
+  nbang((2, 1), <b-follow>, "follow", [PK follower_id, followee_id], [FK follower_id #sym.arrow.r account · xoá lan], [FK followee_id #sym.arrow.r account · xoá lan]),
+  nbang((1, 0), <b-oauth_identity>, "oauth_identity", [PK id], [FK account_id #sym.arrow.r account · xoá lan], [UQ provider, provider_uid], [UQ account_id, provider]),
+  nbang((1, 2), <b-device>, "device", [PK id], [FK account_id #sym.arrow.r account · xoá lan], [UQ push_token]),
+  nbang((0, 0), <b-contact>, "contact", [PK id], [FK account_id #sym.arrow.r account · xoá lan]),
+  nbang((2, 0), <b-notification>, "notification", [PK id, created_at], [FK account_id #sym.arrow.r account · xoá lan]),
+  nbang((0, 2), <b-notification_preference>, "notification_preference", [PK account_id, category, channel], [FK account_id #sym.arrow.r account · xoá lan]),
 
-  // ===== NHÓM FINANCE =====
-  nent((3.4, 1.0), <p2-sess>, [PAYMENT_SESSION]),
-  nent((3.4, 2.0), <p2-tx>, [TRANSACTION]),
-  nent((3.4, 3.0), <p2-wtx>, [WALLET_TRANSACTION]),
-  nent((4.9, 2.5), <p2-wallet>, [WALLET]),
-  nent((4.9, 3.5), <p2-bank>, [BANK_ACCOUNT]),
-  nent((4.9, 4.5), <p2-tax>, [TAX_INFO]),
-
-  nent((5.9, 3.5), <p2-acc>, [ACCOUNT \ #text(size: 7pt)[(lược đồ `account`)]]),
-
-  // ===== Trong order =====
-  edge(<p2-item>, <p2-draft>, "n-1?", text(size: 7pt)[chốt từ phiên]),
-  edge(<p2-item>, <p2-offer>, "1-1?", text(size: 7pt)[chốt từ thương lượng]),
-  edge(<p2-item>, <p2-order>, "n-1?", text(size: 7pt)[thuộc đơn]),
-  edge(<p2-order>, <p2-draft>, "1-1?", bend: 15deg, crossing: true, text(size: 7pt)[nguồn]),
-  edge(<p2-order>, <p2-trans>, "1-1", text(size: 7pt)[vận đơn giao]),
-  edge(<p2-refund>, <p2-order>, "n-1", bend: -10deg, text(size: 7pt)[hoàn tiền]),
-  edge(<p2-refund>, <p2-trans>, "1-1?", bend: -15deg, text(size: 7pt)[chặng trả hàng]),
-
-  // ===== Trong finance =====
-  edge(<p2-tx>, <p2-sess>, "n-1", text(size: 7pt)[bút toán của]),
-  edge(<p2-tx>, <p2-tx>, "1-1?", bend: 130deg, text(size: 7pt)[đảo ứng]),
-  edge(<p2-wtx>, <p2-wallet>, "n-1", text(size: 7pt)[biến động ví]),
-
-  // ===== order – finance =====
-  edge(<p2-item>, <p2-sess>, "n-1", stroke: (dash: "dashed"), text(size: 7pt)[phiên thanh toán]),
-  // luồn dưới ITEM rồi chếch vào sườn dưới trái PAYMENT_SESSION
-  edge(<p2-offer>, (2.7, 1.5), <p2-sess>, "1-1?", stroke: (dash: "dashed"), crossing: true,
-    text(size: 7pt)[phiên thanh toán], label-pos: 0.35),
-
-  // ===== với ACCOUNT =====
-  edge(<p2-cart>, (5.9, -0.5), <p2-acc>, "n-1", stroke: (dash: "dashed"),
-    corner-radius: 4pt, text(size: 7pt)[chủ giỏ], label-pos: 0.35),
-  // vòng dưới khối finance, vào ACCOUNT từ đáy
-  edge(<p2-order>, (2.25, 2.5), (2.25, 5.4), (5.9, 5.4), <p2-acc>, "n-1",
-    stroke: (dash: "dashed"), corner-radius: 4pt,
-    text(size: 7pt)[mua / bán], label-pos: 0.55),
-  edge(<p2-wallet>, <p2-acc>, "n-1", stroke: (dash: "dashed"), text(size: 7pt)[chủ ví]),
-  edge(<p2-bank>, <p2-acc>, "n-1", stroke: (dash: "dashed"), text(size: 7pt)[chủ tài khoản]),
-  edge(<p2-tax>, <p2-acc>, "1-1", stroke: (dash: "dashed"), text(size: 7pt)[thông tin thuế]),
-
-  ngroup((<p2-cart>, <p2-draft>, <p2-offer>, <p2-refund>, <p2-item>, <p2-order>, <p2-trans>)),
-  gtitle((0.75, -1.15), [lược đồ `order`]),
-  ngroup((<p2-sess>, <p2-tx>, <p2-wtx>, <p2-wallet>, <p2-bank>, <p2-tax>)),
-  gtitle((4.15, 0.15), [lược đồ `finance`]),
+  edge(<b-identity_document>, <b-account>, "n-1"),
+  edge(<b-follow>, <b-account>, "n-1"),
+  edge(<b-follow>, <b-account>, "n-1"),
+  edge(<b-oauth_identity>, <b-account>, "n-1"),
+  edge(<b-device>, <b-account>, "n-1"),
+  edge(<b-contact>, <b-account>, "n-1"),
+  edge(<b-notification>, <b-account>, "n-1"),
+  edge(<b-notification_preference>, <b-account>, "n-1"),
 )
-
 #fig(
-  [Sơ đồ quan hệ thực thể mức vật lý, lát cắt `trust`, `chat` và các bảng dùng chung],
-  spacing: (26mm, 12mm),
-  edge-stroke: 1pt + blue-s,
+  [Sơ đồ cơ sở dữ liệu, lược đồ `catalog`],
+  spacing: (48mm, 21mm),
+  edge-stroke: 0.9pt + blue-s,
   label-wrapper: wlabel,
 
-  nent((0, 0), <p3-ticket>, [TICKET]),
-  nent((0, 2.5), <p3-rev>, [REVIEW]),
-  nent((0, 3.7), <p3-vote>, [REVIEW\_VOTE]),
-  nent((1.4, 3.1), <p3-reply>, [REVIEW\_REPLY]),
-  nent((1.4, 1.9), <p3-rep>, [REPUTATION]),
-  nent((1.4, 0.7), <p3-oo>, [ORDER\_OUTCOME]),
+  nbang((0, 0), <b-category_embedding>, "category_embedding", [PK category_id], [FK category_id #sym.arrow.r category · xoá lan]),
+  nbang((2, 0), <b-listing_embedding>, "listing_embedding", [PK listing_id], [FK listing_id #sym.arrow.r listing · xoá lan]),
+  nbang((3, 0), <b-account_interest>, "account_interest", [PK account_id, slot]),
+  nbang((0, 1), <b-category>, "category", [PK id], [FK parent_id #sym.arrow.r category · gán rỗng], [UQ name]),
+  nbang((1, 1), <b-listing>, "listing", [PK id], [FK category_id #sym.arrow.r category · chặn xoá], [UQ slug]),
+  nbang((2, 1), <b-variant>, "variant", [PK id], [FK listing_id #sym.arrow.r listing · xoá lan]),
+  nbang((3, 1), <b-stock>, "stock", [PK variant_id], [FK variant_id #sym.arrow.r variant · xoá lan]),
+  nbang((0, 2), <b-tag>, "tag", [PK id]),
+  nbang((1, 2), <b-listing_tag>, "listing_tag", [PK id], [FK listing_id #sym.arrow.r listing · xoá lan], [FK tag #sym.arrow.r tag · xoá lan], [UQ listing_id, tag]),
+  nbang((2, 2), <b-favorite>, "favorite", [PK account_id, listing_id], [FK listing_id #sym.arrow.r listing · xoá lan]),
+  nbang((3, 2), <b-stock_movement>, "stock_movement", [PK key], [FK variant_id #sym.arrow.r variant · xoá lan]),
+  nbang((0, 3), <b-tag_embedding>, "tag_embedding", [PK tag_id], [FK tag_id #sym.arrow.r tag · xoá lan]),
 
-  nent((3.1, 0), <p3-conv>, [CONVERSATION]),
-  nent((3.1, 1.2), <p3-msg>, [MESSAGE]),
+  edge(<b-listing>, <b-category>, "n-1"),
+  edge(<b-variant>, <b-listing>, "n-1"),
+  edge(<b-listing_tag>, <b-listing>, "n-1"),
+  edge(<b-listing_tag>, <b-tag>, "n-1"),
+  edge(<b-listing_embedding>, <b-listing>, "n-1"),
+  edge(<b-category_embedding>, <b-category>, "n-1"),
+  edge(<b-tag_embedding>, <b-tag>, "n-1"),
+  edge(<b-favorite>, <b-listing>, "n-1"),
+  edge(<b-stock>, <b-variant>, "n-1"),
+  edge(<b-stock_movement>, <b-variant>, "n-1"),
+)
+#fig(
+  [Sơ đồ cơ sở dữ liệu, lược đồ `order`],
+  spacing: (48mm, 21mm),
+  edge-stroke: 0.9pt + blue-s,
+  label-wrapper: wlabel,
 
-  nent((4.6, 0.2), <p3-audit>, [AUDIT\_LOG]),
-  nent((4.6, 1.4), <p3-res>, [RESOURCE]),
-  nent((4.6, 2.5), <p3-opt>, [OPTION]),
+  nbang((1, 1), <b-order>, "order", [PK id], [FK transport_id #sym.arrow.r transport · không đổi], [FK draft_id #sym.arrow.r draft_order · không đổi], [FK offer_id #sym.arrow.r offer · không đổi], [UQ transport_id], [UQ draft_id], [UQ offer_id]),
+  nbang((0, 1), <b-transport>, "transport", [PK id]),
+  nbang((2, 1), <b-draft_order>, "draft_order", [PK id]),
+  nbang((1, 0), <b-offer>, "offer", [PK id]),
+  nbang((1, 2), <b-item>, "item", [PK id], [FK order_id #sym.arrow.r order · không đổi], [FK draft_id #sym.arrow.r draft_order · không đổi], [FK offer_id #sym.arrow.r offer · không đổi]),
+  nbang((0, 0), <b-refund>, "refund", [PK id], [FK order_id #sym.arrow.r order · không đổi], [FK return_transport_id #sym.arrow.r transport · không đổi], [UQ return_transport_id]),
+  nbang((2, 0), <b-cart_item>, "cart_item", [PK id], [UQ account_id, variant_id]),
 
-  edge(<p3-reply>, <p3-rev>, "n-1", text(size: 7pt)[trả lời]),
-  edge(<p3-vote>, <p3-rev>, "n-1", text(size: 7pt)[bình chọn]),
-  edge(<p3-msg>, <p3-conv>, "n-1", text(size: 7pt)[tin nhắn]),
-  edge(<p3-opt>, <p3-res>, "n-1?", text(size: 7pt)[biểu trưng]),
-  edge(<p3-ticket>, <p3-conv>, "1-1?", stroke: (dash: "dashed"), text(size: 7pt)[luồng phiếu]),
-  edge(<p3-rev>, <p3-rep>, "n-1", stroke: (dash: "dashed"), text(size: 7pt)[cộng dồn]),
-  edge(<p3-oo>, <p3-rep>, "n-1", stroke: (dash: "dashed"), text(size: 7pt)[đếm kết cục]),
+  edge(<b-order>, <b-transport>, "n-1"),
+  edge(<b-order>, <b-draft_order>, "n-1"),
+  edge(<b-order>, <b-offer>, "n-1"),
+  edge(<b-item>, <b-order>, "n-1"),
+  edge(<b-item>, <b-draft_order>, "n-1"),
+  edge(<b-item>, <b-offer>, "n-1"),
+  edge(<b-refund>, <b-order>, "n-1"),
+  edge(<b-refund>, <b-transport>, "n-1"),
+)
+#fig(
+  [Sơ đồ cơ sở dữ liệu, lược đồ `finance`],
+  spacing: (52mm, 21mm),
+  edge-stroke: 0.9pt + blue-s,
+  label-wrapper: wlabel,
 
-  ngroup((<p3-ticket>, <p3-rev>, <p3-vote>, <p3-reply>, <p3-rep>, <p3-oo>)),
-  gtitle((0.7, -0.65), [lược đồ `trust`]),
-  ngroup((<p3-conv>, <p3-msg>)),
-  gtitle((3.1, -0.65), [lược đồ `chat`]),
-  ngroup((<p3-audit>, <p3-res>, <p3-opt>)),
-  gtitle((4.6, -0.65), [bảng dùng chung]),
+  nbang((0, 0), <b-payment_session>, "payment_session", [PK id]),
+  nbang((1, 0), <b-transaction>, "transaction", [PK id], [FK session_id #sym.arrow.r payment_session · không đổi], [FK reverses_id #sym.arrow.r transaction · không đổi]),
+  nbang((2, 0), <b-wallet>, "wallet", [PK account_id, currency]),
+  nbang((0, 1), <b-wallet_transaction>, "wallet_transaction", [PK id], [UQ account_id, currency, seq]),
+  nbang((1, 1), <b-bank_account>, "bank_account", [PK id]),
+  nbang((2, 1), <b-tax_info>, "tax_info", [PK account_id]),
+
+  edge(<b-transaction>, <b-payment_session>, "n-1"),
+)
+#fig(
+  [Sơ đồ cơ sở dữ liệu, lược đồ `trust`, `chat` và các bảng dùng chung],
+  spacing: (48mm, 21mm),
+  edge-stroke: 0.9pt + blue-s,
+  label-wrapper: wlabel,
+
+  nbang((1, 1), <b-review>, "review", [PK id], [UQ listing_id, author_id, order_id]),
+  nbang((0, 1), <b-conversation>, "conversation", [PK id]),
+  nbang((2, 1), <b-resource>, "resource", [PK id], [UQ provider, object_key]),
+  nbang((1, 0), <b-message>, "message", [PK id, created_at], [FK conversation_id #sym.arrow.r conversation · xoá lan]),
+  nbang((1, 2), <b-option>, "option", [PK id], [FK logo_resource_id #sym.arrow.r resource · gán rỗng]),
+  nbang((0, 0), <b-review_reply>, "review_reply", [PK id], [FK review_id #sym.arrow.r review · xoá lan]),
+  nbang((2, 0), <b-review_vote>, "review_vote", [PK review_id, account_id], [FK review_id #sym.arrow.r review · xoá lan]),
+  nbang((0, 2), <b-audit_log>, "audit_log", [PK id], [UQ table_name, record_id, version]),
+  nbang((2, 2), <b-feedback>, "feedback", [PK id], [UQ order_id, direction]),
+  nbang((1, 3), <b-reputation>, "reputation", [PK account_id, role]),
+  nbang((0, 3), <b-order_outcome>, "order_outcome", [PK order_id]),
+  nbang((2, 3), <b-ticket>, "ticket", [PK id], [UQ conversation_id]),
+
+  edge(<b-message>, <b-conversation>, "n-1"),
+  edge(<b-option>, <b-resource>, "n-1"),
+  edge(<b-review_reply>, <b-review>, "n-1"),
+  edge(<b-review_vote>, <b-review>, "n-1"),
 )
 === Lược đồ `account`
 
