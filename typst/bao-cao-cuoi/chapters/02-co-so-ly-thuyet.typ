@@ -82,8 +82,8 @@ Mô hình bge-m3 được lựa chọn nhờ năng lực kiến trúc vượt tr
 Thay vì phải vận hành thêm một hệ quản trị cơ sở dữ liệu vector độc lập (như Milvus, Pinecone hay Qdrant), điều sẽ làm tăng chi phí hạ tầng và phát sinh độ phức tạp lớn trong việc duy trì các pipeline bộ dữ liệu ETL từ cơ sở dữ liệu chính, ta sử dụng trực tiếp phần mở rộng mã nguồn mở pgvector được cài đặt ngay bên trong PostgreSQL của `Catalog Service` [11].
 
 Việc tích hợp pgvector cho phép thực thi chiến lược Tìm kiếm lai trong một lệnh truy vấn duy nhất (Single-query Hybrid Retrieval) với các ưu điểm kỹ thuật:
-- *Chỉ mục HNSW tốc độ cao:* Các embedding 1024 chiều của sản phẩm được lưu trữ và đánh chỉ mục bằng thuật toán HNSW (Hierarchical Navigable Small World). Chỉ mục cấu trúc đồ thị nhiều lớp này cho phép thực hiện tìm kiếm ANN (Approximate Nearest Neighbors — tìm lân cận gần nhất gần đúng) với độ phức tạp thời gian chỉ ở mức đối số $O(log N)$.
-- *Thuật toán rank fusion (xếp hạng dung hợp — Reranking & Fusion):* Điểm số liên quan cuối cùng của mỗi mặt hàng được tính bằng thuật toán kết hợp trọng số, cân bằng giữa điểm số khớp từ khóa (Sparse/Full-text), khoảng cách ngữ nghĩa Cosine (Dense), và điểm uy tín người bán, tạo ra danh sách kết quả vừa chính xác về thông số vừa thấu hiểu nhu cầu ngữ nghĩa của người mua.
+- *Chỉ mục HNSW tốc độ cao:* Các embedding 1024 chiều của sản phẩm được lưu trữ và đánh chỉ mục bằng thuật toán HNSW (Hierarchical Navigable Small World). Chỉ mục cấu trúc đồ thị nhiều lớp này cho phép thực hiện tìm kiếm ANN (Approximate Nearest Neighbors, tìm lân cận gần nhất gần đúng) với độ phức tạp thời gian chỉ ở mức đối số $O(log N)$.
+- *Thuật toán rank fusion (xếp hạng dung hợp, Reranking & Fusion):* Điểm số liên quan cuối cùng của mỗi mặt hàng được tính bằng thuật toán kết hợp trọng số, cân bằng giữa điểm số khớp từ khóa (Sparse/Full-text), khoảng cách ngữ nghĩa Cosine (Dense), và điểm uy tín người bán, tạo ra danh sách kết quả vừa chính xác về thông số vừa thấu hiểu nhu cầu ngữ nghĩa của người mua.
 
 == Lựa chọn công nghệ
 
