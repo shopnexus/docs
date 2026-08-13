@@ -8,7 +8,7 @@ Cụ thể, những thách thức cốt lõi đang kìm hãm sự phát triển 
 - *Rủi ro từ góc độ Người bán cá nhân:* Để tạo lòng tin cho người mua, nhiều người bán phải chấp nhận hình thức giao hàng thu tiền hộ (COD - Cash on Delivery). Tuy nhiên, giải pháp này lại đẩy rủi ro về phía người bán: tỷ lệ người mua đặt hàng tùy hứng rồi từ chối nhận hàng ("boom hàng") mà không có lý do chính đáng rất cao. Trong trường hợp đó, người bán cá nhân không những phải gánh chịu gấp đôi chi phí vận chuyển hai chiều (chi phí gửi đi và hoàn về) mà sản phẩm còn có nguy cơ bị hư hỏng, thất lạc hoặc suy giảm giá trị trong quá trình luân chuyển đường dài. Nghiêm trọng hơn, một số đối tượng xấu còn lợi dụng việc kiểm hàng để tráo đổi linh kiện chính hãng rồi từ chối nhận.
 - *Sự phân mảnh trong giao tiếp và thỏa thuận giao dịch:* Đặc thù của mua bán đồ cũ là nhu cầu thương lượng giá (mặc cả) và kiểm chứng thực tế bằng hình ảnh/video trực tiếp. Hiện nay, quy trình này thường diễn ra phân mảnh trên các ứng dụng nhắn tin bên thứ ba ngoài sàn (như Zalo, Messenger, Telegram). Khi hai bên thống nhất một mức giá ưu đãi (ví dụ: bớt 50.000 VNĐ vì hỗ trợ phí vận chuyển), việc thanh toán trên sàn giao dịch lại không đồng bộ được mức giá thỏa thuận này một cách tự động. Đồng thời, khi tranh chấp xảy ra, các sàn thương mại điện tử (TMĐT) truyền thống không có quyền truy cập hoặc không thể xác thực tính chính xác của các đoạn chat bên ngoài, dẫn đến thiếu chứng cứ lịch sử gắn liền với đơn hàng để phân xử công bằng.
 
-Xét ở bình diện vĩ mô, quy mô thị trường thương mại điện tử Việt Nam trong những năm gần đây liên tục duy trì tốc độ tăng trưởng hai con số về doanh thu bán lẻ trực tuyến và tỷ lệ người dân tham gia mua sắm trực tuyến, song phần lớn các nền tảng rao vặt C2C hiện hữu như Chợ Tốt vẫn chủ yếu đóng vai trò kết nối thông tin giữa hai cá nhân, để hai bên tự thỏa thuận và tự chuyển tiền cho nhau mà không có cơ chế bảo lãnh dòng tiền tập trung. Về hành lang pháp lý, hoạt động của các sàn giao dịch thương mại điện tử tại Việt Nam chịu sự điều chỉnh của Nghị định số 52/2013/NĐ-CP về thương mại điện tử cùng những sửa đổi, bổ sung tại Nghị định số 85/2021/NĐ-CP, trong đó xác lập trách nhiệm của đơn vị cung cấp dịch vụ sàn trong việc quản lý thông tin người bán cũng như tiếp nhận và xử lý khiếu nại, trong khi quyền được thông tin, được bảo vệ và được giải quyết tranh chấp của người mua được ghi nhận trong Luật Bảo vệ quyền lợi người tiêu dùng năm 2023 @nghidinh52 @nghidinh85.
+Xét ở bình diện vĩ mô, quy mô thị trường thương mại điện tử Việt Nam trong những năm gần đây liên tục duy trì tốc độ tăng trưởng hai con số về doanh thu bán lẻ trực tuyến và tỷ lệ người dân tham gia mua sắm trực tuyến, song phần lớn các nền tảng rao vặt C2C hiện hữu như Chợ Tốt vẫn chủ yếu đóng vai trò kết nối thông tin giữa hai cá nhân, để hai bên tự thỏa thuận và tự chuyển tiền cho nhau mà không có cơ chế bảo lãnh dòng tiền tập trung. Về hành lang pháp lý, hoạt động của các sàn giao dịch thương mại điện tử tại Việt Nam chịu sự điều chỉnh của Nghị định số 52/2013/NĐ-CP về thương mại điện tử cùng những sửa đổi, bổ sung tại Nghị định số 85/2021/NĐ-CP, trong đó xác lập trách nhiệm của đơn vị cung cấp dịch vụ sàn trong việc quản lý thông tin người bán cũng như tiếp nhận và xử lý khiếu nại, trong khi quyền được thông tin, được bảo vệ và được giải quyết tranh chấp của người mua được ghi nhận trong Luật Bảo vệ quyền lợi người tiêu dùng năm 2023 [1] [2].
 
 Trước thực trạng và những khoảng trống lớn của thị trường, đề tài "Ứng dụng thương mại điện tử sử dụng kiến trúc Microservices" được lựa chọn nhằm nghiên cứu, phân tích và thiết kế một hệ sinh thái giao dịch C2C an toàn, minh bạch và hiện đại, đặt trọng tâm giải quyết bài toán "lòng tin" bằng việc thiết lập ba trụ cột nghiệp vụ và kỹ thuật chính sau:
 + *Cơ chế Bảo lãnh tài chính tạm giữ (Escrow Payment):* Sàn thương mại điện tử sẽ đóng vai trò là bên thứ ba trung gian đáng tin cậy giữ tiền giao dịch. Dòng tiền của người mua sẽ được khóa bảo mật trong ví trung gian cho đến khi giao hàng thành công và người mua xác nhận hài lòng (hoặc hết thời hạn đếm ngược 3 ngày(72 giờ) mà không có khiếu nại).
@@ -17,7 +17,7 @@ Trước thực trạng và những khoảng trống lớn của thị trường
 
 == Mục tiêu của nghiên cứu
 
-Mục tiêu tổng quát của nghiên cứu là áp dụng triệt để các phương pháp kỹ thuật phần mềm tiên tiến, đặc biệt là kiến trúc hướng dịch vụ (SOA) và mô hình Microservices hiện đại, để thiết kế và hiện thực hóa một nền tảng TMĐT C2C toàn diện, an toàn và có khả năng chịu tải, mở rộng cao @newman2021.
+Mục tiêu tổng quát của nghiên cứu là áp dụng triệt để các phương pháp kỹ thuật phần mềm tiên tiến, đặc biệt là kiến trúc hướng dịch vụ (SOA) và mô hình Microservices hiện đại, để thiết kế và hiện thực hóa một nền tảng TMĐT C2C toàn diện, an toàn và có khả năng chịu tải, mở rộng cao [8].
 
 Các mục tiêu cụ thể của đề tài được phân chia theo từng phương diện nghiệp vụ và công nghệ cốt lõi:
 
@@ -34,14 +34,14 @@ Các mục tiêu cụ thể của đề tài được phân chia theo từng ph�
    - *Người dùng (User):* Tài khoản khách hàng tự do đăng ký, sở hữu vai trò kép (vừa mua vừa bán trên cùng một định danh).
 
 5. *Nghiên cứu ứng dụng kiến trúc Durable Microservices:*
-   - Phân rã hệ thống thành các dịch vụ độc lập áp dụng triệt để nguyên lý Database-per-service @richardson2019, bảo đảm sự cô lập về cơ sở dữ liệu và khả năng chọn lựa công nghệ lưu trữ phù hợp (Polyglot Persistence).
-   - Ứng dụng cơ chế durable execution (thực thi bền vững) Restate (Journal-based Durable Execution) để quản lý các luồng nghiệp vụ dài hạn (Escrow, Refund, Dispute,...), loại bỏ hoàn toàn độ phức tạp của mẫu thiết kế Saga truyền thống @garcia1987sagas, tự động phục hồi lỗi (Crash Recovery) và bảo đảm ngữ nghĩa thực thi chính xác một lần (Exact-once semantics).
+   - Phân rã hệ thống thành các dịch vụ độc lập áp dụng triệt để nguyên lý Database-per-service [9], bảo đảm sự cô lập về cơ sở dữ liệu và khả năng chọn lựa công nghệ lưu trữ phù hợp (Polyglot Persistence).
+   - Ứng dụng cơ chế durable execution (thực thi bền vững) Restate (Journal-based Durable Execution) để quản lý các luồng nghiệp vụ dài hạn (Escrow, Refund, Dispute,...), loại bỏ hoàn toàn độ phức tạp của mẫu thiết kế Saga truyền thống [4], tự động phục hồi lỗi (Crash Recovery) và bảo đảm ngữ nghĩa thực thi chính xác một lần (Exact-once semantics).
 
 6. *Nghiên cứu tìm kiếm dựa trên từ khóa và ngữ nghĩa:*
-   - Nghiên cứu và tích hợp cơ chế Tìm kiếm Ngữ nghĩa Lai (Hybrid Search), kết hợp giữa Tìm kiếm văn bản (Full-text Search) dựa trên từ khóa và tìm kiếm ngữ nghĩa (Semantic Vector Search) thông qua cơ sở dữ liệu pgvector trên PostgreSQL @pgvector2024, sử dụng mô hình embedding (véc-tơ nhúng) đa ngôn ngữ bge-m3 để sinh biểu diễn vector (vector embeddings) cho dữ liệu văn bản @chen2024bgem3.
+   - Nghiên cứu và tích hợp cơ chế Tìm kiếm Ngữ nghĩa Lai (Hybrid Search), kết hợp giữa Tìm kiếm văn bản (Full-text Search) dựa trên từ khóa và tìm kiếm ngữ nghĩa (Semantic Vector Search) thông qua cơ sở dữ liệu pgvector trên PostgreSQL [11], sử dụng mô hình embedding (véc-tơ nhúng) đa ngôn ngữ bge-m3 để sinh biểu diễn vector (vector embeddings) cho dữ liệu văn bản [3].
 
 7. *Nghiên cứu hệ thống gợi ý sản phẩm (Recommender System):*
-    - Xây dựng cơ chế gợi ý sản phẩm cá nhân hóa đa hướng quan tâm (multi-interest), biểu diễn sở thích người dùng qua nhiều vector đặc trưng được cập nhật liên tục dựa trên lịch sử tương tác, hành vi tìm kiếm và độ tương đồng ngữ nghĩa của mặt hàng @li2019mind.
+    - Xây dựng cơ chế gợi ý sản phẩm cá nhân hóa đa hướng quan tâm (multi-interest), biểu diễn sở thích người dùng qua nhiều vector đặc trưng được cập nhật liên tục dựa trên lịch sử tương tác, hành vi tìm kiếm và độ tương đồng ngữ nghĩa của mặt hàng [7].
 
 == Phạm vi hệ thống
 
@@ -94,7 +94,7 @@ Hệ thống được thiết kế bao phủ toàn bộ vòng đời giao dịch
 
 
 3. *Phương pháp durable execution:*
-   - Nghiên cứu và áp dụng nền tảng durable execution Restate dựa trên triết lý Journal-based Execution (thực thi dựa trên nhật ký ghi trước - Write-Ahead Log) @restate2026.
+   - Nghiên cứu và áp dụng nền tảng durable execution Restate dựa trên triết lý Journal-based Execution (thực thi dựa trên nhật ký ghi trước - Write-Ahead Log) [12].
 
 
 == Đóng góp của đề tài

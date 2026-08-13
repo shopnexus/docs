@@ -209,12 +209,46 @@ mô hình dữ liệu.
 #pagebreak()
 #sechead([DANH MỤC TÀI LIỆU THAM KHẢO])
 
-// Danh mục dựng theo IEEE: chỉ liệt kê tài liệu ĐƯỢC trích dẫn trong thân bài
-// (full: false) và đánh số theo thứ tự xuất hiện của trích dẫn đầu tiên.
-// Khối text(lang: "en") để kiểu IEEE dùng đúng chuỗi gốc — "2nd ed.", "vol.",
-// "no.", "pp.", "Accessed:", "[Online]. Available:" — thay vì bản dịch tiếng Việt
-// ("2 a.b.", "tập", "số", "tr", "Truy cập:", "Có tại:"). Bỏ khối này nếu muốn
-// danh mục hiển thị bằng tiếng Việt.
-#text(lang: "en")[
-  #bibliography("refs.bib", title: none, full: false, style: "ieee")
-]
+// Danh mục dựng THỦ CÔNG, không dùng #bibliography, vì phụ lục QĐ 922 đòi tách
+// theo ngôn ngữ (Tiếng Việt / Tiếng Anh / Website) — điều mà bibliography() của
+// Typst không làm được: nó chỉ sinh một danh sách phẳng theo kiểu trích dẫn.
+// Dữ liệu gốc của 12 mục vẫn giữ ở refs.bib để đối chiếu.
+//
+// Quy cách ghi theo phụ lục:
+//   tạp chí        → tác giả, tên bài, tên tạp chí, tập, số, trang, (năm)
+//   sách           → tác giả, tên sách, nhà xuất bản, nơi xuất bản, (năm)
+//   báo cáo KH     → tác giả, tên báo cáo, tên kỷ yếu, nơi và thời gian hội nghị
+// Xếp abc: hai nghị định theo tên tài liệu, phần tiếng Anh theo họ tác giả,
+// phần website theo tên tài nguyên. Số thứ tự chạy liên tục qua cả ba nhóm để
+// trích dẫn trong thân bài (dạng [n]) không bị trùng.
+#let nhom-tltk(ten) = block(above: 1.1em, below: 0.5em)[#strong(ten)]
+
+#nhom-tltk[Tiếng Việt]
+#enum(
+  numbering: n => "[" + str(n) + "]",
+  start: 1,
+  [Chính phủ nước Cộng hòa xã hội chủ nghĩa Việt Nam, Nghị định số 52/2013/NĐ-CP về thương mại điện tử, Công báo, Hà Nội (2013).],
+  [Chính phủ nước Cộng hòa xã hội chủ nghĩa Việt Nam, Nghị định số 85/2021/NĐ-CP sửa đổi, bổ sung một số điều của Nghị định số 52/2013/NĐ-CP về thương mại điện tử, Công báo, Hà Nội (2021).],
+)
+
+#nhom-tltk[Tiếng Anh]
+#enum(
+  numbering: n => "[" + str(n + 2) + "]",
+  start: 1,
+  [Chen J., Xiao S., Zhang P., Luo K., Lian D., Liu Z., M3-Embedding: Multi-Linguality, Multi-Functionality, Multi-Granularity Text Embeddings Through Self-Knowledge Distillation, Findings of the Association for Computational Linguistics: ACL 2024, tr. 2318–2335, Bangkok, Thái Lan (2024).],
+  [Garcia-Molina H., Salem K., Sagas, ACM SIGMOD Record, tập 16, số 3, tr. 249–259 (1987).],
+  [Helland P., Idempotence Is Not a Medical Condition, ACM Queue, tập 10, số 4, tr. 30–46 (2012).],
+  [Kleppmann M., Designing Data-Intensive Applications: The Big Ideas Behind Reliable, Scalable, and Maintainable Systems, O'Reilly Media, Sebastopol, CA, Hoa Kỳ (2017).],
+  [Li C., Liu Z., Wu M., Xu Y., Zhao H., Huang P., Zhou G., Zhu X., Gai K., Multi-Interest Network with Dynamic Routing for Recommendation at Tmall, Kỷ yếu Hội nghị quốc tế ACM về Quản lý Thông tin và Tri thức (CIKM) lần thứ 28, tr. 2615–2623, Bắc Kinh, Trung Quốc (2019).],
+  [Newman S., Building Microservices: Designing Fine-Grained Systems, xuất bản lần thứ hai, O'Reilly Media, Sebastopol, CA, Hoa Kỳ (2021).],
+  [Richardson C., Microservices Patterns: With Examples in Java, Manning Publications, Shelter Island, NY, Hoa Kỳ (2019).],
+  [Robertson S., Zaragoza H., The Probabilistic Relevance Framework: BM25 and Beyond, Foundations and Trends in Information Retrieval, tập 3, số 4, tr. 333–389 (2009).],
+)
+
+#nhom-tltk[Website tham khảo]
+#enum(
+  numbering: n => "[" + str(n + 10) + "]",
+  start: 1,
+  [pgvector — Open-Source Vector Similarity Search for PostgreSQL, https:\/\/github.com/pgvector/pgvector (truy cập ngày 12/08/2026).],
+  [Restate Documentation — Durable Execution Engine for Microservices, https:\/\/docs.restate.dev (truy cập ngày 12/08/2026).],
+)
