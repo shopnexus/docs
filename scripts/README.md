@@ -84,3 +84,27 @@ toán.
 
 Các mã tin đăng / đơn hàng / yêu cầu hoàn tiền nằm trong hằng `FIXTURES` ở đầu
 script. Nếu dữ liệu thử trên máy chủ đổi thì sửa ở đó.
+
+---
+
+# Lint tệp Typst
+
+`lint-typst.sh` chạy `tinymist lint` trên mọi tệp `.typ` trong `typst/`
+(bỏ `tmp/` và `out/`), với `--root typst` và `--font-path typst/common/fonts`
+đúng như lúc biên dịch.
+
+```sh
+cd docs
+./scripts/lint-typst.sh                     # lint hết
+./scripts/lint-typst.sh typst/common/*.typ  # chỉ vài tệp
+VERBOSE=1 ./scripts/lint-typst.sh           # giữ cả log nội bộ của tinymist
+```
+
+Thoát 0 nếu sạch, 1 nếu có tệp bị báo lỗi. Cần cài `tinymist` (≥ 0.15, đây là
+bản đầu tiên có lệnh `lint`): `sudo pacman -S tinymist` hoặc
+`cargo install --locked tinymist`.
+
+Lint đọc tĩnh từng tệp nên bắt được biến/hàm không tồn tại, tham số trùng, cú
+pháp sai — kể cả ở tệp chương lẻ, không phải chỉ `main.typ`. Nó không thay thế
+việc biên dịch thật: lỗi lúc dựng hình (thiếu ảnh, tràn trang) vẫn phải chạy
+`typst compile` mới thấy.
