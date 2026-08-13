@@ -219,8 +219,8 @@ mô hình dữ liệu.
 #enum(
   numbering: n => "[" + str(n) + "]",
   start: 1,
-  [Chính phủ nước Cộng hòa xã hội chủ nghĩa Việt Nam, Nghị định số 52/2013/NĐ-CP về thương mại điện tử, Công báo, Hà Nội (2013).],
-  [Chính phủ nước Cộng hòa xã hội chủ nghĩa Việt Nam, Nghị định số 85/2021/NĐ-CP sửa đổi, bổ sung một số điều của Nghị định số 52/2013/NĐ-CP về thương mại điện tử, Công báo, Hà Nội (2021).],
+  [Quốc hội nước Cộng hòa xã hội chủ nghĩa Việt Nam, Luật Bảo vệ quyền lợi người tiêu dùng số 19/2023/QH15, Công báo, Hà Nội (2023).],
+  [Quốc hội nước Cộng hòa xã hội chủ nghĩa Việt Nam, Luật Thương mại điện tử số 122/2025/QH15, Công báo, Hà Nội (2025).],
 )
 
 #nhom-tltk[Tiếng Anh]
