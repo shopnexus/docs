@@ -731,9 +731,6 @@ ghi chú thiết kế giải thích một quyết định không đọc được
 
 === Quy ước ký hiệu
 
-Kịch bản được lập sơ đồ là kịch bản mà thiếu hình vẽ thì không theo dõi nổi: đặt hàng
-và giữ ký quỹ.
-
 Mỗi cột là một bên tham gia: tác nhân là người thì ghi kèm dấu hai chấm ở đầu, còn lại là
 module chịu trách nhiệm về phần nghiệp vụ ấy, trong đó module chủ đạo của kịch bản được tô
 đậm. Activation bar (thanh kích hoạt) là đoạn dọc dày màu xám cho biết bên ấy đang giữ

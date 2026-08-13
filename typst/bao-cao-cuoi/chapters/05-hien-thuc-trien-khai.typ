@@ -8,45 +8,78 @@ Các dịch vụ được tổ chức theo cùng một cấu trúc thư mục v�
 
 Các quyết định thiết kế và kỹ thuật hiện thực chính cho từng miền nghiệp vụ được trình bày như sau:
 
-=== Quản lý Định danh và Phiên truy cập (Account Service)
-Điểm nhấn kỹ thuật của dịch vụ này nằm ở mô hình quản lý phiên (session) lai. Access token là một JSON Web Token (JWT) không trạng thái (stateless) có vòng đời 15 phút, trong khi phiên đăng nhập thực tế là một bản ghi mang trạng thái (stateful) lưu trữ tại Redis tồn tại 30 ngày. Bộ lọc xác thực tra cứu phiên trên mọi yêu cầu API; cơ chế này đảm bảo các thao tác đăng xuất, đổi mật khẩu hay khoá tài khoản lập tức có hiệu lực ngay cả khi JWT ở phía máy khách chưa hết hạn. Bài toán thu hồi toàn bộ phiên của một tài khoản được giải quyết với độ phức tạp thời gian $O(1)$ bằng cách tăng giá trị vòng đời (kỷ nguyên - session epoch), khiến chi phí tính toán hoàn toàn không phụ thuộc vào số lượng thiết bị đang đăng nhập.
+=== Dịch vụ Tài khoản, Định danh và Xác thực (Account Service)
 
-=== Xử lý Tìm kiếm và Quản lý Tồn kho (Catalog Service)
-Dịch vụ danh mục được thiết kế để trực tiếp quản lý trạng thái tồn kho (inventory) thay vì tách thành dịch vụ độc lập, nhằm loại bỏ các giao dịch phân tán (distributed transaction) tốn kém khi đặt giữ hàng. Đối với bài toán tìm kiếm, hệ thống áp dụng cơ chế Tìm kiếm lai (Hybrid Search): một tiến trình nền (background worker) sẽ quét các bản ghi có đánh dấu thay đổi, gọi mô hình sinh vector embedding và xoá cờ cập nhật trong cùng một giao dịch nguyên tử. Trong trường hợp bản ghi mới chưa kịp sinh vector, truy vấn sẽ tự động thoái lui (fallback) về chế độ lexical match truyền thống, đảm bảo tính sẵn sàng cao ngay cả khi module AI gặp sự cố.
+Aggregate root của dịch vụ là `Account`, bao gồm thông tin định danh (email, số điện thoại, tên đăng nhập), hồ sơ hiển thị và danh sách liên kết nhà cung cấp OAuth. Hệ thống có bốn vai trò: `user`, `moderator`, `admin` và `support`. Không có vai trò `seller` riêng, một tài khoản có thể vừa mua vừa bán, quyết định này nhằm giảm ma sát gia nhập nền tảng.
 
-=== Máy trạng thái Đơn hàng và Durable execution (Order Service)
-Mang khối lượng mã nguồn lớn nhất, dịch vụ đơn hàng được thiết kế theo Kiến trúc Hướng sự kiện (Event-Driven Architecture). Đơn hàng không được sinh ra từ nút bấm "Đặt hàng" của người mua, mà ra đời từ luồng sự kiện xác nhận giao dịch thanh toán thành công, giúp loại bỏ bài toán đồng bộ trạng thái thanh toán và đơn hàng. Để quản lý vòng đời giao dịch dài hạn (chẳng hạn giới hạn 48 giờ chờ xác nhận), hệ thống không sử dụng bộ định thời định kỳ (cron job) truyền thống mà tích hợp Restate để cung cấp cơ chế durable execution. Luồng thời gian chạy này đảm bảo các tiến trình đếm ngược có khả năng chịu lỗi (fault-tolerant) và tự động phục hồi đúng trạng thái trước đó nếu máy chủ khởi động lại.
+Thao tác lưu trữ được định nghĩa qua interface `Repository` trong gói `port`, tách biệt khỏi bộ điều hợp PostgreSQL và Redis. Tách biệt này cho phép kiểm thử toàn bộ tầng dịch vụ qua kho giả lập mà không cần cơ sở dữ liệu thực.
 
-=== Quản lý Dòng tiền và Ký quỹ (Finance Service)
-Dịch vụ tài chính đóng vai trò làm sổ cái (ledger) nội bộ, lưu trữ toàn bộ nguyên thể tiền tệ để đảm bảo các bút toán ký quỹ luôn tuân thủ nguyên tắc ACID. Trong quy trình thanh toán trực tuyến, nguyên tắc bất biến được áp dụng: trang đích mà người dùng được chuyển hướng về sau khi thanh toán không bao giờ được coi là bằng chứng xác nhận. Việc quyết toán chỉ được thực thi thông qua lời gọi ngược (webhook) từ máy chủ của cổng thanh toán. Mọi thao tác cập nhật số dư từ webhook đều được thiết kế idempotent, cho phép nhà cung cấp phát lại thông báo nhiều lần trong trường hợp nghẽn mạng mà không gây ra hiện tượng nhân đôi số dư.
+Mỗi thao tác thay đổi trạng thái trên aggregate như đổi email, cấp vai trò, tạm khóa, liên kết hay hủy liên kết OAuth hay ghi một sự kiện có kiểu tĩnh vào danh sách nội bộ. Khi `Repository.Save` thực thi, các sự kiện này được ghi vào bảng `audit_log` trong cùng giao dịch cơ sở dữ liệu, bảo đảm nhật ký kiểm toán khớp với trạng thái bản ghi.
 
-=== Trò chuyện và Quản lý Tín nhiệm (Chat & Trust Services)
-Dịch vụ trò chuyện chịu trách nhiệm quản lý cả hội thoại mua bán cá nhân lẫn các luồng tin nhắn của phiếu hỗ trợ khiếu nại. Thách thức lớn nhất tại đây là cơ chế ẩn danh (anonymization) cho điều phối viên; hệ thống phải che dấu danh tính nhân viên ở mọi hình chiếu dữ liệu (bao gồm cả dòng tin nhắn xem trước trong danh sách hộp thư) nhằm bảo vệ an toàn cho Moderator.
+Dịch vụ tài khoản đăng ký nhận sự kiện `OrderPlaced` và `OrderSettled` từ dịch vụ đơn hàng, sau đó tạo thông báo trong hộp thư thời gian thực cho cả người mua lẫn người bán. Dịch vụ đơn hàng không cần biết ai nhận thông báo hay bằng cơ chế nào.
+
+
+=== Dịch vụ Danh mục và Tìm kiếm (Catalog Service)
+
+Aggregate root của dịch vụ là `Listing`, một tin đăng bán hàng do một người bán tạo ra, gồm thông tin mô tả, tập biến thể kèm số lượng tồn và danh sách thẻ. Dịch vụ quản lý tồn kho trực tiếp thay vì tách thành một dịch vụ riêng, nhằm tránh giao dịch phân tán khi đặt giữ hàng.
+
+Tin đăng hỗ trợ hai chế độ giá: cố định (`fixed`) và thương lượng (`negotiable`). Mọi tin đăng mới công bố và mọi bản sửa đổi đều chuyển về trạng thái `pending` chờ kiểm duyệt trước khi hiển thị công khai, trạng thái `active` và trạng thái bị gỡ bởi điều phối viên (`hidden`) được phân biệt với trạng thái người bán tự ẩn.
+
+Tìm kiếm hoạt động theo cơ chế hybrid search: một tiến trình nền quét các bản ghi có cờ thay đổi, gọi mô hình sinh vector embedding rồi xóa cờ trong cùng giao dịch. Khi bản ghi chưa có vector, truy vấn fallback về lexical match, bảo đảm tính sẵn sàng ngay cả khi module AI gặp sự cố.
+
+=== Dịch vụ Đơn hàng và Thương lượng (Order Service)
+
+Đơn hàng không được tạo từ yêu cầu trực tiếp của người mua, mà từ sự kiện xác nhận thanh toán thành công phát ra bởi dịch vụ tài chính. Thiết kế này loại bỏ bài toán đồng bộ trạng thái giữa phiên thanh toán và đơn hàng: đơn chỉ tồn tại khi tiền đã vào ký quỹ.
+
+Vòng đời đơn hàng được quản lý bằng Restate thay vì cron job. Mỗi đơn hàng là một workflow instance với các promise tương ứng từng mốc: người bán xác nhận (`confirmed`), người mua xác nhận nhận hàng (`received`), hồ sơ hoàn tiền (`refund-raised`) và kết quả phân xử (`refund-resolved`). Restate ghi journal từng bước và từng bộ đếm thời gian, nên khi máy chủ khởi động lại, workflow tiếp tục từ vị trí đã dừng mà không tính lại đồng hồ.
+
+Khi người bán không xác nhận đơn trong 48 giờ, hệ thống leo thang thông báo cho bộ phận vận hành nhưng giữ nguyên trạng thái đơn, nền tảng không tự hủy đơn cũng không gửi hàng thay người bán.
+
+=== Dịch vụ Tài chính và Ký quỹ (Finance Service)
+
+Dịch vụ đóng vai trò sổ cái nội bộ. Mỗi biến động tài chính được ghi là một `Movement` có trường `Seq` (thứ tự trong ví), `Kind` (loại bút toán) và `IdempotencyKey` (khóa lũy đẳng). Hai khoản tiền hàng và phí vận chuyển được tách thành hai chặng riêng ngay khi vào ký quỹ, do có quy tắc hoàn trả khác nhau: tiền hàng có thể được hoàn theo kết quả giao dịch, còn phí vận chuyển đã phát sinh không thuộc phạm vi hoàn trả.
+
+Kết quả thanh toán chỉ được ghi nhận từ webhook của nhà cung cấp, không từ trang đích mà người dùng được chuyển hướng về. Mọi thao tác ghi số dư từ webhook đều idempotent thông qua `IdempotencyKey`: nếu nhà cung cấp gửi lại thông báo do nghẽn mạng, bút toán trùng thua vào ràng buộc duy nhất ở cơ sở dữ liệu thay vì sinh ra số dư kép.
+
+=== Dịch vụ Trò chuyện và Tín nhiệm (Chat & Trust Services)
+
+Dịch vụ trò chuyện quản lý hai loại luồng: hội thoại mua bán trực tiếp giữa hai tài khoản và luồng tin nhắn của phiếu hỗ trợ. Thông báo realtime được đẩy qua fanout với nguyên tắc best-effort: lỗi gửi realtime không làm thất bại lệnh ghi, và phía client đồng bộ lại khi kết nối trở lại.
+
+Dịch vụ tín nhiệm quản lý phiếu hỗ trợ, đánh giá sản phẩm và phản hồi của người bán. Phiếu hỗ trợ dùng chung một luồng tin nhắn với dịch vụ trò chuyện, nhưng danh tính của điều phối viên xử lý phiếu được ẩn danh hóa ở mọi hình chiếu dữ liệu, bao gồm cả dòng tin nhắn xem trước trong danh sách hộp thư.
+
+=== Quan trắc vận hành (Observability)
+
+Dịch vụ thu thập bốn loại tín hiệu vận hành: lưu lượng HTTP vào (`http_requests`), lời gọi ra nhà cung cấp bên ngoài (`provider_calls`), sự kiện nghiệp vụ từ event bus (`business_events`) và số đo thời gian chạy Go (`runtime_metrics`). Mỗi tín hiệu được publish lên JetStream thông qua một `Sink` riêng; một writer tiêu thụ các topic này theo batch và ghi vào TimescaleDB.
+
+Thiết kế tách đường ghi telemetry khỏi đường xử lý yêu cầu: `Sink.publish` dùng `context.Background` thay vì context của request, nên một request bị hủy vẫn ghi lại được chính nó. Lỗi gửi lên bus không làm thất bại lệnh ghi mà chỉ tăng bộ đếm mẫu bị mất (`dropped`), được báo cáo định kỳ cùng với chu kỳ lấy mẫu runtime.
+
+#pagebreak()
 == Hiện thực ứng dụng web
 
 Ứng dụng web được phát triển dựa trên kiến trúc App Router của Next.js. Hệ thống định tuyến được chia thành 4 phân hệ chính: vùng công khai, vùng xác thực, vùng người dùng đã đăng nhập và vùng quản trị. Cơ chế bảo vệ tuyến đường (route guard) được thực thi qua Middleware nhằm tối ưu trải nghiệm điều hướng, trong khi hàng rào bảo mật (security boundary) thực sự vẫn do các dịch vụ nền kiểm soát thông qua xác thực token trên từng yêu cầu API.
 
 
 Các hình ảnh minh hoạ giao diện dưới đây được trích xuất trực tiếp từ môi trường chạy thử của ứng dụng:
-Trang tìm kiếm phản ánh trực quan cơ chế truy vấn lai (hybrid search). Bộ lọc đa chiều bao gồm: danh mục, nhãn dán, khu vực (tỉnh/phường kèm bán kính), khoảng giá và tình trạng sản phẩm.
 #figure(
   assets("web/web-01-tim-kiem.png", width: 86%),
   caption: [Trang kết quả tìm kiếm với từ khoá tiếng Việt không dấu "ao thun nam"; rail bộ lọc bên trái cố định trên khung nhìn desktop, dải "cách khớp" cho chọn giữa khớp từ khoá, khớp ngữ nghĩa hay kết hợp cả 2],
 )
+
+Trang tìm kiếm (Hình 5.1) thể hiện kết quả truy vấn. Bộ lọc cho phép tinh chỉnh theo danh mục, nhãn dán, khoảng cách địa lý, giá và tình trạng sản phẩm.
 
 #figure(
   assets("web/web-04-thanh-toan.png", height: 17cm),
   caption: [Trang thanh toán sau khi địa chỉ nhận đã được chọn sẵn: danh sách phương án vận chuyển kèm cước, danh sách kênh thanh toán, bảng tổng tiền tách bạch tiền hàng với cước. Mọi mục mang tiền tố "Mock" là kịch bản của bản giả lập, không phải hãng vận chuyển hay kênh thanh toán thật],
 )
 
-Trang thanh toán hợp nhất 2 luồng nghiệp vụ: mua giá niêm yết và đàm phán thành công. Biểu phí vận chuyển và tổng tiền được máy chủ tính toán động dựa trên địa chỉ mặc định. Để phục vụ kiểm thử, môi trường hiện tại tích hợp các kịch bản giả lập (Mock) bên cạnh hai cổng thanh toán thực tế là SePay và Stripe, đảm bảo khả năng mô phỏng toàn diện luồng giao dịch.
+Trang thanh toán (Hình 5.2) hỗ trợ hai luồng nghiệp vụ: mua giá niêm yết và đàm phán thành công. Biểu phí vận chuyển và tổng tiền được máy chủ tính toán động dựa trên địa chỉ mặc định. Để phục vụ kiểm thử, môi trường hiện tại tích hợp các kịch bản giả lập (Mock) bên cạnh hai cổng thanh toán thực tế là SePay và Stripe, đảm bảo khả năng mô phỏng toàn diện luồng giao dịch.
 
 #figure(
   assets("web/web-05-theo-doi-don.png", width: 90%),
   caption: [Chi tiết một đơn ở trạng thái đã giao và đang chờ người mua xác nhận: dải tiến trình 4 chặng, thông tin vận đơn, bảng tách tiền hàng với cước, hai lối đi tiếp là xác nhận đã nhận hàng hoặc mở yêu cầu hoàn tiền],
 )
 
-Dải tiến trình giao hàng phản ánh trạng thái vận đơn thực tế theo thời gian thực. Trạng thái "đã giao" được phân loại vào nhóm xử lý thay vì hoàn tất, bởi dòng tiền vẫn nằm trong sổ cái Ký quỹ cho đến khi người mua xác nhận hoặc hết thời hạn bảo lưu. Việc đếm ngược thời hạn Ký quỹ hiện tại chỉ khả dụng trên giao diện của người bán.
+Trang chi tiết đơn hàng (Hình 5.3), dải tiến trình giao hàng phản ánh trạng thái vận đơn theo thời gian thực. Trạng thái đã giao vẫn được xếp vào nhóm đang xử lý do khoản tiền tiếp tục được giữ trong Ký quỹ cho đến khi người mua xác nhận nhận hàng hoặc hết thời hạn bảo lưu. Thời gian đếm ngược của Ký quỹ hiện chỉ được hiển thị trên giao diện người bán.
 
 #figure(
   assets("web/web-06-hoan-tien.png", width: 90%),
@@ -58,13 +91,10 @@ Giao diện khiếu nại được thiết kế hướng hành động (action-o
 
 == Hiện thực ứng dụng di động
 
-Ứng dụng di động được thiết kế theo Kiến trúc Hướng tính năng (Feature-Driven Architecture), phân chia thành 11 module nghiệp vụ độc lập. Thay vì phân mảnh theo tầng kỹ thuật (technical layers), mỗi module tự đóng gói lớp trình bày (presentation layer) và lớp dữ liệu (data layer), giúp tăng tính liền mạch và dễ bảo trì. Các phân hệ chứa quy tắc nghiệp vụ phức tạp, điển hình như quy trình hồ sơ hoàn tiền, được bổ sung thêm lớp miền (domain layer) nhằm quản lý độc lập các ràng buộc về thời hạn xử lý.
-
-Hạ tầng kỹ thuật nền tảng được tập trung tại module lõi (core). Lớp giao tiếp mạng sử dụng máy khách HTTP tích hợp sẵn bộ đánh chặn (interceptor), tự động đính kèm và làm mới access token mà không can thiệp vào mã nghiệp vụ. Trạng thái phiên và dữ liệu đệm được quản lý qua kho lưu trữ cục bộ, song song với một bộ định tuyến (router) điều phối 40 tuyến đường phân cấp. Đối với nghiệp vụ thanh toán, hệ thống áp dụng cơ chế nhúng khung duyệt web (WebView) mở trực tiếp trang thanh toán an toàn. Cách tiếp cận này tuân thủ nguyên tắc bảo mật từ dịch vụ tài chính: máy khách chỉ chuyển hướng luồng thao tác và lắng nghe trạng thái phiên giao dịch từ máy chủ thông qua giao thức thời gian thực, tuyệt đối không sử dụng hành vi quay về ứng dụng (deep link return) làm bằng chứng xác nhận thanh toán.
-
+Ứng dụng di động được tổ chức theo kiến trúc hướng tính năng (Feature-Driven Architecture) với 11 module nghiệp vụ độc lập. Mỗi module đóng gói các thành phần giao diện và truy cập dữ liệu liên quan, thay vì phân tách toàn hệ thống theo các tầng kỹ thuật, qua đó tăng tính cô lập và thuận tiện trong bảo trì. Với các phân hệ có quy tắc nghiệp vụ phức tạp, như quy trình hoàn tiền, hệ thống bổ sung lớp miền (domain layer) để quản lý riêng các ràng buộc và trạng thái xử lý.
 
 #anh-mobile(
-  [Trang chủ và trung tâm tài khoản trên ứng dụng di động],
+  [Trang chủ và trung tâm tài khoản],
   ("mobile-01-trang-chu.png", "mobile-02-trung-tam-tai-khoan.png"),
   nhan: (
     "bảng tin gợi ý và thanh điều hướng dưới cùng",
@@ -72,8 +102,10 @@ Hạ tầng kỹ thuật nền tảng được tập trung tại module lõi (co
   ),
 )
 
+Giao diện trang chủ (Hình 5.5) hiển thị bảng tin gợi ý sản phẩm. Trung tâm tài khoản đóng vai trò cổng điều hướng chính đến các phân hệ quản lý đơn hàng, ví tiền và kênh người bán.
+
 #anh-mobile(
-  [Luồng đăng bán sản phẩm với gợi ý điền biểu mẫu],
+  [Giao diện đăng bán sản phẩm],
   ("mobile-03-dang-ban-tren.png", "mobile-04-dang-ban-duoi.png"),
   nhan: (
     "phần đầu biểu mẫu, kèm lối nhờ mô hình ngôn ngữ điền giúp",
@@ -81,10 +113,10 @@ Hạ tầng kỹ thuật nền tảng được tập trung tại module lõi (co
   ),
 )
 
-
+Biểu mẫu đăng bán (Hình 5.6) hỗ trợ tự động điền thông tin thông qua tích hợp mô hình ngôn ngữ lớn. Hệ thống tự động trích xuất các thuộc tính cốt lõi của sản phẩm từ văn bản mô tả, giúp giảm thao tác nhập liệu thủ công cho người bán.
 
 #anh-mobile(
-  [Màn hình thanh toán trên di động, 3 đoạn cuộn của cùng một màn hình],
+  [Giao diện thanh toán trên ứng dụng di động],
   ("mobile-11-checkout-van-chuyen.png", "mobile-12-checkout-thanh-toan.png",
    "mobile-13-checkout-tong-tien.png"),
   nhan: (
@@ -95,49 +127,57 @@ Hạ tầng kỹ thuật nền tảng được tập trung tại module lõi (co
   cao: 8.6cm,
 )
 
+Màn hình thanh toán (Hình 5.7) cung cấp tùy chọn đơn vị vận chuyển và kênh thanh toán. Tương tự ứng dụng web, phí vận chuyển được tính toán động, và máy khách di động nhúng WebView để bảo đảm an toàn cho dữ liệu thanh toán thay vì xử lý trực tiếp.
 
 
 
-== Tích hợp các nhà cung cấp bên ngoài
 
-Toàn bộ logic giao tiếp với các dịch vụ bên thứ ba (Third-party services) được cô lập vào một phân hệ tích hợp độc lập. Phân hệ này được tổ chức thành 8 đường nối (seam) kiến trúc, mỗi seam là một gói mã riêng định nghĩa một giao diện (interface) hẹp kèm theo các bản hiện thực (implementation) tương ứng; riêng seam thông báo gộp hai kênh gửi thư và gửi tin nhắn sau cùng một giao diện, mỗi kênh có bộ chọn nhà cung cấp của riêng nó. Bảy trong 8 seam có sẵn một bản hiện thực giả lập (Mock) phục vụ kiểm thử và chạy thử cục bộ; riêng seam lưu trữ tệp không có bản giả lập riêng vì bản hiện thực ghi thẳng xuống hệ tệp cục bộ đã đảm nhiệm đúng vai trò đó.
+== Tích hợp nhà cung cấp bên ngoài
+
+Toàn bộ logic giao tiếp với bên thứ ba được cô lập tại một phân hệ tích hợp độc lập nhằm tuân thủ nguyên lý đảo ngược phụ thuộc (Dependency Inversion). Phân hệ này định nghĩa 8 cổng giao tiếp (port), mỗi cổng cung cấp một giao diện (interface) hẹp và các bộ điều hợp (adapter) tương ứng. Thiết kế này bảo đảm mã nghiệp vụ không bị ràng buộc vào công nghệ hay đặc tả API của nhà cung cấp cụ thể.
+
+Việc lựa chọn nhà cung cấp được nạp động ở thời điểm khởi động thông qua tệp cấu hình hoặc sổ đăng ký (registry). Trừ dịch vụ lưu trữ ghi trực tiếp xuống hệ tệp cục bộ, 7 phân hệ còn lại đều cung cấp sẵn bộ điều hợp giả lập (Mock) để phục vụ kiểm thử và môi trường phát triển nội bộ.
 
 #figure(
   kind: table,
-  caption: [Bảng liệt kê toàn bộ nhà cung cấp bên ngoài],
+  caption: [Danh mục các phân hệ tích hợp bên ngoài],
   table(
-    columns: (0.62fr, 1.15fr, 0.9fr, 0.95fr),
-    align: (left + top, left + top, left + top, left + top),
-    table.header([Seam], [Nhà cung cấp đã hiện thực], [Cách chọn], [Hiện trạng]),
-    [Sinh vector], [Dịch vụ bge-m3 tự vận hành; Bản giả lập], [Bộ chọn trong tệp cấu hình], [Máy khách đã viết xong, kiểm bằng máy chủ HTTP giả; chưa gọi dịch vụ thật],
-    [Xác minh danh tính], [chỉ Bản giả lập], [Bộ chọn trong tệp cấu hình], [Máy khách đã viết xong, kiểm bằng máy chủ HTTP giả; chưa gọi dịch vụ thật],
-    [Mô hình ngôn ngữ], [Proxy LiteLLM theo giao diện OpenAI; Bản giả lập], [Bộ chọn trong tệp cấu hình], [Máy khách đã viết xong, kiểm bằng máy chủ HTTP giả; chưa gọi dịch vụ thật],
-    [Thông báo], [SMTP (Email); Bản giả lập], [Hai bộ chọn trong tệp cấu hình], [Cả 2 máy khách đã viết xong; eSMS kiểm bằng máy chủ HTTP giả, SMTP kiểm ở mức thông điệp dựng ra; chưa gửi thư hay tin nhắn thật],
-    [Đăng nhập liên kết], [Xác thực OIDC (Google, Apple); Bản giả lập], [Bộ chọn trong tệp cấu hình], [Máy khách đã viết xong, kiểm bằng máy chủ HTTP giả; chưa xác thực với nhà cung cấp thật],
-    [Thanh toán], [SePay.vn, Stripe; Bản giả lập], [Sổ đăng ký (Registry)], [Cả 2 máy khách đã viết xong; Stripe kiểm bằng máy chủ HTTP giả, SePay kiểm bằng cách phát lại lời gọi ngược đã ký; chưa có giao dịch thật],
-    [Lưu trữ tệp], [Hệ tệp cục bộ (HMAC); Nguồn ngoài chỉ đọc], [Bộ chọn cho nơi ghi, sổ đăng ký cho các nguồn đọc], [Lưu trữ nội bộ đã viết xong và chạy được; chưa tích hợp Object Storage đám mây],
-    [Vận chuyển], [*Chỉ có Bản giả lập*], [Sổ đăng ký (Registry)], [*Kiến trúc lõi đã viết xong và chạy được với bản giả lập; chưa có bản hiện thực của hãng vận chuyển thật nào*],
+    columns: (1fr, 1.8fr),
+    align: (left + top, left + top),
+
+    table.header(
+      [Phân hệ],
+      [Thành phần tích hợp],
+    ),
+
+    [Sinh vector], [Mô hình embedding bge-m3 self-host],
+    [Xác minh danh tính], [Bản giả lập],
+    [Mô hình ngôn ngữ], [Proxy LiteLLM],
+    [Thông báo], [SMTP (Email)],
+    [Đăng nhập liên kết], [OIDC (Google)],
+    [Thanh toán], [SePay.vn, Stripe môi trường Sandbox],
+    [Lưu trữ tệp], [MinIO Object Storage],
+    [Vận chuyển], [GHTK, GHN],
   ),
 )
 
-Về trạng thái hiện thực, máy khách (client) của 5 seam đã được lập trình bám sát tài liệu API chính thức, bao gồm đầy đủ cơ chế xử lý lỗi, mã hóa chữ ký số và định dạng dữ liệu. Toàn phân hệ tích hợp hiện có 115 hàm kiểm thử đơn vị, trong đó 80 hàm thuộc 5 seam vừa nói. Phần lớn các hàm ấy dựng một máy chủ HTTP giả ngay trong ca kiểm thử để phát lại phản hồi của nhà cung cấp; hai trường hợp còn lại được kiểm theo cách khác vì bản chất giao thức: máy khách SMTP được kiểm ở mức thông điệp mà nó dựng ra, còn máy khách SePay vốn không gọi ra ngoài (nó chỉ ký một biểu mẫu chuyển hướng và xác thực lời gọi ngược) nên được kiểm bằng cách phát lại chính lời gọi ngược đó vào bộ xử lý webhook. Tuy nhiên, tính đến thời điểm báo cáo, hệ thống chưa thực hiện kết nối trực tiếp đến môi trường Sandbox hay Production của bất kỳ nhà cung cấp thực tế nào: không có nhật ký giao dịch hay mã tham chiếu nào từ eSMS.vn, SePay hay Stripe để dẫn ra ở đây.
-
-
+Các bộ điều hợp được lập trình bám sát tài liệu API của đối tác, bao gồm cơ chế mã hóa, chữ ký số và xử lý lỗi. Hệ thống có các ca kiểm thử tự động cho phân hệ tích hợp. Do giới hạn của môi trường triển khai, các kết nối như bên vận chuyển được kiểm định thông qua máy chủ HTTP giả lập nội bộ (mock server) hoặc phát lại lời gọi ngược (webhook replay) thay vì kết nối trực tiếp đến API của nhà cung cấp.
 
 == Quy trình tích hợp và triển khai liên tục (CI/CD)
+
+Hệ thống CI/CD được thiết lập nhằm tự động hóa quy trình kiểm định và đóng gói mã nguồn dịch vụ nền. Các luồng công việc (workflows) được cấu hình chạy độc lập dựa trên các sự kiện vòng đời của mã nguồn.
 
 #figure(
   kind: table,
   caption: [Các luồng công việc tích hợp liên tục của kho dịch vụ nền],
   table(
-    columns: (0.9fr, 0.9fr, 1.7fr),
+    columns: (1.1fr, 1fr, 1.8fr),
     align: (left + top, left + top, left + top),
-    table.header([Luồng công việc], [Kích hoạt bởi], [Các bước thực hiện]),
-    [Dựng và đẩy ảnh], [Đẩy mã lên nhánh chính], [Dựng ảnh chứa chỉ định rõ tầng phát hành, đẩy lên kho ảnh kèm hai nhãn, rồi thông báo cho kho tài liệu],
-    [Kiểm tra đặc tả API], [Đẩy mã và mở yêu cầu gộp], [Sinh lại đặc tả rồi so sánh; khác biệt làm hỏng bản dựng],
+    table.header([Luồng công việc], [Điều kiện kích hoạt], [Quy trình thực thi]),
+    [Đóng gói và Phát hành (Build & Push)], [Mã được gộp vào nhánh chính], [Biên dịch mã nguồn, đóng gói thành ảnh chứa (container image), gán nhãn định danh và đẩy lên kho lưu trữ ảnh (Container Registry).],
+    [Kiểm định đặc tả API (API Spec Check)], [Mở yêu cầu gộp (Pull Request)], [Tự động sinh tài liệu OpenAPI từ mã nguồn và so sánh với tệp đặc tả đã cam kết; sai lệch sẽ đánh dấu lỗi tiến trình.],
   ),
 )
-
 
 == Kết quả hiện thực
 

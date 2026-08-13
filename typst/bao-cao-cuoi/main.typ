@@ -226,14 +226,14 @@ mô hình dữ liệu.
 #enum(
   numbering: n => "[" + str(n + 2) + "]",
   start: 1,
-  [Chen J., Xiao S., Zhang P., Luo K., Lian D., Liu Z., M3-Embedding: Multi-Linguality, Multi-Functionality, Multi-Granularity Text Embeddings Through Self-Knowledge Distillation, Findings of the Association for Computational Linguistics: ACL 2024, tr. 2318–2335, Bangkok, Thailand (2024).],
-  [Garcia-Molina H., Salem K., Sagas, ACM SIGMOD Record, tập 16, số 3, tr. 249–259 (1987).],
-  [Helland P., Idempotence Is Not a Medical Condition, ACM Queue, tập 10, số 4, tr. 30–46 (2012).],
+  [Chen J., Xiao S., Zhang P., Luo K., Lian D., Liu Z., M3-Embedding: Multi-Linguality, Multi-Functionality, Multi-Granularity Text Embeddings Through Self-Knowledge Distillation, Findings of the Association for Computational Linguistics: ACL 2024, pp. 2318–2335, Bangkok, Thailand (2024).],
+  [Garcia-Molina H., Salem K., Sagas, ACM SIGMOD Record, vol. 16, no. 3, pp. 249–259 (1987).],
+  [Helland P., Idempotence Is Not a Medical Condition, ACM Queue, vol. 10, no. 4, pp. 30–46 (2012).],
   [Kleppmann M., Designing Data-Intensive Applications: The Big Ideas Behind Reliable, Scalable, and Maintainable Systems, O'Reilly Media, Sebastopol, CA, USA (2017).],
-  [Li C., Liu Z., Wu M., Xu Y., Zhao H., Huang P., Zhou G., Zhu X., Gai K., Multi-Interest Network with Dynamic Routing for Recommendation at Tmall, Proc. 28th ACM Int. Conf. on Information and Knowledge Management (CIKM), tr. 2615–2623, Beijing, China (2019).],
-  [Newman S., Building Microservices: Designing Fine-Grained Systems, tái bản lần 2, O'Reilly Media, Sebastopol, CA, USA (2021).],
+  [Li C., Liu Z., Wu M., Xu Y., Zhao H., Huang P., Zhou G., Zhu X., Gai K., Multi-Interest Network with Dynamic Routing for Recommendation at Tmall, Proc. 28th ACM Int. Conf. on Information and Knowledge Management (CIKM), pp. 2615–2623, Beijing, China (2019).],
+  [Newman S., Building Microservices: Designing Fine-Grained Systems, 2nd ed., O'Reilly Media, Sebastopol, CA, USA (2021).],
   [Richardson C., Microservices Patterns: With Examples in Java, Manning Publications, Shelter Island, NY, USA (2019).],
-  [Robertson S., Zaragoza H., The Probabilistic Relevance Framework: BM25 and Beyond, Foundations and Trends in Information Retrieval, tập 3, số 4, tr. 333–389 (2009).],
+  [Robertson S., Zaragoza H., The Probabilistic Relevance Framework: BM25 and Beyond, Foundations and Trends in Information Retrieval, vol. 3, no. 4, pp. 333–389 (2009).],
 )
 
 #nhom-tltk[Website tham khảo]
