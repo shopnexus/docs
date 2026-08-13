@@ -5,15 +5,17 @@
 Thị trường mua bán đồ cũ, hàng thanh lý và đồ thủ công cá nhân (C2C - Consumer-to-Consumer) tại Việt Nam đang phát triển mạnh mẽ nhờ sự gia tăng của xu hướng tiêu dùng bền vững và nhu cầu tối ưu tài chính cá nhân. Tuy nhiên, hoạt động giao dịch giữa các cá nhân không chuyên hiện nay vẫn phân mảnh trên nhiều nền tảng với những hạn chế lớn về an toàn tài chính, cơ chế giải quyết tranh chấp và công nghệ hỗ trợ tìm kiếm.
 
 === Phân tích các mô hình sàn giao dịch phổ biến
-- *Chợ Tốt (chotot.com) - Mô hình sàn rao vặt (Classified Ads):*
-  - *Ưu điểm:* Là nền tảng rao vặt đồ cũ lớn nhất Việt Nam với lưu lượng người dùng khổng lồ. Quy trình đăng tin bán rất nhanh chóng, giao diện đơn giản, phân loại tốt theo khu vực địa lý giúp người mua/bán dễ dàng kết nối trong bán kính gần.
-  - *Hạn chế:* Bản chất của Chợ Tốt chủ yếu chỉ là bảng tin kết nối người mua và người bán tự liên hệ với nhau (qua số điện thoại hoặc khung chat đơn giản). Nền tảng thiếu một cơ chế bảo lãnh tài chính ký quỹ tích hợp sâu cho các giao dịch từ xa; hầu hết người mua phải thanh toán chuyển khoản trước (dễ bị lừa đảo lừa cọc) hoặc hẹn gặp mặt trực tiếp/ship COD tự phát (dễ gặp rủi ro "boom hàng", tốn phí vận chuyển). Khi sản phẩm nhận được không đúng mô tả hoặc hư hỏng, người mua hoàn toàn không có công cụ pháp lý hay đội ngũ điều phối viên nội bộ nào của sàn đứng ra phân xử và bảo vệ dòng tiền.
-- *Facebook Marketplace & Các hội nhóm xã hội (Social C2C):*
-  - *Ưu điểm:* Tận dụng mạng lưới xã hội khổng lồ có sẵn, tốc độ tương tác cực nhanh qua Messenger, thao tác đăng bán tiện lợi không tốn phí sàn.
-  - *Hạn chế:* Hoàn toàn thiếu các chuẩn mực của một nền tảng TMĐT chuyên nghiệp: không có hệ thống quản lý đơn hàng, không có tích hợp cổng thanh toán an toàn, không có cơ chế giữ cọc hay chính sách hoàn tiền. Các hành vi gian lận, tài khoản ảo (clone) lừa đảo chuyển khoản diễn ra rất phổ biến mà không có cơ chế kiểm duyệt hay hạn chế.
-- *Shopee / Lazada - Mô hình B2C bán chuyên (Managed Marketplace):*
-  - *Ưu điểm:* Hệ sinh thái logistics, cổng thanh toán và chính sách bảo vệ người mua cực kỳ hoàn thiện (như Shopee Đảm Bảo).
-  - *Hạn chế:* Được thiết kế tối ưu cho mô hình B2C hoặc nhà bán hàng chuyên nghiệp. Quy trình đăng ký gian hàng và đăng bán sản phẩm rất rườm rà (đòi hỏi cấu hình mã SKU, thông tin doanh nghiệp/thuế, thiết lập kho hàng chuyên sâu), kèm theo mức phí sàn và phí hoa hồng cao (thường từ 8–15%). Mô hình này không hề phù hợp cho một cá nhân thông thường chỉ muốn thanh lý nhanh 1–2 món đồ cũ cá nhân. Bên cạnh đó, cơ chế trả giá thường bị ràng buộc bởi các mã giảm giá/voucher cố định, thiếu sự linh hoạt thương lượng giá trực tiếp từng đơn hàng trong khung chat giữa hai cá nhân.
+*Chợ Tốt (chotot.com) - Mô hình sàn rao vặt (Classified Ads):*
+- *Ưu điểm:* Là nền tảng rao vặt đồ cũ lớn nhất Việt Nam với lưu lượng người dùng khổng lồ. Quy trình đăng tin bán rất nhanh chóng, giao diện đơn giản, phân loại tốt theo khu vực địa lý giúp người mua/bán dễ dàng kết nối trong bán kính gần.
+- *Hạn chế:* Bản chất của Chợ Tốt chủ yếu chỉ là bảng tin kết nối người mua và người bán tự liên hệ với nhau (qua số điện thoại hoặc khung chat đơn giản). Nền tảng thiếu một cơ chế bảo lãnh tài chính ký quỹ tích hợp sâu cho các giao dịch từ xa; hầu hết người mua phải thanh toán chuyển khoản trước (dễ bị lừa đảo lừa cọc) hoặc hẹn gặp mặt trực tiếp/ship COD tự phát (dễ gặp rủi ro "boom hàng", tốn phí vận chuyển). Khi sản phẩm nhận được không đúng mô tả hoặc hư hỏng, người mua hoàn toàn không có công cụ pháp lý hay đội ngũ điều phối viên nội bộ nào của sàn đứng ra phân xử và bảo vệ dòng tiền.
+
+*Facebook Marketplace & Các hội nhóm xã hội (Social C2C):*
+- *Ưu điểm:* Tận dụng mạng lưới xã hội khổng lồ có sẵn, tốc độ tương tác cực nhanh qua Messenger, thao tác đăng bán tiện lợi không tốn phí sàn.
+- *Hạn chế:* Hoàn toàn thiếu các chuẩn mực của một nền tảng TMĐT chuyên nghiệp: không có hệ thống quản lý đơn hàng, không có tích hợp cổng thanh toán an toàn, không có cơ chế giữ cọc hay chính sách hoàn tiền. Các hành vi gian lận, tài khoản ảo (clone) lừa đảo chuyển khoản diễn ra rất phổ biến mà không có cơ chế kiểm duyệt hay hạn chế.
+
+*Shopee / Lazada - Mô hình B2C bán chuyên (Managed Marketplace):*
+- *Ưu điểm:* Hệ sinh thái logistics, cổng thanh toán và chính sách bảo vệ người mua cực kỳ hoàn thiện (như Shopee Đảm Bảo).
+- *Hạn chế:* Được thiết kế tối ưu cho mô hình B2C hoặc nhà bán hàng chuyên nghiệp. Quy trình đăng ký gian hàng và đăng bán sản phẩm rất rườm rà (đòi hỏi cấu hình mã SKU, thông tin doanh nghiệp/thuế, thiết lập kho hàng chuyên sâu), kèm theo mức phí sàn và phí hoa hồng cao (thường từ 8–15%). Mô hình này không hề phù hợp cho một cá nhân thông thường chỉ muốn thanh lý nhanh 1–2 món đồ cũ cá nhân. Bên cạnh đó, cơ chế trả giá thường bị ràng buộc bởi các mã giảm giá/voucher cố định, thiếu sự linh hoạt thương lượng giá trực tiếp từng đơn hàng trong khung chat giữa hai cá nhân.
 
 === Phân tích các vai trò người dùng (Persona)
 Hệ thống được thiết kế phục vụ cho 3 nhóm đối tác nhân chính, với các mục tiêu nghiệp vụ, đặc tính hành vi và ranh giới phân quyền rõ rệt:
