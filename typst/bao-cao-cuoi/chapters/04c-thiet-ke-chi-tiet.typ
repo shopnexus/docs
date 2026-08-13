@@ -77,18 +77,177 @@ sở dữ liệu riêng. 3 module được vẽ đầy đủ vì cấu trúc l�
 xuôi không nói nổi: đơn hàng; tài chính, với phiên thanh toán, chặng thanh toán, ví và 2 sổ cái; và tín
 nhiệm, nơi một bảng phiếu duy nhất gánh mọi loại khiếu nại.
 
-=== Module order
+#fig-xoay(
+    [Sơ đồ lớp module `account`: định danh, hồ sơ và kênh thông báo],
+    spacing: (9mm, 8mm),
 
-Đây là module dày quy tắc nhất và cũng là module duy nhất có khai báo durable workflow. Có hai điều cần nói ngay, vì cả hai đều đảo ngược cách hiểu thông thường về một sàn giao dịch.
+    cls((0, 0), "accountapi.Service", stereo: "cổng vào module", name: <a-svc>,
+      ops: (
+        "+ đăng ký · đăng nhập · phiên",
+        "+ hồ sơ · sổ địa chỉ · thiết bị",
+        "+ xác minh danh tính",
+        "+ thông báo · tuỳ chọn nhận",
+      )),
+    cls((0, 1), "port.Repository", stereo: "interface", name: <a-repo>,
+      ops: ("+ đọc ghi mọi thực thể của lược đồ account",)),
 
-Thứ nhất, đơn hàng ra đời khi tiền về. Đơn được sinh ra bởi thông báo từ cổng thanh toán chứ không do ai bấm nút phê duyệt. Vì thế dòng hàng đã mua có thể tồn tại trước đơn hàng, và chỉ mục các dòng chưa gắn đơn là một danh sách chờ ghép, chứ không phải hộp thư chờ duyệt.
+    cls((1, 1), "Account", stereo: "aggregate root", name: <a-acc>,
+      attrs: (
+        "- id, version: int64",
+        "- status: active | suspended | banned",
+        "- role: user | moderator | admin",
+        "- phone, email, username: *string",
+        "  cả 3 đều tuỳ chọn, phải có ít nhất 1",
+        "- passwordHash: *string  rỗng nếu chỉ",
+        "  đăng nhập bằng định danh liên kết",
+        "- suspendedUntil: *time",
+      ),
+      ops: (
+        "+ HasIdentifier() / HasPassword() bool",
+        "+ IsSuspended(now) bool",
+        "+ Link(provider, uid) / MarkEmailVerified()",
+      )),
 
-Thứ hai, người bán vẫn phải xác nhận, nhưng thứ họ xác nhận không phải là tiền. Tiền đã nằm trong ký quỹ rồi; lượt xác nhận ấy chỉ mở khóa việc gọi hãng vận chuyển. Mục đích là để một tin đăng có tồn kho sai hay một người bán đã bỏ nghề không bị phát hiện bởi chính người mua đang ngồi chờ một kiện hàng không ai gửi.
+    cls((1, 0), "Profile", stereo: "value object", name: <a-prof>,
+      attrs: (
+        "- name, country, locale, timezone",
+        "- gender, dateOfBirth: *",
+        "- avatarResourceID: *int64 -> common",
+      )),
 
-Trạng thái đơn hàng có 4 giá trị và được suy ra từ các mốc thời gian kết quả chứ không lưu thành cột riêng, theo thứ tự xét: đã hủy, hoàn thành, chờ người bán xác nhận, đang mở. Nhờ vậy hệ thống bớt một dữ kiện phải giữ cho đồng bộ. Người bán im lặng quá 48 giờ thì bộ phận vận hành được nhắc đi giục, chứ nền tảng không tự hủy đơn và cũng không tự gửi hàng thay người bán.
+    cls((2, 0), "IdentityDocument", name: <a-id>,
+      attrs: (
+        "- docType, provider, providerRef",
+        "- front/back/selfieResourceID: *int64",
+        "- status: pending | verified | rejected",
+        "- rejectionReason: *string",
+        "- verifiedAt: *time",
+      ),
+      ops: ("+ Verify() / Reject(lý do)", "+ IsLive() bool", "+ Snapshot()")),
+
+    cls((2, 1), "OAuthIdentity", name: <a-oa>,
+      attrs: ("- provider, providerUID", "  MỘT tài khoản một nhà cung cấp")),
+
+    cls((0, 2), "Contact", stereo: "sổ địa chỉ", name: <a-ct>,
+      attrs: (
+        "- fullName, phone, phoneVerified",
+        "- addressType: giao hàng | lấy hàng",
+        "- isDefaultDelivery, isDefaultPickup",
+        "  mỗi loại nhiều nhất 1 mặc định",
+        "- province/district/wardCode",
+      )),
+
+    cls((1, 2), "Device", name: <a-dv>,
+      attrs: ("- platform, pushToken", "- lastSeenAt: time"),
+      ops: ("+ Owns(accountID) bool",)),
+
+    cls((2, 2), "Notification", name: <a-nt>,
+      attrs: (
+        "- category: đơn hàng | tiền | hệ thống",
+        "- title, payload",
+        "- readAt, scheduledAt: *time",
+      )),
+
+    cls((3, 2), "Preference", stereo: "khoá 3 cột", name: <a-pref>,
+      attrs: ("- accountID, category, channel", "- isEnabled: bool")),
+
+    edge(<a-svc>, <a-repo>, "-->", rel[dùng]),
+    edge(<a-svc>, <a-acc>, "-->", rel[điều phối]),
+    edge(<a-acc>, <a-prof>, "-", rel[1 -> 1  «composition»]),
+    edge(<a-acc>, <a-id>, "-", rel[1 -> 0..\*]),
+    edge(<a-acc>, <a-oa>, "-", rel[1 -> 0..\*]),
+    edge(<a-acc>, <a-ct>, "-", rel[1 -> 0..\*]),
+    edge(<a-acc>, <a-dv>, "-", rel[1 -> 0..\*]),
+    edge(<a-acc>, <a-nt>, "-", rel[1 -> 0..\*]),
+    edge(<a-nt>, <a-pref>, "-->", stroke: (dash: "dashed"), rel[lọc theo]),
+  )
 
 #fig-xoay(
-    [Sơ đồ lớp module order: từ giỏ hàng và thương lượng tới một đơn hàng],
+    [Sơ đồ lớp module `catalog`: tin đăng, tuỳ chọn hàng và bản sửa chờ duyệt],
+    spacing: (9mm, 8mm),
+
+    cls((0, 0), "catalogapi.Service", stereo: "cổng vào module", name: <c-svc>,
+      ops: (
+        "+ đăng bán · sửa · gỡ tin",
+        "+ tìm kiếm lai · gợi ý",
+        "+ cây danh mục · nhãn",
+        "+ giữ chỗ · nhả chỗ tồn kho",
+      )),
+    cls((0, 1), "port.Repository", stereo: "interface", name: <c-repo>,
+      ops: ("+ đọc ghi mọi thực thể của lược đồ catalog",)),
+
+    cls((1, 1), "Listing", stereo: "aggregate root", name: <c-lst>,
+      attrs: (
+        "- id, version: int64",
+        "- sellerID, categoryID: int64",
+        "- slug: string  duy nhất toàn sàn",
+        "- status: draft | live | hidden |",
+        "          pending | rejected",
+        "- condition: mới | như mới | đã dùng",
+        "- priceMode: giá cố định | trả giá",
+        "- currency: mọi tuỳ chọn cùng loại tiền",
+        "- cachedRating, cachedReviewCount",
+        "  giá trị do module trust đẩy sang",
+      ),
+      ops: (
+        "+ Publish() / Hide() / Approve()",
+        "+ AddVariant() / RemoveVariant()",
+        "+ ApplyPendingEdit()",
+        "+ LiveVariants() []Variant",
+      )),
+
+    cls((1, 0), "Category", stereo: "cây tự quan hệ", name: <c-cat>,
+      attrs: ("- parentID: *int64  rỗng là gốc", "- name duy nhất")),
+
+    cls((2, 0), "PendingEdit", stereo: "value object", name: <c-edit>,
+      attrs: (
+        "- name, description, categoryID: *",
+        "- condition, priceMode: *",
+        "- specifications, attachments, tags",
+        "  rỗng nghĩa là không có bản sửa chờ",
+      ),
+      ops: ("+ IsEmpty() bool", "+ Fields() []string")),
+
+    cls((2, 1), "Variant", name: <c-var>,
+      attrs: (
+        "- price: int64",
+        "- attributes, packageDetails",
+        "- isFeatured: bool",
+        "- deletedAt: *time  xoá mềm",
+      ),
+      ops: ("+ IsLive() bool",)),
+
+    cls((3, 1), "Stock", stereo: "value object", name: <c-stk>,
+      attrs: ("- quantity, reserved, sold: int64",),
+      ops: ("+ Available() = quantity - reserved", "+ Committed() / SetQuantity()")),
+
+    cls((0, 2), "Location", stereo: "value object", name: <c-loc>,
+      attrs: ("- province/district/wardCode + Name", "- latitude, longitude: *float64"),
+      ops: ("+ Geocoded() bool",)),
+
+    cls((1, 2), "Tag", name: <c-tag>,
+      attrs: ("- slug: string  khoá chính", "- description: *string")),
+
+    cls((2, 2), "ListingSnapshot", stereo: "value object", name: <c-snap>,
+      attrs: (
+        "- bản chụp bất biến của tin đăng",
+        "- module order giữ, không đọc ngược",
+        "  về bảng của danh mục",
+      )),
+
+    edge(<c-svc>, <c-repo>, "-->", rel[dùng]),
+    edge(<c-svc>, <c-lst>, "-->", rel[điều phối]),
+    edge(<c-cat>, <c-lst>, "-", rel[1 -> 0..\*]),
+    edge(<c-lst>, <c-edit>, "-", rel[1 -> 0..1  «composition»]),
+    edge(<c-lst>, <c-var>, "-", rel[1 -> 1..\*  «composition»]),
+    edge(<c-var>, <c-stk>, "-", rel[1 -> 1  «composition»]),
+    edge(<c-lst>, <c-loc>, "-", rel[1 -> 0..1]),
+    edge(<c-lst>, <c-tag>, "-", rel[0..\* -> 0..\*]),
+    edge(<c-lst>, <c-snap>, "-->", stroke: (dash: "dashed"), rel[chụp lúc chốt mua]),
+  )
+
+#fig-xoay(
+    [Sơ đồ lớp module `order`: từ giỏ hàng và thương lượng tới một đơn hàng],
     spacing: (8mm, 7mm),
 
     cls((0, 1), "orderapi.Service", stereo: "cổng vào module", name: <o-svc>,
@@ -210,25 +369,8 @@ Trạng thái đơn hàng có 4 giá trị và được suy ra từ các mốc t
     edge(<o-item>, <o-n2>, "-", stroke: (dash: "dashed")),
   )
 
-
-=== Module finance
-
-Toàn bộ dữ liệu tiền tệ nằm chung một module để các bước dịch chuyển ký quỹ giữ được tính nguyên tử. Ranh giới quan trọng nhất bên trong module là 2 sổ cái, một đường biên: một sổ ghi các chặng đi trên kênh thanh toán bên ngoài, sổ còn lại ghi mọi lần tiền dịch chuyển bên trong ví của nền tảng. Không bao giờ ghi cùng một lần dịch chuyển vào cả 2, vì như thế tổng tiền của hệ thống sẽ bị đếm 2 lần.
-
-Không có bảng lệnh rút tiền. Một lượt rút là một phiên thanh toán mang loại riêng, cùng bảng và cùng vòng đời với một lượt thanh toán của người mua, chỉ khác chiều tiền; nhờ vậy trạng thái "đang xử lý", việc thử lại và bằng chứng đối soát với ngân hàng chỉ được viết một lần.
-
-Phiên thanh toán là đơn vị điều phối của mọi đường tiền. Mỗi phiên mang một trong 3 loại, gồm người mua trả tiền, nền tảng trả tiền cho người bán và người bán rút tiền, cùng trạng thái chạy từ chờ, đang xử lý, tới thành công, hủy hoặc thất bại. Định danh phiên được cấp phát trước khi bản ghi được ghi xuống, vì tham chiếu gửi sang nhà cung cấp phải có sẵn ngay lúc dựng yêu cầu. Hai đầu tiền của phiên đều ghi bằng định danh tài khoản, trong đó giá trị không mang nghĩa là chính nền tảng, nhờ vậy một lượt nạp tiền và một lượt trả tiền cho người bán dùng chung đúng một cấu trúc.
-
-Chặng thanh toán là một lần thực sự chạm vào kênh bên ngoài và chỉ được thêm chứ không sửa. Mỗi chặng giữ tham chiếu của nhà cung cấp làm khóa chống lặp, giữ đường dẫn trang thanh toán, và giữ số tiền theo quy ước dương là thu vào, âm là hoàn ra. Một lượt hoàn tiền không xóa chặng cũ mà tạo chặng mới trỏ ngược về chặng bị hoàn, nên lịch sử đối soát với ngân hàng không bao giờ mất dấu.
-
-Ví và sổ cái ví. Ví giữ số dư hiện thời của một tài khoản theo từng loại tiền, tách làm 2 phần: phần tiêu hoặc rút được, và phần đang bị giữ trong ký quỹ. Sổ cái ví ghi từng lượt dịch chuyển kèm số dư sau lượt ấy và một số thứ tự tuyệt đối trong ví, nên trạng thái ví tại bất kỳ thời điểm nào cũng dựng lại được từ sổ. Lượt dịch chuyển mang một trong các loại: nạp tiền, giữ ký quỹ, giải ngân ký quỹ, trả người bán, hoàn tiền, rút tiền, phí và điều chỉnh; các chân của cùng một lần dịch chuyển được gom bằng một mã nhóm, còn khóa chống lặp bảo đảm một sự kiện gửi tới 2 lần chỉ được ghi 1 lần.
-
-Bốn bất biến canh giữ đường tiền: mỗi kênh và mỗi tham chiếu nhà cung cấp chỉ được tính tiền một lần; mỗi chặng chỉ hoàn được một lần; một phiên chưa kết thúc có nhiều nhất một trang thanh toán còn sống trên mỗi kênh; và số tiền luôn lấy từ hàng chặng đã ghi chứ không bao giờ lấy từ nội dung thông báo do bên ngoài gửi tới.
-
-Hai lớp còn lại phục vụ khâu chi trả: tài khoản ngân hàng của người bán dùng xóa mềm và cho phép khai nhiều tài khoản nhưng nhiều nhất một tài khoản mặc định; hồ sơ thuế gắn một đối một với tài khoản, phân loại cá nhân, hộ kinh doanh hay doanh nghiệp, kèm trạng thái và nguồn xác minh.
-
 #fig-xoay(
-    [Sơ đồ lớp module finance: phiên thanh toán, chặng tiền và sổ kép của ví],
+    [Sơ đồ lớp module `finance`: phiên thanh toán, chặng tiền và sổ kép của ví],
     spacing: (8mm, 7mm),
 
     cls((0, 0), "financeapi.Service", stereo: "cổng vào module", name: <f-svc>,
@@ -368,23 +510,40 @@ Hai lớp còn lại phục vụ khâu chi trả: tài khoản ngân hàng của
     edge(<f-mov>, <f-n2>, "-", stroke: (dash: "dashed")),
     edge(<f-repo>, <f-n1>, "-", stroke: (dash: "dashed")),
   )
-=== Module trust
-Điểm số của module trả lời câu hỏi món hàng có đúng như mô tả không: một chiều, chỉ người đã mua mới viết được, và được cộng dồn vào bản tổng hợp uy tín của người bán.
 
-Thay đổi lớn nhất so với giai đoạn trước là không còn lớp tố cáo riêng. Mọi thứ người dùng gửi lên, từ tố cáo một tin đăng cho tới đề xuất tính năng, đều là một *phiếu hỗ trợ*, phân biệt bằng loại phiếu, thứ vốn quyết định phiếu có trỏ vào một đối tượng nào không và một lý do tố cáo có được phép đi kèm hay không. Lý do là 7 trạng thái trải trên 3 bảng trước đây thực chất chỉ là cùng một vòng đời được viết 3 lần, và một người dùng hỏi "yêu cầu của tôi đang ở đâu" thì có tới 3 nơi phải tìm.
+#fig(
+  [Sơ đồ lớp module `chat`: luồng trò chuyện và tin nhắn],
+  spacing: (46mm, 15mm),
 
-Phiếu hỗ trợ có 11 loại chia làm 2 nhóm. Năm loại tố cáo nhắm vào tin đăng, tài khoản, tin nhắn, nhận xét và trả lời nhận xét; 6 loại còn lại là tranh chấp hoàn tiền, sự cố đơn hàng, sự cố thanh toán, sự cố tài khoản, đề nghị tính năng và loại khác. Kiểu đối tượng bị nhắc tới được suy ra từ loại phiếu chứ không do người gửi tự khai, nên không thể có một phiếu tố cáo tin đăng lại trỏ vào một tin nhắn. Trường lý do chỉ hợp lệ với nhóm tố cáo.
+  cls((0, 0), "chatapi.Service", stereo: "cổng vào module", name: <k-svc>,
+    ops: ("+ mở luồng · gửi tin · đánh dấu đã đọc", "+ sửa · thu hồi tin nhắn")),
 
-Mỗi cặp người gửi và đối tượng chỉ có một phiếu đang mở; và vì loại việc này không xử lý thủ công từng cái được, một phán quyết phải đóng mọi phiếu còn mở về cùng đối tượng đó. Vòng đời phiếu nay chỉ còn 3 trạng thái: mở, đang xử lý và đã giải quyết.
+  cls((1, 0), "Conversation", stereo: "aggregate root", name: <k-conv>,
+    attrs: (
+      "- kind: mua bán | phiếu hỗ trợ",
+      "- ticketID: *int64 -> trust",
+      "- accountAID, accountBID: int64",
+      "- accountA/BReadAt: *time",
+      "- lastMessageAt: time",
+    ),
+    ops: ("+ Involves(id) / Other(id)", "+ MarkRead(id, at)", "+ Counterparty(id)")),
 
-Nhận xét gắn đồng thời vào tin đăng và vào đơn hàng, nên điều kiện phải mua rồi mới được viết đã nằm sẵn trong khóa ngoại chứ không cần một phép kiểm riêng. Định danh người bán được đóng băng vào bản ghi ngay lúc viết, để nhận xét không đổi chủ khi tin đăng bị xóa hay được sửa. Điểm chấm nằm trong khoảng 1 tới 5, kèm nội dung và tệp đính kèm. Người khác bình chọn nhận xét bằng giá trị âm một hoặc một, không có giá trị không, nên gỡ bình chọn là xóa hàng chứ không phải ghi số không. Người bán được trả lời từng nhận xét.
+  cls((2, 0), "Message", name: <k-msg>,
+    attrs: (
+      "- senderID: int64",
+      "- type: chữ | ảnh | thẻ đề xuất giá",
+      "- body, attachments, refs",
+      "- card: nội dung thẻ đề xuất giá",
+      "- editedAt, deletedAt: *time",
+    ),
+    ops: ("+ Edit() / Redact()", "+ IsLive() bool")),
 
-Bản tổng hợp uy tín giữ sẵn tổng điểm và số lượt chấm theo từng vai trò mua và bán, nhờ đó việc hiển thị uy tín không phải quét lại toàn bộ nhận xét. Kết cục đơn hàng là một bảng chống lặp khóa theo đơn, bảo đảm một đơn chỉ được cộng vào uy tín đúng một lần dù sự kiện hoàn tất đơn có được phát lại nhiều lần.
-
-Ranh giới với các module khác. Điểm trung bình và số nhận xét của một tin đăng lại do module danh mục giữ sẵn ở dạng đã tính; hai lược đồ nằm tách nhau nên không nối bảng đượcm module trust tính lại rồi đẩy giá trị sang, chứ danh mục không đọc bảng của tín nhiệm. Theo chiều ngược lại, phiếu hỗ trợ nối ra 3 module: mỗi phiếu mở một luồng hội thoại bên module trò chuyện; người gửi và người xử lý tra sang module tài khoản; còn module order vừa là nơi mở phiếu khi một khiếu nại hoàn tiền leo thang hoặc khi hết hạn xác nhận, vừa là nơi nhận lại kết quả khi phiếu được phán quyết và đóng.
+  edge(<k-svc>, <k-conv>, "-->", rel[điều phối]),
+  edge(<k-conv>, <k-msg>, "-", rel[1 -> 0..\*  «composition»]),
+)
 
 #fig-xoay(
-  [Sơ đồ lớp module trust: nhận xét tin đăng, điểm uy tín và phiếu hỗ trợ],
+  [Sơ đồ lớp module `trust`: nhận xét tin đăng, điểm uy tín và phiếu hỗ trợ],
   spacing: (8mm, 7mm),
 
   cls((0, 0), "trustapi.Service", stereo: "cổng vào module", name: <t-svc>,
@@ -502,6 +661,88 @@ Ranh giới với các module khác. Điểm trung bình và số nhận xét c�
   edge(<t-tk>, <t-n1>, "-", stroke: (dash: "dashed")),
   edge(<t-tk>, <t-n4>, "-", stroke: (dash: "dashed")),
 )
+
+#fig(
+  [Sơ đồ lớp module `observability`: 4 dòng mẫu ghi theo thời gian],
+  spacing: (46mm, 11mm),
+
+  cls((0, 1.5), "observability.Collector", stereo: "cổng vào module", name: <o2-svc>,
+    ops: ("+ ghi mẫu theo lô", "+ truy vấn phân vị theo cửa sổ thời gian")),
+
+  cls((1, 0), "HTTPSample", stereo: "hypertable", name: <o2-http>,
+    attrs: ("- ts, instance", "- method, route, status", "- durationMs: float64")),
+
+  cls((1, 1), "ProviderCall", stereo: "hypertable", name: <o2-prov>,
+    attrs: ("- ts, instance, provider", "- method, path, status", "- durationMs, failed, error")),
+
+  cls((1, 2), "BusinessEvent", stereo: "hypertable", name: <o2-biz>,
+    attrs: ("- ts, instance", "- topic: tên sự kiện nghiệp vụ", "- payload: jsonb")),
+
+  cls((1, 3), "RuntimeSample", stereo: "hypertable", name: <o2-rt>,
+    attrs: ("- ts, instance, goroutines", "- heapAlloc/InuseBytes", "- gcPauseMs, numGC, webSocketConns")),
+
+  edge(<o2-svc>, <o2-http>, "-->", rel[ghi]),
+  edge(<o2-svc>, <o2-prov>, "-->", rel[ghi]),
+  edge(<o2-svc>, <o2-biz>, "-->", rel[ghi]),
+  edge(<o2-svc>, <o2-rt>, "-->", rel[ghi]),
+)
+
+#fig(
+  [Sơ đồ lớp module `common`: tệp tải lên, tuỳ chọn và nhật ký kiểm toán],
+  spacing: (44mm, 14mm),
+
+  cls((0, 1), "common.Service", stereo: "cổng vào dùng chung", name: <m-svc>,
+    ops: ("+ xin chỗ tải lên · xác nhận tệp", "+ đọc sổ tuỳ chọn", "+ ghi nhật ký kiểm toán")),
+
+  cls((1, 0), "Resource", stereo: "tệp tĩnh", name: <m-res>,
+    attrs: (
+      "- provider, objectKey, mime, size",
+      "- checksum: *string",
+      "- uploadedByID: *int64",
+      "- url + urlExpiresAt  đường dẫn ký",
+    )),
+
+  cls((2, 0), "UploadSlot", stereo: "value object", name: <m-slot>,
+    attrs: ("- resourceID, url, headers", "- expiresAt: time")),
+
+  cls((1, 1), "Option", stereo: "sổ tra cứu", name: <m-opt>,
+    attrs: (
+      "- id: string  khoá chính dạng chữ",
+      "- category: kênh tiền | hãng vận chuyển",
+      "- ownerID: *int64  rỗng là của sàn",
+      "- isEnabled, priority, provider, data",
+    )),
+
+  cls((1, 2), "AuditEntry", stereo: "chỉ thêm mới", name: <m-aud>,
+    attrs: (
+      "- table, recordID, changeType, code",
+      "- changedBy: *int64",
+      "- diff, snapshot",
+    )),
+
+  edge(<m-svc>, <m-res>, "-->", rel[quản lý]),
+  edge(<m-res>, <m-slot>, "-->", rel[cấp chỗ ghi]),
+  edge(<m-svc>, <m-opt>, "-->", rel[đọc]),
+  edge(<m-svc>, <m-aud>, "-->", rel[ghi]),
+)
+
+=== Mô tả vắn tắt từng module
+
+*Tài khoản.* Một tài khoản vừa mua vừa bán trên cùng một định danh, nên module không tách hai vai ở mức lớp. Cả 3 cách định danh gồm số điện thoại, thư điện tử và tên đăng nhập đều tuỳ chọn nhưng phải có ít nhất một, và mật khẩu được phép rỗng với tài khoản chỉ đăng nhập bằng định danh liên kết. Hồ sơ được gộp thẳng vào tài khoản thay vì tách bảng riêng vì hai thứ luôn được đọc cùng nhau.
+
+*Danh mục.* Tin đăng là lời chào bán của một người bán chứ không phải một mục trong danh mục hàng chung, nên định danh người bán, tình trạng hàng và đường dẫn rút gọn đều nằm ngay trên nó. Bản sửa của người bán không ghi đè tin đang hiển thị mà nằm chờ ở một đối tượng giá trị riêng cho tới khi điều phối viên duyệt. Điểm trung bình và số nhận xét là giá trị do module tín nhiệm đẩy sang, danh mục chỉ đọc chứ không tự tính.
+
+*Đơn hàng.* Đây là module dày quy tắc nhất và cũng là module duy nhất khai báo luồng bền. Đơn hàng ra đời khi tiền về chứ không do ai bấm nút phê duyệt, nên dòng hàng có thể tồn tại trước đơn. Người bán vẫn phải xác nhận, nhưng thứ họ xác nhận là việc gọi hãng vận chuyển chứ không phải tiền, vì tiền đã nằm trong ký quỹ từ trước. Trạng thái đơn được suy ra từ các mốc thời gian chứ không lưu thành cột riêng.
+
+*Tài chính.* Mọi nguyên thuỷ tiền tệ nằm chung một module để các bước dịch chuyển ký quỹ giữ được tính nguyên tử. Ranh giới quan trọng nhất bên trong là hai sổ: một sổ ghi các chặng đi trên kênh thanh toán bên ngoài, sổ còn lại ghi mọi lần tiền dịch chuyển trong ví, và không bao giờ ghi cùng một lần dịch chuyển vào cả hai. Rút tiền không có bảng riêng mà là một phiên thanh toán mang loại khác, dùng lại đúng máy trạng thái đó.
+
+*Hội thoại.* Một luồng chỉ có đúng hai bên, phân biệt bằng loại luồng là mua bán hay phiếu hỗ trợ. Mốc đã đọc lưu riêng cho từng bên nên số tin chưa đọc tính được mà không cần bảng phụ. Thẻ đề xuất giá là một loại tin nhắn chứ không phải một thực thể riêng, nhờ vậy lịch sử thương lượng nằm đúng trong dòng hội thoại.
+
+*Tín nhiệm.* Điểm số trả lời câu hỏi món hàng có đúng mô tả không: một chiều, chỉ người đã mua mới viết được. Thay đổi lớn nhất so với giai đoạn trước là không còn lớp tố cáo riêng; mọi thứ người dùng gửi lên đều là một phiếu hỗ trợ, phân biệt bằng loại phiếu, và chính loại phiếu quyết định phiếu trỏ vào đối tượng nào.
+
+*Quan trắc.* Bốn dòng mẫu đều là bảng ghi theo thời gian trên TimescaleDB, không có khoá ngoại và không tham chiếu tới thực thể nghiệp vụ nào, vì chúng phải ghi được kể cả khi bản ghi gốc đã bị xoá. Chúng cũng là 4 lớp duy nhất trong hệ thống không có phương thức nghiệp vụ.
+
+*Dùng chung.* Ba nhóm phục vụ mọi module còn lại. Tệp tĩnh chỉ giữ đường dẫn tham chiếu và được cấp chỗ ghi qua đường dẫn ký có thời hạn. Sổ tuỳ chọn là bảng tra cứu cho các lựa chọn của một hạng mục như kênh tiền hay hãng vận chuyển. Nhật ký kiểm toán chỉ thêm mới, ghi lại mọi quyết định nghiệp vụ kèm người thực hiện.
 
 == Sơ đồ trình tự
 
