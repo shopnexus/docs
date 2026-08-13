@@ -149,6 +149,22 @@
 #let nent(p, nm, title) = node(p, text(weight: 700, size: 8.5pt, title),
                                shape: pill, fill: blue-l, stroke: 1pt + blue-s, name: nm)
 
+// ---- Ô bảng cho SƠ ĐỒ CƠ SỞ DỮ LIỆU (database diagram) ----
+// Khác `nent` của sơ đồ ERD: ô hình chữ nhật chia 2 ngăn, ngăn trên là tên bảng,
+// ngăn dưới liệt kê khoá chính, khoá ngoại kèm hành vi tham chiếu và ràng buộc duy
+// nhất. Đây là thứ phân biệt sơ đồ cơ sở dữ liệu với sơ đồ thực thể quan hệ: ERD nói
+// hệ thống có những khái niệm gì, còn sơ đồ này nói chúng được lưu ra sao.
+#let nbang(p, nm, ten, ..dong) = node(
+  p,
+  align(left, stack(
+    dir: ttb, spacing: 3.2pt,
+    text(weight: 700, size: 7.6pt, raw(ten)),
+    line(length: 100%, stroke: 0.5pt + hairline),
+    ..dong.pos().map(d => text(size: 6.4pt, d)),
+  )),
+  shape: rect, fill: white, stroke: 0.9pt + blue-s, inset: 4.5pt, name: nm,
+)
+
 // ---- Sơ đồ trình tự (sequence diagram) --------------------
 // Đường sinh (lifeline) dạng nét đứt cho n đối tượng đặt ở hàng y = 0
 #let lifelines(n, y0: 0.4, y1: 10) = range(n).map(i =>
