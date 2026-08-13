@@ -782,3 +782,97 @@ khi trả tiền là thứ bất kỳ ai cũng giả mạo được.
     durable(1, 10.3, [9. Đặt hạn trả tiền: phiên tự hết\ hiệu lực sau 15 phút]),
     rmsg(1, 0, 11.3, [10. Trả về phiên thanh toán,\ danh sách hàng và phí]),
   )
+
+=== TT-B: Yêu cầu hoàn tiền và leo thang thành phiếu hỗ trợ
+
+Đây là kịch bản cắt ngang nhiều module nhất. Nguyên tắc phân chia trách nhiệm ở đây là tranh
+chấp do module tín nhiệm quản lý dưới dạng một phiếu hỗ trợ, còn phán quyết làm dịch chuyển
+tiền thì ra ở nơi giữ tiền. Hai chi tiết chống lỗi đáng nêu: việc mở phiếu gọi sang module đơn
+hàng để leo thang trước khi ghi dòng phiếu, nên một yêu cầu không đủ điều kiện sẽ không để lại
+phiếu vô nghĩa; và một phán quyết đóng mọi phiếu đang mở về cùng đối tượng, vì cả hai bên đều
+có quyền leo thang mà loại phiếu này không giải quyết bằng tay được.
+
+#fig-xoay(
+    [Sơ đồ trình tự TT-B, phần 1: mở yêu cầu hoàn tiền và nhánh người bán đồng ý],
+    spacing: (72mm, 13mm),
+    np((0, 0), [:Người mua]),
+    ncore((1, 0), [Module\ Đơn hàng]),
+    np((2, 0), [:Người bán]),
+    ..lifelines(3, y1: 8.2),
+    act(1, 0.7, 4.3), act(1, 5.9, 7.7),
+
+    msg(0, 1, 1, [1. Gửi yêu cầu hoàn tiền\ kèm lý do và bằng chứng]),
+    step(1, 2.2, [2. Mở yêu cầu ở trạng thái "chờ người bán\ xem xét", hạn trả lời bốn mươi tám giờ]),
+    durable(1, 3.4, [3. Bắt đầu đếm cửa sổ trả lời,\ đồng thời dừng cửa sổ ký quỹ]),
+    msg(1, 2, 4.6, [4. Thông báo người bán\ có yêu cầu hoàn tiền mới]),
+
+    nr((2, 5.6), text(size: 0.7em)[nhánh 5a: người bán đồng ý hoàn tiền]),
+    msg(2, 1, 6.6, [5a. Người bán đồng ý hoàn tiền]),
+    step(1, 7.8, [6a. Mở chặng trả hàng,\ phí trả hàng bằng không]),
+  )
+
+#fig-xoay(
+    [Sơ đồ trình tự TT-B, phần 2: nhánh người bán đưa lên hoặc im lặng hết bốn mươi
+     tám giờ — leo thang thành phiếu hỗ trợ và phán quyết],
+    spacing: (44mm, 9mm),
+    np((0, 0), [:Người mua]),
+    ncore((1, 0), [Module\ Đơn hàng]),
+    np((2, 0), [:Người bán]),
+    np((3, 0), [Module\ Tín nhiệm]),
+    np((4, 0), [Module\ Hội thoại]),
+    np((5, 0), [:Nhân viên\ vận hành]),
+    ..lifelines(6, y1: 14),
+    act(3, 0.7, 6.1), act(1, 1.9, 3.7), act(1, 6.9, 10.5),
+    act(3, 9.9, 12.9), act(4, 12.3, 13.9),
+
+    msg(2, 3, 1, [5b. Mở phiếu hỗ trợ\ loại "tranh chấp hoàn tiền"]),
+    msg(3, 1, 2.2, [6b. Xin leo thang yêu cầu hoàn tiền; gọi TRƯỚC khi ghi\ phiếu, gọi lại nhiều lần vẫn cùng một
+  kết quả]),
+    rmsg(1, 3, 3.4, [7b. Yêu cầu đã chuyển sang\ trạng thái đang tranh chấp]),
+    step(3, 4.6, [8b. Ghi dòng phiếu hỗ trợ\ vào cơ sở dữ liệu]),
+    msg(3, 4, 5.8, [9b. Mở luồng hội thoại cho phiếu theo kiểu cố-gắng-hết-\ sức, thiếu thì sửa lại khi có người mở phiếu]),
+
+    msg(5, 1, 7.2, [10. Nhân viên vận hành phán quyết:\ người mua thắng hoặc người bán thắng]),
+    step(1, 8.7, [11. Người mua thắng mà đã trả hàng thì kết toán ngay;\ thắng mà chưa trả thì chuyển sang đang
+  trả hàng;\ người bán thắng thì yêu cầu bị từ chối]),
+    msg(1, 3, 10.2, [12. Phát tin đã có phán quyết trên bus sự kiện,\ kèm danh tính người phán quyết]),
+    step(3, 11.4, [13. Tìm mọi phiếu đang mở về cùng yêu cầu\ hoàn tiền ấy, rồi đóng TẤT CẢ]),
+    msg(3, 4, 12.6, [14. Ghi kết quả vào luồng hội thoại của phiếu]),
+    rmsg(4, 0, 13.6, [15. Người gửi nhận được kết quả]),
+  )
+
+=== TT-C: Thương lượng giá
+
+Kịch bản này chỉ vẽ tới lúc người mua bấm mua, vì từ bước giữ tồn kho trở đi nó trùng với
+TT-A. Điều dễ hiện thực sai nhất là đồng ý không phải bán được hàng: chỉ bên không đang giữ đề
+nghị mới được đồng ý, và việc đồng ý chỉ đóng băng giá 30 phút, người mua vẫn phải bấm mua để
+chọn hãng vận chuyển và trả tiền. Nhờ tách đôi như vậy, việc người bán đồng ý là an toàn vì
+chưa có đơn hàng và chưa đồng tiền nào dịch chuyển. Luồng hội thoại chỉ mang con trỏ tới cuộc
+thương lượng chứ không chép giá vào tin nhắn, để không còn lại trong luồng một mức giá đã hết
+hiệu lực.
+
+#fig-xoay(
+  [Sơ đồ trình tự TT-C: thương lượng giá, từ lượt đề nghị đầu tiên đến lúc cuộc thương
+   lượng vào thanh toán],
+  spacing: (56mm, 9mm),
+  np((0, 0), [:Người mua]),
+  ncore((1, 0), [Module\ Đơn hàng]),
+  np((2, 0), [:Người bán]),
+  np((3, 0), [Module\ Hội thoại]),
+  ..lifelines(4, y1: 13.4),
+  act(1, 0.7, 4.9), act(3, 3.1, 3.7),
+  act(1, 5.5, 7.3), act(1, 7.9, 9.7), act(1, 10.3, 13.3),
+
+  msg(0, 1, 1, [1. Mở thương lượng trên bài đăng cho phép\ thương lượng: nêu số lượng và mức giá đề nghị]),
+  step(1, 2.2, [2. Mở duy nhất một dòng thương lượng cho mặt hàng;\ quyền đề nghị đang thuộc về người mua]),
+  msg(1, 3, 3.4, [3. Đăng thẻ hệ thống chỉ mang con trỏ tới cuộc\ thương lượng, không chép giá vào tin nhắn]),
+  durable(1, 4.6, [4. Đếm hạn trả lời mười hai giờ; thương lượng\ không giữ tồn kho nên hết hạn không phải nhả gì]),
+  msg(2, 1, 5.8, [5. Người bán trả giá — chỉ bên không đang\ giữ đề nghị mới được sửa điều khoản]),
+  step(1, 7, [6. Ghi đè điều khoản trên chính dòng ấy, không mở\ dòng mới; quyền đề nghị đổi bên, hạn đặt lại]),
+  msg(0, 1, 8.2, [7. Người mua đồng ý mức giá đang đặt trên bàn;\ bên đang giữ đề nghị thì không được đồng ý]),
+  durable(1, 9.4, [8. Đồng ý chỉ đóng băng giá ba mươi phút: chưa có\ đơn hàng và chưa đồng tiền nào dịch chuyển]),
+  msg(0, 1, 10.6, [9. Người mua bấm mua, chọn địa chỉ nhận\ và hãng vận chuyển]),
+  step(1, 11.8, [10. Chuyển sang "đã vào thanh toán" bằng lượt ghi\ nêu đích danh trạng thái "đã đồng ý"]),
+  rmsg(1, 0, 13, [11. Trả về phiên thanh toán; từ đây trình tự\ tiếp tục đúng như TT-A từ bước giữ tồn kho]),
+)
+
