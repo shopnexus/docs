@@ -55,7 +55,7 @@ Mặc dù đã có nhiều cố gắng, song do giới hạn về mặt thời g
   [Durable workflow], [—], [Quy trình bền: quy trình nhiều bước chạy trên nền tảng durable execution],
   [Embedding], [—], [Véc-tơ nhúng biểu diễn ngữ nghĩa của văn bản, dùng cho tìm kiếm ngữ nghĩa],
   [ERD], [Entity–Relationship Diagram], [Sơ đồ thực thể – quan hệ],
-  [Escrow], [—], [Cơ chế thanh toán tạm giữ (trung gian) bảo vệ giao dịch],
+  [Ký quỹ], [—], [Cơ chế ký quỹ (trung gian) bảo vệ giao dịch],
   [Guarded write], [—], [Lượt ghi có bảo vệ, nêu đích danh trạng thái nguồn nên một lượt đọc cũ luôn thua],
   [Idempotency key], [—], [Khóa lũy đẳng: định danh do bên gọi đặt để một thao tác chỉ có hiệu lực một lần],
   [Idempotent], [—], [Lũy đẳng: gọi nhiều lần cho cùng kết quả như gọi một lần],
@@ -103,7 +103,7 @@ Mặc dù đã có nhiều cố gắng, song do giới hạn về mặt thời g
   [15], [Thiết kế cơ sở dữ liệu vật lý cho 7 lược đồ], [Cả nhóm], [Tuần 3], [Hoàn thành],
   [16], [Thiết kế bảo mật và chiến lược xử lý lỗi], [Đậu Văn Đăng Khoa], [Tuần 3], [Hoàn thành],
   [17], [Hiện thực dịch vụ tài khoản, danh mục sản phẩm và tìm kiếm], [Đậu Văn Đăng Khoa, Hồ Công Toản], [Tuần 3 – 4], [Hoàn thành],
-  [18], [Hiện thực dịch vụ đơn hàng, tài chính và luồng thanh toán tạm giữ], [Đậu Văn Đăng Khoa], [Tuần 4 – 5], [Hoàn thành],
+  [18], [Hiện thực dịch vụ đơn hàng, tài chính và luồng ký quỹ], [Đậu Văn Đăng Khoa], [Tuần 4 – 5], [Hoàn thành],
   [19], [Hiện thực dịch vụ hội thoại, tín nhiệm và quan trắc vận hành], [Đậu Văn Đăng Khoa, Hồ Công Toản], [Tuần 4 – 5], [Hoàn thành cơ bản],
   [20], [Hiện thực ứng dụng web], [Đậu Văn Đăng Khoa, Hồ Công Toản], [Tuần 4 – 5], [Hoàn thành],
   [21], [Hiện thực ứng dụng di động], [Nguyễn Tấn Khoa], [Tuần 4 – 6], [Hoàn thành],
@@ -189,7 +189,7 @@ vụ cốt lõi của luồng tiền và luồng đơn hàng.
 
 *Đánh giá.* Đóng góp có giá trị nhất của đề tài không nằm ở số lượng chức năng mà ở chỗ
 cơ chế bảo vệ giao dịch được thiết kế thành thuộc tính của hệ thống chứ không phải một
-chính sách nằm ngoài phần mềm. Tiền của người mua được giữ ở tài khoản trung gian bởi
+chính sách nằm ngoài phần mềm. Tiền của người mua được giữ ở tài khoản ký quỹ bởi
 chính luồng thanh toán, đơn hàng ra đời từ việc tiền đã về chứ không từ thao tác của ai,
 quy trình khiếu nại được hợp nhất về một dạng phiếu duy nhất, và đánh giá hai chiều được
 giữ kín cho tới khi cả hai bên đã gửi. Mỗi lựa chọn ấy loại bỏ một khoảng trống mà ở đó

@@ -13,7 +13,7 @@ sau đều truy ngược về ít nhất một mã trong số đó.
     align: (center + horizon, left + horizon, left + horizon, left + horizon),
     table.header([Mã], [Yêu cầu dẫn dắt], [Nguồn], [Ý nghĩa kiến trúc]),
 
-    [AD-01], [Giữ tiền tạm giữ và giải ngân theo phán quyết], [REQ-26, REQ-32, REQ-36],
+    [AD-01], [Giữ tiền ký quỹ và giải ngân theo phán quyết], [REQ-26, REQ-32, REQ-36],
     [Giao dịch tài chính đòi hỏi tính nguyên tử trên sổ cái nhưng lại bị kích hoạt từ ba miền rời rạc (đơn hàng, thanh toán, khiếu nại). Điều này buộc kiến trúc phải cô lập toàn bộ nghiệp vụ tiền tệ vào một dịch vụ duy nhất và tước quyền ghi sổ cái của mọi dịch vụ khác.],
 
     [AD-02], [Các chuyển trạng thái theo thời hạn], [REQ-21, REQ-24, REQ-29, REQ-32, REQ-35],

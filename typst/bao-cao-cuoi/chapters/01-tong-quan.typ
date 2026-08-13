@@ -12,7 +12,7 @@ Cụ thể, những thách thức cốt lõi đang kìm hãm sự phát triển 
 Xét ở bình diện vĩ mô, quy mô thị trường thương mại điện tử Việt Nam trong những năm gần đây liên tục duy trì tốc độ tăng trưởng hai con số về doanh thu bán lẻ trực tuyến và tỷ lệ người dân tham gia mua sắm trực tuyến, song phần lớn các nền tảng rao vặt C2C hiện hữu như Chợ Tốt vẫn chủ yếu đóng vai trò kết nối thông tin giữa hai cá nhân, để hai bên tự thỏa thuận và tự chuyển tiền cho nhau mà không có cơ chế bảo lãnh dòng tiền tập trung. Về hành lang pháp lý, hoạt động của các sàn giao dịch thương mại điện tử tại Việt Nam chịu sự điều chỉnh của Nghị định số 52/2013/NĐ-CP về thương mại điện tử cùng những sửa đổi, bổ sung tại Nghị định số 85/2021/NĐ-CP, trong đó xác lập trách nhiệm của đơn vị cung cấp dịch vụ sàn trong việc quản lý thông tin người bán cũng như tiếp nhận và xử lý khiếu nại, trong khi quyền được thông tin, được bảo vệ và được giải quyết tranh chấp của người mua được ghi nhận trong Luật Bảo vệ quyền lợi người tiêu dùng năm 2023 [1] [2].
 
 Trước thực trạng và những khoảng trống lớn của thị trường, đề tài "Ứng dụng thương mại điện tử sử dụng kiến trúc Microservices" được lựa chọn nhằm nghiên cứu, phân tích và thiết kế một hệ sinh thái giao dịch C2C an toàn, minh bạch và hiện đại, đặt trọng tâm giải quyết bài toán "lòng tin" bằng việc thiết lập ba trụ cột nghiệp vụ và kỹ thuật chính sau:
-+ *Cơ chế Bảo lãnh tài chính tạm giữ (Escrow Payment):* Sàn thương mại điện tử sẽ đóng vai trò là bên thứ ba trung gian đáng tin cậy giữ tiền giao dịch. Dòng tiền của người mua sẽ được khóa bảo mật trong ví trung gian cho đến khi giao hàng thành công và người mua xác nhận hài lòng (hoặc hết thời hạn đếm ngược 3 ngày(72 giờ) mà không có khiếu nại).
++ *Cơ chế ký quỹ (ký quỹ):* Sàn thương mại điện tử sẽ đóng vai trò là bên thứ ba trung gian đáng tin cậy giữ tiền giao dịch. Dòng tiền của người mua sẽ được khóa bảo mật trong ví ký quỹ cho đến khi giao hàng thành công và người mua xác nhận hài lòng (hoặc hết thời hạn đếm ngược 3 ngày(72 giờ) mà không có khiếu nại).
 + *Tích hợp Nhắn tin trực tuyến và Thẻ Đề xuất giá (Offer Card):* Xây dựng hệ thống giao tiếp gắn liền mạch vào sàn, cho phép thương lượng giá động ngay trong khung chat qua Thẻ Đề xuất giá có hiệu lực trong 12 giờ, ràng buộc trực tiếp thỏa thuận giá vào luồng thanh toán đơn hàng.
 + *Quy trình Hoàn tiền và Phân xử tranh chấp (Refund & Dispute) minh bạch:* Thiết lập quy trình khiếu nại với ràng buộc bắt buộc cung cấp bằng chứng số đa phương tiện (video mở hộp, ảnh chụp đóng gói). Khi không đạt được thỏa thuận hoàn tiền, vụ việc được thăng cấp lên Điều phối viên (Moderator) nội bộ để thẩm định và ra quyết định công bằng cho cả hai bên.
 
@@ -22,7 +22,7 @@ Mục tiêu tổng quát của nghiên cứu là áp dụng triệt để các p
 
 Các mục tiêu cụ thể của đề tài được phân chia theo từng phương diện nghiệp vụ và công nghệ cốt lõi:
 
-1. *Xây dựng cơ chế Thanh toán tạm giữ (Escrow) bền vững và luồng tài chính an toàn:* Thiết kế luồng thanh toán tích hợp cổng ngân hàng/ví điện tử ngoại vi (SePay), quản lý dòng tiền theo mô hình ví nội bộ (Internal Wallet).
+1. *Xây dựng cơ chế ký quỹ bền vững và luồng tài chính an toàn:* Thiết kế luồng thanh toán tích hợp cổng ngân hàng/ví điện tử ngoại vi (SePay), quản lý dòng tiền theo mô hình ví nội bộ (Internal Wallet).
 
 2. *Tích hợp Nhắn tin trực tuyến thời gian thực và Chuẩn hóa quy trình Đàm phán giá (Offer Card):* Xây dựng module Chat đa phương tiện thời gian thực, cho phép gửi hình ảnh và video thực tế của sản phẩm giữa người mua và người bán.
 
@@ -35,7 +35,7 @@ Các mục tiêu cụ thể của đề tài được phân chia theo từng ph�
 
 5. *Nghiên cứu ứng dụng kiến trúc Durable Microservices:*
    - Phân rã hệ thống thành các dịch vụ độc lập áp dụng triệt để nguyên lý Database-per-service [9], bảo đảm sự cô lập về cơ sở dữ liệu và khả năng chọn lựa công nghệ lưu trữ phù hợp (Polyglot Persistence).
-   - Ứng dụng cơ chế durable execution (thực thi bền vững) Restate (Journal-based Durable Execution) để quản lý các luồng nghiệp vụ dài hạn (Escrow, Refund, Dispute,...), loại bỏ hoàn toàn độ phức tạp của mẫu thiết kế Saga truyền thống [4], tự động phục hồi lỗi (Crash Recovery) và bảo đảm ngữ nghĩa thực thi chính xác một lần (Exact-once semantics).
+   - Ứng dụng cơ chế durable execution (thực thi bền vững) Restate (Journal-based Durable Execution) để quản lý các luồng nghiệp vụ dài hạn (ký quỹ, hoàn tiền, tranh chấp,...), loại bỏ hoàn toàn độ phức tạp của mẫu thiết kế Saga truyền thống [4], tự động phục hồi lỗi (Crash Recovery) và bảo đảm ngữ nghĩa thực thi chính xác một lần (Exact-once semantics).
 
 6. *Nghiên cứu tìm kiếm dựa trên từ khóa và ngữ nghĩa:* Nghiên cứu và tích hợp cơ chế Tìm kiếm Ngữ nghĩa Lai (Hybrid Search), kết hợp giữa Tìm kiếm văn bản (Full-text Search) dựa trên từ khóa và tìm kiếm ngữ nghĩa (Semantic Vector Search) thông qua cơ sở dữ liệu pgvector trên PostgreSQL [11], sử dụng mô hình embedding (véc-tơ nhúng) đa ngôn ngữ bge-m3 để sinh biểu diễn vector (vector embeddings) cho dữ liệu văn bản [3].
 
@@ -55,7 +55,7 @@ Hệ thống được thiết kế bao phủ toàn bộ vòng đời giao dịch
 
 4. *Hệ thống Chat trực tuyến và Thương lượng giá (Offer Card):* Kênh giao tiếp tin nhắn văn bản và chia sẻ phương tiện thời gian thực giữa người mua và người bán.
 
-5. *Đặt hàng, Tính phí vận chuyển động và Thanh toán (Escrow):* Quy trình khởi tạo đơn hàng từ trang chi tiết sản phẩm (giá cố định) hoặc từ Offer Card trong Chat (giá thương lượng).
+5. *Đặt hàng, Tính phí vận chuyển động và Ký quỹ:* Quy trình khởi tạo đơn hàng từ trang chi tiết sản phẩm (giá cố định) hoặc từ Offer Card trong Chat (giá thương lượng).
 
 6. *Xác nhận giao hàng và Bộ đếm thời gian tạm giữ:* Lắng nghe sự kiện cập nhật hành trình vận đơn từ đơn vị giao nhận; tự động kích hoạt bộ đếm thời gian đếm ngược 3 ngày (72 giờ) hoặc khi đơn hàng chuyển sang trạng thái "Giao hàng thành công".
 

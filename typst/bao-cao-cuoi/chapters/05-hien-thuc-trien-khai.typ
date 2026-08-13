@@ -17,8 +17,8 @@ Dịch vụ danh mục được thiết kế để trực tiếp quản lý tr�
 === Máy trạng thái Đơn hàng và Durable execution (Order Service)
 Mang khối lượng mã nguồn lớn nhất, dịch vụ đơn hàng được thiết kế theo Kiến trúc Hướng sự kiện (Event-Driven Architecture). Đơn hàng không được sinh ra từ nút bấm "Đặt hàng" của người mua, mà ra đời từ luồng sự kiện xác nhận giao dịch thanh toán thành công, giúp loại bỏ bài toán đồng bộ trạng thái thanh toán và đơn hàng. Để quản lý vòng đời giao dịch dài hạn (chẳng hạn giới hạn 48 giờ chờ xác nhận), hệ thống không sử dụng bộ định thời định kỳ (cron job) truyền thống mà tích hợp Restate để cung cấp cơ chế durable execution. Luồng thời gian chạy này đảm bảo các tiến trình đếm ngược có khả năng chịu lỗi (fault-tolerant) và tự động phục hồi đúng trạng thái trước đó nếu máy chủ khởi động lại.
 
-=== Quản lý Dòng tiền và Escrow (Finance Service)
-Dịch vụ tài chính đóng vai trò làm sổ cái (ledger) nội bộ, lưu trữ toàn bộ nguyên thể tiền tệ để đảm bảo các bút toán escrow luôn tuân thủ nguyên tắc ACID. Trong quy trình thanh toán trực tuyến, nguyên tắc bất biến được áp dụng: trang đích mà người dùng được chuyển hướng về sau khi thanh toán không bao giờ được coi là bằng chứng xác nhận. Việc quyết toán chỉ được thực thi thông qua lời gọi ngược (webhook) từ máy chủ của cổng thanh toán. Mọi thao tác cập nhật số dư từ webhook đều được thiết kế idempotent, cho phép nhà cung cấp phát lại thông báo nhiều lần trong trường hợp nghẽn mạng mà không gây ra hiện tượng nhân đôi số dư.
+=== Quản lý Dòng tiền và Ký quỹ (Finance Service)
+Dịch vụ tài chính đóng vai trò làm sổ cái (ledger) nội bộ, lưu trữ toàn bộ nguyên thể tiền tệ để đảm bảo các bút toán ký quỹ luôn tuân thủ nguyên tắc ACID. Trong quy trình thanh toán trực tuyến, nguyên tắc bất biến được áp dụng: trang đích mà người dùng được chuyển hướng về sau khi thanh toán không bao giờ được coi là bằng chứng xác nhận. Việc quyết toán chỉ được thực thi thông qua lời gọi ngược (webhook) từ máy chủ của cổng thanh toán. Mọi thao tác cập nhật số dư từ webhook đều được thiết kế idempotent, cho phép nhà cung cấp phát lại thông báo nhiều lần trong trường hợp nghẽn mạng mà không gây ra hiện tượng nhân đôi số dư.
 
 === Trò chuyện và Quản lý Tín nhiệm (Chat & Trust Services)
 Dịch vụ trò chuyện chịu trách nhiệm quản lý cả hội thoại mua bán cá nhân lẫn các luồng tin nhắn của phiếu hỗ trợ khiếu nại. Thách thức lớn nhất tại đây là cơ chế ẩn danh (anonymization) cho nhân viên kiểm duyệt; hệ thống phải che dấu danh tính nhân viên ở mọi hình chiếu dữ liệu (bao gồm cả dòng tin nhắn xem trước trong danh sách hộp thư) nhằm bảo vệ an toàn cho Moderator.
@@ -48,7 +48,7 @@ Trang thanh toán hợp nhất 2 luồng nghiệp vụ: mua giá niêm yết và
   caption: [Chi tiết một đơn ở trạng thái đã giao và đang chờ người mua xác nhận: dải tiến trình bốn chặng, thông tin vận đơn, bảng tách tiền hàng với cước, hai lối đi tiếp là xác nhận đã nhận hàng hoặc mở yêu cầu hoàn tiền],
 )
 
-Dải tiến trình giao hàng phản ánh trạng thái vận đơn thực tế theo thời gian thực. Trạng thái "đã giao" được phân loại vào nhóm xử lý thay vì hoàn tất, bởi dòng tiền vẫn nằm trong sổ cái Escrow cho đến khi người mua xác nhận hoặc hết thời hạn bảo lưu. Việc đếm ngược thời hạn Escrow hiện tại chỉ khả dụng trên giao diện của người bán.
+Dải tiến trình giao hàng phản ánh trạng thái vận đơn thực tế theo thời gian thực. Trạng thái "đã giao" được phân loại vào nhóm xử lý thay vì hoàn tất, bởi dòng tiền vẫn nằm trong sổ cái Ký quỹ cho đến khi người mua xác nhận hoặc hết thời hạn bảo lưu. Việc đếm ngược thời hạn Ký quỹ hiện tại chỉ khả dụng trên giao diện của người bán.
 
 #figure(
   assets("web/web-06-hoan-tien.png", width: 90%),
