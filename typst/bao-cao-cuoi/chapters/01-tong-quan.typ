@@ -64,7 +64,8 @@ Hệ thống được thiết kế bao phủ toàn bộ vòng đời giao dịch
 
 1. *Gian hàng doanh nghiệp chính hãng (B2C / Shop Mall):* Hệ thống chỉ thiết kế tối ưu cho giao dịch cá nhân bán cho cá nhân (C2C). Việc phát triển các gian hàng thương hiệu chính hãng quy mô lớn (với quy trình hóa đơn đỏ, quản lý kho hàng nghìn SKUs phức tạp) là định hướng mở rộng trong tương lai.
 2. *Giao dịch và vận chuyển quốc tế:* Đề tài chỉ tập trung vào thị trường nội địa Việt Nam; không xử lý các luồng thanh toán đa ngoại tệ, chuyển đổi tỷ giá, thủ tục hải quan hay tích hợp các đơn vị vận chuyển xuyên biên giới.
-3. *Gọi thoại và gọi video trực tiếp (Voice/Video Call):* Không triển khai tính năng gọi điện thoại hay gọi video trực tiếp qua WebRTC. Toàn bộ quá trình đàm phán, trao đổi và làm bằng chứng được thực hiện bằng tin nhắn văn bản, hình ảnh và video quay sẵn tải lên khung chat.
+3. *Chương trình khuyến mãi và mã giảm giá:* Đề tài không xây dựng công cụ cho người bán tạo đợt giảm giá, phát hành mã giảm giá hay các chương trình khuyến mại của sàn. Cơ chế điều chỉnh giá trong phạm vi đề tài chỉ diễn ra theo từng giao dịch, thông qua Thẻ Đề xuất giá trong khung trò chuyện giữa hai bên, vì đây mới là hình thức mặc cả đặc trưng của thị trường mua bán đồ cũ giữa các cá nhân.
+4. *Gọi thoại và gọi video trực tiếp (Voice/Video Call):* Không triển khai tính năng gọi điện thoại hay gọi video trực tiếp qua WebRTC. Toàn bộ quá trình đàm phán, trao đổi và làm bằng chứng được thực hiện bằng tin nhắn văn bản, hình ảnh và video quay sẵn tải lên khung chat.
 
 == Phương pháp nghiên cứu
 
