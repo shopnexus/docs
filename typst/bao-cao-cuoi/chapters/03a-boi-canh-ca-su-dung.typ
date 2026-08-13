@@ -88,8 +88,9 @@ tác vận chuyển trao đổi vận đơn và các mốc hành trình. Điều
 
 == Danh mục ca sử dụng
 
-Mỗi ca sử dụng trong tài liệu đại diện cho một mục tiêu nghiệp vụ hoàn chỉnh của tác nhân, thay vì chỉ mô tả các thao tác hệ thống riêng lẻ. Danh mục gồm 30 ca sử dụng nghiệp vụ, được định danh từ UC-01 đến UC-30 và phân thành sáu nhóm chức năng, cùng với hai ca sử dụng dùng chung được tái sử dụng thông qua quan hệ bao hàm. Để bảo đảm tính rõ ràng và thuận tiện trong việc theo dõi phạm vi hệ thống, danh mục ca sử dụng và các sơ đồ liên quan được tổ chức chi tiết theo từng phân hệ. Cần nói rõ một điểm về vai trò người bán: nền tảng theo mô hình C2C nên không có khái niệm gian hàng tách rời, mỗi tài khoản vừa mua vừa bán trên cùng một định danh. Vì vậy việc "quản lý cửa hàng của mình" ở đây chính là quản lý tập tin đăng của chính tài khoản đó, trải trên UC-06 đăng bán, UC-08 chỉnh sửa tin đăng đang hiển thị, cùng phần theo dõi đơn và ví ở nhóm sau, chứ không phải một phân hệ quản trị gian hàng riêng biệt.
+Mỗi ca sử dụng trong tài liệu đại diện cho một mục tiêu nghiệp vụ hoàn chỉnh của tác nhân, thay vì chỉ mô tả các thao tác hệ thống riêng lẻ. Danh mục gồm 30 ca sử dụng nghiệp vụ, được định danh từ UC-01 đến UC-30 và phân thành sáu nhóm chức năng, cùng với hai ca sử dụng dùng chung được tái sử dụng thông qua quan hệ bao hàm. Để bảo đảm tính rõ ràng và thuận tiện trong việc theo dõi phạm vi hệ thống, danh mục ca sử dụng và các sơ đồ liên quan được tổ chức theo từng phân hệ.
 
+Do nền tảng hoạt động theo mô hình C2C, hệ thống không tách biệt vai trò người mua và người bán thành các loại tài khoản riêng. Mỗi tài khoản có thể đồng thời thực hiện cả hoạt động mua và bán trên cùng một định danh. Vì vậy, chức năng quản lý hoạt động bán hàng được thể hiện thông qua việc quản lý các tin đăng của chính tài khoản, bao gồm UC-06 Đăng bán sản phẩm, UC-08 Chỉnh sửa tin đăng, cùng các chức năng theo dõi đơn hàng và quản lý ví ở các nhóm chức năng tương ứng, thay vì xây dựng một phân hệ quản trị gian hàng riêng biệt.
 
 #figure(
   kind: table,
@@ -147,9 +148,9 @@ Mỗi ca sử dụng trong tài liệu đại diện cho một mục tiêu nghi�
   )
 )
 
-Danh mục trên được vẽ lại thành 2 lược đồ ca sử dụng thay vì gộp một hình, vì 30 ca nghiệp vụ đặt chung một khung sẽ khiến các đường nối tác nhân chồng lên nhau tới mức không đọc được. Lược đồ thứ nhất gom các nhóm A, B và C, tức những gì diễn ra trước khi tiền được nhắc tới: định danh, đăng bán, khám phá và trao đổi. Lược đồ thứ hai gom các nhóm D, E và F, tức toàn bộ phần giao dịch, hậu giao dịch và quản trị. Cách tách này giữ cho mỗi hình chỉ có 2 hoặc 3 tác nhân người dùng, nhờ đó các đường nối gần như không cắt nhau.
+Danh mục ca sử dụng được phân tách thành hai lược đồ thay vì biểu diễn toàn bộ 30 ca nghiệp vụ trên cùng một hình, nhằm tránh tình trạng các đường liên kết giữa tác nhân và ca sử dụng chồng chéo, làm giảm khả năng đọc. Lược đồ thứ nhất bao gồm các nhóm A, B và C, tập trung vào các chức năng diễn ra trước giai đoạn giao dịch tài chính như định danh, đăng bán, khám phá sản phẩm và trao đổi giữa người dùng. Lược đồ thứ hai bao gồm các nhóm D, E và F, thể hiện các chức năng liên quan đến giao dịch, hậu giao dịch và quản trị hệ thống. Cách tổ chức này giúp giới hạn số lượng tác nhân xuất hiện trong mỗi lược đồ và giữ cấu trúc biểu diễn rõ ràng hơn.
 
-Hai loại quan hệ giữa các ca sử dụng được thể hiện bằng đường nét đứt có nhãn. Quan hệ «include» chỉ một ca luôn luôn gọi tới một ca con khác như một phần bắt buộc của luồng: xác minh danh tính và đăng bán đều phải đi qua ca tải lên tệp đính kèm, còn các quyết định của điều phối viên và quản trị viên đều phải đi qua ca ghi nhật ký kiểm toán. Quan hệ «extend» thì ngược lại, chỉ một ca chỉ chạy trong một điều kiện nhất định và luồng gốc vẫn trọn vẹn nếu nó không chạy: gợi ý điền tin đăng chỉ hoạt động khi người bán chủ động nhờ, và phân xử yêu cầu hoàn tiền chỉ diễn ra khi người bán từ chối hoặc để hết hạn trả lời. Hai ca con dùng chung ở nhóm G không nối trực tiếp với tác nhân nào vì chúng luôn được gọi từ một ca khác.
+Hai loại quan hệ giữa các ca sử dụng được thể hiện bằng đường nét đứt kèm nhãn `«include»` và `«extend»`. Quan hệ `«include»` được sử dụng khi một ca sử dụng bắt buộc phải gọi tới một ca sử dụng khác như một phần của luồng xử lý, chẳng hạn xác minh danh tính và đăng bán đều sử dụng chức năng tải lên tệp đính kèm, trong khi các thao tác ra quyết định của điều phối viên và quản trị viên đều bao gồm bước ghi nhật ký kiểm toán. Ngược lại, quan hệ `«extend»` biểu diễn các hành vi chỉ phát sinh trong những điều kiện cụ thể mà không làm ảnh hưởng đến tính hoàn chỉnh của luồng chính.
 
 #fig(
   [Sơ đồ ca sử dụng phân hệ định danh, đăng bán, khám phá và trao đổi],
@@ -279,7 +280,7 @@ Hai loại quan hệ giữa các ca sử dụng được thể hiện bằng đ�
 
 == Đặc tả chi tiết các ca sử dụng trọng yếu
 
-2 ca dưới đây được đặc tả đầy đủ theo mẫu chi tiết của UML. Tiêu chí chọn là giao của 3 dấu hiệu: chạm trực tiếp vào dòng tiền, có nhiều hơn một nhánh kết thúc, và mang cái riêng của nền tảng này. 28 ca còn lại có luồng tuyến tính hoặc lặp lại một trong 2 hình dạng đó nên chỉ giữ ở mức mô tả trong danh mục.
+Hai ca sử dụng dưới đây được lựa chọn để đặc tả chi tiết theo mẫu UML vì đồng thời đáp ứng ba tiêu chí: tác động trực tiếp đến dòng tiền, có nhiều hơn một nhánh kết thúc và thể hiện đặc trưng nghiệp vụ riêng của nền tảng. 28 ca sử dụng còn lại chủ yếu có luồng xử lý tuyến tính hoặc lặp lại các mẫu nghiệp vụ tương tự, vì vậy được mô tả ở mức danh mục nhằm tránh trùng lặp và giữ tài liệu cô đọng.
 
 #ucspec("UC-15", "Thanh toán và ký quỹ",
   [Tác nhân], [Chính: người mua. Phụ: cổng thanh toán, đối tác vận chuyển (báo giá đã chốt ở UC-14).],
@@ -310,8 +311,6 @@ Hai loại quan hệ giữa các ca sử dụng được thể hiện bằng đ�
 )
 
 == Bộ quy tắc nghiệp vụ
-
-Bộ quy tắc nghiệp vụ là tập ràng buộc bất biến mà mọi ca sử dụng, mọi yêu cầu chức năng và mọi lựa chọn thiết kế phải tuân thủ. Mã cấp theo thứ tự bổ sung và không bao giờ được đánh số lại, vì các chương thiết kế và kiểm thử đã dẫn chiếu tới chúng. Loại của mỗi quy tắc quyết định nơi nó được thi hành: cấu trúc thành lược đồ dữ liệu và thành sự vắng mặt của một số chức năng, kiểm tra thành ràng buộc và cổng chặn ở đầu thao tác, suy dẫn không được lưu mà được tính khi đọc, thủ tục thành các bước trong tầng nghiệp vụ. 6 mốc chờ trong bảng là con số cố định của sản phẩm, không phải tham số vận hành.
 
 #figure(
   kind: table,
