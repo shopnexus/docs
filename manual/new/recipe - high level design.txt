@@ -1,0 +1,425 @@
+# High-Level Design Phase (Systematic)
+
+## How This Phase Is Organized
+
+High-level design produces a chain of decisions, not a checklist of independent ones. Each decision below is either a **shape decision** (how many deployable units, how they talk, who owns which data, how code is organized, how clients connect) or a **constraint decision** (how fast, how much, how available, how secure). The shape decisions are arranged as a dependency spine: earlier decisions constrain what counts as a valid answer to later ones, so the ordering is not a matter of taste — reversing it produces systems that fight themselves.
+
+The spine runs in order of how expensive a wrong answer is to undo:
+
+1. **Foundation** — turn requirements into measurable drivers. This calibrates how much every decision below matters.
+2. **Data consistency and ownership** — decide what must be consistent and who owns which data. Least reversible; everything downstream assumes it.
+3. **System topology** — decide how many independently deployable units exist and why.
+4. **Communication** — decide how those units talk, matched to the coordination shape the two decisions above created.
+5. **Internal structure** — decide how code is organized inside each unit. Low-cost, contained, decided per-unit.
+6. **Interfaces and contracts** — specify the exact APIs the topology and communication decisions imply.
+7. **Cross-cutting concerns** — security, error handling, observability, deployment. Necessary everywhere; their difficulty is set by the topology decision.
+8. **Validation** — check the whole chain against the foundation before committing.
+
+A rule that holds throughout: **technology selection is not a phase of its own.** Each layer has its own technology question baked into it — the database is part of the data-consistency decision, the message broker is part of the communication decision, the language is mostly part of the topology and internal-structure decisions. Selecting technology at the point where its layer is decided, rather than in a separate up-front pass, prevents locking in a tool before the decision it's supposed to serve has been made.
+
+Another rule: **every decision traces back to a driver.** If a choice can't be justified by pointing to a specific number or constraint from the Foundation layer, it's being made on instinct, and the review layer exists partly to catch exactly that.
+
+---
+
+## Layer 0 — Foundation: Architectural Drivers and Quality Attributes
+
+**Purpose:** Separate the requirements that fundamentally shape the architecture from those that can be handled during detailed design, and turn each shaping requirement into a specific, measurable target that later decisions can be checked against.
+
+**Why this matters:**
+Not all requirements are architecturally significant. "Handle 100,000 orders per day" or "integrate with 50 legacy systems" determines fundamental structure; "the export button should be blue" does not. Identifying the drivers early prevents discovering, months into implementation, that a load-bearing constraint was never designed for — the most expensive class of rework there is. Equally important, a requirement stated as an adjective ("fast," "secure," "scalable") cannot be designed for or tested against. This layer converts adjectives into numbers, and those numbers become the acceptance criteria for every layer below.
+
+**Activities:**
+
+**1. Extract architecturally significant functional requirements.**
+Scan the requirements for the patterns that force structure:
+- High volume: "process X per day," "Y concurrent users," "store Z records" → forces scaling, load balancing, distributed caching.
+- Complex workflow: "approval chains," "multi-step processes," "long-running transactions" → may force workflow engines, state machines, event sourcing.
+- Many integrations: "integrate with," "synchronize with," "send data to" → forces an integration layer, message queues, circuit breakers.
+- Large data: "historical data," "billions of records," "analytics" → forces archival strategy, specialized stores.
+- Real-time: "live," "instant," "as soon as" → forces push mechanisms, event-driven patterns.
+
+Extract 5–10 of these, each with specific numbers attached. "Process 100,000 orders/day with 500/minute peaks" is a driver; "handle lots of orders" is not.
+
+**2. Convert quality attributes into measurable scenarios.**
+For each demanding quality attribute, write a scenario in the form **Source → Stimulus → Environment → Artifact → Response → Response Measure**. For example: a normal user searches by keyword, under 1,000 concurrent users, against the search service, which returns ranked results, with 95% completing within 200ms. This format is what makes "the system must be fast" designable. Cover at least performance (p50/p95/p99 by operation), scalability (baseline vs. projected growth), availability (uptime target with the downtime it implies, plus RTO/RPO), and security (authentication, authorization granularity, data protection, compliance regime).
+
+**3. Extract constraints and name the trade-offs.**
+List business constraints (budget, timeline, legacy systems, vendor lock-in), technical constraints (mandated platform, approved technology list, team expertise), and regulatory constraints (data residency, HIPAA, PCI-DSS, SOC 2). Assess each as hard vs. negotiable. Then explicitly name the trade-offs this project must resolve — performance vs. security, consistency vs. availability (CAP theorem), cost vs. performance, scalability vs. simplicity — because these tensions resurface as concrete forced choices in Layers 1–3, and naming them now prevents relitigating them later without new information.
+
+**4. Rank the drivers.**
+Rank everything by architectural significance using business impact and risk. Resist marking everything "critical" — that defeats the purpose. Identify the top 8–12 as the primary shapers. These are the ones every downstream decision will be checked against.
+
+**Questions to ask:**
+- Which requirements carry the highest business risk if unmet?
+- What are the specific response-time, throughput, and concurrency targets?
+- What uptime is required, and what RTO/RPO follow from it?
+- What data is sensitive, and what compliance regime governs it?
+- Which drivers conflict, and how will the conflict be resolved?
+
+**Red flags:**
+- Unrealistic requirements: "zero latency," "100% uptime," "infinite scale."
+- Contradictory requirements left unresolved: "99.99% uptime" with "minimal cost."
+- Quality attributes stated without numbers.
+- Everything marked critical.
+
+**Documents to create:**
+- **Architectural Drivers Document:** significant functional requirements with metrics, quality-attribute drivers with targets and business rationale, constraints with flexibility assessment, and a prioritized matrix with the top 8–12 highlighted.
+- **Quality Attribute Scenarios:** 5–10 scenarios in stimulus-response form.
+- **Trade-off Register:** the competing attributes and the resolution approach for each.
+
+---
+
+## Layer 1 — Data Consistency and Ownership Boundaries
+
+**Purpose:** Decide what must be true at the same instant across the system, what may lag, and which part of the system owns each piece of data. Select the storage technology that implements that decision.
+
+**Why this matters:**
+This is the least reversible decision in the entire design, because it rests on a constraint that no tooling softens: some facts must be seen consistently everywhere at once, and some can tolerate staleness. Deciding topology before this is settled is the single most common cause of systems that need distributed transactions nobody wanted — the coordination problem gets discovered after the boundaries are already drawn, when moving it is enormously expensive. Everything in Layers 2 and 3 assumes an answer here; getting it wrong forces redoing both.
+
+**Activities:**
+
+**1. Identify consistency boundaries using domain analysis.**
+Find the **bounded contexts** — the places where the same term means different things to different parts of the business ("Product" in Catalog vs. Inventory vs. Shipping). These are the seams where a single consistent model stops making sense. Within each, identify the **aggregates**: clusters of data that must be transactionally consistent as a unit — what is saved together, loaded together, and made atomic together. An Order aggregate containing Order, OrderLines, and OrderStatus is the standard example. Deciding your aggregates is deciding your consistency boundaries; this is the same decision in domain-modeling vocabulary.
+
+**2. Choose the consistency model explicitly.**
+Decide, per boundary, between:
+- **Single source of truth (strong consistency):** every read reflects the latest committed write; cross-entity transactions are atomic. Says correctness at read time matters more than horizontal scalability or storage-layer fault isolation.
+- **Eventually consistent, partitioned ownership:** each domain owns its data; others see copies that may lag. Says a bounded window of staleness is an acceptable price for independent scaling and independent failure domains.
+- **Event sourcing / CQRS:** state is derived by replaying an append-only event log; reads and writes may use different models. Says auditability, replayability, and independent read/write scaling matter more than a single simple representation of current state.
+
+Check this against Layer 0's numbers. A throughput target of 100k globally distributed reads/sec with sub-50ms latency often makes strong consistency infeasible at that scale, forcing eventual consistency whether or not it was the preference.
+
+**3. Select the storage technology as part of this decision.**
+The database choice is not a later, separate step — picking it substantially *is* answering the consistency question. Postgres, MySQL, SQL Server (ACID, strong consistency, complex queries) implement the first model; Cassandra, DynamoDB (partition-tolerant, eventually consistent, massive write throughput) implement the second; an event-native store or an append-only log implements the third. Choose caching (Redis for distributed, Memcached for pure in-process) here too if a performance driver demands it, and file/object storage (S3, CDN) based on volume and access pattern. Justify polyglot persistence only where a genuine access-pattern difference requires it; multiple stores multiply operational cost.
+
+**Questions to ask:**
+- What must be transactionally consistent, and what can lag?
+- Where do the domain's linguistic and rule boundaries fall?
+- Does the required scale make strong consistency infeasible anywhere?
+- What are the read/write patterns — simple lookups, complex joins, full-text, graph traversal?
+- Which database's consistency model matches the answer above?
+
+**Red flags:**
+- Choosing a database before the consistency model is decided.
+- NoSQL adopted without a clear access-pattern or scale justification (relational is often simpler).
+- Multiple databases without strong justification.
+- No caching where a performance driver demands it.
+
+**Documents to create:**
+- **Bounded Context Map:** contexts, their relationships, and the aggregates within each.
+- **Consistency Model Decision:** per-boundary model with rationale traced to drivers.
+- **Data Storage Decision:** database(s), caching, file storage, each mapped to a driver, with the decision matrix for major comparisons (e.g., Postgres vs. MongoDB).
+
+---
+
+## Layer 2 — System Topology
+
+**Purpose:** Decide how many independently deployable units the system is built from, and what forces the split (or the lack of one).
+
+**Why this matters:**
+A topology is only coherent if it matches the consistency boundaries drawn in Layer 1. Microservices without eventually-consistent, partitioned ownership underneath them produce a "distributed monolith" — many deployables that are secretly one transactional unit, carrying all the coordination cost of distribution and none of the independence benefit. Topology also determines deployment risk, team structure, scaling granularity, and the difficulty of every cross-cutting concern in Layer 7, so a wrong answer here is expensive across many dimensions at once.
+
+**Activities:**
+
+**1. Choose the architectural style against the drivers.**
+
+| Style | When it fits | What it costs |
+|---|---|---|
+| **Monolith** | Small-to-medium team, early stage, unclear requirements, low ops maturity, budget-constrained | Simple to build/test/deploy, strong consistency by default, low latency; scaling and deploys are all-or-nothing, technology lock-in |
+| **Modular monolith** | Want the option to split later without paying distribution cost now | One deployable with enforced internal module boundaries; requires discipline to keep boundaries real |
+| **Microservices** | Large teams, genuine independent-scaling or independent-deployment needs, high ops maturity, boundaries already clear from Layer 1 | Independent scaling, fault isolation, team autonomy, technology diversity; distributed complexity, higher latency, higher cost |
+| **SOA** | Enterprise with multiple applications sharing functionality | Service reuse across the org; governance overhead, coordination |
+| **Event-driven** | Async workflows dominate, real-time processing, multiple independent consumers of the same fact, replay needed | Loose coupling, responsiveness, event history; eventual consistency, harder debugging, ordering and idempotency concerns |
+| **Serverless** | Variable or bursty load, minimal-ops mandate, short-lived tasks | No server management, auto-scaling, pay-per-use; cold starts, execution limits, statelessness, vendor lock-in |
+
+Treat "clear boundaries" as close to a precondition for microservices rather than one criterion of equal weight with team size — those boundaries were established in Layer 1, and microservices chosen without them tend to need re-drawing later at high cost. Consider and explicitly reject the alternatives, with rationale, so the review layer can trace the reasoning.
+
+**2. Decompose into major components — after the style is chosen.**
+Break the system into 5–12 cohesive, loosely-coupled components. Apply the heuristics: high cohesion (related functionality together), low coupling (minimal cross-dependencies), one data owner per component (carrying forward the ownership decided in Layer 1), a size a team can understand in about two weeks, independent deployability where the style calls for it, and alignment with team structure (Conway's Law — organizational reality forces topology as hard as any technical argument). Decompose by business capability (most common), by subdomain, or via strangler-fig extraction from an existing system. Define, for each component, its responsibility, its boundary, its owning team, and the data it owns.
+
+**The technology parameter here:** language and runtime (Go, Java, Node, Python, C#) matters for startup time (relevant if serverless was chosen) and concurrency model, but multiple languages implement any topology equally well — this affects how well the shape performs, not which shape is coherent. Polyglot is viable where a component has a genuinely different profile (Go for a gateway, Python for ML).
+
+**Questions to ask:**
+- How complex is the domain, and how many teams will build it?
+- Which parts genuinely need independent scaling or deployment?
+- What is the team's operational maturity?
+- Are the service boundaries from Layer 1 clean enough to split along?
+- How does topology align with team structure?
+
+**Red flags:**
+- Microservices for a small team or a simple domain.
+- Pattern chosen from hype rather than drivers.
+- Over-decomposition (50 services for a small system) or under-decomposition (one megaservice).
+- Boundaries drawn mid-transaction, or a shared database across services.
+- Circular or chatty dependencies between components.
+
+**Documents to create:**
+- **Architecture Style Decision (ADR):** context, options considered, decision, consequences, traced to drivers.
+- **Component Diagram:** all major components, responsibilities, relationships, data ownership, external integration points.
+- **Component Responsibility Matrix:** components mapped to the capabilities and requirements they fulfill, with coverage and complexity flagged.
+
+---
+
+## Layer 3 — Communication and Coupling Model
+
+**Purpose:** Decide how the units from Layer 2 interact, matched to the coordination shape Layers 1–2 created.
+
+**Why this matters:**
+This layer has the tightest coupling to what precedes it. A topology of independent, eventually-consistent services wired together with synchronous calls loses Layer 2's independence — every synchronous call makes the caller's availability depend on the callee's uptime, reintroducing exactly the coupling Layer 1's eventual-consistency answer was meant to remove. Getting this right is what makes an independent topology actually behave independently.
+
+**Activities:**
+
+**1. Choose the communication style per interaction.**
+
+| Style | Says | Naturally pairs with |
+|---|---|---|
+| **Synchronous (request/response)** | The caller needs the result now and accepts depending on the callee's uptime | Single source of truth + Monolith; user-facing read paths in any topology |
+| **Asynchronous messaging (queues)** | The caller needs no immediate answer; decoupling uptime is worth the added complexity | Eventually consistent + Microservices; write paths, background jobs |
+| **Event-driven (pub/sub)** | Components should scale, fail, and evolve independently, at the cost of a clear end-to-end call graph | Event sourcing/CQRS + Microservices (near-necessary there, not merely common) |
+| **Shared database as integration** | Speed of implementation now outweighs encapsulation | Only coherent within a monolith; an anti-pattern across independently deployed services |
+
+Most real systems mix styles: synchronous for the read path a user is actively waiting on, asynchronous or event-driven for the write path and cross-service state propagation. A uniformly async system makes simple queries painfully complex; a uniformly sync system across independent services recreates tight coupling under a distributed label.
+
+**2. Choose the protocol and the technology that carries it.**
+Synchronous: HTTP/REST (ubiquitous, cacheable, human-readable — the default for external APIs), gRPC (binary, efficient, strongly typed — best for internal service-to-service), or GraphQL (client-shaped queries — good for aggregating sources for varied clients). Asynchronous: RabbitMQ (reliable delivery, task queues), Kafka (high-throughput streaming, event sourcing, replay), or a managed queue (SQS/SNS) to avoid operating one. These carry real differences — Kafka's log retention versus RabbitMQ's queue-and-delete changes what "replay" even means — but they are choices *within* an already-selected style, decided here rather than in a separate technology pass.
+
+**3. Define the data format and the contract discipline.**
+Choose JSON (ubiquitous, flexible), Protocol Buffers (compact, schema-evolving), or Avro (schema evolution for data pipelines). Regardless of style, commit up front to versioning, a consistent error-response shape, immutable past-tense events (`OrderPlaced`, not `PlaceOrder`), and backward-compatibility rules: optional fields may be added, existing fields may not be removed or repurposed without a deprecation path.
+
+**Questions to ask:**
+- Does the caller need an immediate response, or can it tolerate a delay?
+- How many consumers must react to the same fact?
+- Is this an internal or external interface?
+- What latency budget applies to this specific path?
+- Is streaming required?
+
+**Red flags:**
+- Synchronous calls everywhere across independent services (a performance and availability bottleneck).
+- A shared database used to integrate independently deployed services.
+- No versioning strategy (breaking changes will break clients).
+- Inconsistent error formats across interactions.
+
+**Documents to create:**
+- **Communication Patterns Table:** from-component, to-component, protocol, style, purpose, for every interaction.
+- **Integration Patterns Catalog:** request/response, pub/sub, and where each is used.
+- **Interface Evolution Policy:** versioning, backward-compatibility rules, deprecation process.
+
+---
+
+## Layer 4 — Internal Code Structure
+
+**Purpose:** Decide how code is organized inside a single deployable unit already drawn by Layer 2.
+
+**Why this matters:**
+This decision is bounded entirely inside a unit nothing outside can see or depend on. A wrong answer costs local pain — messier code, harder testing — but it never propagates outward the way a Layer 1–3 mismatch does. That containment is exactly why it belongs low in the spine and can be decided per-unit, independently, and revised later without touching anything else. It is also not one question but two, decided separately and combined in the same codebase.
+
+**Activities:**
+
+**1. Sub-question 4a — separate domain logic from infrastructure.**
+Choose a point on the spectrum from loose to strict:
+
+| Answer | Structural rule | How it looks in code |
+|---|---|---|
+| **Layered / N-tier** | Each layer calls only the one below (Presentation → Business → Data Access) | `controllers/` → `services/` → `repositories/` → database; nothing but convention stops a controller from reaching the database directly, which is how it erodes |
+| **Hexagonal (ports & adapters)** | Domain defines interfaces (ports); infrastructure implements them (adapters); dependencies point inward only | Domain depends on a `PaymentGateway` interface it owns; a `StripeAdapter` elsewhere implements it, so the domain never imports the vendor SDK and a swap means writing a new adapter |
+| **Clean Architecture** | Same inward rule, made explicit with concentric rings (Entities → Use Cases → Interface Adapters → Frameworks) | An extra `use_cases/` layer separates core rules from application rules; more folders, justified only at large scale where explicit boundaries prevent slow coupling |
+
+How far to push this: plain layered suffices for small, CRUD-shaped units; hexagonal earns its keep once there is real infrastructure variability or a serious testing requirement; Clean Architecture's extra rings pay off mainly at "many teams, long lifespan" scale.
+
+**2. Sub-question 4b — organize the presentation slice.**
+This is a narrower pattern, driven mostly by the platform rather than chosen independently:
+
+| Answer | Roles | Recurring failure mode |
+|---|---|---|
+| **MVC** | Model (data + rules, UI-unaware), View (renders), Controller (takes input, calls Model, picks View) | "Fat controllers" — business logic creeping into the Controller because it's the easiest place to add it |
+| **MVVM** | Model, View (markup), ViewModel (exposes state/commands the View binds to) | Using a ViewModel on a platform without real data-binding, gaining indirection without the automatic-update payoff |
+
+Rails/Django imply MVC by convention; Android/WPF/Vue imply MVVM. This tracks the client platform, not Layers 1–2.
+
+**3. Combine them.**
+A typical unit answers both: an MVC or MVVM presentation slice on the outside, a layered/hexagonal/Clean domain underneath. A Controller calling into a hexagonal use-case layer is an ordinary pairing, not a conflict.
+
+**Soft tendencies (not hard rules):** a monolith tends toward stricter 4a answers because it has no service boundary doing isolation for it; a small microservice often needs less 4a ceremony because the service boundary already provides that isolation; an event-sourced unit pulls toward hexagonal because event sourcing needs a clean split between domain logic emitting events and infrastructure persisting them.
+
+**Questions to ask:**
+- Does this unit have real infrastructure variability worth isolating?
+- Is the testing requirement strict enough to justify ports and adapters?
+- How long-lived and how many-handed is this codebase?
+- What does the chosen platform imply for the presentation slice?
+
+**Red flags:**
+- Clean Architecture's full ceremony inside a tiny single-purpose service.
+- A sprawling monolith with no internal isolation discipline.
+- Treating the internal-structure choice as if it were a topology choice.
+
+**Documents to create:**
+- **Internal Structure Convention:** the chosen 4a and 4b answers per unit (or as a house default), with the folder layout that expresses them.
+
+---
+
+## Layer 5 — Detailed Component and Interface Design
+
+**Purpose:** Turn each major component from Layer 2 into implementable sub-components with defined responsibilities, then specify the exact contracts between them.
+
+**Why this matters:**
+The topology (Layer 2) named the major pieces; this layer makes them buildable. Good decomposition and clear contracts let teams develop in parallel, test with mocks, and integrate without surprises. This layer inherits its structure from the decisions above it — the communication styles from Layer 3 determine which contracts are synchronous APIs versus event schemas, and the internal-structure choice from Layer 4 shapes how each component is organized inside.
+
+**Activities:**
+
+**1. Decompose each major component into detailed components.**
+Break each major component into 3–8 sub-components, each with a single clear responsibility, organized by the internal structure chosen in Layer 4 (presentation, application/business, data access). For an Order Service: an OrderController for endpoints, an OrderValidator for rules, an OrderProcessor for business logic, a PaymentOrchestrator for coordination, an OrderRepository for data access, an OrderNotifier for events. Map each to the functional requirements it fulfills, and verify every requirement is covered by at least one component with no single component owning a disproportionate share.
+
+**2. Define component interfaces and dependencies.**
+For each sub-component, specify the operations it exposes and what it depends on. Keep dependencies unidirectional and consistent with the layering from Layer 4 (upper layers depend on lower, never the reverse); eliminate circular dependencies. Mark external dependencies — databases, queues, third-party APIs — explicitly.
+
+**3. Specify the APIs the contracts require.**
+For every dependency in the component diagram and every UI action that needs a backend, define the interface. For REST: resource-based URLs (nouns, plural, `/orders` not `/getOrder`), correct HTTP methods, request and response schemas for both success and error, pagination and filtering for lists, and proper status codes. For events: a schema with metadata (event id, type, timestamp, aggregate id), immutable and past-tense. Apply the cross-cutting API standards from Layer 3 uniformly: authentication mechanism, URL-based versioning (`/v1/`), the standard error shape, rate-limiting policy, and required headers including a correlation id.
+
+**Questions to ask:**
+- What distinct responsibilities live inside each major component?
+- Are all functional requirements covered, with none orphaned?
+- Which interactions are synchronous APIs and which are event schemas (from Layer 3)?
+- Are dependencies acyclic and layering-consistent?
+- Which APIs are public versus internal?
+
+**Red flags:**
+- Components too granular (one class each) or too coarse (a whole layer as one component).
+- Requirements uncovered by any component, or a god component owning most of them.
+- Verbs in URLs, wrong HTTP methods, inconsistent naming, missing error responses.
+- No pagination on potentially large lists.
+
+**Documents to create:**
+- **Component Diagram and Catalog:** the decomposition tree, a component diagram with interfaces and dependencies, and a catalog table (name, layer, responsibility, interface, dependencies, technology).
+- **Component Responsibility Matrix:** components against functional requirements, with coverage and complexity analysis.
+- **API Specification (OpenAPI/Swagger):** endpoint specifications, shared data models, the error catalog, versioning policy, and rate-limiting rules.
+
+---
+
+## Layer 6 — Physical Data Architecture
+
+**Purpose:** Turn the conceptual data model into a physical database design — concrete tables, types, keys, and schema organization — consistent with the ownership boundaries from Layer 1 and the topology from Layer 2.
+
+**Why this matters:**
+This layer makes the consistency and ownership decisions from Layer 1 physically real. The schema organization directly encodes whether components share data or own it exclusively, so a schema that lets multiple services write the same tables silently undoes the topology decision above it. Getting the physical structure right here is what lets the ownership boundaries actually hold at runtime.
+
+**Activities:**
+
+**1. Transform entities into physical tables.**
+Convert each conceptual entity into a table using the selected database's types, with a consistent naming convention, explicit column lengths and precision, defined nullability, and audit columns (`created_at`, `updated_at`) where compliance or debugging needs them.
+
+**2. Define keys and referential integrity.**
+Give every table a primary key (prefer surrogate keys unless a natural key is genuinely stable), implement relationships as foreign keys with explicit `ON DELETE` / `ON UPDATE` behavior, resolve many-to-many relationships through junction tables, and add uniqueness constraints where the domain requires them.
+
+**3. Map ownership to components and organize the schema.**
+Assign each table to the component that owns it, carrying forward Layer 1's ownership decision. In a microservices topology, organize into per-service schemas or databases and establish the hard rule that a component accesses only its own schema directly, with cross-component access through APIs or events only. Identify shared reference data (countries, states) and mark it read-only for consumers. Define a partitioning strategy for tables expected to reach millions of rows.
+
+**Questions to ask:**
+- What are the physical types and lengths each attribute needs?
+- What referential-integrity actions are correct for each relationship?
+- Which component owns each table, per Layer 1?
+- Does the topology call for separate schemas or databases?
+- Which tables need partitioning for volume?
+
+**Red flags:**
+- Multiple components with write access to the same tables (tight coupling that defeats the topology).
+- A microservices architecture on a shared database.
+- Tables without primary keys, or foreign keys without defined referential actions.
+- No partitioning strategy for high-volume tables.
+
+**Documents to create:**
+- **Physical ERD:** all tables with columns, types, keys, and constraints, grouped by owning schema.
+- **Database Schema Specification:** platform and version, naming conventions, per-table specifications, schema organization with access rules, partitioning strategy, and shared reference data.
+
+---
+
+## Layer 7 — Cross-Cutting Concerns
+
+**Purpose:** Define the concerns that apply across every component — security, error handling, observability, and deployment — sized to the complexity the topology introduced.
+
+**Why this matters:**
+These concerns are not optional and not localized; every system needs an answer to all of them. What changes with the decisions above is their *difficulty*, not their existence. A single cross-cutting choice — session-based versus token-based authentication — can even become load-bearing if it conflicts with the data-ownership decision from Layer 1. Security in particular must be designed in from the start; retrofitting it is expensive, risky, and usually inadequate for compliance.
+
+**Activities:**
+
+**1. Security — authentication and authorization.**
+Choose an authentication mechanism against the security drivers (username/password with strong hashing, MFA, SSO via SAML/OIDC, OAuth 2.0, certificate-based for service-to-service). Choose an authorization model (RBAC for most systems, ABAC where fine-grained attribute-based rules are needed) and map roles to specific API endpoints from Layer 5. Define session management: token TTLs, refresh, logout, timeout.
+
+Note the one place this couples upward: **session-based authentication fights a microservices topology.** It requires either sticky sessions, which undermine Layer 2's independent scaling, or a shared session store, which reintroduces the shared-database anti-pattern from Layer 3 for auth state. Token-based auth (JWT/OAuth) is the default under microservices precisely because it matches Layer 1's no-shared-state premise. Choosing session-based auth under a distributed topology is a low-looking decision that silently violates a load-bearing one.
+
+**2. Security — data protection.**
+Specify encryption in transit (TLS 1.2+ on all external APIs), encryption at rest (database, backups, files), and application-level encryption for the most sensitive fields (identified from the data classification). Manage keys in a dedicated service (KMS, Vault) with rotation — never hardcoded, never in version control. Define masking rules for logs and non-production environments, and the network security zones (public, DMZ, trusted, restricted) mapped onto the topology.
+
+**3. Security — controls and threat mitigation.**
+Define input validation and parameterized queries (SQL-injection prevention), output encoding and CSP (XSS prevention), security headers, rate limiting (brute-force and DDoS mitigation), audit logging of sensitive operations with a compliance-driven retention period, security alerting thresholds, and an incident-response process.
+
+**4. Error handling.**
+Define error categories (validation, business-logic, authorization, not-found, system, timeout, rate-limit) each with its HTTP status, log level, and message policy. Standardize the error-response shape (already established in Layer 3, applied uniformly here). Draw a hard line between user-facing messages (clear, non-technical, never exposing internals) and internal logs (full technical detail, never containing secrets or PII). Define resilience patterns for external calls: circuit breakers, retry with exponential backoff for idempotent operations, and fallback strategies.
+
+**5. Observability.**
+Define what to log (lifecycle, business events, requests with correlation ids, performance, security events, errors with stack traces) and what never to log (passwords, tokens, card numbers, unencrypted PII), in a structured format. Define the metrics to collect (request rate, latency percentiles, error rate, business metrics, infrastructure), the dashboards, and the alerting — alerting on symptoms not causes, with every alert actionable and carrying a runbook link. Where the topology is distributed, distributed tracing with propagated trace ids is not optional: a single request touching several services is otherwise undebuggable. This cost is a direct consequence of the Layer 2 decision and should be budgeted as such.
+
+**6. Deployment and infrastructure.**
+Decide cloud versus on-premises against the constraints (consistent load favors on-prem economics; variable load and limited capital favor cloud). Define environments (dev → test → staging → production), geographic and availability-zone deployment against the availability target, a deployment pattern (blue-green, rolling, or canary) that meets the zero-downtime requirement, auto-scaling triggers, and a disaster-recovery tier that satisfies the RTO/RPO from Layer 0.
+
+**Questions to ask:**
+- Does the chosen auth mechanism conflict with the topology?
+- What data is sensitive, and what compliance regime governs it?
+- What information does a user need on error, versus what a developer needs to debug?
+- How much observability complexity does the topology impose?
+- What RTO/RPO must the deployment and DR strategy meet?
+
+**Red flags:**
+- Session-based auth under a microservices topology.
+- Encryption keys hardcoded or in version control; sensitive data in logs.
+- No rate limiting or input validation on public interfaces.
+- No distributed tracing in a distributed system.
+- A DR strategy that can't meet the stated RTO/RPO.
+
+**Documents to create:**
+- **Security Design Document:** authentication, authorization with a role-to-endpoint matrix, data protection, security controls, audit logging, monitoring, network zones, secrets management, incident response, and compliance mapping.
+- **Error Handling Standards:** categories, status codes, response format, message guidelines, and resilience patterns.
+- **Observability Architecture:** logging standards, metrics specification, dashboards, and alert definitions with runbooks.
+- **Deployment Architecture:** environments, regions/AZs, HA design, deployment strategy, auto-scaling, and the DR plan with RTO/RPO.
+
+---
+
+## Layer 8 — Validation
+
+**Purpose:** Confirm the whole chain of decisions holds together and satisfies the drivers from Layer 0, before committing to implementation.
+
+**Why this matters:**
+Reviews catch problems while they are still cheap to fix — on paper rather than after six months of building. Because the decisions above form a dependency chain rather than a flat list, validation is specifically the check that no link in the chain contradicts the ones it depends on: that the topology matches the consistency model, the communication style matches the topology, the auth strategy doesn't undermine the data boundaries, and every choice still meets the numbers from the Foundation layer.
+
+**Activities:**
+
+**1. Conduct an architecture review.**
+Use a walkthrough, a scenario-based review against the key quality-attribute scenarios from Layer 0, or a formal trade-off analysis. Re-ask the drivers directly: does the design meet the throughput number, the availability target, the compliance requirement? Ask the failure questions: what happens if the database goes down, an external API is unavailable, traffic is 10×, or there's a breach? Ask the justification questions: why this consistency model, this topology, this database — and can each answer point to a specific driver? Record the outcome (approved, approved with conditions, revise and re-review, or rejected) with an issues log.
+
+**2. Retire high-risk decisions with proofs of concept.**
+Build small, time-boxed, throwaway PoCs for the decisions where a wrong answer is expensive to discover late — almost always in Layer 1 (does this database actually handle the transaction model and volume?) or Layers 2–3 (does this messaging technology actually meet the latency budget under load?). Define success criteria up front, measure against them, and let the result decide. A PoC is rarely needed for Layer 4 choices, because a wrong answer there is cheap to reverse — the same reasoning that placed Layer 4 low in the spine.
+
+**3. Finalize documentation and obtain sign-off.**
+Assemble the master document set and present it as the dependency chain it is — drivers that justified a consistency model, that justified a topology, that justified a communication model, with cross-cutting concerns sized to match — rather than as a flat list of choices. Presenting it this way lets the sign-off meeting catch a mismatched pair before implementation rather than after. Baseline and freeze the design once approved.
+
+**Questions to ask:**
+- Does every layer's answer remain consistent with the layers it depends on?
+- Does the finished design still meet every top driver from Layer 0?
+- Which decisions carry enough risk to justify a PoC?
+- Do stakeholders understand and accept the trade-offs that were made?
+
+**Red flags:**
+- A review that checks components in isolation without checking the chain between layers.
+- PoCs with no success criteria, or PoC results that are ignored.
+- Sign-off on a design presented as independent choices, hiding a cross-layer mismatch.
+
+**Documents to create:**
+- **Review Outcome and Issues Log:** approval status, conditions, and every issue with severity, owner, and deadline.
+- **PoC Reports:** what was tested, the results, and the recommendation for each high-risk decision.
+- **Master Design Document Set:** architecture overview, component and interface specifications, data architecture, security architecture, cross-cutting concerns, and an ADR for every major decision.
+- **Stakeholder Sign-off:** formal approval baselining the design for implementation.
+
+---
+
+## The Dependency Chain in One Pass
+
+Start by turning requirements into measurable drivers (Layer 0), because every decision after this is checked against those numbers. Decide what must stay consistent and who owns which data, and pick the database that implements it (Layer 1) — the least reversible decision, which determines whether the next one is even coherent. Decide how many independent units you're building and why (Layer 2), checked against Layer 1's boundaries and Layer 0's scale numbers. Decide how those units talk (Layer 3), matched to the coordination shape the two decisions above created — mismatches here are the most common source of expensive regret. Decide how code is organized inside each unit (Layer 4) — genuinely low-stakes, decided per-unit, not to be confused with topology. Turn the major components into buildable sub-components and exact contracts (Layer 5), inheriting communication styles from Layer 3 and internal structure from Layer 4. Make the data ownership physically real in the schema (Layer 6), carrying Layer 1's boundaries into tables. Define the concerns that apply everywhere (Layer 7), sized to the complexity the topology imposed, watching for the auth choice that can quietly undermine Layer 1. Then validate the whole chain against Layer 0 before freezing it (Layer 8) — the last cheap point at which a mismatch between any two layers can still be fixed on paper instead of in production.

@@ -1,0 +1,145 @@
+4.1 Extract Architectural Drivers
+
+Purpose:
+Identify the requirements and constraints that will fundamentally shape the architecture, and convert each of them into a specific, measurable, ranked target. Not all requirements are architecturally significant—this step separates the drivers that determine the shape of the system from the requirements handled during detailed design, and it turns vague quality goals ("fast," "secure") into numbers that later steps can be designed and tested against. This is the first and highest step in the design spine: every decision made afterward—consistency model, topology, communication, and everything below—must trace back to a driver documented here. A choice that cannot point to a driver is a choice made on instinct.
+
+Prerequisite deliverables from previous steps:
+- DOC 1.1-A: Project Vision Document (from step 1.1)
+- DOC 1.3-A: System Context Diagram (from step 1.3)
+- DOC 3.2-A: Non-Functional Requirements Specification (from step 3.2)
+- DOC 3.4-A: Prioritized Requirements Matrix (from step 3.4)
+
+Position in the design spine:
+This step produces no shape decision itself—it decides nothing about consistency, topology, or code. Its job is to calibrate how much every later decision matters, and to supply the measurable targets those decisions will be checked against. Because it is a foundation rather than a shape choice, its primary output is a decision-heavy record (the drivers and their ranking) with only a light reference spec (the scenarios). Read this step's record carefully; it is cited by every ADR that follows.
+
+Tasks:
+
+Task 4.1.1: Identify Architecturally Significant Functional Requirements
+    Use the prioritized requirements matrix (DOC 3.4-A) to separate the functional requirements that force architectural structure from those that do not. A requirement is architecturally significant when no amount of flexibility in later steps could compensate for ignoring it now.
+
+    Guiding questions:
+    - Which requirements involve high transaction or data volumes? (specific numbers, not "a lot")
+    - Which requirements need many external integrations? (cross-reference context diagram 1.3-A)
+    - Which requirements need real-time, long-running, or computationally intensive processing?
+    - Which requirements imply a workflow complex enough to need orchestration or state management?
+
+    What to look for, and what each pattern forces:
+    - High volume ("process X/day", "Y concurrent users", "store Z records") → forces scaling, load balancing, distributed caching decisions downstream.
+    - Complex workflow ("approval chains", "multi-step", "long-running transactions") → may force workflow engines, state machines, or event sourcing at the consistency step.
+    - Many integrations ("integrate with", "synchronize with", "receive from") → forces an integration layer, message queues, circuit breakers.
+    - Large data ("historical data", "billions of records", "analytics") → forces archival strategy and possibly specialized stores.
+    - Real-time ("live", "instant", "as soon as") → forces push mechanisms and event-driven patterns.
+
+    Acceptance criteria:
+    - Each "Must Have" functional requirement evaluated for architectural significance
+    - High-volume requirements identified with specific numbers attached
+    - Integration requirements mapped to the external systems named in the context diagram (1.3-A)
+    - 5-10 architecturally significant functional requirements extracted, each with a note on what it forces downstream
+
+    Example:
+    "FR-015 'Process 100,000 orders/day with 500 orders/minute peaks' is significant: forces a scaling strategy at topology (4.3) and async processing at communication (4.4). FR-023 'Integrate with 15 external APIs' is significant: forces an integration layer and circuit breakers. FR-044 'Export order list to CSV' is NOT significant: handled in detailed design."
+
+    Red flags to watch for:
+    - Treating all requirements as architecturally significant (defeats the purpose of the step)
+    - Integration complexity from the context diagram left uncounted
+    - Volume or scale requirements recorded without specific numbers
+
+Task 4.1.2: Convert Quality Attributes into Measurable Scenarios
+    Use the non-functional requirements specification (DOC 3.2-A) to identify the quality attributes that most constrain architecture, and rewrite each demanding one as a testable scenario. An adjective is not designable; a scenario with a response measure is.
+
+    Guiding questions:
+    - What are the most demanding performance, availability, and scalability targets?
+    - What security and compliance requirements are mandatory and non-negotiable?
+    - Which quality attributes conflict, so that satisfying one costs another?
+    - Which attributes matter most to the business objectives in the vision document (1.1-A)?
+
+    How to write a scenario:
+    Use the form Source → Stimulus → Environment → Artifact → Response → Response Measure. For example: a normal user (source) searches by keyword (stimulus), under 1,000 concurrent users (environment), against the search service (artifact), which returns ranked results (response), with 95% completing within 200ms (response measure). The response measure is the part later steps are tested against.
+
+    Cover at minimum:
+    - Performance: response time by percentile (p50/p95/p99) and by operation type; throughput; resource ceilings.
+    - Scalability: current baseline versus projected growth, for users and for data.
+    - Availability: uptime target with the downtime it implies (99.9% = ~43 min/month), plus RTO (time to restore) and RPO (tolerable data loss).
+    - Security: authentication needs, authorization granularity, data protection, and the governing compliance regime.
+
+    Acceptance criteria:
+    - Each NFR category from DOC 3.2-A evaluated for architectural impact
+    - Specific measurable targets extracted (< 200ms p95, not "fast")
+    - 5-10 quality-attribute scenarios written in stimulus-response form
+    - Attributes ranked by criticality to the business objectives in the vision document (1.1-A)
+
+    Example:
+    "NFR-001 'p95 < 200ms under 1000 concurrent users' becomes a performance scenario; it will drive the caching decision at 4.2 and the sync/async split at 4.4. NFR-010 'PCI-DSS compliance' becomes a security scenario; it mandates encryption and network zoning at 5.5. Ranking: availability and PCI-DSS are critical (tied to vision objectives); resource-utilization targets are desirable."
+
+    Red flags to watch for:
+    - Quality attributes recorded as adjectives with no number attached
+    - All NFRs treated as equally important, with no ranking
+    - Conflicts ignored—strong consistency and high availability cannot both hold everywhere (see Task 4.1.3)
+    - No connection back to the business objectives in the vision document
+
+Task 4.1.3: Extract Constraints, Name Trade-offs, and Rank the Drivers
+    Pull constraints from the vision document (1.1-A) and context diagram (1.3-A), name the trade-offs this project must resolve, then rank everything so the top drivers are unambiguous. The named trade-offs here are not academic—each one resurfaces as a concrete forced choice in a later step, and naming it now prevents relitigating it later without new information.
+
+    Guiding questions:
+    - What technology, budget, timeline, or regulatory constraints limit the options?
+    - Which existing systems must be integrated with? (from the context diagram)
+    - Which drivers carry the highest business risk if unmet? (from vision objectives)
+    - Which drivers conflict, and where will that conflict be resolved downstream?
+
+    Constraints to categorize (with flexibility: hard vs. preference):
+    - Business: budget, timeline, legacy systems, vendor contracts, organizational mandates.
+    - Technical: mandated platform, approved technology list, device/browser support, team expertise.
+    - Regulatory: data residency, required certifications, industry regulation (HIPAA, PCI-DSS, GDPR).
+
+    Trade-offs to name explicitly (and where each lands):
+    - Consistency vs. availability (CAP): resolved at 4.2, where the consistency model is chosen per boundary.
+    - Performance vs. security: surfaces at 4.4 (sync overhead) and 5.5 (security controls).
+    - Scalability vs. simplicity: resolved at 4.3, where topology is chosen.
+    - Cost vs. performance / cost vs. availability: surfaces at 5.5, in deployment and DR tiering.
+
+    Ranking:
+    Rank every driver by business impact and risk into critical / important / desirable, and identify the top 8-12 as the primary shapers. Resist marking everything critical—if everything is critical, nothing is prioritized, and the later steps lose the tie-breaker they need when drivers conflict.
+
+    Acceptance criteria:
+    - All constraints from the vision document and context diagram listed, categorized, and marked hard vs. preference
+    - Each named trade-off annotated with the later step where it will be resolved
+    - All drivers ranked with consistent criteria (critical / important / desirable)
+    - Top 8-12 primary shapers identified and highlighted
+    - Priorities validated with stakeholders
+
+    Example:
+    "Constraint: must deploy on Azure (enterprise agreement, hard). Constraint: must integrate with legacy SAP via SOAP (from context diagram, hard). Trade-off: PCI-DSS security vs. p95 latency—resolved at 4.4/5.5 by isolating the payment path. Ranking: 1) CRITICAL PCI-DSS (regulatory); 2) CRITICAL 99.9% availability (vision objective); 3) IMPORTANT scale to 50K users in 2 years (vision growth target); 4) DESIRABLE sub-70% CPU utilization."
+
+    Red flags to watch for:
+    - Everything marked "critical"
+    - Constraints accepted without questioning their rationale or flexibility
+    - Trade-offs named but not tied to the step that resolves them
+    - No stakeholder validation of the ranking
+
+Deliverables:
+
+This step produces a decision record (heavy—read it), a light reference spec (skim it), and it opens the cross-phase traceability matrix that every later step will add to.
+
+DOC 4.1-A: Architectural Drivers Document  [decision record — primary output]
+
+Output format (5-8 pages):
+1. Executive Summary: the top drivers and the critical trade-offs, in a page.
+2. Architecturally Significant Functional Requirements: table with Requirement ID, description, architectural significance, specific metrics, and the downstream step each one shapes.
+3. Quality Attribute Drivers: organized by category, each with a measurable target, its business rationale (from the vision document), its priority, and the trade-off it participates in.
+4. Constraints: table with Constraint, Type (business/technical/regulatory), Flexibility (hard/preference), Impact, and Source.
+5. Named Trade-offs: each competing pair, the resolution approach, and the later step where it is resolved.
+6. Prioritized Drivers Matrix: all drivers ranked with business impact and risk, top 8-12 highlighted.
+7. Assumptions and Open Questions.
+
+DOC 4.1-B: Quality Attribute Scenarios  [reference spec — light]
+
+Output format (2-3 pages):
+The 5-10 scenarios from Task 4.1.2, each in Source → Stimulus → Environment → Artifact → Response → Response Measure form. This is a living reference the validation phase will replay against the finished design; keep it short and testable rather than discursive.
+
+DOC TRACE-A: Decision Traceability Matrix  [cross-phase artifact — opened here]
+
+Output format (living, 1-2 pages at this stage):
+Open the matrix with one column of driver IDs from DOC 4.1-A. Every later step (4.2 through 5.5) adds a row mapping its decision to the driver(s) that justify it. At this step the matrix contains only the drivers themselves; it becomes the object the review phase checks the whole design against, so establishing it now—rather than reconstructing traceability later—is the point.
+
+Note on reading priority:
+DOC 4.1-A is the step's real product and is cited by every ADR downstream; read it. DOC 4.1-B is a testable reference to be replayed at validation; skim it now, use it later. DOC TRACE-A is a skeleton at this stage; it earns its weight as the spine is built.

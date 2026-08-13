@@ -1,0 +1,134 @@
+4.2 Data Consistency and Ownership Boundaries
+
+Purpose:
+Decide what must be true at the same instant across the system, what may lag, and which part of the system owns each piece of data—then select the storage technology that implements that decision. This is the least reversible decision in the entire design, because it rests on a constraint no tooling softens: some facts must be seen consistently everywhere at once, and some can tolerate staleness. Every decision below—topology, communication, physical schema, even the authentication model—assumes an answer here. Deciding those before this is settled is the most common cause of systems that need distributed transactions nobody wanted: the coordination problem gets discovered after the boundaries are already drawn, when moving it is enormously expensive.
+
+Prerequisite deliverables from previous steps:
+- DOC 2.3-A: Conceptual ERD (from step 2.3)
+- DOC 3.2-A: Non-Functional Requirements Specification (from step 3.2)
+- DOC 4.1-A: Architectural Drivers Document (from step 4.1)
+- DOC 4.1-B: Quality Attribute Scenarios (from step 4.1)
+
+Position in the design spine:
+This is the first shape decision, and the highest-cost one to reverse. It constrains what counts as a coherent answer at 4.3 (topology): a topology only works if it matches the boundaries drawn here. It also carries forward directly into 5.4, where the ownership decided here becomes physical schema separation. Because it is a genuine, hard-to-reverse choice with rejected alternatives, its primary output is a decision record (the ADR—read it), with only a light reference spec (the context map—skim it). The storage technology is chosen inside this step, not in a separate technology pass, because picking the database substantially is answering the consistency question.
+
+Tasks:
+
+Task 4.2.1: Identify Consistency Boundaries via Bounded Contexts and Aggregates
+    Use the conceptual ERD (DOC 2.3-A) and the significant requirements (DOC 4.1-A) to find where a single consistent model stops making sense, and where transactional consistency is genuinely required.
+
+    Guiding questions:
+    - Where does the same term mean different things to different parts of the business? (linguistic boundaries)
+    - Where do the business rules governing the same entity diverge? (rule boundaries)
+    - What data must be saved together, loaded together, and made atomic together?
+    - What is the smallest cluster that must always be internally consistent within one transaction?
+
+    How to do it:
+    - Identify bounded contexts: the seams where a term's meaning shifts. "Product" in Catalog (a describable, priced item) is not "Product" in Inventory (a counted stock level) or in Shipping (a weight and a box size). Each such shift marks a boundary where one consistent model should stop.
+    - Identify aggregates within each context: the clusters that must be transactionally consistent as a unit—what is written and read as one thing. An Order aggregate holding Order, OrderLines, and OrderStatus is the standard example. Deciding your aggregates is deciding your consistency boundaries; it is the same decision in domain-modeling vocabulary.
+
+    Acceptance criteria:
+    - Bounded contexts identified, each with the linguistic or rule boundary that justifies it
+    - Aggregates identified within each context, each defined by what must be atomic together
+    - Every entity from the conceptual ERD (2.3-A) assigned to exactly one owning context
+    - Boundaries that will map to component boundaries at 4.3 flagged
+
+    Example:
+    "Contexts: Catalog, Inventory, Order, Shipping, Customer. 'Product' differs across Catalog/Inventory/Shipping (linguistic boundary). Aggregates: Order = {Order, OrderLines, OrderStatus} (must be atomic—an order line cannot exist without its order). Inventory stock level is its own aggregate, owned by Inventory, not by Order. Every ERD entity assigned to one context; no entity claimed by two."
+
+    Red flags to watch for:
+    - One giant context covering the whole system (no boundaries found = boundaries not looked for)
+    - An entity claimed by two contexts (ownership not actually decided)
+    - Aggregates drawn so large that unrelated data is forced into one transaction
+    - Boundaries drawn along technical lines (tables) rather than business meaning
+
+Task 4.2.2: Choose the Consistency Model per Boundary
+    For each boundary, decide what consistency guarantee holds within it and across to others, checked against the measurable targets in the quality-attribute scenarios (DOC 4.1-B). This is where the consistency-vs-availability trade-off named at 4.1 is resolved.
+
+    Guiding questions:
+    - Within this boundary, must every read reflect the latest write, or is a bounded lag acceptable?
+    - Across boundaries, can other parts of the system tolerate stale copies?
+    - Does the scale or latency target (from 4.1-B) make strong consistency infeasible here?
+    - Is an audit trail or the ability to replay state history a requirement?
+
+    The three models, and what each says:
+    - Single source of truth (strong consistency): every read reflects the latest committed write; cross-entity transactions are atomic. Says correctness at read time matters more than horizontal scalability or storage-layer fault isolation.
+    - Eventually consistent, partitioned ownership: each context owns its data; others see copies that may lag by a bounded window. Says that window of staleness is an acceptable price for independent scaling and independent failure domains.
+    - Event sourcing / CQRS: state is derived by replaying an append-only event log; reads and writes may use different models. Says auditability, replayability, and independent read/write scaling matter more than a single simple representation of current state.
+
+    Checking against drivers:
+    A throughput or latency target can override the model that would otherwise be simplest. "100k globally distributed reads/sec at sub-50ms p95" (from 4.1-B) often makes strong consistency infeasible at that scale, forcing eventual consistency whether or not it was the preference. Record the driver that forces the choice.
+
+    Acceptance criteria:
+    - A consistency model chosen for each boundary, with rationale
+    - Each choice checked against the relevant quality-attribute scenario and the driver that constrains it
+    - Cross-boundary behavior stated explicitly (what may be stale, and for how long)
+    - The consistency-vs-availability trade-off from 4.1 resolved and recorded here
+
+    Example:
+    "Order context: strong consistency (an order total must be correct at read time; ACID transactions required per NFR-020). Inventory context: eventually consistent—stock counts may lag Order by up to 2s, acceptable per the scenario in 4.1-B, and required to meet the 100k reads/sec target. Analytics: CQRS read model, rebuilt from the order event stream, no write path of its own."
+
+    Red flags to watch for:
+    - Strong consistency chosen everywhere by default, without checking it against scale targets
+    - Eventual consistency chosen without stating the tolerable staleness window
+    - The consistency-vs-availability trade-off left unresolved from 4.1
+    - A model chosen with no driver cited to justify it
+
+Task 4.2.3: Select the Storage Technology that Implements the Model
+    Choose the database(s), caching, and file storage that implement the consistency decision. This is not a later, separate step: picking the store substantially is answering the consistency question, and choosing it here keeps the guarantee and the technology from being decided in the wrong order.
+
+    Guiding questions:
+    - Which database's native consistency model matches the choice made in 4.2.2?
+    - What are the read/write access patterns—simple lookups, complex joins, full-text, graph traversal?
+    - Does a performance scenario (from 4.1-B) require a cache to be met?
+    - Where will files and large objects live, given their volume and access pattern?
+    - Is a second store genuinely justified by a different access pattern, or is it operational cost for its own sake?
+
+    Matching store to model:
+    - Strong consistency, complex queries -> relational (PostgreSQL, MySQL, SQL Server): ACID, joins, mature tooling.
+    - Eventual consistency, massive write throughput, partition tolerance -> wide-column or key-value (Cassandra, DynamoDB).
+    - Event sourcing / CQRS -> an append-only event store or log-native store, often with separate read-model projections.
+    - Caching, if a performance driver demands it -> Redis (distributed, rich structures) or Memcached (pure in-process cache).
+    - Files and large objects -> object storage (S3) with a CDN for global delivery, or a network/local filesystem for on-prem.
+
+    Acceptance criteria:
+    - Primary database selected per boundary, with rationale tied to the consistency model and a driver
+    - Caching selected only where a performance scenario from 4.1-B requires it
+    - File/object storage chosen against volume and access pattern
+    - Polyglot persistence justified only by a genuine access-pattern difference, with the operational cost acknowledged
+    - Each storage choice mapped to the boundary and driver it serves
+
+    Example:
+    "Order context: PostgreSQL—implements the strong-consistency choice, ACID for order totals (NFR-020), handles 100k orders/day (AD-001), team expertise high. Inventory context: Cassandra—implements eventual consistency, absorbs the 100k reads/sec target. Cache: Redis—required to meet p95 < 200ms (NFR-001) on the catalog read path. Object storage: S3 + CloudFront for product images. Two databases justified: Order and Inventory have genuinely different consistency and throughput profiles; operational cost accepted and noted as a risk."
+
+    Red flags to watch for:
+    - A database chosen before the consistency model it is meant to implement
+    - NoSQL adopted with no clear access-pattern or scale justification (relational is often simpler)
+    - Multiple stores without a genuine difference in access pattern to justify the operational cost
+    - No cache where a performance scenario demands one, or a cache with no driver behind it
+
+Deliverables:
+
+This step produces a decision record (heavy—read it) and a light reference spec (skim it), and it adds its first rows to the cross-phase traceability matrix opened at 4.1.
+
+DOC 4.2-A: Consistency and Ownership ADR  [decision record — primary output]
+
+Output format (3-5 pages):
+1. Status: Proposed / Accepted / Superseded, with date and participants.
+2. Context: the boundaries and the drivers (from 4.1-A) forcing a consistency decision; the consistency-vs-availability trade-off inherited from 4.1.
+3. Decision: for each boundary, the consistency model chosen and the storage technology implementing it, stated plainly.
+4. Options Considered: for the significant boundaries, the models and stores rejected, with the reason—especially where a scale driver ruled out the simpler option.
+5. Consequences: what is now constrained downstream (which topologies at 4.3 remain coherent; what cross-boundary staleness the rest of the system must tolerate; what physical schema separation 5.4 must enforce). Positive and negative, trade-offs accepted.
+6. Cross-boundary contract: what may be stale, for how long, in one short table.
+
+DOC 4.2-B: Bounded Context Map  [reference spec — light]
+
+Output format (1-2 pages):
+A single diagram: each bounded context as a region, the aggregates within it, the owning relationship for every entity from the conceptual ERD (2.3-A), and the boundaries between contexts marked with their consistency relationship (strong within, eventual across). This is the object 4.3 reads to draw component boundaries and 5.4 reads to separate schemas; keep it a map, not a treatise.
+
+DOC TRACE-A: Decision Traceability Matrix  [cross-phase artifact — updated]
+
+Add rows mapping each consistency-model choice and each storage choice to the driver(s) from 4.1-A that justify it. At minimum: each boundary's model -> its forcing driver; each database -> its forcing driver. These rows are what the validation phase checks when it asks "why this consistency model, why this database."
+
+Note on reading priority:
+DOC 4.2-A is the step's real product and constrains every shape decision below it; read it, especially the Consequences section. DOC 4.2-B is the map later steps navigate by; skim it now, return to it at 4.3 and 5.4. The traceability rows are short and mechanical but are exactly what the review phase audits.

@@ -1,0 +1,42 @@
+
+Theo dõi phương hướng các bạn thực hiện:
+- Cứ việc nêu mạnh mẽ ý kiến chủ quan của mình, vì các bạn phân tích cũng chưa tốt, dễ bị phản biện và hội đồng dập.
+
+- Phân tích nghiệp vụ có phù hợp không, có lý hay vô lý, có đủ sâu chưa
+- Phân tích usecase tốt chưa: đủ usecase chính chưa, tên usecase có phù hợp không (usecase là hoạt động, không phải đối tượng), usecase có kịch bản không
+- Yêu cầu ghi thông tin usecase cho chi tiết:
+ -- Bảng mô tả: tên, agent, precondition, outcome, trigger, main path (từng bước 1,2,3...), alternative path
+ -- Lược đồ usecase có các phần include và extend cho chính xác
+ -- Có activity diagram
+ -- Có sequence diagram, nhớ có frame để thể hiện cả alternative action
+ -- Hạn chế các usecase cơ bản kiểu login/change password: đây không thực sự là business usecase, chỉ là trite convention
+Khuyến khích viết ở dạng phù hợp mà LLM có thể đọc và tạo ra các document cần thiết theo format cần in
+
+- Thiết kế ERD và database có tốt chưa, liên kết đối tượng có hợp lý không, bản chất đối tượng có phù hợp không (lưu lịch sử không đổi hay lưu trạng thái hiện tại...), trường dữ liệu có dư không, đặt tên có dễ hiểu không
+- Nhớ là ERD không có khóa ngoại
+- Theo dõi phần kỹ thuật "hay" của các bạn: có hiểu đúng không, đủ sâu chưa, biết điểm mạnh điểm yếu của nó không, biết cách thức đánh giá (metric) không, và metric đó tính như thế nào
+
+Giai đoạn cuối - Hoàn thiện và chuẩn bị bảo vệ
+Ứng dụng và demo:
+- Nếu làm ứng dụng, cố gắng để ứng dụng chạy mượt, không để chậm, lắc, giật giật, sẽ rất tệ khi demo
+- Yêu cầu demo thì cũng nhắc nhở tạo kịch bản demo để thể hiện điểm mạnh của hệ thống. Chuẩn bị môi trường demo tự động (trạng thái database, trạng thái server, yêu cầu cho hệ thống...) để demo cố định qua các lần, nhanh chóng setup, hiện rõ sức mạnh hệ thống
+- Nếu có dùng service từ bên thứ ba thì phải cẩn thận: nếu bên kia quá chậm, bị sập, hết tiền, hết miễn phí... giữa lúc demo thì rất tệ
+
+Chuẩn bị bảo vệ:
+- Luyện tập bị hỏi khó, bắt bí (dùng LLM) để luyện tinh thần thép, chấp nhận thừa nhận mình chưa tìm hiểu đến điểm đó. Là sinh viên nên GV sẽ không quá khắt khe việc hiểu chưa kĩ, nhưng sẽ bắt việc gian dối, thiếu trung thực
+
+Lưu trữ:
+- Cả SV và GV đều giữ lại tài liệu để lưu trữ, sau này có thể dùng lại
+
+Sau đây là một số lưu ý cho 5 nhóm còn lại, sau kinh nghiệm báo cáo của 2 nhóm trước.
+- Ăn mặc lịch sự. Dùng sơ mi và quần tây, tránh mặc áo thun đi báo cáo
+- Dùng LLM đọc qua slide và đóng vai phản biện để hỏi lắt léo, để chuẩn bị trước các tình huống hỏi có thể gặp
+- Bổ sung phần hình vẽ ERD và database diagram vào cả file báo cáo và slide báo cáo. Nhớ là ERD khác database diagram, không phải 1 loại hình vẽ.
+- Vẽ ERD và database diagram cố gắng tránh để các đường nối chồng chéo lên nhau. Nên kéo vị trí các đối tượng/bảng cho đường nối thẳng và vuông vức, hạn chế cắt nhau càng ít càng tốt.
+- ERD và database diagram phải đảm bảo đọc được (đọc được từng chữ cái một) ở cả file báo cáo và slide báo cáo. Không để xảy ra tình trạng mờ nhòe chữ do kích thước không phù hợp. Nếu 2 loại diagram quá lớn thì có thể tách mỗi cái ra nhiều diagram nhỏ hơn cho mỗi usecase quan trọng.
+- Lựa chọn màu sắc đủ tương phản nổi bật chi tiết, không quá mờ nhạt. Môi trường phòng chiếu rất sáng, nếu dùng màu sáng thì khó đọc chi tiết.
+- Kiểm tra kĩ lại database và các mối quan hệ giữa các bảng. Không để các trường dữ liệu giống nhau bị trùng lặp giữa các bảng. Nếu có bảng không có liên quan gì đến các bảng khác thì phải có câu trả lời thuyết phục cho việc đó.
+- Đảm bảo thông tin trên slide là mới nhất, đúng với trạng thái hệ thống hiện tại, không dùng thông tin đã cũ và không còn đúng.
+- Phần giới thiệu đề tài không quá quan trọng. Phần demo quan trọng. Phần hỏi đáp quan trọng.
+- Khi hỏi đáp, sẽ có hỏi về mức hiểu về chính các kĩ thuật "hay" mà các bạn sử dụng. Ít nhất phải biết được nó làm được gì, không làm được gì, làm sao đánh giá nó hoạt động tốt, các thành phần trong thang để đánh giá nghĩa là gì
+- Mỗi nhóm sẽ có dưới 15' thuyết trình slide, còn lại là demo và hỏi đáp. Nên luyện tập nói slide trước ở nhà vài lần cho tránh vấp váp.
