@@ -2,6 +2,7 @@
 
 == Bối cảnh và Lý do chọn đề tài
 
+Thị trường giao dịch trực tuyến giữa các cá nhân (C2C - Consumer-to-Consumer) tại Việt Nam đang chứng kiến sự tăng trưởng vượt bậc, đặc biệt trong các lĩnh vực mua bán đồ cũ, thanh lý thiết bị điện tử, sách giáo khoa, đồ gia dụng, thời trang và các sản phẩm thủ công (handmade). Tuy nhiên, khi các giao dịch diễn ra tự phát mà không có sự bảo lãnh tài chính và giám sát chuẩn mực, thị trường C2C truyền thống đang phải đối mặt với rào cản lớn nhất là khủng hoảng niềm tin giữa các bên tham gia giao dịch.
 
 Cụ thể, những thách thức cốt lõi đang kìm hãm sự phát triển lành mạnh của hệ sinh thái này bao gồm:
 - *Rủi ro từ góc độ Người mua:* Khi tham gia mua sắm hàng thanh lý từ một cá nhân xa lạ, người mua luôn rơi vào tình huống bất lợi nếu phải đặt cọc hoặc thanh toán trước (chuyển khoản trực tiếp qua tài khoản ngân hàng cá nhân). Tình trạng "lừa đảo" (scam) cụ thể là nhận tiền nhưng không giao hàng, hoặc cố tình giao sai sản phẩm, hàng giả, hàng lỗi/hỏng nặng không đúng mô tả diễn ra phổ biến. Khi sự cố xảy ra, người mua gần như không có cơ chế pháp lý hay bên thứ ba nào bảo vệ; người bán cá nhân thường tìm cách từ chối hoàn tiền, chặn liên lạc hoặc xóa tài khoản.
