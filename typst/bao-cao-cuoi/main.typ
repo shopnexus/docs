@@ -41,6 +41,7 @@ Mặc dù đã có nhiều cố gắng, song do giới hạn về mặt thời g
 #sechead([DANH MỤC CÁC KÝ HIỆU VÀ CHỮ VIẾT TẮT], outlined: false)
 
 #table(
+  inset: (x: 8pt, y: 3.2pt),
   columns: (auto, 1.5fr, 2fr),
   align: (left, left, left),
   table.header([*Viết tắt*], [*Cụm từ đầy đủ*], [*Ý nghĩa*]),
@@ -71,7 +72,7 @@ Mặc dù đã có nhiều cố gắng, song do giới hạn về mặt thời g
   [TMĐT], [], [Thương mại điện tử],
   [RPC], [Remote Procedure Call], [Lời gọi thủ tục từ xa giữa các dịch vụ],
   [TLS], [Transport Layer Security], [Mã hóa dữ liệu trên đường truyền],
-  [UC], [Use Case], [Ca sử dụng (đánh mã UC-xxx)],
+  [UC], [Use Case], [Ca sử dụng (đánh mã UC-xx)],
   [UML], [Unified Modeling Language], [Ngôn ngữ mô hình hóa thống nhất],
 )
 
@@ -128,19 +129,19 @@ Mặc dù đã có nhiều cố gắng, song do giới hạn về mặt thời g
 #sechead([MỞ ĐẦU])
 
 
-Hiện nay, thương mại điện tử giữa các cá nhân đã trở thành một kênh giao dịch quen thuộc tại Việt Nam nhưng vẫn đang vận hành trên một nền tảng niềm tin mong manh. Người mua chuyển tiền đi mà không có gì bảo đảm hàng sẽ tới; người bán gửi hàng đi mà không chắc sẽ nhận được tiền; và khi bất đồng xảy ra thì không có bên thứ ba nào đứng ra xử lý. Cơ chế thanh toán khi nhận hàng thường được xem là giải pháp, nhưng thực chất nó chỉ chuyển rủi ro sang người bán chứ không loại bỏ hoàn toàn rủi ro.
+Hiện nay, thương mại điện tử giữa các cá nhân đã trở thành một kênh giao dịch quen thuộc tại Việt Nam nhưng vẫn đang vận hành trên một nền tảng niềm tin mong manh. Người mua chuyển tiền đi mà không có gì bảo đảm hàng sẽ tới; người bán gửi hàng đi mà không chắc sẽ nhận được tiền; và khi bất đồng xảy ra thì không có bên thứ ba nào đứng ra xử lý. Thanh toán khi nhận hàng thường được xem là giải pháp, nhưng thực chất chỉ chuyển rủi ro sang người bán.
 
 Từ thực tế đó, bài toán trung tâm của đề tài không phải là dựng thêm một nơi để đăng tin rao vặt, mà là xây dựng một cơ chế khép kín giúp hai người xa lạ có thể giao dịch an toàn mà không cần phải tin tưởng nhau từ trước. Để làm được điều này, đề tài hướng tới xây dựng một nền tảng với cốt lõi là cơ chế thanh toán tạm giữ: tiền của người mua được hệ thống giữ lại ở tài khoản trung gian, và chỉ được giải ngân cho người bán khi hàng đã tới tay đồng thời thời hạn khiếu nại đã trôi qua.
 
 Tuy nhiên, việc chỉ giữ tiền trung gian vẫn chưa đủ để giải quyết trọn vẹn bài toán niềm tin, vì tranh chấp còn có thể phát sinh từ sai lệch thông tin sản phẩm, gian lận danh tính hay bất đồng về giá cả. Vì vậy, nền tảng được thiết kế tích hợp thêm các quy trình bảo vệ xoay quanh vòng đời giao dịch: bắt buộc xác minh danh tính trước khi được bán hàng, cho phép thương lượng giá trực tiếp ngay trong cuộc trò chuyện, và cung cấp một bộ phận đứng ra phân xử tranh chấp dựa trên bằng chứng kỹ thuật từ hai phía. Sự kết hợp này giúp triệt tiêu tối đa các kẽ hở lừa đảo, từ đấy tạo một môi trường giao dịch minh bạch, an toàn và bảo vệ toàn diện quyền lợi hợp pháp của cả người mua lẫn người bán.
 
-Về tình hình nghiên cứu, mô hình ký quỹ cho giao dịch giữa các cá nhân đã được các sàn lớn trong nước áp dụng ở những mức độ khác nhau, song phần lớn nền tảng rao vặt C2C hiện hữu vẫn dừng ở vai trò kết nối thông tin và để hai bên tự chuyển tiền cho nhau. Ở khía cạnh kỹ thuật, việc giữ nhất quán cho một quy trình nghiệp vụ dài hạn trải qua nhiều dịch vụ từ lâu được giải quyết bằng mẫu thiết kế Saga, còn hướng thực thi bền (durable execution) mới xuất hiện gần đây và chưa được áp dụng phổ biến trong các hệ thống thương mại điện tử tại Việt Nam. Khoảng trống đó là chỗ đề tài đặt đóng góp của mình.
+Về tình hình nghiên cứu, mô hình ký quỹ đã được các sàn lớn trong nước áp dụng ở những mức độ khác nhau, song phần lớn nền tảng rao vặt C2C vẫn dừng ở vai trò kết nối thông tin và để hai bên tự chuyển tiền cho nhau. Ở khía cạnh kỹ thuật, việc giữ nhất quán cho một quy trình dài hạn trải qua nhiều dịch vụ từ lâu được giải quyết bằng mẫu thiết kế Saga, còn hướng thực thi bền (durable execution) mới xuất hiện gần đây và chưa phổ biến tại Việt Nam. Khoảng trống đó là chỗ đề tài đặt đóng góp của mình.
 
-Về phạm vi, đề tài bao trùm trọn vòng đời một giao dịch C2C, từ đăng bán, tìm kiếm, thương lượng, thanh toán ký quỹ, giao nhận cho tới hoàn tiền và phân xử tranh chấp, hiện thực trên cả 3 thành phần gồm dịch vụ nền, ứng dụng web và ứng dụng di động. Những nội dung nằm ngoài phạm vi gồm gian hàng doanh nghiệp, giao dịch xuyên biên giới, gọi thoại và gọi video trực tiếp, cùng việc vận hành thương mại thực tế với các đối tác thanh toán và vận chuyển ở môi trường sản xuất.
+Về phạm vi, đề tài bao trùm trọn vòng đời một giao dịch C2C, từ đăng bán, tìm kiếm, thương lượng, thanh toán ký quỹ, giao nhận cho tới hoàn tiền và phân xử tranh chấp, hiện thực trên cả 3 thành phần gồm dịch vụ nền, ứng dụng web và ứng dụng di động. Ngoài phạm vi là gian hàng doanh nghiệp, giao dịch xuyên biên giới, gọi thoại và gọi video, cùng việc vận hành thực tế với các đối tác ở môi trường sản xuất.
 
-Về phương pháp nghiên cứu, phần phân tích và thiết kế áp dụng mô hình hóa hướng đối tượng bằng ngôn ngữ mô hình hóa thống nhất, gồm sơ đồ ca sử dụng kèm đặc tả đầy đủ, sơ đồ hoạt động, sơ đồ trạng thái, sơ đồ trình tự, sơ đồ lớp và sơ đồ quan hệ thực thể. Phần kiến trúc áp dụng nguyên lý mỗi dịch vụ một cơ sở dữ liệu của mô hình Microservices, còn phần hiện thực dùng nền tảng thực thi bền để quản lý các luồng nghiệp vụ dài hạn. Kết quả được kiểm chứng bằng bộ ca kiểm thử bám theo các yêu cầu phi chức năng đã đặc tả.
+Về phương pháp nghiên cứu, phần phân tích và thiết kế áp dụng mô hình hóa hướng đối tượng bằng ngôn ngữ mô hình hóa thống nhất, gồm sơ đồ ca sử dụng kèm đặc tả đầy đủ, sơ đồ hoạt động, sơ đồ trạng thái, sơ đồ trình tự, sơ đồ lớp và sơ đồ quan hệ thực thể. Phần kiến trúc áp dụng nguyên lý mỗi dịch vụ một cơ sở dữ liệu, phần hiện thực dùng nền tảng thực thi bền cho các luồng dài hạn, và kết quả được kiểm chứng bằng bộ ca kiểm thử bám theo các yêu cầu phi chức năng.
 
-Về kết cấu, báo cáo gồm 6 chương. Chương 1 trình bày bối cảnh, mục tiêu, phạm vi và đóng góp của đề tài. Chương 2 trình bày cơ sở lý thuyết về kiến trúc hướng dịch vụ, thực thi bền, giao tiếp liên dịch vụ, tìm kiếm lai và lựa chọn công nghệ. Chương 3 phân tích yêu cầu, gồm bối cảnh hệ thống, danh mục ca sử dụng, bộ quy tắc nghiệp vụ và các yêu cầu chức năng cùng phi chức năng. Chương 4 trình bày thiết kế hệ thống ở cả 3 mức kiến trúc, dữ liệu và chi tiết. Chương 5 trình bày quá trình hiện thực và triển khai. Chương 6 trình bày kiểm thử, đánh giá kết quả và các hạn chế còn lại.
+Về kết cấu, báo cáo gồm 6 chương: tổng quan đề tài; cơ sở lý thuyết; phân tích yêu cầu; thiết kế hệ thống ở 3 mức kiến trúc, dữ liệu và chi tiết; hiện thực và triển khai; kiểm thử, đánh giá kết quả cùng các hạn chế còn lại.
 
 
 // ---- Các chương (template tự ngắt trang trước mỗi chương) --

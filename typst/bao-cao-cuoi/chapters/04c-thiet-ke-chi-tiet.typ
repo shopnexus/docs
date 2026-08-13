@@ -758,10 +758,9 @@ Hình vẽ dùng 5 đường sinh, lần lượt là người mua, module order,
 danh mục và hãng vận chuyển. Các bước có nền khác biệt là bước bền vững, tức bước được nền
 tảng thực thi ghi vào nhật ký trước khi chạy, nên nếu máy chủ sập giữa trình tự thì lượt chạy
 lại sẽ bỏ qua đúng những bước đã có kết quả. Thứ tự các bước trong hình vì thế không chỉ là
-thứ tự thời gian mà còn là thứ tự phục hồi. Khung `alt` bao quanh bước 4 là chỗ duy nhất
-trong trình tự có hai nhánh loại trừ nhau: giữ đủ chỗ tồn kho cho mọi dòng hàng thì lượt mua
-đi tiếp, còn thiếu chỗ ở bất kỳ dòng nào thì các chỗ vừa giữ phải được nhả lại hết rồi lượt
-mua dừng ngay, chứ không có trạng thái giữ được một phần.
+thứ tự thời gian mà còn là thứ tự phục hồi. Khung `alt` bao quanh bước 4 là chỗ duy nhất có hai
+nhánh loại trừ nhau: giữ đủ chỗ thì lượt mua đi tiếp, thiếu chỗ ở bất kỳ dòng nào thì các chỗ
+vừa giữ phải nhả lại hết, không có trạng thái giữ được một phần.
 
 #fig-xoay(
     [Sơ đồ trình tự TT-A: đặt hàng và mở phiên thanh toán],

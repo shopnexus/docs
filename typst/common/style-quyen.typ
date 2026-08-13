@@ -284,7 +284,7 @@
       let ch = counter(heading).at(loc).first()
       let n = counter(figure.where(kind: kind)).at(loc).first()
       let so = if ch > 0 { numbering("1.1", ch, n) } else { numbering("1", n) }
-      block(above: 0.75em, below: 0.75em, width: 100%)[
+      block(above: 0.52em, below: 0.52em, width: 100%)[
         #set par(first-line-indent: 0pt, justify: false)
         #link(loc)[#supplement #so #h(0.5em) #f.caption.body
           #box(width: 1fr, inset: (x: 4pt), repeat[.])
