@@ -12,9 +12,7 @@
 )
 
 // ---- Mục lục ----------------------------------------------
-#set page(numbering: "i")
-#counter(page).update(1)
-
+// (Số trang La Mã của phần phụ do template `quyen` đặt sẵn)
 #muc-luc()
 #pagebreak()
 
@@ -77,7 +75,6 @@ Mặc dù đã có nhiều cố gắng, song do giới hạn về mặt thời g
   [TLS], [Transport Layer Security], [Mã hóa dữ liệu trên đường truyền],
   [UC], [Use Case], [Ca sử dụng (đánh mã UC-xxx)],
   [UML], [Unified Modeling Language], [Ngôn ngữ mô hình hóa thống nhất],
-  [WCAG], [Web Content Accessibility Guidelines], [Hướng dẫn khả năng tiếp cận nội dung web],
   [k3s], [—], [Bản phân phối Kubernetes nhẹ (single-node) cho demo],
 )
 #pagebreak()
@@ -162,38 +159,38 @@ mã giả và lập kế hoạch theo tác vụ – lịch biểu – đăng ký
 #include "chapters/03-phan-tich-yeu-cau-thiet-ke.typ"
 
 #pagebreak()
-#sechead([KẾT LUẬN VÀ KIẾN NGHỊ])
+// #sechead([KẾT LUẬN VÀ KIẾN NGHỊ])
 
-*Kết quả đạt được.* Kết thúc giai đoạn hai, nhóm đã hoàn tất toàn bộ hồ sơ phân tích
-và thiết kế của hệ thống ShopNexus. Về *phân tích yêu cầu*: danh mục 17 ca sử dụng
-kèm đặc tả đầy đủ cho 10 ca sử dụng trọng yếu, bộ 25 quy tắc nghiệp vụ đã chuẩn hóa,
-51 yêu cầu chức năng và 29 yêu cầu phi chức năng định lượng kèm phương pháp kiểm
-chứng, được kiểm tra độ đầy đủ bằng ma trận CRUD và ma trận truy xuất nguồn gốc. Về
-*mô hình hóa*: năm sơ đồ hoạt động, sơ đồ trạng thái vòng đời đơn hàng, ba sơ đồ
-trình tự cho các luồng bền và hai lát cắt sơ đồ thực thể ý niệm. Về *thiết kế*: thành
-phần phân lớp và ma trận trách nhiệm, sơ đồ lớp cụm Order, đặc tả API (khoảng 23
-endpoint, phân loại mutation/query), kiến trúc dữ liệu vật lý với lược đồ – ràng buộc
-– chỉ mục, và thiết kế bảo mật (xác thực JWT, RBAC kèm kiểm tra quyền sở hữu, nhật ký
-kiểm toán). Cuối cùng, nhóm đặc tả ba thuật toán nghiệp vụ cốt lõi, chiến lược xử lý
-lỗi, kế hoạch kiểm thử, tiêu chuẩn phát triển và lịch triển khai tám tuần kèm đăng ký
-rủi ro.
+// *Kết quả đạt được.* Kết thúc giai đoạn hai, nhóm đã hoàn tất toàn bộ hồ sơ phân tích
+// và thiết kế của hệ thống ShopNexus. Về *phân tích yêu cầu*: danh mục 17 ca sử dụng
+// kèm đặc tả đầy đủ cho 10 ca sử dụng trọng yếu, bộ 25 quy tắc nghiệp vụ đã chuẩn hóa,
+// 51 yêu cầu chức năng và 29 yêu cầu phi chức năng định lượng kèm phương pháp kiểm
+// chứng, được kiểm tra độ đầy đủ bằng ma trận CRUD và ma trận truy xuất nguồn gốc. Về
+// *mô hình hóa*: năm sơ đồ hoạt động, sơ đồ trạng thái vòng đời đơn hàng, ba sơ đồ
+// trình tự cho các luồng bền và hai lát cắt sơ đồ thực thể ý niệm. Về *thiết kế*: thành
+// phần phân lớp và ma trận trách nhiệm, sơ đồ lớp cụm Order, đặc tả API (khoảng 23
+// endpoint, phân loại mutation/query), kiến trúc dữ liệu vật lý với lược đồ – ràng buộc
+// – chỉ mục, và thiết kế bảo mật (xác thực JWT, RBAC kèm kiểm tra quyền sở hữu, nhật ký
+// kiểm toán). Cuối cùng, nhóm đặc tả ba thuật toán nghiệp vụ cốt lõi, chiến lược xử lý
+// lỗi, kế hoạch kiểm thử, tiêu chuẩn phát triển và lịch triển khai tám tuần kèm đăng ký
+// rủi ro.
 
-*Đánh giá.* Cùng với báo cáo lần 1, bộ tài liệu thiết kế đã bao phủ trọn vẹn vòng
-đời phân tích – thiết kế của hệ thống, đảm bảo tính truy vết từ yêu cầu đến thành
-phần, lớp, bảng dữ liệu và endpoint. Đây là cơ sở đầy đủ để bước sang giai đoạn hiện
-thực hóa.
+// *Đánh giá.* Cùng với báo cáo lần 1, bộ tài liệu thiết kế đã bao phủ trọn vẹn vòng
+// đời phân tích – thiết kế của hệ thống, đảm bảo tính truy vết từ yêu cầu đến thành
+// phần, lớp, bảng dữ liệu và endpoint. Đây là cơ sở đầy đủ để bước sang giai đoạn hiện
+// thực hóa.
 
-*Hạn chế.* Các thiết kế mới ở dạng bản vẽ và mã giả, chưa được kiểm chứng qua hiện
-thực đầy đủ; hiệu năng và tính đúng đắn của luồng Escrow durable cần được xác nhận
-bằng nguyên mẫu và kiểm thử thực tế.
+// *Hạn chế.* Các thiết kế mới ở dạng bản vẽ và mã giả, chưa được kiểm chứng qua hiện
+// thực đầy đủ; hiệu năng và tính đúng đắn của luồng Escrow durable cần được xác nhận
+// bằng nguyên mẫu và kiểm thử thực tế.
 
-*Kiến nghị và hướng phát triển.* Nhóm kiến nghị triển khai theo lịch biểu tám tuần
-đã đề xuất, ưu tiên dựng sớm nguyên mẫu luồng Escrow trên Restate và bộ mock cho cổng
-thanh toán/vận chuyển để giảm rủi ro tích hợp bên thứ ba; đồng thời bám sát tiêu chuẩn
-phát triển và chiến lược kiểm thử đã đặt ra nhằm đảm bảo chất lượng khi hiện thực hóa
-hệ thống ShopNexus.
+// *Kiến nghị và hướng phát triển.* Nhóm kiến nghị triển khai theo lịch biểu tám tuần
+// đã đề xuất, ưu tiên dựng sớm nguyên mẫu luồng Escrow trên Restate và bộ mock cho cổng
+// thanh toán/vận chuyển để giảm rủi ro tích hợp bên thứ ba; đồng thời bám sát tiêu chuẩn
+// phát triển và chiến lược kiểm thử đã đặt ra nhằm đảm bảo chất lượng khi hiện thực hóa
+// hệ thống ShopNexus.
 
-#pagebreak()
+// #pagebreak()
 #sechead([DANH MỤC TÀI LIỆU THAM KHẢO])
 
 *Tiếng Việt*
@@ -208,4 +205,3 @@ hệ thống ShopNexus.
 *Website tham khảo*
 + Restate — Durable Execution for microservices: #link("https://restate.dev/")[https://restate.dev/].
 + pgvector — Open-source vector similarity search for Postgres: #link("https://github.com/pgvector/pgvector")[github.com/pgvector/pgvector].
-+ Web Content Accessibility Guidelines (WCAG) 2.1, W3C: #link("https://www.w3.org/TR/WCAG21/")[w3.org/TR/WCAG21].
