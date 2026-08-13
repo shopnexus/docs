@@ -82,36 +82,45 @@ Mặc dù đã có nhiều cố gắng, song do giới hạn về mặt thời g
 
 #v(0.5cm)
 #table(
-  columns: (1.1cm, 1fr, 3.8cm, 2.8cm),
+  columns: (0.9cm, 1fr, 3.1cm, 2.0cm, 2.8cm),
   inset: 7pt,
   align: (center, left, left, center, center),
-  table.header([*STT*], [*Nội dung công việc*], [*Người thực hiện*], [*Thời gian*]),
-  [1], [Khảo sát bối cảnh, xác định bài toán niềm tin trong thương mại điện tử C2C], [Cả nhóm], [Tuần 1],
-  [2], [Phân tích các mô hình sàn giao dịch tiêu biểu và rút ra yêu cầu cho đề tài], [Nguyễn Tấn Khoa, Hồ Công Toản], [Tuần 1],
-  [3], [Nghiên cứu kiến trúc hướng dịch vụ, mô hình vi dịch vụ và triết lý mỗi dịch vụ một cơ sở dữ liệu], [Đậu Văn Đăng Khoa, Hồ Công Toản], [Tuần 1],
-  [4], [Nghiên cứu durable execution và các mẫu giao dịch phân tán], [Đậu Văn Đăng Khoa], [Tuần 1],
-  [5], [Nghiên cứu tìm kiếm ngữ nghĩa và hệ gợi ý đa sở thích], [Đậu Văn Đăng Khoa, Hồ Công Toản], [Tuần 1 – 2],
-  [6], [Phân tích tác nhân, chân dung người dùng và sơ đồ ngữ cảnh hệ thống], [Nguyễn Tấn Khoa], [Tuần 2],
-  [7], [Xây dựng danh mục ca sử dụng và đặc tả chi tiết các ca trọng yếu], [Cả nhóm], [Tuần 2],
-  [8], [Chuẩn hóa bộ quy tắc nghiệp vụ ràng buộc nền tảng], [Nguyễn Tấn Khoa, Hồ Công Toản], [Tuần 2],
-  [9], [Ban hành bộ yêu cầu chức năng và phi chức năng], [Cả nhóm], [Tuần 2],
-  [10], [Mô hình hóa quy trình bằng sơ đồ hoạt động, sơ đồ trạng thái và sơ đồ trình tự], [Đậu Văn Đăng Khoa, Nguyễn Tấn Khoa], [Tuần 2],
-  [11], [Phân rã miền nghiệp vụ và thiết kế kiến trúc tổng thể], [Cả nhóm], [Tuần 2],
-  [12], [Thiết kế luồng giao tiếp liên dịch vụ và trục sự kiện bất đồng bộ], [Đậu Văn Đăng Khoa], [Tuần 2 – 3],
-  [13], [Thiết kế thành phần phân lớp và sơ đồ lớp], [Hồ Công Toản, Đậu Văn Đăng Khoa], [Tuần 3],
-  [14], [Thiết kế danh mục giao diện lập trình], [Nguyễn Tấn Khoa, Đậu Văn Đăng Khoa], [Tuần 3],
-  [15], [Thiết kế cơ sở dữ liệu vật lý cho 7 lược đồ], [Cả nhóm], [Tuần 3],
-  [16], [Thiết kế bảo mật và chiến lược xử lý lỗi], [Đậu Văn Đăng Khoa], [Tuần 3],
-  [17], [Hiện thực dịch vụ tài khoản, danh mục sản phẩm và tìm kiếm], [Đậu Văn Đăng Khoa, Hồ Công Toản], [Tuần 3 – 4],
-  [18], [Hiện thực dịch vụ đơn hàng, tài chính và luồng thanh toán tạm giữ], [Đậu Văn Đăng Khoa], [Tuần 4 – 5],
-  [19], [Hiện thực dịch vụ hội thoại, tín nhiệm và quan trắc vận hành], [Đậu Văn Đăng Khoa, Hồ Công Toản], [Tuần 4 – 5],
-  [20], [Hiện thực ứng dụng web], [Đậu Văn Đăng Khoa, Hồ Công Toản], [Tuần 4 – 5],
-  [21], [Hiện thực ứng dụng di động], [Nguyễn Tấn Khoa], [Tuần 4 – 6],
-  [22], [Tích hợp các nhà cung cấp bên ngoài và bộ giả lập tương ứng], [Đậu Văn Đăng Khoa], [Tuần 5],
-  [23], [Xây dựng quy trình tích hợp liên tục và mô hình triển khai bằng container], [Đậu Văn Đăng Khoa], [Tuần 5],
-  [24], [Kiểm thử và đánh giá mức độ đáp ứng bộ yêu cầu đã đặt ra], [Cả nhóm], [Tuần 5 – 6],
-  [25], [Tổng hợp và hoàn thiện báo cáo thực tập tốt nghiệp], [Cả nhóm], [Tuần 6],
+  table.header([*STT*], [*Nội dung công việc*], [*Người thực hiện*], [*Thời gian*], [*Mức độ hoàn thành*]),
+  [1], [Khảo sát bối cảnh, xác định bài toán niềm tin trong thương mại điện tử C2C], [Cả nhóm], [Tuần 1], [Hoàn thành],
+  [2], [Phân tích các mô hình sàn giao dịch tiêu biểu và rút ra yêu cầu cho đề tài], [Nguyễn Tấn Khoa, Hồ Công Toản], [Tuần 1], [Hoàn thành],
+  [3], [Nghiên cứu kiến trúc hướng dịch vụ, mô hình vi dịch vụ và triết lý mỗi dịch vụ một cơ sở dữ liệu], [Đậu Văn Đăng Khoa, Hồ Công Toản], [Tuần 1], [Hoàn thành],
+  [4], [Nghiên cứu durable execution và các mẫu giao dịch phân tán], [Đậu Văn Đăng Khoa], [Tuần 1], [Hoàn thành],
+  [5], [Nghiên cứu tìm kiếm ngữ nghĩa và hệ gợi ý đa sở thích], [Đậu Văn Đăng Khoa, Hồ Công Toản], [Tuần 1 – 2], [Hoàn thành],
+  [6], [Phân tích tác nhân, chân dung người dùng và sơ đồ ngữ cảnh hệ thống], [Nguyễn Tấn Khoa], [Tuần 2], [Hoàn thành],
+  [7], [Xây dựng danh mục ca sử dụng và đặc tả chi tiết các ca trọng yếu], [Cả nhóm], [Tuần 2], [Hoàn thành],
+  [8], [Chuẩn hóa bộ quy tắc nghiệp vụ ràng buộc nền tảng], [Nguyễn Tấn Khoa, Hồ Công Toản], [Tuần 2], [Hoàn thành],
+  [9], [Ban hành bộ yêu cầu chức năng và phi chức năng], [Cả nhóm], [Tuần 2], [Hoàn thành],
+  [10], [Mô hình hóa quy trình bằng sơ đồ hoạt động, sơ đồ trạng thái và sơ đồ trình tự], [Đậu Văn Đăng Khoa, Nguyễn Tấn Khoa], [Tuần 2], [Hoàn thành],
+  [11], [Phân rã miền nghiệp vụ và thiết kế kiến trúc tổng thể], [Cả nhóm], [Tuần 2], [Hoàn thành],
+  [12], [Thiết kế luồng giao tiếp liên dịch vụ và trục sự kiện bất đồng bộ], [Đậu Văn Đăng Khoa], [Tuần 2 – 3], [Hoàn thành],
+  [13], [Thiết kế thành phần phân lớp và sơ đồ lớp], [Hồ Công Toản, Đậu Văn Đăng Khoa], [Tuần 3], [Hoàn thành],
+  [14], [Thiết kế danh mục giao diện lập trình], [Nguyễn Tấn Khoa, Đậu Văn Đăng Khoa], [Tuần 3], [Hoàn thành],
+  [15], [Thiết kế cơ sở dữ liệu vật lý cho 7 lược đồ], [Cả nhóm], [Tuần 3], [Hoàn thành],
+  [16], [Thiết kế bảo mật và chiến lược xử lý lỗi], [Đậu Văn Đăng Khoa], [Tuần 3], [Hoàn thành],
+  [17], [Hiện thực dịch vụ tài khoản, danh mục sản phẩm và tìm kiếm], [Đậu Văn Đăng Khoa, Hồ Công Toản], [Tuần 3 – 4], [Hoàn thành],
+  [18], [Hiện thực dịch vụ đơn hàng, tài chính và luồng thanh toán tạm giữ], [Đậu Văn Đăng Khoa], [Tuần 4 – 5], [Hoàn thành],
+  [19], [Hiện thực dịch vụ hội thoại, tín nhiệm và quan trắc vận hành], [Đậu Văn Đăng Khoa, Hồ Công Toản], [Tuần 4 – 5], [Hoàn thành cơ bản],
+  [20], [Hiện thực ứng dụng web], [Đậu Văn Đăng Khoa, Hồ Công Toản], [Tuần 4 – 5], [Hoàn thành],
+  [21], [Hiện thực ứng dụng di động], [Nguyễn Tấn Khoa], [Tuần 4 – 6], [Hoàn thành],
+  [22], [Tích hợp các nhà cung cấp bên ngoài và bộ giả lập tương ứng], [Đậu Văn Đăng Khoa], [Tuần 5], [Hoàn thành cơ bản],
+  [23], [Xây dựng quy trình tích hợp liên tục và mô hình triển khai bằng container], [Đậu Văn Đăng Khoa], [Tuần 5], [Hoàn thành cơ bản],
+  [24], [Kiểm thử và đánh giá mức độ đáp ứng bộ yêu cầu đã đặt ra], [Cả nhóm], [Tuần 5 – 6], [Hoàn thành cơ bản],
+  [25], [Tổng hợp và hoàn thiện báo cáo thực tập tốt nghiệp], [Cả nhóm], [Tuần 6], [Hoàn thành],
 )
+
+#v(0.2cm)
+#text(size: 11pt)[
+  *Mức độ hoàn thành.* #emph[Hoàn thành] — hạng mục đã xong và có sản phẩm hoặc hồ sơ
+  kèm theo trong quyển. #emph[Hoàn thành cơ bản] — phần lõi đã xong và chạy được, nhưng
+  còn hạn chế đã nêu đích danh ở mục 5.6 và 6.6: tích hợp nhà cung cấp thật chỉ dừng ở bộ
+  giả lập, dây chuyền tích hợp liên tục chưa chạy kiểm thử, nhóm kiểm thử tầng truy cập dữ
+  liệu chưa vào được dây chuyền, và hạ tầng quan trắc chưa có dữ liệu vận hành thật.
+]
 
 // ============================================================
 //  RUỘT — đánh số trang Ả Rập

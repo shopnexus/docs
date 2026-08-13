@@ -38,14 +38,18 @@
   set page(
     paper: "a4",
     margin: (top: 1.5cm, bottom: 1.5cm, left: 2.5cm, right: 1.5cm),
-    numbering: none, header: none, footer: none,
+    numbering: none,
+    header: none,
+    footer: none,
   )
   set align(center)
 
   // Khung viền kép chuẩn quyển báo cáo
   block(width: 100%, height: 100%, stroke: 2pt + black, inset: 4pt)[
     #block(
-      width: 100%, height: 100%, stroke: 0.8pt + black,
+      width: 100%,
+      height: 100%,
+      stroke: 0.8pt + black,
       inset: (top: 1.2cm, bottom: 1.2cm, left: 1.0cm, right: 1.0cm),
     )[
       #text(size: 13pt, weight: "bold")[#info.bo] \
@@ -77,12 +81,19 @@
           #set text(size: 12.5pt, weight: "bold")
           #grid(
             columns: (4.6cm, 4.5cm, auto),
-            row-gutter: 7pt, column-gutter: 4pt, align: (left, left, left),
+            row-gutter: 7pt,
+            column-gutter: 4pt,
+            align: (left, left, left),
             [Giảng viên hướng dẫn :], [#info.gvhd], [],
-            ..info.sinh-vien.enumerate().map(((i, sv)) => (
-              if i == 0 { [Sinh viên thực hiện :] } else { [] },
-              [#sv.at(0)], [#sv.at(1)],
-            )).flatten(),
+            ..info
+              .sinh-vien
+              .enumerate()
+              .map(((i, sv)) => (
+                if i == 0 { [Sinh viên thực hiện :] } else { [] },
+                [#sv.at(0)],
+                [#sv.at(1)],
+              ))
+              .flatten(),
             [Lớp :], [#info.lop], [],
             [Ngành :], [#info.nganh], [],
           )
@@ -100,8 +111,12 @@
   set text(font: font-quyen, size: 12pt, fill: ink, lang: "vi")
   show raw: set text(font: font-mono)
   show raw.where(block: true): it => block(
-    width: 100%, fill: rgb("#F6F6F6"), stroke: 0.5pt + hairline,
-    inset: (x: 9pt, y: 8pt), radius: 3pt, text(size: 8.5pt, it),
+    width: 100%,
+    fill: rgb("#F6F6F6"),
+    stroke: 0.5pt + hairline,
+    inset: (x: 9pt, y: 8pt),
+    radius: 3pt,
+    text(size: 8.5pt, it),
   )
   // Quy cách đoạn văn theo phụ lục QĐ 922: canh đều hai bên, cách đoạn
   // trước/sau 3pt (tổng 6pt), giãn dòng multiple 1,1–1,2 (leading 0.7em ứng
@@ -142,9 +157,11 @@
   show figure: set block(breakable: true)
   show figure.caption: set text(size: 10pt, fill: muted)
 
-  set table(inset: (x: 8pt, y: 6pt), stroke: 0.5pt + hairline,
-    fill: (x, y) => if y == 0 { headfill } else { white })
-  show table: it => { set text(size: 11pt); it }
+  set table(inset: (x: 8pt, y: 6pt), stroke: 0.5pt + hairline, fill: (x, y) => if y == 0 { headfill } else { white })
+  show table: it => {
+    set text(size: 11pt)
+    it
+  }
   show table.cell.where(y: 0): set text(weight: "bold")
 
   show heading.where(level: 1): it => {
@@ -153,23 +170,27 @@
     counter(figure.where(kind: image)).update(0)
     counter(figure.where(kind: table)).update(0)
     // Phụ lục QĐ 922: "Đề mục của từng chương viết chữ in hoa, in đậm, khổ chữ 13 đến 15".
-    // upper() để quy định này do template bảo đảm, không phụ thuộc người viết có gõ hoa hay không.
-    // Tiêu đề mục trong chương thì phụ lục chỉ đòi "cũng in đậm, khổ chữ 13" — KHÔNG in hoa.
-    block(width: 100%, above: 1.8em, below: 1.2em, align(center,
-      text(size: 14pt, weight: "bold", upper[
-        #if it.numbering != none [#context counter(heading).display(it.numbering)]#it.body
-      ])))
+    // upper() để quy định BẮT BUỘC này do template bảo đảm, không phụ thuộc người viết có
+    // gõ hoa hay không. Tiêu đề mục trong chương thì phụ lục chỉ đòi "cũng in đậm, khổ chữ
+    // 13" — KHÔNG in hoa, nên cấp 2 giữ nguyên chữ thường.
+    block(width: 100%, above: 1.8em, below: 1.2em, align(center, text(size: 14pt, weight: "bold", upper[
+      #if it.numbering != none [#context counter(heading).display(it.numbering)]#it.body
+    ])))
   }
-  show heading.where(level: 2): it => block(width: 100%, above: 1.2em, below: 0.8em,
-    text(size: 13pt, weight: "bold")[
-      #if it.numbering != none [#context counter(heading).display(it.numbering)]#it.body
-    ])
-  show heading.where(level: 3): it => block(width: 100%, above: 1em, below: 0.6em,
-    text(size: 12pt, weight: "bold", style: "italic")[
-      #if it.numbering != none [#context counter(heading).display(it.numbering)]#it.body
-    ])
-  show heading.where(level: 4): it => block(width: 100%, above: 0.9em, below: 0.5em,
-    text(size: 12pt, weight: "bold")[#it.body])
+  show heading.where(level: 2): it => block(width: 100%, above: 1.2em, below: 0.8em, text(size: 13pt, weight: "bold")[
+    #if it.numbering != none [#context counter(heading).display(it.numbering)]#it.body
+  ])
+  show heading.where(level: 3): it => block(width: 100%, above: 1em, below: 0.6em, text(
+    size: 12pt,
+    weight: "bold",
+    style: "italic",
+  )[
+    #if it.numbering != none [#context counter(heading).display(it.numbering)]#it.body
+  ])
+  show heading.where(level: 4): it => block(width: 100%, above: 0.9em, below: 0.5em, text(
+    size: 12pt,
+    weight: "bold",
+  )[#it.body])
 
   bia(tieu-de: tieu-de, thoi-diem: thoi-diem)
   pagebreak()
@@ -188,8 +209,7 @@
       #set text(font: font-quyen, size: 10pt, weight: "regular")
       #grid(
         columns: (1fr, auto),
-        align(left, text(style: "italic")[#chay]),
-        align(right, tieu-de-chay),
+        align(left, [#chay]), align(right, tieu-de-chay),
       )
       #v(3pt)
       #line(length: 100%, stroke: 0.5pt + black)
@@ -199,8 +219,8 @@
       #v(3pt)
       #grid(
         columns: (1fr, 1fr),
-        align(left, text(font: font-quyen, size: 10pt, style: "italic")[Nhóm #info.nhom]),
-        align(right, text(font: font-quyen, size: 10pt, weight: "bold")[
+        align(left, text(font: font-quyen, size: 10pt)[Nhóm #info.nhom]),
+        align(right, text(font: font-quyen, size: 10pt)[
           #if page.numbering != none [#counter(page).display(page.numbering)]
         ]),
       )
@@ -213,7 +233,10 @@
 // Mục lục + các danh mục chuẩn của quyển
 #let muc-luc() = {
   show outline.entry: set text(size: 12pt, weight: "regular")
-  show outline.entry.where(level: 1): it => { v(0.8em, weak: true); strong(it) }
+  show outline.entry.where(level: 1): it => {
+    v(0.8em, weak: true)
+    strong(it)
+  }
   outline(title: [MỤC LỤC], indent: 1.5em, depth: 3)
 }
 // Danh mục hình/bảng dựng thủ công thay vì dùng `outline`.
@@ -240,17 +263,17 @@
 #let danh-muc-bang() = danh-muc-fig([DANH MỤC CÁC BẢNG], table, [Bảng])
 #let danh-muc-hinh() = danh-muc-fig([DANH MỤC CÁC HÌNH VẼ], image, [Hình])
 
-#let ink  = rgb("#1e293b")
-#let mut  = rgb("#64748b")
+#let ink = rgb("#1e293b")
+#let mut = rgb("#64748b")
 #let line = rgb("#94a3b8")
 
 #let f-kenh = rgb("#eef2f7")
 #let f-cong = rgb("#e7eefb")
 #let f-mien = rgb("#e9f4ec")
-#let f-nen  = rgb("#f6f1e4")
-#let f-dat  = rgb("#eceff3")
-#let f-adp  = rgb("#f9efe8")
-#let f-ext  = rgb("#f6eaea")
+#let f-nen = rgb("#f6f1e4")
+#let f-dat = rgb("#eceff3")
+#let f-adp = rgb("#f9efe8")
+#let f-ext = rgb("#f6eaea")
 
 #let W = 33mm
 #let H = 14mm
@@ -262,13 +285,21 @@
     #text(size: 7pt, weight: "semibold", fill: ink)[#name]
     #if detail != none [ \ #text(size: 5.8pt, fill: mut)[#detail] ]
   ],
-  width: W, height: H, fill: white, stroke: 0.6pt + line, corner-radius: 2pt,
+  width: W,
+  height: H,
+  fill: white,
+  stroke: 0.6pt + line,
+  corner-radius: 2pt,
 )
 
 // dải lớp + nhãn dọc ở lề trái
 #let layer(y, h, fill, title) = {
   node((1.5, y), [], width: 177mm, height: h, fill: fill, stroke: none, layer: -1)
-  node((-0.708, y),
+  node(
+    (-0.708, y),
     rotate(-90deg, reflow: true, text(size: 7.5pt, weight: "bold", fill: mut)[#title]),
-    stroke: none, fill: none, layer: -1)
+    stroke: none,
+    fill: none,
+    layer: -1,
+  )
 }
