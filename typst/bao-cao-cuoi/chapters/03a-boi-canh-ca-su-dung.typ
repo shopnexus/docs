@@ -88,7 +88,7 @@ tác vận chuyển trao đổi vận đơn và các mốc hành trình. Điều
 
 == Danh mục ca sử dụng
 
-Mỗi ca sử dụng trong tài liệu đại diện cho một mục tiêu nghiệp vụ hoàn chỉnh của tác nhân, thay vì chỉ mô tả các thao tác hệ thống riêng lẻ. Danh mục gồm 29 ca sử dụng nghiệp vụ, được định danh từ UC-01 đến UC-29 và phân thành sáu nhóm chức năng, cùng với hai ca sử dụng dùng chung được tái sử dụng thông qua quan hệ bao hàm. Để bảo đảm tính rõ ràng và thuận tiện trong việc theo dõi phạm vi hệ thống, danh mục ca sử dụng và các sơ đồ liên quan được tổ chức chi tiết theo từng phân hệ. Cần nói rõ một điểm về vai trò người bán: nền tảng theo mô hình C2C nên không có khái niệm gian hàng tách rời, mỗi tài khoản vừa mua vừa bán trên cùng một định danh. Vì vậy việc "quản lý cửa hàng của mình" ở đây chính là quản lý tập tin đăng của chính tài khoản đó, trải trên UC-06 đăng bán, UC-08 chỉnh sửa tin đăng đang hiển thị, cùng phần theo dõi đơn và ví ở nhóm sau, chứ không phải một phân hệ quản trị gian hàng riêng biệt.
+Mỗi ca sử dụng trong tài liệu đại diện cho một mục tiêu nghiệp vụ hoàn chỉnh của tác nhân, thay vì chỉ mô tả các thao tác hệ thống riêng lẻ. Danh mục gồm 30 ca sử dụng nghiệp vụ, được định danh từ UC-01 đến UC-30 và phân thành sáu nhóm chức năng, cùng với hai ca sử dụng dùng chung được tái sử dụng thông qua quan hệ bao hàm. Để bảo đảm tính rõ ràng và thuận tiện trong việc theo dõi phạm vi hệ thống, danh mục ca sử dụng và các sơ đồ liên quan được tổ chức chi tiết theo từng phân hệ. Cần nói rõ một điểm về vai trò người bán: nền tảng theo mô hình C2C nên không có khái niệm gian hàng tách rời, mỗi tài khoản vừa mua vừa bán trên cùng một định danh. Vì vậy việc "quản lý cửa hàng của mình" ở đây chính là quản lý tập tin đăng của chính tài khoản đó, trải trên UC-06 đăng bán, UC-08 chỉnh sửa tin đăng đang hiển thị, cùng phần theo dõi đơn và ví ở nhóm sau, chứ không phải một phân hệ quản trị gian hàng riêng biệt.
 
 
 #figure(
@@ -118,33 +118,38 @@ Mỗi ca sử dụng trong tài liệu đại diện cho một mục tiêu nghi�
     [UC-12], [Thương lượng giá], [Người mua], [Mở thương lượng trên tin cho phép trả giá; hai bên luân phiên đề xuất tới khi một bên chấp thuận.],
 
     table.cell(colspan: 4, align: left)[*Nhóm D. Giao dịch, ký quỹ và vận chuyển*],
-    [UC-13], [Chuẩn bị đơn mua và lấy báo giá vận chuyển], [Người mua], [Chọn hàng và địa chỉ nhận, xin báo giá của từng hãng và chốt một phương án.],
-    [UC-14], [Thanh toán và ký quỹ], [Người mua], [Mở phiên trả tiền tại cổng thanh toán; khi cổng báo về, tiền vào ký quỹ và đơn hàng ra đời.],
-    [UC-15], [Xác nhận đơn hàng đã thanh toán], [Người bán], [Xác nhận đơn trong 48 giờ để mở đường đặt vận đơn, hoặc từ chối kèm lý do.],
-    [UC-16], [Theo dõi hành trình kiện hàng], [Người mua], [Xem các mốc hành trình do hãng vận chuyển báo về theo thứ tự tiến tới.],
-    [UC-17], [Xác nhận đã nhận hàng], [Người mua], [Xác nhận kèm bằng chứng, khởi động cửa sổ 72 giờ trước khi tiền về người bán.],
-    [UC-18], [Quản lý ví và rút tiền], [Người dùng], [Theo dõi số dư khả dụng và đang giữ, xem sổ bút toán, gửi yêu cầu rút về tài khoản ngân hàng.],
+    [UC-13], [Quản lý giỏ hàng], [Người mua], [Thêm, sửa số lượng và bỏ bớt các dòng hàng đang quan tâm; giỏ giữ tham chiếu tới tin đăng và tuỳ chọn chứ không giữ giá, nên giá luôn được đọc lại tại thời điểm chốt mua.],
+    [UC-14], [Chuẩn bị đơn mua và lấy báo giá vận chuyển], [Người mua], [Chọn hàng và địa chỉ nhận, xin báo giá của từng hãng và chốt một phương án.],
+    [UC-15], [Thanh toán và ký quỹ], [Người mua], [Mở phiên trả tiền tại cổng thanh toán; khi cổng báo về, tiền vào ký quỹ và đơn hàng ra đời.],
+    [UC-16], [Xác nhận đơn hàng đã thanh toán], [Người bán], [Xác nhận đơn trong 48 giờ để mở đường đặt vận đơn, hoặc từ chối kèm lý do.],
+    [UC-17], [Theo dõi hành trình kiện hàng], [Người mua], [Xem các mốc hành trình do hãng vận chuyển báo về theo thứ tự tiến tới.],
+    [UC-18], [Xác nhận đã nhận hàng], [Người mua], [Xác nhận kèm bằng chứng, khởi động cửa sổ 72 giờ trước khi tiền về người bán.],
+    [UC-19], [Quản lý ví và rút tiền], [Người dùng], [Theo dõi số dư khả dụng và đang giữ, xem sổ bút toán, gửi yêu cầu rút về tài khoản ngân hàng.],
 
     table.cell(colspan: 4, align: left)[*Nhóm E. Hậu giao dịch và uy tín*],
-    [UC-19], [Yêu cầu trả hàng và hoàn tiền], [Người mua], [Mở yêu cầu kèm lý do và bằng chứng bất kỳ lúc nào trước khi đơn kết thúc.],
-    [UC-20], [Xử lý yêu cầu hoàn tiền], [Người bán], [Chấp nhận cho trả hàng, hoặc chuyển hồ sơ cho sàn phân xử; không có lựa chọn từ chối.],
-    [UC-21], [Đánh giá sản phẩm và bình chọn hữu ích], [Người mua], [Viết nhận xét cho sản phẩm đã mua; đánh dấu một nhận xét là hữu ích.],
+    [UC-20], [Yêu cầu trả hàng và hoàn tiền], [Người mua], [Mở yêu cầu kèm lý do và bằng chứng bất kỳ lúc nào trước khi đơn kết thúc.],
+    [UC-21], [Xử lý yêu cầu hoàn tiền], [Người bán], [Chấp nhận cho trả hàng, hoặc chuyển hồ sơ cho sàn phân xử; không có lựa chọn từ chối.],
+    [UC-22], [Đánh giá sản phẩm và bình chọn hữu ích], [Người mua], [Viết nhận xét cho sản phẩm đã mua; đánh dấu một nhận xét là hữu ích.],
 
     table.cell(colspan: 4, align: left)[*Nhóm F. Hỗ trợ, kiểm duyệt và quản trị*],
-    [UC-22], [Gửi phiếu hỗ trợ], [Người dùng], [Gửi mọi loại yêu cầu lên sàn: tố cáo, hồ sơ hoàn tiền, sự cố đơn, vướng mắc thanh toán, đề xuất.],
-    [UC-23], [Tiếp nhận và trả lời phiếu hỗ trợ], [Điều phối viên], [Trả lời trong hội thoại của phiếu, ghi kết luận xử lý.],
-    [UC-24], [Kiểm duyệt tin đăng và bản sửa], [Điều phối viên], [Duyệt hoặc từ chối tin đăng mới và bản sửa; gỡ một tin đang hiển thị khi có vi phạm.],
-    [UC-25], [Phân xử yêu cầu hoàn tiền], [Điều phối viên], [Ra phán quyết cho hồ sơ đã chuyển lên sàn khi có tranh chấp liên quan.],
-    [UC-26], [Duyệt hồ sơ xác minh danh tính], [Điều phối viên], [Xem lại phán quyết của nhà cung cấp, chấp nhận hoặc từ chối kèm lý do.],
-    [UC-27], [Quản lý cây danh mục và sổ tuỳ chọn], [Quản trị viên], [Sắp lại cây danh mục; bật, tắt cho từng dòng của sổ tuỳ chọn.],
-    [UC-28], [Đối soát ví và điều chỉnh số dư], [Quản trị viên], [Xem ví của một tài khoản, ghi bút toán điều chỉnh kèm lý do, duyệt hoặc từ chối yêu cầu rút.],
-    [UC-29], [Giám sát vận hành qua dữ liệu quan trắc], [Quản trị viên], [Theo dõi lưu lượng, độ trễ, lỗi và các sự kiện nghiệp vụ.],
+    [UC-23], [Gửi phiếu hỗ trợ], [Người dùng], [Gửi mọi loại yêu cầu lên sàn: tố cáo, hồ sơ hoàn tiền, sự cố đơn, vướng mắc thanh toán, đề xuất.],
+    [UC-24], [Tiếp nhận và trả lời phiếu hỗ trợ], [Điều phối viên], [Trả lời trong hội thoại của phiếu, ghi kết luận xử lý.],
+    [UC-25], [Kiểm duyệt tin đăng và bản sửa], [Điều phối viên], [Duyệt hoặc từ chối tin đăng mới và bản sửa; gỡ một tin đang hiển thị khi có vi phạm.],
+    [UC-26], [Phân xử yêu cầu hoàn tiền], [Điều phối viên], [Ra phán quyết cho hồ sơ đã chuyển lên sàn khi có tranh chấp liên quan.],
+    [UC-27], [Duyệt hồ sơ xác minh danh tính], [Điều phối viên], [Xem lại phán quyết của nhà cung cấp, chấp nhận hoặc từ chối kèm lý do.],
+    [UC-28], [Quản lý cây danh mục và sổ tuỳ chọn], [Quản trị viên], [Sắp lại cây danh mục; bật, tắt cho từng dòng của sổ tuỳ chọn.],
+    [UC-29], [Đối soát ví và điều chỉnh số dư], [Quản trị viên], [Xem ví của một tài khoản, ghi bút toán điều chỉnh kèm lý do, duyệt hoặc từ chối yêu cầu rút.],
+    [UC-30], [Giám sát vận hành qua dữ liệu quan trắc], [Quản trị viên], [Theo dõi lưu lượng, độ trễ, lỗi và các sự kiện nghiệp vụ.],
 
     table.cell(colspan: 4, align: left)[*Nhóm G. Ca sử dụng con dùng chung (quan hệ «include»)*],
     [UC-S1], [Tải lên và xác nhận tệp đính kèm], [Người dùng], [Xin đường tải lên có chữ ký, đẩy tệp lên kho lưu trữ và xác nhận để tệp gắn được vào nghiệp vụ.],
     [UC-S2], [Ghi nhật ký kiểm toán], [Hệ thống], [Ghi một bản ghi chỉ-thêm-mới cho mọi quyết định nghiệp vụ, kèm tác nhân và thời điểm gắn với thay đổi đó.],
   )
 )
+
+Danh mục trên được vẽ lại thành 2 lược đồ ca sử dụng thay vì gộp một hình, vì 30 ca nghiệp vụ đặt chung một khung sẽ khiến các đường nối tác nhân chồng lên nhau tới mức không đọc được. Lược đồ thứ nhất gom các nhóm A, B và C, tức những gì diễn ra trước khi tiền được nhắc tới: định danh, đăng bán, khám phá và trao đổi. Lược đồ thứ hai gom các nhóm D, E và F, tức toàn bộ phần giao dịch, hậu giao dịch và quản trị. Cách tách này giữ cho mỗi hình chỉ có 2 hoặc 3 tác nhân người dùng, nhờ đó các đường nối gần như không cắt nhau.
+
+Hai loại quan hệ giữa các ca sử dụng được thể hiện bằng đường nét đứt có nhãn. Quan hệ «include» chỉ một ca luôn luôn gọi tới một ca con khác như một phần bắt buộc của luồng: xác minh danh tính và đăng bán đều phải đi qua ca tải lên tệp đính kèm, còn các quyết định của điều phối viên và quản trị viên đều phải đi qua ca ghi nhật ký kiểm toán. Quan hệ «extend» thì ngược lại, chỉ một ca chỉ chạy trong một điều kiện nhất định và luồng gốc vẫn trọn vẹn nếu nó không chạy: gợi ý điền tin đăng chỉ hoạt động khi người bán chủ động nhờ, và phân xử yêu cầu hoàn tiền chỉ diễn ra khi người bán từ chối hoặc để hết hạn trả lời. Hai ca con dùng chung ở nhóm G không nối trực tiếp với tác nhân nào vì chúng luôn được gọi từ một ca khác.
 
 #fig(
   [Sơ đồ ca sử dụng phân hệ định danh, đăng bán, khám phá và trao đổi],
@@ -203,29 +208,30 @@ Mỗi ca sử dụng trong tài liệu đại diện cho một mục tiêu nghi�
 #fig(
   [Sơ đồ ca sử dụng phân hệ giao dịch, hậu giao dịch và quản trị],
   spacing: (35mm, 10.5mm),
-  node(enclose: (<b1>, <b2>, <b3>, <b4>, <b5>, <b6>, <b7>, <b8>, <b10>, <b11>, <b12>, <b13>, <b14>, <b15>, <b16>, <b17>, <b18>, <bs2>),
+  node(enclose: (<b0>, <b1>, <b2>, <b3>, <b4>, <b5>, <b6>, <b7>, <b8>, <b10>, <b11>, <b12>, <b13>, <b14>, <b15>, <b16>, <b17>, <b18>, <bs2>),
     inset: 15pt, stroke: (paint: ink, dash: "dashed", thickness: 0.9pt),
     fill: none, corner-radius: 8pt),
-  node((2, -0.85), text(size: 9pt, weight: 700)[Ranh giới hệ thống: Phân hệ Giao dịch, Hậu giao dịch và Quản trị],
+  node((2, -1.55), text(size: 9pt, weight: 700)[Ranh giới hệ thống: Phân hệ Giao dịch, Hậu giao dịch và Quản trị],
     fill: white, stroke: none),
 
-  nt((2, 0), [UC-13 · Chuẩn bị đơn mua và báo giá], name: <b1>),
-  nt((2, 0.72), [UC-14 · Thanh toán và ký quỹ], name: <b2>),
-  nt((2, 1.44), [UC-15 · Xác nhận đơn đã thanh toán], name: <b3>),
-  nt((2, 2.16), [UC-16 · Theo dõi hành trình kiện hàng], name: <b4>),
-  nt((2, 2.88), [UC-17 · Xác nhận đã nhận hàng], name: <b5>),
-  nt((2, 3.6), [UC-18 · Quản lý ví và rút tiền], name: <b6>),
-  nt((2, 4.32), [UC-19 · Yêu cầu trả hàng và hoàn tiền], name: <b7>),
-  nt((2, 5.04), [UC-20 · Xử lý yêu cầu hoàn tiền], name: <b8>),
-  nt((2, 6.48), [UC-21 · Đánh giá sản phẩm], name: <b10>),
-  nt((2, 7.2), [UC-22 · Gửi phiếu hỗ trợ], name: <b11>),
-  nt((2, 7.92), [UC-23 · Tiếp nhận và trả lời phiếu], name: <b12>),
-  nt((2, 8.64), [UC-24 · Kiểm duyệt tin đăng và bản sửa], name: <b13>),
-  nt((2, 9.36), [UC-25 · Phân xử yêu cầu hoàn tiền], name: <b14>),
-  nt((2, 10.08), [UC-26 · Duyệt hồ sơ xác minh danh tính], name: <b15>),
-  nt((2, 10.8), [UC-27 · Quản lý danh mục và sổ tuỳ chọn], name: <b16>),
-  nt((2, 11.52), [UC-28 · Đối soát ví và điều chỉnh số dư], name: <b17>),
-  nt((2, 12.24), [UC-29 · Giám sát vận hành], name: <b18>),
+  nt((2, -0.72), [UC-13 · Quản lý giỏ hàng], name: <b0>),
+  nt((2, 0), [UC-14 · Chuẩn bị đơn mua và báo giá], name: <b1>),
+  nt((2, 0.72), [UC-15 · Thanh toán và ký quỹ], name: <b2>),
+  nt((2, 1.44), [UC-16 · Xác nhận đơn đã thanh toán], name: <b3>),
+  nt((2, 2.16), [UC-17 · Theo dõi hành trình kiện hàng], name: <b4>),
+  nt((2, 2.88), [UC-18 · Xác nhận đã nhận hàng], name: <b5>),
+  nt((2, 3.6), [UC-19 · Quản lý ví và rút tiền], name: <b6>),
+  nt((2, 4.32), [UC-20 · Yêu cầu trả hàng và hoàn tiền], name: <b7>),
+  nt((2, 5.04), [UC-21 · Xử lý yêu cầu hoàn tiền], name: <b8>),
+  nt((2, 6.48), [UC-22 · Đánh giá sản phẩm], name: <b10>),
+  nt((2, 7.2), [UC-23 · Gửi phiếu hỗ trợ], name: <b11>),
+  nt((2, 7.92), [UC-24 · Tiếp nhận và trả lời phiếu], name: <b12>),
+  nt((2, 8.64), [UC-25 · Kiểm duyệt tin đăng và bản sửa], name: <b13>),
+  nt((2, 9.36), [UC-26 · Phân xử yêu cầu hoàn tiền], name: <b14>),
+  nt((2, 10.08), [UC-27 · Duyệt hồ sơ xác minh danh tính], name: <b15>),
+  nt((2, 10.8), [UC-28 · Quản lý danh mục và sổ tuỳ chọn], name: <b16>),
+  nt((2, 11.52), [UC-29 · Đối soát ví và điều chỉnh số dư], name: <b17>),
+  nt((2, 12.24), [UC-30 · Giám sát vận hành], name: <b18>),
   nt((3.35, 9.9), text(size: 8pt)[UC-S2 · Ghi nhật ký\ kiểm toán], name: <bs2>),
 
   nact((0, 2.5), [Người mua]),
@@ -235,6 +241,7 @@ Mỗi ca sử dụng trong tài liệu đại diện cho một mục tiêu nghi�
   nact((4.5, 8.6), [Điều phối viên]),
   nact((4.5, 11.7), [Quản trị viên]),
 
+  edge((0, 2.5), <b0>, stroke: 0.7pt + blue-s),
   edge((0, 2.5), <b1>, stroke: 0.7pt + blue-s),
   edge((0, 2.5), <b2>, stroke: 0.7pt + blue-s),
   edge((0, 2.5), <b4>, stroke: 0.7pt + blue-s),
@@ -272,14 +279,14 @@ Mỗi ca sử dụng trong tài liệu đại diện cho một mục tiêu nghi�
 
 == Đặc tả chi tiết các ca sử dụng trọng yếu
 
-2 ca dưới đây được đặc tả đầy đủ theo mẫu chi tiết của UML. Tiêu chí chọn là giao của 3 dấu hiệu: chạm trực tiếp vào dòng tiền, có nhiều hơn một nhánh kết thúc, và mang cái riêng của nền tảng này. 27 ca còn lại có luồng tuyến tính hoặc lặp lại một trong 2 hình dạng đó nên chỉ giữ ở mức mô tả trong danh mục.
+2 ca dưới đây được đặc tả đầy đủ theo mẫu chi tiết của UML. Tiêu chí chọn là giao của 3 dấu hiệu: chạm trực tiếp vào dòng tiền, có nhiều hơn một nhánh kết thúc, và mang cái riêng của nền tảng này. 28 ca còn lại có luồng tuyến tính hoặc lặp lại một trong 2 hình dạng đó nên chỉ giữ ở mức mô tả trong danh mục.
 
-#ucspec("UC-14", "Thanh toán và ký quỹ",
-  [Tác nhân], [Chính: người mua. Phụ: cổng thanh toán, đối tác vận chuyển (báo giá đã chốt ở UC-13).],
+#ucspec("UC-15", "Thanh toán và ký quỹ",
+  [Tác nhân], [Chính: người mua. Phụ: cổng thanh toán, đối tác vận chuyển (báo giá đã chốt ở UC-14).],
   [Mô tả], [Người mua trả tiền hàng cộng phí giao hàng qua một cổng thanh toán; tiền vào tài khoản giữ hộ của sàn chứ không tới người bán, và đơn hàng ra đời ngay khi cổng báo về.],
-  [Điều kiện trước], [Đã đăng nhập; có một phiếu mua tạm còn hiệu lực (UC-13) hoặc một thương lượng đã chấp thuận còn hiệu lực (UC-12); phương án vận chuyển đã chốt kèm mức phí.],
+  [Điều kiện trước], [Đã đăng nhập; có một phiếu mua tạm còn hiệu lực (UC-14) hoặc một thương lượng đã chấp thuận còn hiệu lực (UC-12); phương án vận chuyển đã chốt kèm mức phí.],
   [Sự kiện kích hoạt], [Người mua bấm trả tiền trên màn hình xác nhận đơn mua.],
-  [Luồng chính], [(1) Người mua xem lại đơn rồi chọn một cổng thanh toán đang bật. (2) Hệ thống giành quyền mua trước, đánh dấu phiếu mua tạm hoặc thương lượng là đã dùng. (3) Hệ thống mở phiên thanh toán hạn 15 phút gồm 2 khoản tách bạch là tiền hàng và phí giao hàng, rồi chuyển người mua sang trang của cổng. (4) Người mua trả tiền; cổng gửi thông báo kết quả về. (5) Hệ thống ghi nhận phiên đã trả, giữ tiền hàng vào ký quỹ và tách phí giao hàng thành khoản riêng. (6) Hệ thống tạo đơn chờ người bán xác nhận, tạo kiện hàng, giảm tồn kho và báo cho người bán (UC-15).],
+  [Luồng chính], [(1) Người mua xem lại đơn rồi chọn một cổng thanh toán đang bật. (2) Hệ thống giành quyền mua trước, đánh dấu phiếu mua tạm hoặc thương lượng là đã dùng. (3) Hệ thống mở phiên thanh toán hạn 15 phút gồm 2 khoản tách bạch là tiền hàng và phí giao hàng, rồi chuyển người mua sang trang của cổng. (4) Người mua trả tiền; cổng gửi thông báo kết quả về. (5) Hệ thống ghi nhận phiên đã trả, giữ tiền hàng vào ký quỹ và tách phí giao hàng thành khoản riêng. (6) Hệ thống tạo đơn chờ người bán xác nhận, tạo kiện hàng, giảm tồn kho và báo cho người bán (UC-16).],
   [Luồng thay thế và ngoại lệ], [*[1a]* Người mua huỷ giữa chừng: phiên bị huỷ, phần đã giành được trả lại. [3a] Hết 15 phút mà chưa trả tiền: phiên không còn trả được và phần đã giành được trả lại (BR-23). [4a] Người mua quay về trang kết quả trước khi thông báo tới: hệ thống hiển thị phiên đang chờ, vì trang đáp xuống ai cũng mở được nên không phải bằng chứng. [4b] Cổng gửi lặp thông báo: xử lý bất biến với lặp lại nên chỉ một đơn được tạo. [5a] Xử lý thông báo thất bại: trả lỗi để cổng gửi lại.],
   [Điều kiện sau], [Tiền hàng nằm trong ký quỹ, phí giao hàng ở khoản riêng, tồn tại đúng một đơn chờ người bán xác nhận, và đơn ghi rõ nó sinh ra từ phiếu mua tạm hay từ thương lượng.],
   [Quy tắc nghiệp vụ], [BR-21, BR-22, BR-23, BR-24, BR-25, BR-26, BR-54],
@@ -288,13 +295,13 @@ Mỗi ca sử dụng trong tài liệu đại diện cho một mục tiêu nghi�
   [Tần suất], [Rất cao, là ca sử dụng trung tâm của toàn hệ thống.],
 )
 
-#ucspec("UC-19", "Yêu cầu trả hàng và hoàn tiền",
+#ucspec("UC-20", "Yêu cầu trả hàng và hoàn tiền",
   [Tác nhân], [Chính: người mua. Phụ: người bán (bên phải trả lời).],
   [Mô tả], [Người mua khiếu nại hàng lỗi hoặc không đúng mô tả; yêu cầu luôn toàn phần và khoá đơn khỏi việc giải ngân cho tới khi có kết luận.],
   [Điều kiện trước], [Đơn hàng chưa kết thúc; người mua là chủ đơn; đơn chưa có yêu cầu hoàn tiền nào đang sống.],
   [Sự kiện kích hoạt], [Người mua bấm yêu cầu trả hàng trên màn hình chi tiết đơn.],
-  [Luồng chính], [(1) Người mua mở đơn, chọn yêu cầu trả hàng, nêu lý do và đính kèm bằng chứng (bao hàm UC-S1). (2) Hệ thống tạo hồ sơ chờ người bán trả lời, đặt hạn 48 giờ, loại đơn khỏi danh sách chờ giải ngân và báo cho người bán. (3) Người bán chấp nhận cho trả hàng (UC-20); hệ thống mở một chặng vận chuyển trả hàng phí bằng không. (4) Người bán nhận hàng và xác nhận, rồi có 48 giờ để kiểm hàng. (5) Hết cửa sổ đó mà người bán không có ý kiến, hệ thống hoàn tiền hàng cho người mua và đóng hồ sơ.],
-  [Luồng thay thế và ngoại lệ], [*[1a]* Đơn đã kết thúc hoặc đã có một hồ sơ đang sống: hệ thống từ chối. [2a] Người mua rút yêu cầu trước khi người bán trả lời: hồ sơ sang trạng thái đã rút, khác hẳn bị bác bỏ, và đơn quay lại danh sách chờ giải ngân. [3a] Người bán chuyển hồ sơ cho sàn: hồ sơ sang chờ phân xử và hệ thống tự mở một phiếu đứng tên người mua (UC-25). [3b] Người bán im lặng quá hạn: hồ sơ tự chuyển sang chờ phân xử và cũng tự mở phiếu, vì im lặng không phải đồng ý cũng không phải từ chối (BR-40). [4a] Người mua tự khai đã gửi trả hàng: đây là tuyên bố về kho của người khác, nên hồ sơ đi thẳng lên sàn phân xử. [4b] Người bán thấy thứ nhận về không khớp: chuyển hồ sơ lên sàn trong cửa sổ đó.],
+  [Luồng chính], [(1) Người mua mở đơn, chọn yêu cầu trả hàng, nêu lý do và đính kèm bằng chứng (bao hàm UC-S1). (2) Hệ thống tạo hồ sơ chờ người bán trả lời, đặt hạn 48 giờ, loại đơn khỏi danh sách chờ giải ngân và báo cho người bán. (3) Người bán chấp nhận cho trả hàng (UC-21); hệ thống mở một chặng vận chuyển trả hàng phí bằng không. (4) Người bán nhận hàng và xác nhận, rồi có 48 giờ để kiểm hàng. (5) Hết cửa sổ đó mà người bán không có ý kiến, hệ thống hoàn tiền hàng cho người mua và đóng hồ sơ.],
+  [Luồng thay thế và ngoại lệ], [*[1a]* Đơn đã kết thúc hoặc đã có một hồ sơ đang sống: hệ thống từ chối. [2a] Người mua rút yêu cầu trước khi người bán trả lời: hồ sơ sang trạng thái đã rút, khác hẳn bị bác bỏ, và đơn quay lại danh sách chờ giải ngân. [3a] Người bán chuyển hồ sơ cho sàn: hồ sơ sang chờ phân xử và hệ thống tự mở một phiếu đứng tên người mua (UC-26). [3b] Người bán im lặng quá hạn: hồ sơ tự chuyển sang chờ phân xử và cũng tự mở phiếu, vì im lặng không phải đồng ý cũng không phải từ chối (BR-40). [4a] Người mua tự khai đã gửi trả hàng: đây là tuyên bố về kho của người khác, nên hồ sơ đi thẳng lên sàn phân xử. [4b] Người bán thấy thứ nhận về không khớp: chuyển hồ sơ lên sàn trong cửa sổ đó.],
   [Điều kiện sau], [Hồ sơ ở một trạng thái xác định và luôn có một bên đang phải hành động, hoặc đã kết thúc bằng một trong 4 kết cục: hoàn tiền, bị bác bỏ, được rút, hoặc chờ phán quyết của sàn.],
   [Quy tắc nghiệp vụ], [BR-27, BR-37, BR-38, BR-39, BR-40, BR-41, BR-42],
   [Yêu cầu đặc biệt], [Chấp nhận không phải là trả tiền: hàng phải quay về trước. Ngược lại, người bán vừa mất hàng vừa mất tiền chỉ vì một yêu cầu và 48 giờ không đọc thông báo.],
