@@ -189,7 +189,7 @@ trình và trạng thái, kiến trúc tổng thể, và thiết kế
 cơ sở dữ liệu vật lý cho 7 lược đồ với 46 bảng nghiệp vụ. Về hiện thực, hệ
 thống gồm 3 thành phần với khoảng 160.000 dòng mã viết tay, phục vụ 135 đường dẫn và 171 thao tác trên giao diện lập trình,
 cùng 2 ứng dụng khách cho web và di động. Về kiểm chứng, bộ kiểm thử tự động của dịch
-vụ nền chạy xanh hoàn toàn với 616 hàm kiểm thử, bao phủ các quy tắc nghiệp
+vụ nền chạy xanh hoàn toàn với 627 hàm kiểm thử, bao phủ các quy tắc nghiệp
 vụ cốt lõi của luồng tiền và luồng đơn hàng.
 
 *Đánh giá.* Đóng góp có giá trị nhất của đề tài không nằm ở số lượng chức năng mà ở chỗ

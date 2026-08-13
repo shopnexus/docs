@@ -1,6 +1,6 @@
 #import "../../common/tokens.typ": *
 
-=== Sơ đồ hoạt động: Thanh toán ký quỹ và sinh đơn hàng
+== Sơ đồ hoạt động: Thanh toán ký quỹ và sinh đơn hàng
 
 #let elabel(body) = box(fill: white, inset: (x: 2pt, y: 1pt), text(size: 8pt, body))
 #let lane-v = (paint: luma(60%), thickness: 0.6pt, dash: "dashed")
@@ -52,7 +52,7 @@
 )
 
 
-=== Sơ đồ hoạt động: Trả hàng, hoàn tiền và leo thang thành phiếu hỗ trợ
+== Sơ đồ hoạt động: Trả hàng, hoàn tiền và leo thang thành phiếu hỗ trợ
 
 #fig(
   [Sơ đồ hoạt động quy trình trả hàng, hoàn tiền và nhánh leo thang phân xử],
@@ -117,7 +117,7 @@
 )
 
 
-=== Sơ đồ trạng thái vòng đời đơn hàng
+== Sơ đồ trạng thái vòng đời đơn hàng
 
 Đơn hàng có 4 trạng thái, và cả 4 đều được suy ra từ các mốc thời gian kết quả chứ
 không lưu thành một trường trạng thái riêng, nhờ vậy không tồn tại khả năng trường trạng
@@ -271,7 +271,7 @@ phải tuân thủ: mọi phép chuyển không xuất hiện trên sơ đồ đ
     [NFR-14], [Mỗi dịch vụ sở hữu độc quyền một lược đồ CSDL riêng, quản lý qua nhóm kết nối có đường dẫn tìm kiếm (search path) bị khóa cứng. Tuyệt đối không sử dụng khóa ngoại vật lý xuyên lược đồ. *Hạn chế:* Sự cô lập hiện tại được giữ bằng cấu hình định tuyến thay vì phân quyền tài khoản CSDL.],
 
     table.cell(colspan: 2, align: left)[*c) Khả năng bảo trì và ràng buộc kỹ thuật*],
-    [NFR-15], [Mọi kết nối ra nhà cung cấp bên ngoài phải khai báo hạn định thời gian (Timeout) rõ ràng. Thao tác có đặc thù độ trễ khác biệt phải cấu hình Timeout độc lập. *Hạn chế:* Tiêu chuẩn này chưa đạt độ phủ toàn diện; cổng thanh toán và hãng vận chuyển vẫn chưa khai báo Timeout hợp lệ.],
+    [NFR-15], [Mọi kết nối ra nhà cung cấp bên ngoài phải khai báo hạn định thời gian (Timeout) rõ ràng. Thao tác có đặc thù độ trễ khác biệt phải cấu hình Timeout độc lập. *Hạn chế:* Tiêu chuẩn này chưa đạt độ phủ toàn diện; hãng vận chuyển vẫn chưa khai báo Timeout hợp lệ.],
     [NFR-16], [Quy tụ toàn bộ cấu hình hệ thống vào một tệp duy nhất. Cơ chế nạp cấu hình áp dụng nguyên tắc Fail-fast: mọi trường thiếu, thừa hoặc sai định dạng đều khiến tiến trình lập tức từ chối khởi động và báo lỗi chính xác vị trí, ngăn ứng dụng chạy ngầm với cấu hình sai lệch.],
     [NFR-17], [Tài liệu đặc tả OpenAPI đóng vai trò nguồn chân lý duy nhất (Single Source of Truth), được tổng hợp tự động từ mã nguồn các dịch vụ và đủ tiêu chuẩn để khởi tạo máy chủ giả lập (Mock Server).],
     [NFR-18], [Thông điệp ngoại lệ trả về máy khách được bọc trong phong bì (Error Envelope) kèm một mã lỗi (Error Code) độc lập với ngôn ngữ.],

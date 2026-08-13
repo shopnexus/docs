@@ -37,7 +37,7 @@ sau đều truy ngược về ít nhất một mã trong số đó.
     [AD-08], [Nhật ký kiểm toán bất biến], [REQ-45, NFR-19],
     [Mọi thay đổi mang hệ quả tài chính hoặc hành chính bắt buộc để lại lưu vết bất biến. Nhật ký kiểm toán phải là một phần cốt lõi nằm chung giao dịch cơ sở dữ liệu với thao tác nghiệp vụ, không phải là một chức năng ghi ghép thêm ở tầng ứng dụng.],
 
-    [AD-09], [2 giao diện khách trên một hợp đồng], [REQ-01…46, NFR-17],
+    [AD-09], [2 giao diện khách trên một hợp đồng], [REQ-01…50, NFR-17],
     [Hai nền tảng máy khách (Web, Mobile) cùng chia sẻ một tập giao diện lập trình. Bản đặc tả API phải trở thành tài sản trung tâm (API-First), được dùng để sinh mã máy khách và máy chủ giả lập, thay vì chỉ là tài liệu mô tả hậu lập trình.],
   )
 )

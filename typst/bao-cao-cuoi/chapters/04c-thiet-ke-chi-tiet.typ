@@ -560,8 +560,8 @@ phương thức, để hình đọc được mà không phải mở mã nguồn.
 
 === TT-A: Đặt hàng và giữ ký quỹ
 
-Kịch bản bắt đầu khi người mua bấm mua và kết thúc khi đơn hàng tồn tại ở trạng thái chờ
-người bán xác nhận. Ba quyết định thiết kế chi phối toàn bộ trình tự. Thứ nhất, quyền mua
+Kịch bản bắt đầu khi người mua bấm mua và dừng ở bước mở phiên thanh toán; phần thu tiền và
+sinh đơn được mô tả bằng lời ngay sau hình. Ba quyết định thiết kế chi phối toàn bộ trình tự. Thứ nhất, quyền mua
 được chiếm trước khi tiền được hỏi tới: lượt ghi hủy phiếu mua chính là hành động chiếm,
 nên hai cú bấm liên tiếp chỉ mở được một phiên thanh toán; nếu chiếm sau, một thương vụ có
 hai phiên đã trả tiền là khoản tiền mà ký quỹ không hạch toán nổi. Thứ hai, phí vận
