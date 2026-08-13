@@ -3,6 +3,108 @@
 // Tên bảng và tên cột là chuỗi dài, cột bảng thì hẹp: thu nhỏ mã nội dòng cho vừa ô.
 #show raw.where(block: false): set text(size: 8.5pt)
 
+== Mô hình dữ liệu mức khái niệm
+
+Mức khái niệm trả lời câu hỏi hệ thống nói về những thứ gì và chúng liên hệ với nhau ra sao,
+tách hẳn khỏi câu hỏi lưu trữ thế nào. Vì vậy 3 sơ đồ dưới đây không có khoá ngoại, không có cột,
+không có kiểu dữ liệu và cũng không có bảng nối: một quan hệ nhiều-nhiều được vẽ thẳng thành
+một đường nối mang tên quan hệ, thay vì tách ra thành một thực thể trung gian như khi hiện thực.
+Bản số đọc theo quy ước chân quạ ở cả hai đầu. Toàn bộ tên thực thể viết bằng tiếng Việt theo
+đúng cách người dùng nghiệp vụ gọi chúng, chứ không dùng tên bảng.
+
+So với 42 bảng ở mức vật lý, mức khái niệm rút còn 26 thực thể. Phần chênh lệch gồm 3 nhóm.
+Nhóm thứ nhất là các bảng nối sinh ra chỉ để hiện thực quan hệ nhiều-nhiều, gồm bảng nối tin
+đăng với nhãn, bảng lưu quan tâm, bảng theo dõi người bán và bảng bình chọn nhận xét; ở mức
+khái niệm chúng là đường nối chứ không phải thực thể. Nhóm thứ hai là các bảng kỹ thuật hoặc
+dẫn xuất, gồm bảng vector ngữ nghĩa của tin đăng, bảng tổng hợp uy tín, bảng chống lặp kết cục
+đơn, bảng tuỳ chọn nhận thông báo và các bảng tra cứu dùng chung; chúng tồn tại vì hiệu năng
+hoặc vì ràng buộc kỹ thuật chứ không phải vì nghiệp vụ. Nhóm thứ ba là bảng nhật ký kiểm toán,
+vốn ghi lại mọi quyết định nghiệp vụ nên không thuộc riêng thực thể nào và được mô tả bằng lời
+thay vì vẽ thành một ô rời không nối với ai.
+
+#fig(
+  [Sơ đồ quan hệ thực thể mức khái niệm, phần người dùng, tin đăng và trao đổi],
+  spacing: (30mm, 12mm),
+  edge-stroke: 1pt + blue-s,
+  label-wrapper: wlabel,
+
+  nent((0, 0), <c-hs>, [HỒ SƠ ĐỊNH DANH]),
+  nent((0, 1), <c-dc>, [ĐỊA CHỈ]),
+  nent((0, 2), <c-tb>, [THIẾT BỊ]),
+  nent((0, 3), <c-tbao>, [THÔNG BÁO]),
+  nent((1, 1.5), <c-tk>, [TÀI KHOẢN]),
+  nent((2, 0), <c-dm>, [DANH MỤC]),
+  nent((2, 1.15), <c-td>, [TIN ĐĂNG]),
+  nent((2, 2.3), <c-nhan>, [NHÃN]),
+  nent((2, 3.5), <c-ht>, [HỘI THOẠI]),
+  nent((3, 1.15), <c-tc>, [TUỲ CHỌN HÀNG]),
+  nent((3, 2.3), <c-tkho>, [TỒN KHO]),
+  nent((3, 3.5), <c-tn>, [TIN NHẮN]),
+
+  edge(<c-tk>, <c-hs>, "1-n", [nộp]),
+  edge(<c-tk>, <c-dc>, "1-n", [khai]),
+  edge(<c-tk>, <c-tb>, "1-n", [đăng ký]),
+  edge(<c-tk>, <c-tbao>, "1-n", [nhận]),
+  edge(<c-tk>, <c-td>, "1-n", [đăng bán]),
+  edge(<c-tk>, <c-td>, "n-n", bend: -28deg, [quan tâm]),
+  edge(<c-tk>, <c-tk>, "n-n", bend: 130deg, [theo dõi]),
+  edge(<c-dm>, <c-td>, "1-n", [phân loại]),
+  edge(<c-td>, <c-nhan>, "n-n", [gắn]),
+  edge(<c-td>, <c-tc>, "1-n", [có]),
+  edge(<c-tc>, <c-tkho>, "1-1", [giữ]),
+  edge(<c-tk>, <c-ht>, "n-n", [tham gia]),
+  edge(<c-ht>, <c-tn>, "1-n", [chứa]),
+)
+
+#fig(
+  [Sơ đồ quan hệ thực thể mức khái niệm, phần đặt hàng và giao nhận],
+  spacing: (32mm, 13mm),
+  edge-stroke: 1pt + blue-s,
+  label-wrapper: wlabel,
+
+  nent((0, 0), <d-pm>, [PHIẾU MUA TẠM]),
+  nent((0, 2), <d-tl>, [THƯƠNG LƯỢNG]),
+  nent((1, 1), <d-dh>, [DÒNG HÀNG]),
+  nent((2, 1), <d-don>, [ĐƠN HÀNG]),
+  nent((3, 0), <d-vd>, [VẬN ĐƠN]),
+  nent((3, 2), <d-ht>, [YÊU CẦU HOÀN TIỀN]),
+
+  edge(<d-pm>, <d-dh>, "1-n", [chốt thành]),
+  edge(<d-tl>, <d-dh>, "1-n", [chốt thành]),
+  edge(<d-don>, <d-dh>, "1-n", [gồm]),
+  edge(<d-don>, <d-vd>, "1-n", [giao bằng]),
+  edge(<d-don>, <d-ht>, "1-n", [phát sinh]),
+)
+
+#fig(
+  [Sơ đồ quan hệ thực thể mức khái niệm, phần dòng tiền và hậu giao dịch],
+  spacing: (34mm, 14mm),
+  edge-stroke: 1pt + blue-s,
+  label-wrapper: wlabel,
+
+  nent((0, 0), <e-nh>, [TÀI KHOẢN NGÂN HÀNG]),
+  nent((0, 1), <e-thue>, [HỒ SƠ THUẾ]),
+  nent((0, 2), <e-phieu>, [PHIẾU HỖ TRỢ]),
+  nent((1, 1), <e-tk>, [TÀI KHOẢN]),
+  nent((1, 2.4), <e-nx>, [NHẬN XÉT]),
+  nent((2, 0), <e-vi>, [VÍ]),
+  nent((2, 1.5), <e-don>, [ĐƠN HÀNG]),
+  nent((2, 2.4), <e-tra>, [TRẢ LỜI NHẬN XÉT]),
+  nent((3, 0.6), <e-ptt>, [PHIÊN THANH TOÁN]),
+  nent((3, 2.1), <e-ctt>, [CHẶNG THANH TOÁN]),
+
+  edge(<e-tk>, <e-nh>, "1-n", [khai]),
+  edge(<e-tk>, <e-thue>, "1-1", [khai]),
+  edge(<e-tk>, <e-phieu>, "1-n", [gửi]),
+  edge(<e-tk>, <e-nx>, "1-n", [viết]),
+  edge(<e-tk>, <e-vi>, "1-n", [sở hữu]),
+  edge(<e-nx>, <e-tra>, "1-n", [được trả lời]),
+  edge(<e-don>, <e-nx>, "1-1", [làm cơ sở cho]),
+  edge(<e-ptt>, <e-vi>, "n-1", [quyết toán vào]),
+  edge(<e-ptt>, <e-ctt>, "1-n", [đi qua]),
+  edge(<e-ptt>, <e-don>, "1-1", [sinh ra]),
+)
+
 == Thiết kế cơ sở dữ liệu vật lý
 
 Mô hình dữ liệu được hiện thực trên PostgreSQL chạy trên bản phân phối TimescaleDB, bộ ký tự UTF-8. Ngoài phần lõi quan hệ, thiết kế dựa vào 6 phần mở rộng, mỗi phần phục vụ một nhóm truy vấn mà nếu thiếu nó thì phải giải quyết bằng một hệ lưu trữ thứ hai: TimescaleDB cho bảng ghi theo thời gian, PostGIS cho toạ độ địa lý, pgvector cho vector ngữ nghĩa, `pg_trgm` cùng `unaccent` cho tìm kiếm gần đúng không dấu, và bộ công cụ thống kê của TimescaleDB cho phép tính phân vị. Cả 6 đều được cài vào lược đồ `public` chứ không vào lược đồ của module, vì một phần mở rộng chỉ thuộc về đúng một lược đồ trong mỗi cơ sở dữ liệu; đổi lại, mỗi module vẫn tự khai báo phần mở rộng mà nó cần, để khi tách sang cơ sở dữ liệu riêng nó mang theo đủ điều kiện tiên quyết của mình. Dữ liệu nghiệp vụ tổ chức thành 7 lược đồ (schema), mỗi lược đồ mang đúng tên module sở hữu nó; đây không phải ranh giới triển khai (hệ thống chạy như một tiến trình duy nhất) mà là ranh giới quyền ghi và ranh giới di chuyển.
@@ -169,7 +271,6 @@ Sơ đồ được tách thành 3 lát cắt theo cụm nghiệp vụ, ký hiệ
   label-wrapper: wlabel,
 
   nent((0, 0), <p3-ticket>, [TICKET]),
-  nent((0, 1.3), <p3-fb>, [FEEDBACK]),
   nent((0, 2.5), <p3-rev>, [REVIEW]),
   nent((0, 3.7), <p3-vote>, [REVIEW\_VOTE]),
   nent((1.4, 3.1), <p3-reply>, [REVIEW\_REPLY]),
@@ -188,11 +289,10 @@ Sơ đồ được tách thành 3 lát cắt theo cụm nghiệp vụ, ký hiệ
   edge(<p3-msg>, <p3-conv>, "n-1", text(size: 7pt)[tin nhắn]),
   edge(<p3-opt>, <p3-res>, "n-1?", text(size: 7pt)[biểu trưng]),
   edge(<p3-ticket>, <p3-conv>, "1-1?", stroke: (dash: "dashed"), text(size: 7pt)[luồng phiếu]),
-  edge(<p3-fb>, <p3-rep>, "n-1", stroke: (dash: "dashed"), text(size: 7pt)[cộng dồn]),
   edge(<p3-rev>, <p3-rep>, "n-1", stroke: (dash: "dashed"), text(size: 7pt)[cộng dồn]),
   edge(<p3-oo>, <p3-rep>, "n-1", stroke: (dash: "dashed"), text(size: 7pt)[đếm kết cục]),
 
-  ngroup((<p3-ticket>, <p3-fb>, <p3-rev>, <p3-vote>, <p3-reply>, <p3-rep>, <p3-oo>)),
+  ngroup((<p3-ticket>, <p3-rev>, <p3-vote>, <p3-reply>, <p3-rep>, <p3-oo>)),
   gtitle((0.7, -0.65), [lược đồ `trust`]),
   ngroup((<p3-conv>, <p3-msg>)),
   gtitle((3.1, -0.65), [lược đồ `chat`]),
