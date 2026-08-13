@@ -185,7 +185,6 @@
   show heading.where(level: 3): it => block(width: 100%, above: 1em, below: 0.6em, text(
     size: 12pt,
     weight: "bold",
-    style: "italic",
   )[
     #if it.numbering != none [#context counter(heading).display(it.numbering)]#it.body
   ])

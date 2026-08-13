@@ -120,8 +120,8 @@ Mặc dù đã có nhiều cố gắng, song do giới hạn về mặt thời g
 
 #v(0.2cm)
 #text(size: 11pt)[
-  *Mức độ hoàn thành.* #emph[Hoàn thành]: hạng mục đã xong và có sản phẩm hoặc hồ sơ
-  kèm theo trong quyển. #emph[Hoàn thành cơ bản]: phần lõi đã xong và chạy được, nhưng
+  *Mức độ hoàn thành.* “Hoàn thành”: hạng mục đã xong và có sản phẩm hoặc hồ sơ
+  kèm theo trong quyển. “Hoàn thành cơ bản”: phần lõi đã xong và chạy được, nhưng
   còn hạn chế đã nêu đích danh ở mục 5.6 và 6.6: tích hợp nhà cung cấp thật chỉ dừng ở bộ
   giả lập, dây chuyền tích hợp liên tục chưa chạy kiểm thử, nhóm kiểm thử tầng truy cập dữ
   liệu chưa vào được dây chuyền, và hạ tầng quan trắc chưa có dữ liệu vận hành thật.
