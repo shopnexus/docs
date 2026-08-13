@@ -301,6 +301,7 @@
   kind: image,
 )
 
+
 // Chỗ chờ ảnh chụp màn hình sản phẩm đã chạy. Vẫn là một figure kind: image nên nó
 // chiếm đúng vị trí và số hiệu hình thật, chỉ còn việc thay nội dung khối khi có ảnh.
 // huong-dan mô tả cần chụp màn hình nào, ở trạng thái nào, để người chụp không phải đoán.
