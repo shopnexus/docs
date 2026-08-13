@@ -8,7 +8,7 @@
 #import "../common/style-quyen.typ": *
 
 #show: quyen.with(
-  tieu-de: ("BÁO CÁO", "THỰC TẬP TỐT NGHIỆP ĐẠI HỌC"),
+  tieu-de: ("BÁO CÁO THỰC TẬP", "TỐT NGHIỆP ĐẠI HỌC"),
   chay: "Báo cáo Thực tập tốt nghiệp",
   thoi-diem: "Tháng 08 năm 2026",
 )
@@ -266,6 +266,6 @@ mô hình dữ liệu.
 #enum(
   numbering: n => "[" + str(n + 10) + "]",
   start: 1,
-  [pgvector: Open-Source Vector Similarity Search for PostgreSQL, https:\/\/github.com/pgvector/pgvector (truy cập ngày 12/08/2026).],
-  [Restate Documentation: Durable Execution Engine for Microservices, https:\/\/docs.restate.dev (truy cập ngày 12/08/2026).],
+  [pgvector: Open-Source Vector Similarity Search for PostgreSQL, https:\/\/github.com/pgvector/pgvector.],
+  [Restate Documentation: Durable Execution Engine for Microservices, https:\/\/docs.restate.dev.],
 )
