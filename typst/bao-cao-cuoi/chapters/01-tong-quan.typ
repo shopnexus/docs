@@ -81,8 +81,8 @@ Hệ thống được thiết kế bao phủ toàn bộ vòng đời giao dịch
 
 Đề tài nghiên cứu và xây dựng nền tảng ShopNexus mang lại 3 đóng góp quan trọng:
 
-1. *Đóng góp về Giải pháp Nghiệp vụ cho thị trường TMĐT C2C:* Đề xuất và hiện thực hóa mô hình sàn giao dịch C2C thế hệ mới, giải quyết triệt để bài toán "khủng hoảng niềm tin" và sự phân mảnh trong giao tiếp truyền thống.
+1. *Đóng góp về giải pháp nghiệp vụ:* Đề xuất và hiện thực hóa mô hình sàn C2C giải quyết bài toán khủng hoảng niềm tin và sự phân mảnh trong giao tiếp.
 
-2. *Đóng góp về Kiến trúc Phần mềm và Công nghệ durable execution:* Tiên phong nghiên cứu và triển khai mô hình Durable Microservices trên nền tảng Restate trong một hệ thống thương mại điện tử thực tế tại Việt Nam.
+2. *Đóng góp về kiến trúc phần mềm:* Nghiên cứu và triển khai mô hình Durable Microservices trên nền tảng Restate trong một hệ thống thương mại điện tử thực tế.
 
-3. *Đóng góp về Sản phẩm Thực tiễn và Tài liệu Quy chuẩn:* Bàn giao một bộ sản phẩm phần mềm hoạt động trọn vẹn, bao gồm: Giao diện người dùng (Next.js/Flutter) và Hệ thống Backend Microservices hoàn chỉnh.
+3. *Đóng góp về sản phẩm thực tiễn:* Bàn giao bộ phần mềm chạy được trọn vẹn, gồm giao diện người dùng viết bằng Next.js và Flutter cùng hệ thống dịch vụ nền hoàn chỉnh.

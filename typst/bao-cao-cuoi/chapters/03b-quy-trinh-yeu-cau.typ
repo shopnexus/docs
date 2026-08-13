@@ -136,6 +136,13 @@ Sau khi có kết quả, hệ thống đóng các phiếu hỗ trợ liên quan,
 
 Đơn hàng gồm bốn trạng thái, được xác định trực tiếp từ các mốc thời gian phản ánh kết quả xử lý thay vì lưu trữ trong một trường trạng thái riêng. Cách tiếp cận này giúp tránh sai lệch giữa trạng thái đơn hàng và các mốc thời gian liên quan. Sơ đồ dưới đây thể hiện các chuyển đổi trạng thái hợp lệ mà tầng nghiệp vụ phải tuân thủ; mọi chuyển đổi không được định nghĩa trong sơ đồ đều bị từ chối.
 
+Cách suy ra này có một hệ quả đáng chú ý: trạng thái không bao giờ lệch với dữ liệu, vì không
+tồn tại một cột trạng thái để quên cập nhật. Đổi lại, thứ tự xét các mốc thời gian trở thành
+một phần của đặc tả chứ không phải chi tiết hiện thực, nên nó được ghi rõ ở đây: xét mốc huỷ
+trước, rồi tới mốc hoàn tất, rồi tới mốc người bán xác nhận, còn lại là đang mở. Thứ tự này
+bảo đảm một đơn vừa bị huỷ vừa có mốc xác nhận, tình huống xảy ra khi người bán bấm xác nhận
+đúng lúc người mua huỷ, luôn được đọc là đã huỷ chứ không phải đang chờ giao.
+
 #fig(
   [Sơ đồ trạng thái vòng đời đơn hàng],
   spacing: (46mm, 30mm),

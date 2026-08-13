@@ -145,6 +145,30 @@ vì số dư và lượt dịch chuyển sinh ra số dư ấy phải được g
 của hệ thống sai. Ngược lại, tồn kho không nằm trong aggregate đơn hàng dù đặt hàng có trừ tồn
 kho, vì tồn kho thuộc quyền của miền hàng hoá.
 
+Điều cuối cùng cần chốt trước khi đọc bản đồ là dữ liệu nào được phép lệch, lệch bao lâu và
+ai chịu trách nhiệm kéo nó về đúng. Bảng dưới đây là hợp đồng liên ngữ cảnh của hệ thống.
+
+#figure(
+  caption: [Hợp đồng liên ngữ cảnh: dữ liệu được phép lệch và thời hạn hội tụ],
+  table(
+    columns: (1.5fr, 1.2fr, 1fr, 2fr),
+    align: (left, left, left, left),
+    table.header([Dữ liệu], [Nguồn sự thật], [Độ lệch], [Cách hội tụ]),
+    [Điểm trung bình và số nhận xét của tin đăng], [Tín nhiệm], [Vài giây],
+      [Tín nhiệm tính lại rồi phát sự kiện, danh mục ghi vào cột đã tính sẵn.],
+    [Điểm uy tín người bán], [Tín nhiệm], [Vài giây],
+      [Cộng dồn khi nhận sự kiện đơn hoàn tất, chống lặp bằng bảng kết cục đơn.],
+    [Số dư ví hiển thị trên giao diện], [Tài chính], [Không lệch],
+      [Đọc thẳng từ ví, vì mọi thay đổi số dư nằm trong cùng một giao dịch với sổ cái.],
+    [Chỗ tồn kho đã giữ], [Hàng hoá], [Không lệch],
+      [Đặt hàng gọi đồng bộ và chờ kết quả; thiếu chỗ thì lượt mua dừng ngay.],
+    [Trạng thái vận đơn], [Đối tác vận chuyển], [Tới lần báo kế tiếp],
+      [Hãng đẩy mốc hành trình về; giữa 2 lần báo, đơn giữ nguyên mốc cũ.],
+    [Thông báo tới người dùng], [Đơn hàng và tài chính], [Vài giây],
+      [Phát qua trục sự kiện; mất thông báo không làm sai trạng thái nghiệp vụ.],
+  ),
+)
+
 #fig(
   [Bản đồ ngữ cảnh giới hạn: 7 ngữ cảnh, các aggregate và quan hệ nhất quán giữa chúng],
   spacing: (44mm, 26mm),
