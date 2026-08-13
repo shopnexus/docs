@@ -161,6 +161,24 @@
 #let step(a, y, lbl) = ng((a, y), text(size: 7pt, lbl))
 #let durable(a, y, lbl) = nt((a, y), text(size: 7pt, lbl))
 
+// ---- Khung tổ hợp (combined fragment) của sơ đồ trình tự ---
+// UML dùng khung này để thể hiện nhánh có điều kiện: `alt` cho hai nhánh loại trừ
+// nhau, `opt` cho nhánh có thể không chạy, `loop` cho vòng lặp. Nhãn loại khung nằm
+// ở góc trên bên trái, điều kiện của mỗi nhánh đặt trong ngoặc vuông.
+//   khung  bao quanh vùng từ đường sinh a tới b, giữa hai mốc y1 và y2
+//   dkien  ghi điều kiện của một nhánh, đặt ngay dưới mép trên hoặc dưới vạch ngăn
+//   ngan   vạch nét đứt ngăn hai nhánh của khung alt
+#let khung(loai, a, b, y1, y2) = (
+  node(enclose: ((a, y1), (b, y2)), inset: 13pt, stroke: 0.7pt + muted,
+       fill: none, corner-radius: 0pt),
+  node((a, y1), box(fill: white, inset: (x: 3pt, y: 1pt),
+       text(size: 6.5pt, weight: 700, loai)), stroke: none, fill: none),
+)
+#let dkien(a, y, dk) = node((a, y), box(fill: white, inset: (x: 2.5pt, y: 1pt),
+  text(size: 6.5pt, style: "normal")[\[#dk\]]), stroke: none, fill: none)
+#let ngan(a, b, y) = edge((a, y), (b, y), "-",
+  stroke: (paint: muted, dash: "dashed", thickness: 0.6pt))
+
 // ---- Bảng đặc tả ca sử dụng (fully dressed, UML) ----------
 // Dùng: #ucspec("UC-005", "Đặt hàng & Thanh toán Escrow", [Tác nhân chính], [User], ...)
 #let ucspec(ma, ten, ..rows) = {

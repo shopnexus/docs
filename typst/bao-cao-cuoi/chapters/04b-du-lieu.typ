@@ -245,9 +245,9 @@ Thiết kế bảo mật không phải một lớp màng lọc độc lập, mà
 
 === Xác thực và phân quyền
 
-- *Cơ chế xác thực kép:* Ứng dụng kết hợp Access Token tĩnh (JWT sống 15 phút, mang định danh mờ) và Trạng thái phiên động (Session lưu tại bộ nhớ đệm, sống 30 ngày). Mọi yêu cầu API bắt buộc phải tra cứu phiên song song với việc xác thực chữ ký JWT, đảm bảo thao tác thu hồi quyền (đăng xuất, đình chỉ) có hiệu lực tức thời.
-- *Bảo mật phiên và mã thông báo (Token Rotation):* Refresh Token được thiết lập xoay vòng ở mỗi lần cấp đổi.
-- *Chiến lược mật khẩu:* Ưu tiên độ dài thay vì độ phức tạp (tối thiểu 8, tối đa 72 ký tự do giới hạn của bcrypt). Cột mật khẩu cho phép Null để hỗ trợ luồng đăng nhập một lần (SSO). Trạng thái không mật khẩu được cố ý áp dụng cho tài khoản Điều phối viên, ngăn chặn rò rỉ qua các kênh thông thường.
+- Cơ chế xác thực kép: Ứng dụng kết hợp Access Token tĩnh (JWT sống 15 phút, mang định danh mờ) và Trạng thái phiên động (Session lưu tại bộ nhớ đệm, sống 30 ngày). Mọi yêu cầu API bắt buộc phải tra cứu phiên song song với việc xác thực chữ ký JWT, đảm bảo thao tác thu hồi quyền (đăng xuất, đình chỉ) có hiệu lực tức thời.
+- Bảo mật phiên và mã thông báo (Token Rotation): Refresh Token được thiết lập xoay vòng ở mỗi lần cấp đổi.
+- Chiến lược mật khẩu: Ưu tiên độ dài thay vì độ phức tạp (tối thiểu 8, tối đa 72 ký tự do giới hạn của bcrypt). Cột mật khẩu cho phép Null để hỗ trợ luồng đăng nhập một lần (SSO). Trạng thái không mật khẩu được cố ý áp dụng cho tài khoản Điều phối viên, ngăn chặn rò rỉ qua các kênh thông thường.
 
 === Bảo vệ dữ liệu và kiểm soát đầu vào
 

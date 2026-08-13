@@ -181,7 +181,7 @@ vai trò là một cột trong bảng tài khoản do dịch vụ tài khoản s
 Mọi thân phản hồi JSON đều có đúng một trong 2 khoá gốc `data` và `error`, kèm khoá `meta` bên
 cạnh `data` cho các phản hồi có phân trang; việc không trả dữ liệu trần ở gốc là để một giao dịch có
 trường `error` của riêng nó không bị nhầm với một lỗi cổng vào. Một nguyên tắc quan trọng khác là
-*đối tượng truyền dữ liệu luôn gửi giá trị rỗng của nó, không bao giờ bỏ khoá đi*, được cưỡng chế
+đối tượng truyền dữ liệu luôn gửi giá trị rỗng của nó, không bao giờ bỏ khoá đi, được cưỡng chế
 bằng một kiểm thử duyệt cây cú pháp của các gói hợp đồng; nó tồn tại vì một sự cố thật, khi một
 trường tham chiếu bị bỏ qua lúc rỗng đã biến mất khỏi gần như mọi tin nhắn và khiến mã máy khách
 sinh từ đặc tả không giải mã được luồng hội thoại nào.
