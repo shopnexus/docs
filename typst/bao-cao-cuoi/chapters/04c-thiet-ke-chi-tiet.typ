@@ -91,14 +91,14 @@ Trạng thái đơn hàng có 4 giá trị và được suy ra từ các mốc t
     [Sơ đồ lớp module order: từ giỏ hàng và thương lượng tới một đơn hàng],
     spacing: (8mm, 7mm),
 
-    cls((0, 0), "orderapi.Service", stereo: "cổng vào module", name: <o-svc>,
+    cls((0, 1), "orderapi.Service", stereo: "cổng vào module", name: <o-svc>,
       ops: (
         "+ giỏ hàng · phiếu mua · thương lượng",
         "+ đặt hàng · xác nhận · hủy",
         "+ hoàn tiền · phán quyết",
         "+ các phương thức đến hạn, đều idempotent",
       )),
-    cls((0, 1), "port.Workflows", stereo: "interface", name: <o-wf>,
+    cls((0, 0), "port.Workflows", stereo: "interface", name: <o-wf>,
       ops: (
         "4 durable workflow: thanh toán, vòng đời",
         "đơn, hoàn tiền, thương lượng",
@@ -165,7 +165,7 @@ Trạng thái đơn hàng có 4 giá trị và được suy ra từ các mốc t
       )),
 
     cnote((2, 2), "Cuộc thương lượng", (
-      "Mỗi cặp người mua – biến thể chỉ có",
+      "Mỗi cặp người mua và biến thể chỉ có",
       "MỘT cuộc đang thương lượng.",
       "Bên đang giữ đề nghị không được tự",
       "đồng ý với chính mình.",
@@ -200,6 +200,7 @@ Trạng thái đơn hàng có 4 giá trị và được suy ra từ các mốc t
       "ra hai đơn, ngay tại tầng dữ liệu.",
     ), name: <o-n2>),
 
+    edge(<o-cart>, <o-draft>, "-->", stroke: (dash: "dashed"), rel[nguồn để lập]),
     edge(<o-draft>, <o-snap>, "-->", rel[nội dung ảnh chụp]),
     edge(<o-draft>, <o-ord>, "-", rel[0..1 → 0..1]),
     edge(<o-offer>, <o-ord>, "-", rel[0..1 → 0..1]),
