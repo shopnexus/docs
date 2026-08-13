@@ -48,9 +48,7 @@ sau đều truy ngược về ít nhất một mã trong số đó.
 === Kiểu kiến trúc và ranh giới triển khai
 
 
-Hệ thống được tổ chức theo Kiến trúc phân rã theo nhóm nghiệp vụ, chia thành 7 dịch vụ: `account`, `catalog`, `order`, `finance`, `chat`, `trust` và `observability`. Ranh giới giữa các dịch vụ này được cưỡng chế bằng cơ chế kỹ thuật thay vì chỉ là quy ước lỏng lẻo trên mã nguồn. Trước hết là quyền sở hữu dữ liệu độc quyền: mỗi dịch vụ làm chủ một lược đồ (schema) riêng, còn bể kết nối (connection pool) bị ép buộc khóa đường dẫn tìm kiếm (search path) vào đúng lược đồ đó nên nguy cơ truy vấn chéo bị cắt đứt hoàn toàn (ADR-01). Kế đến, các dịch vụ chỉ gọi nhau qua tập giao diện (interface) công bố sẵn; gói hợp đồng này không chứa logic và chỉ phụ thuộc thư viện chuẩn, nhờ đó khi cần tách một dịch vụ ra máy chủ khác thì thao tác duy nhất là thay bản hiện thực bằng một máy khách gọi mạng, còn bên gọi không phải sửa dòng mã nào. Cuối cùng, các luồng chạy nền tương tác bất đồng bộ với nhau qua trục sự kiện (Event bus) theo mạng lưới Pub/Sub, trong đó thông điệp truyền đi luôn mang ý nghĩa "sự việc đã hoàn tất" (domain event) chứ tuyệt đối không mang tính mệnh lệnh (command).
-
-Trong giai đoạn hiện tại, cả 7 dịch vụ được đóng gói và phát hành chung thành một đơn vị triển khai duy nhất.
+Hệ thống được tổ chức theo Kiến trúc phân rã theo nhóm nghiệp vụ, chia thành 7 dịch vụ: `account`, `catalog`, `order`, `finance`, `chat`, `trust` và `observability`. Ranh giới giữa các dịch vụ này được cưỡng chế bằng cơ chế kỹ thuật thay vì chỉ là quy ước lỏng lẻo trên mã nguồn. Trong giai đoạn hiện tại, cả 7 dịch vụ được đóng gói và phát hành chung thành một đơn vị triển khai duy nhất.
 === Kiến trúc luận lý
 #fig(
   [Kiến trúc luận lý: 7 tầng và chiều phụ thuộc một chiều],
@@ -124,10 +122,8 @@ tài chính không ra lệnh tạo đơn, nó chỉ thông báo rằng tiền đ
 
 === Cơ chế bất đồng bộ và tích hợp bên ngoài
 
-3 cơ chế bất đồng bộ chạy song song và không được lẫn vào nhau. Trục sự kiện trên NATS JetStream chuyển
-những sự việc đã xảy ra tới các nhóm tiêu thụ tương ứng, với mô hình nhóm người tiêu thụ đủ cho
-nhu cầu "mỗi nhóm dịch vụ nhận đúng một lần";
-7 loại sự kiện chạy trên trục này, phục vụ 5 nhóm tiêu thụ. Cùng nền tảng ấy còn mang những gì không
+Trục các sự kiện trên NATS JetStream chuyển
+những sự việc đã xảy ra tới các nhóm tiêu thụ tương ứng, với mô hình nhóm người tiêu thụ (pull model). Cùng nền tảng ấy còn mang những gì không
 phải sự kiện nghiệp vụ: 4 luồng số đo vận hành đi qua JetStream, và tín hiệu đẩy thời gian thực
 phát tán giữa các bản sao cổng vào đi qua công bố–đăng ký thường, vì một tín hiệu đẩy mà không máy
 khách nào đang mở kết nối để nhận thì không đáng được lưu lại. Hai luồng được phân biệt bằng
@@ -138,7 +134,7 @@ một lần dưới dạng một phương thức idempotent mà cả Restate l�
 === Kiến trúc triển khai
 
 #figure(
-  image("../../common/assets/system-diagram-3x-sharp.png", width: 100%),
+  image("../../common/assets/system-diagram-3x-sharp.png", width: 90%),
   caption: [Kiến trúc triển khai],
 )
 
