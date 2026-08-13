@@ -111,7 +111,22 @@
 }
 
 // ---- Template ---------------------------------------------
-#let quyen(tieu-de: (), chay: "", thoi-diem: "", doc) = {
+// `cach-doan` / `cach-khoi`: hai nấc khoảng cách dọc của cả quyển, chỉnh được từ
+// phía báo cáo, ví dụ `#show: quyen.with(..., cach-khoi: 14pt)`.
+//   cach-doan — giữa hai đoạn văn. Phụ lục QĐ 922 bắt before/after 3pt, tức 6pt,
+//               nên đừng đổi trừ khi trường ra quy định mới.
+//   cach-khoi — giữa các khối không phải văn xuôi: hình, bảng, danh sách, khối mã,
+//               các khối tự dựng. Để rộng hơn cach-doan cho mắt tách được khối ra
+//               khỏi mạch chữ. Không đụng tới khoảng cách quanh tiêu đề (tiêu đề tự
+//               khai above/below riêng) lẫn khoảng cách bên trong bảng và hình.
+#let quyen(
+  tieu-de: (),
+  chay: "",
+  thoi-diem: "",
+  cach-doan: 6pt,
+  cach-khoi: 12pt,
+  doc,
+) = {
   set text(font: font-quyen, size: 12pt, fill: ink, lang: "vi")
   show raw: set text(font: font-mono)
   show raw.where(block: true): it => block(
@@ -127,7 +142,7 @@
   // với ~1,18 ở cỡ chữ 12pt), thụt dòng đầu mỗi đoạn 1cm.
   set par(
     justify: true,
-    spacing: 6pt,
+    spacing: cach-doan,
     leading: 0.7em,
     first-line-indent: (amount: 1cm, all: true),
   )
@@ -135,6 +150,7 @@
   // danh sách gạch đầu dòng và các mục lục đều canh sát lề.
   // Ô bảng KHÔNG canh đều: cụm chữ ngắn bị ngắt dòng (ví dụ "Đạt một phần") sẽ bị
   // kéo giãn rất xấu. Canh đều chỉ áp cho văn xuôi thân bài.
+  set block(spacing: cach-khoi)
   show table.cell: set par(justify: false, first-line-indent: 0pt)
   show figure.caption: set par(first-line-indent: 0pt)
   show list: set par(first-line-indent: 0pt)

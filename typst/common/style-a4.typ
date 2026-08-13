@@ -66,6 +66,11 @@
   phu-de: "",
   chay: "",
   de-tai: info.de-tai-ngan,
+  // Cùng cặp nấc khoảng cách dọc như style-quyen.typ: cach-doan cho hai đoạn văn kề
+  // nhau, cach-khoi cho các khối không phải văn xuôi (hình, bảng, danh sách, khối mã).
+  // Bản A4 dùng chữ 11pt nên hai giá trị nhỏ hơn bản quyển tương ứng.
+  cach-doan: 1.05em,
+  cach-khoi: 1.7em,
   doc,
 ) = {
   // Chữ & đoạn văn
@@ -75,7 +80,8 @@
     width: 100%, fill: rgb("#F6F6F6"), stroke: 0.5pt + hairline,
     inset: (x: 9pt, y: 8pt), radius: 3pt, text(size: 8.5pt, it),
   )
-  set par(justify: true, leading: 0.72em, spacing: 1.05em)
+  set par(justify: true, leading: 0.72em, spacing: cach-doan)
+  set block(spacing: cach-khoi)
 
   // Tiêu đề & hình/bảng
   set heading(numbering: "1.1.")
