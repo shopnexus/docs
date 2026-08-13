@@ -14,16 +14,16 @@
 #let de-tai-hoa = "XÂY DỰNG ỨNG DỤNG THƯƠNG MẠI ĐIỆN TỬ SỬ DỤNG KIẾN TRÚC MICROSERVICES"
 #let de-tai-ngan = "Nền tảng Thương mại Điện tử trên kiến trúc Microservices"
 
-#let gvhd = "ThS. Nguyễn Đức Thịnh"
+#let gvhd = "ThS. NGUYỄN ĐỨC THỊNH"
 #let lop = "D22CQCNPM01-N"
 #let nhom = "C22"
-#let nganh = "Công nghệ Thông tin"
+#let nganh = "CÔNG NGHỆ THÔNG TIN"
 #let dia-diem = "TP. HỒ CHÍ MINH"
 #let nam = "2026"
 
 // (họ tên, MSSV) — giữ nguyên thứ tự này ở mọi báo cáo
 #let sinh-vien = (
-  ("Đậu Văn Đăng Khoa", "N22DCCN040"),
-  ("Hồ Công Toản", "N22DCCN086"),
-  ("Nguyễn Tấn Khoa", "N22DCCN042"),
+  ("ĐẬU VĂN ĐĂNG KHOA", "N22DCCN040"),
+  ("HỒ CÔNG TOẢN", "N22DCCN086"),
+  ("NGUYỄN TẤN KHOA", "N22DCCN042"),
 )

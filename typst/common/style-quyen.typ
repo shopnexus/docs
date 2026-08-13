@@ -69,31 +69,37 @@
         #v(0.3em)
       ]
 
-      #v(0.4cm)
+      #v(0.8cm)
       #block(width: 92%)[
         #set par(justify: false, leading: 0.65em)
         #text(size: 16pt, weight: "bold")[Đề tài: “#info.de-tai”]
       ]
 
-      #v(0.6cm)
+      #v(1.2cm)
       #align(left)[
         #block(width: 100%, inset: (left: 0.5cm))[
           #set text(size: 13pt, weight: "bold")
+          // Tên viết hoa dài hơn tên viết thường, nếu bị ngắt dòng trong ô lưới thì
+          // dòng trên còn bị dàn đều chữ. Tắt canh đều ở riêng khối này.
+          #set par(justify: false)
+          // Dòng nào không có MSSV thì cho ô giá trị trải hết 2 cột, nhờ vậy cột tên
+          // chỉ cần vừa tên sinh viên dài nhất và cột MSSV thẳng hàng ở cả 3 dòng.
+          #let rong(noi-dung) = grid.cell(colspan: 2, noi-dung)
           #grid(
             columns: (4.3cm, auto, auto),
             row-gutter: 8pt,
             column-gutter: 6pt,
             align: (left, left, left),
-            [Người hướng dẫn :], [#info.gvhd], [],
+            [Người hướng dẫn :], rong[#info.gvhd],
             ..info
               .sinh-vien
               .enumerate()
               .map(((i, sv)) => (
                 [Sinh viên #(i + 1) :], [#sv.at(0)], [MSSV: #sv.at(1)],
-                [Lớp :], [#info.lop], [],
+                [Lớp :], rong[#info.lop],
               ))
               .flatten(),
-            [Ngành :], [#info.nganh], [],
+            [Ngành :], rong[#info.nganh],
           )
         ]
       ]
@@ -216,7 +222,7 @@
     footer: context block(width: 100%)[
       #grid(
         columns: (1fr, 1fr),
-        align(left, text(font: font-quyen, size: 10pt)[Nhóm #info.nhom]),
+        align(left, text(font: font-quyen, size: 10pt)[#("Nhóm_" + info.nhom)]),
         align(right, text(font: font-quyen, size: 10pt)[
           #if page.numbering != none [#counter(page).display(page.numbering)]
         ]),
@@ -242,7 +248,7 @@
 // của hình. `outline` lại dựng số ở vị trí của chính nó — nằm trong phần đầu quyển,
 // nơi bộ đếm chương vẫn bằng 0 — nên mọi mục sẽ mất phần số chương.
 #let danh-muc-fig(title, kind, supplement) = {
-  sechead(title)
+  sechead(title, outlined: false)
   context {
     for f in query(figure.where(kind: kind)) {
       let loc = f.location()
@@ -259,7 +265,7 @@
   }
 }
 #let danh-muc-bang() = danh-muc-fig([DANH MỤC CÁC BẢNG], table, [Bảng])
-#let danh-muc-hinh() = danh-muc-fig([DANH MỤC CÁC HÌNH VẼ VÀ SƠ ĐỒ], image, [Hình])
+#let danh-muc-hinh() = danh-muc-fig([DANH MỤC CÁC HÌNH VẼ], image, [Hình])
 
 #let ink = rgb("#1e293b")
 #let mut = rgb("#64748b")

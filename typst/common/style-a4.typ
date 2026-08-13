@@ -126,7 +126,7 @@
       line(length: 100%, stroke: 0.5pt + hairline)
       v(2pt)
       grid(columns: (1fr, auto), align: (left, right),
-        [Nhóm #info.nhom],
+        [#("Nhóm_" + info.nhom)],
         [Trang #counter(page).get().first() / #counter(page).final().first()])
     },
   )
