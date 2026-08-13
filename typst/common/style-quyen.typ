@@ -128,8 +128,8 @@
   tieu-de: (),
   chay: "",
   thoi-diem: "",
-  cach-doan: 6pt,
-  cach-khoi: 12pt,
+  cach-doan: 12pt,
+  cach-khoi: 16pt,
   doc,
 ) = {
   set text(font: font-quyen, size: 12pt, fill: ink, lang: "vi")
