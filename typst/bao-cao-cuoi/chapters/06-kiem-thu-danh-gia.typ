@@ -253,7 +253,7 @@ khai, không thuộc về sản phẩm mà đề tài xây dựng.
 
     [NFR-17],
     [Đặc tả là nguồn duy nhất của hợp đồng],
-    [TC-28 đến TC-31 đều đạt, và quy trình tích hợp liên tục sinh lại đặc tả rồi so với bản đã lưu trên mỗi lần đẩy mã  đây là cổng kiểm tra tự động thực sự đang chạy của dịch vụ nền],
+    [TC-28 đến TC-31 đều đạt, và quy trình tích hợp liên tục sinh lại đặc tả rồi so với bản đã lưu trên mỗi lần đẩy mã, đây là cổng kiểm tra tự động thực sự đang chạy của dịch vụ nền],
     [Đạt],
 
     [NFR-08],

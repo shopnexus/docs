@@ -22,7 +22,7 @@ Việc áp dụng triệt để Database-per-service mang lại lợi thế chi�
 == Durable execution trong hệ thống phân tán
 
 === Thách thức của giao dịch phân tán và giới hạn của mô hình Saga truyền thống
-Trong một kiến trúc Microservices tuân thủ Database-per-service, thách thức kỹ thuật phức tạp nhất là duy trì tính nhất quán dữ liệu cho một quy trình nghiệp vụ dài hạn (Long-running Business Process) trải dài qua nhiều dịch vụ. Ví dụ, trong quy trình đặt hàng và thanh toán tạm giữ (Escrow Payment), luồng thực thi phải tuần tự đi qua nhiều bước bước: (1) kiểm tra và trừ tồn kho tại `Inventory Service`, (2) tạo hóa đơn tại `Order Service`, (3) khởi tạo phiên giao dịch trên cổng thanh toán bên ngoài, (4) khóa dòng tiền vào ví trung gian tại `Account Service`, và (5) thiết lập bộ đếm thời gian 72 giờ chờ người mua xác nhận nhận hàng.
+Trong một kiến trúc Microservices tuân thủ Database-per-service, thách thức kỹ thuật phức tạp nhất là duy trì tính nhất quán dữ liệu cho một quy trình nghiệp vụ dài hạn (Long-running Business Process) trải dài qua nhiều dịch vụ. Ví dụ, trong quy trình đặt hàng và thanh toán tạm giữ (Escrow Payment), luồng thực thi phải tuần tự đi qua nhiều bước: (1) kiểm tra và trừ tồn kho tại `Inventory Service`, (2) tạo hóa đơn tại `Order Service`, (3) khởi tạo phiên giao dịch trên cổng thanh toán bên ngoài, (4) khóa dòng tiền vào ví trung gian tại `Account Service`, và (5) thiết lập bộ đếm thời gian 72 giờ chờ người mua xác nhận nhận hàng.
 
 Nếu sử dụng mẫu thiết kế Saga (Choreography hoặc Orchestration) truyền thống, các kỹ sư phần mềm phải đối mặt với một gánh nặng phát triển cực lớn:
 - *Lập trình thủ công các hàm bù trừ:* Phải tự viết mã cho từng hàm thực thi xuôi (Action) kèm theo hàm bù trừ ngược (Compensation Action) tương ứng cho từng module để hoàn tác dữ liệu khi có lỗi xảy ra giữa chừng [4].
@@ -69,7 +69,7 @@ Bên cạnh khả năng định thời (`sleep`), Restate Ingress cung cấp hai
 Trong các sàn thương mại điện tử C2C, sản phẩm được đăng bán bởi các cá nhân không chuyên. Ngôn ngữ mô tả mặt hàng thanh lý thường có tính tự do cao, sử dụng nhiều từ viết tắt, từ lóng, sai chính tả hoặc cấu trúc câu không theo quy chuẩn (ví dụ: "tl ip 15 prm 256 gb zin keng" cho sản phẩm iPhone 15 Pro Max 256GB). 
 
 Nếu chỉ áp dụng các kỹ thuật tìm kiếm từ khóa truyền thống (Full-text Search dựa trên từ vựng hoặc SQL `LIKE`/BM25 thuần túy), hệ thống sẽ gặp phải 2 hạn chế nghiêm trọng:
-- *Hiện tượng bỏ lót kết quả (False Negatives):* Công cụ tìm kiếm từ vựng đòi hỏi sự trùng khớp chính xác về ký tự giữa từ khóa truy vấn và văn bản mô tả. Khi người mua truy vấn "điện thoại Apple cũ giá rẻ", hệ thống truyền thống sẽ bỏ qua các sản phẩm mô tả là "iPhone 13 thanh lý lên đời" do không trùng từ khóa "điện thoại Apple".
+- *Hiện tượng bỏ lọt kết quả (False Negatives):* Công cụ tìm kiếm từ vựng đòi hỏi sự trùng khớp chính xác về ký tự giữa từ khóa truy vấn và văn bản mô tả. Khi người mua truy vấn "điện thoại Apple cũ giá rẻ", hệ thống truyền thống sẽ bỏ qua các sản phẩm mô tả là "iPhone 13 thanh lý lên đời" do không trùng từ khóa "điện thoại Apple".
 
 === Tìm kiếm ngữ nghĩa (Semantic Search) với mô hình embedding\ bge-m3
 Để khắc phục rào cản trên, hệ thống ứng dụng công nghệ Tìm kiếm Ngữ nghĩa (Semantic Search) dựa trên biểu diễn không gian embedding. Khi một sản phẩm được tạo mới hoặc cập nhật tại `Catalog Service`, toàn bộ tiêu đề, mô tả và thuộc tính mặt hàng được truyền qua mô hình học sâu bge-m3 (BAAI General Embedding M3) để tạo ra các vector đặc trưng [3].

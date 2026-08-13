@@ -606,5 +606,3 @@ sự cố đơn. Sau khi kiện hàng tới nơi, người mua xác nhận đã 
 được chốt ngay tại thời điểm đó chứ không bổ sung về sau, vì một yêu cầu hoàn tiền sẽ được
 phán xử trên đúng những gì người mua trưng ra lúc mở hộp. Từ mốc ấy tiền nằm yên 72 giờ, rồi escrow chuyển sang phần khả dụng của người bán và thời điểm hoàn tất được ghi
 lại như một dấu hiệu đã xong, khiến tập đơn cần thử lại đúng bằng tập đơn còn mắc kẹt.
-
-nhà cung cấp khác, vì tính tiền qua một kênh tình cờ nằm trong bộ nhớ còn tệ hơn thất bại.

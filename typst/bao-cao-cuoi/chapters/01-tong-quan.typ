@@ -13,7 +13,7 @@ Xét ở bình diện vĩ mô, quy mô thị trường thương mại điện t�
 
 Trước thực trạng và những khoảng trống lớn của thị trường, đề tài "Ứng dụng thương mại điện tử sử dụng kiến trúc Microservices" được lựa chọn nhằm nghiên cứu, phân tích và thiết kế một hệ sinh thái giao dịch C2C an toàn, minh bạch và hiện đại, đặt trọng tâm giải quyết bài toán "lòng tin" bằng việc thiết lập ba trụ cột nghiệp vụ và kỹ thuật chính sau:
 + *Cơ chế Bảo lãnh tài chính tạm giữ (Escrow Payment):* Sàn thương mại điện tử sẽ đóng vai trò là bên thứ ba trung gian đáng tin cậy giữ tiền giao dịch. Dòng tiền của người mua sẽ được khóa bảo mật trong ví trung gian cho đến khi giao hàng thành công và người mua xác nhận hài lòng (hoặc hết thời hạn đếm ngược 3 ngày(72 giờ) mà không có khiếu nại).
-+ *Tích hợp Nhắn tin trực tuyến và Thẻ Đề xuất giá (Offer Card):* Xây dựng hệ thống giao tiếp gắn liền liền mạch vào sàn, cho phép thương lượng giá động ngay trong khung chat qua Thẻ Đề xuất giá có hiệu lực trong 24 giờ, ràng buộc trực tiếp thỏa thuận giá vào luồng thanh toán đơn hàng.
++ *Tích hợp Nhắn tin trực tuyến và Thẻ Đề xuất giá (Offer Card):* Xây dựng hệ thống giao tiếp gắn liền mạch vào sàn, cho phép thương lượng giá động ngay trong khung chat qua Thẻ Đề xuất giá có hiệu lực trong 12 giờ, ràng buộc trực tiếp thỏa thuận giá vào luồng thanh toán đơn hàng.
 + *Quy trình Hoàn tiền và Phân xử tranh chấp (Refund & Dispute) minh bạch:* Thiết lập quy trình khiếu nại với ràng buộc bắt buộc cung cấp bằng chứng số đa phương tiện (video mở hộp, ảnh chụp đóng gói). Khi không đạt được thỏa thuận hoàn tiền, vụ việc được thăng cấp lên Điều phối viên (Moderator) nội bộ để thẩm định và ra quyết định công bằng cho cả hai bên.
 
 == Mục tiêu của nghiên cứu
