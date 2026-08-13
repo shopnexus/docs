@@ -2,6 +2,8 @@
 
 == Phân tích và so sánh các công trình liên quan
 
+Thị trường mua bán đồ cũ, hàng thanh lý và đồ thủ công cá nhân (C2C - Consumer-to-Consumer) tại Việt Nam đang phát triển mạnh mẽ nhờ sự gia tăng của xu hướng tiêu dùng bền vững và nhu cầu tối ưu tài chính cá nhân. Tuy nhiên, hoạt động giao dịch giữa các cá nhân không chuyên hiện nay vẫn phân mảnh trên nhiều nền tảng với những hạn chế lớn về an toàn tài chính, cơ chế giải quyết tranh chấp và công nghệ hỗ trợ tìm kiếm.
+
 === Phân tích các mô hình sàn giao dịch phổ biến
 - *Chợ Tốt (chotot.com) - Mô hình sàn rao vặt (Classified Ads):*
   - *Ưu điểm:* Là nền tảng rao vặt đồ cũ lớn nhất Việt Nam với lưu lượng người dùng khổng lồ. Quy trình đăng tin bán rất nhanh chóng, giao diện đơn giản, phân loại tốt theo khu vực địa lý giúp người mua/bán dễ dàng kết nối trong bán kính gần.
