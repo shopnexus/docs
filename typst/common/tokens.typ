@@ -149,6 +149,22 @@
 #let nent(p, nm, title) = node(p, text(weight: 700, size: 8.5pt, title),
                                shape: pill, fill: blue-l, stroke: 1pt + blue-s, name: nm)
 
+// ---- Vùng ngữ cảnh cho BẢN ĐỒ NGỮ CẢNH GIỚI HẠN ----------
+// Mỗi vùng là một ngữ cảnh giới hạn: ngăn trên ghi tên ngữ cảnh, ngăn dưới liệt kê
+// các aggregate mà nó làm chủ. Aggregate là cụm dữ liệu phải nhất quán với nhau trong
+// cùng một giao dịch, nên ranh giới aggregate cũng chính là ranh giới nhất quán mạnh.
+#let nvung(p, nm, ten, ..agg) = node(
+  p,
+  align(left, stack(
+    dir: ttb, spacing: 3.4pt,
+    text(weight: 700, size: 8.2pt, ten),
+    line(length: 100%, stroke: 0.5pt + hairline),
+    ..agg.pos().map(a => text(size: 7pt, a)),
+  )),
+  shape: rect, fill: blue-l, stroke: (paint: ink, thickness: 1pt, dash: "dashed"),
+  inset: 6pt, corner-radius: 4pt, name: nm,
+)
+
 // ---- Ô bảng cho SƠ ĐỒ CƠ SỞ DỮ LIỆU (database diagram) ----
 // Khác `nent` của sơ đồ ERD: ô hình chữ nhật chia 2 ngăn, ngăn trên là tên bảng,
 // ngăn dưới liệt kê khoá chính, khoá ngoại kèm hành vi tham chiếu và ràng buộc duy

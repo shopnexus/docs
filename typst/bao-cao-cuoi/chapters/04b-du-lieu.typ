@@ -12,7 +12,7 @@ một đường nối mang tên quan hệ, thay vì tách ra thành một thực
 Bản số đọc theo quy ước chân quạ ở cả hai đầu. Khung nét đứt gom các thực thể thuộc cùng một miền nghiệp vụ. Lưu ý miền ở đây là ranh giới nghiệp vụ chứ không phải lược đồ cơ sở dữ liệu: một miền có thể về sau được hiện thực thành một lược đồ, nhưng ở mức khái niệm thì cách lưu trữ chưa được quyết định. Toàn bộ tên thực thể viết bằng tiếng Việt theo
 đúng cách người dùng nghiệp vụ gọi chúng, chứ không dùng tên bảng.
 
-So với 42 bảng ở mức vật lý, mức khái niệm rút còn 26 thực thể. Phần chênh lệch gồm 3 nhóm.
+So với 42 bảng ở mức vật lý, mức khái niệm rút còn 27 thực thể. Phần chênh lệch gồm 3 nhóm.
 Nhóm thứ nhất là các bảng nối sinh ra chỉ để hiện thực quan hệ nhiều-nhiều, gồm bảng nối tin
 đăng với nhãn, bảng lưu quan tâm, bảng theo dõi người bán và bảng bình chọn nhận xét; ở mức
 khái niệm chúng là đường nối chứ không phải thực thể. Nhóm thứ hai là các bảng kỹ thuật hoặc
@@ -69,6 +69,7 @@ thay vì vẽ thành một ô rời không nối với ai.
   edge-stroke: 1pt + blue-s,
   label-wrapper: wlabel,
 
+  nent((0, -1), <d-gio>, [GIỎ HÀNG]),
   nent((0, 0), <d-pm>, [PHIẾU MUA TẠM]),
   nent((0, 2), <d-tl>, [THƯƠNG LƯỢNG]),
   nent((1, 1), <d-dh>, [DÒNG HÀNG]),
@@ -76,11 +77,12 @@ thay vì vẽ thành một ô rời không nối với ai.
   nent((3, 0), <d-vd>, [VẬN ĐƠN]),
   nent((3, 2), <d-ht>, [YÊU CẦU HOÀN TIỀN]),
 
-  ngroup((<d-pm>, <d-tl>, <d-dh>)),
-  gtitle((0.5, -0.72), [Trước khi có đơn]),
+  ngroup((<d-gio>, <d-pm>, <d-tl>, <d-dh>)),
+  gtitle((0.5, -1.72), [Trước khi có đơn]),
   ngroup((<d-don>, <d-vd>, <d-ht>)),
-  gtitle((2.5, -0.72), [Sau khi có đơn]),
+  gtitle((2.5, -1.72), [Sau khi có đơn]),
 
+  edge(<d-gio>, <d-pm>, "1-n", [chốt từ]),
   edge(<d-pm>, <d-dh>, "1-n", [chốt thành]),
   edge(<d-tl>, <d-dh>, "1-n", [chốt thành]),
   edge(<d-don>, <d-dh>, "1-n", [gồm]),
@@ -121,6 +123,66 @@ thay vì vẽ thành một ô rời không nối với ai.
   edge(<e-ptt>, <e-ctt>, "1-n", [đi qua]),
   edge(<e-ptt>, <e-don>, "1-1", [sinh ra]),
 )
+
+== Bản đồ ngữ cảnh giới hạn
+
+Giữa mô hình khái niệm và thiết kế lưu trữ có một bước trung gian quyết định: chia hệ thống
+thành các ngữ cảnh giới hạn, và gán mỗi thực thể cho đúng một ngữ cảnh làm chủ nó. Đây là quyết
+định khó đảo ngược nhất của toàn bộ thiết kế, vì ranh giới thành phần ở mục kiến trúc và ranh
+giới lược đồ ở mục sau đều đọc từ bản đồ này mà ra.
+
+Ranh giới được tìm bằng chỗ một danh từ đổi nghĩa. Rõ nhất là từ "tin đăng": trong miền hàng
+hoá, tin đăng là một mặt hàng có mô tả, có giá và sửa được; nhưng trong miền đặt hàng, thứ mà
+một đơn hàng nắm giữ là bản chụp bất biến của tin đăng tại thời điểm chốt mua, và nó không được
+đổi theo tin đăng gốc nữa. Hai nghĩa khác nhau của cùng một từ, nên đó là chỗ một mô hình nhất
+quán phải dừng lại. Tương tự, "tài khoản" trong miền định danh là hồ sơ người dùng với giấy tờ
+và thiết bị, còn trong miền tài chính nó chỉ là chủ sở hữu của một cặp ví và một dòng tiền.
+
+Bên trong mỗi ngữ cảnh, dữ liệu lại được gom thành các aggregate, tức cụm nhỏ nhất buộc phải
+nhất quán với nhau trong cùng một giao dịch. Đơn hàng cùng các dòng hàng của nó là một
+aggregate vì một dòng hàng không thể tồn tại mà thiếu đơn; ví cùng sổ cái ví là một aggregate
+vì số dư và lượt dịch chuyển sinh ra số dư ấy phải được ghi cùng nhau, nếu không thì tổng tiền
+của hệ thống sai. Ngược lại, tồn kho không nằm trong aggregate đơn hàng dù đặt hàng có trừ tồn
+kho, vì tồn kho thuộc quyền của miền hàng hoá.
+
+#fig(
+  [Bản đồ ngữ cảnh giới hạn: 7 ngữ cảnh, các aggregate và quan hệ nhất quán giữa chúng],
+  spacing: (44mm, 26mm),
+  edge-stroke: 1pt + blue-s,
+  label-wrapper: wlabel,
+
+  nvung((0, 0), <v-dd>, [Định danh], [Tài khoản · địa chỉ · thiết bị], [Hồ sơ định danh], [Thông báo]),
+  nvung((1, 0), <v-hh>, [Hàng hoá], [Tin đăng · tuỳ chọn · tồn kho], [Danh mục], [Nhãn]),
+  nvung((2, 0), <v-td>, [Trao đổi], [Hội thoại · tin nhắn]),
+  nvung((0, 1), <v-tc>, [Tài chính], [Phiên thanh toán · chặng], [Ví · sổ cái ví], [Tài khoản ngân hàng], [Hồ sơ thuế]),
+  nvung((1, 1), <v-dh>, [Đặt hàng], [Đơn hàng · dòng hàng · vận đơn], [Phiếu mua tạm], [Thương lượng], [Giỏ hàng], [Yêu cầu hoàn tiền]),
+  nvung((2, 1), <v-tn>, [Tín nhiệm], [Nhận xét · trả lời · bình chọn], [Uy tín], [Phiếu hỗ trợ]),
+  nvung((1, 2), <v-qt>, [Quan trắc], [Nhật ký · độ đo · dấu vết]),
+
+  edge(<v-dh>, <v-tc>, "-|>", [mở phiên · đồng bộ]),
+  edge(<v-tc>, <v-dh>, "-|>", stroke: (dash: "dashed"), bend: 32deg, [tiền vào ký quỹ · dần]),
+  edge(<v-dh>, <v-hh>, "-|>", [giữ tồn kho · đồng bộ]),
+  edge(<v-dh>, <v-tn>, "-|>", stroke: (dash: "dashed"), [đơn hoàn tất · dần]),
+  edge(<v-tn>, <v-hh>, "-|>", stroke: (dash: "dashed"), [điểm trung bình · dần]),
+  edge(<v-tn>, <v-td>, "-|>", [luồng phiếu · đồng bộ]),
+  edge(<v-dh>, <v-dd>, "-|>", [tra tài khoản · đồng bộ]),
+  edge(<v-dh>, <v-qt>, "-|>", stroke: (dash: "dashed"), [sự kiện nghiệp vụ · dần]),
+)
+
+Quy ước đọc bản đồ: đường liền nét là lời gọi đồng bộ, bên gọi chờ kết quả trước khi đi tiếp;
+đường nét đứt là sự kiện bất đồng bộ, bên nhận xử lý sau và trong khoảng thời gian ấy hai bên
+được phép lệch nhau. Bên trong một ngữ cảnh, dữ liệu luôn nhất quán mạnh vì mọi thay đổi nằm
+trong cùng một giao dịch cơ sở dữ liệu. Bắc qua hai ngữ cảnh thì chỉ còn nhất quán dần, kể cả
+khi đường nối là lời gọi đồng bộ, vì hai bên ghi vào hai giao dịch khác nhau và không có giao
+dịch phân tán nào ràng chúng lại. Chính vì vậy các luồng dài như ký quỹ hay hoàn tiền phải được
+điều phối bằng thực thi bền thay vì bằng một giao dịch duy nhất.
+
+Vài cụm trong bản đồ không xuất hiện ở sơ đồ khái niệm, ví dụ sổ cái ví hay bản tổng hợp uy tín. Đó là các cụm dẫn xuất: chúng không phải khái niệm nghiệp vụ mới mà là dữ liệu được tính ra rồi giữ sẵn, và chúng thuộc quyền của chính ngữ cảnh đã tính ra chúng. Bản đồ phải nêu chúng vì mục đích của bản đồ là phân định quyền ghi, mà quyền ghi thì áp cho mọi thứ được lưu chứ không riêng khái niệm nghiệp vụ.
+
+Bản đồ này ràng buộc hai thứ ở phía sau. Thứ nhất là ranh giới thành phần: 7 ngữ cảnh chính là
+7 module đã trình bày ở mục kiến trúc, không hơn không kém. Thứ hai là ranh giới lưu trữ: mỗi
+ngữ cảnh làm chủ đúng một lược đồ và chỉ được ghi vào lược đồ của mình, nên trong các sơ đồ cơ
+sở dữ liệu ở mục sau không có khoá ngoại nào bắc qua hai lược đồ.
 
 == Thiết kế cơ sở dữ liệu vật lý
 
