@@ -227,6 +227,11 @@ mô hình dữ liệu.
 //   tạp chí        → tác giả, tên bài, tên tạp chí, tập, số, trang, (năm)
 //   sách           → tác giả, tên sách, nhà xuất bản, nơi xuất bản, (năm)
 //   báo cáo KH     → tác giả, tên báo cáo, tên kỷ yếu, nơi và thời gian hội nghị
+// Quy ước ngôn ngữ trong một mục: DANH TỪ RIÊNG giữ nguyên ngôn ngữ gốc — tên tác
+// giả, tên bài, tên tạp chí, tên hội nghị, tên nhà xuất bản, tên thành phố và quốc
+// gia. Chỉ các NHÃN cấu trúc mới viết tiếng Việt: "tập", "số", "tr.", "tái bản lần",
+// "truy cập ngày". Không dịch tên hội nghị hay tên nước, vì dịch ra thì mục vừa sai
+// tên gốc vừa đọc như nửa Anh nửa Việt.
 // Xếp abc: hai nghị định theo tên tài liệu, phần tiếng Anh theo họ tác giả,
 // phần website theo tên tài nguyên. Số thứ tự chạy liên tục qua cả ba nhóm để
 // trích dẫn trong thân bài (dạng [n]) không bị trùng.
@@ -244,13 +249,13 @@ mô hình dữ liệu.
 #enum(
   numbering: n => "[" + str(n + 2) + "]",
   start: 1,
-  [Chen J., Xiao S., Zhang P., Luo K., Lian D., Liu Z., M3-Embedding: Multi-Linguality, Multi-Functionality, Multi-Granularity Text Embeddings Through Self-Knowledge Distillation, Findings of the Association for Computational Linguistics: ACL 2024, tr. 2318–2335, Bangkok, Thái Lan (2024).],
+  [Chen J., Xiao S., Zhang P., Luo K., Lian D., Liu Z., M3-Embedding: Multi-Linguality, Multi-Functionality, Multi-Granularity Text Embeddings Through Self-Knowledge Distillation, Findings of the Association for Computational Linguistics: ACL 2024, tr. 2318–2335, Bangkok, Thailand (2024).],
   [Garcia-Molina H., Salem K., Sagas, ACM SIGMOD Record, tập 16, số 3, tr. 249–259 (1987).],
   [Helland P., Idempotence Is Not a Medical Condition, ACM Queue, tập 10, số 4, tr. 30–46 (2012).],
-  [Kleppmann M., Designing Data-Intensive Applications: The Big Ideas Behind Reliable, Scalable, and Maintainable Systems, O'Reilly Media, Sebastopol, CA, Hoa Kỳ (2017).],
-  [Li C., Liu Z., Wu M., Xu Y., Zhao H., Huang P., Zhou G., Zhu X., Gai K., Multi-Interest Network with Dynamic Routing for Recommendation at Tmall, Kỷ yếu Hội nghị quốc tế ACM về Quản lý Thông tin và Tri thức (CIKM) lần thứ 28, tr. 2615–2623, Bắc Kinh, Trung Quốc (2019).],
-  [Newman S., Building Microservices: Designing Fine-Grained Systems, xuất bản lần thứ hai, O'Reilly Media, Sebastopol, CA, Hoa Kỳ (2021).],
-  [Richardson C., Microservices Patterns: With Examples in Java, Manning Publications, Shelter Island, NY, Hoa Kỳ (2019).],
+  [Kleppmann M., Designing Data-Intensive Applications: The Big Ideas Behind Reliable, Scalable, and Maintainable Systems, O'Reilly Media, Sebastopol, CA, USA (2017).],
+  [Li C., Liu Z., Wu M., Xu Y., Zhao H., Huang P., Zhou G., Zhu X., Gai K., Multi-Interest Network with Dynamic Routing for Recommendation at Tmall, Proc. 28th ACM Int. Conf. on Information and Knowledge Management (CIKM), tr. 2615–2623, Beijing, China (2019).],
+  [Newman S., Building Microservices: Designing Fine-Grained Systems, tái bản lần 2, O'Reilly Media, Sebastopol, CA, USA (2021).],
+  [Richardson C., Microservices Patterns: With Examples in Java, Manning Publications, Shelter Island, NY, USA (2019).],
   [Robertson S., Zaragoza H., The Probabilistic Relevance Framework: BM25 and Beyond, Foundations and Trends in Information Retrieval, tập 3, số 4, tr. 333–389 (2009).],
 )
 
