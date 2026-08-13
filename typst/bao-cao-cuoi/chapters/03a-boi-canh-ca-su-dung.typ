@@ -312,6 +312,8 @@ Hai ca sử dụng dưới đây được lựa chọn để đặc tả chi ti�
 
 == Bộ quy tắc nghiệp vụ
 
+Các quy tắc dưới đây có 2 nguồn gốc khác nhau và cần phân biệt khi phản biện. Phần lớn là quyết định thiết kế của nhóm, nghĩa là có thể chọn khác đi mà hệ thống vẫn hợp lệ; ví dụ mốc 48 giờ chờ người bán xác nhận hay quy định hoàn tiền luôn là toàn phần. Một nhóm nhỏ thì không phải lựa chọn mà là nghĩa vụ pháp lý: bắt buộc xác minh danh tính trước khi được đăng bán và trước khi được rút tiền (BR-02, BR-07, BR-08) bám theo trách nhiệm quản lý thông tin người bán của nền tảng; còn quy trình tiếp nhận, xử lý và phân xử khiếu nại (BR-37, BR-41, BR-42, BR-50) bám theo quyền được khiếu nại và được giải quyết tranh chấp của người tiêu dùng [1] [2].
+
 #figure(
   kind: table,
   caption: [Bộ quy tắc nghiệp vụ ràng buộc hệ thống],
