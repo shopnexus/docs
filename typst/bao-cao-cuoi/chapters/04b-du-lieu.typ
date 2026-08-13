@@ -18,7 +18,7 @@ Mô hình dữ liệu được hiện thực trên PostgreSQL chạy trên bản
     [`catalog`], [Danh mục, tin đăng, biến thể, thẻ, tồn kho và bút toán tồn kho, danh sách yêu thích, vector ngữ nghĩa của tin đăng, danh mục và thẻ.],
     [`order`], [Giỏ hàng, phiên mua hàng giá cố định, thương lượng giá, đơn hàng, mục hàng, vận đơn và hồ sơ hoàn tiền.],
     [`finance`], [Phiên thanh toán, sổ cái giao dịch trên kênh thanh toán ngoài, ví theo tài khoản và loại tiền, sổ cái ví, tài khoản ngân hàng nhận tiền, thông tin thuế.],
-    [`trust`], [Phản hồi giao dịch hai chiều, đánh giá sản phẩm cùng trả lời và bình chọn hữu ích, điểm uy tín, phiếu hỗ trợ và idempotency key cho kết cục đơn hàng.],
+    [`trust`], [Đánh giá sản phẩm cùng trả lời và bình chọn hữu ích, điểm uy tín, phiếu hỗ trợ và idempotency key cho kết cục đơn hàng.],
     [`chat`], [Luồng hội thoại một-một giữa hai tài khoản và tin nhắn trong luồng.],
     [`observability`], [4 bảng tín hiệu vận hành. Không nhận phần định nghĩa dùng chung.],
   ),
@@ -223,7 +223,7 @@ Lược đồ này giữ toàn bộ nguyên thể tiền tệ trong một chỗ,
 
 === Lược đồ `trust`
 
-Phản hồi giao dịch ở đây là mù: một hàng phản hồi không hiển thị cho tới khi cả 2 bên cùng gửi hoặc cửa sổ mù trôi qua, để một điểm số không thể là đòn trả đũa; chiều của phản hồi suy ra từ việc người gửi đứng ở phía nào của đơn hàng. Chính hành động công bố mới là hành động cộng điểm vào bảng uy tín, và cả 2 diễn ra trong cùng một giao dịch, nên một điểm đã hiển thị luôn là một điểm đã được tính. Thay đổi mô hình hoá lớn nhất: mọi thứ người dùng gửi lên đều là một phiếu, và một bảng duy nhất chứa tất cả, nên không còn bảng tranh chấp riêng và bảng báo cáo vi phạm riêng.
+Thay đổi mô hình hoá lớn nhất: mọi thứ người dùng gửi lên đều là một phiếu, và một bảng duy nhất chứa tất cả, nên không còn bảng tranh chấp riêng và bảng báo cáo vi phạm riêng.
 
 
 

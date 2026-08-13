@@ -22,8 +22,6 @@ Dịch vụ tài chính đóng vai trò làm sổ cái (ledger) nội bộ, lưu
 
 === Trò chuyện và Quản lý Tín nhiệm (Chat & Trust Services)
 Dịch vụ trò chuyện chịu trách nhiệm quản lý cả hội thoại mua bán cá nhân lẫn các luồng tin nhắn của phiếu hỗ trợ khiếu nại. Thách thức lớn nhất tại đây là cơ chế ẩn danh (anonymization) cho điều phối viên; hệ thống phải che dấu danh tính nhân viên ở mọi hình chiếu dữ liệu (bao gồm cả dòng tin nhắn xem trước trong danh sách hộp thư) nhằm bảo vệ an toàn cho Moderator.
-Tại dịch vụ tín nhiệm, quy trình đánh giá giao dịch được hiện thực theo cơ chế Đánh giá mù (Blind Review): điểm số và nhận xét chỉ được hiển thị công khai khi cả 2 bên đã hoàn tất đánh giá hoặc khi kết thúc thời hạn 14 ngày. Cơ chế này loại bỏ hoàn toàn tâm lý e ngại hoặc hành vi trả đũa bằng đánh giá xấu (retaliatory reviews) trong thương mại điện tử C2C.
-
 == Hiện thực ứng dụng web
 
 Ứng dụng web được phát triển dựa trên kiến trúc App Router của Next.js. Hệ thống định tuyến được chia thành 4 phân hệ chính: vùng công khai, vùng xác thực, vùng người dùng đã đăng nhập và vùng quản trị. Cơ chế bảo vệ tuyến đường (route guard) được thực thi qua Middleware nhằm tối ưu trải nghiệm điều hướng, trong khi hàng rào bảo mật (security boundary) thực sự vẫn do các dịch vụ nền kiểm soát thông qua xác thực token trên từng yêu cầu API.

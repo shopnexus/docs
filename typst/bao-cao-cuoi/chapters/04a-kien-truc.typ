@@ -19,7 +19,7 @@ sau đều truy ngược về ít nhất một mã trong số đó.
     [AD-02], [Các chuyển trạng thái theo thời hạn], [REQ-21, REQ-24, REQ-29, REQ-32, REQ-35],
     [5 loại hẹn giờ dài (hết hạn thanh toán, xác nhận đơn, hoàn tiền) có vòng đời từ vài chục phút đến nhiều ngày. Quãng thời gian này vượt quá giới hạn an toàn của bộ nhớ tiến trình, đòi hỏi một cơ chế thực thi bền (durable execution) để máy trạng thái không bị mất dữ liệu khi tái khởi động.],
 
-    [AD-03], [Tích hợp nhiều nhà cung cấp cùng loại], [REQ-23, REQ-25, REQ-43, NFR-15],
+    [AD-03], [Tích hợp nhiều nhà cung cấp cùng loại], [REQ-23, REQ-25, REQ-42, NFR-15],
     [Dịch vụ thanh toán và vận chuyển vận hành qua nhiều đối tác; mỗi bản ghi giao dịch phải lưu vết cố định đối tác cung cấp dịch vụ. Kiến trúc phải thiết lập cơ chế sổ đăng ký (registry) để duy trì hoạt động song song của nhiều đối tác tại thời điểm chạy, thay vì định tuyến tĩnh ở cấp độ cấu hình.],
 
     [AD-04], [Tìm kiếm bằng ngôn ngữ tự nhiên trên dữ liệu do người dùng tự đặt tên], [REQ-14, REQ-15, REQ-16],
@@ -28,16 +28,16 @@ sau đều truy ngược về ít nhất một mã trong số đó.
     [AD-05], [Truyền tin và thông báo thời gian thực], [REQ-18],
     [Trạng thái hội thoại và biến động đơn hàng phải đến thiết bị đích dưới một giây. Đòi hỏi duy trì kênh kết nối liên tục hai chiều (WebSocket) kết hợp cơ chế phát tán thông điệp (pub/sub), nhằm đồng bộ trạng thái trên mọi thiết bị đang mở của cùng một người dùng.],
 
-    [AD-06], [Bằng chứng đa phương tiện bắt buộc], [REQ-31, REQ-33, REQ-44],
+    [AD-06], [Bằng chứng đa phương tiện bắt buộc], [REQ-31, REQ-33, REQ-43],
     [Tệp phương tiện (video mở hộp, ảnh minh chứng) có dung lượng vượt quá khả năng xử lý của thân yêu cầu JSON. Buộc tách rời hoàn toàn đường tải tệp khỏi luồng nghiệp vụ API, và giao quyền quản lý vòng đời tài nguyên cho từng miền sở hữu.],
 
     [AD-07], [Một cửa tiếp nhận cho mọi khiếu nại], [REQ-34, REQ-36, REQ-37],
     [Báo cáo vi phạm, hồ sơ hoàn tiền và yêu cầu hỗ trợ có chung bản chất: một bên gửi yêu cầu và một bên phân xử. Điều này định hướng việc gộp chúng thành một vòng đời phiếu (ticket) duy nhất, có tích hợp cơ chế ẩn danh nhằm bảo vệ điều phối viên.],
 
-    [AD-08], [Nhật ký kiểm toán bất biến], [REQ-45, NFR-19],
+    [AD-08], [Nhật ký kiểm toán bất biến], [REQ-44, NFR-19],
     [Mọi thay đổi mang hệ quả tài chính hoặc hành chính bắt buộc để lại lưu vết bất biến. Nhật ký kiểm toán phải là một phần cốt lõi nằm chung giao dịch cơ sở dữ liệu với thao tác nghiệp vụ, không phải là một chức năng ghi ghép thêm ở tầng ứng dụng.],
 
-    [AD-09], [2 giao diện khách trên một hợp đồng], [REQ-01…50, NFR-17],
+    [AD-09], [2 giao diện khách trên một hợp đồng], [REQ-01…49, NFR-17],
     [Hai nền tảng máy khách (Web, Mobile) cùng chia sẻ một tập giao diện lập trình. Bản đặc tả API phải trở thành tài sản trung tâm (API-First), được dùng để sinh mã máy khách và máy chủ giả lập, thay vì chỉ là tài liệu mô tả hậu lập trình.],
   )
 )
@@ -228,7 +228,6 @@ trong tài liệu OpenAPI sinh ra từ mã nguồn, phục vụ tại `/api/v1/o
     [POST], [`/admin/refunds/{id}/verdict`], [Phán quyết hồ sơ hoàn tiền, đóng mọi phiếu hỗ trợ liên quan.], [Điều phối viên],
     [POST], [`/payment-sessions/{id}/payments`], [Khởi tạo một lượt trả tiền trên một đường tiền cụ thể.], [Người trả tiền],
     [GET], [`/wallets`], [Số dư khả dụng và số dư tạm giữ theo từng loại tiền.], [Chủ sở hữu],
-    [POST], [`/orders/{orderID}/feedback`], [Đánh giá giao dịch mù hai chiều, chiều suy ra từ vai trò người gọi.], [Bên liên quan],
     [POST], [`/tickets`], [Mở phiếu hỗ trợ: báo cáo vi phạm, khiếu nại, sự cố, đề xuất.], [Người dùng],
     [GET], [`/options`], [Lựa chọn của một hạng mục (đường tiền, hãng vận chuyển) mà bản dựng phục vụ được.], [Theo hạng mục],
     [POST], [`/ws/tickets`], [Xin vé một lần để mở kênh thời gian thực.], [Người dùng],
