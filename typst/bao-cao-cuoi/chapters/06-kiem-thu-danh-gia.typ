@@ -264,6 +264,64 @@ khai, không thuộc về sản phẩm mà đề tài xây dựng.
   ),
 )
 
+== Bộ chỉ số đánh giá các kỹ thuật trọng tâm
+
+Ba kỹ thuật mang tính quyết định của đề tài là tìm kiếm lai, hệ gợi ý và thực thi bền. Cả 3
+đều được kiểm chứng về mặt chức năng bằng các ca kiểm thử ở những mục trên, nghĩa là chúng
+chạy đúng như đặc tả. Nhưng chạy đúng và chạy tốt là hai câu hỏi khác nhau: một máy tìm kiếm
+luôn trả về kết quả vẫn có thể trả về kết quả kém, và điều đó chỉ đo được bằng chỉ số chất
+lượng chứ không bằng ca kiểm thử đạt hay không đạt. *Trong khuôn khổ đề tài, nhóm chưa thực
+hiện các phép đo này.* Mục này nêu bộ chỉ số lẽ ra phải dùng, ý nghĩa của từng chỉ số và cách
+tính, để làm cơ sở cho việc đánh giá về sau.
+
+=== Tìm kiếm lai
+
+Chất lượng một máy tìm kiếm được đo trên một tập truy vấn mẫu, mỗi truy vấn kèm danh sách kết
+quả được đánh dấu là phù hợp bởi người đánh giá. Ba chỉ số cần thiết như sau. Độ bao phủ ở
+mức #box[$k$] (Recall\@k) là tỉ lệ giữa số kết quả phù hợp lọt vào #box[$k$] vị trí đầu và tổng
+số kết quả phù hợp có trong kho; chỉ số này trả lời câu hỏi máy tìm kiếm có bỏ sót hàng hay
+không, và chính là chỗ mà tìm kiếm từ khoá thuần tuý thua kém khi người bán mô tả hàng bằng
+từ viết tắt. Độ chính xác ở mức #box[$k$] (Precision\@k) là tỉ lệ giữa số kết quả phù hợp và
+đúng #box[$k$] kết quả đã trả về, trả lời câu hỏi người dùng phải lướt qua bao nhiêu hàng
+không liên quan. Hạng nghịch đảo trung bình (MRR) là trung bình cộng của #box[$1 \/ r$] trên
+toàn bộ truy vấn, trong đó #box[$r$] là vị trí của kết quả phù hợp đầu tiên; chỉ số này phạt
+rất nặng việc đẩy kết quả đúng xuống dưới, nên nó đo trực tiếp chất lượng của bước xếp hạng
+dung hợp giữa điểm từ khoá và điểm ngữ nghĩa.
+
+Cách đo đúng đắn là chạy cùng một tập truy vấn qua 3 cấu hình: chỉ tìm kiếm từ khoá, chỉ tìm
+kiếm vector, và cấu hình lai đang dùng. Chỉ khi cấu hình lai cho chỉ số cao hơn cả 2 cấu hình
+đơn lẻ thì lập luận về tìm kiếm lai trong Chương 2 mới được chứng minh bằng số liệu thay vì
+bằng suy luận. Hai đại lượng cần đo kèm là độ trễ truy vấn ở phân vị 95 và mức tiêu tốn bộ
+nhớ của chỉ mục HNSW, vì chỉ mục xấp xỉ đánh đổi độ chính xác lấy tốc độ, và tham số của nó
+chỉ chỉnh được khi biết mình đang đánh đổi bao nhiêu.
+
+=== Hệ gợi ý
+
+Hệ gợi ý dùng chung họ chỉ số với tìm kiếm nhưng đo trên dữ liệu hành vi thay vì trên nhãn
+phù hợp do người gán. Cách đo phổ biến là chia lịch sử tương tác theo mốc thời gian, huấn
+luyện trên phần trước và kiểm tra xem hệ có gợi đúng những mặt hàng người dùng thực sự bấm
+vào ở phần sau hay không. Ngoài Recall\@k, hai chỉ số riêng của bài toán gợi ý cần được theo
+dõi. Độ phủ danh mục (coverage) là tỉ lệ mặt hàng trong kho từng được gợi ý cho ít nhất một
+người dùng; chỉ số này thấp nghĩa là hệ chỉ quanh quẩn ở một nhóm hàng phổ biến, điều đặc
+biệt tai hại với sàn đồ cũ nơi phần lớn tin đăng là hàng độc nhất. Độ đa dạng (diversity) là
+khoảng cách ngữ nghĩa trung bình giữa các cặp mặt hàng trong cùng một danh sách gợi ý; đây
+chính là chỉ số kiểm chứng lợi ích của việc biểu diễn sở thích bằng nhiều vector đặc trưng
+thay vì một vector duy nhất, vì nếu các vector ấy hội tụ về cùng một hướng thì độ đa dạng sẽ
+không khác gì mô hình một vector.
+
+=== Thực thi bền
+
+Với thực thi bền, câu hỏi cần trả lời không phải là nhanh hay chậm mà là có mất việc hay
+không khi hệ thống gặp sự cố. Chỉ số trực tiếp nhất là tỉ lệ luồng nghiệp vụ hoàn tất đúng
+một lần trên tổng số luồng được khởi động, đo trong điều kiện chủ động gây lỗi: tắt tiến
+trình giữa chừng, cắt kết nối tới cổng thanh toán, gửi lặp thông báo của cổng. Đây là phép
+đo mà bộ ca kiểm thử hiện tại đã chạm tới về mặt chức năng nhưng chưa lượng hoá thành tỉ lệ.
+Hai đại lượng bổ trợ là thời gian phục hồi, tính từ lúc tiến trình mới tiếp quản tới lúc
+luồng chạy tiếp được, và chi phí ghi nhật ký, tức phần độ trễ tăng thêm của một lời gọi khi
+đi qua lớp thực thi bền so với khi gọi trực tiếp. Đại lượng thứ hai chính là cái giá phải trả
+cho tính bền vững, và nó cần được nêu rõ vì đó là lý do luồng truy vấn trong hệ thống cố ý đi
+thẳng, không qua lớp này.
+
 == Hạn chế
 
 Đánh giá trên góc độ hoàn thiện của sản phẩm thực tế thay vì các phép đo kỹ thuật kiểm thử, hệ thống hiện tồn đọng 4 hạn chế cốt lõi:
