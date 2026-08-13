@@ -66,7 +66,6 @@ Mặc dù đã có nhiều cố gắng, song do giới hạn về mặt thời g
   [NFR], [Non-Functional Requirement], [Yêu cầu phi chức năng],
   [RBAC], [Role-Based Access Control], [Kiểm soát truy cập theo vai trò],
   [REQ], [Requirement], [Yêu cầu chức năng (đánh mã REQ-xxx)],
-  [RR], [Risk Register], [Sổ đăng ký rủi ro (đánh mã RR-xx)],
   [SOA], [Service-Oriented Architecture], [Kiến trúc hướng dịch vụ],
   [TC], [Test Case], [Ca kiểm thử (đánh mã TC-xx)],
   [TMĐT], [], [Thương mại điện tử],
@@ -151,47 +150,7 @@ Về kết cấu, báo cáo gồm 6 chương: tổng quan đề tài; cơ sở l
 #include "chapters/04-thiet-ke-he-thong.typ"
 #include "chapters/05-hien-thuc-trien-khai.typ"
 #include "chapters/06-kiem-thu-danh-gia.typ"
-
-#pagebreak()
-#sechead([KẾT LUẬN VÀ KIẾN NGHỊ])
-
-*Kết quả đạt được.* Kỳ thực tập đã đưa hệ thống đi trọn chặng đường từ một phát biểu
-bài toán tới một hệ thống chạy được. Về phân tích và thiết kế, nhóm hoàn tất
-bộ hồ sơ gồm danh mục ca sử dụng kèm đặc tả chi tiết cho các ca trọng yếu, bộ quy tắc
-nghiệp vụ, bộ yêu cầu chức năng và phi chức năng có tiêu chí kiểm chứng, các mô hình quy
-trình và trạng thái, kiến trúc tổng thể, và thiết kế
-cơ sở dữ liệu vật lý cho 7 lược đồ với 46 bảng nghiệp vụ. Về hiện thực, hệ
-thống gồm 3 thành phần với khoảng 160.000 dòng mã viết tay, phục vụ 135 đường dẫn và 171 thao tác trên giao diện lập trình,
-cùng 2 ứng dụng khách cho web và di động. Về kiểm chứng, bộ kiểm thử tự động của dịch
-vụ nền chạy xanh hoàn toàn với 627 hàm kiểm thử, bao phủ các quy tắc nghiệp
-vụ cốt lõi của luồng tiền và luồng đơn hàng.
-
-*Đánh giá.* Đóng góp có giá trị nhất của đề tài không nằm ở số lượng chức năng mà ở chỗ
-cơ chế bảo vệ giao dịch được thiết kế thành thuộc tính của hệ thống chứ không phải một
-chính sách nằm ngoài phần mềm. Tiền của người mua được giữ ở tài khoản ký quỹ bởi
-chính luồng thanh toán, đơn hàng ra đời từ việc tiền đã về chứ không từ thao tác của ai,
-và quy trình khiếu nại được hợp nhất về một dạng phiếu duy nhất. Mỗi lựa chọn ấy loại bỏ một khoảng trống mà ở đó
-một bên có thể gây thiệt hại cho bên kia.
-
-*Hạn chế.* Hệ thống chưa được tích hợp với một hãng vận chuyển thật nào, nên toàn bộ
-luồng giao nhận hiện chỉ chạy trên bộ giả lập. Độ phủ kiểm thử chưa được đo, một nửa số
-gói của dịch vụ nền chưa có kiểm thử. Nhóm
-kiểm thử tầng truy cập dữ liệu đã viết nhưng chưa được đưa vào quy trình tích hợp liên
-tục. Việc đo hiệu năng dưới tải nằm ngoài phạm vi đề tài. Sau cùng, hạ
-tầng quan trắc đã dựng đầy đủ nhưng chưa có dữ liệu vận hành thực tế để đánh giá độ sẵn
-sàng.
-
-*Kiến nghị và hướng phát triển.* Trước mắt, nhóm kiến nghị bổ sung bước chạy kiểm thử
-vào quy trình tích hợp liên tục của dịch vụ nền và cấu hình một cơ sở dữ liệu tạm cho
-nhóm kiểm thử tầng truy cập dữ liệu, vì đây là hai việc rẻ nhất mà lại thu hẹp được
-khoảng cách lớn nhất giữa mã đã viết và mã đã được kiểm chứng. Tiếp theo là đo hiệu năng dưới tải để
-kiểm chứng các ngưỡng đã đặt ra. Về nghiệp vụ, hai hướng mở rộng tự nhiên là tích
-hợp một hãng vận chuyển thật để khép kín vòng đời giao nhận, và đưa dữ liệu quan trắc đã
-thu thập vào việc phát hiện hành vi bất thường, chẳng hạn tài khoản mở nhiều khiếu nại
-bất thường hoặc mẫu giao dịch có dấu hiệu rửa uy tín. Về kiến trúc, ranh giới dữ liệu
-giữa 7 dịch vụ đã được giữ nghiêm ngặt ngay từ đầu nên việc tách chúng thành các đơn
-vị phát hành độc lập có thể thực hiện khi tải thực tế đòi hỏi, mà không phải viết lại
-mô hình dữ liệu.
+#include "chapters/07-ket-luan.typ"
 
 #pagebreak()
 #sechead([DANH MỤC TÀI LIỆU THAM KHẢO])

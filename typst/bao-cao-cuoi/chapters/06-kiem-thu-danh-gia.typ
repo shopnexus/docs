@@ -1,62 +1,22 @@
 #import "../../common/tokens.typ": *
 
 = KIỂM THỬ VÀ ĐÁNH GIÁ
+== Mục tiêu và phạm vi kiểm thử
 
-Chương này trình bày các ca kiểm thử chính của hệ thống và kết quả thu được. Trọng tâm đặt vào
-những ca quyết định tính đúng đắn của nghiệp vụ dòng tiền, tài khoản tạm giữ, tồn kho, trạng
-thái vận đơn, xác thực và phân quyền vì đó là nhóm mà một lỗi gây thiệt hại thật cho người
-dùng. Các ca còn lại được trình bày dưới dạng danh mục, kèm kết quả thực thi trung thực theo
-lượt chạy gần nhất.
+Phạm vi kiểm thử tự động của hệ thống được thực hiện và dừng ở cấp độ đơn vị (Unit Test) cho tầng nghiệp vụ (Domain Layer).
 
-== Mục tiêu và cách chọn ca kiểm thử
+Với chiến lược này, 4 tình huống sau được xác định là mục tiêu trọng tâm cần vét cạn bằng các ca kiểm thử:
 
-Việc chọn ca kiểm thử xuất phát từ đặc thù nghiệp vụ của hệ thống chứ không từ mong muốn phủ
-đều mọi thành phần. ShopNexus là sàn giao dịch giữa các cá nhân, nơi tiền của người mua được
-giữ lại ở bên thứ ba cho tới khi giao dịch kết thúc. Vì vậy nhóm rủi ro đắt nhất không phải là
-giao diện hiển thị sai mà là các quy tắc điều khiển dòng tiền và trạng thái đơn hàng. Cụ thể,
-4 tình huống sau được xác định là phải có ca kiểm thử trước mọi tình huống khác:
+- Một lần trả tiền sinh ra hai đơn hàng, hoặc một thông báo của cổng thanh toán được cổng gửi lặp lại và người mua bị ghi nợ 2 lần.
+- Một khoản tiền ký quỹ được giải ngân cho người bán trong khi hồ sơ hoàn tiền của người mua còn treo, hoặc ngược lại.
+- Một chuỗi thao tác bị dừng giữa đường do mất kết nối, cổng thanh toán hết hạn chờ, hoặc hãng vận chuyển từ chối nhận kiện.
+- Hai thao tác đồng thời cùng thắng, dẫn tới tình trạng ghi đè trạng thái không hợp lệ.
 
-- Một lần trả tiền sinh ra hai đơn hàng, hoặc một thông báo của cổng thanh toán được cổng gửi
-  lặp lại và người mua bị ghi nợ 2 lần.
-- Một khoản tiền ký quỹ được giải ngân cho người bán trong khi hồ sơ hoàn tiền của người mua
-  còn treo, hoặc ngược lại.
-- Một chuỗi thao tác bị dừng giữa đường mất kết nối, cổng thanh toán hết hạn chờ, hãng vận
-  chuyển từ chối nhận kiện để lại hệ thống ở trạng thái nửa vời không ai dọn.
-- Hai thao tác đồng thời cùng thắng, tức một yêu cầu ghi đè lên trạng thái mà nó chưa từng đọc.
-
-Kế đó là 2 nhóm hỗ trợ.
-Nhóm thứ nhất là kiểm soát truy cập: ai được đọc, ai được ghi, và một phiên đã bị thu hồi thì
-còn dùng được nữa hay không. Nhóm thứ hai là hợp đồng giao tiếp giữa máy chủ với 2 ứng dụng
-khách, nhóm này đặc biệt quan trọng vì cả ứng dụng web và ứng dụng di động đều sinh mã tự động
-từ đặc tả giao diện lập trình, nên một đặc tả lệch sẽ làm hỏng ứng dụng khách trong khi máy chủ
-vẫn chạy đúng.
-
-Có 3 loại kiểm thử nằm ngoài phạm vi đề tài, và chương không đưa ra bất kỳ con số nào về chúng:
-*đo hiệu năng*, cần dữ liệu đúng quy mô và một môi trường tách biệt, kiểm thử bảo mật thâm
-nhập, và kiểm thử đầu-cuối chạy thật qua cả 3 thành phần của hệ thống. Bộ yêu cầu phi chức
-năng vì thế cố ý không đặt ngưỡng hiệu năng định lượng nào: đặt một con số mà không có cách đo
-lại thì chỉ tạo ra một mục "đạt" không ai kiểm chứng được.
-
-== Môi trường và cách thực thi kiểm thử
-
-Kiến trúc của hệ thống được thiết kế để việc kiểm thử nghiệp vụ không cần tới hạ tầng thật. Mỗi
-phân hệ công bố hợp đồng của mình qua một giao diện hẹp, tầng nghiệp vụ thuần tuý không biết gì
-về cơ sở dữ liệu hay giao thức, và mỗi phân hệ đều có một bản lưu trữ dữ liệu trong bộ nhớ dành
-riêng cho kiểm thử. Nhờ đó một ca kiểm thử ở tầng dịch vụ dựng được trọn vẹn bối cảnh nghiệp vụ người mua, người bán, ví, phiên thanh toán, đơn hàng ngay trong bộ nhớ, rồi khẳng định trên
-kết quả thật của nghiệp vụ thay vì trên các lời gọi giả.
-
-Các nhà cung cấp bên ngoài được thay bằng bản giả lập chạy ngay trong tiến trình kiểm thử. Bản
-giả lập cổng thanh toán và bản giả lập hãng vận chuyển đều nhận một tham số kịch bản, nhờ đó
-ca kiểm thử chủ động dựng được các tình huống hỏng mà một nhà cung cấp thật không cho phép tạo
-ra theo yêu cầu: cổng thanh toán gửi lặp thông báo, hãng vận chuyển từ chối nhận kiện, hãng
-không phục vụ tuyến, hãng trả lời chậm quá hạn chờ, hoặc hãng báo về một mã trạng thái mà nền
-tảng không mô hình hoá. Đây là điểm mấu chốt cho phép các ca ở mục 6.3 kiểm chứng được nhánh
-nghịch chứ không chỉ nhánh thuận.
+Ngoài luồng tiền, hai nhóm hỗ trợ được ưu tiên kiểm thử là cơ chế kiểm soát truy cập (phiên, phân quyền) và tính nhất quán của hợp đồng giao tiếp (API Specification) giữa máy chủ với các ứng dụng khách.
 
 == Đặc tả các ca kiểm thử trọng tâm
 
-3 ca dưới đây tương ứng với các tình huống rủi ro đã nêu ở mục 6.1. Cả 3 đều nằm trong lượt
-chạy mặc định và đều đạt.
+3 ca dưới đây tương ứng với các tình huống rủi ro đã nêu ở mục 6.1.
 
 #tcspec(
   "TC-01", "Cổng thanh toán gửi lặp một thông báo đã được xử lý",
@@ -114,7 +74,7 @@ chạy mặc định và đều đạt.
   [Dữ liệu thử], [Đơn 100.000 đồng đang được tạm giữ; hồ sơ hoàn tiền do người mua mở với lý do "không đúng như mô tả"],
   [Các bước], [
     1. Tác vụ quét đọc danh sách đơn đến hạn giải ngân, thu được đúng một đơn.
-    2. *Trước khi* tác vụ giành đơn đó, người mua mở một hồ sơ hoàn tiền trên chính đơn ấy.
+    2. Trước khi tác vụ giành đơn đó, người mua mở một hồ sơ hoàn tiền trên chính đơn ấy.
     3. Tác vụ giành đơn rồi gọi lệnh giải ngân.
     4. Trường hợp ngược lại: trên một đơn khác, để tác vụ giải ngân xong trước, rồi người mua mới mở hồ sơ hoàn tiền.
   ],
@@ -182,14 +142,6 @@ thống từ chối đúng chỗ), và ca biên (kiểm chứng hành vi ở ran
     [TC-31], [Đặc tả đã lưu trùng khớp với đặc tả sinh lại từ hệ thống], [Thuận], [Đạt],
   ),
 )
-
-Hai nhận xét về danh mục này. Thứ nhất, phần lớn các ca là ca nghịch, điều được kiểm chứng là
-hệ thống từ chối đúng chỗ, chứ không phải hệ thống chạy được nhánh thuận. Đó là chủ ý: nhánh
-thuận của một luồng nghiệp vụ hầu như luôn được chạy qua khi dựng bối cảnh cho một ca nghịch,
-còn nhánh nghịch thì chỉ được chạy khi có người viết riêng cho nó. Thứ hai, nhóm cấu hình và hợp
-đồng đặc tả, tức TC-26 đến TC-31, là nhóm duy nhất có một cổng tự động canh giữ: quy trình tích
-hợp liên tục sinh lại đặc tả rồi so với bản đã lưu ở mỗi lần đẩy mã, dù bản thân các ca kiểm thử
-vẫn phải chạy bằng tay.
 
 == Đối chiếu với các yêu cầu phi chức năng chính
 
@@ -263,73 +215,3 @@ khai, không thuộc về sản phẩm mà đề tài xây dựng.
     [Ngoài phạm vi],
   ),
 )
-
-== Bộ chỉ số đánh giá các kỹ thuật trọng tâm
-
-Ba kỹ thuật mang tính quyết định của đề tài là tìm kiếm lai, hệ gợi ý và thực thi bền. Cả 3
-đều được kiểm chứng về mặt chức năng bằng các ca kiểm thử ở những mục trên, nghĩa là chúng
-chạy đúng như đặc tả. Nhưng chạy đúng và chạy tốt là hai câu hỏi khác nhau: một máy tìm kiếm
-luôn trả về kết quả vẫn có thể trả về kết quả kém, và điều đó chỉ đo được bằng chỉ số chất
-lượng chứ không bằng ca kiểm thử đạt hay không đạt. *Trong khuôn khổ đề tài, nhóm chưa thực
-hiện các phép đo này.* Mục này nêu bộ chỉ số lẽ ra phải dùng, ý nghĩa của từng chỉ số và cách
-tính, để làm cơ sở cho việc đánh giá về sau.
-
-=== Tìm kiếm lai
-
-Chất lượng một máy tìm kiếm được đo trên một tập truy vấn mẫu, mỗi truy vấn kèm danh sách kết
-quả được đánh dấu là phù hợp bởi người đánh giá. Ba chỉ số cần thiết như sau. Độ bao phủ ở
-mức #box[$k$] (Recall\@k) là tỉ lệ giữa số kết quả phù hợp lọt vào #box[$k$] vị trí đầu và tổng
-số kết quả phù hợp có trong kho; chỉ số này trả lời câu hỏi máy tìm kiếm có bỏ sót hàng hay
-không, và chính là chỗ mà tìm kiếm từ khoá thuần tuý thua kém khi người bán mô tả hàng bằng
-từ viết tắt. Độ chính xác ở mức #box[$k$] (Precision\@k) là tỉ lệ giữa số kết quả phù hợp và
-đúng #box[$k$] kết quả đã trả về, trả lời câu hỏi người dùng phải lướt qua bao nhiêu hàng
-không liên quan. Hạng nghịch đảo trung bình (MRR) là trung bình cộng của #box[$1 \/ r$] trên
-toàn bộ truy vấn, trong đó #box[$r$] là vị trí của kết quả phù hợp đầu tiên; chỉ số này phạt
-rất nặng việc đẩy kết quả đúng xuống dưới, nên nó đo trực tiếp chất lượng của bước xếp hạng
-dung hợp giữa điểm từ khoá và điểm ngữ nghĩa.
-
-Cách đo đúng đắn là chạy cùng một tập truy vấn qua 3 cấu hình: chỉ tìm kiếm từ khoá, chỉ tìm
-kiếm vector, và cấu hình lai đang dùng. Chỉ khi cấu hình lai cho chỉ số cao hơn cả 2 cấu hình
-đơn lẻ thì lập luận về tìm kiếm lai trong Chương 2 mới được chứng minh bằng số liệu thay vì
-bằng suy luận. Hai đại lượng cần đo kèm là độ trễ truy vấn ở phân vị 95 và mức tiêu tốn bộ
-nhớ của chỉ mục HNSW, vì chỉ mục xấp xỉ đánh đổi độ chính xác lấy tốc độ, và tham số của nó
-chỉ chỉnh được khi biết mình đang đánh đổi bao nhiêu.
-
-=== Hệ gợi ý
-
-Hệ gợi ý dùng chung họ chỉ số với tìm kiếm nhưng đo trên dữ liệu hành vi thay vì trên nhãn
-phù hợp do người gán. Cách đo phổ biến là chia lịch sử tương tác theo mốc thời gian, huấn
-luyện trên phần trước và kiểm tra xem hệ có gợi đúng những mặt hàng người dùng thực sự bấm
-vào ở phần sau hay không. Ngoài Recall\@k, hai chỉ số riêng của bài toán gợi ý cần được theo
-dõi. Độ phủ danh mục (coverage) là tỉ lệ mặt hàng trong kho từng được gợi ý cho ít nhất một
-người dùng; chỉ số này thấp nghĩa là hệ chỉ quanh quẩn ở một nhóm hàng phổ biến, điều đặc
-biệt tai hại với sàn đồ cũ nơi phần lớn tin đăng là hàng độc nhất. Độ đa dạng (diversity) là
-khoảng cách ngữ nghĩa trung bình giữa các cặp mặt hàng trong cùng một danh sách gợi ý; đây
-chính là chỉ số kiểm chứng lợi ích của việc biểu diễn sở thích bằng nhiều vector đặc trưng
-thay vì một vector duy nhất, vì nếu các vector ấy hội tụ về cùng một hướng thì độ đa dạng sẽ
-không khác gì mô hình một vector.
-
-=== Thực thi bền
-
-Với thực thi bền, câu hỏi cần trả lời không phải là nhanh hay chậm mà là có mất việc hay
-không khi hệ thống gặp sự cố. Chỉ số trực tiếp nhất là tỉ lệ luồng nghiệp vụ hoàn tất đúng
-một lần trên tổng số luồng được khởi động, đo trong điều kiện chủ động gây lỗi: tắt tiến
-trình giữa chừng, cắt kết nối tới cổng thanh toán, gửi lặp thông báo của cổng. Đây là phép
-đo mà bộ ca kiểm thử hiện tại đã chạm tới về mặt chức năng nhưng chưa lượng hoá thành tỉ lệ.
-Hai đại lượng bổ trợ là thời gian phục hồi, tính từ lúc tiến trình mới tiếp quản tới lúc
-luồng chạy tiếp được, và chi phí ghi nhật ký, tức phần độ trễ tăng thêm của một lời gọi khi
-đi qua lớp thực thi bền so với khi gọi trực tiếp. Đại lượng thứ hai chính là cái giá phải trả
-cho tính bền vững, và nó cần được nêu rõ vì đó là lý do luồng truy vấn trong hệ thống cố ý đi
-thẳng, không qua lớp này.
-
-== Hạn chế
-
-Đánh giá trên góc độ hoàn thiện của sản phẩm thực tế thay vì các phép đo kỹ thuật kiểm thử, hệ thống hiện tồn đọng 4 hạn chế cốt lõi:
-
-- *Chưa tích hợp dịch vụ đối tác ở môi trường thực tế:* Dù hệ thống đã xử lý hoàn chỉnh luồng tiền và luồng giao nhận, toàn bộ tương tác hiện chỉ chạy trên bộ giả lập. Ứng dụng chưa đối mặt với các kịch bản ngoại lệ vật lý từ hãng vận chuyển thật (như sai khối lượng, không liên lạc được khách) và các rào cản biến động độ trễ từ cổng thanh toán thực tế.
-
-- *Dữ liệu quan trắc vận hành chưa được khai thác:* Hạ tầng quan trắc (nhật ký, độ đo, dấu vết) đã được thiết lập đầy đủ ở tầng nền tảng, nhưng do hệ thống chưa có lưu lượng người dùng thật, các ngưỡng cảnh báo độ sẵn sàng và nút thắt cổ chai hiệu năng của ứng dụng chưa được định chuẩn.
-
-- *Thiếu cơ chế tự động nhận diện rủi ro gian lận:* Phân hệ tín nhiệm và hội thoại đã gom đủ dữ liệu lịch sử giao dịch, nhưng ứng dụng hiện chỉ phản ứng thụ động khi có người dùng khiếu nại, thay vì chủ động nhận diện sớm các mẫu hành vi bất thường (như rửa uy tín qua đơn hàng ảo, bơm thổi giá).
-
-- *Ranh giới triển khai chưa tách rời thành vi dịch vụ (Microservices):* Dù 7 phân hệ nghiệp vụ đã hoàn toàn cô lập về cơ sở dữ liệu và hợp đồng mã nguồn, chúng vẫn đang được đóng gói và chạy chung trong một khối nguyên khối (Modular Monolith) để tiết kiệm tài nguyên.
