@@ -7,7 +7,7 @@ Thị trường mua bán đồ cũ, hàng thanh lý và đồ thủ công cá nh
 === Phân tích các mô hình sàn giao dịch phổ biến
 - *Chợ Tốt (chotot.com) - Mô hình sàn rao vặt (Classified Ads):*
   - *Ưu điểm:* Là nền tảng rao vặt đồ cũ lớn nhất Việt Nam với lưu lượng người dùng khổng lồ. Quy trình đăng tin bán rất nhanh chóng, giao diện đơn giản, phân loại tốt theo khu vực địa lý giúp người mua/bán dễ dàng kết nối trong bán kính gần.
-  - *Hạn chế:* Bản chất của Chợ Tốt chủ yếu chỉ là bảng tin kết nối người mua và người bán tự liên hệ với nhau (qua số điện thoại hoặc khung chat đơn giản). Nền tảng thiếu một cơ chế bảo lãnh tài chính tạm giữ (Escrow) tích hợp sâu cho các giao dịch từ xa; hầu hết người mua phải thanh toán chuyển khoản trước (dễ bị lừa đảo lừa cọc) hoặc hẹn gặp mặt trực tiếp/ship COD tự phát (dễ gặp rủi ro "boom hàng", tốn phí vận chuyển). Khi sản phẩm nhận được không đúng mô tả hoặc hư hỏng, người mua hoàn toàn không có công cụ pháp lý hay đội ngũ điều phối viên nội bộ nào của sàn đứng ra phân xử và bảo vệ dòng tiền.
+  - *Hạn chế:* Bản chất của Chợ Tốt chủ yếu chỉ là bảng tin kết nối người mua và người bán tự liên hệ với nhau (qua số điện thoại hoặc khung chat đơn giản). Nền tảng thiếu một cơ chế bảo lãnh tài chính ký quỹ tích hợp sâu cho các giao dịch từ xa; hầu hết người mua phải thanh toán chuyển khoản trước (dễ bị lừa đảo lừa cọc) hoặc hẹn gặp mặt trực tiếp/ship COD tự phát (dễ gặp rủi ro "boom hàng", tốn phí vận chuyển). Khi sản phẩm nhận được không đúng mô tả hoặc hư hỏng, người mua hoàn toàn không có công cụ pháp lý hay đội ngũ điều phối viên nội bộ nào của sàn đứng ra phân xử và bảo vệ dòng tiền.
 - *Facebook Marketplace & Các hội nhóm xã hội (Social C2C):*
   - *Ưu điểm:* Tận dụng mạng lưới xã hội khổng lồ có sẵn, tốc độ tương tác cực nhanh qua Messenger, thao tác đăng bán tiện lợi không tốn phí sàn.
   - *Hạn chế:* Hoàn toàn thiếu các chuẩn mực của một nền tảng TMĐT chuyên nghiệp: không có hệ thống quản lý đơn hàng, không có tích hợp cổng thanh toán an toàn, không có cơ chế giữ cọc hay chính sách hoàn tiền. Các hành vi gian lận, tài khoản ảo (clone) lừa đảo chuyển khoản diễn ra rất phổ biến mà không có cơ chế kiểm duyệt hay hạn chế.
@@ -29,8 +29,8 @@ Hệ thống được thiết kế phục vụ cho 3 nhóm đối tác nhân ch�
 - *Cách tham gia hệ thống:* Được Quản trị viên tối cao (Super Admin) cấp phát tài khoản trực tiếp, không có quyền tự đăng ký.
 
 *3. Quản trị viên tối cao (Super Admin)*
-- *Mục tiêu:* Theo dõi và đối soát luồng tiền thanh toán tạm giữ tổng thể; quản trị nhân sự Moderator (cấp phát, khóa tài khoản); cấu hình các quy định và tham số hệ thống của sàn.
-- *Điểm khó khăn:* Phải đảm bảo tính bảo mật tuyệt đối của dòng tiền tạm giữ; kiểm soát hoạt động của các Moderator để tránh hành vi thiên vị hoặc lạm quyền.
+- *Mục tiêu:* Theo dõi và đối soát luồng tiền ký quỹ tổng thể; quản trị nhân sự Moderator (cấp phát, khóa tài khoản); cấu hình các quy định và tham số hệ thống của sàn.
+- *Điểm khó khăn:* Phải đảm bảo tính bảo mật tuyệt đối của dòng tiền ký quỹ; kiểm soát hoạt động của các Moderator để tránh hành vi thiên vị hoặc lạm quyền.
 - *Cách tham gia hệ thống:* Cấu hình sẵn từ đầu, là duy nhất và có quyền hạn cao nhất.
 
 === Các hệ thống ngoại vi và đối tác tích hợp
@@ -107,9 +107,9 @@ Mỗi ca sử dụng dưới đây biểu diễn một mục tiêu trọn vẹn 
     [UC-11], [Nhắn tin thời gian thực], [Người dùng], [Trao đổi trực tiếp kèm ảnh và tệp, nhận tin tức thời, theo dõi dấu đã đọc và số tin chưa đọc.],
     [UC-12], [Thương lượng giá], [Người mua], [Mở thương lượng trên tin cho phép trả giá; hai bên luân phiên đề xuất tới khi một bên chấp thuận.],
 
-    table.cell(colspan: 4, align: left)[*Nhóm D. Giao dịch, escrow và vận chuyển*],
+    table.cell(colspan: 4, align: left)[*Nhóm D. Giao dịch, ký quỹ và vận chuyển*],
     [UC-13], [Chuẩn bị đơn mua và lấy báo giá vận chuyển], [Người mua], [Chọn hàng và địa chỉ nhận, xin báo giá của từng hãng và chốt một phương án.],
-    [UC-14], [Thanh toán và escrow], [Người mua], [Mở phiên trả tiền tại cổng thanh toán; khi cổng báo về, tiền vào escrow và đơn hàng ra đời.],
+    [UC-14], [Thanh toán và ký quỹ], [Người mua], [Mở phiên trả tiền tại cổng thanh toán; khi cổng báo về, tiền vào ký quỹ và đơn hàng ra đời.],
     [UC-15], [Xác nhận đơn hàng đã thanh toán], [Người bán], [Xác nhận đơn trong 48 giờ để mở đường đặt vận đơn, hoặc từ chối kèm lý do.],
     [UC-16], [Theo dõi hành trình kiện hàng], [Người mua], [Xem các mốc hành trình do hãng vận chuyển báo về theo thứ tự tiến tới.],
     [UC-17], [Xác nhận đã nhận hàng], [Người mua], [Xác nhận kèm bằng chứng, khởi động cửa sổ 72 giờ trước khi tiền về người bán.],
@@ -196,7 +196,7 @@ Mỗi ca sử dụng dưới đây biểu diễn một mục tiêu trọn vẹn 
     fill: white, stroke: none),
 
   nt((2, 0), [UC-13 · Chuẩn bị đơn mua và báo giá], name: <b1>),
-  nt((2, 0.72), [UC-14 · Thanh toán và escrow], name: <b2>),
+  nt((2, 0.72), [UC-14 · Thanh toán và ký quỹ], name: <b2>),
   nt((2, 1.44), [UC-15 · Xác nhận đơn đã thanh toán], name: <b3>),
   nt((2, 2.16), [UC-16 · Theo dõi hành trình kiện hàng], name: <b4>),
   nt((2, 2.88), [UC-17 · Xác nhận đã nhận hàng], name: <b5>),
@@ -256,13 +256,13 @@ Mỗi ca sử dụng dưới đây biểu diễn một mục tiêu trọn vẹn 
 
 2 ca dưới đây được đặc tả đầy đủ theo mẫu chi tiết của UML. Tiêu chí chọn là giao của 3 dấu hiệu: chạm trực tiếp vào dòng tiền, có nhiều hơn một nhánh kết thúc, và mang cái riêng của nền tảng này. 28 ca còn lại có luồng tuyến tính hoặc lặp lại một trong 2 hình dạng đó nên chỉ giữ ở mức mô tả trong danh mục.
 
-#ucspec("UC-14", "Thanh toán và escrow",
+#ucspec("UC-14", "Thanh toán và ký quỹ",
   [Tác nhân], [Chính: người mua. Phụ: cổng thanh toán, đối tác vận chuyển (báo giá đã chốt ở UC-13).],
   [Mô tả], [Người mua trả tiền hàng cộng phí giao hàng qua một cổng thanh toán; tiền vào tài khoản giữ hộ của sàn chứ không tới người bán, và đơn hàng ra đời ngay khi cổng báo về.],
   [Điều kiện trước], [Đã đăng nhập; có một phiếu mua tạm còn hiệu lực (UC-13) hoặc một thương lượng đã chấp thuận còn hiệu lực (UC-12); phương án vận chuyển đã chốt kèm mức phí.],
-  [Luồng chính], [(1) Người mua xem lại đơn rồi chọn một cổng thanh toán đang bật. (2) Hệ thống giành quyền mua trước, đánh dấu phiếu mua tạm hoặc thương lượng là đã dùng. (3) Hệ thống mở phiên thanh toán hạn 15 phút gồm 2 khoản tách bạch là tiền hàng và phí giao hàng, rồi chuyển người mua sang trang của cổng. (4) Người mua trả tiền; cổng gửi thông báo kết quả về. (5) Hệ thống ghi nhận phiên đã trả, giữ tiền hàng vào escrow và tách phí giao hàng thành khoản riêng. (6) Hệ thống tạo đơn chờ người bán xác nhận, tạo kiện hàng, giảm tồn kho và báo cho người bán (UC-15).],
+  [Luồng chính], [(1) Người mua xem lại đơn rồi chọn một cổng thanh toán đang bật. (2) Hệ thống giành quyền mua trước, đánh dấu phiếu mua tạm hoặc thương lượng là đã dùng. (3) Hệ thống mở phiên thanh toán hạn 15 phút gồm 2 khoản tách bạch là tiền hàng và phí giao hàng, rồi chuyển người mua sang trang của cổng. (4) Người mua trả tiền; cổng gửi thông báo kết quả về. (5) Hệ thống ghi nhận phiên đã trả, giữ tiền hàng vào ký quỹ và tách phí giao hàng thành khoản riêng. (6) Hệ thống tạo đơn chờ người bán xác nhận, tạo kiện hàng, giảm tồn kho và báo cho người bán (UC-15).],
   [Luồng thay thế và ngoại lệ], [*[1a]* Người mua huỷ giữa chừng: phiên bị huỷ, phần đã giành được trả lại. [3a] Hết 15 phút mà chưa trả tiền: phiên không còn trả được và phần đã giành được trả lại (BR-23). [4a] Người mua quay về trang kết quả trước khi thông báo tới: hệ thống hiển thị phiên đang chờ, vì trang đáp xuống ai cũng mở được nên không phải bằng chứng. [4b] Cổng gửi lặp thông báo: xử lý bất biến với lặp lại nên chỉ một đơn được tạo. [5a] Xử lý thông báo thất bại: trả lỗi để cổng gửi lại.],
-  [Điều kiện sau], [Tiền hàng nằm trong escrow, phí giao hàng ở khoản riêng, tồn tại đúng một đơn chờ người bán xác nhận, và đơn ghi rõ nó sinh ra từ phiếu mua tạm hay từ thương lượng.],
+  [Điều kiện sau], [Tiền hàng nằm trong ký quỹ, phí giao hàng ở khoản riêng, tồn tại đúng một đơn chờ người bán xác nhận, và đơn ghi rõ nó sinh ra từ phiếu mua tạm hay từ thương lượng.],
   [Quy tắc nghiệp vụ], [BR-21, BR-22, BR-23, BR-24, BR-25, BR-26, BR-56],
   [Yêu cầu đặc biệt], [Quyền mua phải được giành trước khi phiên thanh toán được mở. Nếu giành sau, hai lần bấm sẽ mở hai phiên, và một lần bán có thể thu tiền hai lần.],
   [Giả định và vấn đề còn để mở], [Giả định: cổng thanh toán gửi lại thông báo cho tới khi hệ thống nhận thành công. Còn để mở: một phiên quá hạn tuy đã trả lại mọi phần đã giành nhưng vẫn nằm ở trạng thái chờ trong sổ sách, làm danh sách phiên dài ra vô ích.],

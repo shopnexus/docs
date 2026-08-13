@@ -18,7 +18,7 @@ bốn tình huống sau được xác định là phải có ca kiểm thử tr�
 
 - Một lần trả tiền sinh ra hai đơn hàng, hoặc một thông báo của cổng thanh toán được cổng gửi
   lặp lại và người mua bị ghi nợ hai lần.
-- Một khoản tiền tạm giữ được giải ngân cho người bán trong khi hồ sơ hoàn tiền của người mua
+- Một khoản tiền ký quỹ được giải ngân cho người bán trong khi hồ sơ hoàn tiền của người mua
   còn treo, hoặc ngược lại.
 - Một chuỗi thao tác bị dừng giữa đường mất kết nối, cổng thanh toán hết hạn chờ, hãng vận
   chuyển từ chối nhận kiện để lại hệ thống ở trạng thái nửa vời không ai dọn.
@@ -60,13 +60,13 @@ chạy mặc định và đều đạt.
 
 #tcspec(
   "TC-01", "Cổng thanh toán gửi lặp một thông báo đã được xử lý",
-  [Yêu cầu liên quan], [Thanh toán qua cổng và ký gửi tiền tạm giữ (REQ-22); chống nhân đôi thu tiền (NFR-11)],
+  [Yêu cầu liên quan], [Thanh toán qua cổng và ký gửi tiền ký quỹ (REQ-22); chống nhân đôi thu tiền (NFR-11)],
   [Mức / loại / ưu tiên], [Thành phần; nghịch — kiểm tính lũy đẳng; chặn],
   [Điều kiện tiên quyết], [Một phiên thanh toán đã mở cho cặp người mua và người bán với tổng tiền 300 000 đồng; một lượt trả tiền đã được khởi tạo trên cổng giả lập; ví người mua rỗng, đúng như trường hợp thông thường],
   [Dữ liệu thử], [Thông báo của cổng được dựng lại đúng như cổng gửi về: mã tham chiếu của lượt trả tiền do nền tảng phát ra, kèm trạng thái thành công. Lần gửi thứ hai dùng đúng cùng một thông báo],
   [Các bước], [
     1. Gửi thông báo thành công lần thứ nhất.
-    2. Đọc ví người mua, rồi cho phân hệ đơn hàng giữ tiền tạm giữ trên số tiền đó.
+    2. Đọc ví người mua, rồi cho phân hệ đơn hàng giữ tiền ký quỹ trên số tiền đó.
     3. Gửi lại đúng thông báo ấy lần thứ hai.
     4. Đọc lại ví người mua.
   ],
@@ -96,7 +96,7 @@ chạy mặc định và đều đạt.
   ],
   [Kết quả mong đợi], [
     Lần thứ nhất báo lỗi thay vì báo thành công, và không hiệu ứng nào sau bước ghi đơn xảy ra:
-    tiền tạm giữ bằng 0 đồng, tồn kho chưa chuyển sang đã bán. \
+    tiền ký quỹ bằng 0 đồng, tồn kho chưa chuyển sang đã bán. \
     Lần thứ hai hoàn tất phần còn lại: giữ đúng 100 000 đồng, tồn kho chuyển từ trạng thái đang
     giữ sang đã bán. \
     Lần thứ ba không làm gì thêm — mỗi hiệu ứng được áp dụng đúng một lần, vì lệnh giữ tiền được
@@ -107,7 +107,7 @@ chạy mặc định và đều đạt.
 )
 
 #tcspec(
-  "TC-03", "Giải ngân tiền tạm giữ gặp hồ sơ hoàn tiền chen vào giữa 2 bước",
+  "TC-03", "Giải ngân tiền ký quỹ gặp hồ sơ hoàn tiền chen vào giữa 2 bước",
   [Yêu cầu liên quan], [Giải ngân sau thời hạn khiếu nại (REQ-25); hồ sơ hoàn tiền (REQ-26); ghi có kiểm soát trạng thái (NFR-12)],
   [Mức / loại / ưu tiên], [Thành phần; nghịch — tranh chấp đồng thời; chặn],
   [Điều kiện tiên quyết], [Một đơn hàng đã được người mua xác nhận nhận hàng; thời điểm nhận hàng bị đẩy về quá khứ để thời hạn giải ngân đã trôi qua, nhờ đó đơn nằm trong danh sách đến hạn của tác vụ quét],
@@ -143,10 +143,10 @@ thống từ chối đúng chỗ, và ca biên — kiểm chứng hành vi ở r
     align: (left + top, left + top, left + top, left + top),
     table.header([Mã], [Ca kiểm thử và kết quả mong đợi], [Loại], [Kết quả]),
 
-    table.cell(colspan: 4, fill: rgb("#F7F7F7"))[*Dòng tiền, tiền tạm giữ và hồ sơ hoàn tiền*],
+    table.cell(colspan: 4, fill: rgb("#F7F7F7"))[*Dòng tiền, tiền ký quỹ và hồ sơ hoàn tiền*],
     [TC-04], [Ví từ chối mọi bút toán làm số dư âm, thay vì ghi rồi sửa sau], [Nghịch], [Đạt],
     [TC-05], [Điều chỉnh ví do quản trị viên thực hiện phải mang một khoá chống lặp: gọi lại cùng một khoá không ghi có thêm, và yêu cầu không có khoá thì bị từ chối thay vì ghi mà không được bảo vệ], [Nghịch], [Đạt],
-    [TC-06], [Tiền tạm giữ đi đúng một vòng giữ rồi giải ngân; lệnh giữ lặp lại bị từ chối thay vì giữ hai lần], [Biên], [Đạt],
+    [TC-06], [Tiền ký quỹ đi đúng một vòng giữ rồi giải ngân; lệnh giữ lặp lại bị từ chối thay vì giữ hai lần], [Biên], [Đạt],
     [TC-07], [Khi hồ sơ hoàn tiền được xử, tiền phải chuyển xong trước khi hồ sơ chuyển sang trạng thái kết thúc — làm ngược lại thì một lần chuyển tiền thất bại sẽ không có gì chạy lại], [Nghịch], [Đạt],
     [TC-08], [Hai điều hành viên cùng phân xử một hồ sơ thì chỉ một quyết định được ghi nhận], [Nghịch], [Đạt],
     [TC-09], [Hồ sơ hoàn tiền quá hạn được thúc tự động, nhưng bỏ qua hồ sơ đã có nhân viên xử lý và nhường một lần khiếu nại mà nó chưa thấy], [Nghịch], [Đạt],

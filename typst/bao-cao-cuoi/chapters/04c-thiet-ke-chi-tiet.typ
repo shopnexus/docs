@@ -90,7 +90,7 @@ phải tự giữ tính toàn vẹn ấy.
 nhất, đơn hàng ra đời khi tiền về, do thông báo từ cổng thanh toán chứ không do ai bấm
 nút phê duyệt; vì thế dòng hàng đã mua có thể tồn tại trước đơn hàng, và chỉ mục các dòng
 chưa gắn đơn là một danh sách chờ ghép chứ không phải hộp thư chờ duyệt. Thứ hai, người
-bán vẫn phải xác nhận, nhưng thứ họ xác nhận không phải là tiền: tiền đã nằm trong escrow
+bán vẫn phải xác nhận, nhưng thứ họ xác nhận không phải là tiền: tiền đã nằm trong ký quỹ
 rồi, và lượt xác nhận ấy chỉ mở khóa việc gọi hãng vận chuyển, để một bài đăng có tồn kho
 sai hay một người bán đã bỏ nghề không bị phát hiện bởi chính người mua ngồi chờ một kiện
 hàng không ai gửi. Trạng thái đơn hàng có 4 giá trị và được suy ra từ các mốc thời
@@ -223,7 +223,7 @@ hủy đơn và cũng không tự gửi hàng thay người bán.
 
 === Module finance
 
-Toàn bộ nguyên thủy tiền tệ nằm chung một module để các bước dịch chuyển escrow giữ được
+Toàn bộ nguyên thủy tiền tệ nằm chung một module để các bước dịch chuyển ký quỹ giữ được
 tính nguyên tử. Ranh giới quan trọng nhất bên trong module là 2 sổ cái, một đường
 biên: một sổ ghi các chặng đi trên kênh thanh toán bên ngoài, sổ còn lại ghi mọi lần tiền
 dịch chuyển bên trong ví của nền tảng, và không bao giờ ghi cùng một lần dịch chuyển vào
@@ -239,7 +239,7 @@ với ngân hàng chỉ được viết một lần.
     cls((0, 0), "financeapi.Service", stereo: "cổng vào module", name: <f-svc>,
       ops: (
         "+ phiên thanh toán · chặng · quyết toán",
-        "+ escrow: giữ · giải ngân · hoàn",
+        "+ ký quỹ: giữ · giải ngân · hoàn",
         "+ ví · sao kê · rút tiền",
         "+ hồ sơ thuế · tài khoản ngân hàng",
       )),
@@ -278,7 +278,7 @@ với ngân hàng chỉ được viết một lần.
       attrs: (
         "- accountID, currency  (khóa chính)",
         "- availableBalance: int64  tiêu / rút được",
-        "- heldBalance: int64       đang giữ escrow",
+        "- heldBalance: int64       đang giữ ký quỹ",
       ),
       ops: (
         "+ Total() int64",
@@ -546,7 +546,7 @@ cầu của tôi đang ở đâu" thì có ba nơi phải tìm.
 === Quy ước ký hiệu
 
 Kịch bản được lập sơ đồ là kịch bản mà thiếu hình vẽ thì không theo dõi nổi: đặt hàng
-và giữ escrow.
+và giữ ký quỹ.
 
 Mỗi cột là một bên tham gia: tác nhân là người thì ghi kèm dấu hai chấm ở đầu, còn lại là
 module chịu trách nhiệm về phần nghiệp vụ ấy, trong đó module chủ đạo của kịch bản được tô
@@ -558,13 +558,13 @@ bên trong một bên, hộp viền đứt là điều kiện của một nhánh
 trong nhãn hoặc trong khối ghi chú dưới hình. Nhãn được viết bằng lời chứ không bằng chữ ký
 phương thức, để hình đọc được mà không phải mở mã nguồn.
 
-=== TT-A: Đặt hàng và giữ escrow
+=== TT-A: Đặt hàng và giữ ký quỹ
 
 Kịch bản bắt đầu khi người mua bấm mua và kết thúc khi đơn hàng tồn tại ở trạng thái chờ
 người bán xác nhận. Ba quyết định thiết kế chi phối toàn bộ trình tự. Thứ nhất, quyền mua
 được chiếm trước khi tiền được hỏi tới: lượt ghi hủy phiếu mua chính là hành động chiếm,
 nên hai cú bấm liên tiếp chỉ mở được một phiên thanh toán; nếu chiếm sau, một thương vụ có
-hai phiên đã trả tiền là khoản tiền mà escrow không hạch toán nổi. Thứ hai, phí vận
+hai phiên đã trả tiền là khoản tiền mà ký quỹ không hạch toán nổi. Thứ hai, phí vận
 chuyển do máy chủ hỏi hãng vận chuyển, không bao giờ do máy khách gửi lên, và một người
 bán chưa khai điểm lấy hàng sẽ làm hỏng lượt mua trước khi tiền bị thu. Thứ ba, chỉ
 thông báo từ cổng thanh toán mới kết toán một chặng tiền: trang mà người mua rơi vào sau
@@ -600,9 +600,9 @@ khi trả tiền là thứ bất kỳ ai cũng giả mạo được.
 nhận thì mốc xác nhận được ghi và cam kết trước, rồi hãng vận chuyển mới được gọi theo
 kiểu cố-gắng-hết-sức: tiền đã dịch chuyển rồi, nên một hãng không liên lạc được là một vận
 đơn phải đặt lại chứ không phải một đơn hàng phải từ chối. Từ chối thì đơn bị hủy kèm lý
-do bắt buộc và escrow được hoàn toàn bộ, kể cả phí vận chuyển. Im lặng hết giờ thì hệ
+do bắt buộc và ký quỹ được hoàn toàn bộ, kể cả phí vận chuyển. Im lặng hết giờ thì hệ
 thống chỉ đóng một dấu hiệu đã leo thang và phát sự kiện để module tín nhiệm mở một phiếu
 sự cố đơn. Sau khi kiện hàng tới nơi, người mua xác nhận đã nhận kèm bằng chứng mở hộp
 được chốt ngay tại thời điểm đó chứ không bổ sung về sau, vì một yêu cầu hoàn tiền sẽ được
-phán xử trên đúng những gì người mua trưng ra lúc mở hộp. Từ mốc ấy tiền nằm yên 72 giờ, rồi escrow chuyển sang phần khả dụng của người bán và thời điểm hoàn tất được ghi
+phán xử trên đúng những gì người mua trưng ra lúc mở hộp. Từ mốc ấy tiền nằm yên 72 giờ, rồi ký quỹ chuyển sang phần khả dụng của người bán và thời điểm hoàn tất được ghi
 lại như một dấu hiệu đã xong, khiến tập đơn cần thử lại đúng bằng tập đơn còn mắc kẹt.

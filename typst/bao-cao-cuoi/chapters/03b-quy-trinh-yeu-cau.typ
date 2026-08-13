@@ -1,13 +1,13 @@
 #import "../../common/tokens.typ": *
 
-=== Sơ đồ hoạt động: Thanh toán escrow và sinh đơn hàng
+=== Sơ đồ hoạt động: Thanh toán ký quỹ và sinh đơn hàng
 
 #let elabel(body) = box(fill: white, inset: (x: 2pt, y: 1pt), text(size: 8pt, body))
 #let lane-v = (paint: luma(60%), thickness: 0.6pt, dash: "dashed")
 #let lane-h = (paint: luma(75%), thickness: 0.5pt)
 
 #fig(
-  [Sơ đồ hoạt động quy trình thanh toán escrow và sinh đơn hàng],
+  [Sơ đồ hoạt động quy trình thanh toán ký quỹ và sinh đơn hàng],
   spacing: (44mm, 11mm),
 
   // vùng phân chia actor
@@ -40,7 +40,7 @@
   edge((1, 9), (0, 10), "-|>", elabel[Không], label-side: left),
   nr((0, 10), [Phiên hết hạn, quyền dùng\ bản chốt giá được trả lại]),
   edge((1, 9), (1, 10), "-|>", elabel[Có]),
-  ng((1, 10), [Giữ tiền hàng vào escrow,\ phí vận chuyển thành\ một chặng riêng]),
+  ng((1, 10), [Giữ tiền hàng vào ký quỹ,\ phí vận chuyển thành\ một chặng riêng]),
   edge((1, 10), (1, 11), "-|>"),
   ng((1, 11), [Sinh đơn hàng ở trạng thái\ chờ người bán xác nhận,\ khởi động đồng hồ 48 giờ]),
   edge((1, 11), (1, 12), "-|>"),
@@ -142,7 +142,7 @@ phải tuân thủ: mọi phép chuyển không xuất hiện trên sơ đồ đ
 
   // ===== TRỤC CHÍNH =====
   edge((0, 0), (0, 1), "-|>",
-    text(size: 7.5pt)[phiên thanh toán hoàn tất:\ tiền vào escrow]),
+    text(size: 7.5pt)[phiên thanh toán hoàn tất:\ tiền vào ký quỹ]),
   edge((0, 1), (0, 2), "-|>",
     text(size: 7.5pt)[người bán xác nhận:\ đặt vận đơn với hãng]),
   edge((0, 2), (0, 3), "-|>",
@@ -202,12 +202,12 @@ phải tuân thủ: mọi phép chuyển không xuất hiện trên sơ đồ đ
     [REQ-20], [cho phép bên không đang giữ đề xuất hiện hành chấp thuận điều khoản, đóng băng mức giá đó trong 30 phút mà không thu bất kỳ khoản nào.], [UC-12], [đơn hàng], [BR-16, BR-18],
     [REQ-21], [đánh dấu hết hiệu lực cho đề xuất không được phản hồi trong 12 giờ, và cho điều khoản đã chấp thuận không được tạo đơn trong 30 phút.], [UC-12], [đơn hàng], [BR-17, BR-18],
 
-    table.cell(colspan: 5, align: left)[*Nhóm 6. Đặt hàng và thanh toán escrow*],
+    table.cell(colspan: 5, align: left)[*Nhóm 6. Đặt hàng và thanh toán ký quỹ*],
     [REQ-22], [lập một phiếu mua tạm đóng băng giá niêm yết trong 30 phút từ các mục người mua đã chọn.], [UC-13], [đơn hàng], [BR-56],
     [REQ-23], [hỏi giá vận chuyển từ mọi hãng đang bật cho một phiếu mua tạm hoặc một thương lượng đã chấp thuận, và loại hãng nào không báo giá được.], [UC-13], [đơn hàng], [BR-25, BR-54],
     [REQ-24], [giành quyền dùng phiếu mua tạm hoặc thương lượng đã chấp thuận trước khi mở phiên thanh toán 15 phút, và trả lại quyền đó khi phiên hết hạn.], [UC-14], [đơn hàng, tài chính], [BR-23, BR-24],
     [REQ-25], [chỉ ghi nhận kết quả thanh toán từ thông báo gọi lại của nhà cung cấp, và không phát sinh bút toán mới khi cùng một thông báo được gửi lại.], [UC-14], [tài chính], [BR-22],
-    [REQ-26], [giữ tiền hàng vào escrow, tách phí giao hàng thành chặng riêng, rồi tạo đơn hàng và kiện hàng ở trạng thái chờ người bán xác nhận.], [UC-14, UC-15], [tài chính, đơn hàng], [BR-21, BR-26],
+    [REQ-26], [giữ tiền hàng vào ký quỹ, tách phí giao hàng thành chặng riêng, rồi tạo đơn hàng và kiện hàng ở trạng thái chờ người bán xác nhận.], [UC-14, UC-15], [tài chính, đơn hàng], [BR-21, BR-26],
 
     table.cell(colspan: 5, align: left)[*Nhóm 7. Vòng đời đơn hàng và giải ngân*],
     [REQ-27], [cho phép người bán xác nhận đơn trong 48 giờ, và chỉ đặt vận đơn với hãng sau khi đơn đã được xác nhận.], [UC-15], [đơn hàng], [BR-28, BR-30],
