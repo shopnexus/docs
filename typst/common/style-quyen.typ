@@ -100,8 +100,11 @@
               .sinh-vien
               .enumerate()
               .map(((i, sv)) => (
-                [Sinh viên #(i + 1) :], [#sv.at(0)], [MSSV: #sv.at(1)],
-                [Lớp :], rong[#info.lop],
+                [Sinh viên #(i + 1) :],
+                [#sv.at(0)],
+                [MSSV: #sv.at(1)],
+                [Lớp :],
+                rong[#info.lop],
               ))
               .flatten(),
             [Ngành :], rong[#info.nganh],
@@ -260,7 +263,7 @@
   // Mỗi dòng mục lục là một khối, nên `cach-khoi` của template sẽ nong chúng ra và
   // mục lục phình thêm trang. Mục lục là bảng tra cứu chứ không phải văn xuôi: các
   // dòng chỉ cách nhau đúng một nhịp giãn dòng, còn việc tách nhóm để cho v(0.8em)
-  // ở đầu mỗi chương lo.
+  // ở đầu mỗi chương lo. ĐỪNG XOÁ: đã mất một lần khi đồng bộ từ máy khác.
   show outline.entry: set block(spacing: cach-dong)
   show outline.entry.where(level: 1): it => {
     v(0.8em, weak: true)
