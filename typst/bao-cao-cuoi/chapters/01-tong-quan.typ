@@ -4,25 +4,23 @@
 
 Thị trường giao dịch trực tuyến giữa các cá nhân (C2C - Consumer-to-Consumer) tại Việt Nam đang chứng kiến sự tăng trưởng vượt bậc, đặc biệt trong các lĩnh vực mua bán đồ cũ, thanh lý thiết bị điện tử, sách giáo khoa, đồ gia dụng, thời trang và các sản phẩm thủ công (handmade). Tuy nhiên, khi các giao dịch diễn ra tự phát mà không có sự bảo lãnh tài chính và giám sát chuẩn mực, thị trường C2C truyền thống đang phải đối mặt với rào cản lớn nhất là khủng hoảng niềm tin giữa các bên tham gia giao dịch.
 
-Cụ thể, khi đi sâu vào từng vai trò tham gia giao dịch cũng như vào cách hai bên trao đổi và thống nhất với nhau, có thể thấy những thách thức cốt lõi đang kìm hãm sự phát triển lành mạnh của hệ sinh thái này tập trung ở 3 nhóm sau:
+Khi nghiên cứu kĩ vào từng vai trò tham gia giao dịch cũng như cách hai bên trao đổi và thống nhất với nhau, có thể thấy những thách thức cốt lõi đang kìm hãm sự phát triển lành mạnh của hệ sinh thái này tập trung ở 3 nhóm sau:
 - *Rủi ro từ phía Người mua:* Khi phải đặt cọc hoặc thanh toán trước cho người bán cá nhân, người mua có nguy cơ bị lừa đảo như không giao hàng, giao sai sản phẩm, hàng giả hoặc hàng không đúng mô tả. Khi sự cố xảy ra, việc đòi hoàn tiền và bảo vệ quyền lợi thường gặp nhiều khó khăn do thiếu cơ chế trung gian xử lý.
 
 - *Rủi ro từ phía Người bán:* Hình thức COD giúp tăng niềm tin cho người mua nhưng lại khiến người bán đối mặt với tình trạng từ chối nhận hàng, phát sinh chi phí vận chuyển hai chiều và nguy cơ sản phẩm bị hư hỏng, thất lạc hoặc tráo đổi trong quá trình giao nhận.
 
 - *Sự phân mảnh trong giao tiếp và thỏa thuận:* Quá trình thương lượng giá, trao đổi hình ảnh và xác nhận thông tin thường diễn ra trên các ứng dụng bên ngoài nền tảng. Điều này làm cho giá đã thỏa thuận khó đồng bộ với đơn hàng, đồng thời khiến lịch sử trao đổi khó được xác minh và sử dụng làm bằng chứng khi phát sinh tranh chấp.
 
-Xét trên phương diện tổng thể, quy mô thị trường thương mại điện tử Việt Nam trong những năm gần đây liên tục duy trì tốc độ tăng trưởng hai con số về doanh thu bán lẻ trực tuyến và tỷ lệ người dân tham gia mua sắm trực tuyến, song phần lớn các nền tảng rao vặt C2C hiện hữu như Chợ Tốt vẫn chủ yếu đóng vai trò kết nối thông tin giữa hai cá nhân, để hai bên tự thỏa thuận và tự chuyển tiền cho nhau mà không có cơ chế bảo lãnh dòng tiền tập trung. Về mặt pháp lý, hoạt động của các sàn giao dịch thương mại điện tử tại Việt Nam chịu sự điều chỉnh của Nghị định số 52/2013/NĐ-CP về thương mại điện tử cùng những sửa đổi, bổ sung tại Nghị định số 85/2021/NĐ-CP, trong đó xác lập trách nhiệm của đơn vị cung cấp dịch vụ sàn trong việc quản lý thông tin người bán cũng như tiếp nhận và xử lý khiếu nại, trong khi quyền được thông tin, được bảo vệ và được giải quyết tranh chấp của người mua được ghi nhận trong Luật Bảo vệ quyền lợi người tiêu dùng năm 2023 [1] [2].
+Xét trên phương diện tổng thể, thương mại điện tử Việt Nam liên tục duy trì tốc độ tăng trưởng hai con số, song phần lớn các nền tảng rao vặt C2C hiện hữu như Chợ Tốt vẫn chủ yếu đóng vai trò kết nối thông tin, để hai bên tự thỏa thuận và tự chuyển tiền cho nhau mà không có cơ chế bảo lãnh dòng tiền tập trung. Về mặt pháp lý, hoạt động của các sàn giao dịch thương mại điện tử chịu sự điều chỉnh của Nghị định số 52/2013/NĐ-CP và Nghị định số 85/2021/NĐ-CP, trong đó xác lập trách nhiệm của đơn vị cung cấp dịch vụ sàn trong việc quản lý thông tin người bán cũng như tiếp nhận và xử lý khiếu nại; quyền được thông tin, được bảo vệ và được giải quyết tranh chấp của người mua được ghi nhận trong Luật Bảo vệ quyền lợi người tiêu dùng năm 2023 [1] [2].
 
-Trước thực trạng và những khoảng trống lớn của thị trường, đề tài này được thực hiện nhằm mục đích nghiên cứu, phân tích và thiết kế một hệ sinh thái giao dịch C2C an toàn, minh bạch và hiện đại, đặt trọng tâm giải quyết bài toán "lòng tin" thông qua ba nhóm giải pháp nghiệp vụ và kỹ thuật cốt lõi sau::
-+ *Cơ chế ký quỹ (escrow):* Sàn thương mại điện tử sẽ đóng vai trò là bên thứ ba trung gian đáng tin cậy giữ tiền giao dịch. Dòng tiền của người mua sẽ được khóa bảo mật trong ví ký quỹ cho đến khi giao hàng thành công và người mua xác nhận hài lòng (hoặc hết thời hạn đếm ngược 3 ngày(72 giờ) mà không có khiếu nại).
+Trước thực trạng và những khoảng trống lớn của thị trường, đề tài này được thực hiện nhằm nghiên cứu, phân tích và thiết kế một hệ sinh thái giao dịch C2C an toàn, minh bạch và hiện đại, đặt trọng tâm giải quyết bài toán "lòng tin" thông qua ba nhóm giải pháp cốt lõi sau:
++ *Cơ chế ký quỹ (escrow):* Sàn thương mại điện tử đóng vai trò bên thứ ba trung gian đáng tin cậy giữ tiền giao dịch. Dòng tiền của người mua được khóa bảo mật trong ví ký quỹ cho đến khi giao hàng thành công và người mua xác nhận hài lòng (hoặc hết thời hạn đếm ngược 3 ngày (72 giờ) mà không có khiếu nại).
 + *Tích hợp Nhắn tin trực tuyến và Thẻ Đề xuất giá (Offer Card):* Xây dựng hệ thống giao tiếp gắn liền mạch vào sàn, cho phép thương lượng giá động ngay trong khung chat qua Thẻ Đề xuất giá có hiệu lực trong 12 giờ, ràng buộc trực tiếp thỏa thuận giá vào luồng thanh toán đơn hàng.
 + *Quy trình Hoàn tiền và Phân xử tranh chấp (Refund & Dispute) minh bạch:* Thiết lập quy trình khiếu nại với ràng buộc bắt buộc cung cấp bằng chứng số đa phương tiện (video mở hộp, ảnh chụp đóng gói). Khi không đạt được thỏa thuận hoàn tiền, vụ việc được thăng cấp lên Điều phối viên (Moderator) nội bộ để thẩm định và ra quyết định công bằng cho cả 2 bên.
 
 == Mục tiêu của nghiên cứu
 
-Mục tiêu tổng quát của nghiên cứu là áp dụng triệt để các phương pháp kỹ thuật phần mềm tiên tiến, đặc biệt là kiến trúc hướng dịch vụ (SOA) và mô hình Microservices hiện đại, để thiết kế và hiện thực hóa một nền tảng TMĐT C2C toàn diện, an toàn và có khả năng chịu tải, mở rộng cao [8].
-
-Các mục tiêu cụ thể của đề tài được phân chia theo từng phương diện nghiệp vụ và công nghệ cốt lõi:
+Mục tiêu tổng quát của nghiên cứu là áp dụng triệt để các phương pháp kỹ thuật phần mềm tiên tiến, đặc biệt là kiến trúc hướng dịch vụ (SOA) và mô hình Microservices hiện đại, để thiết kế và hiện thực hóa một nền tảng TMĐT C2C toàn diện, an toàn và có khả năng chịu tải, mở rộng cao [8]. Các mục tiêu cụ thể được phân chia theo từng phương diện nghiệp vụ và công nghệ cốt lõi:
 
 1. *Xây dựng cơ chế ký quỹ bền vững và luồng tài chính an toàn:* Thiết kế luồng thanh toán tích hợp cổng ngân hàng/ví điện tử ngoại vi, quản lý dòng tiền theo mô hình ví nội bộ (Internal Wallet).
 
@@ -30,11 +28,11 @@ Các mục tiêu cụ thể của đề tài được phân chia theo từng ph�
 
 3. *Thiết lập quy trình Hoàn tiền (Refund), Phân xử tranh chấp (Dispute) và Kiểm duyệt nội dung:* Xây dựng luồng xử lý khiếu nại trong hạn 3 ngày với ràng buộc cung cấp bằng chứng số (ảnh/video mở hộp hàng hóa).
 
-4. *Thiết lập mô hình Phân quyền chặt chẽ theo 3 vai trò (Persona) hệ thống:* Người dùng (User) là tài khoản khách hàng tự do đăng ký, sở hữu vai trò kép (vừa mua vừa bán trên cùng một định danh); Điều phối viên (Moderator) là tài khoản nội bộ do Quản trị viên cấp phát, chịu trách nhiệm thẩm định khiếu nại, phân xử tranh chấp và kiểm duyệt tin đăng vi phạm; Quản trị viên tối cao (Super Admin) là tài khoản duy nhất cấu hình sẵn, có thẩm quyền thiết lập tham số hệ thống, kiểm soát dòng tiền tổng thể và quản lý nhân sự điều phối viên.
+4. *Thiết lập mô hình Phân quyền chặt chẽ theo 3 vai trò (Persona) hệ thống:* Người dùng (User) là tài khoản tự do đăng ký, sở hữu vai trò kép (vừa mua vừa bán trên cùng một định danh); Điều phối viên (Moderator) là tài khoản nội bộ do Quản trị viên cấp phát, chịu trách nhiệm thẩm định khiếu nại, phân xử tranh chấp và kiểm duyệt tin đăng vi phạm; Quản trị viên tối cao (Super Admin) là tài khoản duy nhất cấu hình sẵn, có thẩm quyền thiết lập tham số hệ thống, kiểm soát dòng tiền tổng thể và quản lý nhân sự điều phối viên.
 
 5. *Nghiên cứu ứng dụng kiến trúc Durable Microservices:* Phân rã hệ thống thành các dịch vụ độc lập áp dụng triệt để nguyên lý Database-per-service [9], bảo đảm sự cô lập về cơ sở dữ liệu và khả năng chọn lựa công nghệ lưu trữ phù hợp (Polyglot Persistence); đồng thời ứng dụng cơ chế durable execution (thực thi bền) Restate (Journal-based Durable Execution) để quản lý các luồng nghiệp vụ dài hạn (ký quỹ, hoàn tiền, tranh chấp,...), loại bỏ hoàn toàn độ phức tạp của mẫu thiết kế Saga truyền thống [4], tự động phục hồi lỗi (Crash Recovery) và bảo đảm ngữ nghĩa thực thi chính xác một lần (Exact-once semantics).
 
-6. *Nghiên cứu tìm kiếm dựa trên từ khóa và ngữ nghĩa:* Nghiên cứu và tích hợp cơ chế Tìm kiếm Ngữ nghĩa Lai (Hybrid Search), kết hợp giữa Tìm kiếm văn bản (Full-text Search) dựa trên từ khóa và tìm kiếm ngữ nghĩa (Semantic Vector Search) thông qua cơ sở dữ liệu pgvector trên PostgreSQL [11], sử dụng mô hình embedding (vector nhúng) đa ngôn ngữ bge-m3 để sinh biểu diễn vector (vector embeddings) cho dữ liệu văn bản [3].
+6. *Nghiên cứu tìm kiếm dựa trên từ khóa và ngữ nghĩa:* Nghiên cứu và tích hợp cơ chế Tìm kiếm Ngữ nghĩa Lai (Hybrid Search), kết hợp giữa Tìm kiếm văn bản (Full-text Search) dựa trên từ khóa và tìm kiếm ngữ nghĩa (Semantic Vector Search) thông qua cơ sở dữ liệu pgvector trên PostgreSQL [11], sử dụng mô hình embedding đa ngôn ngữ bge-m3 để sinh biểu diễn vector (vector embeddings) cho dữ liệu văn bản [3].
 
 7. *Nghiên cứu hệ thống gợi ý sản phẩm (Recommender System):* Xây dựng cơ chế gợi ý sản phẩm cá nhân hóa đa hướng quan tâm (multi-interest), biểu diễn sở thích người dùng qua nhiều vector đặc trưng được cập nhật liên tục dựa trên lịch sử tương tác, hành vi tìm kiếm và độ tương đồng ngữ nghĩa của mặt hàng [7].
 
@@ -54,7 +52,7 @@ Hệ thống được thiết kế bao phủ toàn bộ vòng đời giao dịch
 
 5. *Đặt hàng, Tính phí vận chuyển động và Ký quỹ:* Quy trình khởi tạo đơn hàng từ trang chi tiết sản phẩm (giá cố định) hoặc từ Offer Card trong Chat (giá thương lượng).
 
-6. *Xác nhận giao hàng và Bộ đếm thời gian tạm giữ:* Lắng nghe sự kiện cập nhật hành trình vận đơn từ đơn vị giao nhận; tự động kích hoạt bộ đếm thời gian đếm ngược 3 ngày (72 giờ) hoặc khi đơn hàng chuyển sang trạng thái "Giao hàng thành công".
+6. *Xác nhận giao hàng và Bộ đếm thời gian tạm giữ:* Lắng nghe sự kiện cập nhật hành trình vận đơn từ đơn vị giao nhận; tự động kích hoạt bộ đếm thời gian đếm ngược 3 ngày (72 giờ) khi đơn hàng chuyển sang trạng thái "Giao hàng thành công".
 
 7. *Khiếu nại Hoàn tiền (Refund), Tranh chấp (Dispute) và Phân xử:* Quy trình gửi yêu cầu Refund/Return trong khung thời gian 72 giờ kèm việc tải lên bằng chứng số đa phương tiện bắt buộc.
 
@@ -62,19 +60,19 @@ Hệ thống được thiết kế bao phủ toàn bộ vòng đời giao dịch
 
 === Ngoài phạm vi nghiên cứu (Out-of-Scope)
 
-Để đảm bảo tính khả thi, độ tập trung chuyên sâu vào mô hình kiến trúc Microservices và trọn vẹn luồng giao dịch C2C cá nhân, các hạng mục sau được xác định nằm ngoài phạm vi nghiên cứu của đề tài:
+Để đảm bảo tính khả thi và độ tập trung chuyên sâu vào mô hình kiến trúc Microservices cùng trọn vẹn luồng giao dịch C2C cá nhân, các hạng mục sau nằm ngoài phạm vi nghiên cứu của đề tài:
 
-1. *Gian hàng doanh nghiệp chính hãng (B2C / Shop Mall):* Hệ thống hiện tại chỉ thiết kế tối ưu cho giao dịch cá nhân bán cho cá nhân (C2C). Việc phát triển các gian hàng thương hiệu chính hãng quy mô lớn từ các doanh nghiệp (với quy trình hóa đơn đỏ, quản lý kho hàng nghìn SKUs phức tạp) là định hướng mở rộng trong tương lai.
+1. *Gian hàng doanh nghiệp chính hãng (B2C / Shop Mall):* Hệ thống chỉ thiết kế tối ưu cho giao dịch cá nhân bán cho cá nhân (C2C). Việc phát triển các gian hàng thương hiệu chính hãng quy mô lớn (với quy trình hóa đơn đỏ, quản lý kho hàng nghìn SKUs phức tạp) là định hướng mở rộng trong tương lai.
 2. *Giao dịch và vận chuyển quốc tế:* Đề tài chỉ tập trung vào thị trường nội địa Việt Nam; không xử lý các luồng thanh toán đa ngoại tệ, chuyển đổi tỷ giá, thủ tục hải quan hay tích hợp các đơn vị vận chuyển xuyên biên giới.
-3. *Gọi thoại và gọi video trực tiếp (Voice/Video Call):* Không triển khai tính năng gọi điện thoại hay gọi video trực tiếp trên nền tảng web/mobi qua WebRTC. Toàn bộ quá trình đàm phán, trao đổi và làm bằng chứng được thực hiện bằng tin nhắn văn bản, hình ảnh và video quay sẵn tải lên khung chat.
+3. *Gọi thoại và gọi video trực tiếp (Voice/Video Call):* Không triển khai tính năng gọi điện thoại hay gọi video trực tiếp qua WebRTC. Toàn bộ quá trình đàm phán, trao đổi và làm bằng chứng được thực hiện bằng tin nhắn văn bản, hình ảnh và video quay sẵn tải lên khung chat.
 
 == Phương pháp nghiên cứu
 
-Để giải quyết thành công các bài toán phức tạp về nghiệp vụ và kiến trúc kỹ thuật đã đặt ra, đề tài kết hợp sử dụng các phương pháp nghiên cứu khoa học kỹ thuật phần mềm hiện đại sau:
+Để giải quyết các bài toán phức tạp về nghiệp vụ và kiến trúc kỹ thuật đã đặt ra, đề tài kết hợp sử dụng các phương pháp nghiên cứu khoa học kỹ thuật phần mềm hiện đại sau:
 
 1. *Phương pháp Phân tích và Thiết kế Hướng đối tượng (OOAD):* Sử dụng ngôn ngữ mô hình hóa thống nhất (UML) để chuẩn hóa tài liệu thiết kế: Biểu đồ ca sử dụng (Use Case Diagram), Biểu đồ hoạt động (Activity Diagram), Biểu đồ trình tự (Sequence Diagram), Biểu đồ lớp (Class Diagram) và Biểu đồ thực thể - quan hệ (ERD).
 
-2. *Phương pháp Kiến trúc Hướng dịch vụ (SOA) và mô hình Microservices:* Áp dụng mẫu thiết kế Database-per-service, đảm bảo mỗi dịch vụ microservice sở hữu cấu trúc lưu trữ và cơ sở dữ liệu riêng biệt. Triệt tiêu hiện tượng nghẽn cổ chai CSDL tập trung và ngăn chặn truy cập dữ liệu chéo trái phép.
+2. *Phương pháp Kiến trúc Hướng dịch vụ (SOA) và mô hình Microservices:* Áp dụng mẫu thiết kế Database-per-service, đảm bảo mỗi dịch vụ sở hữu cấu trúc lưu trữ và cơ sở dữ liệu riêng biệt; triệt tiêu hiện tượng nghẽn cổ chai CSDL tập trung và ngăn chặn truy cập dữ liệu chéo trái phép.
 
 3. *Phương pháp durable execution:* Nghiên cứu và áp dụng nền tảng durable execution Restate dựa trên triết lý Journal-based Execution (thực thi dựa trên nhật ký ghi trước - Write-Ahead Log) [12].
 
@@ -82,8 +80,8 @@ Hệ thống được thiết kế bao phủ toàn bộ vòng đời giao dịch
 
 Đề tài nghiên cứu và xây dựng nền tảng ShopNexus mang lại 3 đóng góp quan trọng:
 
-1. *Đóng góp về Giải pháp Nghiệp vụ cho thị trường TMĐT C2C:* Đề xuất và hiện thực hóa thành công mô hình sàn giao dịch C2C thế hệ mới, giải quyết triệt để bài toán "khủng hoảng niềm tin" và sự phân mảnh trong giao tiếp truyền thống.
+1. *Đóng góp về Giải pháp Nghiệp vụ cho thị trường TMĐT C2C:* Đề xuất và hiện thực hóa mô hình sàn giao dịch C2C thế hệ mới, giải quyết triệt để bài toán "khủng hoảng niềm tin" và sự phân mảnh trong giao tiếp truyền thống.
 
 2. *Đóng góp về Kiến trúc Phần mềm và Công nghệ durable execution:* Tiên phong nghiên cứu và triển khai mô hình Durable Microservices trên nền tảng Restate trong một hệ thống thương mại điện tử thực tế tại Việt Nam.
 
-3. *Đóng góp về Sản phẩm Thực tiễn và Tài liệu Quy chuẩn:* Bàn giao một bộ sản phẩm phần mềm hoạt động trọn vẹn, bao gồm: Giao diện người dùng (Next.js/ Flutter) và Hệ thống Backend Microservices hoàn chỉnh.
+3. *Đóng góp về Sản phẩm Thực tiễn và Tài liệu Quy chuẩn:* Bàn giao một bộ sản phẩm phần mềm hoạt động trọn vẹn, bao gồm: Giao diện người dùng (Next.js/Flutter) và Hệ thống Backend Microservices hoàn chỉnh.
