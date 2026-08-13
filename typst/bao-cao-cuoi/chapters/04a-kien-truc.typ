@@ -1,11 +1,6 @@
 #import "../../common/tokens.typ": *
 
 == Các yếu tố dẫn dắt kiến trúc
-
-Không phải yêu cầu nào cũng có ý nghĩa kiến trúc: phần lớn trong số các yêu cầu chức năng ở Chương 3 đều hiện thực được bằng một biểu mẫu, một câu truy vấn và một màn hình. Mục này tách ra nhóm nhỏ các
-yêu cầu thực sự định hình cấu trúc hệ thống. Đặc thù của một sàn giao dịch giữa người dùng với người dùng là tiền của người mua không đi thẳng tới người bán: nền tảng đứng giữa và phải trả lời được câu hỏi "tiền đang ở đâu" tại mọi thời điểm. Mỗi yếu tố dẫn dắt được đánh mã `AD-01` … `AD-09`, và mọi quyết định ở các mục
-sau đều truy ngược về ít nhất một mã trong số đó.
-
 #figure(
   caption: [Các yêu cầu chức năng có ý nghĩa kiến trúc (Architecturally Significant Requirements)],
   table(
@@ -108,18 +103,6 @@ Hệ thống được tổ chức theo Kiến trúc phân rã theo nhóm nghiệ
   
 )
 
-
-  
-7 dịch vụ không đối xứng nhau về vai trò. `account` là dịch vụ nền: nó không nhập gói hợp đồng
-của bất kỳ dịch vụ nào khác, và mối liên hệ duy nhất của nó với phần còn lại là việc lắng nghe hai
-sự kiện của dịch vụ đơn hàng, một quan hệ ở tầng sự kiện chứ không phải một lời gọi. Còn
-`observability` đứng hẳn ngoài đồ thị vì nó không có gói hợp đồng để ai gọi tới. 2 dịch vụ mang
-vai điều phối, mỗi dịch vụ phụ thuộc đúng 4 dịch vụ khác: `order` và `trust`, trong đó `trust`
-nằm trên `order` vì nó gọi sang để leo thang một yêu cầu hoàn tiền. Đồ thị phụ thuộc
-không có chu trình ở tầng gọi theo hợp đồng, nên chiều phụ thuộc kiểm tra được lúc biên dịch; hai
-cặp quan hệ trông giống chu trình nhưng không phải, vì chiều ngược lại luôn là sự kiện: dịch vụ
-tài chính không ra lệnh tạo đơn, nó chỉ thông báo rằng tiền đã về.
-
 === Cơ chế bất đồng bộ và tích hợp bên ngoài
 
 Trục các sự kiện trên NATS JetStream chuyển
@@ -136,31 +119,6 @@ một lần dưới dạng một phương thức idempotent mà cả Restate l�
 #figure(
   image("../../common/assets/system-diagram-3x-sharp.png", width: 90%),
   caption: [Kiến trúc triển khai],
-)
-
-== Thành phần và trách nhiệm
-
-7 dịch vụ có cùng một hình dạng, và sự lặp lại này là một quyết định thiết kế: với nhóm 3
-người, việc một người mở mã của dịch vụ mình chưa từng làm và biết ngay mọi thứ nằm ở đâu có giá trị
-lớn hơn việc tối ưu từng dịch vụ theo đặc thù riêng. Mỗi dịch vụ có 4 phần cố định: gói hợp đồng
-công bố, là thứ duy nhất các dịch vụ khác được phép biết; lớp dịch vụ, nơi duy nhất biết cả quy tắc
-lẫn kho dữ liệu; lớp quy tắc giữ thực thể, bất biến và toàn bộ lỗi có mã; và bộ điều hợp PostgreSQL
-hiện thực giao diện kho dữ liệu bằng SQL viết tay. Chiều phụ thuộc là một chiều, nhờ đó quy tắc
-nghiệp vụ kiểm thử được mà không cần cơ sở dữ liệu.
-
-#figure(
-  caption: [Danh mục các thành phần kiến trúc, trách nhiệm và phụ thuộc],
-  table(
-    columns: (1.35fr, 0.7fr, 2.2fr, 1.25fr),
-    align: (left + horizon, center + horizon, left + horizon, left + horizon),
-    table.header([Thành phần], [Tầng], [Trách nhiệm], [Phụ thuộc]),
-
-    [Router, 7 nhóm bộ xử lý tuyến, middleware, WebSocket hub và bộ phục vụ đối tượng], [Cổng vào], [Đăng ký từng tuyến bằng tay, đọc yêu cầu, gọi hợp đồng, ghi kết quả, không chứa quy tắc nghiệp vụ; CORS, tra bản ghi phiên ở mọi yêu cầu đã xác thực, gắn định danh yêu cầu; giữ kết nối theo tài khoản và đẩy sự kiện; uỷ quyền tệp bằng chữ ký trên URL.], [Hợp đồng của 7 dịch vụ, kho phiên Redis, trục NATS, kho đối tượng],
-    [Hợp đồng công bố (7)], [Nghiệp vụ], [Giao diện dịch vụ và đối tượng truyền dữ liệu kèm nhãn kiểm tra hợp lệ; thứ duy nhất dịch vụ khác được phép biết.], [(không)],
-    [Lớp dịch vụ (7), lớp quy tắc (7), durable workflow (quy trình bền) và bộ nhận sự kiện], [Nghiệp vụ], [Dịch vụ điều phối quy tắc với kho dữ liệu, kiểm tra vai trò người gọi, phát sự kiện; lớp quy tắc giữ thực thể, bất biến và toàn bộ lỗi có mã; durable workflow giữ hẹn giờ và gọi lại phương thức idempotent khi đến hạn.], [Cổng dữ liệu, hợp đồng của dịch vụ khác, bộ durable execution, trục sự kiện],
-    [Cổng kho dữ liệu (7), bộ điều hợp PostgreSQL (7) và kho dùng chung], [Truy cập dữ liệu], [SQL viết tay với tham số đặt tên; guarded write; ghi nhật ký kiểm toán cùng giao dịch.], [Lớp quy tắc, nhóm kết nối pgx],
-    [Bộ ghép nối phụ thuộc, sổ đăng ký nhà cung cấp, bộ quét định kỳ, bộ sinh embedding và bộ áp migration], [Hạ tầng], [Dựng đồ thị thành phần theo kiểu giao diện; phân giải hiện thực theo tên mà hàng dữ liệu ghi lại; gọi các phương thức idempotent theo chu kỳ; rút cạn dấu "đã cũ" trên 3 bảng nguồn của chỉ mục vector; tạo lược đồ rồi áp migration.], [Mọi thành phần, các gói tích hợp, mô hình embedding],
-  )
 )
 
 == Thiết kế giao diện lập trình ứng dụng
@@ -186,14 +144,6 @@ bằng một kiểm thử duyệt cây cú pháp của các gói hợp đồng; 
 trường tham chiếu bị bỏ qua lúc rỗng đã biến mất khỏi gần như mọi tin nhắn và khiến mã máy khách
 sinh từ đặc tả không giải mã được luồng hội thoại nào.
 
-Lỗi được chuẩn hoá thành một tập mã ổn định, ánh xạ sang mã HTTP ở đúng một nơi: 400 cho dữ liệu đầu
-vào sai hoặc định danh mờ không giải mã được, 401 cho thiếu thẻ hay phiên đã bị thu hồi, 403 cho
-người gọi không đủ quyền, 404 cho cả tài nguyên mà người gọi không được phép biết là nó tồn tại, 409
-cho xung đột trạng thái, 422 cho yêu cầu bị một quy tắc nghiệp vụ từ chối, 429 cho quá tần suất và
-502 cho hỏng hóc của nhà cung cấp bên ngoài; phản hồi 204 không
-mang response envelope rỗng, và 501 được dành cho tuyến đã khai báo trong đặc tả nhưng chưa hiện thực. Mọi
-thân lỗi gồm mã lỗi, thông điệp, định danh yêu cầu và danh sách trường vi phạm, trong đó định danh
-yêu cầu cũng đặt ở tiêu đề của mọi phản hồi để người dùng báo lỗi luôn có một mã đối chiếu.
 
 === Đặc tả các endpoint tiêu biểu
 

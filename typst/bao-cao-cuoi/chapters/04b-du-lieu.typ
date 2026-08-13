@@ -5,23 +5,6 @@
 
 == Mô hình dữ liệu mức khái niệm
 
-Mức khái niệm trả lời câu hỏi hệ thống nói về những thứ gì và chúng liên hệ với nhau ra sao,
-tách hẳn khỏi câu hỏi lưu trữ thế nào. Vì vậy 3 sơ đồ dưới đây không có khoá ngoại, không có cột,
-không có kiểu dữ liệu và cũng không có bảng nối: một quan hệ nhiều-nhiều được vẽ thẳng thành
-một đường nối mang tên quan hệ, thay vì tách ra thành một thực thể trung gian như khi hiện thực.
-Bản số đọc theo quy ước chân quạ ở cả hai đầu. Khung nét đứt gom các thực thể thuộc cùng một miền nghiệp vụ. Lưu ý miền ở đây là ranh giới nghiệp vụ chứ không phải lược đồ cơ sở dữ liệu: một miền có thể về sau được hiện thực thành một lược đồ, nhưng ở mức khái niệm thì cách lưu trữ chưa được quyết định. Toàn bộ tên thực thể viết bằng tiếng Việt theo
-đúng cách người dùng nghiệp vụ gọi chúng, chứ không dùng tên bảng.
-
-So với 42 bảng ở mức vật lý, mức khái niệm rút còn 27 thực thể. Phần chênh lệch gồm 3 nhóm.
-Nhóm thứ nhất là các bảng nối sinh ra chỉ để hiện thực quan hệ nhiều-nhiều, gồm bảng nối tin
-đăng với nhãn, bảng lưu quan tâm, bảng theo dõi người bán và bảng bình chọn nhận xét; ở mức
-khái niệm chúng là đường nối chứ không phải thực thể. Nhóm thứ hai là các bảng kỹ thuật hoặc
-dẫn xuất, gồm bảng vector ngữ nghĩa của tin đăng, bảng tổng hợp uy tín, bảng chống lặp kết cục
-đơn, bảng tuỳ chọn nhận thông báo và các bảng tra cứu dùng chung; chúng tồn tại vì hiệu năng
-hoặc vì ràng buộc kỹ thuật chứ không phải vì nghiệp vụ. Nhóm thứ ba là bảng nhật ký kiểm toán,
-vốn ghi lại mọi quyết định nghiệp vụ nên không thuộc riêng thực thể nào và được mô tả bằng lời
-thay vì vẽ thành một ô rời không nối với ai.
-
 #fig(
   [Sơ đồ quan hệ thực thể mức khái niệm, phần người dùng, tin đăng và trao đổi],
   spacing: (30mm, 12mm),
@@ -126,51 +109,44 @@ thay vì vẽ thành một ô rời không nối với ai.
 
 == Bản đồ ngữ cảnh giới hạn
 
-Giữa mô hình khái niệm và thiết kế lưu trữ có một bước trung gian quyết định: chia hệ thống
-thành các ngữ cảnh giới hạn, và gán mỗi thực thể cho đúng một ngữ cảnh làm chủ nó. Đây là quyết
-định khó đảo ngược nhất của toàn bộ thiết kế, vì ranh giới thành phần ở mục kiến trúc và ranh
-giới lược đồ ở mục sau đều đọc từ bản đồ này mà ra.
+Giữa mô hình khái niệm và thiết kế lưu trữ, hệ thống cần xác định các bounded context và gán mỗi thực thể cho đúng miền sở hữu. Quyết định này chi phối trực tiếp ranh giới giữa các thành phần kiến trúc và lược đồ dữ liệu ở các phần sau.
 
-Ranh giới được tìm bằng chỗ một danh từ đổi nghĩa. Rõ nhất là từ "tin đăng": trong miền hàng
-hoá, tin đăng là một mặt hàng có mô tả, có giá và sửa được; nhưng trong miền đặt hàng, thứ mà
-một đơn hàng nắm giữ là bản chụp bất biến của tin đăng tại thời điểm chốt mua, và nó không được
-đổi theo tin đăng gốc nữa. Hai nghĩa khác nhau của cùng một từ, nên đó là chỗ một mô hình nhất
-quán phải dừng lại. Tương tự, "tài khoản" trong miền định danh là hồ sơ người dùng với giấy tờ
-và thiết bị, còn trong miền tài chính nó chỉ là chủ sở hữu của một cặp ví và một dòng tiền.
+Ranh giới giữa các ngữ cảnh được xác định tại những điểm một khái niệm thay đổi ý nghĩa. Chẳng hạn, trong miền hàng hóa, tin đăng là thực thể có mô tả, giá và có thể chỉnh sửa; trong miền đặt hàng, đơn hàng chỉ lưu một bản chụp bất biến của tin đăng tại thời điểm chốt mua. Tương tự, tài khoản trong miền định danh là hồ sơ người dùng, trong khi ở miền tài chính chỉ đóng vai trò chủ sở hữu ví và các giao dịch liên quan.
 
-Bên trong mỗi ngữ cảnh, dữ liệu lại được gom thành các aggregate, tức cụm nhỏ nhất buộc phải
-nhất quán với nhau trong cùng một giao dịch. Đơn hàng cùng các dòng hàng của nó là một
-aggregate vì một dòng hàng không thể tồn tại mà thiếu đơn; ví cùng sổ cái ví là một aggregate
-vì số dư và lượt dịch chuyển sinh ra số dư ấy phải được ghi cùng nhau, nếu không thì tổng tiền
-của hệ thống sai. Ngược lại, tồn kho không nằm trong aggregate đơn hàng dù đặt hàng có trừ tồn
-kho, vì tồn kho thuộc quyền của miền hàng hoá.
+Trong mỗi ngữ cảnh, dữ liệu tiếp tục được tổ chức thành các aggregate, tức nhóm thực thể phải duy trì tính nhất quán trong cùng một giao dịch. Đơn hàng và các dòng hàng thuộc cùng một aggregate; tương tự, ví và sổ cái ví cần được cập nhật đồng thời để bảo đảm tính chính xác của số dư. Ngược lại, tồn kho thuộc miền hàng hóa nên không nằm trong aggregate của đơn hàng dù quy trình đặt hàng có tác động đến số lượng tồn.
 
-Điều cuối cùng cần chốt trước khi đọc bản đồ là dữ liệu nào được phép lệch, lệch bao lâu và
-ai chịu trách nhiệm kéo nó về đúng. Bảng dưới đây là hợp đồng liên ngữ cảnh của hệ thống.
+Cuối cùng, thiết kế cần xác định rõ dữ liệu nào được phép nhất quán sau (eventual consistency), mức độ chậm trễ chấp nhận được và thành phần chịu trách nhiệm đồng bộ lại trạng thái. Bảng dưới đây mô tả hợp đồng trao đổi dữ liệu giữa các ngữ cảnh của hệ thống.
+
 
 #figure(
-  caption: [Hợp đồng liên ngữ cảnh: dữ liệu được phép lệch và thời hạn hội tụ],
+  caption: [Hợp đồng liên ngữ cảnh: mức độ sai lệch dữ liệu và cơ chế hội tụ],
   table(
     columns: (1.5fr, 1.2fr, 1fr, 2fr),
     align: (left, left, left, left),
-    table.header([Dữ liệu], [Nguồn sự thật], [Độ lệch], [Cách hội tụ]),
-    [Điểm trung bình và số nhận xét của tin đăng], [Tín nhiệm], [Vài giây],
-      [Tín nhiệm tính lại rồi phát sự kiện, danh mục ghi vào cột đã tính sẵn.],
-    [Điểm uy tín người bán], [Tín nhiệm], [Vài giây],
-      [Cộng dồn khi nhận sự kiện đơn hoàn tất, chống lặp bằng bảng kết cục đơn.],
-    [Số dư ví hiển thị trên giao diện], [Tài chính], [Không lệch],
-      [Đọc thẳng từ ví, vì mọi thay đổi số dư nằm trong cùng một giao dịch với sổ cái.],
-    [Chỗ tồn kho đã giữ], [Hàng hoá], [Không lệch],
-      [Đặt hàng gọi đồng bộ và chờ kết quả; thiếu chỗ thì lượt mua dừng ngay.],
-    [Trạng thái vận đơn], [Đối tác vận chuyển], [Tới lần báo kế tiếp],
-      [Hãng đẩy mốc hành trình về; giữa 2 lần báo, đơn giữ nguyên mốc cũ.],
-    [Thông báo tới người dùng], [Đơn hàng và tài chính], [Vài giây],
-      [Phát qua trục sự kiện; mất thông báo không làm sai trạng thái nghiệp vụ.],
+    table.header([Dữ liệu], [Miền sở hữu], [Độ lệch cho phép], [Cơ chế hội tụ]),
+
+    [Điểm trung bình và số lượng nhận xét của tin đăng], [Tín nhiệm], [Vài giây],
+      [Miền Tín nhiệm tính toán lại dữ liệu và phát sự kiện cập nhật; miền Danh mục lưu kết quả đã tổng hợp để phục vụ truy vấn.],
+
+    [Điểm uy tín của người bán], [Tín nhiệm], [Vài giây],
+      [Điểm uy tín được cập nhật khi tiếp nhận sự kiện đơn hàng hoàn tất; các sự kiện trùng lặp được loại bỏ dựa trên kết quả xử lý của đơn hàng.],
+
+    [Số dư ví hiển thị trên giao diện], [Tài chính], [Không cho phép],
+      [Số dư được đọc trực tiếp từ ví; mọi thay đổi số dư và bút toán tương ứng được ghi nhận trong cùng một giao dịch.],
+
+    [Lượng tồn kho đã được giữ], [Hàng hóa], [Không cho phép],
+      [Miền Đặt hàng thực hiện yêu cầu đồng bộ tới miền Hàng hóa và chỉ tiếp tục khi việc giữ tồn kho thành công.],
+
+    [Trạng thái vận đơn], [Đối tác vận chuyển], [Đến lần cập nhật kế tiếp],
+      [Trạng thái được cập nhật theo các mốc hành trình do đối tác vận chuyển gửi về; giữa hai lần cập nhật, hệ thống giữ nguyên trạng thái gần nhất.],
+
+    [Thông báo tới người dùng], [Đơn hàng và Tài chính], [Vài giây],
+      [Thông báo được phân phối bất đồng bộ qua trục sự kiện; việc chậm hoặc mất thông báo không ảnh hưởng đến trạng thái nghiệp vụ gốc.],
   ),
 )
 
 #fig(
-  [Bản đồ ngữ cảnh giới hạn: 7 ngữ cảnh, các aggregate và quan hệ nhất quán giữa chúng],
+  [Bản đồ ngữ cảnh giới hạn, các aggregate và quan hệ nhất quán giữa chúng],
   spacing: (44mm, 26mm),
   edge-stroke: 1pt + blue-s,
   label-wrapper: wlabel,
@@ -193,20 +169,10 @@ ai chịu trách nhiệm kéo nó về đúng. Bảng dưới đây là hợp đ
   edge(<v-dh>, <v-qt>, "-|>", stroke: (dash: "dashed"), [sự kiện nghiệp vụ · dần]),
 )
 
-Quy ước đọc bản đồ: đường liền nét là lời gọi đồng bộ, bên gọi chờ kết quả trước khi đi tiếp;
-đường nét đứt là sự kiện bất đồng bộ, bên nhận xử lý sau và trong khoảng thời gian ấy hai bên
-được phép lệch nhau. Bên trong một ngữ cảnh, dữ liệu luôn nhất quán mạnh vì mọi thay đổi nằm
-trong cùng một giao dịch cơ sở dữ liệu. Bắc qua hai ngữ cảnh thì chỉ còn nhất quán dần, kể cả
-khi đường nối là lời gọi đồng bộ, vì hai bên ghi vào hai giao dịch khác nhau và không có giao
-dịch phân tán nào ràng chúng lại. Chính vì vậy các luồng dài như ký quỹ hay hoàn tiền phải được
-điều phối bằng thực thi bền thay vì bằng một giao dịch duy nhất.
+Quy ước đọc bản đồ: 
+- Đường liền nét biểu thị lời gọi đồng bộ, trong đó bên gọi chờ kết quả trước khi tiếp tục xử lý
+- Đường nét đứt biểu thị sự kiện bất đồng bộ, cho phép bên nhận xử lý sau và dữ liệu giữa hai ngữ cảnh có thể tạm thời chưa đồng nhất. 
 
-Vài cụm trong bản đồ không xuất hiện ở sơ đồ khái niệm, ví dụ sổ cái ví hay bản tổng hợp uy tín. Đó là các cụm dẫn xuất: chúng không phải khái niệm nghiệp vụ mới mà là dữ liệu được tính ra rồi giữ sẵn, và chúng thuộc quyền của chính ngữ cảnh đã tính ra chúng. Bản đồ phải nêu chúng vì mục đích của bản đồ là phân định quyền ghi, mà quyền ghi thì áp cho mọi thứ được lưu chứ không riêng khái niệm nghiệp vụ.
-
-Bản đồ này ràng buộc hai thứ ở phía sau. Thứ nhất là ranh giới thành phần: 7 ngữ cảnh chính là
-7 module đã trình bày ở mục kiến trúc, không hơn không kém. Thứ hai là ranh giới lưu trữ: mỗi
-ngữ cảnh làm chủ đúng một lược đồ và chỉ được ghi vào lược đồ của mình, nên trong các sơ đồ cơ
-sở dữ liệu ở mục sau không có khoá ngoại nào bắc qua hai lược đồ.
 
 == Thiết kế cơ sở dữ liệu vật lý
 
@@ -237,7 +203,6 @@ Mô hình dữ liệu được hiện thực trên PostgreSQL chạy trên bản
 
 *Tham chiếu chéo lược đồ không dùng khoá ngoại.* Khoá ngoại chỉ khai báo khi cả 2 bảng cùng lược đồ; trỏ sang lược đồ khác thì cột tham chiếu là `BIGINT` trần, vì một khoá ngoại xuyên lược đồ là thứ duy nhất không thể đi theo module khi module đó tách ra. Toàn vẹn ở đó được giữ bằng 3 cơ chế: xoá mềm ở bảng bị trỏ tới, để một mục hàng cũ vẫn phân giải được tên tin đăng sau khi người bán gỡ tin; sao chép có chủ đích những giá trị phía kia có thể đổi; và idempotency key cho thao tác đi qua hàng đợi sự kiện vốn chỉ bảo đảm giao ít nhất một lần.
 
-*3 bảng dùng chung, 18 hiện thân.* Nhật ký kiểm toán, bảng tài nguyên tệp và bảng tuỳ chọn được định nghĩa đúng một lần rồi áp vào 6 lược đồ nghiệp vụ, vì một bảng nhật ký kiểm toán toàn cục sẽ không thể đi theo một module khi module ấy tách sang cơ sở dữ liệu riêng; trước khi hợp nhất, 7 module đều tự chép một bản và 4 trong số đó đã trôi khác nhau.
 
 === Sơ đồ cơ sở dữ liệu
 
@@ -248,28 +213,6 @@ thực thể trả lời hệ thống nói về những khái niệm gì; sơ đ
 duy nhất; đồng thời xuất hiện cả những bảng không phải khái niệm nghiệp vụ như bảng nối và bảng
 dẫn xuất.
 
-Năm hình dưới đây gom theo lược đồ sở hữu, đúng ranh giới đã chốt ở mục kiến trúc: mỗi module
-làm chủ một lược đồ và chỉ ghi vào lược đồ của mình. Ký hiệu trong ô đọc như sau. PK là khoá
-chính, có thể gồm nhiều cột. FK là khoá ngoại, ghi kèm bảng đích và hành vi khi bản ghi bên
-bảng đích bị xoá: xoá lan nghĩa là bản ghi con bị xoá theo, gán rỗng nghĩa là cột khoá được đặt
-về rỗng, chặn xoá nghĩa là không cho xoá chừng nào còn bản ghi con, còn không đổi nghĩa là cơ
-sở dữ liệu để nguyên và tầng dịch vụ tự chịu trách nhiệm. UQ là ràng buộc duy nhất, và một ràng
-buộc gồm nhiều cột nghĩa là bộ giá trị của các cột đó phải duy nhất chứ không phải từng cột
-riêng lẻ. Các dòng còn lại trong ô là cột thường, ghi kèm kiểu dữ liệu. Đây không phải
-danh sách đầy đủ mà chỉ vài cột tiêu biểu đủ để nhận ra bảng chứa gì, ưu tiên cột kiểu liệt kê
-vì chúng cho biết bảng có những trạng thái nào; đặc tả từng cột nằm ở phần mô tả lược đồ ngay
-sau các hình.
-
-Toàn hệ thống có 45 bảng nghiệp vụ với 36 khoá ngoại và 21 ràng buộc duy nhất. Đáng chú ý là
-khoá ngoại chỉ tồn tại bên trong một lược đồ, không có khoá ngoại nào bắc qua hai lược đồ. Đây
-là hệ quả trực tiếp của nguyên lý mỗi dịch vụ một cơ sở dữ liệu: một tham chiếu chéo lược đồ,
-ví dụ dòng hàng trỏ tới tin đăng, được giữ đúng bởi tầng dịch vụ chứ không bởi cơ sở dữ liệu,
-vì nếu ràng buộc bằng khoá ngoại thì 2 module sẽ không bao giờ tách rời được. Trong lược đồ `finance`, phần lớn bảng đứng rời nhau vì chúng gắn với tài khoản chứ
-không gắn với nhau, mà tài khoản lại nằm ở lược đồ khác nên quan hệ ấy không thể là khoá
-ngoại; ví và sổ cái ví liên hệ qua cặp cột tài khoản và loại tiền do tầng dịch vụ giữ đúng.
-Các bảng quan
-trắc không có trong 5 hình này vì chúng là dữ liệu ghi theo thời gian, được mô tả riêng ở phần
-hạ tầng quan trắc.
 
 #fig(
   [Sơ đồ cơ sở dữ liệu, lược đồ `account`],
@@ -423,8 +366,6 @@ Một luồng hội thoại là một luồng cho mỗi cặp tài khoản, bấ
 
 
 == Thiết kế bảo mật
-
-Thiết kế bảo mật không phải một lớp màng lọc độc lập, mà là chuỗi các quyết định kỹ thuật được nhúng sâu vào toàn bộ mô hình dữ liệu và các tầng kiến trúc. Các nguyên tắc này được phân loại và cưỡng chế qua 3 khía cạnh cốt lõi.
 
 === Xác thực và phân quyền
 

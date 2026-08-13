@@ -753,14 +753,6 @@ bán chưa khai điểm lấy hàng sẽ làm hỏng lượt mua trước khi ti
 thông báo từ cổng thanh toán mới kết toán một chặng tiền: trang mà người mua rơi vào sau
 khi trả tiền là thứ bất kỳ ai cũng giả mạo được.
 
-
-Hình vẽ dùng 5 đường sinh, lần lượt là người mua, module order, module finance, module
-danh mục và hãng vận chuyển. Các bước có nền khác biệt là bước bền vững, tức bước được nền
-tảng thực thi ghi vào nhật ký trước khi chạy, nên nếu máy chủ sập giữa trình tự thì lượt chạy
-lại sẽ bỏ qua đúng những bước đã có kết quả. Thứ tự các bước trong hình vì thế không chỉ là
-thứ tự thời gian mà còn là thứ tự phục hồi. Khung `alt` ở bước 4 là chỗ duy nhất có hai nhánh loại
-trừ nhau: đủ chỗ thì đi tiếp, thiếu chỗ thì nhả lại hết, không có trạng thái giữ một phần.
-
 #fig-xoay(
     [Sơ đồ trình tự TT-A: đặt hàng và mở phiên thanh toán],
     spacing: (48mm, 11mm),
