@@ -52,11 +52,11 @@
       stroke: 0.8pt + black,
       inset: (top: 1.2cm, bottom: 1.2cm, left: 1.0cm, right: 1.0cm),
     )[
-      #text(size: 13pt, weight: "bold")[#info.bo] \
+      #text(size: 14pt, weight: "bold")[#info.bo] \
       #v(0.2em)
-      #text(size: 13pt, weight: "bold")[#info.truong] \
+      #text(size: 16pt, weight: "bold")[#info.truong] \
       #v(0.2em)
-      #text(size: 13pt, weight: "bold")[#info.co-so]
+      #text(size: 16pt, weight: "bold")[#info.co-so]
       #v(0.3cm)
       #line(length: 40%, stroke: 0.8pt + black)
 
@@ -65,43 +65,41 @@
 
       #v(0.7cm)
       #for dong in tieu-de [
-        #text(size: 21pt, weight: "bold")[#dong] \
+        #text(size: 36pt, weight: "bold")[#dong] \
         #v(0.3em)
       ]
 
       #v(0.4cm)
       #block(width: 92%)[
         #set par(justify: false, leading: 0.65em)
-        #text(size: 14.5pt, weight: "bold")[Đề tài: “#info.de-tai-hoa”]
+        #text(size: 16pt, weight: "bold")[Đề tài: “#info.de-tai-hoa”]
       ]
 
       #v(0.6cm)
       #align(left)[
         #block(width: 100%, inset: (left: 0.5cm))[
-          #set text(size: 12.5pt, weight: "bold")
+          #set text(size: 13pt, weight: "bold")
           #grid(
-            columns: (4.6cm, 4.5cm, auto),
-            row-gutter: 7pt,
-            column-gutter: 4pt,
+            columns: (4.3cm, auto, auto),
+            row-gutter: 6pt,
+            column-gutter: 6pt,
             align: (left, left, left),
-            [Giảng viên hướng dẫn :], [#info.gvhd], [],
+            [Người hướng dẫn :], [#info.gvhd], [],
             ..info
               .sinh-vien
               .enumerate()
               .map(((i, sv)) => (
-                if i == 0 { [Sinh viên thực hiện :] } else { [] },
-                [#sv.at(0)],
-                [#sv.at(1)],
+                [Sinh viên #(i + 1) :], [#sv.at(0)], [MSSV: #sv.at(1)],
+                [Lớp :], [#info.lop], [],
               ))
               .flatten(),
-            [Lớp :], [#info.lop], [],
             [Ngành :], [#info.nganh], [],
           )
         ]
       ]
 
       #v(1fr)
-      #text(size: 12.5pt, weight: "bold")[#info.dia-diem, #thoi-diem]
+      #text(size: 13pt, weight: "bold")[#info.dia-diem, #thoi-diem]
     ]
   ]
 }
@@ -144,8 +142,10 @@
     if p.len() == 1 { [CHƯƠNG #p.at(0): ] } else { [#p.map(str).join(".") ] }
   })
 
-  // Dấu đầu dòng dùng gạch ngang thay cho chấm tròn, ở mọi cấp.
-  set list(marker: [-])
+  // Dấu đầu dòng dùng gạch ngang, và thụt vào 1cm cho thẳng với dòng đầu
+  // của đoạn văn — nếu để 0 thì gạch đầu dòng nhô ra trước cả văn xuôi.
+  set list(marker: [-], indent: 1cm)
+  set enum(indent: 1cm)
 
   // Đánh số hình/bảng theo chương: hình đầu tiên của chương 3 là "Hình 3.1".
   // Bộ đếm hình và bảng được đặt lại ở mỗi tiêu đề chương (xem show rule bên dưới).
@@ -233,6 +233,7 @@
     v(0.8em, weak: true)
     strong(it)
   }
+  show outline.entry.where(level: 2): it => strong(it)
   outline(title: [MỤC LỤC], indent: 1.5em, depth: 3)
 }
 // Danh mục hình/bảng dựng thủ công thay vì dùng `outline`.
