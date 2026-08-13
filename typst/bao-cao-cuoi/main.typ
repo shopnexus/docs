@@ -232,9 +232,9 @@ mô hình dữ liệu.
   [Garcia-Molina H., Salem K., Sagas, ACM SIGMOD Record, vol. 16, no. 3, pp. 249–259 (1987).],
   [Helland P., Idempotence Is Not a Medical Condition, ACM Queue, vol. 10, no. 4, pp. 30–46 (2012).],
   [Kleppmann M., Designing Data-Intensive Applications: The Big Ideas Behind Reliable, Scalable, and Maintainable Systems, O'Reilly Media, Sebastopol, CA, USA (2017).],
-  [Li C., Liu Z., Wu M., Xu Y., Zhao H., Huang P., Zhou G., Zhu X., Gai K., Multi-Interest Network with Dynamic Routing for Recommendation at Tmall, Proc. 28th ACM Int. Conf. on Information and Knowledge Management (CIKM), pp. 2615–2623, Beijing, China (2019).],
+  [Li C., Liu Z., Wu M., Xu Y., Zhao H., Huang P., Kang G., Chen Q., Li W., Lee D. L., Multi-Interest Network with Dynamic Routing for Recommendation at Tmall, Proc. 28th ACM Int. Conf. on Information and Knowledge Management (CIKM), pp. 2615–2623, Beijing, China (2019).],
   [Newman S., Building Microservices: Designing Fine-Grained Systems, 2nd ed., O'Reilly Media, Sebastopol, CA, USA (2021).],
-  [Richardson C., Microservices Patterns: With Examples in Java, Manning Publications, Shelter Island, NY, USA (2019).],
+  [Richardson C., Microservices Patterns: With Examples in Java, Manning Publications, Shelter Island, NY, USA (2018).],
 )
 
 #nhom-tltk[Website tham khảo]
