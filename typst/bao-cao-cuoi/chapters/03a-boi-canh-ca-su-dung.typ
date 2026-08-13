@@ -36,9 +36,7 @@ Hệ thống được thiết kế phục vụ cho 3 nhóm đối tác nhân ch�
 - *Cách tham gia hệ thống:* Cấu hình sẵn từ đầu, là duy nhất và có quyền hạn cao nhất.
 
 === Các hệ thống ngoại vi và đối tác tích hợp
-Để bảo đảm tính trọn vẹn của quy trình thương mại điện tử C2C, hệ thống thiết lập tích hợp liên thông với các đối tác hạ tầng công nghệ ngoại vi:
-- *Cổng thanh toán ngoại vi (SePay / Stripe):* Tiếp nhận yêu cầu khởi tạo link thanh toán, xử lý giao dịch nạp tiền/thanh toán chuyển khoản ngân hàng từ người mua, và gửi phản hồi trạng thái giao dịch qua webhook bảo mật về sàn.
-- *Đối tác Vận chuyển (GHN / GHTK):* Tiếp nhận thông tin địa chỉ lấy hàng và giao hàng để tính toán phí ship động (real-time quotation), khởi tạo mã vận đơn (shipping order), và liên tục đẩy sự kiện hành trình giao nhận về hệ thống để kích hoạt các mốc nghiệp vụ.
+Để bảo đảm tính trọn vẹn của quy trình thương mại điện tử C2C, hệ thống thiết lập tích hợp liên thông với hai nhóm đối tác hạ tầng công nghệ ngoại vi. Cổng thanh toán ngoại vi (SePay / Stripe) tiếp nhận yêu cầu khởi tạo link thanh toán, xử lý giao dịch nạp tiền và thanh toán chuyển khoản ngân hàng từ người mua, rồi gửi phản hồi trạng thái giao dịch qua webhook bảo mật về sàn. Đối tác vận chuyển (GHN / GHTK) tiếp nhận thông tin địa chỉ lấy hàng và giao hàng để tính toán phí ship động (real-time quotation), khởi tạo mã vận đơn (shipping order) và liên tục đẩy sự kiện hành trình giao nhận về hệ thống để kích hoạt các mốc nghiệp vụ.
 
 === Sơ đồ ngữ cảnh hệ thống (System Context Diagram)
 
