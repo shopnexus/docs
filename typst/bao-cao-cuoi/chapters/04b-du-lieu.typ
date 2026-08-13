@@ -231,7 +231,10 @@ bảng đích bị xoá: xoá lan nghĩa là bản ghi con bị xoá theo, gán 
 về rỗng, chặn xoá nghĩa là không cho xoá chừng nào còn bản ghi con, còn không đổi nghĩa là cơ
 sở dữ liệu để nguyên và tầng dịch vụ tự chịu trách nhiệm. UQ là ràng buộc duy nhất, và một ràng
 buộc gồm nhiều cột nghĩa là bộ giá trị của các cột đó phải duy nhất chứ không phải từng cột
-riêng lẻ.
+riêng lẻ. Các dòng còn lại trong ô là cột thường, ghi kèm kiểu dữ liệu. Đây không phải
+danh sách đầy đủ mà chỉ vài cột tiêu biểu đủ để nhận ra bảng chứa gì, ưu tiên cột kiểu liệt kê
+vì chúng cho biết bảng có những trạng thái nào; đặc tả từng cột nằm ở phần mô tả lược đồ ngay
+sau các hình.
 
 Toàn hệ thống có 45 bảng nghiệp vụ với 36 khoá ngoại và 21 ràng buộc duy nhất. Đáng chú ý là
 khoá ngoại chỉ tồn tại bên trong một lược đồ, không có khoá ngoại nào bắc qua hai lược đồ. Đây
@@ -250,13 +253,13 @@ hạ tầng quan trắc.
   edge-stroke: 0.9pt + blue-s,
   label-wrapper: wlabel,
 
-  nbang((1, 1), <b-account>, "account", [PK id], [UQ phone], [UQ email], [UQ username]),
-  nbang((0, 1), <b-identity_document>, "identity_document", [PK id], [FK account_id #sym.arrow.r account · xoá lan], [FK front_resource_id #sym.arrow.r resource · gán rỗng], [FK back_resource_id #sym.arrow.r resource · gán rỗng], [FK selfie_resource_id #sym.arrow.r resource · gán rỗng], [UQ provider, provider_ref]),
+  nbang((1, 1), <b-account>, "account", [PK id], [UQ phone], [UQ email], [UQ username], [status: account_status], [role: account_role], [gender: profile_gender], [date_of_birth: date]),
+  nbang((0, 1), <b-identity_document>, "identity_document", [PK id], [FK account_id #sym.arrow.r account · xoá lan], [FK front_resource_id #sym.arrow.r resource · gán rỗng], [FK back_resource_id #sym.arrow.r resource · gán rỗng], [FK selfie_resource_id #sym.arrow.r resource · gán rỗng], [UQ provider, provider_ref], [doc_type: identity_document_type], [status: identity_status], [rejection_reason: text], [verified_at: timestamptz]),
   nbang((2, 1), <b-follow>, "follow", [PK follower_id, followee_id], [FK follower_id #sym.arrow.r account · xoá lan], [FK followee_id #sym.arrow.r account · xoá lan]),
   nbang((1, 0), <b-oauth_identity>, "oauth_identity", [PK id], [FK account_id #sym.arrow.r account · xoá lan], [UQ provider, provider_uid], [UQ account_id, provider]),
-  nbang((1, 2), <b-device>, "device", [PK id], [FK account_id #sym.arrow.r account · xoá lan], [UQ push_token]),
-  nbang((0, 0), <b-contact>, "contact", [PK id], [FK account_id #sym.arrow.r account · xoá lan]),
-  nbang((2, 0), <b-notification>, "notification", [PK id, created_at], [FK account_id #sym.arrow.r account · xoá lan]),
+  nbang((1, 2), <b-device>, "device", [PK id], [FK account_id #sym.arrow.r account · xoá lan], [UQ push_token], [platform: device_platform], [last_seen_at: timestamptz]),
+  nbang((0, 0), <b-contact>, "contact", [PK id], [FK account_id #sym.arrow.r account · xoá lan], [address_type: contact_address_type], [location: geography], [country: varchar(2)], [full_name: varchar(100)]),
+  nbang((2, 0), <b-notification>, "notification", [PK id, created_at], [FK account_id #sym.arrow.r account · xoá lan], [category: notification_category], [title: varchar(200)], [read_at: timestamptz], [scheduled_at: timestamptz]),
   nbang((0, 2), <b-notification_preference>, "notification_preference", [PK account_id, category, channel], [FK account_id #sym.arrow.r account · xoá lan]),
 
   edge(<b-identity_document>, <b-account>, "n-1"),
@@ -274,18 +277,18 @@ hạ tầng quan trắc.
   edge-stroke: 0.9pt + blue-s,
   label-wrapper: wlabel,
 
-  nbang((0, 0), <b-category_embedding>, "category_embedding", [PK category_id], [FK category_id #sym.arrow.r category · xoá lan]),
-  nbang((2, 0), <b-listing_embedding>, "listing_embedding", [PK listing_id], [FK listing_id #sym.arrow.r listing · xoá lan]),
-  nbang((3, 0), <b-account_interest>, "account_interest", [PK account_id, slot]),
-  nbang((0, 1), <b-category>, "category", [PK id], [FK parent_id #sym.arrow.r category · gán rỗng], [UQ name]),
-  nbang((1, 1), <b-listing>, "listing", [PK id], [FK category_id #sym.arrow.r category · chặn xoá], [UQ slug]),
-  nbang((2, 1), <b-variant>, "variant", [PK id], [FK listing_id #sym.arrow.r listing · xoá lan]),
-  nbang((3, 1), <b-stock>, "stock", [PK variant_id], [FK variant_id #sym.arrow.r variant · xoá lan]),
-  nbang((0, 2), <b-tag>, "tag", [PK id]),
+  nbang((0, 0), <b-category_embedding>, "category_embedding", [PK category_id], [FK category_id #sym.arrow.r category · xoá lan], [sparse: sparsevec]),
+  nbang((2, 0), <b-listing_embedding>, "listing_embedding", [PK listing_id], [FK listing_id #sym.arrow.r listing · xoá lan], [sparse: sparsevec]),
+  nbang((3, 0), <b-account_interest>, "account_interest", [PK account_id, slot], [strength: real]),
+  nbang((0, 1), <b-category>, "category", [PK id], [FK parent_id #sym.arrow.r category · gán rỗng], [UQ name], [embedding_stale_at: timestamptz]),
+  nbang((1, 1), <b-listing>, "listing", [PK id], [FK category_id #sym.arrow.r category · chặn xoá], [UQ slug], [status: listing_status], [price_mode: price_mode], [condition: listing_condition], [account_id: int8]),
+  nbang((2, 1), <b-variant>, "variant", [PK id], [FK listing_id #sym.arrow.r listing · xoá lan], [price: int8], [deleted_at: timestamptz]),
+  nbang((3, 1), <b-stock>, "stock", [PK variant_id], [FK variant_id #sym.arrow.r variant · xoá lan], [quantity: int8]),
+  nbang((0, 2), <b-tag>, "tag", [PK id], [embedding_stale_at: timestamptz]),
   nbang((1, 2), <b-listing_tag>, "listing_tag", [PK id], [FK listing_id #sym.arrow.r listing · xoá lan], [FK tag #sym.arrow.r tag · xoá lan], [UQ listing_id, tag]),
   nbang((2, 2), <b-favorite>, "favorite", [PK account_id, listing_id], [FK listing_id #sym.arrow.r listing · xoá lan]),
   nbang((3, 2), <b-stock_movement>, "stock_movement", [PK key], [FK variant_id #sym.arrow.r variant · xoá lan]),
-  nbang((0, 3), <b-tag_embedding>, "tag_embedding", [PK tag_id], [FK tag_id #sym.arrow.r tag · xoá lan]),
+  nbang((0, 3), <b-tag_embedding>, "tag_embedding", [PK tag_id], [FK tag_id #sym.arrow.r tag · xoá lan], [sparse: sparsevec]),
 
   edge(<b-listing>, <b-category>, "n-1"),
   edge(<b-variant>, <b-listing>, "n-1"),
@@ -304,13 +307,13 @@ hạ tầng quan trắc.
   edge-stroke: 0.9pt + blue-s,
   label-wrapper: wlabel,
 
-  nbang((1, 1), <b-order>, "order", [PK id], [FK transport_id #sym.arrow.r transport · không đổi], [FK draft_id #sym.arrow.r draft_order · không đổi], [FK offer_id #sym.arrow.r offer · không đổi], [UQ transport_id], [UQ draft_id], [UQ offer_id]),
-  nbang((0, 1), <b-transport>, "transport", [PK id]),
-  nbang((2, 1), <b-draft_order>, "draft_order", [PK id]),
-  nbang((1, 0), <b-offer>, "offer", [PK id]),
-  nbang((1, 2), <b-item>, "item", [PK id], [FK order_id #sym.arrow.r order · không đổi], [FK draft_id #sym.arrow.r draft_order · không đổi], [FK offer_id #sym.arrow.r offer · không đổi]),
-  nbang((0, 0), <b-refund>, "refund", [PK id], [FK order_id #sym.arrow.r order · không đổi], [FK return_transport_id #sym.arrow.r transport · không đổi], [UQ return_transport_id]),
-  nbang((2, 0), <b-cart_item>, "cart_item", [PK id], [UQ account_id, variant_id]),
+  nbang((1, 1), <b-order>, "order", [PK id], [FK transport_id #sym.arrow.r transport · không đổi], [FK draft_id #sym.arrow.r draft_order · không đổi], [FK offer_id #sym.arrow.r offer · không đổi], [UQ transport_id], [UQ draft_id], [UQ offer_id], [payout_released_at: is], [received_at: is], [decline_reason: is], [decline_reason: text]),
+  nbang((0, 1), <b-transport>, "transport", [PK id], [status: transport_status], [fee: int8]),
+  nbang((2, 1), <b-draft_order>, "draft_order", [PK id], [cancelled_at: timestamptz]),
+  nbang((1, 0), <b-offer>, "offer", [PK id], [status: offer_status], [quantity: int8], [total: int8], [reason: text]),
+  nbang((1, 2), <b-item>, "item", [PK id], [FK order_id #sym.arrow.r order · không đổi], [FK draft_id #sym.arrow.r draft_order · không đổi], [FK offer_id #sym.arrow.r offer · không đổi], [quantity: int8], [total_amount: int8], [note: text], [cancelled_at: timestamptz]),
+  nbang((0, 0), <b-refund>, "refund", [PK id], [FK order_id #sym.arrow.r order · không đổi], [FK return_transport_id #sym.arrow.r transport · không đổi], [UQ return_transport_id], [status: refund_status], [returned_at: is], [reason: text], [deadline_at: timestamptz]),
+  nbang((2, 0), <b-cart_item>, "cart_item", [PK id], [UQ account_id, variant_id], [quantity: int8]),
 
   edge(<b-order>, <b-transport>, "n-1"),
   edge(<b-order>, <b-draft_order>, "n-1"),
@@ -327,12 +330,12 @@ hạ tầng quan trắc.
   edge-stroke: 0.9pt + blue-s,
   label-wrapper: wlabel,
 
-  nbang((0, 0), <b-payment_session>, "payment_session", [PK id]),
-  nbang((1, 0), <b-transaction>, "transaction", [PK id], [FK session_id #sym.arrow.r payment_session · không đổi], [FK reverses_id #sym.arrow.r transaction · không đổi]),
-  nbang((2, 0), <b-wallet>, "wallet", [PK account_id, currency]),
-  nbang((0, 1), <b-wallet_transaction>, "wallet_transaction", [PK id], [UQ account_id, currency, seq]),
-  nbang((1, 1), <b-bank_account>, "bank_account", [PK id]),
-  nbang((2, 1), <b-tax_info>, "tax_info", [PK account_id]),
+  nbang((0, 0), <b-payment_session>, "payment_session", [PK id], [kind: session_kind], [status: session_status], [total_amount: int8], [note: text]),
+  nbang((1, 0), <b-transaction>, "transaction", [PK id], [FK session_id #sym.arrow.r payment_session · không đổi], [FK reverses_id #sym.arrow.r transaction · không đổi], [status: transaction_status], [amount: int8], [note: text], [settled_at: timestamptz]),
+  nbang((2, 0), <b-wallet>, "wallet", [PK account_id, currency], [available_balance: int8], [held_balance: int8]),
+  nbang((0, 1), <b-wallet_transaction>, "wallet_transaction", [PK id], [UQ account_id, currency, seq], [kind: wallet_txn_kind], [note: text]),
+  nbang((1, 1), <b-bank_account>, "bank_account", [PK id], [account_id: int8], [account_number: varchar(50)], [account_holder: varchar(100)], [bank_code: varchar(20)]),
+  nbang((2, 1), <b-tax_info>, "tax_info", [PK account_id], [verification_status: verification_status], [tax_code: varchar(14)], [tax_code_type: varchar(20)], [legal_name: text]),
 
   edge(<b-transaction>, <b-payment_session>, "n-1"),
 )
@@ -342,18 +345,18 @@ hạ tầng quan trắc.
   edge-stroke: 0.9pt + blue-s,
   label-wrapper: wlabel,
 
-  nbang((1, 1), <b-review>, "review", [PK id], [UQ listing_id, author_id, order_id]),
-  nbang((0, 1), <b-conversation>, "conversation", [PK id]),
-  nbang((2, 1), <b-resource>, "resource", [PK id], [UQ provider, object_key]),
-  nbang((1, 0), <b-message>, "message", [PK id, created_at], [FK conversation_id #sym.arrow.r conversation · xoá lan]),
-  nbang((1, 2), <b-option>, "option", [PK id], [FK logo_resource_id #sym.arrow.r resource · gán rỗng]),
-  nbang((0, 0), <b-review_reply>, "review_reply", [PK id], [FK review_id #sym.arrow.r review · xoá lan]),
+  nbang((1, 1), <b-review>, "review", [PK id], [UQ listing_id, author_id, order_id], [rating: int2], [helpful_count: int8], [not_helpful_count: int8], [reply_count: int8]),
+  nbang((0, 1), <b-conversation>, "conversation", [PK id], [kind: conversation_kind], [account_a_id: int8], [account_b_id: int8], [account_a_read_at: timestamptz]),
+  nbang((2, 1), <b-resource>, "resource", [PK id], [UQ provider, object_key], [checksum: is], [completed_at: timestamptz], [deleted_at: timestamptz]),
+  nbang((1, 0), <b-message>, "message", [PK id, created_at], [FK conversation_id #sym.arrow.r conversation · xoá lan], [type: message_type], [body: text], [edited_at: timestamptz], [deleted_at: timestamptz]),
+  nbang((1, 2), <b-option>, "option", [PK id], [FK logo_resource_id #sym.arrow.r resource · gán rỗng], [name: text], [deleted_at: timestamptz]),
+  nbang((0, 0), <b-review_reply>, "review_reply", [PK id], [FK review_id #sym.arrow.r review · xoá lan], [body: text]),
   nbang((2, 0), <b-review_vote>, "review_vote", [PK review_id, account_id], [FK review_id #sym.arrow.r review · xoá lan]),
-  nbang((0, 2), <b-audit_log>, "audit_log", [PK id], [UQ table_name, record_id, version]),
-  nbang((2, 2), <b-feedback>, "feedback", [PK id], [UQ order_id, direction]),
-  nbang((1, 3), <b-reputation>, "reputation", [PK account_id, role]),
-  nbang((0, 3), <b-order_outcome>, "order_outcome", [PK order_id]),
-  nbang((2, 3), <b-ticket>, "ticket", [PK id], [UQ conversation_id]),
+  nbang((0, 2), <b-audit_log>, "audit_log", [PK id], [UQ table_name, record_id, version], [code: varchar(100)], [changed_at: timestamptz]),
+  nbang((2, 2), <b-feedback>, "feedback", [PK id], [UQ order_id, direction], [rating: int2], [published_at: timestamptz]),
+  nbang((1, 3), <b-reputation>, "reputation", [PK account_id, role], [rating_sum: int8], [rating_count: int8], [review_rating_sum: int8], [review_rating_count: int8]),
+  nbang((0, 3), <b-order_outcome>, "order_outcome", [PK order_id], [recorded_at: timestamptz]),
+  nbang((2, 3), <b-ticket>, "ticket", [PK id], [UQ conversation_id], [kind: ticket_kind], [ref_type: ticket_ref_type], [reason: ticket_reason], [status: ticket_status]),
 
   edge(<b-message>, <b-conversation>, "n-1"),
   edge(<b-option>, <b-resource>, "n-1"),
