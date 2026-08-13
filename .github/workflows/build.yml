@@ -33,12 +33,29 @@ jobs:
       # Fetched here, not in the Dockerfile: a RUN curl layer is cached by
       # instruction text, so the spec would freeze at whatever the first build saw.
       # As a COPYed file its layer invalidates on content change.
+      #
+      # Pinned to the sha the server dispatched, falling back to `main` for a build this
+      # repo started itself. Fetching `main` on a dispatch would race a CDN:
+      # raw.githubusercontent serves a branch ref with `cache-control: max-age=300`, and
+      # the dispatch lands seconds after the server's push, so that URL can still return
+      # the previous spec for minutes. This build would then publish the old file and
+      # nothing would trigger another — stale, and looking exactly like success. A sha URL
+      # is immutable content, so it is always the spec that fired the event.
       - name: Fetch OpenAPI spec from the server repo
+        env:
+          REF: ${{ github.event.client_payload.sha || 'main' }}
         run: |
-          curl -fsSL https://raw.githubusercontent.com/shopnexus/server/main/api/openapi.gen.yaml \
+          echo "fetching spec at server ref: $REF"
+          curl -fsSL "https://raw.githubusercontent.com/shopnexus/server/$REF/api/openapi.gen.yaml" \
             -o docs/api/openapi.yaml
           grep -q '^openapi: ' docs/api/openapi.yaml
-          echo "spec: $(wc -c < docs/api/openapi.yaml) bytes, base $(grep -A2 '^servers:' docs/api/openapi.yaml | grep url:)"
+          # Assert the base path survived the trip. This is the field that broke silently
+          # before — the reference kept advertising `url: /` after the gateway moved to
+          # /api/v1 — and an API reference whose base URL is wrong is worse than one that
+          # fails to render, because every example in it is quietly unusable.
+          base=$(grep -A2 '^servers:' docs/api/openapi.yaml | grep -m1 'url:' | sed 's/.*url: *//')
+          test -n "$base" || { echo "::error::spec has no servers[0].url"; exit 1; }
+          echo "spec: $(wc -c < docs/api/openapi.yaml) bytes, base '$base', ref $REF"
 
       - name: Log in to GHCR
         uses: docker/login-action@v3
