@@ -99,7 +99,7 @@ Mỗi công nghệ trong stack đều có lựa chọn thay thế phổ biến h
 
 - *Next.js cho Frontend Web:* Next.js được lựa chọn nhằm đáp ứng yêu cầu SEO cho các trang công khai như danh mục và chi tiết sản phẩm. So với SPA thuần sử dụng React và Vite, Next.js hỗ trợ SSR và SSG, giúp nội dung được lập chỉ mục hiệu quả hơn, đồng thời cung cấp routing theo cấu trúc thư mục và tự động phân tách mã theo route.
 
-- *Flutter cho Mobile:* Flutter được lựa chọn để phát triển ứng dụng đa nền tảng từ một codebase duy nhất, phù hợp với giới hạn về nhân lực và thời gian của dự án. Thay vì duy trì riêng hai ứng dụng native bằng Swift và Kotlin, Flutter cho phép chia sẻ phần lớn mã nguồn giữa iOS và Android, qua đó giảm khối lượng phát triển và bảo trì. Cơ chế rendering riêng cũng giúp giao diện duy trì tính nhất quán và hiệu năng phù hợp trên cả hai nền tảng.
+- *Flutter cho Mobile:* Flutter được lựa chọn để phát triển ứng dụng đa nền tảng từ một mã nguồn duy nhất, phù hợp với giới hạn về nhân lực và thời gian của dự án. Thay vì duy trì riêng hai ứng dụng native bằng Swift và Kotlin, Flutter cho phép chia sẻ phần lớn mã nguồn giữa iOS và Android, qua đó giảm khối lượng phát triển và bảo trì. Cơ chế rendering riêng cũng giúp giao diện duy trì tính nhất quán và hiệu năng phù hợp trên cả hai nền tảng.
 
 - *PostgreSQL làm CSDL chính:* PostgreSQL được lựa chọn do các miền nghiệp vụ như Order, Escrow và Wallet có quan hệ dữ liệu chặt chẽ và yêu cầu tính nhất quán cao. Hệ quản trị này hỗ trợ đầy đủ ACID, transaction đa bảng, khóa mức dòng và các cơ chế ràng buộc dữ liệu phù hợp với nghiệp vụ thanh toán và ký quỹ. Đồng thời, `JSONB` cho phép lưu trữ các thuộc tính có cấu trúc linh hoạt mà không cần bổ sung một cơ sở dữ liệu document riêng.
 

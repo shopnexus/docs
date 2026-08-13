@@ -88,7 +88,7 @@ tác vận chuyển trao đổi vận đơn và các mốc hành trình. Điều
 
 == Danh mục ca sử dụng
 
-Mỗi ca sử dụng trong tài liệu đại diện cho một mục tiêu nghiệp vụ hoàn chỉnh của tác nhân, thay vì chỉ mô tả các thao tác hệ thống riêng lẻ. Danh mục gồm 29 ca sử dụng nghiệp vụ, được định danh từ UC-01 đến UC-29 và phân thành sáu nhóm chức năng, cùng với hai ca sử dụng dùng chung được tái sử dụng thông qua quan hệ bao hàm. Để bảo đảm tính rõ ràng và thuận tiện trong việc theo dõi phạm vi hệ thống, danh mục ca sử dụng và các sơ đồ liên quan được tổ chức chi tiết theo từng phân hệ.
+Mỗi ca sử dụng trong tài liệu đại diện cho một mục tiêu nghiệp vụ hoàn chỉnh của tác nhân, thay vì chỉ mô tả các thao tác hệ thống riêng lẻ. Danh mục gồm 29 ca sử dụng nghiệp vụ, được định danh từ UC-01 đến UC-29 và phân thành sáu nhóm chức năng, cùng với hai ca sử dụng dùng chung được tái sử dụng thông qua quan hệ bao hàm. Để bảo đảm tính rõ ràng và thuận tiện trong việc theo dõi phạm vi hệ thống, danh mục ca sử dụng và các sơ đồ liên quan được tổ chức chi tiết theo từng phân hệ. Cần nói rõ một điểm về vai trò người bán: nền tảng theo mô hình C2C nên không có khái niệm gian hàng tách rời, mỗi tài khoản vừa mua vừa bán trên cùng một định danh. Vì vậy việc "quản lý cửa hàng của mình" ở đây chính là quản lý tập tin đăng của chính tài khoản đó, trải trên UC-06 đăng bán, UC-08 chỉnh sửa tin đăng đang hiển thị, cùng phần theo dõi đơn và ví ở nhóm sau, chứ không phải một phân hệ quản trị gian hàng riêng biệt.
 
 
 #figure(
