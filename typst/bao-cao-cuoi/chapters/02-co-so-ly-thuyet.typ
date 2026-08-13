@@ -88,6 +88,7 @@ Việc tích hợp pgvector cho phép thực thi chiến lược Tìm kiếm lai
 
 Hệ thống được xây dựng theo kiến trúc đa thành phần, trong đó mỗi thành phần được lựa chọn ngôn ngữ và công nghệ phù hợp với đặc thù bài toán riêng.
 
+#table(
   columns: (1.2fr, 1.8fr, 2.5fr),
   align: (center, center, left),
   [Tầng / Lớp], [Công Nghệ], [Mục Đích Sử Dụng],
