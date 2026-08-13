@@ -70,7 +70,7 @@
       ..chips.map(chip),
     ),
     ..if ghi == none { () } else {
-      (text(size: 7.2pt, style: "italic", fill: muted, ghi),)
+      (text(size: 7.2pt, fill: muted, ghi),)
     },
   ),
   width: rong, fill: nen, stroke: 1pt + ink, corner-radius: 5pt, inset: 8pt, ..a,
@@ -206,11 +206,11 @@
   )
 }
 
-// Khối ghi chú: viền mảnh, chữ nghiêng
+// Khối ghi chú: viền mảnh
 #let note(body) = block(
   width: 100%, inset: (x: 11pt, y: 8pt), radius: 0pt,
   fill: rgb("#F6F6F6"), stroke: 0.5pt + rgb("#9A9A9A"),
-)[#text(size: 10pt, style: "italic", body)]
+)[#text(size: 10pt, body)]
 
 // Khung wireframe
 #let wireframe(title, width: 100%, body) = block(
@@ -263,7 +263,7 @@
       stack(
         spacing: 7pt,
         text(weight: 700, size: 10.5pt, [CHỖ CHỜ ẢNH CHỤP MÀN HÌNH]),
-        text(style: "italic", huong-dan),
+        huong-dan,
       )
     }),
   ),
