@@ -47,6 +47,35 @@
 #let nact(p, b, ..a)  = node(p, text(size: 8pt, b), shape: circle,
                              fill: teal-l, stroke: 1pt + teal, ..a)
 
+// Nhãn cỡ nhỏ trên cạnh sơ đồ. Đặt ở đây thay vì trong một chương vì cả sơ đồ
+// lớp, sơ đồ kiến trúc và sơ đồ phụ thuộc đều cần đúng một cỡ chữ nhãn.
+#let rel(t) = text(size: 6.6pt, t)
+
+// ---- Băng tầng cho sơ đồ kiến trúc luận lý ------------------
+// Một tầng là MỘT nút fletcher rộng cố định, bên trong xếp các con nêm thành
+// lưới. Làm vậy thay vì mỗi thành phần một nút để các tầng thẳng hàng tuyệt
+// đối, không tầng nào tự co giãn theo số thành phần của nó.
+#let chip(b) = box(
+  fill: white, stroke: 0.7pt + blue-s, radius: 3pt,
+  inset: (x: 5pt, y: 3.5pt), text(size: 7.6pt, b),
+)
+#let band(p, ten, chips, cot: auto, ghi: none, rong: 140mm, nen: soft, ..a) = node(
+  p,
+  stack(
+    spacing: 5.5pt,
+    text(size: 9.5pt, weight: 700, ten),
+    grid(
+      columns: if cot == auto { chips.len() } else { cot },
+      column-gutter: 5pt, row-gutter: 4pt,
+      ..chips.map(chip),
+    ),
+    ..if ghi == none { () } else {
+      (text(size: 7.2pt, style: "italic", fill: muted, ghi),)
+    },
+  ),
+  width: rong, fill: nen, stroke: 1pt + ink, corner-radius: 5pt, inset: 8pt, ..a,
+)
+
 // Co/giãn nội dung cho vừa bề ngang (chống tràn, tránh thừa lề)
 #let fitw(body) = layout(sz => {
   let m = measure(body)
@@ -70,6 +99,51 @@
   caption: cap,
   kind: image,
 )
+
+// Nhãn thông điệp: nền trắng để không dính vào đường sinh nét đứt,
+  // cỡ chữ theo tỉ lệ cỡ nền của sơ đồ nên chỉ cần một chỗ để phóng to.
+  #let lbl(body) = box(fill: white, inset: (x: 3.5pt, y: 2pt), text(size: 0.7em, body))
+  #let msg(a, b, y, l)  = edge((a, y), (b, y), "-|>", lbl(l))
+  #let rmsg(a, b, y, l) = edge((a, y), (b, y), "-|>", stroke: (dash: "dashed"), lbl(l))
+  #let step(a, y, l)    = ng((a, y), text(size: 0.7em, l))
+  #let durable(a, y, l) = nt((a, y), text(size: 0.7em, l))
+
+// ---- Sơ đồ xoay ngang, chiếm trọn một trang ---------------
+  // Cạnh dài của trang thành BỀ NGANG của sơ đồ.
+  // goc: 90deg xoay theo chiều kim đồng hồ; -90deg lật chiều đọc.
+  #let fig-xoay(cap, goc: 90deg, chua: 10mm, co: 13pt, ..diag) = page(margin: 16mm, layout(sz => {
+    let ngang = sz.height - chua   // bề ngang sơ đồ, nằm theo chiều dọc trang
+    let cao   = sz.width  - chua   // bề cao sơ đồ, nằm theo chiều ngang trang
+    let vien  = 16pt               // inset 7pt × 2 + viền
+
+    // (1) Đo sơ đồ ở kích thước TỰ NHIÊN. Không bọc trong block có width:
+    //     block width cố định làm `measure` trả về đúng width đó và che mất
+    //     phần nội dung tràn ra ngoài — chính là lỗi tràn dọc sau khi xoay.
+    let than = {
+      set text(size: co)      // thay cho 10.5pt
+      diagram(
+        node-stroke: 1pt, node-corner-radius: 4pt, node-inset: 8pt,
+        edge-stroke: 1.1pt + muted, mark-scale: 80%,
+        ..diag,
+      )
+    }
+    let m1 = measure(than)
+    let s1 = calc.min((ngang - vien) / m1.width, (cao - vien) / m1.height, 1.28)
+
+    // (2) Lắp thành figure bề ngang cố định rồi đo lại: nội dung đã nằm gọn
+    //     trong khối nên số đo trung thực, tính cả chú thích hình.
+    let hinh = figure(
+      block(width: ngang, radius: 8pt, fill: soft, stroke: 1pt + hairline, inset: 7pt,
+        align(center, box(scale(x: s1 * 100%, y: s1 * 100%, reflow: true, than)))),
+      caption: cap, kind: image,
+    )
+    let khung = box(width: ngang, hinh)
+    let s2 = calc.min(cao / measure(khung).height, 1.0)
+
+    block(width: 100%, height: ngang * s2, spacing: 0pt,
+      place(center + horizon, rotate(goc, reflow: false,
+        box(scale(x: s2 * 100%, y: s2 * 100%, reflow: true, khung)))))
+  }))
 
 // Thực thể ERD (ký hiệu chân quạ): #nent((0,0), <e-order>, [ORDER])
 #let nent(p, nm, title) = node(p, text(weight: 700, size: 8.5pt, title),
@@ -109,6 +183,29 @@
   )
 }
 
+// ---- Bảng đặc tả ca kiểm thử (test case, fully dressed) ---
+// Cùng khuôn với ucspec: chương kiểm thử có nhiều ca đặc tả đầy đủ nên bảng
+// phải giống nhau tuyệt đối, không để mỗi ca một bề rộng cột.
+#let tcspec(ma, ten, ..rows) = {
+  let r = rows.pos()
+  let cells = ()
+  for i in range(0, r.len(), step: 2) {
+    cells.push(strong(r.at(i)))
+    cells.push(r.at(i + 1))
+  }
+  figure(
+    kind: table,
+    caption: [Đặc tả ca kiểm thử #ma: #ten],
+    table(
+      columns: (0.3fr, 1fr),
+      align: (left + top, left + top),
+      fill: (x, y) => if y == 0 { headfill } else if x == 0 { rgb("#F7F7F7") } else { white },
+      table.header([Mã ca kiểm thử], [#ma — #ten]),
+      ..cells,
+    ),
+  )
+}
+
 // Khối ghi chú: viền mảnh, chữ nghiêng
 #let note(body) = block(
   width: 100%, inset: (x: 11pt, y: 8pt), radius: 0pt,
@@ -131,8 +228,28 @@
 // Tiêu đề mục lớn không đánh số (front/back matter)
 #let sechead(title, outlined: true) = heading(level: 1, numbering: none, outlined: outlined)[#title]
 
-// Ảnh mockup: dùng chung đường dẫn, khỏi phải nhớ ../..
-#let mockup(name, ..a) = image("assets/mockups/" + name + ".png", ..a)
+// Ảnh trong common/assets: dùng chung đường dẫn, khỏi phải nhớ ../..
+// Truyền đường dẫn tương đối tính từ thư mục assets, KÈM phần mở rộng.
+#let assets(name, ..a) = image("assets/" + name, ..a)
+
+// Dãy ảnh chụp màn hình di động. Ảnh gốc 386×813 điểm ảnh, tức rất hẹp và rất
+// cao, nên một ảnh đứng riêng giữa trang A4 chỉ dùng được một phần tư bề ngang.
+// Xếp chúng thành một dãy ngang, cùng chiều cao, mỗi ảnh mang một nhãn con.
+#let anh-mobile(cap, tep, nhan: (), cao: 11.4cm) = figure(
+  align(center, stack(
+    dir: ltr, spacing: 7mm,
+    ..tep.enumerate().map(((i, t)) => stack(
+      spacing: 4pt,
+      image("assets/mobile/" + t, height: cao),
+      text(size: 8pt, fill: muted, {
+        "(" + str.from-unicode(97 + i) + ")"
+        if i < nhan.len() { " " + nhan.at(i) }
+      }),
+    )),
+  )),
+  caption: cap,
+  kind: image,
+)
 
 // Chỗ chờ ảnh chụp màn hình sản phẩm đã chạy. Vẫn là một figure kind: image nên nó
 // chiếm đúng vị trí và số hiệu hình thật, chỉ còn việc thay nội dung khối khi có ảnh.
@@ -153,3 +270,12 @@
   caption: cap,
   kind: image,
 )
+
+ // khung nhóm lược đồ + nhãn nhóm
+  #let ngroup(members) = node(
+    enclose: members, fill: none, inset: 9pt, corner-radius: 3pt,
+    stroke: (paint: luma(65%), thickness: 0.6pt, dash: "dashed"),
+    snap: false, layer: -1,
+  )
+  #let gtitle(pos, body) = node(pos, text(size: 8pt, fill: luma(45%), body), stroke: none, snap: false)
+  #let wlabel = e => box(e.label, inset: .25em, radius: .2em, fill: white)

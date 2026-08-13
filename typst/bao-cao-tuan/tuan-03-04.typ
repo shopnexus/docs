@@ -142,7 +142,7 @@ Các thuộc tính chất lượng và ràng buộc kỹ thuật của hệ th�
 
 === Khả năng sử dụng (Usability)
 - *NFR-011:* Giao diện Web phải responsive, hiển thị đúng bố cục trên độ phân giải từ 360px (mobile) đến 1920px (desktop), theo nguyên tắc mobile-first.
-- *NFR-012:* Giao diện phải tuân thủ nguyên tắc accessibility cơ bản (WCAG 2.1 mức A tối thiểu): độ tương phản màu chữ/nền đạt chuẩn, mọi hình ảnh có alt-text, có thể thao tác bằng bàn phím cho các luồng chính.
+- *NFR-012:* Giao diện phải tuân thủ độ tương phản màu chữ/nền đạt chuẩn, mọi hình ảnh có alt-text, có thể thao tác bằng bàn phím cho các luồng chính.
 - *NFR-013:* Mọi thao tác quan trọng có thể gây hậu quả không thể hoàn tác (xác nhận nhận hàng, chấp nhận Offer Card, xác nhận thanh toán) phải có bước xác nhận rõ ràng (confirmation dialog) kèm cảnh báo nội dung tương ứng.
 
 === Ràng buộc (Constraints)

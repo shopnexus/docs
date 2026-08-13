@@ -95,65 +95,6 @@
   ]
 }
 
-// ---- Phiếu giao đề cương (dùng lại giữa các quyển) --------
-#let phieu-giao-de-cuong(moc: (), thoi-diem: "") = {
-  align(center)[
-    #text(size: 12pt, weight: "bold")[#info.truong] \
-    #text(size: 12pt, weight: "bold")[#info.co-so] \
-    #v(0.1cm)
-    #line(length: 35%, stroke: 0.8pt + black)
-    #v(0.3cm)
-    #text(size: 14pt, weight: "bold")[PHIẾU GIAO ĐỀ CƯƠNG THỰC TẬP TỐT NGHIỆP]
-  ]
-
-  v(0.3cm)
-  table(
-    columns: (3.2cm, 1fr, 2.0cm, 1fr),
-    stroke: 0.5pt + black, inset: 5pt, align: (left, left, left, left),
-    [*Mã nhóm*], [#info.nhom], [*Lớp*], [#info.lop],
-    [*GV hướng dẫn*], table.cell(colspan: 3)[#info.gvhd],
-    ..info.sinh-vien.enumerate().map(((i, sv)) => (
-      [*Sinh viên #(i + 1)*], [#sv.at(0)], [*MSSV*], [#sv.at(1)],
-    )).flatten(),
-  )
-
-  v(0.2cm)
-  text(weight: "bold")[1. TÊN ĐỀ TÀI]
-  align(center, text(weight: "bold")[#info.de-tai])
-
-  v(0.2cm)
-  text(weight: "bold")[2. MỤC TIÊU VÀ NỘI DUNG NGHIÊN CỨU]
-  parbreak()
-  text(weight: "bold")[3. YÊU CẦU THỰC HIỆN]
-  parbreak()
-  text(weight: "bold")[4. SẢN PHẨM/KẾT QUẢ DỰ KIẾN]
-  parbreak()
-  text(weight: "bold")[5. KẾ HOẠCH VÀ MỐC THỜI GIAN]
-
-  v(0.1cm)
-  table(
-    columns: (1cm, 1fr, 2.8cm, 1fr),
-    stroke: 0.5pt + black, inset: 5pt, align: (center, left, center, left),
-    table.header([*TT*], [*Nội dung/Mốc công việc*], [*Thời gian*], [*Kết quả cần đạt*]),
-    ..moc.enumerate().map(((i, m)) => ([#(i + 1)], m.at(0), m.at(1), m.at(2))).flatten(),
-  )
-
-  v(0.4cm)
-  align(right, text(style: "italic")[#info.dia-diem, #thoi-diem])
-
-  v(0.2cm)
-  grid(
-    columns: (1fr, 1fr, 1fr), align: center,
-    ..(([ĐẠI DIỆN NHÓM], [SINH VIÊN]), ([GIẢNG VIÊN], [HƯỚNG DẪN]), ([BỘ MÔN/KHOA], [DUYỆT]))
-      .map(((a, b)) => [
-        #text(weight: "bold")[#a] \
-        #text(weight: "bold")[#b] \
-        #v(0.1em)
-        #text(size: 9pt, style: "italic")[(Ký và ghi rõ họ tên)]
-      ]),
-  )
-}
-
 // ---- Template ---------------------------------------------
 #let quyen(tieu-de: (), chay: "", thoi-diem: "", doc) = {
   set text(font: font-quyen, size: 12pt, fill: ink, lang: "vi")
@@ -162,8 +103,25 @@
     width: 100%, fill: rgb("#F6F6F6"), stroke: 0.5pt + hairline,
     inset: (x: 9pt, y: 8pt), radius: 3pt, text(size: 8.5pt, it),
   )
-  set par(justify: true, spacing: 9pt, leading: 0.7em)
-  show table.cell: set par(justify: false)
+  // Quy cách đoạn văn theo phụ lục QĐ 922: canh đều hai bên, cách đoạn
+  // trước/sau 3pt (tổng 6pt), giãn dòng multiple 1,1–1,2 (leading 0.7em ứng
+  // với ~1,18 ở cỡ chữ 12pt), thụt dòng đầu mỗi đoạn 1cm.
+  set par(
+    justify: true,
+    spacing: 6pt,
+    leading: 0.7em,
+    first-line-indent: (amount: 1cm, all: true),
+  )
+  // Thụt dòng chỉ dành cho văn xuôi thân bài: ô bảng, chú thích hình,
+  // danh sách gạch đầu dòng và các mục lục đều canh sát lề.
+  // Ô bảng KHÔNG canh đều: cụm chữ ngắn bị ngắt dòng (ví dụ "Đạt một phần") sẽ bị
+  // kéo giãn rất xấu. Canh đều chỉ áp cho văn xuôi thân bài.
+  show table.cell: set par(justify: false, first-line-indent: 0pt)
+  show figure.caption: set par(first-line-indent: 0pt)
+  show list: set par(first-line-indent: 0pt)
+  show enum: set par(first-line-indent: 0pt)
+  show terms: set par(first-line-indent: 0pt)
+  show outline: set par(first-line-indent: 0pt)
 
   // Đánh số: CHƯƠNG n / n.m / n.m.k
   set heading(numbering: (..n) => {
@@ -171,7 +129,15 @@
     if p.len() == 1 { [CHƯƠNG #p.at(0): ] } else { [#p.map(str).join(".") ] }
   })
 
-  set figure(supplement: [Hình])
+  // Dấu đầu dòng dùng gạch ngang thay cho chấm tròn, ở mọi cấp.
+  set list(marker: [-])
+
+  // Đánh số hình/bảng theo chương: hình đầu tiên của chương 3 là "Hình 3.1".
+  // Bộ đếm hình và bảng được đặt lại ở mỗi tiêu đề chương (xem show rule bên dưới).
+  set figure(supplement: [Hình], numbering: n => context {
+    let ch = counter(heading).get()
+    if ch.len() > 0 and ch.first() > 0 { numbering("1.1", ch.first(), n) } else { numbering("1", n) }
+  })
   show figure.where(kind: table): set figure(supplement: [Bảng])
   show figure: set block(breakable: true)
   show figure.caption: set text(size: 10pt, fill: muted)
@@ -183,10 +149,16 @@
 
   show heading.where(level: 1): it => {
     if it.numbering != none { pagebreak(weak: true) }
+    // Mỗi chương bắt đầu lại từ hình 1 và bảng 1
+    counter(figure.where(kind: image)).update(0)
+    counter(figure.where(kind: table)).update(0)
+    // Phụ lục QĐ 922: "Đề mục của từng chương viết chữ in hoa, in đậm, khổ chữ 13 đến 15".
+    // upper() để quy định này do template bảo đảm, không phụ thuộc người viết có gõ hoa hay không.
+    // Tiêu đề mục trong chương thì phụ lục chỉ đòi "cũng in đậm, khổ chữ 13" — KHÔNG in hoa.
     block(width: 100%, above: 1.8em, below: 1.2em, align(center,
-      text(size: 14pt, weight: "bold")[
+      text(size: 14pt, weight: "bold", upper[
         #if it.numbering != none [#context counter(heading).display(it.numbering)]#it.body
-      ]))
+      ])))
   }
   show heading.where(level: 2): it => block(width: 100%, above: 1.2em, below: 0.8em,
     text(size: 13pt, weight: "bold")[
@@ -206,6 +178,11 @@
   set page(
     paper: "a4",
     margin: (top: 2.0cm, bottom: 2.0cm, left: 3.0cm, right: 2.0cm),
+    // Phụ lục QĐ 922 quy định header/footer cách bìa 1,0cm. Trong Typst hai
+    // tham số này là KHOẢNG HỞ giữa header/footer và khối thân bài, nên phải
+    // lấy 2,0cm trừ đi 1,0cm và trừ tiếp chiều cao của chính dải header/footer.
+    header-ascent: 0.37cm,
+    footer-descent: 0.30cm,
     numbering: none,
     header: context block(width: 100%, inset: (bottom: 2pt))[
       #set text(font: font-quyen, size: 10pt, weight: "regular")
@@ -237,13 +214,61 @@
 #let muc-luc() = {
   show outline.entry: set text(size: 12pt, weight: "regular")
   show outline.entry.where(level: 1): it => { v(0.8em, weak: true); strong(it) }
-  outline(title: text(size: 14pt, weight: "bold")[MỤC LỤC], indent: 1.5em, depth: 3)
+  outline(title: [MỤC LỤC], indent: 1.5em, depth: 3)
 }
-#let danh-muc-bang() = outline(
-  title: text(size: 14pt, weight: "bold")[DANH MỤC CÁC BẢNG],
-  target: figure.where(kind: table), indent: 1.5em,
+// Danh mục hình/bảng dựng thủ công thay vì dùng `outline`.
+// Lý do: số hình đánh theo chương ("Hình 3.1") phải đọc bộ đếm chương TẠI VỊ TRÍ
+// của hình. `outline` lại dựng số ở vị trí của chính nó — nằm trong phần đầu quyển,
+// nơi bộ đếm chương vẫn bằng 0 — nên mọi mục sẽ mất phần số chương.
+#let danh-muc-fig(title, kind, supplement) = {
+  sechead(title, outlined: false)
+  context {
+    for f in query(figure.where(kind: kind)) {
+      let loc = f.location()
+      let ch = counter(heading).at(loc).first()
+      let n = counter(figure.where(kind: kind)).at(loc).first()
+      let so = if ch > 0 { numbering("1.1", ch, n) } else { numbering("1", n) }
+      block(above: 0.75em, below: 0.75em, width: 100%)[
+        #set par(first-line-indent: 0pt, justify: false)
+        #link(loc)[#supplement #so #h(0.5em) #f.caption.body
+          #box(width: 1fr, inset: (x: 4pt), repeat[.])
+          #counter(page).at(loc).first()]
+      ]
+    }
+  }
+}
+#let danh-muc-bang() = danh-muc-fig([DANH MỤC CÁC BẢNG], table, [Bảng])
+#let danh-muc-hinh() = danh-muc-fig([DANH MỤC CÁC HÌNH VẼ], image, [Hình])
+
+#let ink  = rgb("#1e293b")
+#let mut  = rgb("#64748b")
+#let line = rgb("#94a3b8")
+
+#let f-kenh = rgb("#eef2f7")
+#let f-cong = rgb("#e7eefb")
+#let f-mien = rgb("#e9f4ec")
+#let f-nen  = rgb("#f6f1e4")
+#let f-dat  = rgb("#eceff3")
+#let f-adp  = rgb("#f9efe8")
+#let f-ext  = rgb("#f6eaea")
+
+#let W = 33mm
+#let H = 14mm
+
+// hộp mô-đun: tên đậm + dòng chú thích nhỏ
+#let m(pos, name, detail: none) = node(
+  pos,
+  align(center)[
+    #text(size: 7pt, weight: "semibold", fill: ink)[#name]
+    #if detail != none [ \ #text(size: 5.8pt, fill: mut)[#detail] ]
+  ],
+  width: W, height: H, fill: white, stroke: 0.6pt + line, corner-radius: 2pt,
 )
-#let danh-muc-hinh() = outline(
-  title: text(size: 14pt, weight: "bold")[DANH MỤC CÁC HÌNH VẼ],
-  target: figure.where(kind: image), indent: 1.5em,
-)
+
+// dải lớp + nhãn dọc ở lề trái
+#let layer(y, h, fill, title) = {
+  node((1.5, y), [], width: 177mm, height: h, fill: fill, stroke: none, layer: -1)
+  node((-0.708, y),
+    rotate(-90deg, reflow: true, text(size: 7.5pt, weight: "bold", fill: mut)[#title]),
+    stroke: none, fill: none, layer: -1)
+}

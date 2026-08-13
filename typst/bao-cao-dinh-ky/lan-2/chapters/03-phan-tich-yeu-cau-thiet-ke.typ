@@ -1083,7 +1083,7 @@ Bộ yêu cầu phi chức năng gồm *29 yêu cầu* được đánh mã `NFR-
     align: (center + horizon, left + horizon, left + horizon, center + horizon),
     table.header([Mã], [Phát biểu và tiêu chí định lượng], [Cách kiểm chứng], [Ư. tiên]),
     [NFR-011], [Giao diện web hiển thị đúng bố cục trên dải độ phân giải từ 360 px đến 1920 px theo nguyên tắc thiết kế ưu tiên thiết bị di động.], [Kiểm thử giao diện đa kích thước màn hình], [Cao],
-    [NFR-012], [Giao diện tuân thủ tối thiểu mức A của WCAG 2.1: đạt chuẩn tương phản màu, mọi hình ảnh có văn bản thay thế, các luồng chính thao tác được bằng bàn phím.], [Quét kiểm tra khả năng tiếp cận], [T. bình],
+    [NFR-012], [Giao diện tuân thủ đạt chuẩn tương phản màu, mọi hình ảnh có văn bản thay thế, các luồng chính thao tác được bằng bàn phím.], [Quét kiểm tra khả năng tiếp cận], [T. bình],
     [NFR-013], [Mọi thao tác không thể hoàn tác (xác nhận nhận hàng, chấp nhận Offer Card, xác nhận thanh toán, phán quyết tranh chấp) phải có bước xác nhận rõ ràng kèm cảnh báo hệ quả.], [Rà soát luồng giao diện], [Cao],
     [NFR-029], [Mã nguồn tầng nghiệp vụ phải đạt tối thiểu 70% độ phủ kiểm thử đơn vị ở các gói xử lý dòng tiền; mọi thay đổi phải qua kiểm thử tự động trước khi hợp nhất.], [Báo cáo độ phủ trong quy trình tích hợp liên tục], [T. bình],
     [NFR-014], [Việc tính phí và theo dõi vận chuyển phụ thuộc API đối tác bên thứ ba; độ chính xác và thời gian phản hồi bị giới hạn bởi cam kết dịch vụ của đối tác, hệ thống phải có phương án dự phòng bằng bảng phí mặc định.], [Kiểm thử với bộ giả lập đối tác], [Cao],
