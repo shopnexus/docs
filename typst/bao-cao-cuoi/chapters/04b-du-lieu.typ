@@ -9,7 +9,7 @@ Mức khái niệm trả lời câu hỏi hệ thống nói về những thứ g
 tách hẳn khỏi câu hỏi lưu trữ thế nào. Vì vậy 3 sơ đồ dưới đây không có khoá ngoại, không có cột,
 không có kiểu dữ liệu và cũng không có bảng nối: một quan hệ nhiều-nhiều được vẽ thẳng thành
 một đường nối mang tên quan hệ, thay vì tách ra thành một thực thể trung gian như khi hiện thực.
-Bản số đọc theo quy ước chân quạ ở cả hai đầu. Toàn bộ tên thực thể viết bằng tiếng Việt theo
+Bản số đọc theo quy ước chân quạ ở cả hai đầu. Khung nét đứt gom các thực thể thuộc cùng một miền nghiệp vụ. Lưu ý miền ở đây là ranh giới nghiệp vụ chứ không phải lược đồ cơ sở dữ liệu: một miền có thể về sau được hiện thực thành một lược đồ, nhưng ở mức khái niệm thì cách lưu trữ chưa được quyết định. Toàn bộ tên thực thể viết bằng tiếng Việt theo
 đúng cách người dùng nghiệp vụ gọi chúng, chứ không dùng tên bảng.
 
 So với 42 bảng ở mức vật lý, mức khái niệm rút còn 26 thực thể. Phần chênh lệch gồm 3 nhóm.
@@ -41,6 +41,13 @@ thay vì vẽ thành một ô rời không nối với ai.
   nent((3, 2.3), <c-tkho>, [TỒN KHO]),
   nent((3, 3.5), <c-tn>, [TIN NHẮN]),
 
+  ngroup((<c-hs>, <c-dc>, <c-tb>, <c-tbao>, <c-tk>)),
+  gtitle((0.5, -0.62), [Miền định danh và tài khoản]),
+  ngroup((<c-dm>, <c-td>, <c-nhan>, <c-tc>, <c-tkho>)),
+  gtitle((2.5, -0.62), [Miền hàng hoá]),
+  ngroup((<c-ht>, <c-tn>)),
+  gtitle((2.5, 2.95), [Miền trao đổi]),
+
   edge(<c-tk>, <c-hs>, "1-n", [nộp]),
   edge(<c-tk>, <c-dc>, "1-n", [khai]),
   edge(<c-tk>, <c-tb>, "1-n", [đăng ký]),
@@ -69,6 +76,11 @@ thay vì vẽ thành một ô rời không nối với ai.
   nent((3, 0), <d-vd>, [VẬN ĐƠN]),
   nent((3, 2), <d-ht>, [YÊU CẦU HOÀN TIỀN]),
 
+  ngroup((<d-pm>, <d-tl>, <d-dh>)),
+  gtitle((0.5, -0.72), [Trước khi có đơn]),
+  ngroup((<d-don>, <d-vd>, <d-ht>)),
+  gtitle((2.5, -0.72), [Sau khi có đơn]),
+
   edge(<d-pm>, <d-dh>, "1-n", [chốt thành]),
   edge(<d-tl>, <d-dh>, "1-n", [chốt thành]),
   edge(<d-don>, <d-dh>, "1-n", [gồm]),
@@ -82,16 +94,21 @@ thay vì vẽ thành một ô rời không nối với ai.
   edge-stroke: 1pt + blue-s,
   label-wrapper: wlabel,
 
-  nent((0, 0), <e-nh>, [TÀI KHOẢN NGÂN HÀNG]),
-  nent((0, 1), <e-thue>, [HỒ SƠ THUẾ]),
-  nent((0, 2), <e-phieu>, [PHIẾU HỖ TRỢ]),
+  nent((0, 1), <e-phieu>, [PHIẾU HỖ TRỢ]),
+  nent((0, 2), <e-nx>, [NHẬN XÉT]),
+  nent((0, 3), <e-tra>, [TRẢ LỜI NHẬN XÉT]),
   nent((1, 1), <e-tk>, [TÀI KHOẢN]),
-  nent((1, 2.4), <e-nx>, [NHẬN XÉT]),
-  nent((2, 0), <e-vi>, [VÍ]),
-  nent((2, 1.5), <e-don>, [ĐƠN HÀNG]),
-  nent((2, 2.4), <e-tra>, [TRẢ LỜI NHẬN XÉT]),
-  nent((3, 0.6), <e-ptt>, [PHIÊN THANH TOÁN]),
-  nent((3, 2.1), <e-ctt>, [CHẶNG THANH TOÁN]),
+  nent((1, 2.6), <e-don>, [ĐƠN HÀNG]),
+  nent((2, 0), <e-nh>, [TÀI KHOẢN NGÂN HÀNG]),
+  nent((2, 1), <e-thue>, [HỒ SƠ THUẾ]),
+  nent((3, 1.8), <e-vi>, [VÍ]),
+  nent((2, 2), <e-ptt>, [PHIÊN THANH TOÁN]),
+  nent((3, 2.9), <e-ctt>, [CHẶNG THANH TOÁN]),
+
+  ngroup((<e-phieu>, <e-nx>, <e-tra>)),
+  gtitle((0, 0.35), [Miền tín nhiệm và hỗ trợ]),
+  ngroup((<e-nh>, <e-thue>, <e-vi>, <e-ptt>, <e-ctt>)),
+  gtitle((2.5, -0.45), [Miền tài chính]),
 
   edge(<e-tk>, <e-nh>, "1-n", [khai]),
   edge(<e-tk>, <e-thue>, "1-1", [khai]),
