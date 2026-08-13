@@ -214,7 +214,7 @@ khai, không thuộc về sản phẩm mà đề tài xây dựng.
 
     [NFR-04],
     [Định danh thực thể ở dạng mờ],
-    [Phép hoán vị có khoá giữ nguyên miền giá trị, mỗi loại thực thể một biến thể; có ca kiểm thử vòng mã hoá – giải mã, ca kiểm không va chạm, và một bộ giá trị đối chiếu khoá chặt chuỗi định danh đã phát ra],
+    [Phép hoán vị có khoá giữ nguyên miền giá trị, mỗi loại thực thể một biến thể; có ca kiểm thử vòng mã hoá rồi giải mã, ca kiểm không va chạm, và một bộ giá trị đối chiếu khoá chặt chuỗi định danh đã phát ra],
     [Đạt],
 
     [NFR-05],
