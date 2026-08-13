@@ -49,7 +49,7 @@ Luồng lệnh, tức các thao tác ghi (Mutations), đi qua Restate Ingress Pr
 Luồng truy vấn, tức các thao tác đọc (Queries), đi thẳng bằng HTTP/2 RPC từ API Gateway hoặc giao diện người dùng vào các microservice, hoàn toàn bỏ qua lớp Restate Ingress. Lý do là mỗi lần chuyển tiếp (hop) qua Ingress để theo dõi trạng thái và ghi nhật ký đều làm phát sinh độ trễ trung gian; với các tác vụ đọc dữ liệu chiếm tần suất cao nhất hệ thống nhưng không làm thay đổi trạng thái, việc bỏ qua Ingress giúp hạ độ trễ phản hồi và loại bỏ thuế hiệu năng (durability tax) không cần thiết.
 
 === Cơ chế điều hướng và đánh thức luồng bất đồng bộ với Restate Ingress
-Ngoài cơ chế trì hoãn thực thi theo thời gian (`sleep`), Restate Ingress còn cung cấp cơ chế Tín hiệu Đánh thức (Awakables hay Promise Signaling) cho các luồng nghiệp vụ C2C phối hợp. Trong quy trình ký quỹ hoặc tranh chấp, quy trình nghiệp vụ thường phải tạm dừng để chờ một sự kiện xác nhận từ hệ thống bên ngoài (ví dụ: chờ webhook từ cổng thanh toán xác nhận đã nạp tiền, hoặc chờ webhook từ đối tác vận chuyển báo đã giao hàng thành công). Restate cung cấp nguyên hàm Awakable - một đối tượng tương đương với Promise phân tán có định danh duy nhất. Luồng code gọi `ctx.awakable()` để tạo định danh và tạm dừng thực thi; khi hệ thống ngoại vi gửi webhook về Ingress kèm định danh này, Ingress lập tức giải phóng Awakable, "đánh thức" (resume) chính xác luồng đang ngủ và tiếp tục xử lý giải ngân.
+Ngoài cơ chế trì hoãn thực thi theo thời gian (`sleep`), Restate Ingress còn cung cấp cơ chế đánh thức bất đồng bộ (Awakables hay Promise Signaling) nhằm hỗ trợ phối hợp giữa các luồng nghiệp vụ. Trong quy trình ký quỹ hoặc tranh chấp, quy trình nghiệp vụ thường phải tạm dừng để chờ một sự kiện xác nhận từ hệ thống bên ngoài (ví dụ: chờ webhook từ cổng thanh toán xác nhận đã nạp tiền, hoặc chờ webhook từ đối tác vận chuyển báo đã giao hàng thành công). Restate cung cấp nguyên hàm Awakable - một đối tượng tương đương với Promise phân tán có định danh duy nhất. Luồng code gọi `ctx.awakable()` để tạo định danh và tạm dừng thực thi; khi hệ thống ngoại vi gửi webhook về Ingress kèm định danh này, Ingress lập tức giải phóng Awakable, "đánh thức" (resume) chính xác luồng đang ngủ và tiếp tục xử lý giải ngân.
 
 === Kiến trúc hướng sự kiện (Event-Driven) với NATS JetStream
 Đối với các thao tác phối hợp hậu kỳ sau khi một giao dịch mutation đã hoàn tất thành công, hệ thống áp dụng Kiến trúc Hướng sự kiện (Event-Driven Architecture) nhằm giảm độ ghép nối giữa các module. NATS JetStream được chọn làm trục sự kiện trung tâm (Event Bus) vì cung cấp đầy đủ các tính năng cần thiết: lưu trữ sự kiện bền vững trên đĩa (Persistence), phân phối theo nhóm tiêu thụ (Consumer Groups) để cân bằng tải, và khả năng phát lại tin nhắn (Message Replay) khi có dịch vụ mới tham gia.
@@ -59,7 +59,7 @@ Về thông báo và dữ liệu thời gian thực, module Account lắng nghe 
 == Tìm kiếm thông tin dựa trên từ khóa và ngữ nghĩa (Hybrid Search)
 
 === Tìm kiếm từ khóa truyền thống và các hạn chế trong TMĐT C2C
-Trong các sàn thương mại điện tử C2C, sản phẩm được đăng bán bởi các cá nhân không chuyên. Ngôn ngữ mô tả mặt hàng thanh lý thường có tính tự do cao, sử dụng nhiều từ viết tắt, từ lóng, sai chính tả hoặc cấu trúc câu không theo quy chuẩn (ví dụ: "tl ip 15 prm 256 gb zin keng" cho sản phẩm iPhone 15 Pro Max 256GB). 
+Trong các sàn thương mại điện tử, sản phẩm được đăng bán bởi các cá nhân không chuyên. Ngôn ngữ mô tả mặt hàng thanh lý thường có tính tự do cao, sử dụng nhiều từ viết tắt, từ lóng, sai chính tả hoặc cấu trúc câu không theo quy chuẩn (ví dụ: "tl ip 15 prm 256 gb zin keng" cho sản phẩm iPhone 15 Pro Max 256GB). 
 
 Nếu chỉ áp dụng các kỹ thuật tìm kiếm từ khóa truyền thống (Full-text Search dựa trên từ vựng hoặc SQL `LIKE`/BM25 thuần túy), hệ thống sẽ gặp hiện tượng bỏ lọt kết quả (False Negatives). Công cụ tìm kiếm từ vựng đòi hỏi sự trùng khớp chính xác về ký tự giữa từ khóa truy vấn và văn bản mô tả. Khi người mua truy vấn "điện thoại Apple cũ giá rẻ", hệ thống truyền thống sẽ bỏ qua các sản phẩm mô tả là "iPhone 13 thanh lý lên đời" do không trùng từ khóa "điện thoại Apple".
 
@@ -71,23 +71,23 @@ Mô hình bge-m3 được lựa chọn nhờ năng lực kiến trúc vượt tr
 === Cơ sở dữ liệu vector pgvector và thuật toán kết hợp lai (Hybrid Search)
 Thay vì phải vận hành thêm một hệ quản trị cơ sở dữ liệu vector độc lập (như Milvus, Pinecone hay Qdrant), điều sẽ làm tăng chi phí hạ tầng và phát sinh độ phức tạp lớn trong việc duy trì các pipeline bộ dữ liệu ETL từ cơ sở dữ liệu chính, ta sử dụng trực tiếp phần mở rộng mã nguồn mở pgvector được cài đặt ngay bên trong PostgreSQL của `Catalog Service` [11].
 
-Việc tích hợp pgvector cho phép thực thi chiến lược Tìm kiếm lai trong một lệnh truy vấn duy nhất (Single-query Hybrid Retrieval) với hai ưu điểm kỹ thuật. Chỉ mục HNSW cho tốc độ cao: các embedding 1024 chiều của sản phẩm được lưu trữ và đánh chỉ mục bằng thuật toán HNSW (Hierarchical Navigable Small World). Chỉ mục cấu trúc đồ thị nhiều lớp này cho phép thực hiện tìm kiếm ANN (Approximate Nearest Neighbors, tìm lân cận gần nhất gần đúng) với độ phức tạp thời gian chỉ ở mức đối số $O(log N)$. Thuật toán rank fusion (xếp hạng dung hợp) quyết định thứ tự cuối cùng: điểm số liên quan cuối cùng của mỗi mặt hàng được tính bằng thuật toán kết hợp trọng số, cân bằng giữa điểm số khớp từ khóa (Sparse/Full-text), khoảng cách ngữ nghĩa Cosine (Dense), và điểm uy tín người bán, tạo ra danh sách kết quả vừa chính xác về thông số vừa thấu hiểu nhu cầu ngữ nghĩa của người mua.
+Việc tích hợp pgvector cho phép thực thi chiến lược Tìm kiếm lai trong một lệnh truy vấn duy nhất (Single-query Hybrid Retrieval) với hai ưu điểm kỹ thuật. Chỉ mục HNSW cho tốc độ cao: các embedding 1024 chiều của sản phẩm được lưu trữ và đánh chỉ mục bằng thuật toán HNSW (Hierarchical Navigable Small World). Chỉ mục cấu trúc đồ thị nhiều lớp này cho phép thực hiện tìm kiếm ANN (Approximate Nearest Neighbors, tìm lân cận gần nhất gần đúng) với độ phức tạp thời gian chỉ $O(log N)$. Thuật toán rank fusion (xếp hạng dung hợp) quyết định thứ tự cuối cùng: điểm số liên quan cuối cùng của mỗi mặt hàng được tính bằng thuật toán kết hợp trọng số, cân bằng giữa điểm số khớp từ khóa (Sparse/Full-text), khoảng cách ngữ nghĩa Cosine (Dense), và điểm uy tín người bán, tạo ra danh sách kết quả vừa chính xác về thông số vừa thấu hiểu nhu cầu ngữ nghĩa của người mua.
 
 == Lựa chọn công nghệ
 
 Hệ thống được xây dựng theo kiến trúc đa thành phần, trong đó mỗi thành phần được lựa chọn ngôn ngữ và công nghệ phù hợp với đặc thù bài toán riêng.
 
 #table(
-  columns: (1.2fr, 1.8fr, 2.5fr),
+  columns: (1.2fr, 1.8fr, 2.8fr),
   align: (center, center, left),
   [Tầng / Lớp], [Công Nghệ], [Mục Đích Sử Dụng],
   [Backend Services], [Go], [Phát triển các core services, API gateway quản lý WebSocket, background workers và tận dụng lợi thế static binary.],
   [Frontend Web], [Next.js, React, TypeScript], [Xây dựng giao diện web theo kiến trúc App Router, hỗ trợ SSR/SSG với strict mode của TypeScript.],
-  [Frontend Mobile], [Flutter], [Phát triển ứng dụng di động cross-platform (Android và iOS) dùng chung một codebase.],
+  [Frontend Mobile], [Flutter], [Phát triển ứng dụng di động cross-platform (Android và iOS) dùng chung một mã nguồn.],
   [Database & Search], [PostgreSQL, TimescaleDB, pgvector], [Lưu trữ relational data, time-series (metrics) và hỗ trợ semantic/hybrid search không cần vector DB ngoài.],
   [In-Memory Caching], [Redis], [Quản lý user session và caching dữ liệu truy vấn nóng để tối ưu performance.],
   [Event Bus & Stream], [NATS JetStream], [Giao tiếp pub/sub bất đồng bộ, streaming dữ liệu realtime và làm metrics bus.],
-  [Durable execution], [Restate], [Cung cấp runtime chuyên biệt để quản lý các durable workflow phân tán và luồng tài chính dài hạn.],
+  [Durable execution], [Restate], [Cung cấp runtime chuyên biệt để quản lý các durable workflow phân tán và luồng nghiệp vụ dài hạn.],
   [Test & Deployment], [Prism, Docker Compose], [Mocking API contract; container hóa môi trường dev và chạy production image với quyền non-root.],
 )
 
