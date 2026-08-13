@@ -375,13 +375,8 @@ với ngân hàng chỉ được viết một lần.
   )
 === Module trust
 
-Module này tách 2 loại điểm số vốn hay bị gộp làm một. Loại thứ nhất trả lời giao dịch
-đã diễn ra thế nào: hai chiều, người mua chấm người bán và ngược lại, và ẩn cho tới khi
-cả 2 cùng nộp hoặc hết cửa sổ 14 ngày, cách duy nhất để một điểm số không mang
-tính trả đũa. Loại thứ hai trả lời món hàng có đúng như mô tả không: một chiều, chỉ
-người đã mua mới viết được. Một đơn hàng có thể sinh ra cả 2, nên nếu cộng chung vào một
-cặp tổng thì chính đơn ấy đã bị đếm 2 lần; vì vậy bản tổng hợp uy tín giữ hai cặp tổng
-riêng biệt.
+Điểm số của module trả lời câu hỏi món hàng có đúng như mô tả không: một chiều, chỉ
+người đã mua mới viết được, và được cộng dồn vào bản tổng hợp uy tín của người bán.
 
 Thay đổi lớn nhất của module so với giai đoạn trước là không còn lớp tố cáo riêng. Mọi
 thứ người dùng gửi lên, từ tố cáo một tin đăng cho tới đề xuất tính năng, đều là một
@@ -391,12 +386,11 @@ bảng trước đây thực chất là cùng một vòng đời được viết
 cầu của tôi đang ở đâu" thì có 3 nơi phải tìm.
 
 #fig-xoay(
-  [Sơ đồ lớp module tín nhiệm: đánh giá hai chiều, nhận xét tin đăng và phiếu hỗ trợ],
+  [Sơ đồ lớp module tín nhiệm: nhận xét tin đăng, điểm uy tín và phiếu hỗ trợ],
   spacing: (8mm, 7mm),
 
   cls((0, 0), "trustapi.Service", stereo: "cổng vào module", name: <t-svc>,
     ops: (
-      "+ đánh giá hai chiều · công bố đến hạn",
       "+ nhận xét tin đăng · trả lời · bình chọn",
       "+ điểm uy tín · ghi kết cục đơn hàng",
       "+ phiếu hỗ trợ · nhận xử lý · giải quyết",
@@ -434,31 +428,14 @@ cầu của tôi đang ở đâu" thì có 3 nơi phải tìm.
     "đóng MỌI phiếu về cùng đối tượng.",
   ), name: <t-n1>),
 
-  cls((1, 0), "Feedback", stereo: "giấu kín tới ngày công bố", name: <t-fb>,
-    attrs: (
-      "- orderID: int64 -> order",
-      "- raterID, rateeID: int64",
-      "- direction: buyer-to-seller |",
-      "             seller-to-buyer",
-      "- rating: int16  (1..5)",
-      "- comment: string",
-      "- publishedAt: *time  NULL = còn ẩn",
-    ),
-    ops: (
-      "+ Published() bool / Publish(at)",
-      "+ RevealAt() *time",
-    )),
-
   cls((1, 1), "Reputation", stereo: "bản tổng hợp", name: <t-rep>,
     attrs: (
       "- accountID: int64",
       "- role: seller | buyer",
-      "- ratingSum, ratingCount     từ Feedback",
       "- reviewRatingSum,",
       "  reviewRatingCount          từ Review",
     ),
     ops: (
-      "+ AverageRating() float64",
       "+ AverageReviewRating() float64",
     )),
 
@@ -500,16 +477,6 @@ cầu của tôi đang ở đâu" thì có 3 nơi phải tìm.
     "bảng của tín nhiệm.",
   ), name: <t-n2>),
 
-  cnote((3, 0), "Ba luật của đánh giá", (
-    "Chiều đánh giá SUY RA từ vai của người",
-    "gửi trên chính đơn hàng ấy, không phải",
-    "một trường máy khách gửi lên.",
-    "Mỗi đơn, mỗi chiều đúng một đánh giá.",
-    "Hai bên đều không thấy gì cho tới ngày",
-    "công bố, nên không ai trả đũa được",
-    "điểm của người kia.",
-  ), name: <t-n3>),
-
   cls((3, 1), "ReviewReply", name: <t-rpl>,
     attrs: (
       "- reviewID: int64",
@@ -528,14 +495,11 @@ cầu của tôi đang ở đâu" thì có 3 nơi phải tìm.
     "sự tồn tại của phiếu hỗ trợ.",
   ), name: <t-n4>),
 
-  edge(<t-svc>, <t-fb>, "-->", rel[điều phối]),
   edge(<t-svc>, <t-tk>, "-->", rel[điều phối]),
-  edge(<t-fb>, <t-rep>, "-->", rel[cộng dồn khi công bố]),
   edge(<t-rev>, <t-rep>, "-->", rel[cộng dồn]),
   edge(<t-rev>, <t-rpl>, "-", rel[1 -> 0..\*  «composition»]),
   edge(<t-rev>, <t-vote>, "-", rel[1 -> 0..\*]),
   edge(<t-rep>, <t-out>, "-->", stroke: (dash: "dashed"), rel[chặn đếm 2 lần]),
-  edge(<t-fb>, <t-n3>, "-", stroke: (dash: "dashed")),
   edge(<t-rev>, <t-n2>, "-", stroke: (dash: "dashed")),
   edge(<t-tk>, <t-n1>, "-", stroke: (dash: "dashed")),
   edge(<t-tk>, <t-n4>, "-", stroke: (dash: "dashed")),

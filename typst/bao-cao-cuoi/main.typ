@@ -150,9 +150,8 @@ không cần tin nhau.
 nhân trên kiến trúc vi dịch vụ, trong đó tiền của người mua được giữ lại ở tài khoản
 trung gian cho tới khi hàng đã tới tay và thời hạn khiếu nại đã trôi qua. Xoay quanh
 cơ chế đó là một tập năng lực hỗ trợ: thương lượng giá ngay trong cuộc trò chuyện của
-hai bên, xác minh danh tính điện tử trước khi được bán hàng hay rút tiền, đánh giá hai
-chiều theo cơ chế ẩn để không ai trả đũa được ai, một quy trình khiếu nại thống nhất
-do bộ phận vận hành phân xử, và tìm kiếm kết hợp giữa từ khóa với ngữ nghĩa để món
+hai bên, xác minh danh tính điện tử trước khi được bán hàng hay rút tiền, một quy trình
+khiếu nại thống nhất do bộ phận vận hành phân xử, và tìm kiếm kết hợp giữa từ khóa với ngữ nghĩa để món
 hàng cũ được mô tả bằng lời lẽ dân dã vẫn tìm ra được.
 
 *Phạm vi.* Báo cáo bao trùm trọn vòng đời phát triển của hệ thống: phân tích yêu cầu,
@@ -196,8 +195,7 @@ vụ cốt lõi của luồng tiền và luồng đơn hàng.
 cơ chế bảo vệ giao dịch được thiết kế thành thuộc tính của hệ thống chứ không phải một
 chính sách nằm ngoài phần mềm. Tiền của người mua được giữ ở tài khoản ký quỹ bởi
 chính luồng thanh toán, đơn hàng ra đời từ việc tiền đã về chứ không từ thao tác của ai,
-quy trình khiếu nại được hợp nhất về một dạng phiếu duy nhất, và đánh giá hai chiều được
-giữ kín cho tới khi cả 2 bên đã gửi. Mỗi lựa chọn ấy loại bỏ một khoảng trống mà ở đó
+và quy trình khiếu nại được hợp nhất về một dạng phiếu duy nhất. Mỗi lựa chọn ấy loại bỏ một khoảng trống mà ở đó
 một bên có thể gây thiệt hại cho bên kia.
 
 *Hạn chế.* Hệ thống chưa được tích hợp với một hãng vận chuyển thật nào, nên toàn bộ
