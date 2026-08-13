@@ -81,7 +81,7 @@
           #set text(size: 13pt, weight: "bold")
           #grid(
             columns: (4.3cm, auto, auto),
-            row-gutter: 6pt,
+            row-gutter: 8pt,
             column-gutter: 6pt,
             align: (left, left, left),
             [Người hướng dẫn :], [#info.gvhd], [],
@@ -142,7 +142,7 @@
     if p.len() == 1 { [CHƯƠNG #p.at(0): ] } else { [#p.map(str).join(".") ] }
   })
 
-  // Dấu đầu dòng: cấp 1 dùng gạch ngang, cấp 2 dùng dấu cộng để hai cấp phân
+  // Dấu đầu dòng: cấp 1 dùSng gạch ngang, cấp 2 dùng dấu cộng để hai cấp phân
   // biệt được bằng mắt. Chỉ dùng tối đa 2 cấp; sâu hơn thì viết lại thành văn
   // xuôi hoặc tách mục, không lồng tiếp.
   // Thụt 1cm cho thẳng với dòng đầu của đoạn văn.

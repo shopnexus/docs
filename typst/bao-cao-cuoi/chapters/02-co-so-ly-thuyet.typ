@@ -46,17 +46,17 @@ Hệ thống thiết lập một mô hình giao tiếp lai 3 tầng (3-tier Hybr
 === Phân luồng giao tiếp theo mô hình Lệnh/Truy vấn (CQRS-like Routing)
 Để tận dụng tối đa năng lực phục hồi lỗi của Restate mà không làm hy sinh hiệu năng của các tác vụ truy vấn dữ liệu thông thường, hệ thống phân luồng giao tiếp API thành hai con đường riêng biệt:
 
-- *Luồng Lệnh / Thao tác Ghi (Mutations - M) qua Restate Ingress Proxy:*
-  - Mọi yêu cầu làm thay đổi trạng thái của hệ thống (side effects) đều bắt buộc phải đi qua cổng Restate Ingress.
-  - *Cơ chế hoạt động:* Restate Ingress tiếp gắn khóa `idempotency-key` từ header để chống lặp giao dịch, sau đó ghi nhận yêu cầu vào nhật ký bền vững (Write-Ahead Log) rồi mới điều hướng lời gọi RPC vào hàm bền vững (Durable Function) của microservice tương ứng.
+*Luồng Lệnh / Thao tác Ghi (Mutations - M) qua Restate Ingress Proxy:*
+- Mọi yêu cầu làm thay đổi trạng thái của hệ thống (side effects) đều bắt buộc phải đi qua cổng Restate Ingress.
+- *Cơ chế hoạt động:* Restate Ingress tiếp gắn khóa `idempotency-key` từ header để chống lặp giao dịch, sau đó ghi nhận yêu cầu vào nhật ký bền vững (Write-Ahead Log) rồi mới điều hướng lời gọi RPC vào hàm bền vững (Durable Function) của microservice tương ứng.
 
-- *Luồng Truy vấn / Thao tác Đọc (Queries - Q) qua HTTP/2 RPC trực tiếp:*
-  - Các thao tác chỉ đọc dữ liệu được định tuyến gọi thẳng trực tiếp từ API Gateway/Frontend vào các microservices thông qua giao thức đồng bộ HTTP/2 RPC, hoàn toàn bỏ qua lớp Restate Ingress.
-  - *Lý do kiến trúc:* Mỗi lần chuyển tiếp (hop) qua Restate Ingress để thực hiện theo dõi trạng thái và ghi nhật ký sẽ làm phát sinh một độ trễ trung gian. Với các tác vụ truy vấn đọc dữ liệu chiếm tần suất cao nhất hệ thống nhưng không làm thay đổi trạng thái, việc bỏ qua Ingress giúp tối ưu độ trễ phản hồi xuống thấp hơn, loại bỏ thuế hiệu năng (durability tax) không cần thiết.
+*Luồng Truy vấn / Thao tác Đọc (Queries - Q) qua HTTP/2 RPC trực tiếp:*
+- Các thao tác chỉ đọc dữ liệu được định tuyến gọi thẳng trực tiếp từ API Gateway/Frontend vào các microservices thông qua giao thức đồng bộ HTTP/2 RPC, hoàn toàn bỏ qua lớp Restate Ingress.
+- *Lý do kiến trúc:* Mỗi lần chuyển tiếp (hop) qua Restate Ingress để thực hiện theo dõi trạng thái và ghi nhật ký sẽ làm phát sinh một độ trễ trung gian. Với các tác vụ truy vấn đọc dữ liệu chiếm tần suất cao nhất hệ thống nhưng không làm thay đổi trạng thái, việc bỏ qua Ingress giúp tối ưu độ trễ phản hồi xuống thấp hơn, loại bỏ thuế hiệu năng (durability tax) không cần thiết.
 
 === Cơ chế điều hướng và đánh thức luồng bất đồng bộ với Restate Ingress
 Bên cạnh khả năng định thời (`sleep`), Restate Ingress cung cấp hai phương thức giao tiếp phi đồng bộ mạnh mẽ cho các luồng nghiệp vụ C2C phối hợp:
-- *Cơ chế Tín hiệu Đánh thức (Awakables / Promise Signaling):* Trong quy trình ký quỹ hoặc tranh chấp, quy trình nghiệp vụ thường phải tạm dừng để chờ một sự kiện xác nhận từ hệ thống bên ngoài (ví dụ: chờ webhook từ cổng thanh toán VNPay xác nhận đã nạp tiền, hoặc chờ webhook từ đối tác vận chuyển GHN báo cáo đã giao hàng thành công). Restate cung cấp nguyên hàm Awakable - một đối tượng tương đương với Promise phân tán có định danh duy nhất. Luồng code gọi `ctx.awakable()` để tạo định danh và tạm dừng thực thi; khi hệ thống ngoại vi gửi webhook về Ingress kèm định danh này, Ingress lập tức giải phóng Awakable, "đánh thức" (resume) chính xác luồng đang ngủ và tiếp tục xử lý giải ngân.
+- *Cơ chế Tín hiệu Đánh thức (Awakables / Promise Signaling):* Trong quy trình ký quỹ hoặc tranh chấp, quy trình nghiệp vụ thường phải tạm dừng để chờ một sự kiện xác nhận từ hệ thống bên ngoài (ví dụ: chờ webhook từ cổng thanh toán xác nhận đã nạp tiền, hoặc chờ webhook từ đối tác vận chuyển báo đã giao hàng thành công). Restate cung cấp nguyên hàm Awakable - một đối tượng tương đương với Promise phân tán có định danh duy nhất. Luồng code gọi `ctx.awakable()` để tạo định danh và tạm dừng thực thi; khi hệ thống ngoại vi gửi webhook về Ingress kèm định danh này, Ingress lập tức giải phóng Awakable, "đánh thức" (resume) chính xác luồng đang ngủ và tiếp tục xử lý giải ngân.
 
 === Kiến trúc hướng sự kiện (Event-Driven) với NATS JetStream
 Đối với các thao tác phối hợp hậu kỳ sau khi một giao dịch mutation đã hoàn tất thành công, hệ thống áp dụng Kiến trúc Hướng sự kiện (Event-Driven Architecture) nhằm giảm độ ghép nối giữa các module:
