@@ -40,6 +40,15 @@ Hệ thống được thiết kế phục vụ cho 3 nhóm đối tác nhân ch�
 
 === Sơ đồ ngữ cảnh hệ thống (System Context Diagram)
 
+Sơ đồ ngữ cảnh đặt hệ thống vào giữa và chỉ vẽ những gì đi qua đường biên của nó. Bên trái là
+3 vai trò người dùng đã mô tả ở trên: người dùng gửi vào các yêu cầu đăng ký, đặt mua, đăng
+bán, trò chuyện, hoàn tiền và tranh chấp; điều phối viên gửi vào các thao tác xử lý khiếu nại,
+phân xử và chăm sóc khách hàng; quản trị viên gửi vào việc quản lý tài khoản và đối soát. Bên
+phải là 2 nhóm đối tác ngoại vi: cổng thanh toán trao đổi luồng thanh toán và hoàn tiền, đối
+tác vận chuyển trao đổi vận đơn và các mốc hành trình. Điều đáng chú ý ở mức ngữ cảnh là mọi
+đường tiền và mọi đường hàng đều đi qua hệ thống chứ không nối trực tiếp giữa 2 cá nhân, và
+đó chính là điều kiện kỹ thuật để cơ chế ký quỹ tồn tại.
+
 #fig(
   [Sơ đồ ngữ cảnh hệ thống (System Context Diagram)],
   spacing: (40mm, 16mm),
