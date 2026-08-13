@@ -181,47 +181,8 @@ Hệ thống CI/CD được thiết lập nhằm tự động hóa quy trình ki
 
 == Kết quả hiện thực
 
-Quá trình hiện thực hoá hệ thống đã hoàn thiện các hạng mục kỹ thuật cốt lõi. Tuy nhiên, trong khuôn khổ đồ án, hệ thống vẫn tồn tại 5 hạn chế kỹ thuật chưa được giải quyết triệt để:
-+ *Tích hợp bên thứ ba:* 5 seam có máy khách của nhà cung cấp thật đều mới chỉ dừng ở mức đã viết xong và kiểm thử bằng máy chủ HTTP giả dựng ngay trong ca kiểm thử; chưa có lời gọi nào chạm tới môi trường Sandbox hay Production của đối tác, nên cũng chưa có đối soát giao dịch thật. 3 seam còn lại thì chưa có cả bản hiện thực của một nhà cung cấp thật: xác minh danh tính và vận chuyển mới chỉ có bản giả lập, lưu trữ tệp mới chỉ ghi xuống hệ tệp cục bộ.
-+ *Tự động hóa CI/CD:* Chuỗi tích hợp liên tục của kho mã nguồn máy chủ (server) hiện chưa bao gồm bước chạy kiểm thử tự động, buộc phải kiểm định thủ công trước khi phát hành; kho này mới có cổng chống lệch đặc tả API và bước dựng ảnh chứa.
-+ *Kiểm thử tầng truy cập dữ liệu:* Các bài kiểm thử cần một cơ sở dữ liệu thật được tách sau một nhãn biên dịch riêng nên không nằm trong bộ kiểm thử mặc định. Vì không có dây chuyền nào chạy chúng, một phần đã lệch khỏi mã miền tới mức không còn biên dịch được.
-+ *Quản trị cơ sở dữ liệu:* Các tập lệnh di trú (migration) chỉ hỗ trợ chiều tiến (up/forward). Hệ thống thiếu các tệp lùi (down/rollback) và chưa có quy trình kiểm thử khôi phục dữ liệu (disaster recovery).
-+ *Bằng chứng vận hành:* Hệ thống mới chỉ được dựng và chạy trong môi trường phát triển đóng gói bằng Docker Compose. Chưa có lần vận hành nào trên môi trường thật với người dùng thật, nên chưa thu được số liệu tải, thời gian hoạt động hay nhật ký sự cố để dẫn ra trong báo cáo.
+Hệ thống đã hoàn thiện các hạng mục kỹ thuật cốt lõi theo đúng thiết kế kiến trúc đề ra. Tuy nhiên, trong khuôn khổ đồ án, quá trình hiện thực vẫn còn một số giới hạn nhất định:
 
-
-
-== Tổ chức công việc và quản lý rủi ro
-=== Chiến lược tổ chức và phân rã công việc
-
-- *Phân rã theo khối nghiệp vụ (Business Capability):* Công việc được chia theo khối tổng hợp (VD: Tài khoản, Đơn hàng) thay vì cắt ngang theo tầng kỹ thuật. Một hạng mục công việc bao trọn từ thực thể CSDL, API đến kiểm thử đơn vị, đảm bảo mỗi khối khi hoàn thành đều là một đơn vị bàn giao có khả năng hoạt động độc lập (Deliverable Increment).
-- *Phát triển xoay quanh luồng tiền (Money-driven Sequence):* Do quyết định kiến trúc "dòng tiền tạo ra đơn hàng", trình tự phát triển bắt buộc bám sát luồng thanh toán. Nền tảng lõi được dựng trước, tiếp nối bởi Tài khoản, Danh mục, Đơn hàng và Tài chính. Bộ giả lập thanh toán được triển khai sớm nhất để khơi thông luồng kiểm thử toàn trình (End-to-End).
-
-=== Quản lý rủi ro
-
-Sổ đăng ký rủi ro (Risk Register) được thiết lập ngay từ giai đoạn thiết kế, phân bổ trách nhiệm cụ thể và rà soát định kỳ. Bảng dưới đây trình bày 7 rủi ro đã thực sự xảy ra và chiến lược ứng phó. Trạng thái cuối kỳ phản ánh trung thực mức độ ảnh hưởng và các thỏa hiệp kỹ thuật buộc phải chấp nhận để hệ thống về đích đúng tiến độ.
-
-
-#figure(
-  kind: table,
-  caption: [Sổ đăng ký rủi ro hiện thực và trạng thái thực tế cuối kỳ],
-  table(
-    columns: (0.5fr, 1.3fr, 0.36fr, 1.2fr, 1.05fr),
-    align: (left + top, left + top, center + top, left + top, left + top),
-    table.header([Mã], [Rủi ro], [Tác động], [Biện pháp ứng phó], [Trạng thái cuối]),
-
-    [RR-01], [Bộ phân tích tĩnh mở rộng không theo kịp phiên bản ngôn ngữ đích], [T. bình], [Giữ tệp cấu hình để chạy lại ngay khi công cụ bắt kịp; dùng công cụ tiêu chuẩn làm cổng tối thiểu], [*Đã xảy ra.* Cổng chất lượng tĩnh chỉ còn công cụ tiêu chuẩn],
-
-    [RR-02], [Không kịp tích hợp một hãng vận chuyển thật trong kỳ], [Cao], [Đặt seam sau một sổ đăng ký để thêm hãng chỉ là thêm một hiện thực; bản giả lập đủ 11 kịch bản], [*Đã xảy ra.* Nghiệp vụ hoàn chỉnh nhưng chưa có hiện thực của hãng thật nào],
-
-    [RR-03], [Không thu được bằng chứng của một lời gọi thật tới nhà cung cấp nào], [T. bình], [Viết máy khách theo tài liệu và kiểm chứng bằng máy chủ HTTP giả dựng ngay trong ca kiểm thử], [*Đã xảy ra.* 6 seam có máy khách của nhà cung cấp thật đều dừng ở mức kiểm thử bằng máy chủ giả, không có nhật ký giao dịch thật nào],
-
-    [RR-04], [Kiểm thử tầng truy cập dữ liệu cần cơ sở dữ liệu thật nên không vào được dây chuyền tự động], [T. bình], [Tách bằng thẻ biên dịch để bộ kiểm thử mặc định chạy được ở mọi nơi; chạy tay trước mỗi mốc], [*Đã xảy ra, nặng hơn dự liệu.* 113 hàm kiểm thử bị bỏ qua hoàn toàn, và 17 trong số đó đã lệch khỏi mã miền tới mức không còn biên dịch được],
-
-    [RR-05], [Dây chuyền tích hợp liên tục của kho dịch vụ nền không chạy kiểm thử], [Cao], [Ưu tiên cổng chống lệch đặc tả vì nó chặn lỗi lan sang 2 ứng dụng khách], [*Đã xảy ra.* Dây chuyền của kho dịch vụ nền chưa chạy kiểm thử tự động],
-
-    [RR-06], [Không chứng minh được hệ thống chạy ngoài môi trường phát triển], [T. bình], [Đóng gói toàn bộ hệ thống để dựng lại bằng một câu lệnh, và phát hành ảnh chứa tối giản chạy dưới quyền non-root], [*Đã xảy ra.* Chỉ có bằng chứng chạy trên môi trường phát triển],
-
-    [RR-07], [Một lần di trú sai không có đường quay lại đã được diễn tập], [Cao], [Chỉ áp di trú bằng một tiến trình riêng; sao lưu trước mỗi lần áp], [*Đã xảy ra một phần.* Chưa có tệp di trú lùi và chưa diễn tập khôi phục; chưa có sự cố nào],
-
-  ),
-)
++ *Tích hợp bên thứ ba:* Các máy khách tích hợp hiện chỉ được kiểm chứng thông qua máy chủ giả lập nội bộ, chưa kết nối trực tiếp đến môi trường thực tế (Sandbox/Production) của đối tác. Nghiệp vụ vận chuyển và xác minh danh tính mới chỉ tồn tại ở dạng bản giả lập (Mock).
++ *Tự động hóa CI/CD:* CI/CD pipeline đã vận hành ổn định với các bước tự động chạy kiểm thử đơn vị, hệ thống hiện vẫn thiếu môi trường staging chuyên biệt để thực hiện kiểm thử toàn trình (End-to-End) tự động trước khi đẩy lên Production.
++ *Kiểm thử truy cập dữ liệu:* Nhóm ca kiểm thử tương tác với cơ sở dữ liệu bị cô lập sau các thẻ biên dịch (build tag) do đòi hỏi môi trường thực tế. Sự thiếu hụt dây chuyền chạy tự động khiến một số ca kiểm thử này trở nên lỗi thời so với mã miền.

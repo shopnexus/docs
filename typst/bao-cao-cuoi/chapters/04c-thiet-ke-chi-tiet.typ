@@ -713,19 +713,19 @@ ghi chú thiết kế giải thích một quyết định không đọc được
 
 === Mô tả vắn tắt từng module
 
-*Tài khoản.* Một tài khoản vừa mua vừa bán trên cùng một định danh, nên module không tách hai vai ở mức lớp. Cả 3 cách định danh gồm số điện thoại, thư điện tử và tên đăng nhập đều tuỳ chọn nhưng phải có ít nhất một, và mật khẩu được phép rỗng với tài khoản chỉ đăng nhập bằng định danh liên kết. Hồ sơ được gộp thẳng vào tài khoản thay vì tách bảng riêng vì hai thứ luôn được đọc cùng nhau.
+- *Tài khoản:* Một tài khoản vừa mua vừa bán trên cùng một định danh, nên module không tách hai vai ở mức lớp. Cả 3 cách định danh gồm số điện thoại, thư điện tử và tên đăng nhập đều tuỳ chọn nhưng phải có ít nhất một, và mật khẩu được phép rỗng với tài khoản chỉ đăng nhập bằng định danh liên kết. Hồ sơ được gộp thẳng vào tài khoản thay vì tách bảng riêng vì hai thứ luôn được đọc cùng nhau.
 
-*Danh mục.* Tin đăng là lời chào bán của một người bán chứ không phải một mục trong danh mục hàng chung, nên định danh người bán, tình trạng hàng và đường dẫn rút gọn đều nằm ngay trên nó. Bản sửa của người bán không ghi đè tin đang hiển thị mà nằm chờ ở một đối tượng giá trị riêng cho tới khi điều phối viên duyệt. Điểm trung bình và số nhận xét là giá trị do module tín nhiệm đẩy sang, danh mục chỉ đọc chứ không tự tính.
+- *Danh mục:* Tin đăng là lời chào bán của một người bán chứ không phải một mục trong danh mục hàng chung, nên định danh người bán, tình trạng hàng và đường dẫn rút gọn đều nằm ngay trên nó. Bản sửa của người bán không ghi đè tin đang hiển thị mà nằm chờ ở một đối tượng giá trị riêng cho tới khi điều phối viên duyệt. Điểm trung bình và số nhận xét là giá trị do module tín nhiệm đẩy sang, danh mục chỉ đọc chứ không tự tính.
 
-*Đơn hàng.* Đây là module dày quy tắc nhất và cũng là module duy nhất khai báo luồng bền. Đơn hàng ra đời khi tiền về chứ không do ai bấm nút phê duyệt, nên dòng hàng có thể tồn tại trước đơn. Người bán vẫn phải xác nhận, nhưng thứ họ xác nhận là việc gọi hãng vận chuyển chứ không phải tiền, vì tiền đã nằm trong ký quỹ từ trước. Trạng thái đơn được suy ra từ các mốc thời gian chứ không lưu thành cột riêng.
+- *Đơn hàng:* Đây là module dày quy tắc nhất và cũng là module duy nhất khai báo luồng bền. Đơn hàng ra đời khi tiền về chứ không do ai bấm nút phê duyệt, nên dòng hàng có thể tồn tại trước đơn. Người bán vẫn phải xác nhận, nhưng thứ họ xác nhận là việc gọi hãng vận chuyển chứ không phải tiền, vì tiền đã nằm trong ký quỹ từ trước. Trạng thái đơn được suy ra từ các mốc thời gian chứ không lưu thành cột riêng.
 
-*Tài chính.* Mọi nguyên thuỷ tiền tệ nằm chung một module để các bước dịch chuyển ký quỹ giữ được tính nguyên tử. Ranh giới quan trọng nhất bên trong là hai sổ: một sổ ghi các chặng đi trên kênh thanh toán bên ngoài, sổ còn lại ghi mọi lần tiền dịch chuyển trong ví, và không bao giờ ghi cùng một lần dịch chuyển vào cả hai. Rút tiền không có bảng riêng mà là một phiên thanh toán mang loại khác, dùng lại đúng máy trạng thái đó.
+- *Tài chính:* Mọi nguyên thuỷ tiền tệ nằm chung một module để các bước dịch chuyển ký quỹ giữ được tính nguyên tử. Ranh giới quan trọng nhất bên trong là hai sổ: một sổ ghi các chặng đi trên kênh thanh toán bên ngoài, sổ còn lại ghi mọi lần tiền dịch chuyển trong ví, và không bao giờ ghi cùng một lần dịch chuyển vào cả hai. Rút tiền không có bảng riêng mà là một phiên thanh toán mang loại khác, dùng lại đúng máy trạng thái đó.
 
-*Hội thoại.* Một luồng chỉ có đúng hai bên, phân biệt bằng loại luồng là mua bán hay phiếu hỗ trợ. Mốc đã đọc lưu riêng cho từng bên nên số tin chưa đọc tính được mà không cần bảng phụ. Thẻ đề xuất giá là một loại tin nhắn chứ không phải một thực thể riêng, nhờ vậy lịch sử thương lượng nằm đúng trong dòng hội thoại.
+- *Hội thoại:* Một luồng chỉ có đúng hai bên, phân biệt bằng loại luồng là mua bán hay phiếu hỗ trợ. Mốc đã đọc lưu riêng cho từng bên nên số tin chưa đọc tính được mà không cần bảng phụ. Thẻ đề xuất giá là một loại tin nhắn chứ không phải một thực thể riêng, nhờ vậy lịch sử thương lượng nằm đúng trong dòng hội thoại.
 
-*Tín nhiệm.* Điểm số trả lời câu hỏi món hàng có đúng mô tả không: một chiều, chỉ người đã mua mới viết được. Thay đổi lớn nhất so với giai đoạn trước là không còn lớp tố cáo riêng; mọi thứ người dùng gửi lên đều là một phiếu hỗ trợ, phân biệt bằng loại phiếu, và chính loại phiếu quyết định phiếu trỏ vào đối tượng nào.
+- *Tín nhiệm:* Điểm số trả lời câu hỏi món hàng có đúng mô tả không: một chiều, chỉ người đã mua mới viết được. Thay đổi lớn nhất so với giai đoạn trước là không còn lớp tố cáo riêng; mọi thứ người dùng gửi lên đều là một phiếu hỗ trợ, phân biệt bằng loại phiếu, và chính loại phiếu quyết định phiếu trỏ vào đối tượng nào.
 
-*Dùng chung.* Ba nhóm phục vụ mọi module còn lại. Tệp tĩnh chỉ giữ đường dẫn tham chiếu và được cấp chỗ ghi qua đường dẫn ký có thời hạn. Sổ tuỳ chọn là bảng tra cứu cho các lựa chọn của một hạng mục như kênh tiền hay hãng vận chuyển. Nhật ký kiểm toán chỉ thêm mới, ghi lại mọi quyết định nghiệp vụ kèm người thực hiện.
+- *Dùng chung:* Ba nhóm phục vụ mọi module còn lại. Tệp tĩnh chỉ giữ đường dẫn tham chiếu và được cấp chỗ ghi qua đường dẫn ký có thời hạn. Sổ tuỳ chọn là bảng tra cứu cho các lựa chọn của một hạng mục như kênh tiền hay hãng vận chuyển. Nhật ký kiểm toán chỉ thêm mới, ghi lại mọi quyết định nghiệp vụ kèm người thực hiện.
 
 == Sơ đồ trình tự
 
@@ -758,9 +758,8 @@ Hình vẽ dùng 5 đường sinh, lần lượt là người mua, module order,
 danh mục và hãng vận chuyển. Các bước có nền khác biệt là bước bền vững, tức bước được nền
 tảng thực thi ghi vào nhật ký trước khi chạy, nên nếu máy chủ sập giữa trình tự thì lượt chạy
 lại sẽ bỏ qua đúng những bước đã có kết quả. Thứ tự các bước trong hình vì thế không chỉ là
-thứ tự thời gian mà còn là thứ tự phục hồi. Khung `alt` bao quanh bước 4 là chỗ duy nhất có hai
-nhánh loại trừ nhau: giữ đủ chỗ thì lượt mua đi tiếp, thiếu chỗ ở bất kỳ dòng nào thì các chỗ
-vừa giữ phải nhả lại hết, không có trạng thái giữ được một phần.
+thứ tự thời gian mà còn là thứ tự phục hồi. Khung `alt` ở bước 4 là chỗ duy nhất có hai nhánh loại
+trừ nhau: đủ chỗ thì đi tiếp, thiếu chỗ thì nhả lại hết, không có trạng thái giữ một phần.
 
 #fig-xoay(
     [Sơ đồ trình tự TT-A: đặt hàng và mở phiên thanh toán],
