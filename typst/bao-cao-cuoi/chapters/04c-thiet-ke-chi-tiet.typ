@@ -70,12 +70,22 @@
 
 === Phạm vi và quy ước ký hiệu
 
-Toàn bộ hệ thống có 46 bảng nghiệp vụ trải trên 7 lược đồ cơ sở dữ liệu, nên
-một sơ đồ lớp duy nhất sẽ không đọc được; phần này chia sơ đồ theo ranh giới module,
-cũng chính là ranh giới lược đồ mà một module sẽ mang theo nếu về sau nó được tách sang cơ
-sở dữ liệu riêng. 3 module được vẽ đầy đủ vì cấu trúc lớp của chúng nói lên điều mà văn
-xuôi không nói nổi: đơn hàng; tài chính, với phiên thanh toán, chặng thanh toán, ví và 2 sổ cái; và tín
-nhiệm, nơi một bảng phiếu duy nhất gánh mọi loại khiếu nại.
+Toàn bộ hệ thống có 45 bảng nghiệp vụ trải trên 7 lược đồ cơ sở dữ liệu, nên một sơ đồ lớp
+duy nhất sẽ không đọc được. Phần này chia sơ đồ theo ranh giới module, cũng chính là ranh giới
+lược đồ mà một module sẽ mang theo nếu về sau nó được tách sang cơ sở dữ liệu riêng. Bảy hình
+dưới đây phủ 7 module nghiệp vụ, xếp theo thứ tự một lượt mua đi qua: định danh, hàng hoá, đơn
+hàng, tiền, tín nhiệm, rồi tới 2 module hạ tầng là hội thoại và các thành phần dùng chung. Riêng module quan trắc không được vẽ ở đây: 4 kiểu dữ liệu của nó chỉ là dòng
+mẫu ghi theo thời gian, không có quan hệ với nhau và cũng không có phương thức nghiệp vụ nào,
+nên một sơ đồ lớp cho chúng không nói thêm được điều gì so với phần mô tả hạ tầng quan trắc.
+
+Ký hiệu trong sơ đồ theo chuẩn UML. Khuôn chữ đặt giữa 2 dấu ngoặc nhọn kép là nhãn phân loại
+lớp: «aggregate root» là gốc của một cụm phải nhất quán trong cùng một giao dịch, «value
+object» là đối tượng không có định danh riêng và luôn sống kèm lớp chứa nó, «interface» là
+giao diện mà tầng dưới phải hiện thực. Đường liền nét là quan hệ cấu trúc, ghi bản số ở hai
+đầu; kèm thêm chữ «composition» khi phần con không thể tồn tại nếu thiếu phần cha. Đường nét
+đứt là quan hệ phụ thuộc, tức bên này cần bên kia để làm việc nhưng không giữ tham chiếu bền
+tới nó. Khung nét đứt bao quanh một nhóm lớp là ranh giới module, và các khối chữ nghiêng là
+ghi chú thiết kế giải thích một quyết định không đọc được từ cấu trúc lớp.
 
 #fig-xoay(
     [Sơ đồ lớp module `account`: định danh, hồ sơ và kênh thông báo],
@@ -511,37 +521,6 @@ nhiệm, nơi một bảng phiếu duy nhất gánh mọi loại khiếu nại.
     edge(<f-repo>, <f-n1>, "-", stroke: (dash: "dashed")),
   )
 
-#fig(
-  [Sơ đồ lớp module `chat`: luồng trò chuyện và tin nhắn],
-  spacing: (46mm, 15mm),
-
-  cls((0, 0), "chatapi.Service", stereo: "cổng vào module", name: <k-svc>,
-    ops: ("+ mở luồng · gửi tin · đánh dấu đã đọc", "+ sửa · thu hồi tin nhắn")),
-
-  cls((1, 0), "Conversation", stereo: "aggregate root", name: <k-conv>,
-    attrs: (
-      "- kind: mua bán | phiếu hỗ trợ",
-      "- ticketID: *int64 -> trust",
-      "- accountAID, accountBID: int64",
-      "- accountA/BReadAt: *time",
-      "- lastMessageAt: time",
-    ),
-    ops: ("+ Involves(id) / Other(id)", "+ MarkRead(id, at)", "+ Counterparty(id)")),
-
-  cls((2, 0), "Message", name: <k-msg>,
-    attrs: (
-      "- senderID: int64",
-      "- type: chữ | ảnh | thẻ đề xuất giá",
-      "- body, attachments, refs",
-      "- card: nội dung thẻ đề xuất giá",
-      "- editedAt, deletedAt: *time",
-    ),
-    ops: ("+ Edit() / Redact()", "+ IsLive() bool")),
-
-  edge(<k-svc>, <k-conv>, "-->", rel[điều phối]),
-  edge(<k-conv>, <k-msg>, "-", rel[1 -> 0..\*  «composition»]),
-)
-
 #fig-xoay(
   [Sơ đồ lớp module `trust`: nhận xét tin đăng, điểm uy tín và phiếu hỗ trợ],
   spacing: (8mm, 7mm),
@@ -663,28 +642,34 @@ nhiệm, nơi một bảng phiếu duy nhất gánh mọi loại khiếu nại.
 )
 
 #fig(
-  [Sơ đồ lớp module `observability`: 4 dòng mẫu ghi theo thời gian],
-  spacing: (46mm, 11mm),
+  [Sơ đồ lớp module `chat`: luồng trò chuyện và tin nhắn],
+  spacing: (46mm, 15mm),
 
-  cls((0, 1.5), "observability.Collector", stereo: "cổng vào module", name: <o2-svc>,
-    ops: ("+ ghi mẫu theo lô", "+ truy vấn phân vị theo cửa sổ thời gian")),
+  cls((0, 0), "chatapi.Service", stereo: "cổng vào module", name: <k-svc>,
+    ops: ("+ mở luồng · gửi tin · đánh dấu đã đọc", "+ sửa · thu hồi tin nhắn")),
 
-  cls((1, 0), "HTTPSample", stereo: "hypertable", name: <o2-http>,
-    attrs: ("- ts, instance", "- method, route, status", "- durationMs: float64")),
+  cls((1, 0), "Conversation", stereo: "aggregate root", name: <k-conv>,
+    attrs: (
+      "- kind: mua bán | phiếu hỗ trợ",
+      "- ticketID: *int64 -> trust",
+      "- accountAID, accountBID: int64",
+      "- accountA/BReadAt: *time",
+      "- lastMessageAt: time",
+    ),
+    ops: ("+ Involves(id) / Other(id)", "+ MarkRead(id, at)", "+ Counterparty(id)")),
 
-  cls((1, 1), "ProviderCall", stereo: "hypertable", name: <o2-prov>,
-    attrs: ("- ts, instance, provider", "- method, path, status", "- durationMs, failed, error")),
+  cls((2, 0), "Message", name: <k-msg>,
+    attrs: (
+      "- senderID: int64",
+      "- type: chữ | ảnh | thẻ đề xuất giá",
+      "- body, attachments, refs",
+      "- card: nội dung thẻ đề xuất giá",
+      "- editedAt, deletedAt: *time",
+    ),
+    ops: ("+ Edit() / Redact()", "+ IsLive() bool")),
 
-  cls((1, 2), "BusinessEvent", stereo: "hypertable", name: <o2-biz>,
-    attrs: ("- ts, instance", "- topic: tên sự kiện nghiệp vụ", "- payload: jsonb")),
-
-  cls((1, 3), "RuntimeSample", stereo: "hypertable", name: <o2-rt>,
-    attrs: ("- ts, instance, goroutines", "- heapAlloc/InuseBytes", "- gcPauseMs, numGC, webSocketConns")),
-
-  edge(<o2-svc>, <o2-http>, "-->", rel[ghi]),
-  edge(<o2-svc>, <o2-prov>, "-->", rel[ghi]),
-  edge(<o2-svc>, <o2-biz>, "-->", rel[ghi]),
-  edge(<o2-svc>, <o2-rt>, "-->", rel[ghi]),
+  edge(<k-svc>, <k-conv>, "-->", rel[điều phối]),
+  edge(<k-conv>, <k-msg>, "-", rel[1 -> 0..\*  «composition»]),
 )
 
 #fig(
@@ -739,8 +724,6 @@ nhiệm, nơi một bảng phiếu duy nhất gánh mọi loại khiếu nại.
 *Hội thoại.* Một luồng chỉ có đúng hai bên, phân biệt bằng loại luồng là mua bán hay phiếu hỗ trợ. Mốc đã đọc lưu riêng cho từng bên nên số tin chưa đọc tính được mà không cần bảng phụ. Thẻ đề xuất giá là một loại tin nhắn chứ không phải một thực thể riêng, nhờ vậy lịch sử thương lượng nằm đúng trong dòng hội thoại.
 
 *Tín nhiệm.* Điểm số trả lời câu hỏi món hàng có đúng mô tả không: một chiều, chỉ người đã mua mới viết được. Thay đổi lớn nhất so với giai đoạn trước là không còn lớp tố cáo riêng; mọi thứ người dùng gửi lên đều là một phiếu hỗ trợ, phân biệt bằng loại phiếu, và chính loại phiếu quyết định phiếu trỏ vào đối tượng nào.
-
-*Quan trắc.* Bốn dòng mẫu đều là bảng ghi theo thời gian trên TimescaleDB, không có khoá ngoại và không tham chiếu tới thực thể nghiệp vụ nào, vì chúng phải ghi được kể cả khi bản ghi gốc đã bị xoá. Chúng cũng là 4 lớp duy nhất trong hệ thống không có phương thức nghiệp vụ.
 
 *Dùng chung.* Ba nhóm phục vụ mọi module còn lại. Tệp tĩnh chỉ giữ đường dẫn tham chiếu và được cấp chỗ ghi qua đường dẫn ký có thời hạn. Sổ tuỳ chọn là bảng tra cứu cho các lựa chọn của một hạng mục như kênh tiền hay hãng vận chuyển. Nhật ký kiểm toán chỉ thêm mới, ghi lại mọi quyết định nghiệp vụ kèm người thực hiện.
 
