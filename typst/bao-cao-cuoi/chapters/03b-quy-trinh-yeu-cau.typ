@@ -188,13 +188,13 @@ phải tuân thủ: mọi phép chuyển không xuất hiện trên sơ đồ đ
     [REQ-10], [từ chối công bố tin đăng nếu người bán chưa khai báo địa chỉ lấy hàng, và gắn cứng địa chỉ đó vào tin ngay tại thời điểm công bố.], [UC-06], [danh mục, tài khoản], [BR-11],
     [REQ-11], [giữ mọi tin đăng mới công bố và mọi bản sửa ở trạng thái chờ duyệt theo thứ tự gửi, và không hiển thị công khai trước khi được duyệt.], [UC-06, UC-08, UC-25], [danh mục], [BR-10, BR-12],
     [REQ-12], [cho phép điều phối viên duyệt, từ chối kèm lý do hoặc gỡ một tin đăng, và phân biệt tin bị gỡ với tin người bán tự ẩn.], [UC-25], [danh mục], [BR-13, BR-49],
-    [REQ-13], [sinh một biểu mẫu tin đăng điền sẵn từ ảnh và ghi chú của người bán, mà không tạo bất kỳ bản ghi nghiệp vụ nào.], [UC-07], [danh mục], [—],
+    [REQ-13], [sinh một biểu mẫu tin đăng điền sẵn từ ảnh và ghi chú của người bán, mà không tạo bất kỳ bản ghi nghiệp vụ nào.], [UC-07], [danh mục], [],
 
     table.cell(colspan: 5, align: left)[*Nhóm 4. Tìm kiếm, duyệt và quan tâm*],
-    [REQ-14], [trả kết quả tìm kiếm theo từ khoá tự nhiên, kết hợp đối sánh chuỗi với đối sánh ngữ nghĩa khi tin đăng đã có embedding.], [UC-09], [danh mục], [—],
-    [REQ-15], [cho phép lọc kết quả theo danh mục, khoảng giá, tình trạng và khoảng cách, và sắp xếp theo mới nhất, giá, lượt bán hoặc điểm đánh giá.], [UC-09], [danh mục], [—],
-    [REQ-16], [đánh dấu tin đăng, danh mục và thẻ là cần sinh lại embedding mỗi khi phần nội dung mô tả của chúng thay đổi.], [UC-06, UC-08], [danh mục], [—],
-    [REQ-17], [cho phép người mua theo dõi một người bán và đánh dấu một tin đăng để xem lại về sau.], [UC-10], [danh mục, tài khoản], [—],
+    [REQ-14], [trả kết quả tìm kiếm theo từ khoá tự nhiên, kết hợp đối sánh chuỗi với đối sánh ngữ nghĩa khi tin đăng đã có embedding.], [UC-09], [danh mục], [],
+    [REQ-15], [cho phép lọc kết quả theo danh mục, khoảng giá, tình trạng và khoảng cách, và sắp xếp theo mới nhất, giá, lượt bán hoặc điểm đánh giá.], [UC-09], [danh mục], [],
+    [REQ-16], [đánh dấu tin đăng, danh mục và thẻ là cần sinh lại embedding mỗi khi phần nội dung mô tả của chúng thay đổi.], [UC-06, UC-08], [danh mục], [],
+    [REQ-17], [cho phép người mua theo dõi một người bán và đánh dấu một tin đăng để xem lại về sau.], [UC-10], [danh mục, tài khoản], [],
 
     table.cell(colspan: 5, align: left)[*Nhóm 5. Hội thoại và thương lượng giá*],
     [REQ-18], [duy trì đúng một hội thoại trực tiếp cho mỗi cặp tài khoản, và đẩy tin nhắn mới tới thiết bị đang kết nối.], [UC-11], [trò chuyện], [BR-58],
@@ -235,10 +235,10 @@ phải tuân thủ: mọi phép chuyển không xuất hiện trên sơ đồ đ
     table.cell(colspan: 5, align: left)[*Nhóm 10. Quản trị, tệp đính kèm và vận hành*],
     [REQ-42], [cho phép duy nhất quản trị viên cấp phát và thu hồi tài khoản điều phối viên.], [UC-05], [tài khoản], [BR-04],
     [REQ-43], [cho phép quản trị viên bật, tắt hoặc đổi nhà cung cấp phục vụ cho từng dòng của sổ tuỳ chọn, và giữ dòng đã tắt ở dạng đọc được cho bản ghi cũ.], [UC-28], [tài chính, đơn hàng], [BR-54],
-    [REQ-47], [cho phép quản trị viên tạo, đổi tên và sắp lại cây danh mục, từ chối một phép sắp lại tạo ra chu trình, và từ chối xoá danh mục đang có tin đăng.], [UC-28], [danh mục], [—],
-    [REQ-44], [cấp một đường tải lên có chữ ký cho mỗi tệp, và chỉ gắn tệp vào nghiệp vụ gọi tới sau khi người dùng xác nhận đã tải xong.], [UC-S1], [mọi dịch vụ có nghiệp vụ nhận tệp], [—],
+    [REQ-47], [cho phép quản trị viên tạo, đổi tên và sắp lại cây danh mục, từ chối một phép sắp lại tạo ra chu trình, và từ chối xoá danh mục đang có tin đăng.], [UC-28], [danh mục], [],
+    [REQ-44], [cấp một đường tải lên có chữ ký cho mỗi tệp, và chỉ gắn tệp vào nghiệp vụ gọi tới sau khi người dùng xác nhận đã tải xong.], [UC-S1], [mọi dịch vụ có nghiệp vụ nhận tệp], [],
     [REQ-45], [ghi một bản ghi kiểm toán chỉ-thêm-mới trong cùng giao dịch cơ sở dữ liệu với mỗi quyết định nghiệp vụ và mỗi biến động tiền.], [UC-S2], [tất cả], [BR-55],
-    [REQ-46], [thu thập 4 tín hiệu vận hành gồm lưu lượng vào, lời gọi ra ngoài, sự kiện nghiệp vụ và số đo thời gian chạy, không làm chậm yêu cầu đang phục vụ.], [UC-30], [quan trắc], [—],
+    [REQ-46], [thu thập 4 tín hiệu vận hành gồm lưu lượng vào, lời gọi ra ngoài, sự kiện nghiệp vụ và số đo thời gian chạy, không làm chậm yêu cầu đang phục vụ.], [UC-30], [quan trắc], [],
   )
 )
 

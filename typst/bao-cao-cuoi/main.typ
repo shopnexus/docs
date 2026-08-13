@@ -44,21 +44,21 @@ Mặc dù đã có nhiều cố gắng, song do giới hạn về mặt thời g
   columns: (auto, 1.5fr, 2fr),
   align: (left, left, left),
   table.header([*Viết tắt*], [*Cụm từ đầy đủ*], [*Ý nghĩa*]),
-  [Access token], [—], [Vé truy cập ngắn hạn, đính kèm mỗi lời gọi API để chứng minh danh tính],
+  [Access token], [], [Vé truy cập ngắn hạn, đính kèm mỗi lời gọi API để chứng minh danh tính],
   [ANN], [Approximate Nearest Neighbor], [Tìm láng giềng gần đúng (cho tìm kiếm vector)],
   [API], [Application Programming Interface], [Giao diện lập trình ứng dụng],
   [BR], [Business Rule], [Quy tắc nghiệp vụ (đánh mã BR-xxx)],
   [C2C], [Consumer to Consumer], [Giao dịch giữa các cá nhân người dùng],
   [CI/CD], [Continuous Integration / Continuous Deployment], [Tích hợp và triển khai liên tục],
-  [CSDL], [—], [Cơ sở dữ liệu],
-  [Durable execution], [—], [Thực thi bền: nền tảng bảo đảm một lời gọi chạy tới cùng dù tiến trình gặp sự cố],
-  [Durable workflow], [—], [Quy trình bền: quy trình nhiều bước chạy trên nền tảng durable execution],
-  [Embedding], [—], [Véc-tơ nhúng biểu diễn ngữ nghĩa của văn bản, dùng cho tìm kiếm ngữ nghĩa],
+  [CSDL], [], [Cơ sở dữ liệu],
+  [Durable execution], [], [Thực thi bền: nền tảng bảo đảm một lời gọi chạy tới cùng dù tiến trình gặp sự cố],
+  [Durable workflow], [], [Quy trình bền: quy trình nhiều bước chạy trên nền tảng durable execution],
+  [Embedding], [], [Véc-tơ nhúng biểu diễn ngữ nghĩa của văn bản, dùng cho tìm kiếm ngữ nghĩa],
   [ERD], [Entity–Relationship Diagram], [Sơ đồ thực thể – quan hệ],
-  [Ký quỹ], [—], [Cơ chế ký quỹ (trung gian) bảo vệ giao dịch],
-  [Guarded write], [—], [Lượt ghi có bảo vệ, nêu đích danh trạng thái nguồn nên một lượt đọc cũ luôn thua],
-  [Idempotency key], [—], [Khóa lũy đẳng: định danh do bên gọi đặt để một thao tác chỉ có hiệu lực một lần],
-  [Idempotent], [—], [Lũy đẳng: gọi nhiều lần cho cùng kết quả như gọi một lần],
+  [Ký quỹ], [], [Cơ chế ký quỹ (trung gian) bảo vệ giao dịch],
+  [Guarded write], [], [Lượt ghi có bảo vệ, nêu đích danh trạng thái nguồn nên một lượt đọc cũ luôn thua],
+  [Idempotency key], [], [Khóa lũy đẳng: định danh do bên gọi đặt để một thao tác chỉ có hiệu lực một lần],
+  [Idempotent], [], [Lũy đẳng: gọi nhiều lần cho cùng kết quả như gọi một lần],
   [JWT], [JSON Web Token], [Chuẩn token xác thực người dùng],
   [NFR], [Non-Functional Requirement], [Yêu cầu phi chức năng],
   [RBAC], [Role-Based Access Control], [Kiểm soát truy cập theo vai trò],
@@ -115,8 +115,8 @@ Mặc dù đã có nhiều cố gắng, song do giới hạn về mặt thời g
 
 #v(0.2cm)
 #text(size: 11pt)[
-  *Mức độ hoàn thành.* #emph[Hoàn thành] — hạng mục đã xong và có sản phẩm hoặc hồ sơ
-  kèm theo trong quyển. #emph[Hoàn thành cơ bản] — phần lõi đã xong và chạy được, nhưng
+  *Mức độ hoàn thành.* #emph[Hoàn thành]: hạng mục đã xong và có sản phẩm hoặc hồ sơ
+  kèm theo trong quyển. #emph[Hoàn thành cơ bản]: phần lõi đã xong và chạy được, nhưng
   còn hạn chế đã nêu đích danh ở mục 5.6 và 6.6: tích hợp nhà cung cấp thật chỉ dừng ở bộ
   giả lập, dây chuyền tích hợp liên tục chưa chạy kiểm thử, nhóm kiểm thử tầng truy cập dữ
   liệu chưa vào được dây chuyền, và hạ tầng quan trắc chưa có dữ liệu vận hành thật.
@@ -263,6 +263,6 @@ mô hình dữ liệu.
 #enum(
   numbering: n => "[" + str(n + 10) + "]",
   start: 1,
-  [pgvector — Open-Source Vector Similarity Search for PostgreSQL, https:\/\/github.com/pgvector/pgvector (truy cập ngày 12/08/2026).],
-  [Restate Documentation — Durable Execution Engine for Microservices, https:\/\/docs.restate.dev (truy cập ngày 12/08/2026).],
+  [pgvector: Open-Source Vector Similarity Search for PostgreSQL, https:\/\/github.com/pgvector/pgvector (truy cập ngày 12/08/2026).],
+  [Restate Documentation: Durable Execution Engine for Microservices, https:\/\/docs.restate.dev (truy cập ngày 12/08/2026).],
 )

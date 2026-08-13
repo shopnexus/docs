@@ -177,7 +177,7 @@
       columns: (0.34fr, 1fr),
       align: (left + top, left + top),
       fill: (x, y) => if y == 0 { headfill } else if x == 0 { rgb("#F7F7F7") } else { white },
-      table.header([Mã ca sử dụng], [#ma — #ten]),
+      table.header([Mã ca sử dụng], [#ma: #ten]),
       ..cells,
     ),
   )
@@ -200,7 +200,7 @@
       columns: (0.3fr, 1fr),
       align: (left + top, left + top),
       fill: (x, y) => if y == 0 { headfill } else if x == 0 { rgb("#F7F7F7") } else { white },
-      table.header([Mã ca kiểm thử], [#ma — #ten]),
+      table.header([Mã ca kiểm thử], [#ma: #ten]),
       ..cells,
     ),
   )

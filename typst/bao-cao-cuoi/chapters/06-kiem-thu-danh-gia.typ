@@ -61,7 +61,7 @@ chạy mặc định và đều đạt.
 #tcspec(
   "TC-01", "Cổng thanh toán gửi lặp một thông báo đã được xử lý",
   [Yêu cầu liên quan], [Thanh toán qua cổng và ký gửi tiền ký quỹ (REQ-22); chống nhân đôi thu tiền (NFR-11)],
-  [Mức / loại / ưu tiên], [Thành phần; nghịch — kiểm tính lũy đẳng; chặn],
+  [Mức / loại / ưu tiên], [Thành phần; nghịch (kiểm tính lũy đẳng); chặn],
   [Điều kiện tiên quyết], [Một phiên thanh toán đã mở cho cặp người mua và người bán với tổng tiền 300 000 đồng; một lượt trả tiền đã được khởi tạo trên cổng giả lập; ví người mua rỗng, đúng như trường hợp thông thường],
   [Dữ liệu thử], [Thông báo của cổng được dựng lại đúng như cổng gửi về: mã tham chiếu của lượt trả tiền do nền tảng phát ra, kèm trạng thái thành công. Lần gửi thứ hai dùng đúng cùng một thông báo],
   [Các bước], [
@@ -75,7 +75,7 @@ chạy mặc định và đều đạt.
     bị giữ của người bán bằng 300 000 đồng. \
     Lần thứ hai trả về thành công để cổng ngừng gửi lại, nhưng không phát sinh bút toán nào:
     lượt trả tiền đã kết thúc nên mọi lần xử lý sau được nhận ra và bỏ qua thay vì báo lỗi. \
-    Ví người mua đọc lại có số dư khả dụng và số dư bị giữ đều bằng không — tiền đã chuyển đúng
+    Ví người mua đọc lại có số dư khả dụng và số dư bị giữ đều bằng không: tiền đã chuyển đúng
     một lần và hiện nằm trong tài khoản tạm giữ.
   ],
   [Kết quả thực tế], [*Đạt.* Ca này đồng thời phủ luôn nhánh thuận của cả đường thanh toán, từ lúc mở phiên tới khi tiền được giữ lại],
@@ -84,7 +84,7 @@ chạy mặc định và đều đạt.
 #tcspec(
   "TC-02", "Chuỗi quyết toán dừng giữa đường rồi được chạy lại",
   [Yêu cầu liên quan], [Sinh đơn hàng từ phiên thanh toán đã trả (REQ-22); tính lũy đẳng của các chuyển đổi (NFR-10); chống nhân đôi đơn hàng (NFR-11)],
-  [Mức / loại / ưu tiên], [Thành phần; nghịch — phục hồi sau lỗi; chặn],
+  [Mức / loại / ưu tiên], [Thành phần; nghịch (phục hồi sau lỗi); chặn],
   [Điều kiện tiên quyết], [Một phiên thanh toán một dòng hàng đã được trả tiền; phân hệ tài chính được đặt ở chế độ lệnh giữ tiền thất bại. Đây là tình huống khó nhất của luồng, vì đơn hàng đã được ghi trước khi lệnh giữ tiền chạy],
   [Dữ liệu thử], [Đơn 100 000 đồng, một dòng hàng đã được giữ tồn kho từ lúc mở phiên],
   [Các bước], [
@@ -99,7 +99,7 @@ chạy mặc định và đều đạt.
     tiền ký quỹ bằng 0 đồng, tồn kho chưa chuyển sang đã bán. \
     Lần thứ hai hoàn tất phần còn lại: giữ đúng 100 000 đồng, tồn kho chuyển từ trạng thái đang
     giữ sang đã bán. \
-    Lần thứ ba không làm gì thêm — mỗi hiệu ứng được áp dụng đúng một lần, vì lệnh giữ tiền được
+    Lần thứ ba không làm gì thêm: mỗi hiệu ứng được áp dụng đúng một lần, vì lệnh giữ tiền được
     khoá theo đơn hàng và lệnh trừ tồn kho được khoá theo dòng hàng. \
     Suốt cả ba lần chỉ tồn tại một đơn hàng, và mọi dòng hàng của phiên đều đã gắn vào đơn đó.
   ],
@@ -109,7 +109,7 @@ chạy mặc định và đều đạt.
 #tcspec(
   "TC-03", "Giải ngân tiền ký quỹ gặp hồ sơ hoàn tiền chen vào giữa 2 bước",
   [Yêu cầu liên quan], [Giải ngân sau thời hạn khiếu nại (REQ-25); hồ sơ hoàn tiền (REQ-26); ghi có kiểm soát trạng thái (NFR-12)],
-  [Mức / loại / ưu tiên], [Thành phần; nghịch — tranh chấp đồng thời; chặn],
+  [Mức / loại / ưu tiên], [Thành phần; nghịch (tranh chấp đồng thời); chặn],
   [Điều kiện tiên quyết], [Một đơn hàng đã được người mua xác nhận nhận hàng; thời điểm nhận hàng bị đẩy về quá khứ để thời hạn giải ngân đã trôi qua, nhờ đó đơn nằm trong danh sách đến hạn của tác vụ quét],
   [Dữ liệu thử], [Đơn 100 000 đồng đang được tạm giữ; hồ sơ hoàn tiền do người mua mở với lý do "không đúng như mô tả"],
   [Các bước], [
@@ -123,7 +123,7 @@ chạy mặc định và đều đạt.
     khoá của đơn thay vì tin vào danh sách đã đọc từ trước. \
     Lệnh giải ngân sau đó không báo lỗi nhưng cũng không chạm vào tiền: khoản tạm giữ vẫn là
     100 000 đồng, số tiền đã giải ngân bằng 0. \
-    Ở trường hợp ngược lại, việc mở hồ sơ hoàn tiền bị từ chối — khoản tiền mà hồ sơ nhắm tới
+    Ở trường hợp ngược lại, việc mở hồ sơ hoàn tiền bị từ chối: khoản tiền mà hồ sơ nhắm tới
     không còn được tạm giữ nữa.
   ],
   [Kết quả thực tế], [*Đạt.* Ca này bắt đúng lớp lỗi mà một tác vụ quét theo lô thường mắc: đọc danh sách ứng viên ở một thời điểm rồi hành động ở một thời điểm khác],
@@ -132,8 +132,8 @@ chạy mặc định và đều đạt.
 == Danh mục ca kiểm thử chính
 
 Bảng dưới đây liệt kê các ca kiểm thử chính còn lại, nhóm theo miền nghiệp vụ. Cột loại phân
-biệt ca thuận — kiểm chứng hệ thống làm đúng việc được yêu cầu, ca nghịch — kiểm chứng hệ
-thống từ chối đúng chỗ, và ca biên — kiểm chứng hành vi ở ranh giới của một quy tắc.
+biệt ca thuận (kiểm chứng hệ thống làm đúng việc được yêu cầu), ca nghịch (kiểm chứng hệ
+thống từ chối đúng chỗ), và ca biên (kiểm chứng hành vi ở ranh giới của một quy tắc).
 
 #figure(
   kind: table,
@@ -147,7 +147,7 @@ thống từ chối đúng chỗ, và ca biên — kiểm chứng hành vi ở r
     [TC-04], [Ví từ chối mọi bút toán làm số dư âm, thay vì ghi rồi sửa sau], [Nghịch], [Đạt],
     [TC-05], [Điều chỉnh ví do quản trị viên thực hiện phải mang một khoá chống lặp: gọi lại cùng một khoá không ghi có thêm, và yêu cầu không có khoá thì bị từ chối thay vì ghi mà không được bảo vệ], [Nghịch], [Đạt],
     [TC-06], [Tiền ký quỹ đi đúng một vòng giữ rồi giải ngân; lệnh giữ lặp lại bị từ chối thay vì giữ hai lần], [Biên], [Đạt],
-    [TC-07], [Khi hồ sơ hoàn tiền được xử, tiền phải chuyển xong trước khi hồ sơ chuyển sang trạng thái kết thúc — làm ngược lại thì một lần chuyển tiền thất bại sẽ không có gì chạy lại], [Nghịch], [Đạt],
+    [TC-07], [Khi hồ sơ hoàn tiền được xử, tiền phải chuyển xong trước khi hồ sơ chuyển sang trạng thái kết thúc; làm ngược lại thì một lần chuyển tiền thất bại sẽ không có gì chạy lại], [Nghịch], [Đạt],
     [TC-08], [Hai điều hành viên cùng phân xử một hồ sơ thì chỉ một quyết định được ghi nhận], [Nghịch], [Đạt],
     [TC-09], [Hồ sơ hoàn tiền quá hạn được thúc tự động, nhưng bỏ qua hồ sơ đã có nhân viên xử lý và nhường một lần khiếu nại mà nó chưa thấy], [Nghịch], [Đạt],
 
@@ -177,7 +177,7 @@ thống từ chối đúng chỗ, và ca biên — kiểm chứng hành vi ở r
     [TC-26], [Cấu hình thiếu một trường bắt buộc, hoặc chứa một khoá không được khai báo, đều làm tiến trình dừng khởi động kèm đúng đường dẫn cần sửa], [Nghịch], [Đạt],
     [TC-27], [Cổng thanh toán được nêu tên trong cấu hình mà thiếu thông tin xác thực thì khởi động thất bại], [Biên], [Đạt],
     [TC-28], [Mọi đường dẫn công bố trong đặc tả đều có một tuyến phục vụ thật, và mọi tham chiếu lược đồ đều phân giải được], [Thuận], [Đạt],
-    [TC-29], [Không đối tượng truyền dữ liệu nào bỏ khoá khi giá trị bằng rỗng hoặc bằng không — nếu bỏ, ứng dụng khách sẽ lỗi ngay dòng dữ liệu thật đầu tiên], [Thuận], [Đạt],
+    [TC-29], [Không đối tượng truyền dữ liệu nào bỏ khoá khi giá trị bằng rỗng hoặc bằng không; nếu bỏ, ứng dụng khách sẽ lỗi ngay dòng dữ liệu thật đầu tiên], [Thuận], [Đạt],
     [TC-30], [Kênh thời gian thực tham chiếu đủ mọi loại thông điệp, và các thông điệp dùng chung một phong bì], [Thuận], [Đạt],
     [TC-31], [Đặc tả đã lưu trùng khớp với đặc tả sinh lại từ hệ thống], [Thuận], [Đạt],
   ),

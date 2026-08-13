@@ -11,7 +11,7 @@ Thị trường mua bán đồ cũ, hàng thanh lý và đồ thủ công cá nh
 - *Facebook Marketplace & Các hội nhóm xã hội (Social C2C):*
   - *Ưu điểm:* Tận dụng mạng lưới xã hội khổng lồ có sẵn, tốc độ tương tác cực nhanh qua Messenger, thao tác đăng bán tiện lợi không tốn phí sàn.
   - *Hạn chế:* Hoàn toàn thiếu các chuẩn mực của một nền tảng TMĐT chuyên nghiệp: không có hệ thống quản lý đơn hàng, không có tích hợp cổng thanh toán an toàn, không có cơ chế giữ cọc hay chính sách hoàn tiền. Các hành vi gian lận, tài khoản ảo (clone) lừa đảo chuyển khoản diễn ra rất phổ biến mà không có cơ chế kiểm duyệt hay hạn chế.
-- *Shopee / Lazada — Mô hình B2C bán chuyên (Managed Marketplace):*
+- *Shopee / Lazada - Mô hình B2C bán chuyên (Managed Marketplace):*
   - *Ưu điểm:* Hệ sinh thái logistics, cổng thanh toán và chính sách bảo vệ người mua cực kỳ hoàn thiện (như Shopee Đảm Bảo).
   - *Hạn chế:* Được thiết kế tối ưu cho mô hình B2C hoặc nhà bán hàng chuyên nghiệp. Quy trình đăng ký gian hàng và đăng bán sản phẩm rất rườm rà (đòi hỏi cấu hình mã SKU, thông tin doanh nghiệp/thuế, thiết lập kho hàng chuyên sâu), kèm theo mức phí sàn và phí hoa hồng cao (thường từ 8% - 15%). Mô hình này không hề phù hợp cho một cá nhân thông thường chỉ muốn thanh lý nhanh 1–2 món đồ cũ cá nhân. Bên cạnh đó, cơ chế trả giá thường bị ràng buộc bởi các mã giảm giá/voucher cố định, thiếu sự linh hoạt thương lượng giá trực tiếp từng đơn hàng trong khung chat giữa hai cá nhân.
 
