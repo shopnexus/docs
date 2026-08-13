@@ -12,6 +12,11 @@
 #import "tokens.typ": *
 #import "info.typ" as info
 
+// Giãn dòng của cả quyển. Phụ lục QĐ 922 đòi line spacing multiple 1,1 đến 1,2; ở cỡ
+// chữ 12pt thì 0.7em ứng với khoảng 1,18. Dùng chung cho thân bài và cho mục lục để
+// hai chỗ không lệch nhau khi ai đó chỉnh một bên.
+#let cach-dong = 0.7em
+
 // ---- Header động: "CHƯƠNG n: Tên chương" ------------------
 #let tieu-de-chay = context {
   let trang = here().page()
@@ -143,7 +148,7 @@
   set par(
     justify: true,
     spacing: cach-doan,
-    leading: 0.7em,
+    leading: cach-dong,
     first-line-indent: (amount: 1cm, all: true),
   )
   // Thụt dòng chỉ dành cho văn xuôi thân bài: ô bảng, chú thích hình,
@@ -252,6 +257,11 @@
 // Mục lục + các danh mục chuẩn của quyển
 #let muc-luc() = {
   show outline.entry: set text(size: 12pt, weight: "regular")
+  // Mỗi dòng mục lục là một khối, nên `cach-khoi` của template sẽ nong chúng ra và
+  // mục lục phình thêm trang. Mục lục là bảng tra cứu chứ không phải văn xuôi: các
+  // dòng chỉ cách nhau đúng một nhịp giãn dòng, còn việc tách nhóm để cho v(0.8em)
+  // ở đầu mỗi chương lo.
+  show outline.entry: set block(spacing: cach-dong)
   show outline.entry.where(level: 1): it => {
     v(0.8em, weak: true)
     strong(it)
