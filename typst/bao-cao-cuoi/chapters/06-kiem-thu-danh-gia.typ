@@ -187,8 +187,9 @@ Hai nhận xét về danh mục này. Thứ nhất, phần lớn các ca là ca 
 hệ thống từ chối đúng chỗ, chứ không phải hệ thống chạy được nhánh thuận. Đó là chủ ý: nhánh
 thuận của một luồng nghiệp vụ hầu như luôn được chạy qua khi dựng bối cảnh cho một ca nghịch,
 còn nhánh nghịch thì chỉ được chạy khi có người viết riêng cho nó. Thứ hai, nhóm cấu hình và hợp
-đồng đặc tả, tức TC-26 đến TC-31, là nhóm duy nhất đã được đưa vào quy trình tích hợp liên tục,
-nên cũng là nhóm duy nhất tự bảo vệ mình mà không cần ai nhớ chạy lệnh.
+đồng đặc tả, tức TC-26 đến TC-31, là nhóm duy nhất có một cổng tự động canh giữ: quy trình tích
+hợp liên tục sinh lại đặc tả rồi so với bản đã lưu ở mỗi lần đẩy mã, dù bản thân các ca kiểm thử
+vẫn phải chạy bằng tay.
 
 == Đối chiếu với các yêu cầu phi chức năng chính
 
@@ -263,7 +264,7 @@ khai, không thuộc về sản phẩm mà đề tài xây dựng.
   ),
 )
 
-== Hạn chế và hướng phát triển
+== Hạn chế
 
 Đánh giá trên góc độ hoàn thiện của sản phẩm thực tế thay vì các phép đo kỹ thuật kiểm thử, hệ thống hiện tồn đọng 4 hạn chế cốt lõi:
 
