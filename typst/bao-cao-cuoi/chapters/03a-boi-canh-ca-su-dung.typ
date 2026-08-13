@@ -298,7 +298,7 @@ Bộ quy tắc nghiệp vụ là tập ràng buộc bất biến mà mọi ca s�
     [BR-01], [Cấu trúc], [3 vai trò: người dùng đăng ký công khai, điều phối viên do quản trị viên cấp phát, quản trị viên.],
     [BR-02], [Cấu trúc], [Một tài khoản đều có khả năng mua và bán, cá nhân muốn bán phải xác minh danh tính người dùng.],
     [BR-03], [Cấu trúc], [Bàn hỗ trợ là một tài khoản kỹ thuật duy nhất do hệ thống khởi tạo; tên đó bị cấm đăng ký, và một triển khai chưa khởi tạo được nó báo lỗi ngay ở phiếu đầu tiên.],
-    [BR-04], [Kiểm tra], [Chỉ tài khoản có vai trò phù hợp mới được tháo tác các quyền quản trị/kiểm duyệt tương ứng],
+    [BR-04], [Kiểm tra], [Chỉ tài khoản có vai trò phù hợp mới được thao tác các quyền quản trị/kiểm duyệt tương ứng],
     [BR-05], [Thủ tục], [Mật khẩu luôn được mã hoá một chiều trước khi lưu; không có khả năng truy xuất được bản gốc.],
     [BR-06], [Thủ tục], [Mọi yêu cầu đã xác thực đều tra cứu lại phiên tương ứng, nhờ đó thao tác đăng xuất, đổi mật khẩu hay khoá tài khoản có hiệu lực ngay lập tức với các mã định danh người dùng đang lưu hành.],
     [BR-07], [Kiểm tra], [Chỉ tài khoản đã xác minh danh tính mới tạo được tin đăng và rút được tiền; cổng kiểm tra đặt ở bước tạo tin, không ở bước công bố.],

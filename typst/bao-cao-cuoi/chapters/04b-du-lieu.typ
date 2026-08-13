@@ -239,8 +239,6 @@ Một luồng hội thoại là một luồng cho mỗi cặp tài khoản, bấ
 3 bảng cuối cần hiểu khác với 7 lược đồ trên: `common` không phải một mô-đun và không phải một lược đồ, nó không có giao diện dịch vụ và công cụ di trú không tạo ra lược đồ nào tên như vậy; cái nó cung cấp là phần định nghĩa dữ liệu được áp vào lược đồ của từng mô-đun nghiệp vụ.
 
 
-- *Hạn chế hiện tại ở lớp biên:* Giới hạn lưu lượng theo định tuyến IP và tài khoản (Rate Limiting) tại lớp biên (API Gateway) hiện đóng vai trò quy chuẩn thiết kế, chưa được thực thi bằng mã nguồn.
-
 == Thiết kế bảo mật
 
 Thiết kế bảo mật không phải một lớp màng lọc độc lập, mà là chuỗi các quyết định kỹ thuật được nhúng sâu vào toàn bộ mô hình dữ liệu và các tầng kiến trúc. Các nguyên tắc này được phân loại và cưỡng chế qua 3 khía cạnh cốt lõi.
