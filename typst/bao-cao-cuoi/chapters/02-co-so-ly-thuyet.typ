@@ -91,3 +91,20 @@ Hệ thống được xây dựng theo kiến trúc đa thành phần, trong đ�
   [Test & Deployment], [Prism, Docker Compose], [Mocking API contract; container hóa môi trường dev và chạy production image với quyền non-root.],
 )
 
+=== Lý giải lựa chọn stack công nghệ
+
+Mỗi công nghệ trong stack đều có lựa chọn thay thế phổ biến hơn. Thay vì so sánh từng tiêu chí một, phần này tập trung nêu lý do chính khiến nhóm chọn từng công nghệ cho bối cảnh dự án.
+
+- *Go cho Backend:* Go được lựa chọn nhờ khả năng tích hợp tốt với Restate, nền tảng đảm nhiệm cơ chế durable execution cho các quy trình nghiệp vụ dài hạn và nhiều trạng thái như Order, Escrow và Dispute. SDK Go chính thức của Restate hỗ trợ lưu trạng thái, phục hồi và tiếp tục thực thi khi xảy ra sự cố, giúp giảm đáng kể độ phức tạp khi hiện thực các luồng nghiệp vụ bền vững. Bên cạnh đó, Go có thời gian khởi động nhanh, mức tiêu thụ tài nguyên thấp và mô hình goroutine nhẹ, phù hợp với kiến trúc microservices và khả năng mở rộng theo chiều ngang trên Kubernetes.
+
+- *Next.js cho Frontend Web:* Next.js được lựa chọn nhằm đáp ứng yêu cầu SEO cho các trang công khai như danh mục và chi tiết sản phẩm. So với SPA thuần sử dụng React và Vite, Next.js hỗ trợ SSR và SSG, giúp nội dung được lập chỉ mục hiệu quả hơn, đồng thời cung cấp routing theo cấu trúc thư mục và tự động phân tách mã theo route.
+
+- *Flutter cho Mobile:* Flutter được lựa chọn để phát triển ứng dụng đa nền tảng từ một codebase duy nhất, phù hợp với giới hạn về nhân lực và thời gian của dự án. Thay vì duy trì riêng hai ứng dụng native bằng Swift và Kotlin, Flutter cho phép chia sẻ phần lớn mã nguồn giữa iOS và Android, qua đó giảm khối lượng phát triển và bảo trì. Cơ chế rendering riêng cũng giúp giao diện duy trì tính nhất quán và hiệu năng phù hợp trên cả hai nền tảng.
+
+- *PostgreSQL làm CSDL chính:* PostgreSQL được lựa chọn do các miền nghiệp vụ như Order, Escrow và Wallet có quan hệ dữ liệu chặt chẽ và yêu cầu tính nhất quán cao. Hệ quản trị này hỗ trợ đầy đủ ACID, transaction đa bảng, khóa mức dòng và các cơ chế ràng buộc dữ liệu phù hợp với nghiệp vụ thanh toán và ký quỹ. Đồng thời, `JSONB` cho phép lưu trữ các thuộc tính có cấu trúc linh hoạt mà không cần bổ sung một cơ sở dữ liệu document riêng.
+
+- *pgvector và bge-m3 cho tìm kiếm:* `pgvector` được sử dụng để triển khai tìm kiếm vector trực tiếp trên PostgreSQL, tránh phải vận hành thêm một vector database độc lập như Milvus ở quy mô hiện tại. Giải pháp này cho phép lưu embedding cùng dữ liệu nghiệp vụ và kết hợp tìm kiếm vector với các điều kiện lọc như danh mục, giá hoặc trạng thái sản phẩm. Mô hình `bge-m3` hỗ trợ các biểu diễn phục vụ cả tìm kiếm ngữ nghĩa và tìm kiếm dựa trên từ khóa. Khi quy mô dữ liệu tăng đáng kể, hệ thống có thể cân nhắc chuyển sang một vector database chuyên dụng.
+
+- *NATS JetStream làm Event Bus:* NATS JetStream được lựa chọn để truyền tải sự kiện bất đồng bộ và đồng bộ trạng thái giữa các service. Với nhu cầu chủ yếu là phân phối thông báo, cập nhật trạng thái và trao đổi sự kiện miền, hệ thống chưa cần đến một nền tảng event streaming phức tạp như Kafka/RabbitMQ. JetStream có kiến trúc gọn nhẹ nhưng vẫn hỗ trợ persistence, acknowledgement và replay sự kiện. Các tác vụ chờ dài hạn như thời hạn Escrow được giao cho durable timer của Restate thay vì phụ thuộc vào message broker.
+
+- *Redis cho caching:* Redis được lựa chọn làm lớp bộ nhớ đệm nhằm giảm số lần truy vấn trực tiếp đến cơ sở dữ liệu và cải thiện thời gian phản hồi của hệ thống. So với cache nội bộ trong từng service, Redis cung cấp vùng cache dùng chung giữa nhiều replica, phù hợp với kiến trúc microservices khi hệ thống mở rộng theo chiều ngang.

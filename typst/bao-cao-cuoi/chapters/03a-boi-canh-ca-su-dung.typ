@@ -88,7 +88,8 @@ tác vận chuyển trao đổi vận đơn và các mốc hành trình. Điều
 
 == Danh mục ca sử dụng
 
-Mỗi ca sử dụng dưới đây biểu diễn một mục tiêu trọn vẹn của tác nhân chứ không phải một thao tác đơn lẻ. Danh mục gồm 29 ca nghiệp vụ đánh mã liên tục từ UC-01 tới UC-29 và chia thành 6 nhóm, cộng 2 ca con dùng chung được nhiều ca khác gọi tới theo quan hệ bao hàm. Số lượng lớn là hệ quả của phạm vi, nên danh mục được chia nhóm và tách sơ đồ theo phân hệ để vẫn đọc được.
+Mỗi ca sử dụng trong tài liệu đại diện cho một mục tiêu nghiệp vụ hoàn chỉnh của tác nhân, thay vì chỉ mô tả các thao tác hệ thống riêng lẻ. Danh mục gồm 29 ca sử dụng nghiệp vụ, được định danh từ UC-01 đến UC-29 và phân thành sáu nhóm chức năng, cùng với hai ca sử dụng dùng chung được tái sử dụng thông qua quan hệ bao hàm. Để bảo đảm tính rõ ràng và thuận tiện trong việc theo dõi phạm vi hệ thống, danh mục ca sử dụng và các sơ đồ liên quan được tổ chức chi tiết theo từng phân hệ.
+
 
 #figure(
   kind: table,
@@ -191,6 +192,10 @@ Mỗi ca sử dụng dưới đây biểu diễn một mục tiêu trọn vẹn 
   edge((4.4, 2.9), <a3>, stroke: 0.7pt + teal),
   edge((4.4, 4.6), <a5>, stroke: 0.7pt + teal),
 
+  // UC-07 chỉ chạy khi người bán chọn nhờ máy gợi ý, nên là quan hệ mở rộng chứ
+  // không phải bao hàm. Uốn cong sang phải để không đè lên cột ca sử dụng.
+  edge(<a5>, <a6>, "-|>", stroke: (dash: "dashed"), bend: -40deg,
+    text(size: 7pt)[«extend»]),
   edge(<a3>, <as1>, "-|>", stroke: (dash: "dashed"), text(size: 7pt)[«include»]),
   edge(<a6>, <as1>, "-|>", stroke: (dash: "dashed"), text(size: 7pt)[«include»]),
 )
@@ -256,6 +261,10 @@ Mỗi ca sử dụng dưới đây biểu diễn một mục tiêu trọn vẹn 
   edge((4.5, 11.7), <b17>, stroke: 0.7pt + red),
   edge((4.5, 11.7), <b18>, stroke: 0.7pt + red),
 
+  // Phân xử chỉ diễn ra khi người bán từ chối hoặc hết hạn trả lời, tức một
+  // nhánh có điều kiện của việc xử lý hoàn tiền.
+  edge(<b14>, <b8>, "-|>", stroke: (dash: "dashed"), bend: -58deg,
+    text(size: 7pt)[«extend»]),
   edge(<b14>, <bs2>, "-|>", stroke: (dash: "dashed"), text(size: 7pt)[«include»]),
   edge(<b13>, <bs2>, "-|>", stroke: (dash: "dashed"), text(size: 7pt)[«include»]),
   edge(<b17>, <bs2>, "-|>", stroke: (dash: "dashed"), text(size: 7pt)[«include»]),
@@ -269,6 +278,7 @@ Mỗi ca sử dụng dưới đây biểu diễn một mục tiêu trọn vẹn 
   [Tác nhân], [Chính: người mua. Phụ: cổng thanh toán, đối tác vận chuyển (báo giá đã chốt ở UC-13).],
   [Mô tả], [Người mua trả tiền hàng cộng phí giao hàng qua một cổng thanh toán; tiền vào tài khoản giữ hộ của sàn chứ không tới người bán, và đơn hàng ra đời ngay khi cổng báo về.],
   [Điều kiện trước], [Đã đăng nhập; có một phiếu mua tạm còn hiệu lực (UC-13) hoặc một thương lượng đã chấp thuận còn hiệu lực (UC-12); phương án vận chuyển đã chốt kèm mức phí.],
+  [Sự kiện kích hoạt], [Người mua bấm trả tiền trên màn hình xác nhận đơn mua.],
   [Luồng chính], [(1) Người mua xem lại đơn rồi chọn một cổng thanh toán đang bật. (2) Hệ thống giành quyền mua trước, đánh dấu phiếu mua tạm hoặc thương lượng là đã dùng. (3) Hệ thống mở phiên thanh toán hạn 15 phút gồm 2 khoản tách bạch là tiền hàng và phí giao hàng, rồi chuyển người mua sang trang của cổng. (4) Người mua trả tiền; cổng gửi thông báo kết quả về. (5) Hệ thống ghi nhận phiên đã trả, giữ tiền hàng vào ký quỹ và tách phí giao hàng thành khoản riêng. (6) Hệ thống tạo đơn chờ người bán xác nhận, tạo kiện hàng, giảm tồn kho và báo cho người bán (UC-15).],
   [Luồng thay thế và ngoại lệ], [*[1a]* Người mua huỷ giữa chừng: phiên bị huỷ, phần đã giành được trả lại. [3a] Hết 15 phút mà chưa trả tiền: phiên không còn trả được và phần đã giành được trả lại (BR-23). [4a] Người mua quay về trang kết quả trước khi thông báo tới: hệ thống hiển thị phiên đang chờ, vì trang đáp xuống ai cũng mở được nên không phải bằng chứng. [4b] Cổng gửi lặp thông báo: xử lý bất biến với lặp lại nên chỉ một đơn được tạo. [5a] Xử lý thông báo thất bại: trả lỗi để cổng gửi lại.],
   [Điều kiện sau], [Tiền hàng nằm trong ký quỹ, phí giao hàng ở khoản riêng, tồn tại đúng một đơn chờ người bán xác nhận, và đơn ghi rõ nó sinh ra từ phiếu mua tạm hay từ thương lượng.],
@@ -282,6 +292,7 @@ Mỗi ca sử dụng dưới đây biểu diễn một mục tiêu trọn vẹn 
   [Tác nhân], [Chính: người mua. Phụ: người bán (bên phải trả lời).],
   [Mô tả], [Người mua khiếu nại hàng lỗi hoặc không đúng mô tả; yêu cầu luôn toàn phần và khoá đơn khỏi việc giải ngân cho tới khi có kết luận.],
   [Điều kiện trước], [Đơn hàng chưa kết thúc; người mua là chủ đơn; đơn chưa có yêu cầu hoàn tiền nào đang sống.],
+  [Sự kiện kích hoạt], [Người mua bấm yêu cầu trả hàng trên màn hình chi tiết đơn.],
   [Luồng chính], [(1) Người mua mở đơn, chọn yêu cầu trả hàng, nêu lý do và đính kèm bằng chứng (bao hàm UC-S1). (2) Hệ thống tạo hồ sơ chờ người bán trả lời, đặt hạn 48 giờ, loại đơn khỏi danh sách chờ giải ngân và báo cho người bán. (3) Người bán chấp nhận cho trả hàng (UC-20); hệ thống mở một chặng vận chuyển trả hàng phí bằng không. (4) Người bán nhận hàng và xác nhận, rồi có 48 giờ để kiểm hàng. (5) Hết cửa sổ đó mà người bán không có ý kiến, hệ thống hoàn tiền hàng cho người mua và đóng hồ sơ.],
   [Luồng thay thế và ngoại lệ], [*[1a]* Đơn đã kết thúc hoặc đã có một hồ sơ đang sống: hệ thống từ chối. [2a] Người mua rút yêu cầu trước khi người bán trả lời: hồ sơ sang trạng thái đã rút, khác hẳn bị bác bỏ, và đơn quay lại danh sách chờ giải ngân. [3a] Người bán chuyển hồ sơ cho sàn: hồ sơ sang chờ phân xử và hệ thống tự mở một phiếu đứng tên người mua (UC-25). [3b] Người bán im lặng quá hạn: hồ sơ tự chuyển sang chờ phân xử và cũng tự mở phiếu, vì im lặng không phải đồng ý cũng không phải từ chối (BR-40). [4a] Người mua tự khai đã gửi trả hàng: đây là tuyên bố về kho của người khác, nên hồ sơ đi thẳng lên sàn phân xử. [4b] Người bán thấy thứ nhận về không khớp: chuyển hồ sơ lên sàn trong cửa sổ đó.],
   [Điều kiện sau], [Hồ sơ ở một trạng thái xác định và luôn có một bên đang phải hành động, hoặc đã kết thúc bằng một trong 4 kết cục: hoàn tiền, bị bác bỏ, được rút, hoặc chờ phán quyết của sàn.],
