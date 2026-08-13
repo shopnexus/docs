@@ -219,14 +219,13 @@ mô hình dữ liệu.
 #enum(
   numbering: n => "[" + str(n) + "]",
   start: 1,
-  [Hiệp hội Thương mại điện tử Việt Nam, Báo cáo Chỉ số Thương mại điện tử Việt Nam 2025, Hà Nội (2025).],
   [Quốc hội nước Cộng hòa xã hội chủ nghĩa Việt Nam, Luật Bảo vệ quyền lợi người tiêu dùng số 19/2023/QH15, Công báo, Hà Nội (2023).],
   [Quốc hội nước Cộng hòa xã hội chủ nghĩa Việt Nam, Luật Thương mại điện tử số 122/2025/QH15, Công báo, Hà Nội (2025).],
 )
 
 #nhom-tltk[Tiếng Anh]
 #enum(
-  numbering: n => "[" + str(n + 3) + "]",
+  numbering: n => "[" + str(n + 2) + "]",
   start: 1,
   [Burckhardt S., Gillum C., Justo D., Kallas K., McMahon C., Meiklejohn C. S., Durable Functions: Semantics for Stateful Serverless, Proceedings of the ACM on Programming Languages, vol. 5, OOPSLA, article 133, pp. 1–27 (2021).],
   [Chen J., Xiao S., Zhang P., Luo K., Lian D., Liu Z., M3-Embedding: Multi-Linguality, Multi-Functionality, Multi-Granularity Text Embeddings Through Self-Knowledge Distillation, Findings of the Association for Computational Linguistics: ACL 2024, pp. 2318–2335, Bangkok, Thailand (2024).],
@@ -240,7 +239,7 @@ mô hình dữ liệu.
 
 #nhom-tltk[Website tham khảo]
 #enum(
-  numbering: n => "[" + str(n + 11) + "]",
+  numbering: n => "[" + str(n + 10) + "]",
   start: 1,
   [pgvector: Open-Source Vector Similarity Search for PostgreSQL, https:\/\/github.com/pgvector/pgvector.],
   [Restate Documentation: Durable Execution Engine for Microservices, https:\/\/docs.restate.dev.],
