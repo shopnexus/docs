@@ -19,7 +19,7 @@
 #muc-luc()
 #pagebreak()
 
-#sechead([LỜI CẢM ƠN], outlined: false)
+#sechead([LỜI CẢM ƠN])
 
 Chúng em xin chân thành cảm ơn Ban Giám hiệu Học viện Công nghệ Bưu chính Viễn thông Cơ sở tại TP. Hồ Chí Minh cùng quý Thầy, Cô trong Khoa Công nghệ Thông tin đã tạo điều kiện thuận lợi và trang bị những kiến thức nền tảng quý báu cho chúng em trong suốt quá trình học tập và nghiên cứu.
 
@@ -38,7 +38,7 @@ Mặc dù đã có nhiều cố gắng, song do giới hạn về mặt thời g
 
 #pagebreak()
 
-#sechead([DANH MỤC CÁC KÝ HIỆU VÀ CHỮ VIẾT TẮT], outlined: false)
+#sechead([DANH MỤC CÁC KÝ HIỆU VÀ CHỮ VIẾT TẮT])
 
 #table(
   columns: (auto, 1.5fr, 2fr),
@@ -83,7 +83,7 @@ Mặc dù đã có nhiều cố gắng, song do giới hạn về mặt thời g
 #danh-muc-hinh()
 #pagebreak()
 
-#sechead([KẾ HOẠCH THỰC HIỆN CÔNG VIỆC NHÓM], outlined: false)
+#sechead([KẾ HOẠCH THỰC HIỆN CÔNG VIỆC NHÓM])
 
 #v(0.5cm)
 #table(

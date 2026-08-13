@@ -242,7 +242,7 @@
 // của hình. `outline` lại dựng số ở vị trí của chính nó — nằm trong phần đầu quyển,
 // nơi bộ đếm chương vẫn bằng 0 — nên mọi mục sẽ mất phần số chương.
 #let danh-muc-fig(title, kind, supplement) = {
-  sechead(title, outlined: false)
+  sechead(title)
   context {
     for f in query(figure.where(kind: kind)) {
       let loc = f.location()
@@ -259,7 +259,7 @@
   }
 }
 #let danh-muc-bang() = danh-muc-fig([DANH MỤC CÁC BẢNG], table, [Bảng])
-#let danh-muc-hinh() = danh-muc-fig([DANH MỤC CÁC HÌNH VẼ], image, [Hình])
+#let danh-muc-hinh() = danh-muc-fig([DANH MỤC CÁC HÌNH VẼ VÀ SƠ ĐỒ], image, [Hình])
 
 #let ink = rgb("#1e293b")
 #let mut = rgb("#64748b")
