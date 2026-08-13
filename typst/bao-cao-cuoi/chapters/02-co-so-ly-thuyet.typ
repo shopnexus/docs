@@ -52,6 +52,7 @@ Hệ thống thiết lập một mô hình giao tiếp lai 3 tầng (3-tier Hybr
 
 - *Luồng Truy vấn / Thao tác Đọc (Queries - Q) qua HTTP/2 RPC trực tiếp:*
   - Các thao tác chỉ đọc dữ liệu được định tuyến gọi thẳng trực tiếp từ API Gateway/Frontend vào các microservices thông qua giao thức đồng bộ HTTP/2 RPC, hoàn toàn bỏ qua lớp Restate Ingress.
+  - *Lý do kiến trúc:* Mỗi lần chuyển tiếp (hop) qua Restate Ingress để thực hiện theo dõi trạng thái và ghi nhật ký sẽ làm phát sinh một độ trễ trung gian. Với các tác vụ truy vấn đọc dữ liệu chiếm tần suất cao nhất hệ thống nhưng không làm thay đổi trạng thái, việc bỏ qua Ingress giúp tối ưu độ trễ phản hồi xuống thấp hơn, loại bỏ thuế hiệu năng (durability tax) không cần thiết.
 
 === Cơ chế điều hướng và đánh thức luồng bất đồng bộ với Restate Ingress
 Bên cạnh khả năng định thời (`sleep`), Restate Ingress cung cấp hai phương thức giao tiếp phi đồng bộ mạnh mẽ cho các luồng nghiệp vụ C2C phối hợp:

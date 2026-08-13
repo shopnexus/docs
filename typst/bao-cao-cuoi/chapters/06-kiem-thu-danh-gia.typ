@@ -267,14 +267,10 @@ khai, không thuộc về sản phẩm mà đề tài xây dựng.
 
 Đánh giá trên góc độ hoàn thiện của sản phẩm thực tế thay vì các phép đo kỹ thuật kiểm thử, hệ thống hiện tồn đọng 4 hạn chế cốt lõi:
 
-- *Chưa tích hợp dịch vụ đối tác ở môi trường thực tế:*
-  - *Hạn chế:* Dù hệ thống đã xử lý hoàn chỉnh luồng tiền và luồng giao nhận, toàn bộ tương tác hiện chỉ chạy trên bộ giả lập. Ứng dụng chưa đối mặt với các kịch bản ngoại lệ vật lý từ hãng vận chuyển thật (như sai khối lượng, không liên lạc được khách) và các rào cản biến động độ trễ từ cổng thanh toán thực tế.
+- *Chưa tích hợp dịch vụ đối tác ở môi trường thực tế:* Dù hệ thống đã xử lý hoàn chỉnh luồng tiền và luồng giao nhận, toàn bộ tương tác hiện chỉ chạy trên bộ giả lập. Ứng dụng chưa đối mặt với các kịch bản ngoại lệ vật lý từ hãng vận chuyển thật (như sai khối lượng, không liên lạc được khách) và các rào cản biến động độ trễ từ cổng thanh toán thực tế.
 
-- *Dữ liệu quan trắc vận hành chưa được khai thác:*
-  - *Hạn chế:* Hạ tầng quan trắc (nhật ký, độ đo, dấu vết) đã được thiết lập đầy đủ ở tầng nền tảng, nhưng do hệ thống chưa có lưu lượng người dùng thật, các ngưỡng cảnh báo độ sẵn sàng và nút thắt cổ chai hiệu năng của ứng dụng chưa được định chuẩn.
+- *Dữ liệu quan trắc vận hành chưa được khai thác:* Hạ tầng quan trắc (nhật ký, độ đo, dấu vết) đã được thiết lập đầy đủ ở tầng nền tảng, nhưng do hệ thống chưa có lưu lượng người dùng thật, các ngưỡng cảnh báo độ sẵn sàng và nút thắt cổ chai hiệu năng của ứng dụng chưa được định chuẩn.
 
-- *Thiếu cơ chế tự động nhận diện rủi ro gian lận:*
-  - *Hạn chế:* Phân hệ tín nhiệm và hội thoại đã gom đủ dữ liệu lịch sử giao dịch, nhưng ứng dụng hiện chỉ phản ứng thụ động khi có người dùng khiếu nại, thay vì chủ động nhận diện sớm các mẫu hành vi bất thường (như rửa uy tín qua đơn hàng ảo, bơm thổi giá).
+- *Thiếu cơ chế tự động nhận diện rủi ro gian lận:* Phân hệ tín nhiệm và hội thoại đã gom đủ dữ liệu lịch sử giao dịch, nhưng ứng dụng hiện chỉ phản ứng thụ động khi có người dùng khiếu nại, thay vì chủ động nhận diện sớm các mẫu hành vi bất thường (như rửa uy tín qua đơn hàng ảo, bơm thổi giá).
 
-- *Ranh giới triển khai chưa tách rời thành vi dịch vụ (Microservices):*
-  - *Hạn chế:* Dù 7 phân hệ nghiệp vụ đã hoàn toàn cô lập về cơ sở dữ liệu và hợp đồng mã nguồn, chúng vẫn đang được đóng gói và chạy chung trong một khối nguyên khối (Modular Monolith) để tiết kiệm tài nguyên.
+- *Ranh giới triển khai chưa tách rời thành vi dịch vụ (Microservices):* Dù 7 phân hệ nghiệp vụ đã hoàn toàn cô lập về cơ sở dữ liệu và hợp đồng mã nguồn, chúng vẫn đang được đóng gói và chạy chung trong một khối nguyên khối (Modular Monolith) để tiết kiệm tài nguyên.

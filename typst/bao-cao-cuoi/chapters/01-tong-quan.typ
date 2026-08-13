@@ -22,27 +22,24 @@ Mục tiêu tổng quát của nghiên cứu là áp dụng triệt để các p
 
 Các mục tiêu cụ thể của đề tài được phân chia theo từng phương diện nghiệp vụ và công nghệ cốt lõi:
 
-1. *Xây dựng cơ chế Thanh toán tạm giữ (Escrow) bền vững và luồng tài chính an toàn:*
-   - Thiết kế luồng thanh toán tích hợp cổng ngân hàng/ví điện tử ngoại vi (SePay), quản lý dòng tiền theo mô hình ví nội bộ (Internal Wallet).
+1. *Xây dựng cơ chế Thanh toán tạm giữ (Escrow) bền vững và luồng tài chính an toàn:* Thiết kế luồng thanh toán tích hợp cổng ngân hàng/ví điện tử ngoại vi (SePay), quản lý dòng tiền theo mô hình ví nội bộ (Internal Wallet).
 
-2. *Tích hợp Nhắn tin trực tuyến thời gian thực và Chuẩn hóa quy trình Đàm phán giá (Offer Card):*
-   - Xây dựng module Chat đa phương tiện thời gian thực, cho phép gửi hình ảnh và video thực tế của sản phẩm giữa người mua và người bán.
+2. *Tích hợp Nhắn tin trực tuyến thời gian thực và Chuẩn hóa quy trình Đàm phán giá (Offer Card):* Xây dựng module Chat đa phương tiện thời gian thực, cho phép gửi hình ảnh và video thực tế của sản phẩm giữa người mua và người bán.
 
-3. *Thiết lập quy trình Hoàn tiền (Refund), Phân xử tranh chấp (Dispute) và Kiểm duyệt nội dung:*
-   - Xây dựng luồng xử lý khiếu nại trong hạn 3 ngày với ràng buộc cung cấp bằng chứng số (ảnh/video mở hộp hàng hóa).
+3. *Thiết lập quy trình Hoàn tiền (Refund), Phân xử tranh chấp (Dispute) và Kiểm duyệt nội dung:* Xây dựng luồng xử lý khiếu nại trong hạn 3 ngày với ràng buộc cung cấp bằng chứng số (ảnh/video mở hộp hàng hóa).
 
 4. *Thiết lập mô hình Phân quyền chặt chẽ theo 3 vai trò (Persona) hệ thống:*
    - *Người dùng (User):* Tài khoản khách hàng tự do đăng ký, sở hữu vai trò kép (vừa mua vừa bán trên cùng một định danh).
+   - *Điều phối viên (Moderator):* Tài khoản nội bộ do Quản trị viên cấp phát, chịu trách nhiệm thẩm định khiếu nại, phân xử tranh chấp và kiểm duyệt bài đăng vi phạm.
+   - *Quản trị viên tối cao (Super Admin):* Tài khoản duy nhất cấu hình sẵn, có thẩm quyền thiết lập tham số hệ thống, kiểm soát dòng tiền tổng thể và quản lý nhân sự Moderator.
 
 5. *Nghiên cứu ứng dụng kiến trúc Durable Microservices:*
    - Phân rã hệ thống thành các dịch vụ độc lập áp dụng triệt để nguyên lý Database-per-service [9], bảo đảm sự cô lập về cơ sở dữ liệu và khả năng chọn lựa công nghệ lưu trữ phù hợp (Polyglot Persistence).
    - Ứng dụng cơ chế durable execution (thực thi bền vững) Restate (Journal-based Durable Execution) để quản lý các luồng nghiệp vụ dài hạn (Escrow, Refund, Dispute,...), loại bỏ hoàn toàn độ phức tạp của mẫu thiết kế Saga truyền thống [4], tự động phục hồi lỗi (Crash Recovery) và bảo đảm ngữ nghĩa thực thi chính xác một lần (Exact-once semantics).
 
-6. *Nghiên cứu tìm kiếm dựa trên từ khóa và ngữ nghĩa:*
-   - Nghiên cứu và tích hợp cơ chế Tìm kiếm Ngữ nghĩa Lai (Hybrid Search), kết hợp giữa Tìm kiếm văn bản (Full-text Search) dựa trên từ khóa và tìm kiếm ngữ nghĩa (Semantic Vector Search) thông qua cơ sở dữ liệu pgvector trên PostgreSQL [11], sử dụng mô hình embedding (véc-tơ nhúng) đa ngôn ngữ bge-m3 để sinh biểu diễn vector (vector embeddings) cho dữ liệu văn bản [3].
+6. *Nghiên cứu tìm kiếm dựa trên từ khóa và ngữ nghĩa:* Nghiên cứu và tích hợp cơ chế Tìm kiếm Ngữ nghĩa Lai (Hybrid Search), kết hợp giữa Tìm kiếm văn bản (Full-text Search) dựa trên từ khóa và tìm kiếm ngữ nghĩa (Semantic Vector Search) thông qua cơ sở dữ liệu pgvector trên PostgreSQL [11], sử dụng mô hình embedding (véc-tơ nhúng) đa ngôn ngữ bge-m3 để sinh biểu diễn vector (vector embeddings) cho dữ liệu văn bản [3].
 
-7. *Nghiên cứu hệ thống gợi ý sản phẩm (Recommender System):*
-    - Xây dựng cơ chế gợi ý sản phẩm cá nhân hóa đa hướng quan tâm (multi-interest), biểu diễn sở thích người dùng qua nhiều vector đặc trưng được cập nhật liên tục dựa trên lịch sử tương tác, hành vi tìm kiếm và độ tương đồng ngữ nghĩa của mặt hàng [7].
+7. *Nghiên cứu hệ thống gợi ý sản phẩm (Recommender System):* Xây dựng cơ chế gợi ý sản phẩm cá nhân hóa đa hướng quan tâm (multi-interest), biểu diễn sở thích người dùng qua nhiều vector đặc trưng được cập nhật liên tục dựa trên lịch sử tương tác, hành vi tìm kiếm và độ tương đồng ngữ nghĩa của mặt hàng [7].
 
 == Phạm vi hệ thống
 
@@ -50,29 +47,21 @@ Các mục tiêu cụ thể của đề tài được phân chia theo từng ph�
 
 Hệ thống được thiết kế bao phủ toàn bộ vòng đời giao dịch thương mại điện tử giữa các cá nhân (C2C), bao gồm 8 phân hệ chức năng và nghiệp vụ cốt lõi sau:
 
-1. *Quản lý tài khoản, Phân quyền (RBAC) và Ví nội bộ:*
-   - Hỗ trợ đăng ký, đăng nhập bảo mật (JWT), xác thực tài khoản và quản lý thông tin hồ sơ người dùng.
+1. *Quản lý tài khoản, Phân quyền (RBAC) và Ví nội bộ:* Hỗ trợ đăng ký, đăng nhập bảo mật (JWT), xác thực tài khoản và quản lý thông tin hồ sơ người dùng.
 
-2. *Quản lý danh mục và Đăng bán sản phẩm C2C:*
-   - Cho phép người bán đăng tải sản phẩm thanh lý với thông tin chi tiết: tên, mô tả, hình ảnh/video đa phương tiện, phân loại tình trạng (Mới, Cũ, Bị hư hại một phần).
+2. *Quản lý danh mục và Đăng bán sản phẩm C2C:* Cho phép người bán đăng tải sản phẩm thanh lý với thông tin chi tiết: tên, mô tả, hình ảnh/video đa phương tiện, phân loại tình trạng (Mới, Cũ, Bị hư hại một phần).
 
-3. *Tìm kiếm thông minh và Gợi ý sản phẩm:*
-   - Cung cấp công cụ tìm kiếm kết hợp giữa tìm kiếm từ khóa đầy đủ (Full-text Search) và tìm kiếm vector ngữ nghĩa (Semantic Search dựa trên pgvector và mô hình bge-m3).
+3. *Tìm kiếm thông minh và Gợi ý sản phẩm:* Cung cấp công cụ tìm kiếm kết hợp giữa tìm kiếm từ khóa đầy đủ (Full-text Search) và tìm kiếm vector ngữ nghĩa (Semantic Search dựa trên pgvector và mô hình bge-m3).
 
-4. *Hệ thống Chat trực tuyến và Thương lượng giá (Offer Card):*
-   - Kênh giao tiếp tin nhắn văn bản và chia sẻ phương tiện thời gian thực giữa người mua và người bán.
+4. *Hệ thống Chat trực tuyến và Thương lượng giá (Offer Card):* Kênh giao tiếp tin nhắn văn bản và chia sẻ phương tiện thời gian thực giữa người mua và người bán.
 
-5. *Đặt hàng, Tính phí vận chuyển động và Thanh toán (Escrow):*
-   - Quy trình khởi tạo đơn hàng từ trang chi tiết sản phẩm (giá cố định) hoặc từ Offer Card trong Chat (giá thương lượng).
+5. *Đặt hàng, Tính phí vận chuyển động và Thanh toán (Escrow):* Quy trình khởi tạo đơn hàng từ trang chi tiết sản phẩm (giá cố định) hoặc từ Offer Card trong Chat (giá thương lượng).
 
-6. *Xác nhận giao hàng và Bộ đếm thời gian tạm giữ:*
-   - Lắng nghe sự kiện cập nhật hành trình vận đơn từ đơn vị giao nhận; tự động kích hoạt bộ đếm thời gian đếm ngược 3 ngày (72 giờ) hoặc khi đơn hàng chuyển sang trạng thái "Giao hàng thành công".
+6. *Xác nhận giao hàng và Bộ đếm thời gian tạm giữ:* Lắng nghe sự kiện cập nhật hành trình vận đơn từ đơn vị giao nhận; tự động kích hoạt bộ đếm thời gian đếm ngược 3 ngày (72 giờ) hoặc khi đơn hàng chuyển sang trạng thái "Giao hàng thành công".
 
-7. *Khiếu nại Hoàn tiền (Refund), Tranh chấp (Dispute) và Phân xử:*
-   - Quy trình gửi yêu cầu Refund/Return trong khung thời gian 72 giờ kèm việc tải lên bằng chứng số đa phương tiện bắt buộc.
+7. *Khiếu nại Hoàn tiền (Refund), Tranh chấp (Dispute) và Phân xử:* Quy trình gửi yêu cầu Refund/Return trong khung thời gian 72 giờ kèm việc tải lên bằng chứng số đa phương tiện bắt buộc.
 
-8. *Kiểm duyệt Nội dung và Báo cáo vi phạm (Content Moderation):*
-   - Nghiên cứu và xây dựng cơ chế kiểm duyệt nội dung nhằm phát hiện các bài đăng có dấu hiệu vi phạm (lừa đảo, hàng giả, hàng cấm...).
+8. *Kiểm duyệt Nội dung và Báo cáo vi phạm (Content Moderation):* Nghiên cứu và xây dựng cơ chế kiểm duyệt nội dung nhằm phát hiện các bài đăng có dấu hiệu vi phạm (lừa đảo, hàng giả, hàng cấm...).
 
 === Ngoài phạm vi nghiên cứu (Out-of-Scope)
 
@@ -87,27 +76,18 @@ Hệ thống được thiết kế bao phủ toàn bộ vòng đời giao dịch
 
 Để giải quyết thành công các bài toán phức tạp về nghiệp vụ và kiến trúc kỹ thuật đã đặt ra, đề tài kết hợp sử dụng các phương pháp nghiên cứu khoa học kỹ thuật phần mềm hiện đại sau:
 
-1. *Phương pháp Phân tích và Thiết kế Hướng đối tượng (OOAD):*
-   - Sử dụng ngôn ngữ mô hình hóa thống nhất (UML) để chuẩn hóa tài liệu thiết kế: Biểu đồ ca sử dụng (Use Case Diagram), Biểu đồ hoạt động (Activity Diagram), Biểu đồ trình tự (Sequence Diagram), Biểu đồ lớp (Class Diagram) và Biểu đồ thực thể - quan hệ (ERD).
+1. *Phương pháp Phân tích và Thiết kế Hướng đối tượng (OOAD):* Sử dụng ngôn ngữ mô hình hóa thống nhất (UML) để chuẩn hóa tài liệu thiết kế: Biểu đồ ca sử dụng (Use Case Diagram), Biểu đồ hoạt động (Activity Diagram), Biểu đồ trình tự (Sequence Diagram), Biểu đồ lớp (Class Diagram) và Biểu đồ thực thể - quan hệ (ERD).
 
-2. *Phương pháp Kiến trúc Hướng dịch vụ (SOA) và mô hình Microservices:*
-   - Áp dụng mẫu thiết kế Database-per-service, đảm bảo mỗi dịch vụ microservice sở hữu cấu trúc lưu trữ và cơ sở dữ liệu riêng biệt. Triệt tiêu hiện tượng nghẽn cổ chai CSDL tập trung và ngăn chặn truy cập dữ liệu chéo trái phép.
+2. *Phương pháp Kiến trúc Hướng dịch vụ (SOA) và mô hình Microservices:* Áp dụng mẫu thiết kế Database-per-service, đảm bảo mỗi dịch vụ microservice sở hữu cấu trúc lưu trữ và cơ sở dữ liệu riêng biệt. Triệt tiêu hiện tượng nghẽn cổ chai CSDL tập trung và ngăn chặn truy cập dữ liệu chéo trái phép.
 
-
-3. *Phương pháp durable execution:*
-   - Nghiên cứu và áp dụng nền tảng durable execution Restate dựa trên triết lý Journal-based Execution (thực thi dựa trên nhật ký ghi trước - Write-Ahead Log) [12].
-
+3. *Phương pháp durable execution:* Nghiên cứu và áp dụng nền tảng durable execution Restate dựa trên triết lý Journal-based Execution (thực thi dựa trên nhật ký ghi trước - Write-Ahead Log) [12].
 
 == Đóng góp của đề tài
 
 Đề tài nghiên cứu và xây dựng nền tảng ShopNexus mang lại 3 đóng góp quan trọng:
 
-1. *Đóng góp về Giải pháp Nghiệp vụ cho thị trường TMĐT C2C:*
-   - Đề xuất và hiện thực hóa thành công mô hình sàn giao dịch C2C thế hệ mới, giải quyết triệt để bài toán "khủng hoảng niềm tin" và sự phân mảnh trong giao tiếp truyền thống.
+1. *Đóng góp về Giải pháp Nghiệp vụ cho thị trường TMĐT C2C:* Đề xuất và hiện thực hóa thành công mô hình sàn giao dịch C2C thế hệ mới, giải quyết triệt để bài toán "khủng hoảng niềm tin" và sự phân mảnh trong giao tiếp truyền thống.
 
-2. *Đóng góp về Kiến trúc Phần mềm và Công nghệ durable execution:*
-   - Tiên phong nghiên cứu và triển khai mô hình Durable Microservices trên nền tảng Restate trong một hệ thống thương mại điện tử thực tế tại Việt Nam.
+2. *Đóng góp về Kiến trúc Phần mềm và Công nghệ durable execution:* Tiên phong nghiên cứu và triển khai mô hình Durable Microservices trên nền tảng Restate trong một hệ thống thương mại điện tử thực tế tại Việt Nam.
 
-3. *Đóng góp về Sản phẩm Thực tiễn và Tài liệu Quy chuẩn:*
-   - Bàn giao một bộ sản phẩm phần mềm hoạt động trọn vẹn, bao gồm: Giao diện người dùng (Nextjs/ Flutter) và Hệ thống Backend Microservices hoàn chỉnh.
-
+3. *Đóng góp về Sản phẩm Thực tiễn và Tài liệu Quy chuẩn:* Bàn giao một bộ sản phẩm phần mềm hoạt động trọn vẹn, bao gồm: Giao diện người dùng (Nextjs/ Flutter) và Hệ thống Backend Microservices hoàn chỉnh.
