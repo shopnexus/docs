@@ -2,7 +2,7 @@
 
 == Các yếu tố dẫn dắt kiến trúc
 #figure(
-  caption: [Các yêu cầu chức năng có ý nghĩa kiến trúc (Architecturally Significant Requirements)],
+  caption: [Các yêu cầu chức năng có ý nghĩa kiến trúc],
   table(
     columns: (0.5fr, 1.5fr, 0.95fr, 2.5fr),
     align: (center + horizon, left + horizon, left + horizon, left + horizon),
@@ -105,14 +105,9 @@ Hệ thống được tổ chức theo Kiến trúc phân rã theo nhóm nghiệ
 
 === Cơ chế bất đồng bộ và tích hợp bên ngoài
 
-Trục các sự kiện trên NATS JetStream chuyển
-những sự việc đã xảy ra tới các nhóm tiêu thụ tương ứng, với mô hình nhóm người tiêu thụ (pull model). Cùng nền tảng ấy còn mang những gì không
-phải sự kiện nghiệp vụ: 4 luồng số đo vận hành đi qua JetStream, và tín hiệu đẩy thời gian thực
-phát tán giữa các bản sao cổng vào đi qua công bố–đăng ký thường, vì một tín hiệu đẩy mà không máy
-khách nào đang mở kết nối để nhận thì không đáng được lưu lại. Hai luồng được phân biệt bằng
-kiểu dữ liệu chứ không bằng tên, để việc nối nhầm thành lỗi biên dịch. Cơ chế thứ ba là các hẹn giờ
-dài, với nguyên tắc 2 nguồn dẫn động, một định nghĩa: mọi khoảng chờ đều được viết đúng
-một lần dưới dạng một phương thức idempotent mà cả Restate lẫn bộ quét định kỳ cùng gọi.
+Trục sự kiện trên NATS JetStream được sử dụng để phân phối các sự kiện nghiệp vụ đã phát sinh tới các nhóm consumer theo mô hình pull. Bên cạnh đó, JetStream còn tiếp nhận bốn luồng số liệu vận hành, trong khi các tín hiệu thời gian thực giữa các bản sao của cổng vào được truyền qua cơ chế publish–subscribe thông thường do không cần lưu giữ khi không có máy khách kết nối. Hai loại thông điệp được phân biệt bằng kiểu dữ liệu nhằm hạn chế lỗi kết nối sai luồng ngay từ thời điểm biên dịch.
+
+Đối với các khoảng chờ dài hạn, hệ thống áp dụng nguyên tắc hai nguồn kích hoạt, một định nghĩa xử lý: mỗi tác vụ hết hạn chỉ được hiện thực một lần dưới dạng phương thức idempotent và có thể được kích hoạt bởi cả Restate lẫn bộ quét định kỳ.
 
 === Kiến trúc triển khai
 
