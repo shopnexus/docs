@@ -1355,7 +1355,7 @@ Các API được phân loại rõ theo 2 cơ chế chế độ luồng:
 === ADR-02: Áp dụng triệt để Database-per-service trên cơ sở dữ liệu PostgreSQL
 - *Bối cảnh:* Cần chọn phương án tổ chức lưu trữ dữ liệu cho 7 microservices nhằm đảm bảo tính độc lập và dễ mở rộng.
 - *Quyết định:* Sử dụng hệ quản trị cơ sở dữ liệu quan hệ *PostgreSQL*, trong đó mỗi microservice được cấp phát một cơ sở dữ liệu vật lý hoặc một schema logic độc lập, tuyệt đối không tạo ràng buộc khóa ngoại (Foreign Key) xuyên schema.
-- *Lý do & Lợi ích:* PostgreSQL là hệ quản trị mã nguồn mở mạnh mẽ, tuân thủ ACID cao và hỗ trợ cực tốt đa định dạng (JSONB, GIS, Vector). Việc chia schema độc lập giúp cô lập lỗi: nếu module `chat` bị tải cao hoặc quá tải CSDL, các module tài chính trọng yếu như `order` hay `account` vẫn hoạt động hoàn toàn bình thường.
+- *Lý do & Lợi ích:* PostgreSQL là hệ quản trị mã nguồn mở mạnh mẽ, tuân thủ ACID cao và hỗ trợ cực tốt đa định dạng (JSONB, GIS, Vector). Việc chia schema độc lập giúp cô lập lỗi: nếu module `chat` bị tải cao hoặc quá tải CSDL, các module finance trọng yếu như `order` hay `account` vẫn hoạt động hoàn toàn bình thường.
 
 === ADR-03: Sử dụng NATS JetStream cho Event Bus và Restate Timer cho đếm ngược Escrow
 - *Bối cảnh:* Hệ thống cần một cơ chế truyền tải thông điệp bất đồng bộ khi các sự kiện miền xảy ra (như đặt hàng thành công, nhận hàng thành công), đồng thời cần hệ thống hẹn giờ tự động đếm ngược 72 giờ để giải ngân tiền Escrow.

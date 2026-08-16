@@ -30,7 +30,7 @@ Môi trường giả lập cho phép truyền tham số để kích hoạt các 
 3 ca dưới đây tương ứng với các tình huống rủi ro đã nêu ở mục 6.1.
 
 #tcspec(
-  "TC-01", "Cổng thanh toán gửi lặp một thông báo đã được xử lý",
+  "TC-01", "Cổng thanh toán gửi lặp một thông báo đã xử lý",
   [Yêu cầu liên quan], [Thanh toán qua cổng và ký gửi tiền ký quỹ (REQ-23); chống nhân đôi thu tiền (NFR-11)],
   [Mức / loại / ưu tiên], [Thành phần; nghịch (kiểm tính lũy đẳng); chặn],
   [Điều kiện tiên quyết], [Một phiên thanh toán đã mở cho cặp người mua và người bán với tổng tiền 300.000 đồng; một lượt trả tiền đã được khởi tạo trên cổng giả lập; ví người mua rỗng, đúng như trường hợp thông thường],
@@ -53,7 +53,7 @@ Môi trường giả lập cho phép truyền tham số để kích hoạt các 
 )
 
 #tcspec(
-  "TC-02", "Chuỗi quyết toán dừng giữa đường rồi được chạy lại",
+  "TC-02", "Khôi phục chuỗi quyết toán sau gián đoạn",
   [Yêu cầu liên quan], [Sinh đơn hàng từ phiên thanh toán đã trả (REQ-23); tính lũy đẳng của các chuyển đổi (NFR-10); chống nhân đôi đơn hàng (NFR-11)],
   [Mức / loại / ưu tiên], [Thành phần; nghịch (phục hồi sau lỗi); chặn],
   [Điều kiện tiên quyết], [Một phiên thanh toán một dòng hàng đã được trả tiền; phân hệ tài chính được đặt ở chế độ lệnh giữ tiền thất bại. Đây là tình huống khó nhất của luồng, vì đơn hàng đã được ghi trước khi lệnh giữ tiền chạy],
@@ -78,7 +78,7 @@ Môi trường giả lập cho phép truyền tham số để kích hoạt các 
 )
 
 #tcspec(
-  "TC-03", "Giải ngân tiền ký quỹ gặp hồ sơ hoàn tiền chen vào giữa 2 bước",
+  "TC-03", "Xử lý giải ngân khi phát sinh yêu cầu hoàn tiền",
   [Yêu cầu liên quan], [Giải ngân sau thời hạn khiếu nại (REQ-26); hồ sơ hoàn tiền (REQ-27); ghi có kiểm soát trạng thái (NFR-12)],
   [Mức / loại / ưu tiên], [Thành phần; nghịch (tranh chấp đồng thời); chặn],
   [Điều kiện tiên quyết], [Một đơn hàng đã được người mua xác nhận nhận hàng; thời điểm nhận hàng bị đẩy về quá khứ để thời hạn giải ngân đã trôi qua, nhờ đó đơn nằm trong danh sách đến hạn của tác vụ quét],
