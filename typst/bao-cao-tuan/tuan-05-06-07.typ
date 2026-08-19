@@ -417,17 +417,17 @@ Ba màn hình quan trọng nhất (Chi tiết sản phẩm C2C, Khung Chat & Off
 Từ hệ thống thiết kế và thư viện thành phần ở trên, nhóm dựng bản mockup độ trung thực cao cho các màn hình chính của sàn ShopNexus, thống nhất màu chủ đạo xanh mòng két (`#004E47`) và bộ chữ Manrope/Inter. Ba màn hình cốt lõi của luồng giao dịch C2C được trình bày trước, tiếp theo là các màn hình bổ sung trong hành trình người dùng.
 
 #figure(
-  assets("mockups/product-detail.png", height: 14cm),
+  mockup("product-detail", height: 14cm),
   caption: [Màn hình Chi tiết sản phẩm C2C: giá và mức giảm, uy tín người bán, nút "Chat ngay" / "Mua ngay".],
 )
 
 #figure(
-  assets("mockups/inbox-chat.png", width: 95%),
+  mockup("inbox-chat", width: 95%),
   caption: [Màn hình Nhắn tin & Đề nghị giá (Offer): trao đổi, gửi ảnh thực tế, thông tin giao dịch và nút "Đề nghị giá".],
 )
 
 #figure(
-  assets("mockups/checkout.png", height: 15cm),
+  mockup("checkout", height: 15cm),
   caption: [Màn hình Thanh toán: địa chỉ nhận hàng, phí vận chuyển động, phương thức thanh toán và tổng thanh toán.],
 )
 
@@ -437,10 +437,10 @@ Ngoài ba màn hình cốt lõi, nhóm hoàn thiện mockup cho các màn hình 
   grid(
     columns: (1fr, 1fr), column-gutter: 10pt, row-gutter: 12pt,
     align: center + horizon,
-    assets("mockups/home.png", height: 5cm),
-    assets("mockups/search-results.png", height: 5cm),
-    assets("mockups/seller-dashboard.png", height: 5cm),
-    assets("mockups/list-item.png", height: 5cm),
+    mockup("home", height: 5cm),
+    mockup("search-results", height: 5cm),
+    mockup("seller-dashboard", height: 5cm),
+    mockup("list-item", height: 5cm),
   ),
   caption: [Các màn hình bổ sung (từ trái sang, trên xuống): Trang chủ, Kết quả tìm kiếm, Bảng điều khiển người bán, Đăng bán sản phẩm.],
 )
