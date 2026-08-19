@@ -12,7 +12,9 @@
 )
 
 // ---- Mục lục ----------------------------------------------
-// (Số trang La Mã của phần phụ do template `quyen` đặt sẵn)
+#set page(numbering: "i")
+#counter(page).update(1)
+
 #muc-luc()
 #pagebreak()
 
