@@ -1069,7 +1069,7 @@ phương thức, để hình đọc được mà không phải mở mã nguồn.
 )
 
 #fig-xoay(
-  [Sơ đồ trình tự TT-B, phần 1: mở yêu cầu hoàn tiền và nhánh người bán đồng ý],
+  [Sơ đồ trình tự TT-B, phần 1: mở yêu cầu hoàn tiền],
   spacing: (72mm, 13mm),
   np((0, 0), [:Người mua]),
   ncore((1, 0), [Module\ Đơn hàng]),
@@ -1089,8 +1089,7 @@ phương thức, để hình đọc được mà không phải mở mã nguồn.
 )
 
 #fig-xoay(
-  [Sơ đồ trình tự TT-B, phần 2: nhánh người bán đưa lên hoặc im lặng hết bốn mươi
-    tám giờ — leo thang thành phiếu hỗ trợ và phán quyết],
+  [Sơ đồ trình tự TT-B, phần 2: Người bán yêu cầu phân xử/quá hạn phản hồi],
   spacing: (44mm, 9mm),
   np((0, 0), [:Người mua]),
   ncore((1, 0), [Module\ Đơn hàng]),
@@ -1128,8 +1127,7 @@ phương thức, để hình đọc được mà không phải mở mã nguồn.
 )
 
 #fig-xoay(
-  [Sơ đồ trình tự TT-C: thương lượng giá, từ lượt đề nghị đầu tiên đến lúc cuộc thương
-    lượng vào thanh toán],
+  [Sơ đồ trình tự TT-C: Từ đề nghị ban đầu đến khởi tạo thanh toán],
   spacing: (56mm, 9mm),
   np((0, 0), [:Người mua]),
   ncore((1, 0), [Module\ Đơn hàng]),

@@ -10,7 +10,7 @@
 #show: quyen.with(
   tieu-de: ("BÁO CÁO THỰC TẬP", "TỐT NGHIỆP ĐẠI HỌC"),
   chay: "Báo cáo TTTN Đại học",
-  thoi-diem: "Tháng 08 năm 2026",
+  thoi-diem: "Tháng 08/2026",
 )
 
 #set page(numbering: "i")
@@ -45,7 +45,6 @@ Mặc dù đã có nhiều cố gắng, song do giới hạn về mặt thời g
   columns: (auto, 1.5fr, 2fr),
   align: (left, left, left),
   table.header([*Viết tắt*], [*Cụm từ đầy đủ*], [*Ý nghĩa*]),
-  [Access token], [], [Thẻ truy cập ngắn hạn, đính kèm mỗi lời gọi API để chứng minh danh tính],
   [ANN], [Approximate Nearest Neighbor], [Tìm láng giềng gần đúng (cho tìm kiếm vector)],
   [API], [Application Programming Interface], [Giao diện lập trình ứng dụng],
   [AD], [Architectural Driver], [Yêu cầu có ý nghĩa kiến trúc (đánh mã AD-xx)],
@@ -139,9 +138,6 @@ Về tình hình nghiên cứu, mô hình ký quỹ đã được các sàn lớ
 Về phạm vi, đề tài bao trùm trọn vòng đời một giao dịch C2C, từ đăng bán, tìm kiếm, thương lượng, thanh toán ký quỹ, giao nhận cho tới hoàn tiền và phân xử tranh chấp, hiện thực trên cả 3 thành phần gồm dịch vụ nền, ứng dụng web và ứng dụng di động. Ngoài phạm vi là gian hàng doanh nghiệp, giao dịch xuyên biên giới, gọi thoại và gọi video, cùng việc vận hành thực tế với các đối tác ở môi trường sản xuất.
 
 Về phương pháp nghiên cứu, phần phân tích và thiết kế áp dụng mô hình hóa hướng đối tượng bằng ngôn ngữ mô hình hóa thống nhất, gồm sơ đồ ca sử dụng kèm đặc tả đầy đủ, sơ đồ hoạt động, sơ đồ trạng thái, sơ đồ trình tự, sơ đồ lớp và sơ đồ quan hệ thực thể. Phần kiến trúc áp dụng nguyên lý mỗi dịch vụ một cơ sở dữ liệu, phần hiện thực dùng nền tảng thực thi bền cho các luồng dài hạn, và kết quả được kiểm chứng bằng bộ ca kiểm thử bám theo các yêu cầu phi chức năng.
-
-Về kết cấu, báo cáo gồm 6 chương: tổng quan đề tài; cơ sở lý thuyết; phân tích yêu cầu; thiết kế hệ thống ở 3 mức kiến trúc, dữ liệu và chi tiết; hiện thực và triển khai; kiểm thử, đánh giá kết quả cùng các hạn chế còn lại.
-
 
 // ---- Các chương (template tự ngắt trang trước mỗi chương) --
 #include "chapters/01-tong-quan.typ"

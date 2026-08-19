@@ -62,36 +62,36 @@ Thiết kế tách đường ghi telemetry khỏi đường xử lý yêu cầu:
 Các hình ảnh minh hoạ giao diện dưới đây được trích xuất trực tiếp từ môi trường chạy thử của ứng dụng:
 #figure(
   assets("web/web-01-tim-kiem.png", width: 86%),
-  caption: [Trang kết quả tìm kiếm với từ khoá tiếng Việt không dấu "ao thun nam"; rail bộ lọc bên trái cố định trên khung nhìn desktop, dải "cách khớp" cho chọn giữa khớp từ khoá, khớp ngữ nghĩa hay kết hợp cả 2],
+  caption: [Trang kết quả tìm kiếm],
 )
 
 Trang tìm kiếm (Hình 5.1) thể hiện kết quả truy vấn. Bộ lọc cho phép tinh chỉnh theo danh mục, nhãn dán, khoảng cách địa lý, giá và tình trạng sản phẩm.
 
 #figure(
   assets("web/web-04-thanh-toan.png", height: 17cm),
-  caption: [Trang thanh toán sau khi địa chỉ nhận đã được chọn sẵn: danh sách phương án vận chuyển kèm cước, danh sách kênh thanh toán, bảng tổng tiền tách bạch tiền hàng với cước. Mọi mục mang tiền tố "Mock" là kịch bản của bản giả lập, không phải hãng vận chuyển hay kênh thanh toán thật],
+  caption: [Trang thanh toán],
 )
 
 Trang thanh toán (Hình 5.2) hỗ trợ hai luồng nghiệp vụ: mua giá niêm yết và đàm phán thành công. Biểu phí vận chuyển và tổng tiền được máy chủ tính toán động dựa trên địa chỉ mặc định. Để phục vụ kiểm thử, môi trường hiện tại tích hợp các kịch bản giả lập (Mock) bên cạnh hai cổng thanh toán thực tế là SePay và Stripe, đảm bảo khả năng mô phỏng toàn diện luồng giao dịch.
 
 #figure(
   assets("web/web-05-theo-doi-don.png", width: 90%),
-  caption: [Chi tiết một đơn ở trạng thái đã giao và đang chờ người mua xác nhận: dải tiến trình 4 chặng, thông tin vận đơn, bảng tách tiền hàng với cước, hai lối đi tiếp là xác nhận đã nhận hàng hoặc mở yêu cầu hoàn tiền],
+  caption: [Chi tiết đơn hàng],
 )
 
 Trang chi tiết đơn hàng (Hình 5.3), dải tiến trình giao hàng phản ánh trạng thái vận đơn theo thời gian thực. Trạng thái đã giao vẫn được xếp vào nhóm đang xử lý do khoản tiền tiếp tục được giữ trong Ký quỹ cho đến khi người mua xác nhận nhận hàng hoặc hết thời hạn bảo lưu. Thời gian đếm ngược của Ký quỹ hiện chỉ được hiển thị trên giao diện người bán.
 
 #figure(
   assets("web/web-06-hoan-tien.png", width: 90%),
-  caption: [Chi tiết một yêu cầu hoàn tiền đang chờ người bán xem xét, nhìn từ tài khoản người bán: trạng thái vụ việc, thời hạn phản hồi còn lại, lý do và ảnh bằng chứng người mua đính kèm, cùng hai lối đi tiếp là chấp nhận hoàn tiền hoặc đưa vụ việc lên bộ phận vận hành],
+  caption: [Chi tiết một yêu cầu hoàn tiền chờ người bán xem xét],
 )
 
-Giao diện khiếu nại được thiết kế hướng hành động (action-oriented), hiển thị rõ chủ thể chịu trách nhiệm xử lý bước tiếp theo thay vì chỉ thể hiện trạng thái thụ động. Quản lý phân quyền nút thao tác linh hoạt theo vai trò và vòng đời vụ việc, ví dụ quyền nâng cấp thành phiếu hỗ trợ chỉ được kích hoạt cho người bán trong thời hạn phản hồi.
+Giao diện khiếu nại (Hình 5.4) được thiết kế hướng hành động (action-oriented), hiển thị rõ chủ thể chịu trách nhiệm xử lý bước tiếp theo thay vì chỉ thể hiện trạng thái thụ động. Quản lý phân quyền nút thao tác linh hoạt theo vai trò và vòng đời vụ việc, ví dụ quyền nâng cấp thành phiếu hỗ trợ chỉ được kích hoạt cho người bán trong thời hạn phản hồi.
 
 
 == Hiện thực ứng dụng di động
 
-Ứng dụng di động được tổ chức theo kiến trúc hướng tính năng (Feature-Driven Architecture) với 11 module nghiệp vụ độc lập. Mỗi module đóng gói các thành phần giao diện và truy cập dữ liệu liên quan, thay vì phân tách toàn hệ thống theo các tầng kỹ thuật, qua đó tăng tính cô lập và thuận tiện trong bảo trì. Với các phân hệ có quy tắc nghiệp vụ phức tạp, như quy trình hoàn tiền, hệ thống bổ sung lớp miền (domain layer) để quản lý riêng các ràng buộc và trạng thái xử lý.
+Ứng dụng di động được tổ chức theo kiến trúc hướng tính năng (Feature-Driven Architecture) với các module nghiệp vụ độc lập. Mỗi module đóng gói các thành phần giao diện và truy cập dữ liệu liên quan, thay vì phân tách toàn hệ thống theo các tầng kỹ thuật, qua đó tăng tính cô lập và thuận tiện trong bảo trì. Với các phân hệ có quy tắc nghiệp vụ phức tạp, như quy trình hoàn tiền, hệ thống bổ sung lớp miền (domain layer) để quản lý riêng các ràng buộc và trạng thái xử lý.
 
 #anh-mobile(
   [Trang chủ và trung tâm tài khoản],
