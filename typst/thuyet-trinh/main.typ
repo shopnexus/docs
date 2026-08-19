@@ -373,6 +373,57 @@ Các nền tảng rao vặt trong nước chủ yếu kết nối thông tin; ph
 
 == Kiến trúc microservices
 
+// Mỗi ngữ cảnh giới hạn ở slide trước thành đúng một dịch vụ — cùng tên, cùng thứ
+// tự, để hội đồng thấy ngay quan hệ một–một. Hạ tầng dùng chung vẽ gộp thành hàng
+// dưới vì cả bảy dịch vụ đều chạm tới; vẽ từng cạnh riêng sẽ thành mạng nhện.
+#sodo(
+  co: 0.9em,
+  spacing: (25mm, 17mm),
+  o((0, 0), [Máy khách \ web · di động], name: <mk>),
+  on((1, 0), [Cổng vào \ HTTP · WebSocket], name: <cv>),
+  node(
+    (2, 0),
+    align(left, stack(
+      dir: ttb, spacing: 4pt,
+      text(size: 0.58em, weight: 700, fill: nav)[Bảy dịch vụ nghiệp vụ],
+      line(length: 100%, stroke: 0.5pt + nav-nhat),
+      grid(
+        columns: (auto, auto), column-gutter: 10pt, row-gutter: 3.5pt,
+        text(size: 0.52em)[Định danh], text(size: 0.52em)[Tài chính],
+        text(size: 0.52em)[Hàng hoá], text(size: 0.52em)[Tín nhiệm],
+        text(size: 0.52em)[Đặt hàng], text(size: 0.52em)[Trao đổi],
+        text(size: 0.52em)[Quan trắc], [],
+      ),
+    )),
+    fill: nav-nen, stroke: 1.2pt + nav, corner-radius: 3pt, inset: 7pt, name: <sv>,
+  ),
+  o((3, 0), [Cổng ra \ thanh toán · vận chuyển \ định danh · trí tuệ nhân tạo], name: <cr>),
+  o((1, 1), [Nền tảng \ thực thi bền], name: <tb>),
+  o((2, 1), [Cơ sở dữ liệu \ một lược đồ mỗi dịch vụ], name: <db>),
+  o((3, 1), [Trục sự kiện], name: <ts>),
+  edge(<mk>, <cv>, "-|>"),
+  edge(<cv>, <sv>, "-|>", label: nhan[hợp đồng], label-side: left),
+  edge(<sv>, <cr>, "-|>", label: nhan[bộ điều hợp], label-side: left),
+  edge(<sv>, <tb>, "-|>"),
+  edge(<sv>, <db>, "-|>"),
+  edge(<sv>, <ts>, "-|>", stroke: (dash: "dashed"),
+       label: nhan[sự kiện], label-side: right),
+)
+
+#v(0.35cm)
+#cot(ti: (1fr, 1fr, 1fr))[
+  #the([Ranh giới cưỡng chế])[
+    Dịch vụ khác chỉ thấy hợp đồng công bố; *không khoá ngoại nào bắc qua hai lược đồ*.
+  ]
+][
+  #the([Cổng vào không giữ quy tắc])[
+    Đọc yêu cầu, gọi hợp đồng, ghi kết quả; kiểm vai trò nằm trong dịch vụ.
+  ]
+][
+  #the([Một đơn vị triển khai])[
+    Bảy dịch vụ phát hành chung; ranh giới đã dựng nên *tách ra chạy riêng được*.
+  ]
+]
 
 = Hiện thực và kiểm thử
 
