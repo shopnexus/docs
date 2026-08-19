@@ -18,7 +18,7 @@
 #let lop = "D22CQCNPM01-N"
 #let nhom = "C22"
 #let nganh = "CÔNG NGHỆ THÔNG TIN"
-#let dia-diem = "TP. HỒ CHÍ MINH"
+#let dia-diem = "TP.HCM"
 #let nam = "2026"
 
 // (họ tên, MSSV) — giữ nguyên thứ tự này ở mọi báo cáo
