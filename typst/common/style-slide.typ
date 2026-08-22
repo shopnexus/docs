@@ -294,6 +294,56 @@
   stroke: (paint: nav, thickness: 0.9pt, dash: "dashed"),
 )
 
+// Hình người que kiểu sơ đồ ca sử dụng. Vẽ tay bằng `place` chứ không dùng ảnh:
+// nó phải đổi màu và đổi cỡ theo thẻ chứa nó, mà vẫn in đen trắng được.
+// Gọi qua `std.` vì tệp này nạp `*` từ touying và fletcher, hai gói đó có hàm
+// trùng tên với `line` và `circle` của Typst.
+#let nguoi-que(cao: 12.5mm, mau: nav) = {
+  let d = cao
+  let net = 1.2pt + mau
+  std.box(width: d * 0.62, height: d, {
+    std.place(top + left, dx: d * 0.17, std.circle(radius: d * 0.14, stroke: net))
+    std.place(top + left, std.line(start: (d * 0.31, d * 0.30), end: (d * 0.31, d * 0.62), stroke: net))
+    std.place(top + left, std.line(start: (d * 0.06, d * 0.40), end: (d * 0.56, d * 0.40), stroke: net))
+    std.place(top + left, std.line(start: (d * 0.31, d * 0.62), end: (d * 0.08, d * 0.92), stroke: net))
+    std.place(top + left, std.line(start: (d * 0.31, d * 0.62), end: (d * 0.54, d * 0.92), stroke: net))
+  })
+}
+
+// Thẻ vai trò: băng trên là hình người, tên vai trò và một câu tự giới thiệu;
+// thân dưới là vài việc chính, mỗi việc một dòng. Cố ý CHỈ nhận ba việc — thẻ
+// này để hội đồng nhìn một cái là nắm được vai trò, danh sách đầy đủ nằm trong
+// quyển. Viền LIỀN, khác `ovung` (nét đứt) vốn là ranh giới ngữ cảnh.
+// `rong` phải để dư chỗ: chữ không chân của slide rộng hơn chữ có chân của quyển.
+#let the-vai(p, nm, ten, mo-ta, rong: 68mm, ..viec) = node(
+  p,
+  // `sodo` canh giữa cả sơ đồ nên nội dung trong thẻ cũng bị kéo vào giữa nếu
+  // không canh trái lại: ba dòng việc so le nhau đọc mệt hơn hẳn khi cùng lề.
+  std.align(left, block(width: 100%, {
+    block(width: 100%, fill: nav-nen, inset: (x: 12pt, y: 12pt),
+      radius: (top: 3.5pt),
+      grid(
+        columns: (auto, 1fr), column-gutter: 11pt,
+        align: (left + horizon, left + horizon),
+        nguoi-que(),
+        {
+          text(size: 0.78em, weight: 700, fill: nav, ten)
+          linebreak()
+          text(size: 0.48em, fill: muted, style: "italic", mo-ta)
+        },
+      ))
+    block(width: 100%, inset: (x: 14pt, y: 18pt), stack(
+      dir: ttb, spacing: 16pt,
+      ..viec.pos().map(v => grid(
+        columns: (auto, 1fr), column-gutter: 8pt, align: (horizon, left + top),
+        text(size: 0.4em, fill: nav-nhat)[●], text(size: 0.6em, v),
+      )),
+    ))
+  })),
+  shape: rect, fill: white, inset: 0pt, corner-radius: 4pt,
+  width: rong, stroke: 1pt + nav-nhat, name: nm,
+)
+
 // Cụm chữ nhấn.
 #let nh(body) = text(weight: 700, fill: nav, body)
 
