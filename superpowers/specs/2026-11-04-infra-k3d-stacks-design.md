@@ -98,9 +98,17 @@ gateway address.
 `up.sh --edge direct|behind-proxy` picks the HelmChartConfig and the port
 mapping.
 
-In `direct`, k3d's serverlb (an nginx stream proxy) hides the client address.
-The plan checks whether mapping 80/443 straight onto `server-0`, where
-Traefik runs, keeps it.
+In `direct`, k3d's serverlb (an nginx stream proxy) hides the client address,
+so `up.sh` maps 80/443 straight onto `server-0` (`@server:0:direct`), where
+Traefik runs, and Traefik's Service uses `externalTrafficPolicy: Local`. A
+request from the same host still shows a Docker gateway address, because
+Docker's userland proxy handles it; the client address of a request from
+another machine is checked on the first `direct` deployment.
+
+k3s v1.37.1 bundles Traefik chart 41.4.0. Its schema refuses unknown keys
+(`ports.web.redirections`, `ports.websecure.tls`, `logs`), and k3s then runs
+Traefik with its defaults, so `infra/check.sh` renders both edge configs
+against that chart.
 
 ### Inside the cluster
 
