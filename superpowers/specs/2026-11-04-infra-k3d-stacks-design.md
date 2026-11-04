@@ -122,8 +122,9 @@ behind it on any node. Restate registers the endpoint as HTTP/1.1
 (`use_http_11: true`), so each invocation is its own request and the spread
 is even.
 
-NetworkPolicy denies all traffic in each stack namespace and opens the arrows
-above. `RestateCluster` creates its own namespace, so the policies name it.
+NetworkPolicy denies all ingress in each stack namespace and opens the
+arrows above. Egress stays open, because the server calls Firebase, FCM and
+the language model on the internet. `RestateCluster` creates its own namespace, so the policies name it.
 No policy opens a path between `shopnexus-dev` and `shopnexus-prod`.
 
 ### Nodes
@@ -159,8 +160,11 @@ overwrite the operator's registration, so the server needs a switch, such as
 `RESTATE_REGISTER=false`, that skips `register` in `internal/app/app.go`.
 
 HTTP traffic goes through a separate Service, `server-api` on port 8080. It
-selects `version: <image tag>`, a label the chart sets on the pod template,
-so API requests reach only the newest version.
+selects every server pod, of any version. A selector on the newest version
+would leave the Service without endpoints until the new pods are ready, and
+an image tag tracked by digest (`main@sha256:...`) is not a valid label
+value. An old version therefore serves API requests until the operator
+scales it to zero, as a rolling update would.
 
 ### Postgres
 
@@ -172,8 +176,10 @@ failover.
 
 ### RustFS
 
-A StatefulSet with one replica and a PVC. Buckets: `media`, whose `media/`
-keys are public-read, and `restate-snapshots`. The app uploads with presigned
+A StatefulSet with one replica and a PVC. Buckets: `shopnexus`, the
+server's `OBJECT_STORE_BUCKET`, whose `media/` keys are public-read, and
+`restate-snapshots`. `objectstore-init` creates the first; a job running the
+AWS CLI creates the second. The app uploads with presigned
 URLs signed for `OBJECT_STORE_PUBLIC_ENDPOINT=https://media.<domain>`, so the
 store is public through Traefik.
 
@@ -258,6 +264,10 @@ which lists the ten hosts and proxies them to `127.0.0.1:18080`.
   answers on 443; the plan finds the rule that admits it before changing
   anything. The k3d network is a `br-*` bridge, which the `gate` chain
   already trusts.
+- The website's `next.config.ts` bakes the API rewrite at build time from
+  `NEXT_PUBLIC_API_URL`, so one image cannot carry two public API URLs. The
+  image is built with `http://server-api:8080/v1`, the in-cluster Service
+  name, which resolves inside whichever stack namespace the website runs in.
 - The website was last changed on 2026-10-14 and still has screens from the
   escrow model. Deploying it is in scope; making it match server2 is the
   website's own work.
