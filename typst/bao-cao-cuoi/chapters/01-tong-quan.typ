@@ -1,88 +1,74 @@
+#import "../../common/tokens.typ": *
+
 = TỔNG QUAN
 
-== Bối cảnh và Lý do chọn đề tài
+== Bối cảnh và vấn đề
 
-Thị trường giao dịch trực tuyến giữa các cá nhân (C2C - Consumer-to-Consumer) tại Việt Nam đang chứng kiến sự tăng trưởng vượt bậc, đặc biệt trong các lĩnh vực mua bán đồ cũ, thanh lý thiết bị điện tử, sách giáo khoa, đồ gia dụng, thời trang và các sản phẩm thủ công (handmade). Tuy nhiên, khi các giao dịch diễn ra tự phát mà không có sự bảo lãnh tài chính và giám sát chuẩn mực, thị trường C2C truyền thống đang phải đối mặt với rào cản lớn nhất là khủng hoảng niềm tin giữa các bên tham gia giao dịch.
+Thị trường mua bán hàng đã qua sử dụng giữa các cá nhân tại Việt Nam diễn ra chủ yếu trên các trang rao vặt và các nhóm mạng xã hội. Điện thoại, máy tính, xe đạp, đồ gia dụng được rao với giá thấp hơn hàng mới, người mua và người bán thường ở xa nhau và chưa từng giao dịch trước đó. Khác với TMĐT kiểu B2C, mỗi món hàng cũ là duy nhất: tình trạng của nó chỉ người bán biết, và mô tả thường là một đoạn văn tự do không có chuẩn chung.
 
-Khi nghiên cứu kĩ vào từng vai trò tham gia giao dịch cũng như cách hai bên trao đổi và thống nhất với nhau, có thể thấy những thách thức cốt lõi đang kìm hãm sự phát triển lành mạnh của hệ sinh thái này tập trung ở 3 nhóm sau:
-- *Rủi ro từ phía Người mua:* Khi phải đặt cọc hoặc thanh toán trước cho người bán cá nhân, người mua có nguy cơ bị lừa đảo như không giao hàng, giao sai sản phẩm, hàng giả hoặc hàng không đúng mô tả. Khi sự cố xảy ra, việc đòi hoàn tiền và bảo vệ quyền lợi thường gặp nhiều khó khăn do thiếu cơ chế trung gian xử lý.
+Trong điều kiện đó, hai bên chỉ có vài cách trả tiền. Chuyển khoản trước đặt toàn bộ rủi ro lên người mua, và đây là kịch bản lừa đảo phổ biến nhất: nhận tiền rồi biến mất. COD tự phát, tức người bán gửi hàng thu hộ qua một hãng vận chuyển, chuyển rủi ro sang người bán: người mua đặt rồi không nhận ("bom hàng"), người bán chịu phí ship hai chiều mà không có cách nào ghi nhận người mua đó. Việc thương lượng giá diễn ra qua tin nhắn Zalo hoặc Messenger, tách khỏi tin đăng, nên giá đã chốt, địa chỉ nhận hàng và mã vận đơn nằm rải rác ở nhiều nơi và không thể dùng làm căn cứ khi có sự cố.
 
-- *Rủi ro từ phía Người bán:* Hình thức COD giúp tăng niềm tin cho người mua nhưng lại khiến người bán đối mặt với tình trạng từ chối nhận hàng, phát sinh chi phí vận chuyển hai chiều và nguy cơ sản phẩm bị hư hỏng, thất lạc hoặc tráo đổi trong quá trình giao nhận.
+Ở phía tìm kiếm, người mua phải dịch nhu cầu của mình thành từ khóa và bộ lọc. Một câu như "kiếm gì đó tặng sinh nhật bạn, tầm 500 nghìn, gần đây thôi" không ứng với một từ khóa nào; người mua phải tự chọn danh mục, khoảng giá, khu vực, rồi lặp lại khi kết quả không vừa ý.
 
-- *Sự phân mảnh trong giao tiếp và thỏa thuận:* Quá trình thương lượng giá, trao đổi hình ảnh và xác nhận thông tin thường diễn ra trên các ứng dụng bên ngoài nền tảng. Điều này làm cho giá đã thỏa thuận khó đồng bộ với đơn hàng, đồng thời khiến lịch sử trao đổi khó được xác minh và sử dụng làm bằng chứng khi phát sinh tranh chấp.
+Về pháp lý, Luật Bảo vệ quyền lợi người tiêu dùng [1] và Luật Thương mại điện tử [2] đặt ra trách nhiệm cung cấp thông tin trung thực về hàng hóa và trách nhiệm của chủ nền tảng đối với người bán trên nền tảng. Một sàn muốn giữ tiền của người mua thì phải trở thành hoặc hợp tác với tổ chức trung gian thanh toán có giấy phép, điều vượt khỏi khả năng của một nhóm sinh viên và cũng không cần thiết cho phân khúc hàng cũ giá vừa phải.
 
-Xét trên phương diện tổng thể, thương mại điện tử Việt Nam tiếp tục duy trì tốc độ tăng trưởng cao, nhưng nhiều nền tảng C2C như Chợ Tốt vẫn chủ yếu đóng vai trò kết nối, chưa cung cấp cơ chế bảo lãnh dòng tiền tập trung. Về pháp lý, Luật Thương mại điện tử số 122/2025/QH15, có hiệu lực từ ngày 1 tháng 7 năm 2026, đã xác lập rõ hơn trách nhiệm của nền tảng trong định danh người bán, xử lý khiếu nại và bảo vệ người tiêu dùng. Đồng thời, Luật Bảo vệ quyền lợi người tiêu dùng số 19/2023/QH15 tiếp tục bảo đảm các quyền được thông tin, bảo vệ và giải quyết tranh chấp của người mua [1] [2].
+== Khảo sát các giải pháp hiện có
 
-Trước thực trạng và những khoảng trống lớn của thị trường, đề tài này được thực hiện nhằm nghiên cứu, phân tích và thiết kế một hệ sinh thái giao dịch C2C an toàn, minh bạch và hiện đại, đặt trọng tâm giải quyết bài toán "lòng tin" thông qua ba nhóm giải pháp cốt lõi sau:
-+ *Cơ chế ký quỹ (escrow):* Sàn thương mại điện tử đóng vai trò bên thứ ba trung gian đáng tin cậy giữ tiền giao dịch. Dòng tiền của người mua được khóa bảo mật trong ví ký quỹ cho đến khi giao hàng thành công và người mua xác nhận hài lòng (hoặc hết thời hạn đếm ngược 3 ngày (72 giờ) mà không có khiếu nại).
-+ *Tích hợp Nhắn tin trực tuyến và Thẻ Đề xuất giá (Offer Card):* Xây dựng hệ thống giao tiếp gắn liền mạch vào sàn, cho phép thương lượng giá động ngay trong khung chat qua Thẻ Đề xuất giá có hiệu lực trong 12 giờ, ràng buộc trực tiếp thỏa thuận giá vào luồng thanh toán đơn hàng.
-+ *Quy trình Hoàn tiền và Phân xử tranh chấp (Refund & Dispute) minh bạch:* Thiết lập quy trình khiếu nại với ràng buộc bắt buộc cung cấp bằng chứng số đa phương tiện (video mở hộp, ảnh chụp đóng gói). Khi không đạt được thỏa thuận hoàn tiền, vụ việc được thăng cấp lên Điều phối viên (Moderator) nội bộ để thẩm định và ra quyết định công bằng cho cả 2 bên.
+Nhóm khảo sát ba nền tảng có lượng người dùng lớn tại Việt Nam: Chợ Tốt, Facebook Marketplace và Shopee. Bảng 1.1 so sánh chúng với ShopNexus theo năm tiêu chí gắn trực tiếp với các vấn đề nêu trên.
 
-== Mục tiêu của nghiên cứu
+#figure(
+  kind: table,
+  caption: [So sánh các nền tảng theo tiêu chí giao dịch C2C hàng cũ],
+  table(
+    columns: (1fr, 2cm, 2.3cm, 1.8cm, 2.6cm),
+    align: (left, center, center, center, center),
+    table.header([Tiêu chí], [Chợ Tốt], [Facebook Marketplace], [Shopee], [ShopNexus]),
+    [Sàn giữ tiền người mua], [Không], [Không], [Có], [Không],
+    [Sàn phân xử khiếu nại], [Không], [Không], [Có], [Không],
+    [Thương lượng giá trong ứng dụng], [Qua chat], [Qua Messenger], [Hạn chế], [Có, theo luật giá],
+    [COD đồng kiểm qua vận đơn đứng tên người bán], [Không], [Không], [Không], [Có (GHTK, GHN)],
+    [Tìm bằng câu tự nhiên], [Không], [Không], [Không], [Có (AI agent)],
+  ),
+)
 
-Mục tiêu tổng quát của nghiên cứu là áp dụng triệt để các phương pháp kỹ thuật phần mềm tiên tiến, đặc biệt là kiến trúc hướng dịch vụ (SOA) và mô hình Microservices hiện đại, để thiết kế và hiện thực hóa một nền tảng TMĐT C2C toàn diện, an toàn và có khả năng chịu tải, mở rộng cao [9]. Các mục tiêu cụ thể được phân chia theo từng phương diện nghiệp vụ và công nghệ cốt lõi:
+Chợ Tốt và Facebook Marketplace chỉ làm nơi gặp nhau: việc trả tiền, gửi hàng và xử lý sự cố do hai bên tự lo. Shopee bảo vệ người mua bằng cách giữ tiền và phân xử khiếu nại, nhưng mô hình này được thiết kế cho hàng mới của người bán chuyên nghiệp, đòi giấy phép thanh toán, đội ngũ xử lý khiếu nại tăng theo số đơn và không hợp với một chiếc điện thoại cũ bán một lần. Khoảng trống mà đề tài nhắm tới nằm giữa hai nhóm: một sàn không giữ tiền và không phán xử, nhưng đưa toàn bộ giao dịch vào ứng dụng, để mọi dữ kiện quan trọng đều có nguồn quan sát được và có thể tính thành uy tín.
 
-1. *Xây dựng cơ chế ký quỹ bền vững và luồng tài chính an toàn:* Thiết kế luồng thanh toán tích hợp cổng ngân hàng/ví điện tử ngoại vi, quản lý dòng tiền theo mô hình ví nội bộ (Internal Wallet).
+== Mô hình nghiệp vụ đề xuất
 
-2. *Tích hợp Nhắn tin trực tuyến thời gian thực và Chuẩn hóa quy trình Đàm phán giá (Offer Card):* Xây dựng module Chat đa phương tiện thời gian thực, cho phép gửi hình ảnh và video thực tế của sản phẩm giữa người mua và người bán.
+Mô hình của ShopNexus bắt đầu từ hai ràng buộc gốc. Thứ nhất, sàn không giữ tiền của ai: không ví, không cọc, không thu hộ, không hoàn tiền qua sàn. Thứ hai, sàn không phán xử từng vụ việc. Hai ràng buộc này loại bỏ yêu cầu giấy phép thanh toán và bộ phận xử lý khiếu nại, đồng thời buộc mọi quy tắc còn lại phải dựa trên dữ kiện quan sát được thay vì lời khai của hai bên. Chín nguyên tắc dưới đây được suy ra từ đó.
 
-3. *Thiết lập quy trình Hoàn tiền (Refund), Phân xử tranh chấp (Dispute) và Kiểm duyệt nội dung:* Xây dựng luồng xử lý khiếu nại trong hạn 3 ngày với ràng buộc cung cấp bằng chứng số (ảnh/video mở hộp hàng hóa).
++ Tin đăng là một tập cam kết. Tình trạng hàng chọn trên thang ba mức Mới, Như mới, Đã dùng. Mỗi khuyết tật ("vết") phải khai kèm ảnh cận chụp trong ứng dụng; ảnh mang dấu thời gian chụp và đóng vai trò "vân tay" của món hàng để chống tráo hàng. AI đọc ảnh hoặc video để điền giúp tin đăng, và mọi vết mà mô hình nhìn thấy phải được người bán khai hoặc bác bỏ rõ ràng thì tin mới đăng được. Luật công bố trước: vết đã khai không là căn cứ khiếu nại, vết không khai mà hàng có thì mặc định là lỗi người bán.
 
-4. *Thiết lập mô hình Phân quyền chặt chẽ theo 3 vai trò (Persona) hệ thống:* Người dùng (User) là tài khoản tự do đăng ký, sở hữu vai trò kép (vừa mua vừa bán trên cùng một định danh); Điều phối viên (Moderator) là tài khoản nội bộ do Quản trị viên cấp phát, chịu trách nhiệm thẩm định khiếu nại, phân xử tranh chấp và kiểm duyệt tin đăng vi phạm; Quản trị viên tối cao (Super Admin) là tài khoản duy nhất cấu hình sẵn, có thẩm quyền thiết lập tham số hệ thống, kiểm soát dòng tiền tổng thể và quản lý nhân sự điều phối viên.
++ Chỉ có một đường giao dịch trong ứng dụng là COD đồng kiểm: người mua xem hàng tại cửa rồi mới trả tiền cho shipper. Người bán liên kết một lần tài khoản GHTK hoặc GHN đứng tên mình; hệ thống tạo vận đơn trên tài khoản đó và lấy phí thật từ hãng, còn tiền thu hộ do hãng chuyển thẳng vào tài khoản ngân hàng của người bán. Người bán cũng có thể tự gửi qua hãng khác và nhập mã vận đơn bằng tay.
 
-5. *Nghiên cứu ứng dụng kiến trúc Durable Microservices:* Phân rã hệ thống thành các dịch vụ độc lập áp dụng triệt để nguyên lý Database-per-service [10], bảo đảm sự cô lập về cơ sở dữ liệu và khả năng chọn lựa công nghệ lưu trữ phù hợp (Polyglot Persistence); đồng thời ứng dụng cơ chế durable execution (thực thi bền) Restate (Journal-based Durable Execution) để quản lý các luồng nghiệp vụ dài hạn (ký quỹ, hoàn tiền, tranh chấp,...), loại bỏ hoàn toàn độ phức tạp của mẫu thiết kế Saga truyền thống [5], tự động phục hồi lỗi (Crash Recovery) và bảo đảm ngữ nghĩa thực thi chính xác một lần (Exact-once semantics).
++ Tiền chỉ chảy theo sự kiện quan sát được. Người mua không trả gì trong ứng dụng; vận đơn đặt chế độ người nhận trả phí ship. Trước khi hãng lấy hàng, một trong hai bên được hủy đơn. Mọi dữ kiện của đơn GHTK/GHN do hãng tự động báo về nên không ai phải đọc bằng chứng; đơn tự gửi không theo dõi được và không tính vào các tỉ lệ chế tài.
 
-6. *Nghiên cứu tìm kiếm dựa trên từ khóa và ngữ nghĩa:* Nghiên cứu và tích hợp cơ chế Tìm kiếm Ngữ nghĩa Lai (Hybrid Search), kết hợp giữa Tìm kiếm văn bản (Full-text Search) dựa trên từ khóa và tìm kiếm ngữ nghĩa (Semantic Vector Search) thông qua cơ sở dữ liệu pgvector trên PostgreSQL [11], sử dụng mô hình embedding đa ngôn ngữ bge-m3 để sinh biểu diễn vector (vector embeddings) cho dữ liệu văn bản [4].
++ "Hoàn tiền" thực chất là từ chối nhận. Người mua từ chối tại cửa thì hàng quay về, người mua không mất đồng nào và hãng tính phí hai chiều vào tài khoản người bán. Sau khi đã trả tiền cho shipper thì sàn không có cơ chế đòi lại, và ứng dụng nói rõ điều này trước thời điểm trả tiền.
 
-7. *Nghiên cứu hệ thống gợi ý sản phẩm (Recommender System):* Xây dựng cơ chế gợi ý sản phẩm cá nhân hóa đa hướng quan tâm (multi-interest), biểu diễn sở thích người dùng qua nhiều vector đặc trưng được cập nhật liên tục dựa trên lịch sử tương tác, hành vi tìm kiếm và độ tương đồng ngữ nghĩa của mặt hàng [8].
++ Sự cố sau khi nhận được ghi nhận chứ không phân xử. Người mua mở ghi nhận sự cố kèm ảnh trong cuộc trò chuyện; người bán có 3 ngày để tự hoàn tiền (được cộng điểm) hoặc từ chối, và vụ bị từ chối trở thành dữ kiện công khai trên hồ sơ người bán. AI viết một nhận xét trung lập cho cả hai cùng đọc.
 
-== Phạm vi hệ thống
++ Chế tài là mất quyền chứ không mất tiền. Hệ thống theo dõi tỉ lệ từ chối nhận của người mua, tỉ lệ bị từ chối và số ghi nhận chưa trả lời của người bán; vượt ngưỡng thì lần lượt bị hạ hiển thị, giới hạn số đơn COD, mất quyền COD rồi khóa tài khoản. Ở quy mô một vụ, sàn không biết ai đúng; ở quy mô năm mươi vụ, con số đủ để kết luận.
 
-=== Trong phạm vi nghiên cứu (In-Scope)
++ Người thật chỉ xử lý ba việc: hàng cấm hoặc hàng giả bị báo cáo, lừa đảo có dấu hiệu tổ chức, và yêu cầu hợp lệ của cơ quan có thẩm quyền, cùng với việc duyệt tay hồ sơ eKYC khi máy không đọc được chip. Khối lượng các việc này không tăng theo số đơn.
 
-Hệ thống được thiết kế bao phủ toàn bộ vòng đời giao dịch thương mại điện tử giữa các cá nhân (C2C), bao gồm các phân hệ chức năng và nghiệp vụ cốt lõi sau:
++ Doanh thu đến từ đẩy tin và gói người bán. Sàn không thu phí ship vì vận đơn nằm trên tài khoản của người bán, và không thu phần trăm mỗi đơn vì không chạm vào tiền hàng. Quyền COD và bậc uy tín không mua được.
 
-1. *Quản lý tài khoản, Phân quyền (RBAC) và Ví nội bộ:* Hỗ trợ đăng ký, đăng nhập bảo mật (JWT), xác thực tài khoản và quản lý thông tin hồ sơ người dùng.
++ Thanh toán tạm giữ qua đơn vị có giấy phép được để dành cho nhóm hàng giá cao. Vì hệ thống đã có khái niệm đường giao dịch, đó sẽ là thêm một lựa chọn chứ không phải làm lại hệ thống.
 
-2. *Quản lý danh mục và Đăng bán sản phẩm C2C:* Cho phép người bán đăng tải sản phẩm thanh lý với thông tin chi tiết: tên, mô tả, hình ảnh/video đa phương tiện, phân loại tình trạng (Mới, Cũ, Bị hư hại một phần).
+== Mục tiêu và phạm vi
 
-3. *Tìm kiếm thông minh và Gợi ý sản phẩm:* Cung cấp công cụ tìm kiếm kết hợp giữa tìm kiếm từ khóa đầy đủ (Full-text Search) và tìm kiếm vector ngữ nghĩa (Semantic Search dựa trên pgvector và mô hình bge-m3).
+Mục tiêu của đồ án là hiện thực trọn mô hình trên thành một hệ thống chạy được: người dùng đăng nhập bằng OTP, xác minh danh tính bằng CCCD gắn chip, đăng tin với AI điền giúp, tìm hàng bằng câu tự nhiên, thương lượng giá trong khung chat, đặt COD và tạo vận đơn GHTK/GHN, nhận hoặc từ chối hàng tại cửa, đánh giá, ghi nhận sự cố, và thấy điểm uy tín cùng quyền của mình thay đổi theo các sự kiện đó. Hệ thống cũng phải đáng tin cậy ở mức vận hành: khi máy chủ gặp sự cố giữa chừng, đơn không bị mất, vận đơn không bị tạo hai lần và người dùng không nhận hai mã OTP.
 
-4. *Hệ thống Chat trực tuyến và Thương lượng giá (Offer Card):* Kênh giao tiếp tin nhắn văn bản và chia sẻ phương tiện thời gian thực giữa người mua và người bán.
+Phạm vi gồm hệ thống dịch vụ nền chia theo phân hệ nghiệp vụ, ứng dụng Android cho người mua và người bán, chức năng quản lý cho điều phối viên và quản trị viên, cùng kết nối với GHTK, GHN, nhà cung cấp tin nhắn, dịch vụ thông báo đẩy và mô hình AI. Ngoài phạm vi là thanh toán tạm giữ, ứng dụng iOS và giao diện web cho khách hàng, giao hàng quốc tế, gian hàng doanh nghiệp theo mô hình B2C, và gọi thoại giữa hai bên.
 
-5. *Đặt hàng, Tính phí vận chuyển động và Ký quỹ:* Quy trình khởi tạo đơn hàng từ trang chi tiết sản phẩm (giá cố định) hoặc từ Offer Card trong Chat (giá thương lượng).
+== Phương pháp thực hiện
 
-6. *Xác nhận giao hàng và Bộ đếm thời gian tạm giữ:* Lắng nghe sự kiện cập nhật hành trình vận đơn từ đơn vị giao nhận; tự động kích hoạt bộ đếm thời gian đếm ngược 3 ngày (72 giờ) khi đơn hàng chuyển sang trạng thái "Giao hàng thành công".
+Nhóm bắt đầu bằng khảo sát: tìm hiểu cách người dùng đang mua bán đồ cũ trên các trang rao vặt và mạng xã hội, so sánh các nền tảng ở mục 1.2, và liệt kê các rủi ro mà người mua, người bán thường gặp như chuyển khoản rồi mất tiền, bom hàng, tráo hàng hay tranh cãi về tình trạng hàng. Mỗi rủi ro được đối chiếu với một nguyên tắc trong mô hình nghiệp vụ ở mục 1.3.
 
-7. *Khiếu nại Hoàn tiền (Refund), Tranh chấp (Dispute) và Phân xử:* Quy trình gửi yêu cầu Refund/Return trong khung thời gian 72 giờ kèm việc tải lên bằng chứng số đa phương tiện bắt buộc.
+Từ mô hình đó, nhóm mô hình hóa nghiệp vụ bằng UML. Sơ đồ ca sử dụng xác định ai làm gì trên hệ thống; sơ đồ hoạt động mô tả các quy trình đăng tin, thương lượng, giao nhận và ghi nhận sự cố; sơ đồ trạng thái mô tả vòng đời của tin đăng và đơn hàng. Các quy tắc nghiệp vụ được ghi thành danh mục đánh mã BR, yêu cầu chức năng và phi chức năng được đánh mã REQ và NFR, để mỗi quy tắc truy vết được tới ca sử dụng và ca kiểm thử tương ứng.
 
-8. *Kiểm duyệt Nội dung và Báo cáo vi phạm (Content Moderation):* Nghiên cứu và xây dựng cơ chế kiểm duyệt nội dung nhằm phát hiện các tin đăng có dấu hiệu vi phạm (lừa đảo, hàng giả, hàng cấm...).
+Hệ thống được chia theo phân hệ nghiệp vụ: tài khoản và xác minh danh tính, tin đăng, tìm kiếm, thương lượng và đơn COD, vận chuyển, uy tín và chế tài, thông báo. Mỗi phân hệ chịu trách nhiệm cho một nhóm quy tắc và một phần dữ liệu riêng, nên khi một quy tắc thay đổi thì chỉ một phân hệ phải sửa.
 
-=== Ngoài phạm vi nghiên cứu (Out-of-Scope)
+Công việc chia thành ba giai đoạn bốn tuần. Giai đoạn 1 gồm khảo sát, đặc tả, thiết kế tổng thể và nguyên mẫu màn hình. Giai đoạn 2 hoàn thành các quy trình chính: đăng tin, tìm kiếm, thương lượng, đặt COD, kết nối hãng vận chuyển và tính uy tín. Giai đoạn 3 hoàn thiện xác minh danh tính, thông báo, gói người bán, kiểm thử và triển khai. Cuối mỗi giai đoạn nhóm có một phiên bản chạy được để giáo viên hướng dẫn góp ý.
 
-Để đảm bảo tính khả thi và độ tập trung chuyên sâu vào mô hình kiến trúc Microservices cùng trọn vẹn luồng giao dịch C2C cá nhân, các hạng mục sau nằm ngoài phạm vi nghiên cứu của đề tài:
-
-1. *Gian hàng doanh nghiệp chính hãng (B2C / Shop Mall):* Hệ thống chỉ thiết kế tối ưu cho giao dịch cá nhân bán cho cá nhân (C2C). Việc phát triển các gian hàng thương hiệu chính hãng quy mô lớn (với quy trình hóa đơn đỏ, quản lý kho hàng nghìn SKUs phức tạp) là định hướng mở rộng trong tương lai.
-2. *Giao dịch và vận chuyển quốc tế:* Đề tài chỉ tập trung vào thị trường nội địa Việt Nam; không xử lý các luồng thanh toán đa ngoại tệ, chuyển đổi tỷ giá, thủ tục hải quan hay tích hợp các đơn vị vận chuyển xuyên biên giới.
-3. *Chương trình khuyến mãi và mã giảm giá:* Đề tài không xây dựng công cụ cho người bán tạo đợt giảm giá, phát hành mã giảm giá hay các chương trình khuyến mại của sàn. Cơ chế điều chỉnh giá trong phạm vi đề tài chỉ diễn ra theo từng giao dịch, thông qua Thẻ Đề xuất giá trong khung trò chuyện giữa hai bên, vì đây mới là hình thức mặc cả đặc trưng của thị trường mua bán đồ cũ giữa các cá nhân.
-4. *Gọi thoại và gọi video trực tiếp (Voice/Video Call):* Không triển khai tính năng gọi điện thoại hay gọi video trực tiếp qua WebRTC. Toàn bộ quá trình đàm phán, trao đổi và làm bằng chứng được thực hiện bằng tin nhắn văn bản, hình ảnh và video quay sẵn tải lên khung chat.
-
-== Phương pháp nghiên cứu
-
-Để giải quyết các bài toán phức tạp về nghiệp vụ và kiến trúc kỹ thuật đã đặt ra, đề tài kết hợp sử dụng các phương pháp nghiên cứu khoa học kỹ thuật phần mềm hiện đại sau:
-
-1. *Phương pháp Phân tích và Thiết kế Hướng đối tượng (OOAD):* Sử dụng ngôn ngữ mô hình hóa thống nhất (UML) để chuẩn hóa tài liệu thiết kế: Biểu đồ ca sử dụng (Use Case Diagram), Biểu đồ hoạt động (Activity Diagram), Biểu đồ trình tự (Sequence Diagram), Biểu đồ lớp (Class Diagram) và Biểu đồ thực thể - quan hệ (ERD).
-
-2. *Phương pháp Kiến trúc Hướng dịch vụ (SOA) và mô hình Microservices:* Áp dụng mẫu thiết kế Database-per-service, đảm bảo mỗi dịch vụ sở hữu cấu trúc lưu trữ và cơ sở dữ liệu riêng biệt; triệt tiêu hiện tượng nghẽn cổ chai CSDL tập trung và ngăn chặn truy cập dữ liệu chéo trái phép.
-
-3. *Phương pháp durable execution:* Nghiên cứu và áp dụng nền tảng durable execution Restate dựa trên triết lý Journal-based Execution (thực thi dựa trên nhật ký ghi trước - Write-Ahead Log) [12].
-
-== Đóng góp của đề tài
-
-Đề tài nghiên cứu và xây dựng nền tảng ShopNexus mang lại 3 đóng góp quan trọng:
-
-1. *Đóng góp về giải pháp nghiệp vụ:* Đề xuất và hiện thực hóa mô hình sàn C2C giải quyết bài toán khủng hoảng niềm tin và sự phân mảnh trong giao tiếp.
-
-2. *Đóng góp về kiến trúc phần mềm:* Nghiên cứu và triển khai mô hình Durable Microservices trên nền tảng Restate trong một hệ thống thương mại điện tử thực tế.
-
-3. *Đóng góp về sản phẩm thực tiễn:* Bàn giao bộ phần mềm chạy được trọn vẹn, gồm giao diện người dùng viết bằng Next.js và Flutter cùng hệ thống dịch vụ nền hoàn chỉnh.
+Kiểm thử được thực hiện theo kịch bản nghiệp vụ: mỗi kịch bản đi trọn một quy trình như người bán đăng tin, người mua trả giá, hai bên chốt giá, hãng báo đã giao hoặc người mua từ chối nhận, rồi kiểm tra kết quả mà từng bên nhìn thấy, gồm trạng thái đơn, điểm uy tín và quyền COD. Kịch bản chạy trên cơ sở dữ liệu và dịch vụ thật thay vì dữ liệu giả lập, để kết quả phản ánh đúng hành vi khi vận hành.

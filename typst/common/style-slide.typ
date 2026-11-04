@@ -157,7 +157,7 @@
         text(size: 0.54em, weight: 700, info.gvhd)
       },
       {
-        text(size: 0.46em, fill: muted)[Nhóm #info.nhom · Lớp #info.lop]
+        text(size: 0.46em, fill: muted)[Nhóm #info.ma-nhom · Lớp #info.lop]
         linebreak()
         for sv in info.sinh-vien {
           text(size: 0.54em, weight: 700, sv.at(0))

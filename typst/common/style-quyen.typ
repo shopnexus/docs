@@ -1,13 +1,14 @@
 // ============================================================
-//  style-quyen.typ — template QUYỂN BÁO CÁO nộp trường
-//  Quy chuẩn: Quyết định 922-210313 (QĐ 923/QĐ-HV)
+//  style-quyen.typ — template QUYỂN ĐỒ ÁN TỐT NGHIỆP nộp trường
+//  Quy chuẩn: Phụ lục 3, Quyết định 449/QĐ-HV ngày 09/03/2026 (cùng khổ giấy,
+//  lề, cỡ chữ, header/footer với phụ lục QĐ 922 trước đây).
 //  Dùng cho báo cáo định kỳ và báo cáo cuối.
 //
 //  Dùng: #import "../../common/style-quyen.typ": *
-//        #show: quyen.with(tieu-de: ("BÁO CÁO ĐỊNH KỲ", "THỰC TẬP TỐT NGHIỆP ĐẠI HỌC"),
-//                          chay: "Báo cáo Định kỳ TTTN Đại học")
-//        ... front matter ...
-//        #ruot()            <- chuyển sang đánh số trang Ả Rập
+//        #show: quyen.with(tieu-de: ("BÁO CÁO ĐỊNH KỲ", "ĐỒ ÁN TỐT NGHIỆP ĐẠI HỌC"),
+//                          chay: "Đồ án tốt nghiệp Đại học")
+//        ... front matter, đánh số trang "i" ...
+//        #set page(numbering: "1") + #counter(page).update(1)  <- từ MỞ ĐẦU
 // ============================================================
 #import "tokens.typ": *
 #import "info.typ" as info
@@ -37,7 +38,104 @@
   }
 }
 
-// ---- Trang bìa --------------------------------------------
+// ---- Trang bìa chính ------------------------------------------
+// Có gáy dọc bên trái (tên sinh viên, chuyên ngành, khóa học) và một khung viền đơn.
+// `tieu-de`: mảng các dòng tiêu đề lớn, ví dụ ("BÁO CÁO ĐỊNH KỲ", "ĐỒ ÁN TỐT NGHIỆP", "ĐẠI HỌC")
+// `khoa-hoc`: dòng cuối của gáy, ví dụ "2022-2027"
+#let bia-chinh(tieu-de: (), thoi-diem: "", khoa-hoc: "") = {
+  set page(
+    paper: "a4",
+    margin: (top: 2.0cm, bottom: 1.5cm, left: 1.5cm, right: 1.0cm),
+    numbering: none,
+    header: none,
+    footer: none,
+  )
+  set par(first-line-indent: 0pt, justify: false)
+
+  // Gáy: chữ xoay 90°, đọc từ trên xuống. Ba cụm cách đều nhau theo chiều dọc.
+  let gay = {
+    let ten-sv = info.sinh-vien.map(sv => upper(sv.at(0))).join(" – ")
+    let dong(noi-dung) = rotate(90deg, reflow: true, text(size: 10pt, weight: "regular")[#noi-dung])
+    block(width: 100%, height: 100%, stroke: 0.8pt + black, inset: (x: 0pt, y: 0.5cm))[
+      #grid(
+        columns: 1fr,
+        rows: (auto, 1fr, auto, 1fr, auto),
+        align: center,
+        dong[#ten-sv],
+        [],
+        dong[CHUYÊN NGÀNH: #upper(info.chuyen-nganh)],
+        [],
+        dong[#khoa-hoc],
+      )
+    ]
+  }
+
+  let khung = block(
+    width: 100%,
+    height: 100%,
+    stroke: 0.8pt + black,
+    inset: (top: 0.5cm, bottom: 0.8cm, left: 0.9cm, right: 0.9cm),
+  )[
+    #set align(center)
+    #text(size: 13pt, weight: "bold")[#info.bo] \
+    #v(0.2em)
+    #text(size: 13pt, weight: "bold")[#info.truong]
+    #v(0.3cm)
+    #line(length: 45%, stroke: (paint: black, thickness: 0.8pt, dash: "dashed"))
+
+    #v(0.5cm)
+    #image("assets/logo-ptit.png", width: 3.6cm)
+
+    #v(0.9cm)
+    #for dong in tieu-de [
+      #text(size: 35pt, weight: "bold")[#dong] \
+      #v(0.3em)
+    ]
+
+    #v(1.2cm)
+    #block(width: 92%)[
+      #set par(justify: false, leading: 0.65em)
+      #text(size: 18pt, weight: "bold", style: "italic")[Đề tài: “#upper(info.de-tai)”]
+    ]
+
+    #v(1fr)
+    #align(left)[
+      #block(width: 100%, inset: (left: 0.9cm))[
+        #set text(size: 13pt, weight: "bold")
+        #set par(justify: false)
+        // Cột 1 + 2 + 3 gộp lại là ô "Mã SV", cột 4 là ô "Họ và tên" nên cả hai cột thẳng hàng
+        // giữa các sinh viên; hai dòng trên thì dấu ":" nằm riêng một cột để thẳng hàng với nhau.
+        #grid(
+          columns: (5.2cm, 0.4cm, .1cm, 1fr),
+          row-gutter: 6pt,
+          align: left,
+          [Giáo viên hướng dẫn], [:], grid.cell(colspan: 2)[#info.gvhd],
+          [Nhóm sinh viên thực hiện], [:], grid.cell(colspan: 2)[],
+          ..info
+            .sinh-vien
+            .map(sv => (
+              grid.cell(colspan: 3)[Mã SV: #sv.at(1)],
+              [Họ và tên: #sv.at(0)],
+            ))
+            .flatten(),
+        )
+      ]
+    ]
+
+    #v(1fr)
+    #text(size: 12pt, weight: "bold")[#upper[#info.dia-diem, #thoi-diem]]
+  ]
+
+  // Gáy 1,6cm, khe 0,4cm, phần còn lại là khung chính
+  grid(
+    columns: (1.6cm, 1fr),
+    column-gutter: 0.4cm,
+    // height: 100%,
+    gay, khung,
+  )
+}
+
+// ---- Trang bìa phụ --------------------------------------------
 // `tieu-de`: mảng các dòng tiêu đề lớn, ví dụ ("BÁO CÁO ĐỊNH KỲ", "THỰC TẬP TỐT NGHIỆP ĐẠI HỌC")
 #let bia(tieu-de: (), thoi-diem: "") = {
   set page(
@@ -63,7 +161,7 @@
       #v(0.2em)
       #text(size: 16pt, weight: "bold")[#info.co-so]
       #v(0.3cm)
-      #line(length: 40%, stroke: 0.8pt + black)
+    #line(length: 45%, stroke: (paint: black, thickness: 0.8pt, dash: "dashed"))
 
       #v(0.5cm)
       #image("assets/logo-ptit.png", width: 3.2cm)
@@ -77,40 +175,32 @@
       #v(0.8cm)
       #block(width: 92%)[
         #set par(justify: false, leading: 0.65em)
-        #text(size: 16pt, weight: "bold")[Đề tài: “#info.de-tai”]
+        #text(size: 18pt, weight: "bold")[Đề tài: “#upper(info.de-tai)”]
       ]
 
-      #v(1.2cm)
-      #align(left)[
-        #block(width: 100%, inset: (left: 0.5cm))[
-          #set text(size: 13pt, weight: "bold")
-          // Tên viết hoa dài hơn tên viết thường, nếu bị ngắt dòng trong ô lưới thì
-          // dòng trên còn bị dàn đều chữ. Tắt canh đều ở riêng khối này.
-          #set par(justify: false)
-          // Dòng nào không có MSSV thì cho ô giá trị trải hết 2 cột, nhờ vậy cột tên
-          // chỉ cần vừa tên sinh viên dài nhất và cột MSSV thẳng hàng ở cả 3 dòng.
-          #let rong(noi-dung) = grid.cell(colspan: 2, noi-dung)
-          #grid(
-            columns: (4.3cm, auto, auto),
-            row-gutter: 8pt,
-            column-gutter: 6pt,
-            align: (left, left, left),
-            [Người hướng dẫn :], rong[#info.gvhd],
-            ..info
-              .sinh-vien
-              .enumerate()
-              .map(((i, sv)) => (
-                [Sinh viên #(i + 1) :],
-                [#sv.at(0)],
-                [MSSV: #sv.at(1)],
-                [Lớp :],
-                rong[#info.lop],
-              ))
-              .flatten(),
-            [Ngành :], rong[#info.nganh],
-          )
+    #v(1fr)
+        #align(left)[
+          #block(width: 100%, inset: (left: 0.9cm))[
+            #set text(size: 13pt, weight: "bold")
+            #set par(justify: false)
+            // Cột 1 + 2 + 3 gộp lại là ô "Mã SV", cột 4 là ô "Họ và tên" nên cả hai cột thẳng hàng
+            // giữa các sinh viên; hai dòng trên thì dấu ":" nằm riêng một cột để thẳng hàng với nhau.
+            #grid(
+              columns: (5.2cm, 0.4cm, .1cm, 1fr),
+              row-gutter: 6pt,
+              align: left,
+              [Giáo viên hướng dẫn], [:], grid.cell(colspan: 2)[#info.gvhd],
+              [Nhóm sinh viên thực hiện], [:], grid.cell(colspan: 2)[],
+              ..info
+                .sinh-vien
+                .map(sv => (
+                  grid.cell(colspan: 3)[Mã SV: #sv.at(1)],
+                  [Họ và tên: #sv.at(0)],
+                ))
+                .flatten(),
+            )
+          ]
         ]
-      ]
 
       #v(1fr)
       #text(size: 13pt, weight: "bold")[#info.dia-diem, #thoi-diem]
@@ -127,10 +217,12 @@
 //               các khối tự dựng. Để rộng hơn cach-doan cho mắt tách được khối ra
 //               khỏi mạch chữ. Không đụng tới khoảng cách quanh tiêu đề (tiêu đề tự
 //               khai above/below riêng) lẫn khoảng cách bên trong bảng và hình.
+// `khoa-hoc`: dòng cuối trên gáy bìa chính, ví dụ "2022-2027".
 #let quyen(
   tieu-de: (),
   chay: "",
   thoi-diem: "",
+  khoa-hoc: "2022-2027",
   cach-doan: 12pt,
   cach-khoi: 16pt,
   doc,
@@ -172,7 +264,7 @@
     if p.len() == 1 { [CHƯƠNG #p.at(0): ] } else { [#p.map(str).join(".") ] }
   })
 
-  // Dấu đầu dòng: cấp 1 dùSng gạch ngang, cấp 2 dùng dấu cộng để hai cấp phân
+  // Dấu đầu dòng: cấp 1 dùng gạch ngang, cấp 2 dùng dấu cộng để hai cấp phân
   // biệt được bằng mắt. Chỉ dùng tối đa 2 cấp; sâu hơn thì viết lại thành văn
   // xuôi hoặc tách mục, không lồng tiếp.
   // Thụt 1cm cho thẳng với dòng đầu của đoạn văn.
@@ -223,6 +315,9 @@
     weight: "bold",
   )[#it.body])
 
+  // Bìa chính (có gáy), rồi bìa phụ
+  bia-chinh(tieu-de: tieu-de, thoi-diem: thoi-diem, khoa-hoc: khoa-hoc)
+  pagebreak()
   bia(tieu-de: tieu-de, thoi-diem: thoi-diem)
   pagebreak()
 
@@ -245,8 +340,8 @@
     ],
     footer: context block(width: 100%)[
       #grid(
-        columns: (1fr, 1fr),
-        align(left, text(font: font-quyen, size: 10pt)[#("Nhóm_" + info.nhom)]),
+        columns: (auto, 1fr),
+        align(left, text(font: font-quyen, size: 10pt)[#(info.nhom)]),
         align(right, text(font: font-quyen, size: 10pt)[
           #if page.numbering != none [#counter(page).display(page.numbering)]
         ]),

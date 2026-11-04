@@ -1,143 +1,206 @@
 // ============================================================
-//  BÁO CÁO THỰC TẬP TỐT NGHIỆP — BẢN CUỐI
+//  ĐỒ ÁN TỐT NGHIỆP ĐẠI HỌC — BÁO CÁO CUỐI (Tháng 12/2026)
+//  Đề tài đọc từ common/info.typ. Thứ tự phần đầu theo hướng dẫn
+//  ĐATN (QĐ 449/QĐ-HV): phê duyệt, giao nhiệm vụ, lời cảm ơn,
+//  lời cam đoan, mục lục, chữ viết tắt, danh mục bảng và hình;
+//  sau đó mở đầu, bảng phân công, 7 chương và tài liệu tham khảo.
 //  Biên dịch: make cuoi   (Makefile ở thư mục typst/)
-//
-//  KHUNG SƯỜN — nội dung các chương đang chờ viết.
-//  Nguồn tham chiếu: spec/source-of-truth.typ, bao-cao-dinh-ky/, bao-cao-tuan/
 // ============================================================
 #import "../common/style-quyen.typ": *
+#import "../common/info.typ" as info
 
 #show: quyen.with(
-  tieu-de: ("BÁO CÁO THỰC TẬP", "TỐT NGHIỆP ĐẠI HỌC"),
-  chay: "Báo cáo TTTN Đại học",
-  thoi-diem: "Tháng 08/2026",
+  tieu-de: ("ĐỒ ÁN", "TỐT NGHIỆP ĐẠI HỌC"),
+  chay: "Đồ án tốt nghiệp Đại học",
+  thoi-diem: "Tháng 12/2026",
 )
+
+// Khối ký tên canh phải dùng chung cho lời cảm ơn và lời cam đoan
+#let ky-nhom = {
+  v(1cm)
+  align(right, block(width: 55%, align(center)[
+    #emph[TP.HCM, ngày … tháng 12 năm 2026] \
+    #strong[ĐẠI DIỆN NHÓM SINH VIÊN] \
+    #emph[(Ký và ghi rõ họ tên)]
+  ]))
+}
 
 #set page(numbering: "i")
 #counter(page).update(1)
 
+// ---------------- PHÊ DUYỆT ----------------
+#sechead([PHÊ DUYỆT], outlined: false)
+
+#align(center)[Đồ án tốt nghiệp với đề tài “#info.de-tai” do nhóm #info.ma-nhom, lớp #info.lop thực hiện, đã được giáo viên hướng dẫn xem xét và đồng ý cho bảo vệ trước hội đồng.]
+
+#v(0.6cm)
+#set par(first-line-indent: 0pt)
+Nhận xét của giáo viên hướng dẫn:
+
+#for _ in range(8) [#box(width: 1fr, repeat[.]) \ ]
+
+Điểm đánh giá: #box(width: 4cm, repeat[.]) (bằng chữ: #box(width: 1fr, repeat[.]))
+
+#v(1cm)
+#align(right, block(width: 55%, align(center)[
+  #emph[TP.HCM, ngày … tháng 12 năm 2026] \
+  #strong[GIÁO VIÊN HƯỚNG DẪN] \
+  #emph[(Ký và ghi rõ họ tên)] \
+  #v(2cm)
+  #info.gvhd
+]))
+#set par(first-line-indent: (amount: 1cm, all: true))
+
+#pagebreak()
+
+// ---------------- GIAO NHIỆM VỤ ----------------
+#sechead([GIAO NHIỆM VỤ ĐỀ TÀI], outlined: false)
+
+#table(
+  columns: (3.6cm, 1fr),
+  fill: none,
+  inset: (x: 8pt, y: 7pt),
+  [*Tên đề tài*], [#info.de-tai],
+  [*Nhóm*], [#info.ma-nhom: #info.sinh-vien.map(((t, m)) => [#t (#m)]).join(", ")],
+  [*Lớp*], [#info.lop],
+  [*Giáo viên hướng dẫn*], [#info.gvhd],
+  [*Nội dung nhiệm vụ*], align(left)[
+    #set enum(indent: 0pt)
+    1. Khảo sát giao dịch C2C hàng đã qua sử dụng tại Việt Nam, đề xuất mô hình nghiệp vụ trong đó sàn không giữ tiền và không phán xử.
+    2. Phân tích, đặc tả yêu cầu bằng UML: ca sử dụng, quy tắc nghiệp vụ, yêu cầu chức năng và phi chức năng.
+    3. Thiết kế hệ thống theo các phân hệ nghiệp vụ: tài khoản và xác minh danh tính, tin đăng, tìm kiếm, thương lượng và đơn COD, vận chuyển, uy tín và chế tài, thông báo.
+    4. Hiện thực dịch vụ nền và ứng dụng Android cho người mua, người bán; tích hợp hãng vận chuyển GHTK, GHN cho đơn COD đồng kiểm và AI agent hỗ trợ tìm hàng bằng câu tự nhiên.
+    5. Kiểm thử trên hạ tầng thật, đánh giá kết quả và viết báo cáo.
+  ],
+  [*Sản phẩm*], [Hệ thống dịch vụ nền, ứng dụng Android, bộ kịch bản kiểm thử và quyển báo cáo đồ án.],
+  [*Thời gian thực hiện*], [12 tuần, từ tháng 9/2026 đến tháng 12/2026.],
+)
+
+#v(0.8cm)
+#grid(
+  columns: (1fr, 1fr, 1fr),
+  align: center,
+  [*Giáo viên hướng dẫn* \ #emph[(Ký và ghi rõ họ tên)]],
+  [*Trưởng bộ môn* \ #emph[(Ký và ghi rõ họ tên)]],
+  [*Khoa* \ #emph[(Ký và ghi rõ họ tên)]],
+)
+
+#pagebreak()
+
+// ---------------- LỜI CẢM ƠN ----------------
+#sechead([LỜI CẢM ƠN], outlined: false)
+
+Chúng em xin cảm ơn Ban Giám hiệu #info.truong-thuong #info.co-so-ngan và các thầy cô Khoa Công nghệ Thông tin 2 đã giảng dạy và tạo điều kiện để nhóm thực hiện đồ án tốt nghiệp này.
+
+Chúng em xin gửi lời cảm ơn đến thầy #info.gvhd đã hướng dẫn nhóm trong suốt mười hai tuần, góp ý cho từng giai đoạn từ mô hình nghiệp vụ, kiến trúc cho đến cách kiểm thử và trình bày báo cáo.
+
+Do thời gian và kinh nghiệm còn hạn chế, đồ án khó tránh khỏi thiếu sót. Nhóm mong nhận được ý kiến của quý thầy cô để hoàn thiện đề tài.
+
+#ky-nhom
+
+#pagebreak()
+
+// ---------------- LỜI CAM ĐOAN ----------------
+#sechead([LỜI CAM ĐOAN], outlined: false)
+
+Chúng em xin cam đoan rằng đây là đồ án do nhóm sinh viên thực hiện dưới sự hướng dẫn của thầy #info.gvhd. Các nội dung, mã nguồn và kết quả trình bày trong đồ án là trung thực, do nhóm tự xây dựng và chưa từng được công bố trong bất kỳ công trình nào khác. Những tài liệu, số liệu và ý tưởng tham khảo từ các nguồn khác đều được trích dẫn và ghi rõ trong danh mục tài liệu tham khảo.
+
+Nếu phát hiện có bất kỳ sự gian lận nào, nhóm xin hoàn toàn chịu trách nhiệm trước Hội đồng và Học viện.
+
+#ky-nhom
+
+#pagebreak()
+
 #muc-luc()
 #pagebreak()
 
-#sechead([LỜI CẢM ƠN], outlined: false)
-
-Chúng em xin chân thành cảm ơn Ban Giám hiệu Học viện Công nghệ Bưu chính Viễn thông Cơ sở tại TP. Hồ Chí Minh cùng quý Thầy, Cô trong Khoa Công nghệ Thông tin đã tạo điều kiện thuận lợi và trang bị những kiến thức nền tảng quý báu cho chúng em trong suốt quá trình học tập và nghiên cứu.
-
-Đặc biệt, chúng em xin gửi lời cảm ơn sâu sắc nhất đến thầy ThS. Nguyễn Đức Thịnh, người đã tận tình hướng dẫn, định hướng chuyên môn và đóng góp những ý kiến vô cùng quý báu trong suốt kỳ thực tập, giúp nhóm hoàn thành báo cáo thực tập tốt nghiệp này.
-
-Mặc dù đã có nhiều cố gắng, song do giới hạn về mặt thời gian và kinh nghiệm, báo cáo không tránh khỏi những thiếu sót. Chúng em rất mong nhận được sự góp ý chân thành từ quý Thầy, Cô để đề tài ngày càng hoàn thiện hơn.
-
-#v(1.5cm)
-#align(right, block(width: 45%, align(center)[
-  *Sinh viên thực hiện* \
-  #v(0.5em)
-  Đậu Văn Đăng Khoa \
-  Hồ Công Toản \
-  Nguyễn Tấn Khoa
-]))
-
-#pagebreak()
-
+// ---------------- CHỮ VIẾT TẮT ----------------
 #sechead([DANH MỤC CÁC KÝ HIỆU VÀ CHỮ VIẾT TẮT], outlined: false)
 
 #table(
-  inset: (x: 8pt, y: 4pt),
-  columns: (auto, 1.5fr, 2fr),
-  align: (left, left, left),
-  table.header([*Viết tắt*], [*Cụm từ đầy đủ*], [*Ý nghĩa*]),
-  [ANN], [Approximate Nearest Neighbor], [Tìm láng giềng gần đúng (cho tìm kiếm vector)],
+  inset: (x: 7pt, y: 3.5pt),
+  columns: (auto, 1.4fr, 1.6fr),
+  table.header([Viết tắt], [Cụm từ đầy đủ], [Ý nghĩa]),
+  [AD], [Activity Diagram], [Sơ đồ hoạt động (mã AD-xx)],
+  [AI], [Artificial Intelligence], [Trí tuệ nhân tạo],
   [API], [Application Programming Interface], [Giao diện lập trình ứng dụng],
-  [AD], [Architectural Driver], [Yêu cầu có ý nghĩa kiến trúc (đánh mã AD-xx)],
-  [BR], [Business Rule], [Quy tắc nghiệp vụ (đánh mã BR-xxx)],
   [B2C], [Business to Consumer], [Giao dịch giữa doanh nghiệp và người tiêu dùng],
-  [C2C], [Consumer to Consumer], [Giao dịch giữa các cá nhân người dùng],
-  [CI/CD], [Continuous Integration / Continuous Deployment], [Tích hợp và triển khai liên tục],
+  [BR], [Business Rule], [Quy tắc nghiệp vụ (mã BR-xx)],
+  [C2C], [Consumer to Consumer], [Giao dịch giữa các cá nhân],
+  [CCCD], [], [Căn cước công dân],
+  [COD], [Cash on Delivery], [Thanh toán khi nhận hàng],
   [CSDL], [], [Cơ sở dữ liệu],
-  [Durable execution], [], [Thực thi bền: nền tảng bảo đảm một lời gọi chạy tới cùng dù tiến trình gặp sự cố],
-  [Durable workflow], [], [Quy trình bền: quy trình nhiều bước chạy trên nền tảng durable execution],
-  [Embedding], [], [Vector nhúng biểu diễn ngữ nghĩa của văn bản, dùng cho tìm kiếm ngữ nghĩa],
-  [ERD], [Entity–Relationship Diagram], [Sơ đồ thực thể – quan hệ],
-  [Ký quỹ], [], [Cơ chế ký quỹ (trung gian) bảo vệ giao dịch],
-  [Guarded write], [], [Lượt ghi có bảo vệ, nêu đích danh trạng thái nguồn nên một lượt đọc cũ luôn thua],
-  [Idempotency key], [], [Khóa lũy đẳng: định danh do bên gọi đặt để một thao tác chỉ có hiệu lực một lần],
-  [Idempotent], [], [Lũy đẳng: gọi nhiều lần cho cùng kết quả như gọi một lần],
-  [JWT], [JSON Web Token], [Chuẩn token xác thực người dùng],
-  [NFR], [Non-Functional Requirement], [Yêu cầu phi chức năng],
-  [RBAC], [Role-Based Access Control], [Kiểm soát truy cập theo vai trò],
-  [REQ], [Requirement], [Yêu cầu chức năng (đánh mã REQ-xxx)],
-  [SOA], [Service-Oriented Architecture], [Kiến trúc hướng dịch vụ],
-  [TC], [Test Case], [Ca kiểm thử (đánh mã TC-xx)],
+  [eKYC], [electronic Know Your Customer], [Xác minh danh tính điện tử],
+  [GHN], [Giao Hàng Nhanh], [Hãng vận chuyển],
+  [GHTK], [Giao Hàng Tiết Kiệm], [Hãng vận chuyển],
+  [GPS], [Global Positioning System], [Hệ thống định vị toàn cầu],
+  [HNSW], [Hierarchical Navigable Small World], [Đồ thị phân tầng cho tìm lân cận gần đúng],
+  [LLM], [Large Language Model], [Mô hình ngôn ngữ lớn],
+  [MRR], [Mean Reciprocal Rank], [Độ đo thứ hạng trung bình của kết quả đúng đầu tiên],
+  [NFC], [Near Field Communication], [Giao tiếp tầm gần, dùng đọc chip CCCD],
+  [NFR], [Non-Functional Requirement], [Yêu cầu phi chức năng (mã NFR-xx)],
+  [OTP], [One-Time Password], [Mã dùng một lần],
+  [REQ], [Requirement], [Yêu cầu chức năng (mã REQ-xx)],
+  [RRF], [Reciprocal Rank Fusion], [Hợp nhất xếp hạng theo nghịch đảo thứ hạng],
+  [SDK], [Software Development Kit], [Bộ công cụ phát triển phần mềm],
+  [SMS], [Short Message Service], [Tin nhắn văn bản],
+  [SPX], [Shopee Express], [Hãng vận chuyển],
+  [TC], [Test Case], [Ca kiểm thử (mã TC-xx)],
   [TMĐT], [], [Thương mại điện tử],
-  [RPC], [Remote Procedure Call], [Lời gọi thủ tục từ xa giữa các dịch vụ],
-  [TLS], [Transport Layer Security], [Mã hóa dữ liệu trên đường truyền],
-  [UC], [Use Case], [Ca sử dụng (đánh mã UC-xx)],
+  [UC], [Use Case], [Ca sử dụng (mã UC-xx)],
   [UML], [Unified Modeling Language], [Ngôn ngữ mô hình hóa thống nhất],
 )
 
 #pagebreak()
 
 #danh-muc-bang()
-#pagebreak()
-
 #danh-muc-hinh()
-#pagebreak()
-
-#sechead([KẾ HOẠCH THỰC HIỆN CÔNG VIỆC NHÓM], outlined: false)
-
-#v(0.5cm)
-#table(
-  columns: (0.9cm, 1fr, 3.1cm, 2.0cm, 2.8cm),
-  inset: 7pt,
-  align: (center, left, left, center, center),
-  table.header([*STT*], [*Nội dung công việc*], [*Người thực hiện*], [*Thời gian*], [*Mức độ hoàn thành*]),
-  [1], [Khảo sát bối cảnh, xác định bài toán niềm tin trong thương mại điện tử C2C], [Cả nhóm], [Tuần 1], [Hoàn thành],
-  [2], [Phân tích các mô hình sàn giao dịch tiêu biểu và rút ra yêu cầu cho đề tài], [Nguyễn Tấn Khoa, Hồ Công Toản], [Tuần 1], [Hoàn thành],
-  [3], [Nghiên cứu kiến trúc hướng dịch vụ, mô hình vi dịch vụ và triết lý mỗi dịch vụ một cơ sở dữ liệu], [Đậu Văn Đăng Khoa, Hồ Công Toản], [Tuần 1], [Hoàn thành],
-  [4], [Nghiên cứu durable execution và các mẫu giao dịch phân tán], [Đậu Văn Đăng Khoa], [Tuần 1], [Hoàn thành],
-  [5], [Nghiên cứu tìm kiếm ngữ nghĩa và hệ gợi ý đa sở thích], [Đậu Văn Đăng Khoa, Hồ Công Toản], [Tuần 1 – 2], [Hoàn thành],
-  [6], [Phân tích tác nhân, chân dung người dùng và sơ đồ ngữ cảnh hệ thống], [Nguyễn Tấn Khoa], [Tuần 2], [Hoàn thành],
-  [7], [Xây dựng danh mục ca sử dụng và đặc tả chi tiết các ca trọng yếu], [Cả nhóm], [Tuần 2], [Hoàn thành],
-  [8], [Chuẩn hóa bộ quy tắc nghiệp vụ ràng buộc nền tảng], [Nguyễn Tấn Khoa, Hồ Công Toản], [Tuần 2], [Hoàn thành],
-  [9], [Ban hành bộ yêu cầu chức năng và phi chức năng], [Cả nhóm], [Tuần 2], [Hoàn thành],
-  [10], [Mô hình hóa quy trình bằng sơ đồ hoạt động, sơ đồ trạng thái và sơ đồ trình tự], [Đậu Văn Đăng Khoa, Nguyễn Tấn Khoa], [Tuần 2], [Hoàn thành],
-  [11], [Phân rã miền nghiệp vụ và thiết kế kiến trúc tổng thể], [Cả nhóm], [Tuần 2], [Hoàn thành],
-  [12], [Thiết kế luồng giao tiếp liên dịch vụ và trục sự kiện bất đồng bộ], [Đậu Văn Đăng Khoa], [Tuần 2 – 3], [Hoàn thành],
-  [13], [Thiết kế thành phần phân lớp và sơ đồ lớp], [Hồ Công Toản, Đậu Văn Đăng Khoa], [Tuần 3], [Hoàn thành],
-  [14], [Thiết kế danh mục giao diện lập trình], [Nguyễn Tấn Khoa, Đậu Văn Đăng Khoa], [Tuần 3], [Hoàn thành],
-  [15], [Thiết kế cơ sở dữ liệu vật lý cho 7 lược đồ], [Cả nhóm], [Tuần 3], [Hoàn thành],
-  [16], [Thiết kế bảo mật và chiến lược xử lý lỗi], [Đậu Văn Đăng Khoa], [Tuần 3], [Hoàn thành],
-  [17], [Hiện thực dịch vụ tài khoản, danh mục sản phẩm và tìm kiếm], [Đậu Văn Đăng Khoa, Hồ Công Toản], [Tuần 3 – 4], [Hoàn thành],
-  [18], [Hiện thực dịch vụ đơn hàng, tài chính và luồng ký quỹ], [Đậu Văn Đăng Khoa], [Tuần 4 – 5], [Hoàn thành],
-  [19], [Hiện thực dịch vụ hội thoại, tín nhiệm và quan trắc vận hành], [Đậu Văn Đăng Khoa, Hồ Công Toản], [Tuần 4 – 5], [Hoàn thành cơ bản],
-  [20], [Hiện thực ứng dụng web], [Đậu Văn Đăng Khoa, Hồ Công Toản], [Tuần 4 – 5], [Hoàn thành],
-  [21], [Hiện thực ứng dụng di động], [Nguyễn Tấn Khoa], [Tuần 4 – 6], [Hoàn thành],
-  [22], [Tích hợp các nhà cung cấp bên ngoài và bộ giả lập tương ứng], [Đậu Văn Đăng Khoa], [Tuần 5], [Hoàn thành cơ bản],
-  [23], [Xây dựng quy trình tích hợp liên tục và mô hình triển khai bằng container], [Đậu Văn Đăng Khoa], [Tuần 5], [Hoàn thành cơ bản],
-  [24], [Kiểm thử và đánh giá mức độ đáp ứng bộ yêu cầu đã đặt ra], [Cả nhóm], [Tuần 5 – 6], [Hoàn thành cơ bản],
-  [25], [Tổng hợp và hoàn thiện báo cáo thực tập tốt nghiệp], [Cả nhóm], [Tuần 6], [Hoàn thành],
-)
 
 // ============================================================
 //  RUỘT — đánh số trang Ả Rập
 // ============================================================
+#pagebreak()
 #set page(numbering: "1")
 #counter(page).update(1)
 
-#pagebreak()
 #sechead([MỞ ĐẦU])
 
+Mua bán đồ cũ giữa các cá nhân đã thành thói quen của nhiều người dùng Việt Nam, nhưng giao dịch vẫn diễn ra theo cách thủ công: người mua chuyển khoản trước cho người lạ hoặc hai bên tự thỏa thuận giao nhận tiền mặt, thương lượng qua nhiều ứng dụng nhắn tin, và khi có sự cố thì không có quy tắc chung nào để dựa vào. Phần lớn rủi ro ở đây không đến từ công nghệ mà từ việc không ai biết trước hàng có đúng như mô tả và tiền có đến tay hay không. Đó là lý do nhóm chọn đề tài "#info.de-tai".
 
-Hiện nay, thương mại điện tử giữa các cá nhân đã trở thành một kênh giao dịch quen thuộc tại Việt Nam nhưng vẫn đang vận hành trên một nền tảng niềm tin mong manh. Người mua chuyển tiền đi mà không có gì bảo đảm hàng sẽ tới; người bán gửi hàng đi mà không chắc sẽ nhận được tiền; và khi bất đồng xảy ra thì không có bên thứ ba nào đứng ra xử lý. Thanh toán khi nhận hàng thường được xem là giải pháp, nhưng thực chất chỉ chuyển rủi ro sang người bán.
+Mục đích của đồ án là xây dựng ShopNexus, một sàn C2C cho hàng đã qua sử dụng, trong đó giao dịch duy nhất trong ứng dụng là giao COD có đồng kiểm qua tài khoản GHTK hoặc GHN của chính người bán. Sàn không giữ tiền và không phán xử từng vụ việc; thay vào đó tin đăng là một tập cam kết có ảnh làm chứng, mọi dữ kiện giao nhận do hãng vận chuyển báo về, và uy tín cùng chế tài được tính tự động từ thống kê. Bên cạnh đó, đồ án đưa vào một AI agent giúp người mua tìm hàng bằng câu tự nhiên thay vì tự chọn hơn mười bộ lọc.
 
-Từ thực tế đó, bài toán trung tâm của đề tài không phải là dựng thêm một nơi để đăng tin rao vặt, mà là xây dựng một cơ chế khép kín giúp hai người xa lạ có thể giao dịch an toàn mà không cần phải tin tưởng nhau từ trước. Để làm được điều này, đề tài hướng tới xây dựng một nền tảng với cốt lõi là cơ chế thanh toán tạm giữ: tiền của người mua được hệ thống giữ lại ở tài khoản trung gian, và chỉ được giải ngân cho người bán khi hàng đã tới tay đồng thời thời hạn khiếu nại đã trôi qua.
+Về tình hình nghiên cứu, các sàn lớn trong nước giải quyết niềm tin bằng cách giữ tiền của người mua, điều đòi hỏi giấy phép trung gian thanh toán và một bộ phận xử lý khiếu nại có quy mô tăng theo số đơn; các nền tảng rao vặt thì chỉ kết nối thông tin và để hai bên tự lo phần còn lại. Hướng dựa vào dữ kiện do hãng vận chuyển báo về và thống kê hành vi để thay cho phân xử từng vụ chưa được các nền tảng phổ biến trong nước áp dụng cho hàng đã qua sử dụng. Ở phía tìm kiếm, việc kết hợp tìm theo ngữ nghĩa với tìm theo từ khóa [4][5] cho phép hiểu câu hỏi tự nhiên của người mua thay vì chỉ khớp chữ.
 
-Tuy nhiên, việc chỉ giữ tiền trung gian vẫn chưa đủ để giải quyết trọn vẹn bài toán niềm tin, vì tranh chấp còn có thể phát sinh từ sai lệch thông tin sản phẩm, gian lận danh tính hay bất đồng về giá cả. Vì vậy, nền tảng được thiết kế tích hợp thêm các quy trình bảo vệ xoay quanh vòng đời giao dịch: bắt buộc xác minh danh tính trước khi được bán hàng, cho phép thương lượng giá trực tiếp ngay trong cuộc trò chuyện, và cung cấp một bộ phận đứng ra phân xử tranh chấp dựa trên bằng chứng kỹ thuật từ hai phía. Sự kết hợp này giúp triệt tiêu tối đa các kẽ hở lừa đảo, từ đấy tạo một môi trường giao dịch minh bạch, an toàn và bảo vệ toàn diện quyền lợi hợp pháp của cả người mua lẫn người bán.
+Đối tượng nghiên cứu là quy trình mua bán hàng đã qua sử dụng giữa các cá nhân, các tác nhân tham gia (người mua, người bán, hãng vận chuyển, điều phối viên, quản trị viên) và các quy tắc nghiệp vụ giúp hai bên tin nhau khi sàn không giữ tiền. Phạm vi gồm hệ thống dịch vụ nền, ứng dụng Android cho người dùng và chức năng quản lý cho điều phối viên; không gồm thanh toán tạm giữ, ứng dụng iOS hay web cho khách hàng, giao hàng quốc tế và gian hàng doanh nghiệp.
 
-Về tình hình nghiên cứu, mô hình ký quỹ đã được các sàn lớn trong nước áp dụng ở những mức độ khác nhau, song phần lớn nền tảng rao vặt C2C vẫn dừng ở vai trò kết nối thông tin và để hai bên tự chuyển tiền cho nhau. Ở khía cạnh kỹ thuật, việc giữ nhất quán cho một quy trình dài hạn trải qua nhiều dịch vụ từ lâu được giải quyết bằng mẫu thiết kế Saga, còn hướng thực thi bền (durable execution) mới xuất hiện gần đây và chưa phổ biến tại Việt Nam. Khoảng trống đó là chỗ đề tài đặt đóng góp của mình.
+Phương pháp thực hiện gồm các bước sau. Nhóm khảo sát thói quen mua bán đồ cũ và các nền tảng đang có để rút ra những rủi ro chính của người mua và người bán. Từ đó nhóm mô hình hóa nghiệp vụ bằng UML với sơ đồ ca sử dụng, sơ đồ hoạt động và sơ đồ trạng thái, và ghi các quy tắc nghiệp vụ thành danh mục có mã. Hệ thống được chia theo phân hệ nghiệp vụ để mỗi nhóm quy tắc có một nơi chịu trách nhiệm. Công việc chia thành ba giai đoạn bốn tuần, mỗi giai đoạn kết thúc bằng một phiên bản chạy được. Cuối cùng, hệ thống được kiểm thử theo kịch bản nghiệp vụ, đi từ đăng tin đến giao nhận và đánh giá.
 
-Về phạm vi, đề tài bao trùm trọn vòng đời một giao dịch C2C, từ đăng bán, tìm kiếm, thương lượng, thanh toán ký quỹ, giao nhận cho tới hoàn tiền và phân xử tranh chấp, hiện thực trên cả 3 thành phần gồm dịch vụ nền, ứng dụng web và ứng dụng di động. Ngoài phạm vi là gian hàng doanh nghiệp, giao dịch xuyên biên giới, gọi thoại và gọi video, cùng việc vận hành thực tế với các đối tác ở môi trường sản xuất.
+Ngoài phần mở đầu và kết luận, đồ án gồm sáu chương. Chương 1 trình bày bối cảnh, khảo sát và mô hình nghiệp vụ đề xuất. Chương 2 trình bày cơ sở lý thuyết và công nghệ. Chương 3 phân tích và đặc tả yêu cầu. Chương 4 trình bày thiết kế kiến trúc, dữ liệu và luồng xử lý. Chương 5 mô tả việc hiện thực và triển khai. Chương 6 trình bày kiểm thử và đánh giá.
 
-Về phương pháp nghiên cứu, phần phân tích và thiết kế áp dụng mô hình hóa hướng đối tượng bằng ngôn ngữ mô hình hóa thống nhất, gồm sơ đồ ca sử dụng kèm đặc tả đầy đủ, sơ đồ hoạt động, sơ đồ trạng thái, sơ đồ trình tự, sơ đồ lớp và sơ đồ quan hệ thực thể. Phần kiến trúc áp dụng nguyên lý mỗi dịch vụ một cơ sở dữ liệu, phần hiện thực dùng nền tảng thực thi bền cho các luồng dài hạn, và kết quả được kiểm chứng bằng bộ ca kiểm thử bám theo các yêu cầu phi chức năng.
+#pagebreak()
+#sechead([BẢNG PHÂN CÔNG NHIỆM VỤ NHÓM THỰC HIỆN])
+
+#table(
+  columns: (0.9cm, 1fr, 3.3cm, 1.7cm, 2.3cm),
+  inset: (x: 6pt, y: 5pt),
+  align: (center, left, left, center, center),
+  table.header([STT], [Nội dung công việc], [Người thực hiện], [Thời gian (tuần)], [Mức độ hoàn thành]),
+  [1], [Khảo sát giao dịch C2C hàng cũ, xây dựng mô hình nghiệp vụ], [Cả nhóm], [1], [Hoàn thành],
+  [2], [Phân tích, đặc tả ca sử dụng, quy tắc nghiệp vụ, yêu cầu], [Cả nhóm], [1–2], [Hoàn thành],
+  [3], [Thiết kế tổng thể hệ thống và chia phân hệ nghiệp vụ], [Đậu Văn Đăng Khoa], [2–3], [Hoàn thành],
+  [4], [Nguyên mẫu toàn bộ màn hình ứng dụng Android, design system], [Nguyễn Tấn Khoa], [2–4], [Hoàn thành],
+  [5], [Phân hệ tài khoản, đăng nhập và quản lý nhân sự điều phối], [Đậu Văn Đăng Khoa], [3–4], [Hoàn thành],
+  [6], [Phân hệ tin đăng và ảnh hàng hóa], [Hồ Công Toản], [3–4], [Hoàn thành],
+  [7], [Phân hệ thương lượng giá, đặt đơn COD và trò chuyện], [Đậu Văn Đăng Khoa, Nguyễn Tấn Khoa], [4–5], [Hoàn thành],
+  [8], [Phân hệ thanh toán COD và kết nối hãng vận chuyển GHTK, GHN], [Đậu Văn Đăng Khoa], [5–6], [Hoàn thành],
+  [9], [Phân hệ tìm kiếm, AI agent hỗ trợ tìm hàng và lưu tin], [Hồ Công Toản], [5–7], [Hoàn thành],
+  [10], [Phân hệ đánh giá, ghi nhận sự cố, uy tín và chế tài], [Hồ Công Toản], [6–8], [Hoàn thành],
+  [11], [Kết nối các màn hình ứng dụng Android với hệ thống], [Nguyễn Tấn Khoa], [6–8], [Hoàn thành],
+  [12], [Phân hệ xác minh danh tính, thông báo và gói người bán], [Hồ Công Toản, Nguyễn Tấn Khoa], [9–10], [Hoàn thành],
+  [13], [Đánh giá AI agent, kiểm thử theo kịch bản nghiệp vụ và kiểm thử giao diện], [Cả nhóm], [10–11], [Hoàn thành],
+  [14], [Triển khai hệ thống], [Đậu Văn Đăng Khoa], [11–12], [Hoàn thành],
+  [15], [Viết báo cáo đồ án], [Cả nhóm], [11–12], [Hoàn thành],
+)
 
 // ---- Các chương (template tự ngắt trang trước mỗi chương) --
 #include "chapters/01-tong-quan.typ"
@@ -151,23 +214,10 @@ Về phương pháp nghiên cứu, phần phân tích và thiết kế áp dụn
 #pagebreak()
 #sechead([DANH MỤC TÀI LIỆU THAM KHẢO])
 
-// Danh mục dựng THỦ CÔNG, không dùng #bibliography, vì phụ lục QĐ 922 đòi tách
-// theo ngôn ngữ (Tiếng Việt / Tiếng Anh / Website) — điều mà bibliography() của
-// Typst không làm được: nó chỉ sinh một danh sách phẳng theo kiểu trích dẫn.
-// Dữ liệu gốc của 12 mục vẫn giữ ở refs.bib để đối chiếu.
-//
-// Quy cách ghi theo phụ lục:
-//   tạp chí        → tác giả, tên bài, tên tạp chí, tập, số, trang, (năm)
-//   sách           → tác giả, tên sách, nhà xuất bản, nơi xuất bản, (năm)
-//   báo cáo KH     → tác giả, tên báo cáo, tên kỷ yếu, nơi và thời gian hội nghị
-// Quy ước ngôn ngữ trong một mục: DANH TỪ RIÊNG giữ nguyên ngôn ngữ gốc — tên tác
-// giả, tên bài, tên tạp chí, tên hội nghị, tên nhà xuất bản, tên thành phố và quốc
-// gia. Chỉ các NHÃN cấu trúc mới viết tiếng Việt: "tập", "số", "tr.", "tái bản lần",
-// "truy cập ngày". Không dịch tên hội nghị hay tên nước, vì dịch ra thì mục vừa sai
-// tên gốc vừa đọc như nửa Anh nửa Việt.
-// Xếp abc: hai nghị định theo tên tài liệu, phần tiếng Anh theo họ tác giả,
-// phần website theo tên tài nguyên. Số thứ tự chạy liên tục qua cả 3 nhóm để
-// trích dẫn trong thân bài (dạng [n]) không bị trùng.
+// Danh mục dựng THỦ CÔNG, không dùng #bibliography, vì quy cách đòi tách theo
+// ngôn ngữ (Tiếng Việt / Tiếng Anh / Website), điều bibliography() của Typst
+// không làm được. Số thứ tự chạy liên tục qua 3 nhóm, khớp với trích dẫn [n]
+// gõ tay trong thân bài. Danh từ riêng giữ nguyên ngôn ngữ gốc.
 #let nhom-tltk(ten) = block(above: 1.1em, below: 0.5em)[#strong(ten)]
 
 #nhom-tltk[Tiếng Việt]
@@ -180,22 +230,28 @@ Về phương pháp nghiên cứu, phần phân tích và thiết kế áp dụn
 
 #nhom-tltk[Tiếng Anh]
 #enum(
-  numbering: n => "[" + str(n + 2) + "]",
-  start: 1,
+  numbering: n => "[" + str(n) + "]",
+  start: 3,
   [Burckhardt S., Gillum C., Justo D., Kallas K., McMahon C., Meiklejohn C. S., Durable Functions: Semantics for Stateful Serverless, Proceedings of the ACM on Programming Languages, vol. 5, OOPSLA, article 133, pp. 1–27 (2021).],
   [Chen J., Xiao S., Zhang P., Luo K., Lian D., Liu Z., M3-Embedding: Multi-Linguality, Multi-Functionality, Multi-Granularity Text Embeddings Through Self-Knowledge Distillation, Findings of the Association for Computational Linguistics: ACL 2024, pp. 2318–2335, Bangkok, Thailand (2024).],
+  [Cormack G. V., Clarke C. L. A., Büttcher S., Reciprocal Rank Fusion Outperforms Condorcet and Individual Rank Learning Methods, Proceedings of the 32nd International ACM SIGIR Conference, pp. 758–759, Boston, USA (2009).],
   [Garcia-Molina H., Salem K., Sagas, ACM SIGMOD Record, vol. 16, no. 3, pp. 249–259 (1987).],
   [Helland P., Idempotence Is Not a Medical Condition, ACM Queue, vol. 10, no. 4, pp. 30–46 (2012).],
-  [Kleppmann M., Designing Data-Intensive Applications: The Big Ideas Behind Reliable, Scalable, and Maintainable Systems, O'Reilly Media, Sebastopol, CA, USA (2017).],
-  [Li C., Liu Z., Wu M., Xu Y., Zhao H., Huang P., Kang G., Chen Q., Li W., Lee D. L., Multi-Interest Network with Dynamic Routing for Recommendation at Tmall, Proc. 28th ACM Int. Conf. on Information and Knowledge Management (CIKM), pp. 2615–2623, Beijing, China (2019).],
+  [Kleppmann M., Designing Data-Intensive Applications, O'Reilly Media, Sebastopol, CA, USA (2017).],
+  [Malkov Y. A., Yashunin D. A., Efficient and Robust Approximate Nearest Neighbor Search Using Hierarchical Navigable Small World Graphs, IEEE Transactions on Pattern Analysis and Machine Intelligence, vol. 42, no. 4, pp. 824–836 (2020).],
   [Newman S., Building Microservices: Designing Fine-Grained Systems, 2nd ed., O'Reilly Media, Sebastopol, CA, USA (2021).],
   [Richardson C., Microservices Patterns: With Examples in Java, Manning Publications, Shelter Island, NY, USA (2018).],
+  [Yao S., Zhao J., Yu D., Du N., Shafran I., Narasimhan K., Cao Y., ReAct: Synergizing Reasoning and Acting in Language Models, International Conference on Learning Representations (ICLR), Kigali, Rwanda (2023).],
 )
 
-#nhom-tltk[Website tham khảo]
+#nhom-tltk[Website]
 #enum(
-  numbering: n => "[" + str(n + 10) + "]",
-  start: 1,
+  numbering: n => "[" + str(n) + "]",
+  start: 13,
+  [Android Developers, Guide to app architecture, https:\/\/developer.android.com/topic/architecture.],
+  [Giao Hàng Nhanh, GHN Developer API Documentation, https:\/\/api.ghn.vn.],
+  [Giao Hàng Tiết Kiệm, GHTK OpenAPI Documentation, https:\/\/docs.giaohangtietkiem.vn.],
+  [OpenAPI Initiative, OpenAPI Specification v3.2.0, https:\/\/spec.openapis.org/oas/v3.2.0.],
   [pgvector: Open-Source Vector Similarity Search for PostgreSQL, https:\/\/github.com/pgvector/pgvector.],
-  [Restate Documentation: Durable Execution Engine for Microservices, https:\/\/docs.restate.dev.],
+  [Restate Documentation: Durable Execution Engine, https:\/\/docs.restate.dev.],
 )

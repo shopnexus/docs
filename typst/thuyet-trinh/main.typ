@@ -276,39 +276,39 @@ Các nền tảng rao vặt trong nước chủ yếu kết nối thông tin; ph
   ])
 ]
 
-== Durable execution
+// == Durable execution
 
-#cot(ti: (1fr, 1fr))[
-  #text(size: 0.8em)[
-    Mỗi thao tác ra ngoài của hàm nghiệp vụ đều được ghi lại vào nhật ký thực thi.
+// #cot(ti: (1fr, 1fr))[
+//   #text(size: 0.8em)[
+//     Mỗi thao tác ra ngoài của hàm nghiệp vụ đều được ghi lại vào nhật ký thực thi.
 
-    #v(4pt)
-    Khi tiến trình gặp sự cố, hàm được phát lại. Những bước đã hoàn thành sẽ lấy
-    kết quả từ nhật ký ghi trước thay vì thực hiện lại.
+//     #v(4pt)
+//     Khi tiến trình gặp sự cố, hàm được phát lại. Những bước đã hoàn thành sẽ lấy
+//     kết quả từ nhật ký ghi trước thay vì thực hiện lại.
 
-    #v(4pt)
-    - Lỗi hạ tầng: khôi phục và tiếp tục xử lý.
-    - Bù trừ chỉ dùng khi xảy ra lỗi nghiệp vụ.
-    - Điều kiện: các thao tác phải đảm bảo tính lũy đẳng.
-  ]
-][
-  #sodo(
-    co: 0.92em,
-    spacing: (18mm, 15mm),
-    o((0, 0), [Bước 1], name: <t1>),
-    o((1, 0), [Bước 2], name: <t2>),
-    o((2, 0), [Bước 3 \ crash], name: <t3>, stroke: 1.2pt + do-ptit),
-    o((1, 1), [Write-Ahead Log (WAL)], name: <j>, width: 44mm),
-    on((2, 2), [Bước 3 \ Continue], name: <t4>),
-    edge(<t1>, <t2>, "-|>"),
-    edge(<t2>, <t3>, "-|>"),
-    edge(<t1>, <j>, "-|>"),
-    edge(<t2>, <j>, "-|>"),
-    edge(<t3>, <t4>, "-|>", label: nhan[Replay], label-side: right),
-    edge(<j>, <t4>, "-|>", label: nhan[Return recorded result], label-side: left),
-  )
-  #v(8pt)
-]
+//     #v(4pt)
+//     - Lỗi hạ tầng: khôi phục và tiếp tục xử lý.
+//     - Bù trừ chỉ dùng khi xảy ra lỗi nghiệp vụ.
+//     - Điều kiện: các thao tác phải đảm bảo tính lũy đẳng.
+//   ]
+// ][
+//   #sodo(
+//     co: 0.92em,
+//     spacing: (18mm, 15mm),
+//     o((0, 0), [Bước 1], name: <t1>),
+//     o((1, 0), [Bước 2], name: <t2>),
+//     o((2, 0), [Bước 3 \ crash], name: <t3>, stroke: 1.2pt + do-ptit),
+//     o((1, 1), [Write-Ahead Log (WAL)], name: <j>, width: 44mm),
+//     on((2, 2), [Bước 3 \ Continue], name: <t4>),
+//     edge(<t1>, <t2>, "-|>"),
+//     edge(<t2>, <t3>, "-|>"),
+//     edge(<t1>, <j>, "-|>"),
+//     edge(<t2>, <j>, "-|>"),
+//     edge(<t3>, <t4>, "-|>", label: nhan[Replay], label-side: right),
+//     edge(<j>, <t4>, "-|>", label: nhan[Return recorded result], label-side: left),
+//   )
+//   #v(8pt)
+// ]
 
 // == Thiết kế dữ liệu, giao diện lập trình và bảo mật
 

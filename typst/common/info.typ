@@ -10,14 +10,16 @@
 #let co-so-ngan = "Cơ sở TP. HCM"
 #let khoa = "KHOA CÔNG NGHỆ THÔNG TIN 2"
 
-#let de-tai = "Xây dựng ứng dụng thương mại điện tử sử dụng kiến trúc Microservices"
-#let de-tai-hoa = "XÂY DỰNG ỨNG DỤNG THƯƠNG MẠI ĐIỆN TỬ SỬ DỤNG KIẾN TRÚC MICROSERVICES"
-#let de-tai-ngan = "Nền tảng Thương mại Điện tử trên kiến trúc Microservices"
+#let de-tai = "Sàn thương mại điện tử C2C tích hợp AI"
+#let de-tai-hoa = upper(de-tai)
+#let de-tai-ngan = ""
 
 #let gvhd = "ThS. NGUYỄN ĐỨC THỊNH"
 #let lop = "D22CQCNPM01-N"
-#let nhom = "C22"
+#let ma-nhom = "C27"
+#let nhom = "Đậu Văn Đăng Khoa, Hồ Công Toản, Nguyễn Tấn Khoa – D22CQCNPM01-N"
 #let nganh = "CÔNG NGHỆ THÔNG TIN"
+#let chuyen-nganh = "CÔNG NGHỆ PHẦN MỀM"
 #let dia-diem = "TP.HCM"
 #let nam = "2026"
 
