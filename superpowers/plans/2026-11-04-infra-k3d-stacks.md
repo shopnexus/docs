@@ -1819,6 +1819,9 @@ spec:
       node-role.kubernetes.io/control-plane: "true"
     tolerations:
       - { key: node-role.kubernetes.io/control-plane, operator: Exists, effect: NoSchedule }
+    logs:
+      access:
+        enabled: true
     persistence:
       enabled: true
       size: 128Mi
@@ -1953,7 +1956,6 @@ On the laptop, with ports 80 and 443 free:
 
 ```bash
 ACME_EMAIL=test@example.com infra/cluster/up.sh direct
-kubectl -n kube-system patch helmchartconfig traefik --type merge -p '{"spec":{"valuesContent":"'"$(kubectl -n kube-system get helmchartconfig traefik -o jsonpath='{.spec.valuesContent}' | sed 's/"/\\"/g' | awk '{printf "%s\\n", $0}')"'logs:\n  access:\n    enabled: true\n"}}'
 sleep 30
 curl -sk -o /dev/null -H 'Host: nothing.example' https://$(ip -4 route get 1.1.1.1 | awk '{print $7; exit}')/
 kubectl -n kube-system logs -l app.kubernetes.io/name=traefik --tail=5
