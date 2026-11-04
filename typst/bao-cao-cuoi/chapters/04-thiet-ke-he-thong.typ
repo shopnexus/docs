@@ -254,7 +254,7 @@ Mỗi tin đăng có nhiều thương lượng nhưng mỗi người mua chỉ c
     align: (left + horizon, left + horizon, left + horizon),
     table.header([Phân hệ], [Dữ liệu], [Quy tắc được bảo đảm]),
     [Đăng nhập], [Định danh, phiên, mã OTP], [Mỗi số điện thoại hoặc email chỉ gắn với một tài khoản; mỗi mã làm mới phiên chỉ dùng được một lần],
-    [Tin đăng], [Tin đăng, danh mục, xã/phường], [Ảnh, vết và thông số lưu cùng tin; vị trí chỉ lưu đến 3.321 xã/phường],
+    [Tin đăng], [Tin đăng, danh mục, xã/phường], [Ảnh và thông số lưu cùng tin; vị trí chỉ lưu đến 3.321 xã/phường],
     [Tìm kiếm], [Chỉ mục tin, phiên tìm kiếm], [Mỗi tin có một vector ngữ nghĩa 1024 chiều và chỉ mục từ khóa; phiên giữ ràng buộc của người mua],
     [Giao dịch], [Thương lượng, nước đi, đơn COD], [Mỗi người mua một thương lượng trên một tin; mỗi thương lượng một đơn đang mở; mỗi tin một đơn đang gửi],
     [Vận chuyển], [Liên kết hãng, trạng thái vận đơn], [Khóa kết nối tới hãng được mã hóa; mỗi trạng thái hãng báo chỉ được ghi một lần],

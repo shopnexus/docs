@@ -26,7 +26,7 @@ Caddy snippet in `linux-server-setup`.
 |---|---|
 | Orchestrator | k3d: one server node, three agents (`agent-0` `role=stateful`, `agent-1` and `agent-2` `role=app`). |
 | Environments | One cluster, namespaces `shopnexus-dev` and `shopnexus-prod`. NetworkPolicy keeps them apart. |
-| Domains | prod `shopnexus.id.vn`, dev `dev.shopnexus.id.vn`. Hosts derive from one `domain` value: `<domain>` website, `api.` server, `ops.` staff console, `media.` object store, `docs.` docs. |
+| Domains | prod `shopnexus.id.vn`, dev `dev.shopnexus.id.vn`. Hosts derive from one `domain` value: `<domain>` website, `api.` server, `console.` staff console, `media.` object store, `docs.` docs. |
 | Edge | Traefik bundled with k3s. Two modes: `direct` (Traefik holds 80/443, ACME) and `behind-proxy` (an existing proxy terminates TLS and forwards HTTP). |
 | TLS | Traefik's ACME resolver, TLS-ALPN-01, `acme.json` on a persistent volume. No cert-manager while there is one Traefik. |
 | Manifests | One Helm chart, `infra/stack`, with `values-dev.yaml` and `values-prod.yaml`. |
@@ -36,7 +36,7 @@ Caddy snippet in `linux-server-setup`.
 | Postgres | CloudNativePG with the ParadeDB image. dev 1 instance, prod 2. |
 | Restate | `restate-operator`. `RestateCluster` dev 1 node, prod 3. `RestateDeployment` runs `server`. |
 | Object store | RustFS, 1 replica in each stack. Any S3 service can replace it by changing `OBJECT_STORE_*`. |
-| Components | `server`, `website`, `docs`, and `ops` behind `ops.enabled: false` until the console has an image. |
+| Components | `server`, `website`, `docs` and `console` (the staff console, its own repo and image; `console.enabled`). |
 | Out of scope | Real machines, backups, observability, the root `docker-compose.yml`. |
 
 ## Repository layout
@@ -115,7 +115,7 @@ against that chart.
 ```
  Traefik ─ Host ─┬─ <domain>        → website
                  ├─ api.<domain>    → server-api :8080
-                 ├─ ops.<domain>    → ops            (when enabled)
+                 ├─ console.<domain> → console
                  ├─ media.<domain>  → rustfs :9000
                  └─ docs.<domain>   → docs
 
@@ -200,7 +200,7 @@ Argo sync waves:
 |---|---|
 | 0 | `postgres`, `rustfs`, `RestateCluster` |
 | 1 | `migrate` (`cmd/migrate`) and `objectstore-init` (`cmd/objectstore-init`), as Sync hooks |
-| 2 | `server` (`RestateDeployment`), `server-api`, `website`, `docs`, `ops` |
+| 2 | `server` (`RestateDeployment`), `server-api`, `website`, `docs`, `console` |
 
 The server refuses to start while migrations are pending
 (`internal/app/app.go`), so `migrate` finishes before wave 2.
@@ -219,7 +219,7 @@ The server refuses to start while migrations are pending
 ### Configuration
 
 Non-secret values in `values-<stack>.yaml`: `domain`, replica counts, image
-tags, `STAFF_CONSOLE_ORIGIN=https://ops.<domain>`,
+tags, `STAFF_CONSOLE_ORIGIN=https://console.<domain>`,
 `MEDIA_PUBLIC_URL`, `OBJECT_STORE_PUBLIC_ENDPOINT`, `TRUSTED_PROXIES` set to
 the pod CIDR. Secret values in a SealedSecret per stack: JWT keys, Firebase
 settings, RustFS keys, the language model key, the Restate signing key.

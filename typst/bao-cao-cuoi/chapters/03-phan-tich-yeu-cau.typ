@@ -174,27 +174,26 @@ Hình 3.2 chỉ vẽ lõi giao dịch, gồm nhóm D và E (UC-13 đến UC-22),
 
 == Đặc tả ca sử dụng trọng yếu
 
-Ba ca được đặc tả đầy đủ là ba ca mang nghiệp vụ riêng của đề tài: đăng tin có cổng kiểm vết (Bảng 3.2), tìm kiếm bằng AI agent (Bảng 3.3) và nhận hàng đồng kiểm (Bảng 3.4). Bảng 3.4 gộp phần theo dõi đơn và phần nhận hàng của UC-17, coi UC-16 là tiền điều kiện.
+Ba ca được đặc tả đầy đủ là ba ca mang nghiệp vụ riêng của đề tài: đăng tin với AI điền giúp (Bảng 3.2), tìm kiếm bằng AI agent (Bảng 3.3) và nhận hàng đồng kiểm (Bảng 3.4). Bảng 3.4 gộp phần theo dõi đơn và phần nhận hàng của UC-17, coi UC-16 là tiền điều kiện.
 
 #ucspec("UC-06", "Đăng tin với AI điền giúp",
   [Tác nhân chính], [Người bán; tác nhân phụ: dịch vụ AI (LLM).],
   [Tiền điều kiện], [Đã đăng nhập.],
   [Hậu điều kiện], [Tin được lưu ở trạng thái đang xử lý; khi mọi ảnh xử lý xong, tin chuyển sang đang bán và bắt đầu xuất hiện trong kết quả tìm kiếm.],
   [Luồng chính], buoc(
-    [Người bán chụp 1–10 ảnh hoặc quay video trong ứng dụng; ảnh mang dấu thời gian chụp và được tải lên qua UC-S1.],
-    [Hệ thống gửi ảnh cho LLM; mô hình trả về tiêu đề, danh mục, tình trạng theo thang Mới/Như mới/Đã dùng, thông số và các vết nhìn thấy được.],
-    [Người bán sửa biểu mẫu, khai kèm ảnh cận hoặc bác bỏ từng vết mô hình phát hiện, nhập giá, xác nhận phường/xã rồi bấm Đăng.],
-    [Hệ thống kiểm quyền đăng và trần số tin của người bán (BR-04), kể cả khi người bán gửi nhiều tin cùng lúc; kiểm giới hạn từng mục (BR-05); kiểm mọi vết đã được khai hoặc bác bỏ (BR-02).],
+    [Người bán chụp hoặc chọn từ thư viện 1–10 ảnh, hoặc quay video; ảnh được tải lên qua UC-S1.],
+    [Hệ thống gửi ảnh cho LLM; mô hình trả về tiêu đề, danh mục, tình trạng theo thang Mới/Như mới/Đã dùng và thông số.],
+    [Người bán sửa biểu mẫu, nhập giá, xác nhận phường/xã rồi bấm Đăng.],
+    [Hệ thống kiểm quyền đăng và trần số tin của người bán (BR-04), kể cả khi người bán gửi nhiều tin cùng lúc; kiểm giới hạn từng mục (BR-05).],
     [Hệ thống lưu tin ở trạng thái đang xử lý, chuẩn hóa ảnh và xóa thông tin vị trí chụp trong ảnh; xong thì tin chuyển sang đang bán, ứng dụng báo "Đã đăng tin".],
   ),
   [Luồng thay thế / ngoại lệ], nhanh(
     [2a], [Mô hình không trả kết quả: người bán tự điền biểu mẫu, tiếp tục bước 3.],
     [4a], [Chưa xác minh danh tính hoặc đang bị tạm khóa: từ chối đăng, ứng dụng dẫn sang UC-03.],
     [4b], [Đã đạt trần số tin theo bậc (5/20/20/20): từ chối, báo số tin tối đa.],
-    [4c], [Còn vết chưa khai hoặc bác bỏ: từ chối, ứng dụng chỉ ra vết còn thiếu.],
     [5a], [Có ảnh lỗi: tin chuyển sang bị từ chối kèm lý do; sửa tin hoặc thêm ảnh đưa tin về đang xử lý.],
   ),
-  [Quy tắc liên quan], [BR-02, BR-03, BR-04, BR-05.],
+  [Quy tắc liên quan], [BR-02, BR-04, BR-05.],
 )
 
 #ucspec("UC-09", "Tìm kiếm bằng ngôn ngữ tự nhiên với AI agent",
@@ -223,7 +222,7 @@ Ba ca được đặc tả đầy đủ là ba ca mang nghiệp vụ riêng củ
   [Hậu điều kiện], [Nhận: đơn đã giao, tin và thương lượng đã bán, mở UC-19, UC-20. Từ chối: đơn đã hoàn, tin về đang bán, thương lượng về đang thương lượng. Phân hệ uy tín cập nhật điểm và tỉ lệ từ chối nhận.],
   [Luồng chính], buoc(
     [Hãng lấy hàng và báo trạng thái về hệ thống; đơn chuyển sang đang giao; ứng dụng cập nhật màn hình đơn ngay và gửi thông báo đẩy.],
-    [Khi shipper tới cửa, ứng dụng hiện tờ "Tin ghi" (tình trạng, vết đã khai, thông số) và cảnh báo rằng sau khi trả tiền sàn không có cơ chế đòi lại.],
+    [Khi shipper tới cửa, ứng dụng hiện tờ "Tin ghi" (tình trạng và các thông tin người bán ghi trong tin) và cảnh báo rằng sau khi trả tiền sàn không có cơ chế đòi lại.],
     [Người mua xem hàng, đối chiếu với tin ghi, đồng ý nhận và trả tiền hàng cùng phí ship chiều đi cho shipper.],
     [Hãng báo giao thành công; hệ thống chuyển đơn sang đã giao, đánh dấu tin đã bán và đóng thương lượng.],
   ),
@@ -232,14 +231,14 @@ Ba ca được đặc tả đầy đủ là ba ca mang nghiệp vụ riêng củ
     [3a], [Hàng không khớp tin ghi: người mua từ chối nhận, không trả đồng nào; hãng hoàn hàng, báo đã hoàn, tính phí hai chiều vào tài khoản người bán.],
     [4a], [Hãng báo lặp cùng một trạng thái của cùng một vận đơn: hệ thống chỉ ghi nhận lần đầu, đơn không đổi trạng thái hai lần.],
     [4b], [Đơn tự gửi: người bán báo đã gửi, người mua báo đã nhận (đơn đã giao) hoặc không nhận được; đơn không tính vào tỉ lệ chế tài.],
-    [4c], [Sau khi nhận, phát hiện vết không khai: người mua mở UC-20.],
+    [4c], [Sau khi nhận, người mua phát hiện sự cố mà lúc xem tại cửa không thấy: người mua mở UC-20.],
   ),
   [Quy tắc liên quan], [BR-03, BR-08, BR-10, BR-11, BR-12, BR-15.],
 )
 
 == Quy tắc nghiệp vụ
 
-Bảng 3.5 gom 21 quy tắc nghiệp vụ. Chúng suy ra từ hai ràng buộc gốc: sàn không giữ tiền (BR-01) và sàn không phán xử từng vụ việc (BR-14, BR-19). Vì không giữ tiền, sàn không có khoản nào để hoàn, nên "hoàn tiền" trở thành từ chối nhận tại cửa (BR-11). Vì không phán xử, sàn dựa vào luật công bố trước (BR-02, BR-03), ghi nhận công khai (BR-14) và chế tài theo thống kê (BR-15); điều phối viên chỉ xử lý vài nhóm việc không tăng theo số đơn (BR-19).
+Bảng 3.5 gom 21 quy tắc nghiệp vụ. Chúng suy ra từ hai ràng buộc gốc: sàn không giữ tiền (BR-01) và sàn không phán xử từng vụ việc (BR-14, BR-19). Vì không giữ tiền, sàn không có khoản nào để hoàn, nên "hoàn tiền" trở thành từ chối nhận tại cửa (BR-11). Vì không phán xử, tin đăng không có phần khai vết và người mua tự xem tình trạng hàng tại cửa (BR-02, BR-03); sàn dựa vào ghi nhận công khai (BR-14) và chế tài theo thống kê (BR-15); điều phối viên chỉ xử lý vài nhóm việc không tăng theo số đơn (BR-19).
 
 #figure(
   kind: table,
@@ -250,10 +249,10 @@ Bảng 3.5 gom 21 quy tắc nghiệp vụ. Chúng suy ra từ hai ràng buộc g
     align: (left + top, left + top),
     table.header([Mã], [Nội dung]),
     [BR-01], [Sàn không giữ tiền: không ví, không cọc, không thu hộ, không hoàn tiền qua sàn.],
-    [BR-02], [Tình trạng hàng theo thang Mới / Như mới / Đã dùng; mọi vết phải khai kèm ảnh cận chụp trong ứng dụng; mọi vết AI phát hiện phải được khai hoặc bác bỏ trước khi đăng.],
-    [BR-03], [Vết đã khai không là căn cứ khiếu nại; vết không khai mà hàng có thì mặc định lỗi người bán.],
+    [BR-02], [Tin đăng gồm tình trạng hàng theo thang Mới / Như mới / Đã dùng, các thông tin người bán ghi trong tin và ảnh; tin không có phần khai vết, AI không chỉ ra vết nào.],
+    [BR-03], [Người mua tự xem tình trạng hàng khi đồng kiểm tại cửa, đối chiếu với tin ghi rồi nhận hoặc từ chối.],
     [BR-04], [Chỉ tài khoản đã xác minh danh tính, không bị tạm khóa mới được đăng tin; số tin đang bán tối đa theo bậc là 5/20/20/20.],
-    [BR-05], [Tiêu đề 1–70 ký tự; giá nguyên đồng từ 10.000 đến 1.000.000.000; mô tả ≤ 1.500 ký tự; 1–10 ảnh, ảnh đầu là ảnh bìa; ≤ 10 vết, mỗi vết ≤ 200 ký tự; ≤ 20 thông số; vị trí lưu theo phường/xã (tọa độ tâm xã), không lưu GPS của người bán.],
+    [BR-05], [Tiêu đề 1–70 ký tự; giá nguyên đồng từ 10.000 đến 1.000.000.000; mô tả ≤ 1.500 ký tự; 1–10 ảnh, ảnh đầu là ảnh bìa; ≤ 20 thông số; vị trí lưu theo phường/xã (tọa độ tâm xã), không lưu GPS của người bán.],
     [BR-06], [Giá thương lượng là bội số 1.000 đ; giá trả ≥ nửa giá niêm yết (làm tròn lên 1.000) và thấp hơn giá niêm yết hoặc phản giá; phản giá cao hơn giá trả và thấp hơn giá niêm yết; mỗi thời điểm chỉ một giá đang mở, giá mở không hết hạn; chấp nhận phải đúng giá mà người chấp nhận đang thấy, nếu giá vừa bị đổi thì lượt chấp nhận bị từ chối và ứng dụng báo giá đã thay đổi.],
     [BR-07], [Chốt giá không giữ hàng; nhiều người mua có thể cùng chốt một tin; khi người bán gửi hàng cho một người, các yêu cầu COD khác trên tin tự hủy với lý do "đã gửi cho người khác".],
     [BR-08], [COD đồng kiểm là đường giao dịch duy nhất trong ứng dụng; vận đơn đặt người nhận trả phí ship; người mua chỉ trả tiền sau khi xem hàng.],
@@ -397,7 +396,7 @@ Bảng 3.6 liệt kê 22 yêu cầu chức năng rút ra từ các ca sử dụn
     [REQ-04], [eKYC: chụp hai mặt CCCD, đọc chip NFC, quét khuôn mặt; chuyển duyệt tay khi không đọc được chip], [Định danh], [UC-03, UC-25],
     [REQ-05], [Thiết lập giao COD: địa chỉ lấy hàng, liên kết GHTK/GHN, khai đã có tài khoản nhận tiền tại hãng], [Vận chuyển], [UC-04],
     [REQ-06], [Tải ảnh lên, chuẩn hóa ảnh, xóa thông tin vị trí chụp], [Hình ảnh], [UC-S1],
-    [REQ-07], [Đăng tin từ ảnh hoặc video với AI điền giúp và cổng kiểm vết], [Tin đăng], [UC-06],
+    [REQ-07], [Đăng tin từ ảnh hoặc video với AI điền giúp], [Tin đăng], [UC-06],
     [REQ-08], [Quản lý tin: sửa, đổi giá, ẩn/hiện, đánh dấu đã bán, xóa], [Tin đăng], [UC-07],
     [REQ-09], [Đẩy tin và gói người bán], [Tin đăng], [UC-08],
     [REQ-10], [Tìm kiếm bằng câu tự nhiên qua AI agent, trả chip ràng buộc sửa được và câu diễn giải], [Khám phá], [UC-09],
