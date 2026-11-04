@@ -2057,7 +2057,7 @@ ssh khoakomlem-internal.ddns.net 'cd ~ && (test -d shopnexus || git clone --recu
 ssh khoakomlem-internal.ddns.net 'kubectl -n argocd get applications'
 ```
 
-Expected after a few minutes: `cnpg`, `sealed-secrets`, `image-updater`, `restate-operator`, `root` Synced and Healthy; `stack-dev` and `stack-prod` Degraded (no secrets yet).
+Expected after a few minutes: `cnpg`, `sealed-secrets`, `image-updater`, `restate-operator` Synced and Healthy; `stack-dev` and `stack-prod` Unknown with a ComparisonError that says `run infra/cluster/seal.sh <stack>` (the chart refuses to render without sealed secrets, and both Applications retry); `root` Synced once wave 1 is applied.
 
 - [ ] **Step 6: Seal and push the secrets**
 
