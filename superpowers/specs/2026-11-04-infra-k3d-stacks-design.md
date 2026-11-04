@@ -13,7 +13,8 @@ namespace. The cluster has one server node and three agent nodes; each agent
 stands in for a machine. This is a learning project, so k3d stays even though
 the agents share one host and one disk. Real machines joining the cluster are
 out of scope; the layout keeps manifests free of k3d specifics so a later move
-to k3s on real hosts changes only `infra/cluster/`.
+to k3s on real hosts changes only `infra/cluster/` and one value,
+`litellm.apiBase`, which names the host as `host.k3d.internal`.
 
 Everything needed to stand the cluster up lives in the umbrella repo. Someone
 who forks it changes the repo URL and the two domains, runs one script, seals
@@ -60,7 +61,7 @@ shopnexus/
         ├── values.yaml
         ├── values-dev.yaml
         ├── values-prod.yaml
-        ├── secrets/                 # SealedSecrets per stack, and *.example.env templates
+        ├── secrets/                 # SealedSecrets per stack (dev/, prod/) and example.env
         └── templates/
 ```
 
@@ -96,7 +97,7 @@ TLS. The resolver is set on the `websecure` entrypoint in
 `behind-proxy`, Traefik trusts `X-Forwarded-*` only from the k3d network's
 gateway address.
 
-`up.sh --edge direct|behind-proxy` picks the HelmChartConfig and the port
+`up.sh direct|behind-proxy` picks the HelmChartConfig and the port
 mapping.
 
 In `direct`, k3d's serverlb (an nginx stream proxy) hides the client address,
@@ -139,9 +140,10 @@ No policy opens a path between `shopnexus-dev` and `shopnexus-prod`.
 ### Nodes
 
 `agent-0` carries `role=stateful` and is preferred for RustFS. `agent-1` and
-`agent-2` carry `role=app` for `server` and `website`. Postgres and Restate
-pods use preferred anti-affinity, so the three Restate pods spread over the
-three agents and still schedule when one agent is stopped.
+`agent-2` carry `role=app` for `server`, `website`, `console` and `litellm`.
+Postgres pods use preferred anti-affinity; Restate pods use a topology spread
+constraint with `whenUnsatisfiable: ScheduleAnyway`. Both spread over the
+agents and still schedule when one agent is stopped.
 
 ## Workloads
 
@@ -199,9 +201,11 @@ Argo sync waves:
 
 | Wave | Resources |
 |---|---|
-| 0 | `postgres`, `rustfs`, `RestateCluster` |
-| 1 | `migrate` (`cmd/migrate`) and `objectstore-init` (`cmd/objectstore-init`), as Sync hooks |
-| 2 | `server` (`RestateDeployment`), `server-api`, `website`, `docs`, `console` |
+| -1 | the `restate-<stack>` Namespace |
+| 0 | `postgres` (and its `ImageCatalog`), `rustfs`, the SealedSecrets |
+| 1 | `RestateCluster`, the `litellm` Database, `migrate` (`cmd/migrate`) and `objectstore-init` (`cmd/objectstore-init`), the jobs as Sync hooks |
+| 2 | `server` (`RestateDeployment`), `server-api`, `website`, `docs`, `console`, `litellm` |
+| 3 | `litellm-key`, a Sync hook that sets the server's virtual key |
 
 The server refuses to start while migrations are pending
 (`internal/app/app.go`), so `migrate` finishes before wave 2.
@@ -213,6 +217,8 @@ The server refuses to start while migrations are pending
 | server | 1 | 3 |
 | website | 1 | 2 |
 | docs | 1 | 1 |
+| console | 1 | 2 |
+| litellm | 1 | 1 |
 | postgres | 1 | 2 |
 | restate | 1 | 3 |
 | rustfs | 1 | 1 |
@@ -231,13 +237,14 @@ settings, RustFS keys, the language model key, the Restate signing key.
 ```
 0. Fork. Set repoURL in infra/argocd/root.yaml and domain in values-dev.yaml
    and values-prod.yaml.
-1. DNS: A records for <domain>, *.<domain> and *.dev.<domain>.
-2. infra/cluster/up.sh --edge direct        (or --edge behind-proxy)
+1. DNS: A records for <domain>, *.<domain>, *.dev.<domain> and dev.<domain>
+   (a `*` wildcard does not cover `dev` once `*.dev` exists).
+2. infra/cluster/up.sh direct        (or behind-proxy)
    creates the cluster, applies the edge config, installs Argo CD and applies
    root.yaml. Argo installs the platform charts.
-3. Fill infra/stack/secrets/<stack>.example.env, run seal.sh dev and
-   seal.sh prod, commit, push.
-4. Argo syncs stack-dev and stack-prod in waves 0, 1, 2.
+3. Run seal.sh dev and seal.sh prod once; fill the <stack>.env each creates; run
+   both again, commit, push.
+4. Argo syncs stack-dev and stack-prod in waves -1 to 3.
 ```
 
 Sealing comes after step 2 because `kubeseal` needs the controller's
@@ -261,7 +268,7 @@ which lists the ten hosts and proxies them to `127.0.0.1:18080`.
   3. Release a server version while a long Restate invocation runs. The
      invocation finishes on the old version, which then scales to zero.
   4. From a pod in `shopnexus-dev`, connect to `postgres-rw.shopnexus-prod`.
-     The connection is refused.
+     The connection times out (a NetworkPolicy drop).
 
 ## Risks
 
@@ -274,10 +281,5 @@ which lists the ten hosts and proxies them to `127.0.0.1:18080`.
   answers on 443; the plan finds the rule that admits it before changing
   anything. The k3d network is a `br-*` bridge, which the `gate` chain
   already trusts.
-- The website's `next.config.ts` bakes the API rewrite at build time from
-  `NEXT_PUBLIC_API_URL`, so one image cannot carry two public API URLs. The
-  image is built with `http://server-api:8080/v1`, the in-cluster Service
-  name, which resolves inside whichever stack namespace the website runs in.
-- The website was last changed on 2026-10-14 and still has screens from the
-  escrow model. Deploying it is in scope; making it match server2 is the
-  website's own work.
+- The website (Astro, server-side rendering) reads `API_URL` at runtime; its image sets `http://server-api:8080/v1`, the in-cluster Service name, which resolves inside whichever stack namespace the website runs in.
+

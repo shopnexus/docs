@@ -12,7 +12,7 @@
 
 ## Global Constraints
 
-- Prod domain `shopnexus.id.vn`, dev domain `dev.shopnexus.id.vn`. Hosts: `<domain>` website, `api.<domain>` server, `ops.<domain>` console, `media.<domain>` RustFS, `docs.<domain>` docs.
+- Prod domain `shopnexus.id.vn`, dev domain `dev.shopnexus.id.vn`. Hosts: `<domain>` website, `api.<domain>` server, `console.<domain>` console (renamed from `ops` after Task 15), `media.<domain>` RustFS, `docs.<domain>` docs.
 - Namespaces `shopnexus-dev` and `shopnexus-prod`; Restate clusters `restate-dev` and `restate-prod` (each its own namespace).
 - Replicas: dev everything 1. Prod server 3, website 2, docs 1, postgres 2, restate 3, rustfs 1.
 - Nothing from `deploy/` carries over, including names.
@@ -2001,8 +2001,8 @@ ssh khoakomlem-internal.ddns.net 'mkdir -p ~/linux-server-setup/caddy && cat > ~
 # ShopNexus dev and prod stacks on k3d (shopnexus/infra, edge mode
 # behind-proxy). Caddy holds TLS; Traefik in the cluster routes by Host.
 # Install: sudo cp caddy/shopnexus.caddy /etc/caddy/conf.d/ && sudo systemctl reload caddy
-shopnexus.id.vn, api.shopnexus.id.vn, ops.shopnexus.id.vn, media.shopnexus.id.vn, docs.shopnexus.id.vn,
-dev.shopnexus.id.vn, api.dev.shopnexus.id.vn, ops.dev.shopnexus.id.vn, media.dev.shopnexus.id.vn, docs.dev.shopnexus.id.vn {
+shopnexus.id.vn, api.shopnexus.id.vn, console.shopnexus.id.vn, media.shopnexus.id.vn, docs.shopnexus.id.vn,
+dev.shopnexus.id.vn, api.dev.shopnexus.id.vn, console.dev.shopnexus.id.vn, media.dev.shopnexus.id.vn, docs.dev.shopnexus.id.vn {
 	request_body {
 		max_size 50MB
 	}
@@ -2067,7 +2067,7 @@ Run on the server, where `kubectl` already points at the cluster and Docker can 
 ssh -t khoakomlem-internal.ddns.net 'cd ~/shopnexus && PATH=$HOME/.local/bin:$PATH infra/cluster/seal.sh dev'
 ```
 
-The first run copies `example.env` to `dev.env` and stops at `set LLM_API_KEY`. Have the user fill `dev.env` and `prod.env` (`FCM_CREDENTIALS` for prod) on the server, run `seal.sh dev` and `seal.sh prod`, then commit `infra/stack/secrets/{dev,prod}/*.yaml` and push (confirm). Back up the controller key and both `*.env` and `*.restate.pem` files to the user's password manager.
+The first run copies `example.env` to `dev.env` and stops at `set LLM_UPSTREAM_API_KEY`. Have the user fill `dev.env` and `prod.env` (`FCM_CREDENTIALS` for prod) on the server, run `seal.sh dev` and `seal.sh prod`, then commit `infra/stack/secrets/{dev,prod}/*.yaml` and push (confirm). Back up the controller key and both `*.env` and `*.restate.pem` files to the user's password manager.
 
 - [ ] **Step 7: Verify the operator assumptions**
 
