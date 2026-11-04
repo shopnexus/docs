@@ -1,42 +1,68 @@
 ---
 title: Deployment
-description: What runs where today. The docs ship through GitOps; the new server has no production deployment yet.
+description: What runs where. Two stacks of ShopNexus on one k3d cluster, kept in step with the repo by Argo CD, and the docs on GitHub Pages.
 group: Operations
 order: 1
 groupOrder: 1
 audience: [developers, admins]
 type: overview
-readingTime: 3
+readingTime: 4
 updated: 2026-11-04
-related: ["/en/operations/local-stack", "/en/operations/configuration", "/en/operations/monitoring"]
+related: ["/en/operations/cluster", "/en/operations/cluster/bootstrap", "/en/operations/cluster/releases", "/en/operations/configuration", "/en/operations/local-stack"]
 ---
 
-The server runs only on developer machines for now. CI, a container image and a production deployment for it are listed as later work and are not built. The Android app is built and installed from Gradle.
+The server, the website, the docs and the staff console run on one k3d cluster in two stacks, dev and prod. Each stack has its own namespace and its own Postgres, Restate, RustFS and LiteLLM. Everything the cluster needs is in `infra/` in the umbrella repo. The Android app is built and installed from Gradle and is not part of the cluster.
 
-## The GitOps setup
+| Stack | Domain | Namespace | Follows |
+|---|---|---|---|
+| dev | `dev.shopnexus.id.vn` | `shopnexus-dev` | `:main`, by digest |
+| prod | `shopnexus.id.vn` | `shopnexus-prod` | the newest `X.Y.Z` tag |
 
-The umbrella repository holds a GitOps setup in `deploy/`. A k3d cluster runs Argo CD, which keeps the cluster in step with the Kubernetes manifests in `deploy/k8s`. Each component's repository has a GitHub Actions workflow that builds its image and pushes it to GHCR with a `:main` and a `:sha-<commit>` tag. Argo CD Image Updater watches the `:main` digest and triggers a sync when it changes. CI never reaches the cluster, because the cluster pulls its own updates.
+Each stack serves the website on its domain and four hosts below it: `api.` for the server, `media.` for the object store, `docs.` for the docs and `console.` for the staff console.
+
+The system is built and checked on a local k3d cluster. Bringing it up on the author's server and running the failover drills are the next steps, so the public hosts above are not live yet.
+
+## From a push to a pod
 
 ```mermaid title="From a push to a running pod"
-flowchart LR
-  push[git push] --> ci[GitHub Actions]
-  ci --> ghcr[GHCR :main]
-  ghcr --> iu[Image Updater]
-  iu --> argo[Argo CD sync]
-  argo --> k3d[k3d cluster]
-  k3d --> caddy[Caddy, TLS]
+flowchart TB
+  push[git push or tag vX.Y.Z] --> ci[GitHub Actions build.yml]
+  ci --> ghcr["GHCR ghcr.io/shopnexus/*<br/>:main and X.Y.Z"]
+  ghcr --> iu[Argo CD Image Updater]
+  iu --> argo[Argo CD]
+  argo --> devns[shopnexus-dev]
+  argo --> prodns[shopnexus-prod]
+  devns --> traefik[Traefik]
+  prodns --> traefik
 ```
 
-Caddy on the host terminates TLS and forwards to the cluster's Traefik ingress. The public domain names are configured only in Caddy.
+Each component repo (`server`, `website`, `docs`, `console`) has a `.github/workflows/build.yml`. A push to `main` builds the image and pushes it to GHCR with the tags `main` and `sha-<commit>`. A tag `vX.Y.Z` pushes the tag `X.Y.Z`. The packages are public, because the cluster pulls them without credentials.
 
-<Callout type="warning">
-Most of the manifests in `deploy/k8s` describe the old system: an API gateway, NATS, Redis and the Next.js storefront. They do not fit the new server, which needs Postgres with ParadeDB, Restate and RustFS.
-</Callout>
+Argo CD Image Updater watches GHCR. For `stack-dev` it follows the digest of `:main`; for `stack-prod` it follows the newest `X.Y.Z` by semver. It writes the new tag as a Helm parameter on the stack's Argo CD Application, and Argo CD syncs the chart in `infra/stack` into the stack's namespace. CI never connects to the cluster. Traefik, bundled with k3s, routes each request by its `Host` header to the stack's Services.
 
-## The docs
+## The cluster
 
-The docs do not use this path. Every push to the docs repository's `main` builds the Astro site with Bun and publishes it on GitHub Pages at https://shopnexus.github.io/docs/. The build sets `DOCS_BASE` to the Pages path prefix; the internal Developers tab is left out of this build.
+<Cards cols={2}>
+  <Card title="Cluster overview" href="/en/operations/cluster" icon="ri:node-tree">Nodes, the two stacks, every component and its replica count.</Card>
+  <Card title="Bring up a cluster" href="/en/operations/cluster/bootstrap" icon="ri:rocket-line">Fork, set the domains, run up.sh, seal the secrets, push.</Card>
+  <Card title="Edge and network" href="/en/operations/cluster/networking" icon="ri:global-line">The two edge modes, TLS, hosts and NetworkPolicy.</Card>
+  <Card title="Postgres, Restate and RustFS" href="/en/operations/cluster/data" icon="ri:database-2-line">The stateful workloads, their operators and their storage.</Card>
+  <Card title="Releases" href="/en/operations/cluster/releases" icon="ri:price-tag-3-line">How dev follows main and prod follows a version tag.</Card>
+  <Card title="Secrets" href="/en/operations/cluster/secrets" icon="ri:key-2-line">Sealed Secrets, seal.sh and the key to back up.</Card>
+  <Card title="Language model gateway" href="/en/operations/cluster/llm-gateway" icon="ri:robot-2-line">LiteLLM in each stack, the search alias and its daily budget.</Card>
+  <Card title="Runbook and troubleshooting" href="/en/operations/cluster/runbook" icon="ri:first-aid-kit-line">Daily commands, drills and fixes for known failures.</Card>
+</Cards>
 
-## What production will need from the server
+## The docs on GitHub Pages
 
-The server already refuses to start in production with development shortcuts in place. `APP_ENV=prod` requires the Restate identity key, real push credentials, and PNV test numbers turned off. Logs should be JSON there (`LOG_FORMAT=json`).
+The docs have a second deployment outside the cluster. Every push to the docs repository's `main` runs `.github/workflows/pages.yml`, which builds the Astro site with Bun and publishes it on GitHub Pages at https://shopnexus.github.io/docs/. That build sets `DOCS_BASE` to the Pages path prefix and leaves out the internal Developers tab. The image in each stack is built with `DOCS_BASE=/` and serves the site at the root of `docs.<domain>`.
+
+## Production checks in the server
+
+The server refuses to start with `APP_ENV=prod` when:
+
+- `RESTATE_IDENTITY_KEY` is empty;
+- `FCM_CREDENTIALS` is empty, so pushes would only be logged;
+- `PNV_TEST_NUMBERS=true`, so PNV's test numbers would sign in.
+
+It also refuses to start in any environment while migrations are pending, which is why the `migrate` Job runs before the server in each stack. The chart sets `APP_ENV` from `appEnv` in the values file, `PNV_TEST_NUMBERS=false` in `values-prod.yaml`, and `LOG_FORMAT=json` in both stacks; the other server variables are on the [Configuration](/en/operations/configuration) page.

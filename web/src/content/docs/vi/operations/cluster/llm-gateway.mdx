@@ -1,0 +1,207 @@
+---
+title: Cổng mô hình ngôn ngữ
+description: LiteLLM trong mỗi stack, ngân sách token theo ngày, và cách đổi mô hình, ngân sách hay alias.
+group: Cụm máy chủ
+order: 7
+groupOrder: 2
+audience: [admins, developers]
+type: concept
+readingTime: 7
+updated: 2026-11-04
+related: ["/vi/operations/cluster/secrets", "/vi/operations/cluster/data", "/vi/operations/cluster/runbook", "/vi/architecture/search-and-discovery"]
+---
+
+Tìm kiếm hỏi một mô hình ngôn ngữ xem câu truy vấn có nghĩa gì. Trên cluster, server không tự gọi nhà cung cấp mô hình. Mỗi stack chạy một LiteLLM riêng, một proxy có API tương thích OpenAI, và server gọi nó bằng một virtual key có ngân sách token theo ngày.
+
+Ngân sách của key giới hạn số token server được dùng trong một ngày. Mỗi stack có LiteLLM, key và ngân sách riêng, nên một vòng lặp ở dev không thể tiêu hết phần của prod.
+
+Server chỉ biết một tên mô hình là `search`. Mô hình và nhà cung cấp đứng sau tên đó là cấu hình LiteLLM trong `infra/stack/values.yaml`, và đổi chúng không cần build lại image server.
+
+## Đường đi của request
+
+```mermaid title="Một câu truy vấn tìm kiếm, từ server tới mô hình"
+flowchart LR
+  server["pod server<br/>LLM_MODEL=search"] -->|"POST /v1/chat/completions<br/>Bearer LLM_API_KEY"| litellm["litellm:4000<br/>alias search"]
+  litellm -->|"kiểm tra key, ngân sách, tpm"| db[("Postgres<br/>database litellm")]
+  litellm -->|"openai/claude-haiku-5-5<br/>Bearer LLM_UPSTREAM_API_KEY"| proxy["cli-proxy-api<br/>host.k3d.internal:8317"]
+```
+
+ConfigMap `server-env` của server đặt `LLM_BASE_URL=http://litellm:4000/v1` và `LLM_MODEL=search`. Tên Service `litellm` được phân giải trong chính namespace của stack, nên server dev gọi tới LiteLLM của dev và server prod gọi tới LiteLLM của prod.
+
+Cấu hình của LiteLLM được render từ `infra/stack/templates/litellm.yaml` vào ConfigMap `litellm-config` và có một mục duy nhất:
+
+```yaml
+model_list:
+  - model_name: search
+    litellm_params:
+      model: openai/claude-haiku-5-5
+      api_base: http://host.k3d.internal:8317/v1
+      api_key: os.environ/LLM_UPSTREAM_API_KEY
+    model_info:
+      input_cost_per_token: 0.000001
+      output_cost_per_token: 0.000001
+litellm_settings:
+  drop_params: true
+```
+
+Tiền tố `openai/` bảo LiteLLM nói chuyện với `api_base` theo API chat của OpenAI. `host.k3d.internal` là tên k3d đặt cho máy Docker host bên trong cluster, và cli-proxy-api lắng nghe ở đó trên cổng 8317. `drop_params: true` khiến LiteLLM bỏ các trường request mà upstream không nhận. NetworkPolicy của stack để egress mở, nên LiteLLM ra được tới host.
+
+<Callout type="warning" title="cli-proxy-api là proxy của một gói đăng ký cá nhân">
+cli-proxy-api biến gói đăng ký mô hình của một người thành một API tương thích OpenAI trên host. Dùng cho dev và cho demo thì được. Với traffic production thật, hãy trỏ `litellm.apiBase` vào API chính thức của một nhà cung cấp và seal key của nhà cung cấp đó vào `LLM_UPSTREAM_API_KEY`.
+</Callout>
+
+## Mô hình ngân sách
+
+Ngân sách của LiteLLM tính bằng tiền. Mỗi token, cả đầu vào lẫn đầu ra, có giá `0.000001`, nên 1 đơn vị ngân sách là 1.000.000 token. Chart nhận ngân sách tính bằng token và chia cho 1.000.000 khi tạo key.
+
+| Giá trị | dev | prod |
+|---|---|---|
+| `litellm.dailyTokens` | 200000 | 2000000 |
+| `max_budget` trên key | 0.2 | 2 |
+| `litellm.tpmLimit` (token mỗi phút) | 20000 | 100000 |
+| `budget_duration` | `1d` | `1d` |
+
+`values.yaml` đặt cả hai số bằng 0, còn file của từng stack đặt số thật. LiteLLM đưa mức chi của key về 0 mỗi ngày. Key cũng chỉ được dùng `models: ["search"]`. Một lần thử trên cluster k3d cục bộ đặt ngân sách 60 token: khi tiêu hết, các lời gọi lỗi với HTTP 422 và `Budget has been exceeded`, còn lời gọi tới bất kỳ mô hình nào khác `search` nhận 403.
+
+## Hook tạo key
+
+Key của server do Job `litellm-key` tạo, một Sync hook của Argo CD ở wave 3, chạy sau khi LiteLLM (wave 2) đã sẵn sàng. Pod của nó chạy `curlimages/curl` và làm như sau:
+
+```mermaid title="litellm-key ở mỗi lần sync"
+flowchart TD
+  start["Sync hook litellm-key"] --> update["POST /key/update<br/>key = LLM_API_KEY"]
+  update -->|200| ok["log: litellm key: HTTP 200"]
+  update -->|khác 200| generate["POST /key/generate<br/>cùng giá trị key"]
+  generate -->|200| ok
+  generate -->|khác 200| fail["log status và message<br/>exit 1, thử lại tối đa 10 lần"]
+```
+
+Hai lời gọi gửi cùng một body: giá trị key lấy từ `server-secrets`, `key_alias: server`, `models: ["search"]`, `max_budget`, `budget_duration: 1d` và `tpm_limit`. Chúng xác thực bằng master key trong `litellm-secrets`.
+
+Giá trị key được định sẵn: `seal.sh` sinh `LLM_API_KEY` và seal nó vào secret của server, còn Job ghi đúng giá trị đó vào LiteLLM. Chạy hook hai lần cho cùng một kết quả. Nếu database của LiteLLM bị mất, lời gọi update thất bại, lời gọi generate tạo lại key với giá trị mà server đang giữ, và server không phải khởi động lại.
+
+Response của LiteLLM có chứa key, nên Job chỉ log HTTP status. Khi lỗi, nó in thêm trường `message` của câu trả lời.
+
+```bash
+kubectl -n shopnexus-dev logs job/litellm-key
+```
+
+`argocd.argoproj.io/hook-delete-policy: BeforeHookCreation` giữ Job của lần chạy trước cho tới khi lần sync sau thay nó.
+
+## Database của LiteLLM
+
+LiteLLM lưu key và mức chi trong Postgres, ở một database riêng trên cluster CNPG `postgres` của stack:
+
+- `postgres.yaml` khai báo một managed role `litellm` lấy mật khẩu từ Secret `litellm-db`, và một `Database` của CNPG tên `litellm` do role đó sở hữu (wave 1).
+- Deployment ghép `DATABASE_URL=postgresql://litellm:$(DB_PASSWORD)@postgres-rw:5432/litellm`.
+- Image là `ghcr.io/berriai/litellm-database:v1.108.0`, bản LiteLLM có dùng database.
+
+Dữ liệu của server nằm trong database `app` của cùng cluster. Role của LiteLLM chỉ sở hữu `litellm`.
+
+## Secret
+
+`infra/cluster/seal.sh <stack>` sinh ba trong bốn giá trị dưới đây vào file `infra/stack/secrets/<stack>.env`, file này bị git bỏ qua. `LLM_UPSTREAM_API_KEY` thì bạn tự điền, và `seal.sh` dừng với `set LLM_UPSTREAM_API_KEY` cho tới khi bạn điền.
+
+| Giá trị trong `<stack>.env` | Seal vào | Khóa | Ai đọc |
+|---|---|---|---|
+| `LITELLM_MASTER_KEY` | `litellm-secrets` | `LITELLM_MASTER_KEY` | LiteLLM, Job `litellm-key`, bạn khi vào admin UI |
+| `LLM_UPSTREAM_API_KEY` | `litellm-secrets` | `LLM_UPSTREAM_API_KEY` | LiteLLM, khi gọi API upstream |
+| `LITELLM_DB_PASSWORD` | `litellm-db` (basic-auth) | `password` | CNPG cho role, LiteLLM cho `DATABASE_URL` |
+| `LLM_API_KEY` | `server-secrets` | `LLM_API_KEY` | server, Job `litellm-key` |
+
+Hiện tại `LLM_UPSTREAM_API_KEY` là một trong các key ở mục `access.api-keys` của cli-proxy-api. Seal lại sẽ đổi checksum trên pod template của LiteLLM, nên LiteLLM khởi động lại với giá trị mới. [Secret](/vi/operations/cluster/secrets) mô tả cách `seal.sh` và controller seal chúng.
+
+## Khi hết ngân sách
+
+Tìm kiếm của server không hỏng khi mô hình hỏng. `Search` trong `server/internal/discovery/service/search.go` cho mô hình 4 giây. Gặp bất kỳ lỗi nào, kể cả bị từ chối vì hết ngân sách hay vượt giới hạn tốc độ, nó ghi log mức warn `the model did not read the query` kèm lỗi, rồi tìm bằng đúng những từ người dùng gõ.
+
+```mermaid title="Tìm kiếm khi LiteLLM từ chối"
+sequenceDiagram
+  participant App as app
+  participant S as server
+  participant L as litellm
+  App->>S: GET /v1/search?q=...
+  S->>S: tra cache (7 ngày)
+  S->>L: chat/completions, model search
+  L-->>S: 422, Budget has been exceeded
+  S->>S: log "the model did not read the query"
+  S->>S: tìm các từ gốc như một cụm
+  S-->>App: 200, danh sách tin, không có "understood"
+```
+
+Người dùng vẫn nhận một trang tin đăng, khớp theo các từ họ đã gõ. Trang không có dòng `understood`, và không có các boost về danh mục, giá, nơi chốn hay độ mới mà mô hình lẽ ra đọc ra từ câu truy vấn. Một câu truy vấn mô hình đã đọc trong 7 ngày qua được lấy từ cache của server và giữ nguyên phần hiểu của nó. Lỗi của server khi câu trả lời khác 200 là `model answered <status>`, nên khi hết ngân sách log ghi `model answered 422`.
+
+Lời gọi vượt giới hạn token mỗi phút cũng lỗi, và tìm kiếm quay về các từ gốc cho tới khi sang phút mới. [Tìm kiếm và khám phá](/vi/architecture/search-and-discovery) liệt kê các boost mà mô hình có thể đặt.
+
+## Đổi mô hình hoặc nhà cung cấp
+
+Server luôn hỏi `search`. Để đổi thứ trả lời:
+
+<Steps>
+<Step title="Sửa values">
+Trong `infra/stack/values.yaml`, đặt `litellm.model` là tên mô hình ở upstream và `litellm.apiBase` là base URL tương thích OpenAI của nó, kết thúc bằng `/v1`. Để chỉ đổi một stack, đặt `litellm.model` và `litellm.apiBase` trong `values-dev.yaml` hoặc `values-prod.yaml`. Chart từ chối render nếu một trong hai để trống.
+</Step>
+<Step title="Đổi key upstream">
+Nếu đổi nhà cung cấp, ghi key của họ vào `LLM_UPSTREAM_API_KEY` trong `infra/stack/secrets/<stack>.env`, rồi chạy `infra/cluster/seal.sh dev` và `infra/cluster/seal.sh prod`.
+</Step>
+<Step title="Commit và push">
+Commit `values*.yaml` và `infra/stack/secrets/`, rồi push lên `main`. Argo CD sẽ sync. Annotation `checksum/config` trên pod LiteLLM đổi theo cấu hình, nên LiteLLM khởi động lại với mô hình mới.
+</Step>
+<Step title="Thử một lần tìm kiếm">
+Tìm thử trên stack đó và đọc log của server. Dòng `the model did not read the query` nghĩa là mô hình mới đã lỗi.
+</Step>
+</Steps>
+
+Server yêu cầu response format `json_schema` ở chế độ strict. Mô hình nào bỏ qua yêu cầu này sẽ trả về văn bản mà server không giải mã được, và mọi câu truy vấn đều quay về tìm theo từ gốc.
+
+## Đổi ngân sách
+
+<Steps>
+<Step title="Sửa values của stack">
+Trong `infra/stack/values-dev.yaml` hoặc `values-prod.yaml`, đổi `litellm.dailyTokens` (token mỗi ngày) hoặc `litellm.tpmLimit` (token mỗi phút).
+</Step>
+<Step title="Commit và push">
+Argo CD sync, và hook `litellm-key` gọi `/key/update` với `max_budget` và `tpm_limit` mới.
+</Step>
+<Step title="Kiểm tra hook">
+`kubectl -n shopnexus-dev logs job/litellm-key` in ra `litellm key: HTTP 200`.
+</Step>
+</Steps>
+
+## Thêm alias mô hình thứ hai
+
+Chart có một alias. Thêm alias thứ hai, cho một mô hình dự phòng hay một bên gọi mới, cần sửa ba chỗ:
+
+1. Trong `infra/stack/templates/litellm.yaml`, thêm một mục vào `model_list` trong `sn.litellmConfig`, với `model_name`, `litellm_params` riêng và cùng giá trong `model_info` để ngân sách vẫn tính theo token.
+2. Cũng trong file đó, thêm tên mới vào `"models":["search"]` trong body của Job `litellm-key`, nếu không key của server sẽ nhận 403 với alias đó.
+3. Thêm values cho mô hình mới vào `values.yaml` cạnh `litellm.model`, và chạy `infra/check.sh` trước khi push.
+
+Server đọc một tên duy nhất từ `LLM_MODEL`, được đặt là `search` trong `infra/stack/templates/_server-env.tpl`. Alias mới chỉ được dùng bởi bên gọi nào hỏi đúng tên nó.
+
+## Admin UI và mức chi
+
+LiteLLM không có Ingress. Vào nó bằng port-forward và master key:
+
+```bash
+kubectl -n shopnexus-dev get secret litellm-secrets -o jsonpath='{.data.LITELLM_MASTER_KEY}' | base64 -d; echo
+kubectl -n shopnexus-dev port-forward svc/litellm 4000:4000
+```
+
+Mở `http://localhost:4000/ui` và đăng nhập với user `admin`, mật khẩu là master key. UI liệt kê key có alias `server` cùng mức chi, ngân sách và thời điểm reset. Với prod, dùng `shopnexus-prod`.
+
+Để đọc mức chi từ shell trong lúc port-forward đang chạy:
+
+```bash
+master=$(kubectl -n shopnexus-dev get secret litellm-secrets -o jsonpath='{.data.LITELLM_MASTER_KEY}' | base64 -d)
+key=$(kubectl -n shopnexus-dev get secret server-secrets -o jsonpath='{.data.LLM_API_KEY}' | base64 -d)
+curl -s "http://localhost:4000/key/info?key=$key" -H "Authorization: Bearer $master"
+```
+
+`info.spend` tính bằng đơn vị ngân sách: mức chi `0.05` là 50.000 token trong ngày. `info.max_budget` là giới hạn của ngày, `info.budget_reset_at` là lần reset kế tiếp.
+
+<KeyRules>
+- Server chỉ gọi alias `search`; mô hình phía sau được đặt trong `values.yaml`.
+- Ngân sách tính bằng token trong values và bằng tiền trong LiteLLM, với giá `0.000001` mỗi token.
+- Giá trị key của server do `seal.sh` sinh ra; hook `litellm-key` chỉ ghi nó vào LiteLLM.
+- Pod nào trong stack cũng gọi được LiteLLM của stack đó, nhưng chỉ server có virtual key.
+</KeyRules>
