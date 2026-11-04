@@ -178,8 +178,9 @@ failover.
 
 A StatefulSet with one replica and a PVC. Buckets: `shopnexus`, the
 server's `OBJECT_STORE_BUCKET`, whose `media/` keys are public-read, and
-`restate-snapshots`. `objectstore-init` creates the first; a job running the
-AWS CLI creates the second. The app uploads with presigned
+`restate-snapshots`. `objectstore-init` creates both: a second run sets
+`OBJECT_STORE_BUCKET=restate-snapshots`. That run also opens the bucket's
+`media/` prefix for reading, which holds nothing. The app uploads with presigned
 URLs signed for `OBJECT_STORE_PUBLIC_ENDPOINT=https://media.<domain>`, so the
 store is public through Traefik.
 
