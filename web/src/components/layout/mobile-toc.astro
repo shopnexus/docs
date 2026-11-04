@@ -1,0 +1,64 @@
+---
+import type { MarkdownHeading } from "astro";
+import { Icon } from "astro-icon/components";
+import { type Lang, STRINGS } from "../../lib/i18n";
+
+interface Props {
+  lang: Lang;
+  headings: MarkdownHeading[];
+}
+
+const { lang, headings } = Astro.props;
+const t = STRINGS[lang];
+---
+
+<details class="mobile-toc xl:hidden" data-mobile-toc data-pagefind-ignore>
+  <summary class="h-11 px-4 lg:px-12 flex items-center gap-2 text-[13.5px] cursor-pointer">
+    <Icon name="ri:list-unordered" width="16" height="16" class="text-faint" aria-hidden="true" />
+    <span class="text-faint whitespace-nowrap">{t.onThisPage}</span>
+    <Icon name="ri:arrow-right-s-line" width="14" height="14" class="text-line-strong" aria-hidden="true" />
+    <span class="flex-1 min-w-0 text-left font-medium truncate" data-mobile-toc-current>{headings[0]?.text}</span>
+    <span class="text-[12px] text-faint" data-mobile-toc-count>1/{headings.length}</span>
+    <Icon name="ri:arrow-down-s-line" width="18" height="18" class="mobile-toc-chevron text-sub" aria-hidden="true" />
+  </summary>
+  <ul class="px-4 lg:px-12 pb-3 space-y-1 text-[14px]">
+    {
+      headings.map((h) => (
+        <li class:list={[h.depth === 3 && "pl-3"]}>
+          <a href={`#${h.slug}`} class="toc-link py-1.5" data-toc-link={h.slug}>
+            {h.text}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+  <div class="h-[2px] bg-line"><div class="h-full bg-brand w-(--read,0%) transition-[width] duration-150" data-read-progress></div></div>
+</details>
+
+<style is:global>
+  .mobile-toc {
+    position: sticky;
+    top: 56px;
+    z-index: 20;
+    background: color-mix(in srgb, var(--bg-page) 90%, transparent);
+    backdrop-filter: blur(12px);
+    border-block: 1px solid var(--stroke-soft);
+  }
+  @media (min-width: 1024px) {
+    .mobile-toc {
+      top: 64px;
+    }
+  }
+  .mobile-toc summary {
+    list-style: none;
+  }
+  .mobile-toc summary::-webkit-details-marker {
+    display: none;
+  }
+  .mobile-toc[open] .mobile-toc-chevron {
+    transform: rotate(180deg);
+  }
+  .mobile-toc-chevron {
+    transition: transform 0.2s var(--ease-out-expo);
+  }
+</style>

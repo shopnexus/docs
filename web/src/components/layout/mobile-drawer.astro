@@ -1,0 +1,104 @@
+---
+import { Icon } from "astro-icon/components";
+import { withBase } from "../../lib/base";
+import type { NavGroup } from "../../lib/content";
+import { type Lang, STRINGS } from "../../lib/i18n";
+import { TABS } from "../../lib/tabs";
+import Brand from "./brand.astro";
+import LangSwitch from "./lang-switch.astro";
+import LeftNav from "./left-nav.astro";
+import ThemeToggle from "./theme-toggle.astro";
+
+interface Props {
+  lang: Lang;
+  tabId?: string;
+  groups: NavGroup[];
+  currentUrl: string;
+  altUrl: string;
+}
+
+const { lang, tabId, groups, currentUrl, altUrl } = Astro.props;
+const t = STRINGS[lang];
+---
+
+<dialog class="drawer" data-drawer aria-label={t.menu}>
+  <div class="h-14 shrink-0 px-3 flex items-center gap-2 border-b border-line">
+    <Brand href={`/${lang}`} size="sm" />
+    <span class="flex-1"></span>
+    <button type="button" class="w-10 h-10 rounded-[10px] flex items-center justify-center text-body hover:bg-hover" aria-label={t.close} data-drawer-close>
+      <Icon name="ri:close-line" width="20" height="20" aria-hidden="true" />
+    </button>
+  </div>
+  <div class="px-3 pt-3">
+    <button type="button" class="w-full h-10 px-3 rounded-[10px] border border-line-sub bg-raised flex items-center gap-2 text-[14px] text-faint" data-search-open>
+      <Icon name="ri:search-line" width="16" height="16" aria-hidden="true" />
+      <span class="flex-1 text-left">{t.search}</span>
+    </button>
+  </div>
+  <nav class="flex-1 min-h-0 overflow-y-auto no-scrollbar px-3 py-3" aria-label="Sections">
+    {
+      TABS.map((tab) => (
+        <div>
+          <a
+            href={withBase(`/${lang}/${tab.id}`)}
+            class:list={[
+              "h-11 px-2.5 rounded-xl flex items-center gap-2.5 text-[15px] hover:bg-hover",
+              tab.id === tabId ? "text-strong font-medium bg-selected" : "text-body",
+            ]}
+          >
+            <img src={withBase(tab.img)} alt="" class="illus w-7 h-7 object-contain" loading="lazy" />
+            {tab.label[lang]}
+            <span class="flex-1" />
+            <Icon
+              name={tab.id === tabId ? "ri:arrow-down-s-line" : "ri:arrow-right-s-line"}
+              width="16"
+              height="16"
+              class="text-faint"
+              aria-hidden="true"
+            />
+          </a>
+          {tab.id === tabId && groups.length > 0 && (
+            <div class="drawer-nav -mx-3 mb-2">
+              <LeftNav groups={groups} currentUrl={currentUrl} />
+            </div>
+          )}
+        </div>
+      ))
+    }
+  </nav>
+  <div class="shrink-0 px-3 py-3 border-t border-line flex items-center gap-2">
+    <LangSwitch lang={lang} altUrl={altUrl} size="lg" />
+    <span class="flex-1"></span>
+    <ThemeToggle lang={lang} variant="segmented" />
+  </div>
+</dialog>
+
+<style is:global>
+  .drawer {
+    position: fixed;
+    inset: 0 auto 0 0;
+    margin: 0;
+    width: min(328px, 88vw);
+    max-width: none;
+    height: 100dvh;
+    max-height: none;
+    padding: 0;
+    border: 0;
+    border-right: 1px solid var(--stroke-soft);
+    background: var(--bg-nav);
+    color: var(--text-strong);
+    box-shadow: 12px 0 40px -12px rgba(20, 20, 19, 0.25);
+  }
+  .drawer[open] {
+    display: flex;
+    flex-direction: column;
+    animation: drawer-in 0.24s var(--ease-out-expo) both;
+  }
+  .drawer::backdrop {
+    background: rgba(26, 26, 25, 0.3);
+    animation: fade-in 0.15s ease-out both;
+  }
+  .drawer-nav .docs-nav {
+    padding: 4px 12px 8px 24px;
+  }
+</style>

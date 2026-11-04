@@ -1,0 +1,32 @@
+---
+title: Tìm kiếm và khám phá
+description: Tìm kiếm toàn văn trên ParadeDB, mô hình ngôn ngữ đọc câu tìm, feed gần bạn và tin đã lưu.
+group: Module của sàn
+order: 4
+groupOrder: 4
+audience: [developers]
+type: concept
+readingTime: 3
+updated: 2026-11-04
+related: ["/vi/architecture/catalog", "/vi/architecture/data"]
+---
+
+Tìm kiếm chia cho hai module. Catalog giữ tin đăng cùng index tìm kiếm và chạy câu truy vấn có cấu trúc. Discovery hiểu người dùng gõ gì, và giữ luôn danh sách tin đã lưu.
+
+## Index
+
+Tin đăng có một index `pg_search` của ParadeDB trên tiêu đề, mô tả và thông số, kèm danh mục, giá, tình trạng, cho trả giá hay không, trạng thái, thời điểm đăng và vị trí. Index chạy trong transaction, nên tin tìm được ngay khi lệnh ghi commit. Chỉ tin active hiện ra. Tìm kiếm vector chưa làm; image database đã có sẵn pgvector cho việc đó.
+
+## Đọc câu tìm
+
+Khi có câu tìm, discovery hỏi một mô hình ngôn ngữ, qua API chat tương thích OpenAI bất kỳ, để lấy các tín hiệu tăng hoặc giảm điểm: cụm từ, danh mục, giá, tình trạng, nơi chốn, gần tôi, độ mới và trả giá. Mô hình không bao giờ đặt trọng số. Mỗi giá trị nó trả về được đối chiếu với dữ liệu thật (cây danh mục, tên tỉnh và xã), không khớp thì bỏ. Trọng số cố định trong server và chỉ là giá trị khởi đầu, cho tới khi có bộ câu tìm mẫu để đo.
+
+Các từ gốc luôn được tìm như một cụm từ, nên mô hình lỗi hoặc chậm quá 4 giây thì tìm kiếm vẫn chạy. Câu trả lời của mô hình được cache theo câu tìm trong 7 ngày, và tắt một chip lọc thì dùng lại câu trả lời trong cache. Cache chỉ khóa theo nội dung câu tìm, không lưu tài khoản nào.
+
+## Feed gần bạn
+
+Feed gần bạn là cùng câu truy vấn đó nhưng không có cụm từ: tin trong vòng 50 km, chấm điểm theo các vòng khoảng cách và độ mới. Điểm của tin là GPS của người bán đã làm mờ còn khoảng một km, hoặc điểm của xã; vị trí chính xác không bao giờ vào bảng hay log. Người tìm gửi vị trí hoặc xã theo từng request, và server không lưu cũng không ghi log.
+
+## Tin đã lưu
+
+Mỗi người lưu được tối đa 500 tin của người bán khác. Lúc lưu, giá tại thời điểm đó được giữ lại; danh sách đã lưu hiện tin như hiện tại, hoặc chỉ hiện trạng thái nếu người bán đã gỡ tin.

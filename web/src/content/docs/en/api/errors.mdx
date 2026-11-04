@@ -1,0 +1,53 @@
+---
+title: Errors
+description: The error body every endpoint returns, how status codes map to error kinds, and the codes a client handles.
+group: API
+order: 3
+groupOrder: 1
+audience: [developers]
+type: reference
+readingTime: 2
+updated: 2026-11-04
+related: ["/en/api", "/en/api/authentication"]
+---
+
+Every error answer has the same body:
+
+```json
+{
+  "error": {
+    "code": "invalid_request",
+    "message": "request does not match the API description",
+    "fields": { "phone_token": "required" },
+    "trace_id": "4bf92f3577b34da6..."
+  }
+}
+```
+
+- `code` is stable and `snake_case`. The app maps it to its own Vietnamese text.
+- `message` is English, for developers. Never show it to users.
+- `fields` appears on validation errors, one entry per invalid field, keyed by its JSON path. The value is the rule it broke, such as `required`, `minLength` or `additionalProperties`.
+- `details` carries values the client acts on, such as `retry_after` in seconds.
+- `trace_id` equals the `Trace-Id` response header. Quote it when reporting a problem; it finds the request in the logs and traces.
+
+## Status codes
+
+| Status | Meaning | Typical codes |
+|---|---|---|
+| 400 | The request does not match the spec | `invalid_request`, `malformed_json` |
+| 401 | No valid credentials | `unauthenticated`, `invalid_token`, `invalid_refresh_token`, `session_revoked`, `session_expired`, `invalid_phone_token` |
+| 403 | The account is suspended | `account_suspended` |
+| 404 | No such resource for this caller | `listing_not_found`, `deal_not_found`, ... |
+| 409 | The write collided with another | `try_again` |
+| 413 | The body is over 1 MB | `body_too_large` |
+| 422 | Well formed, but a rule refuses it | one code per rule, such as `invalid_phone` |
+| 428 | The caller must do something first | `reauth_required` |
+| 429 | Rate limited | see `details.retry_after` |
+| 500 | Unexpected failure | `internal` |
+| 503 | A service the request needs is down | `unavailable` |
+
+A resource the caller may not see answers 404, the same as one that does not exist. Another account's session, for example, is 404.
+
+`try_again` is shared by every module: the write lost a race with another write to the same record, and sending it again is safe. Each operation in the spec lists the codes it can return, so check the operation before handling a code.
+
+The real cause of a 500 goes to the server log only and never into the body.

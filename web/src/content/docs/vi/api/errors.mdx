@@ -1,0 +1,53 @@
+---
+title: Lỗi
+description: Body lỗi mà mọi endpoint trả về, cách status code ứng với loại lỗi, và các mã lỗi client cần xử lý.
+group: API
+order: 3
+groupOrder: 1
+audience: [developers]
+type: reference
+readingTime: 2
+updated: 2026-11-04
+related: ["/vi/api", "/vi/api/authentication"]
+---
+
+Mọi response lỗi có chung một dạng body:
+
+```json
+{
+  "error": {
+    "code": "invalid_request",
+    "message": "request does not match the API description",
+    "fields": { "phone_token": "required" },
+    "trace_id": "4bf92f3577b34da6..."
+  }
+}
+```
+
+- `code` cố định, dạng `snake_case`. App map nó sang câu tiếng Việt của mình.
+- `message` là tiếng Anh, dành cho developer, không hiện cho người dùng.
+- `fields` có khi request sai hình dạng, mỗi trường sai một mục, key là đường dẫn JSON của trường. Giá trị là luật bị vi phạm, ví dụ `required`, `minLength`, `additionalProperties`.
+- `details` chứa giá trị mà client cần dùng, ví dụ `retry_after` tính bằng giây.
+- `trace_id` trùng với header `Trace-Id` của response. Khi báo lỗi thì gửi kèm nó, từ đó tìm ra request trong log và trace.
+
+## Status code
+
+| Status | Ý nghĩa | Mã thường gặp |
+|---|---|---|
+| 400 | Request không khớp spec | `invalid_request`, `malformed_json` |
+| 401 | Không có thông tin đăng nhập hợp lệ | `unauthenticated`, `invalid_token`, `invalid_refresh_token`, `session_revoked`, `session_expired`, `invalid_phone_token` |
+| 403 | Tài khoản bị khóa | `account_suspended` |
+| 404 | Không có tài nguyên này với người gọi | `listing_not_found`, `deal_not_found`, ... |
+| 409 | Lần ghi đụng với lần ghi khác | `try_again` |
+| 413 | Body quá 1 MB | `body_too_large` |
+| 422 | Đúng hình dạng nhưng vi phạm một luật | mỗi luật một mã, ví dụ `invalid_phone` |
+| 428 | Người gọi phải làm một việc trước | `reauth_required` |
+| 429 | Bị giới hạn tần suất | xem `details.retry_after` |
+| 500 | Lỗi ngoài dự kiến | `internal` |
+| 503 | Một dịch vụ mà request cần đang không chạy | `unavailable` |
+
+Tài nguyên mà người gọi không được xem cũng trả 404, giống như tài nguyên không tồn tại. Ví dụ phiên của tài khoản khác là 404.
+
+`try_again` dùng chung cho mọi module: lần ghi thua một lần ghi khác vào cùng bản ghi, gửi lại là an toàn. Mỗi operation trong spec liệt kê các mã nó có thể trả, nên xem operation trước khi xử lý một mã.
+
+Nguyên nhân thật của lỗi 500 chỉ nằm trong log server, không bao giờ nằm trong body.

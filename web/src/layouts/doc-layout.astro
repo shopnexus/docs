@@ -1,0 +1,82 @@
+---
+import type { MarkdownHeading } from "astro";
+import LeftNav from "../components/layout/left-nav.astro";
+import MobileDrawer from "../components/layout/mobile-drawer.astro";
+import MobileToc from "../components/layout/mobile-toc.astro";
+import PageFooter from "../components/layout/page-footer.astro";
+import PageHeader from "../components/layout/page-header.astro";
+import PageNotices from "../components/layout/page-notices.astro";
+import Toc from "../components/layout/toc.astro";
+import type { DocPage, NavGroup } from "../lib/content";
+import { contentEnter } from "../lib/motion";
+import { type PageLink, toLink } from "../lib/related";
+import BaseLayout from "./base-layout.astro";
+
+interface Props {
+  page: DocPage;
+  altUrl: string;
+  headings: MarkdownHeading[];
+  groups: NavGroup[];
+  prev?: DocPage;
+  next?: DocPage;
+  related: PageLink[];
+  suggestions: PageLink[];
+  markdown: string;
+}
+
+const { page, altUrl, headings, groups, prev, next, related, suggestions, markdown } = Astro.props;
+const { lang, tab, entry, fallback } = page;
+const tocHeadings = headings.filter((h) => h.depth === 2 || h.depth === 3);
+const showToc = entry.data.toc;
+const { crumb } = toLink(page);
+// Fallback pages repeat English content under /vi; only the original is indexed.
+const indexed = !fallback;
+const markdownJson = JSON.stringify(markdown).replace(/</g, "\\u003c");
+---
+
+<BaseLayout
+  title={entry.data.title}
+  description={entry.data.description}
+  lang={lang}
+  tabId={tab.id}
+  altUrl={altUrl}
+  suggestions={suggestions}
+>
+  <div class="flex">
+    <aside
+      class="hidden lg:block w-[272px] shrink-0 sticky top-16 h-[calc(100dvh-64px)] overflow-y-auto no-scrollbar border-r border-line bg-nav"
+      transition:persist={`nav-${lang}-${tab.id}`}
+      data-nav-scroll
+    >
+      <LeftNav groups={groups} currentUrl={page.url} />
+    </aside>
+    <main id="main" class="flex-1 min-w-0" transition:name="docs-content" transition:animate={contentEnter}>
+      {showToc && tocHeadings.length > 1 && <MobileToc lang={lang} headings={tocHeadings} />}
+      <div class="flex gap-12 px-4 sm:px-8 lg:px-12 pt-6 lg:pt-10 pb-24 max-w-[1096px] min-[1680px]:mx-auto">
+        <article
+          class="w-full max-w-[720px] min-w-0"
+          data-pagefind-body={indexed ? "" : undefined}
+          data-pagefind-filter={indexed ? `lang:${lang}` : undefined}
+          data-pagefind-meta={indexed ? `crumb:${crumb}` : undefined}
+        >
+          {indexed && <span hidden data-pagefind-filter={`section:${tab.id}`}></span>}
+          <PageNotices page={page} />
+          <PageHeader page={page} />
+          <div class="prose fade-up d3 mt-8" lang={fallback ? "en" : lang} data-doc-body>
+            <slot />
+          </div>
+          <PageFooter lang={lang} prev={prev} next={next} />
+        </article>
+        {
+          showToc && (
+            <aside class="hidden xl:block w-[232px] shrink-0 pt-1" aria-label={lang === "vi" ? "Trên trang này" : "On this page"}>
+              <Toc lang={lang} headings={tocHeadings} related={related} />
+            </aside>
+          )
+        }
+      </div>
+    </main>
+  </div>
+  <MobileDrawer lang={lang} tabId={tab.id} groups={groups} currentUrl={page.url} altUrl={altUrl} />
+  <script type="application/json" data-page-markdown set:html={markdownJson} />
+</BaseLayout>

@@ -1,0 +1,38 @@
+---
+title: Data
+description: Postgres as the one store, how transactions and concurrent writes work, and how the schema changes.
+group: Foundations
+groupOrder: 2
+order: 4
+audience: [developers]
+type: concept
+readingTime: 3
+updated: 2026-11-04
+related: ["/en/architecture/modules", "/en/architecture/durable-flows"]
+---
+
+Every module keeps its data in one Postgres 18 database running ParadeDB, which adds the full-text index search uses and vector support. Photos live in RustFS; the database keeps their object keys. Postgres goes back to version 19 once ParadeDB supports it.
+
+## Aggregates and transactions
+
+An aggregate is the unit a module reads and saves whole: an account, a listing, a deal, one signed-in session. It can span tables, as a person's credentials span a root row and their phone identities. A transaction lives inside one repository method and covers one aggregate. First sign-in writes two aggregates, the account and then its credentials, so it runs as a [durable flow](/en/architecture/durable-flows) that deletes the account again when the phone number was taken in between.
+
+## Concurrent writes
+
+Writes are checked optimistically. Each aggregate row carries a write ID, the ID of the last write to it. A save names the write ID it read and the new one it brings, and lands only if the row still holds one of the two.
+
+- A normal save finds the ID it read.
+- A retry after a commit that went unacknowledged finds its own new ID and writes the same values again.
+- A save that lost to someone else finds a third ID and fails. The client gets `try_again` and reads again; in deal it gets `deal_changed`, since the other side's move may change what the tap means.
+
+A version counter would not work here, because another writer can raise it to the same value a retry expects.
+
+Caps that span rows, such as 20 open listings per seller or 3 COD orders in progress per buyer, are counted under a Postgres advisory lock on the account.
+
+## Idempotent inserts
+
+The caller picks a row's ID before the insert, a time-ordered UUIDv7, and list endpoints page by these IDs, newest first. Inside a durable flow the ID comes from the journal, so a retried step sends the same ID. Inserts skip a row whose ID already exists, so a retry adds nothing.
+
+## Migrations
+
+The schema is a series of numbered SQL files in `server/migrations`. A file that has run anywhere is never edited; a mistake is fixed with a new file, and the migrator refuses a changed file by its checksum. Run `go run ./cmd/migrate`, or `make run`, which applies them before starting the server. The server refuses to start while a migration is pending. No column is named after an SQL keyword, and `sqlfluff lint migrations/` checks it.

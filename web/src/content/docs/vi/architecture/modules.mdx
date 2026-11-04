@@ -1,0 +1,56 @@
+---
+title: Module
+description: Server được chia thành các module ra sao, trong một module có gì, và luật giữa các module.
+group: Nền tảng
+groupOrder: 2
+order: 1
+audience: [developers]
+type: concept
+readingTime: 3
+updated: 2026-11-04
+related: ["/vi/architecture", "/vi/architecture/events", "/vi/architecture/data"]
+---
+
+Server là một binary gồm các module nằm trong `server/internal/`. Cách chia module bám theo mô hình sản phẩm, một chợ C2C đồ cũ. ShopNexus không giữ tiền của ai nên không có module ví, thanh toán hay tài chính.
+
+## Các module
+
+| Module | Giữ gì |
+|---|---|
+| account | Hồ sơ, việc khóa tài khoản và sổ địa chỉ |
+| auth | Đăng nhập bằng số điện thoại và phiên của từng thiết bị |
+| staff | Tài khoản moderator và admin cho web console |
+| catalog | Tin đăng, danh mục, tỉnh thành và xã phường |
+| deal | Trả giá và đơn COD |
+| chat | Cuộc trò chuyện giữa người mua và người bán |
+| trust | Đánh giá và hồ sơ công khai của người bán |
+| discovery | Tìm kiếm, bảng tin gần bạn và tin đã lưu |
+| media | Ảnh tải lên và việc xử lý ảnh |
+| notification | Danh sách thông báo trong app và push |
+| screen | Mỗi màn hình của app một lần đọc, ghép từ các module khác |
+
+Cạnh đó có hai thư mục dùng chung. `platform` chứa phần nền mà module nào cũng dùng: config, Postgres, helper cho Restate, event bus, helper HTTP, live stream và lỗi. `provider` bọc các dịch vụ bên ngoài: kiểm tra token Firebase, FCM push và mô hình ngôn ngữ.
+
+## Bên trong một module
+
+Một module có bốn tầng, import chỉ đi một chiều, từ handler xuống domain:
+
+- domain chứa entity cùng luật của nó, và các lỗi nghiệp vụ mà client thấy được.
+- repository có một interface cho mỗi aggregate cùng bản cài đặt Postgres, viết SQL tay.
+- service chứa hợp đồng của module và các use case, mỗi use case một file. Vài use case cần sống sót qua crash chạy ở đây dưới dạng Restate service.
+- handler đổi request HTTP thành lời gọi service, không tự thêm luật nào.
+
+Module nào phản ứng với event thì có thêm worker, tức các handler Restate cho từng loại event nó nghe. Screen chỉ có service và handler vì nó không giữ bảng nào. Mỗi module có một file gốc nối các tầng lại, đăng ký route và trả service ra cho các module phụ thuộc vào nó.
+
+## Luật giữa các module
+
+<KeyRules>
+- Module chỉ gọi module khác qua service của module đó.
+- Module không bao giờ đọc hay ghi bảng của module khác.
+- Module báo một thay đổi bằng event và không liệt kê ai sẽ phản ứng.
+- Không module nào import screen, và chỉ screen được gọi notification.
+</KeyRules>
+
+Luật lint trong config linter của server chặn mọi import đi ngược thứ tự tầng hay vi phạm các luật trên. Vì mọi lời gọi đều đi qua hợp đồng service, sau này có thể tách một module ra process riêng, đặt sau một client mạng cài đặt đúng hợp đồng đó. Tách bảng của nó ra khỏi database chung là việc riêng.
+
+Module dự kiến làm tiếp là `billing`, cho gói đẩy tin và gói người bán. Không có module xác minh danh tính: số điện thoại đã xác minh là đủ, vì hãng vận chuyển đã kiểm tra danh tính người bán khi họ mở tài khoản với hãng.

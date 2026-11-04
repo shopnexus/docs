@@ -1,0 +1,32 @@
+---
+title: Search and discovery
+description: Full-text search on ParadeDB, the language model that reads a query, the nearby feed and saved listings.
+group: Marketplace modules
+order: 4
+groupOrder: 4
+audience: [developers]
+type: concept
+readingTime: 3
+updated: 2026-11-04
+related: ["/en/architecture/catalog", "/en/architecture/data"]
+---
+
+Search is split between two modules. Catalog owns the listings and their search index, and runs a structured query. Discovery understands what the person typed, and also holds saved listings.
+
+## The index
+
+Listings have one ParadeDB `pg_search` index over the title, description and specs, plus the category, price, condition, offers, status, publish time and location. The index is transactional, so a listing is searchable once its write commits. Only active listings show. Vector search is planned; the database image already ships pgvector for it.
+
+## Reading the query
+
+With a query, discovery asks a language model, through any OpenAI-compatible chat API, for boosts and demotes: phrase, category, price, condition, place, near me, freshness and offers. The model never sets a weight. Every value it returns is checked against real rows, the category tree or the province and commune names, and dropped if nothing matches. The weights are fixed in the server and are starting values until a set of sample queries measures them.
+
+The raw words always search as a phrase, so a model that fails or takes longer than 4 seconds still leaves a working search. Answers are cached by query for 7 days, and turning a filter chip off reuses the cached answer. The cache is keyed by the query text alone and stores no account.
+
+## Nearby feed
+
+The nearby feed is the same query with no phrase: listings within 50 km, scored by distance rings and freshness. A listing's point is the seller's GPS blurred to about a kilometre, or the commune's point, and the exact position never reaches a row or a log. The searcher sends a position or a commune with each request, and the server neither stores nor logs it.
+
+## Saved listings
+
+A person can save up to 500 listings of other sellers. A save keeps the price at that moment, and the saved list shows each listing as it is now, or only its status if the seller took it down.

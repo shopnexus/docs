@@ -1,0 +1,166 @@
+/* Reading styles for MDX bodies — docs DS §4. */
+.prose {
+  font-size: 16px;
+  line-height: 28px;
+  color: var(--text-body);
+}
+.prose > :first-child {
+  margin-top: 0;
+}
+.prose :where(p) {
+  margin-top: 12px;
+}
+.prose :where(h2) {
+  margin-top: 48px;
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--text-strong);
+}
+.prose :where(h3) {
+  margin-top: 32px;
+  font-size: 18px;
+  line-height: 28px;
+  font-weight: 600;
+  color: var(--text-strong);
+}
+.prose :where(h4) {
+  margin-top: 24px;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+  color: var(--text-strong);
+}
+.prose :where(h2, h3) + :where(p, ul, ol) {
+  margin-top: 12px;
+}
+.prose .heading {
+  position: relative;
+  scroll-margin-top: 88px;
+}
+.prose .heading-anchor {
+  display: inline-flex;
+  margin-left: 8px;
+  vertical-align: middle;
+  color: var(--text-soft);
+  opacity: 0;
+  transition:
+    opacity 0.15s,
+    color 0.15s;
+}
+.prose .heading:hover .heading-anchor,
+.prose .heading-anchor:focus-visible {
+  opacity: 1;
+}
+.prose .heading-anchor:hover {
+  color: var(--text-strong);
+}
+.prose :where(strong) {
+  font-weight: 600;
+  color: var(--text-strong);
+}
+.prose :where(ul, ol) {
+  margin-top: 12px;
+  padding-left: 22px;
+}
+.prose :where(ul) {
+  list-style: disc;
+}
+.prose :where(ol) {
+  list-style: decimal;
+}
+.prose :where(li) {
+  margin-top: 6px;
+  padding-left: 2px;
+}
+.prose :where(li)::marker {
+  color: var(--text-soft);
+}
+.prose :where(ul ul, ol ol, ul ol, ol ul) {
+  margin-top: 6px;
+}
+.prose :where(hr) {
+  margin: 40px 0;
+  border-color: var(--stroke-soft);
+}
+.prose :where(blockquote) {
+  margin-top: 16px;
+  padding-left: 16px;
+  border-left: 2px solid var(--stroke-sub);
+  color: var(--text-sub);
+}
+.prose :where(:not(pre) > code) {
+  font-family: "JetBrains Mono Variable", ui-monospace, monospace;
+  font-size: 14px;
+  padding: 1px 5px;
+  border-radius: 6px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--stroke-soft);
+  color: var(--text-strong);
+  overflow-wrap: anywhere;
+}
+.prose :where(img:not(.shot-img):not(.illus)) {
+  margin-top: 20px;
+  border-radius: 12px;
+  border: 1px solid var(--stroke-soft);
+  box-shadow: var(--shadow-shot);
+}
+
+/* Tables: quiet header, horizontal rules only, scroll on narrow screens. */
+.prose :where(.table-wrap) {
+  margin-top: 20px;
+  overflow-x: auto;
+  border: 1px solid var(--stroke-soft);
+  border-radius: 12px;
+  scrollbar-width: thin;
+}
+.prose :where(table) {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 14.5px;
+  line-height: 23px;
+}
+.prose :where(tbody td:first-child) {
+  color: var(--text-strong);
+  font-weight: 500;
+}
+.prose :where(thead th) {
+  background: var(--bg-subtle);
+  color: var(--text-strong);
+  font-weight: 600;
+  text-align: left;
+  font-size: 13px;
+}
+.prose :where(th, td) {
+  padding: 10px 14px;
+  vertical-align: top;
+  border-bottom: 1px solid var(--stroke-soft);
+}
+.prose :where(tbody tr:last-child td) {
+  border-bottom: 0;
+}
+.prose :where(td) {
+  min-width: 120px;
+}
+
+/* Vietnamese diacritics stack: a little more line-height, never tighter tracking. */
+:root[lang="vi"] .prose {
+  line-height: 29.5px;
+}
+:root[lang="vi"] :where(h1, h2, h3) {
+  letter-spacing: -0.015em !important;
+}
+
+@media (max-width: 640px) {
+  .prose {
+    font-size: 15.5px;
+    line-height: 26px;
+  }
+  .prose :where(h2) {
+    margin-top: 36px;
+    font-size: 21px;
+    line-height: 28px;
+  }
+}

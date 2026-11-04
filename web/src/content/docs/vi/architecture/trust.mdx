@@ -1,0 +1,28 @@
+---
+title: Trust
+description: Module trust hiện giữ những gì (đánh giá và hồ sơ người bán), và chặn người dùng nằm ở đâu.
+group: Module của sàn
+order: 3
+groupOrder: 4
+audience: [developers]
+type: concept
+readingTime: 2
+updated: 2026-11-04
+related: ["/vi/marketplace/trust-and-sanctions", "/vi/marketplace/after-delivery", "/vi/architecture/deal"]
+---
+
+Theo mô hình sản phẩm, uy tín là thống kê: tỉ lệ từ chối nhận, tỉ lệ bị từ chối và số khiếu nại treo, vượt ngưỡng thì bị giới hạn hoặc mất quyền COD. Phần đó chưa làm. Module trust hiện giữ đánh giá và hồ sơ người bán, còn giới hạn tự động duy nhất là mức tối đa 3 đơn COD đang mở của mỗi người mua, nằm trong module deal. Luật theo thiết kế ở trang [Uy tín và chế tài](/vi/marketplace/trust-and-sanctions).
+
+## Đánh giá
+
+Người mua của một đơn được đánh giá người bán khi đơn đã shipped, delivered hoặc returned: 1 tới 5 sao và tối đa 500 ký tự. Mỗi đơn một đánh giá, vì một deal có thể có nhiều đơn. Người mua sửa, xóa hoặc đăng lại được trong 7 ngày kể từ lần gửi đầu, sau đó đánh giá bị khóa. Xóa thì giữ dòng nhưng bỏ nội dung, nên đăng lại không tính lại 7 ngày.
+
+Trust đọc đơn qua module deal và ghi `review.posted` ở lần gửi đầu; module notification dùng event này để báo cho người bán.
+
+## Hồ sơ người bán
+
+Hồ sơ người bán gồm tên, ảnh đại diện, giới thiệu, ngày tham gia, điểm đánh giá trung bình, cùng số tin đang bán và đã bán lấy từ catalog. "Đã bán" đếm mọi tin đã bán, qua đơn hay tự đánh dấu. Hồ sơ không có endpoint riêng; màn người bán đọc nó.
+
+## Chặn
+
+Chặn nằm trong module account, vì cả chat và deal đều kiểm tra. Chặn có hiệu lực hai chiều: không ai nhắn được cho ai, không mở được cuộc trò chuyện, không mở được deal trên tin của người kia. Deal và đơn đã chạy trước lúc chặn vẫn đi tiếp như cũ.

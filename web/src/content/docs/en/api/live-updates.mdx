@@ -1,0 +1,40 @@
+---
+title: Live updates
+description: The server-sent event stream that tells an open app what changed, and how the app should use it.
+group: API
+order: 6
+groupOrder: 1
+audience: [developers]
+type: how-to
+readingTime: 2
+updated: 2026-11-04
+related: ["/en/architecture/screens", "/en/architecture/chat", "/en/architecture/notifications"]
+---
+
+`GET /v1/stream` is a server-sent event stream for the signed-in caller. The open app connects with the usual bearer token and stays connected until the user leaves it. Push notifications travel on their own channel, covered in [Notifications](/en/architecture/notifications).
+
+## What it sends
+
+The stream starts with a `ready` event, then sends one event per change that concerns the caller:
+
+| Event | Data | Sent when |
+|---|---|---|
+| `message` | `conversation_id`, `message_id` | a message the caller can see arrives |
+| `read` | `conversation_id` | the other member reads the conversation |
+| `deal` | `deal_id` | a deal the caller is buyer or seller in changes |
+| `notification` | `notification_id` | the caller gets a notification |
+
+A comment line arrives every 25 seconds so proxies keep the connection open.
+
+```text
+event: deal
+data: {"deal_id":"0192a4e1-..."}
+```
+
+## How the app uses it
+
+Events carry IDs only. On an event, the app reloads what the user is looking at, usually one screen call, and ignores events that touch nothing on screen.
+
+Nothing is stored for replay, and the stream takes no `Last-Event-ID`. After any disconnect the app reconnects and reloads everything it shows, since it may have missed events. A server shutting down closes its streams on purpose, so the app reconnects to another instance.
+
+Events can be dropped when a stream falls far behind, so treat the stream as a hint to refresh, never as the data itself.

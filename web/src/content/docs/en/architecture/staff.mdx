@@ -1,0 +1,34 @@
+---
+title: Staff
+description: Staff accounts for the moderation console, their sign-in, roles, audit trail and the rules that keep them apart from customers.
+group: Identity and access
+order: 3
+groupOrder: 3
+audience: [developers]
+type: concept
+readingTime: 3
+updated: 2026-11-04
+related: ["/en/architecture/sign-in", "/en/marketplace/moderation"]
+---
+
+Moderators and admins work in a web console on staff accounts of their own. A staff account is never a customer account with a role, and a phone sign-in opens no staff access. Moderators search customer accounts, read one with its suspension history, and suspend or unsuspend it. Admins can do everything moderators can, manage moderators and read the audit log.
+
+## Staff sign-in
+
+Staff sign in with email, password and a TOTP code, and TOTP is required from the first sign-in. Each sign-in call sends the email and password again. The server answers with what is still missing: a new password on first use, TOTP enrollment, or the current code. An unknown email, a wrong password and a disabled member all get the same `invalid_credentials`.
+
+Five wrong passwords or codes lock the email for 15 minutes, whether or not the email belongs to a member. The count is charged before anything is checked, so parallel guesses cannot slip past it. There are no recovery codes; an admin resets a moderator's password or TOTP.
+
+## Staff session
+
+A finished sign-in sets one cookie that lasts 8 hours and is never extended. There is no access token and no refresh, so all console tabs share one session. Every staff request reads the session and its member from the database, so a disable or a reset takes effect on the next request. A password change, a reset or a disable ends every session of that member.
+
+The cookie is `SameSite=Strict`, so the console and the API must be on the same site, such as `console.x.vn` and `api.x.vn`. Every staff route also requires the header `X-Requested-With: shopnexus-console`, which a form or link on another site cannot set. CORS allows only the console's origin, set in `STAFF_CONSOLE_ORIGIN`, and only on `/v1/staff/`; responses on the customer API carry no CORS headers at all.
+
+## Admins
+
+Admins exist only through the `cmd/staff` command-line tool, which runs with database access. The API manages moderators and refuses any action whose target is an admin. The same tool clears the sign-in lock on an admin's email, which anyone can trigger by sending five wrong passwords.
+
+## Audit
+
+Every staff write on a customer account or on another member is recorded in the same transaction as the change, with details such as a suspension's reason and end. Refused sign-ins go to the security log with the email and IP address.

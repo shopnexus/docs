@@ -1,0 +1,61 @@
+---
+title: Bắt đầu nhanh
+description: Chạy server và stack của nó trên máy, cài app Android lên điện thoại, và xem trước bộ tài liệu này.
+group: Bắt đầu
+order: 2
+groupOrder: 1
+audience: [developers]
+type: tutorial
+readingTime: 4
+updated: 2026-11-04
+related: ["/vi/get-started/troubleshooting", "/vi/operations/local-stack", "/vi/operations/configuration"]
+---
+
+<Prereqs time="15 phút" who="Lập trình viên">
+- Go 1.27 và Docker có Compose, để chạy server.
+- JDK 21, Android SDK có platform 36, và một điện thoại Android 12 trở lên (hoặc emulator API 36), để chạy app.
+- Bun, để chạy tài liệu.
+</Prereqs>
+
+## Server
+
+<Steps>
+<Step title="Chạy toàn bộ">
+Trong thư mục `server/`:
+
+```bash title="Terminal"
+make run
+```
+
+Lần đầu, lệnh này chép `.env.example` thành `.env` và sinh thêm các khóa ký. Những lần sau, mỗi lần chạy nó bật stack dev, chạy migration, chuẩn bị bucket cho object store rồi khởi động server ở cổng 8080.
+</Step>
+
+<Step title="Điền cấu hình model">
+Phần tìm kiếm dùng một language model để đọc câu truy vấn, và `.env.example` để trống `LLM_API_KEY` với `LLM_MODEL`. Chưa điền hai biến này vào `.env` thì server không chạy. Server sẽ liệt kê đúng tên những biến còn thiếu.
+</Step>
+
+<Step title="Kiểm tra server">
+`GET /healthz` trả lời ngay khi process chạy. `GET /readyz` kiểm tra thêm Postgres và Restate.
+</Step>
+
+<Step title="Tạo admin cho staff">
+API không có cách tạo admin. Chạy `go run ./cmd/staff create-admin --email <email> --name <tên>`, lệnh sẽ in ra mật khẩu tạm.
+</Step>
+</Steps>
+
+`make down` tắt các stack nhưng giữ nguyên database dev.
+
+## App Android
+
+Trong thư mục `app/`, với điện thoại đã cắm qua adb:
+
+```bash title="Terminal"
+./run.sh        # cài bản debug rồi mở app
+./run.sh -w     # cài lại và mở lại sau mỗi lần lưu file
+```
+
+Script ưu tiên điện thoại thật hơn emulator. Muốn dùng emulator thì đặt `ANDROID_SERIAL` bằng serial của nó. App chạy bằng dữ liệu giả, có người bán và hãng vận chuyển giả lập, nên không cần server. Ở bản debug, nhấn giữ nút vị trí trên trang chủ để mở debug panel. Ở đó có thể nhảy đơn sang bất kỳ trạng thái nào hoặc reset dữ liệu.
+
+## Tài liệu này
+
+Trong `docs/web`, chạy `bun install` rồi `bun run dev` để xem trước tại `http://localhost:4321`. Tìm kiếm chỉ chạy sau khi đã `bun run build` một lần, vì bước build mới tạo chỉ mục tìm kiếm.

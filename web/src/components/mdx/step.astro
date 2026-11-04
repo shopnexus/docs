@@ -1,0 +1,20 @@
+---
+import { Icon } from "astro-icon/components";
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<li class="step" data-step>
+  <button type="button" class="step-marker" data-step-marker aria-pressed="false">
+    <span class="step-num" aria-hidden="true"></span>
+    <Icon name="ri:check-line" class="step-check" width="14" height="14" aria-hidden="true" />
+  </button>
+  <div class="step-body">
+    <p class="step-title">{title}</p>
+    <div class="step-content"><slot /></div>
+  </div>
+</li>

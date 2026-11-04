@@ -1,0 +1,64 @@
+/* ```mermaid figures (src/lib/markdown/remark-mermaid.ts, src/scripts/mermaid.ts). */
+.diagram {
+  position: relative;
+  margin: 24px 0 0;
+  padding: 24px 20px;
+  border: 1px solid var(--stroke-soft);
+  border-radius: 14px;
+  background-color: var(--bg-page);
+  background-image: radial-gradient(var(--dots) 1px, transparent 1px);
+  background-size: 16px 16px;
+  background-position: -8px -8px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+.diagram-canvas {
+  display: flex;
+  justify-content: center;
+  min-width: min-content;
+}
+.diagram-canvas svg {
+  max-width: 100%;
+  height: auto;
+}
+.diagram-canvas svg .node rect,
+.diagram-canvas svg .node polygon,
+.diagram-canvas svg rect.actor {
+  rx: 10px;
+  ry: 10px;
+}
+.diagram-canvas svg .edgeLabel,
+.diagram-canvas svg .edgeLabel p {
+  font-size: 12.5px;
+  color: var(--text-sub);
+}
+.diagram-src {
+  margin: 0;
+  font-family: "JetBrains Mono Variable", ui-monospace, monospace;
+  font-size: 12.5px;
+  line-height: 20px;
+  color: var(--text-soft);
+  white-space: pre;
+}
+.diagram[data-rendered] .diagram-src {
+  display: none;
+}
+.diagram figcaption {
+  margin-top: 16px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-sub);
+}
+
+/* On a phone a scaled-down diagram is unreadable: keep its natural size and scroll it. */
+@media (max-width: 640px) {
+  .diagram {
+    padding: 16px 12px;
+  }
+  .diagram-canvas {
+    justify-content: flex-start;
+  }
+  .diagram-canvas svg {
+    max-width: none;
+  }
+}

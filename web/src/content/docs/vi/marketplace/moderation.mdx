@@ -1,0 +1,24 @@
+---
+title: Kiểm duyệt
+description: Ba nhóm việc người thật xử lý, và vì sao khối lượng không tăng theo số đơn.
+group: Mô hình sàn
+order: 7
+groupOrder: 1
+audience: [everyone]
+type: concept
+readingTime: 1
+updated: 2026-11-04
+related: ["/vi/marketplace/trust-and-sanctions", "/vi/architecture/staff"]
+---
+
+Người thật chỉ đụng vào ba việc:
+
+- Hàng cấm và hàng giả bị báo cáo.
+- Lừa đảo có dấu hiệu tổ chức.
+- Yêu cầu hợp lệ từ cơ quan chức năng.
+
+Khối lượng ba nhóm này không tăng theo số đơn. Những chuyện còn lại, từ buyer từ chối nhận tới seller từ chối ghi nhận, đều đi vào thống kê ở trang [Uy tín và chế tài](/vi/marketplace/trust-and-sanctions). Seller báo sai về đơn hàng thì bị báo cáo như một người dùng, cũng theo cách đó.
+
+Moderator và admin làm việc trên một web console riêng, bằng tài khoản staff tách khỏi tài khoản khách. Họ tạm khóa được tài khoản khách kèm lý do và thời hạn, và mỗi thao tác đều được ghi vào nhật ký.
+
+Phần báo cáo người dùng đã có trong thiết kế nhưng server chưa làm.

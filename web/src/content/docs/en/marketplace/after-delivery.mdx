@@ -1,0 +1,33 @@
+---
+title: After delivery
+description: Issue reports in the chat, the seller's choice to refund or decline, the model's neutral note, and the public record that results.
+group: Marketplace
+order: 5
+groupOrder: 1
+audience: [everyone]
+type: concept
+readingTime: 2
+updated: 2026-11-04
+related: ["/en/marketplace/trust-and-sanctions", "/en/marketplace/money-and-cancellation", "/en/architecture/trust"]
+---
+
+ShopNexus records problems after delivery and does not rule on them. At the scale of one case nobody can tell who is right, and the platform holds no money it could move anyway.
+
+## Issue reports
+
+A buyer who finds a problem after paying opens an <Term id="issue-report">issue report</Term> (ghi nhận sự cố) in the chat, with photos and a few lines on what happened, and the seller answers it in one of two ways:
+
+- Refund on their own, by bank transfer straight to the buyer. A seller who refunds gains reputation points.
+- Decline. The report and the seller's answer then appear on the seller's public profile, where every future buyer can read them.
+
+The buyer can withdraw a report while it is open.
+
+## The model's note
+
+The model writes a neutral note that both sides read. It quotes what the listing stated, for example "Tin ghi: Pin 88% · Máy zin, chưa sửa · Bản VN/A", or "Tin không ghi thông tin nào" when the listing stated nothing. The note gives both people the same facts and makes no decision.
+
+## Reviews
+
+The buyer reviews the seller once the order is shipped, delivered or returned: 1 to 5 stars and up to 500 characters. There is one review per order, and the buyer can change or delete it for 7 days after first posting it. A rating takes the place of a receipt, since no buyer confirms delivery in the app.
+
+Reviews exist on the server today. Issue reports and the reputation they feed are designed in the app and will join the server's trust module later.

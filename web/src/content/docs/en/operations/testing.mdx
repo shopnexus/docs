@@ -1,0 +1,32 @@
+---
+title: Testing
+description: How the server's tests are organised, what they run against, and how the app is checked.
+group: Operations
+order: 5
+groupOrder: 1
+audience: [developers]
+type: reference
+readingTime: 2
+updated: 2026-11-04
+related: ["/en/operations/local-stack", "/en/architecture/durable-flows"]
+---
+
+## Server
+
+`make test` starts the test stack, runs every test with the race detector, then runs golangci-lint. The lint step also checks formatting with gofumpt. After one run the stack stays up, so `go test` on a single package works directly. `go test -short` runs only the tests that need no database.
+
+There are no in-memory fakes. Anything that touches a store runs on Postgres, and each test gets its own clone of a migrated template database. A fake would have to copy Postgres behaviour and would need its own tests to prove the copy.
+
+| Layer | How it is tested |
+|---|---|
+| Entities | unit tests with no database; the business rules live here |
+| Repositories and services | on Postgres, with a stopped clock |
+| Restate handlers | against the test stack's Restate, the endpoint served in-process and a clock moved by hand; a wrapper can make a step commit and then fail once, to prove a retry duplicates nothing |
+| HTTP | middleware tests in-process; the endpoints run in the end-to-end suite |
+| End to end | the whole server in-process against Postgres and Restate, with phone tokens signed by a test issuer and pushes captured by a fake sender |
+
+The end-to-end suite in `server/e2e` also checks the routes against the OpenAPI spec. Every test runs in parallel, and the linter enforces it. A test that changes process-wide state runs alone and says why.
+
+## Android app
+
+`./gradlew check` runs the unit tests, the Robolectric UI tests, Android Lint, detekt, ktlint and a check that no screen uses a raw colour. `./gradlew spotlessApply` fixes formatting.

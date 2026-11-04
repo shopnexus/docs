@@ -1,0 +1,48 @@
+---
+import { Icon } from "astro-icon/components";
+import { withBase } from "../../lib/base";
+import type { DocPage } from "../../lib/content";
+import { STRINGS } from "../../lib/i18n";
+
+interface Props {
+  page: DocPage;
+}
+
+const { page } = Astro.props;
+const t = STRINGS[page.lang];
+---
+
+{
+  page.entry.data.internal && (
+    <div class="fade-up mb-6 h-9 px-3 rounded-[10px] border border-warning-line bg-warning-soft text-warning text-[13px] font-semibold flex items-center gap-2" role="note" data-pagefind-ignore>
+      <Icon name="ri:lock-line" width="15" height="15" aria-hidden="true" />
+      {t.internalRibbon}
+    </div>
+  )
+}
+{
+  page.fallback && (
+    <div class="fade-up mb-7 rounded-xl border border-info-line bg-info-soft p-4 flex gap-3" role="status" data-untranslated data-pagefind-ignore>
+      <span class="w-8 h-8 shrink-0 rounded-[9px] bg-raised border border-info-line flex items-center justify-center text-info">
+        <Icon name="ri:translate-2" width="17" height="17" aria-hidden="true" />
+      </span>
+      <div class="flex-1 text-[14.5px] leading-[23px] text-body">
+        <div class="font-semibold text-strong">{t.untranslatedTitle}</div>
+        <div class="mt-0.5">{t.untranslatedBody}</div>
+        <div class="mt-2.5 flex flex-wrap items-center gap-4 text-[13.5px]">
+          <a href={withBase(`/${page.lang}/get-started/glossary`)} class="font-medium text-info flex items-center gap-1 hover:underline underline-offset-4">
+            <Icon name="ri:book-2-line" width="14" height="14" aria-hidden="true" />
+            {t.untranslatedGlossary}
+          </a>
+          <a href={withBase(page.url.replace(/^\/vi/, "/en"))} class="text-sub flex items-center gap-1 hover:text-strong" hreflang="en">
+            <Icon name="ri:global-line" width="14" height="14" aria-hidden="true" />
+            English
+          </a>
+        </div>
+      </div>
+      <button type="button" class="w-7 h-7 rounded-[8px] flex items-center justify-center text-faint hover:bg-raised" aria-label={t.close} data-untranslated-close>
+        <Icon name="ri:close-line" width="16" height="16" aria-hidden="true" />
+      </button>
+    </div>
+  )
+}

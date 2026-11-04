@@ -1,0 +1,28 @@
+---
+title: Chat
+description: Module chat lưu cuộc trò chuyện và tin nhắn ra sao, gửi qua flow Restate và theo dõi đã đọc thế nào.
+group: Module của sàn
+order: 5
+groupOrder: 4
+audience: [developers]
+type: concept
+readingTime: 2
+updated: 2026-11-04
+related: ["/vi/architecture/deal", "/vi/architecture/screens", "/vi/api/live-updates"]
+---
+
+Mỗi cặp người dùng có đúng một cuộc trò chuyện, bất kể ai mua ai bán. Người mua mở cuộc trò chuyện từ tin active của người khác, cần số điện thoại đã xác minh và hai bên không chặn nhau, và tin nhắn đầu tiên gắn với tin đăng đó. Các deal giữa hai người hiện chung trong luồng chat; module screen ghép chúng vào, còn chat không gọi module deal.
+
+## Tin nhắn
+
+Tin nhắn có 1 tới 1.000 ký tự, tối đa 4 ảnh, hoặc cả hai, và có thể gắn một tin đăng của một trong hai người. Tin nhắn đã gửi thì không ai sửa hay xóa được nữa.
+
+Mọi lần gửi đều chạy bằng flow Restate, khóa theo người gửi và `Idempotency-Key` của request, nên bấm lại vẫn chỉ ra một tin nhắn. Flow đọc hết những gì lần gửi cần trong một bước, quyết định, rồi mở cuộc trò chuyện nếu chưa có, thêm tin nhắn và giao ảnh cho module media. Tin nhắn có ảnh ở trạng thái processing, chỉ người gửi thấy, cho tới khi ảnh xử lý xong thì thành sent hoặc failed. Mỗi tin nhắn đã gửi ghi một event `message.sent` để module notification đẩy thông báo.
+
+## Đã đọc và hộp thư
+
+Mỗi thành viên có một mốc đã đọc, chỉ tin nhắn mới hơn mới dời được mốc này, và một cờ lưu trữ. Hai thiết bị của cùng một người không ghi đè trạng thái đọc của nhau. Tin nhắn tiếp theo bỏ cờ lưu trữ của cả hai bên. Số chưa đọc là số tin của người kia sau mốc. App đang mở biết có tin mới hoặc đã đọc qua [luồng cập nhật trực tiếp](/vi/api/live-updates) rồi tải lại màn đang hiện.
+
+## Chưa làm
+
+Báo cáo sự cố ngay trong chat, mà mô hình sản phẩm mô tả cho các vấn đề sau khi giao, và gửi link vị trí trong tin nhắn đều chưa làm.

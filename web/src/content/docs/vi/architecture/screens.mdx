@@ -1,0 +1,32 @@
+---
+title: Screen
+description: Vì sao app đọc mỗi màn hình bằng một lần gọi, và module screen ghép màn hình từ các module khác thế nào.
+group: Module của sàn
+order: 8
+groupOrder: 4
+audience: [developers]
+type: concept
+readingTime: 2
+updated: 2026-11-04
+related: ["/vi/architecture/modules", "/vi/api/live-updates"]
+---
+
+Module screen phục vụ một `GET` cho mỗi màn của app. App đọc một màn bằng một lần gọi, và khi nhận [tín hiệu từ stream](/vi/api/live-updates) thì cũng tải lại màn đang hiện bằng một lần gọi. Mobile và desktop đọc cùng các màn; trang desktop hiện hai màn thì gọi cả hai cùng lúc.
+
+## Các màn
+
+- Home: cây danh mục kèm số tin active của mỗi gốc, trang đầu của feed gần bạn và số thông báo chưa đọc.
+- Tin đăng: tin công khai, tóm tắt người bán, và với người đọc đã đăng nhập mà không phải người bán thì thêm đã lưu chưa, deal của họ và cuộc trò chuyện.
+- Người bán: hồ sơ từ trust, trang đầu tin đăng và đánh giá, và hai bên có đang chặn nhau không.
+- Hộp thư: một trang cuộc trò chuyện, mỗi dòng kèm một deal của cặp đó chọn theo luật bên dưới, và tổng số chưa đọc.
+- Chat: cuộc trò chuyện, các deal giữa hai người và trang tin nhắn đầu tiên.
+
+Dòng hộp thư lấy deal mới nhất đang tới lượt người gọi, nếu không có thì deal active mới nhất, nếu không nữa thì deal mới nhất; luật tới lượt do module deal giữ.
+
+"Xem thêm" dùng các endpoint danh sách thông thường, trả về cùng dạng item.
+
+## Thiết kế
+
+Screen không có bảng nào. Mỗi màn là một method đọc service của các module khác từ trên xuống dưới. Không module nào được import screen, linter chặn việc này, nên screen không thêm phụ thuộc giữa các module.
+
+Mỗi loại dữ liệu chỉ có một đường đọc. Các endpoint chỉ để nuôi một màn đã bị bỏ khi có các màn này, và không resource nào mang trường chỉ dành cho một màn. Mỗi màn gọi một số lượng service cố định cho mỗi trang, và các service đọc người dùng, xã và tin đăng của một trang trong một query cho mỗi loại.

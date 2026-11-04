@@ -1,0 +1,35 @@
+---
+title: Pagination
+description: How list endpoints page with a cursor, newest first.
+group: API
+order: 4
+groupOrder: 1
+audience: [developers]
+type: reference
+readingTime: 1
+updated: 2026-11-04
+related: ["/en/api", "/en/architecture/search-and-discovery"]
+---
+
+List endpoints page by cursor, newest first. A request takes two optional query parameters:
+
+- `limit`, the page size, from 1 to 100, default 20;
+- `cursor`, the `next_cursor` of the previous page. Leave it out for the first page.
+
+A page looks like this:
+
+```json
+{ "items": [ ... ], "next_cursor": "01927f3c-..." }
+```
+
+`next_cursor` is there only when more items follow. When it is missing, the list is done. `items` is always an array, empty when there is nothing.
+
+The cursor is the ID of the last item on the page, and the next page lists the items with lower IDs. IDs are UUIDv7 and grow with time, so items created while the user scrolls do not shift the pages they already loaded. They show up on the next reload from the top.
+
+## Search and the nearby feed
+
+`GET /v1/search` and `GET /v1/feed/nearby` sort by relevance or distance, not by age, so their cursor is an opaque string, not an ID. Pass it back unchanged. These results stop at 500 items. A cursor the server cannot read answers 400 `invalid_cursor`.
+
+## Screens
+
+A screen endpoint returns the first page of each list it holds. "Load more" calls the matching list endpoint with the cursor from that page and gets the same item shapes, as [Screens](/en/architecture/screens) describes.

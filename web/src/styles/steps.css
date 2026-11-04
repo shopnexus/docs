@@ -1,0 +1,136 @@
+/* Steps — numbered vertical timeline; the connector fills brand colour as you scroll. */
+.steps {
+  margin-top: 20px;
+}
+.steps-progress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-sub);
+}
+.steps-progress-track {
+  flex: 1;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--bg-hover);
+  overflow: hidden;
+}
+.steps-progress-fill {
+  display: block;
+  height: 100%;
+  width: var(--done, 0%);
+  border-radius: inherit;
+  background: var(--brand);
+  transition: width 0.28s var(--ease-out-expo);
+}
+.steps-track {
+  position: relative;
+}
+.steps-line {
+  position: absolute;
+  left: 11.5px;
+  top: 12px;
+  bottom: 24px;
+  width: 1px;
+  background: var(--stroke-soft);
+}
+.steps-line-fill {
+  display: block;
+  width: 100%;
+  height: var(--fill, 0%);
+  background: var(--brand);
+  transition: height 0.2s linear;
+}
+.steps-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: step;
+}
+.step {
+  counter-increment: step;
+  position: relative;
+  display: flex;
+  gap: 16px;
+  padding-bottom: 28px;
+  margin: 0;
+}
+.step:last-child {
+  padding-bottom: 0;
+}
+.step-marker {
+  position: relative;
+  z-index: 1;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  border: 1px solid var(--stroke-sub);
+  background: var(--bg-page);
+  color: var(--text-soft);
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition:
+    background-color 0.16s,
+    border-color 0.16s,
+    color 0.16s,
+    transform 0.16s;
+}
+.step-marker:active {
+  transform: scale(0.92);
+}
+.step-num::before {
+  content: counter(step);
+}
+.step-check {
+  display: none;
+}
+.step.is-current .step-marker {
+  border: 2px solid var(--brand);
+  color: var(--brand-text);
+}
+.step.is-done .step-marker {
+  border-color: var(--brand);
+  background: var(--brand);
+  color: var(--on-brand);
+}
+.step.is-done .step-num {
+  display: none;
+}
+.step.is-done .step-check {
+  display: block;
+}
+.step-body {
+  min-width: 0;
+  flex: 1;
+}
+.step-title {
+  margin: 0;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+  color: var(--text-strong);
+}
+.step-content {
+  margin-top: 4px;
+  font-size: 15px;
+  line-height: 24px;
+  color: var(--text-sub);
+}
+.step-content > :first-child {
+  margin-top: 0;
+}
+.step-content :where(strong, b) {
+  color: var(--text-strong);
+  font-weight: 500;
+}
+.step-content .shot {
+  margin-top: 16px;
+}

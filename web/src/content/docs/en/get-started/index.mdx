@@ -1,0 +1,43 @@
+---
+title: Welcome
+description: ShopNexus is a C2C marketplace for used goods in Vietnam. These docs cover how it works, how it is built and how to run it.
+group: Get started
+order: 1
+groupOrder: 1
+audience: [everyone]
+type: overview
+readingTime: 2
+updated: 2026-11-04
+related: ["/en/get-started/quick-start", "/en/marketplace", "/en/get-started/glossary"]
+---
+
+ShopNexus is a marketplace where people in Vietnam sell used things to each other. Two constraints shape everything else: the platform holds nobody's money, and it does not judge disputes.
+
+A deal has one path inside the app, <Term id="cod-inspection">COD đồng kiểm</Term>. The buyer looks at the item at the door and only then pays the shipper. The seller creates the waybill in their own carrier account (GHTK, GHN, SPX and so on) and types the carrier, the waybill code and the shipping fee into ShopNexus. The carrier pays the COD money straight into the seller's bank account, and ShopNexus never handles it.
+
+Trust comes from statistics. The system counts refused deliveries, refused incident claims and open complaints, and when a number crosses a threshold an account loses reach or COD rights. Staff step in only for banned or fake goods, organised fraud and requests from the authorities.
+
+People sign in with a phone number that Firebase verifies.
+
+## The pieces
+
+ShopNexus has three parts:
+
+- A Go server on Postgres (ParadeDB), Restate and RustFS, with an OpenAPI contract.
+- A native Android app. It still runs on fake data and does not call the server yet.
+- These docs.
+
+<Cards cols={2}>
+  <Card title="Marketplace" href="/en/marketplace" icon="ri:store-2-line">
+    Listings, the COD deal, money, trust and moderation.
+  </Card>
+  <Card title="Architecture" href="/en/architecture" icon="ri:node-tree">
+    Modules, durable flows, events and the data they own.
+  </Card>
+  <Card title="API" href="/en/api" icon="ri:braces-line">
+    Authentication, errors, pagination, idempotency and live updates.
+  </Card>
+  <Card title="Operations" href="/en/operations" icon="ri:rocket-2-line">
+    The local stack, configuration, monitoring and tests.
+  </Card>
+</Cards>

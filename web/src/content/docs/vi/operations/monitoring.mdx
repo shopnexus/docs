@@ -1,0 +1,30 @@
+---
+title: Giám sát
+description: Server export log, trace và metric qua OpenTelemetry thế nào, và xem chúng ở đâu.
+group: Vận hành
+order: 4
+groupOrder: 1
+audience: [developers, admins]
+type: concept
+readingTime: 3
+updated: 2026-11-04
+related: ["/vi/operations/local-stack", "/vi/api/errors"]
+---
+
+## Server export những gì
+
+Server gửi log, trace và metric qua <Term id="otlp">OTLP</Term>/HTTP tới `OTEL_EXPORTER_OTLP_ENDPOINT`. Để trống biến này thì không có gì ra khỏi process, nhưng span vẫn có id, nên log và body lỗi vẫn gắn được với request của nó.
+
+- Log ghi ra stdout và gửi qua OTLP cùng lúc, dạng text khi dev và JSON ở production. Mỗi dòng log của một request có `trace_id` và `span_id`. Mật khẩu, mã và token không bao giờ bị ghi log, số điện thoại thì được che bớt.
+- Trace gồm một span cho mỗi request HTTP, đặt tên theo route pattern, và một span cho mỗi câu SQL. Khi dev, mọi request đều được lấy mẫu. Cách lấy mẫu ở production sẽ chốt cùng lúc với việc triển khai.
+- Metric có thời gian xử lý HTTP theo route, method và status, connection pool của database, số lần đăng nhập, số refresh token bị dùng lại và số sự kiện đã giao cho Restate. Nhãn luôn theo route pattern, không bao giờ theo đường dẫn thô.
+
+Response nào cũng có header `Trace-Id`, body lỗi lặp lại nó ở `trace_id`. Từ id đó lần ra được log và span của một lần gọi bị lỗi.
+
+## Khi dev
+
+Stack dev chạy image otel-lgtm của Grafana, một container gộp sẵn OTLP collector, Grafana và kho chứa log, trace, metric. Mở Grafana tại `http://localhost:56300`. Endpoint OTLP trong `.env.example` đã trỏ sẵn vào container này.
+
+## Trên cluster
+
+Cluster có một app giám sát riêng trong `deploy/monitoring`: Alloy đọc log của pod rồi đẩy sang Loki, Grafana hiển thị. Bộ này làm cho hệ thống cũ, vốn lưu metric trong bảng database, và không có bộ nhận OTLP. Giám sát cho server mới ở production chưa được dựng.

@@ -1,0 +1,109 @@
+---
+import { Icon } from "astro-icon/components";
+import { withBase } from "../../lib/base";
+import { STRINGS } from "../../lib/i18n";
+import { publicImageSize } from "../../lib/image-size";
+import { pageLang } from "../../lib/page-lang";
+
+interface Point {
+  n: number;
+  x: number;
+  y: number;
+  label: string;
+  /** "action" draws the hotspot dark, for the control you press. */
+  tone?: "action";
+}
+
+interface Props {
+  src: string;
+  alt: string;
+  /** [x, y, width, height] in source-image pixels. Defaults to the whole image. */
+  crop?: [number, number, number, number];
+  points?: Point[];
+  caption?: string;
+}
+
+const { src, alt, crop, points = [], caption } = Astro.props;
+const t = STRINGS[pageLang(Astro)];
+const url = withBase(src);
+const size = await publicImageSize(src);
+const [cx, cy, cw, ch] = crop ?? [0, 0, size.width, size.height];
+const pct = (value: number) => `${(value * 100).toFixed(4)}%`;
+
+// The frame keeps the crop's aspect ratio; the image is scaled so the crop fills it.
+const imgStyle = `width:${pct(size.width / cw)};left:${pct(-cx / cw)};top:${pct(-cy / ch)}`;
+const spots = points.map((p) => ({
+  ...p,
+  style: `left:${pct((p.x - cx) / cw)};top:${pct((p.y - cy) / ch)}`,
+}));
+const legend = points.map((p) => {
+  const split = p.label.indexOf(" — ");
+  return split > 0
+    ? { ...p, head: p.label.slice(0, split), rest: p.label.slice(split) }
+    : { ...p, head: "", rest: p.label };
+});
+const view = `aspect-ratio:${cw}/${ch};--crop-w:${cw}px;--ratio:${(cw / ch).toFixed(4)}`;
+---
+
+<figure class="shot" data-shot>
+  <div class="shot-frame" style={view} data-shot-frame data-pagefind-ignore>
+    <img class="shot-img" src={url} alt={alt} style={imgStyle} loading="lazy" decoding="async" />
+    {
+      spots.map((p) => (
+        <button
+          type="button"
+          class:list={["hotspot", p.tone === "action" && "hotspot-action"]}
+          style={p.style}
+          data-point={p.n}
+          aria-label={`${p.n}. ${p.label}`}
+        >
+          {p.n}
+        </button>
+      ))
+    }
+    <button type="button" class="shot-zoom" data-shot-open aria-label={t.zoom}>
+      <Icon name="ri:fullscreen-line" width="14" height="14" aria-hidden="true" />
+      <span class="shot-zoom-desk">{t.zoom}</span><span class="shot-zoom-touch">{t.tapZoom}</span>
+    </button>
+  </div>
+  {
+    legend.length > 0 && (
+      <ol class="shot-legend">
+        {legend.map((p) => (
+          <li data-point={p.n} tabindex="-1">
+            <span class:list={["shot-legend-num", p.tone === "action" && "is-action"]}>{p.n}</span>
+            <span>
+              {p.head && <b>{p.head}</b>}
+              {p.rest}
+            </span>
+          </li>
+        ))}
+      </ol>
+    )
+  }
+  {caption && <figcaption class="shot-caption">{caption}</figcaption>}
+  <dialog class="shot-lightbox" data-shot-dialog data-pagefind-ignore aria-label={alt}>
+    <div class="shot-lightbox-bar">
+      <span class="shot-lightbox-title">{caption ?? alt}</span>
+      <div class="segmented">
+        <button type="button" data-shot-fit aria-pressed="true">{t.fit}</button>
+        <button type="button" data-shot-actual aria-pressed="false">{t.actualSize}</button>
+      </div>
+      <button type="button" class="shot-lightbox-close" data-shot-close aria-label={t.close}>
+        <Icon name="ri:close-line" width="18" height="18" aria-hidden="true" />
+      </button>
+    </div>
+    <div class="shot-lightbox-scroll" data-shot-scroll>
+      <div class="shot-frame shot-frame-large" style={view}>
+        <img class="shot-img" src={url} alt="" style={imgStyle} loading="lazy" decoding="async" />
+        {
+          spots.map((p) => (
+            <span class:list={["hotspot", "is-static", p.tone === "action" && "hotspot-action"]} style={p.style}>
+              {p.n}
+            </span>
+          ))
+        }
+      </div>
+    </div>
+  </dialog>
+</figure>

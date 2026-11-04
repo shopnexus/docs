@@ -1,0 +1,51 @@
+---
+import { render } from "astro:content";
+import type { GetStaticPaths } from "astro";
+import { components } from "../../components/mdx";
+import DocLayout from "../../layouts/doc-layout.astro";
+import { type DocPage, getPages, navFor } from "../../lib/content";
+import { relatedLinks, toLink } from "../../lib/related";
+
+export const getStaticPaths = (async () => {
+  const pages = await getPages();
+  return pages.map((page) => ({
+    params: { lang: page.lang, slug: page.url.split("/").slice(2).join("/") },
+    props: { page },
+  }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  page: DocPage;
+}
+
+const { page } = Astro.props;
+const pages = await getPages();
+const groups = navFor(pages, page.lang, page.tab.id);
+const flat = groups.flatMap((g) => g.pages);
+const index = flat.findIndex((p) => p.url === page.url);
+const altUrl = page.url.replace(/^\/(en|vi)/, page.lang === "en" ? "/vi" : "/en");
+const related = relatedLinks(pages, page);
+const suggestions = related.length
+  ? related
+  : flat
+      .filter((p) => p.entry.data.group === page.entry.data.group && p.url !== page.url)
+      .slice(0, 3)
+      .map(toLink);
+const { Content, headings } = await render(page.entry);
+const { title, description } = page.entry.data;
+const markdown = `# ${title}\n\n> ${description}\n\n${(page.entry.body ?? "").trim()}\n`;
+---
+
+<DocLayout
+  page={page}
+  altUrl={altUrl}
+  headings={headings}
+  groups={groups}
+  prev={index > 0 ? flat[index - 1] : undefined}
+  next={index >= 0 && index < flat.length - 1 ? flat[index + 1] : undefined}
+  related={related}
+  suggestions={suggestions}
+  markdown={markdown}
+>
+  <Content components={components} />
+</DocLayout>

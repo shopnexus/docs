@@ -1,0 +1,60 @@
+---
+import { Icon } from "astro-icon/components";
+import { type Lang, STRINGS } from "../../lib/i18n";
+
+interface Props {
+  lang: Lang;
+  /** "button" cycles System → Light → Dark; "segmented" shows all three. */
+  variant?: "button" | "segmented";
+}
+
+const { lang, variant = "button" } = Astro.props;
+const t = STRINGS[lang];
+const OPTIONS = [
+  { id: "system", icon: "ri:computer-line" },
+  { id: "light", icon: "ri:sun-line" },
+  { id: "dark", icon: "ri:moon-line" },
+] as const;
+const names = JSON.stringify(t.themeNames);
+---
+
+{
+  variant === "button" ? (
+    <button
+      type="button"
+      class="theme-cycle w-10 h-10 lg:w-9 lg:h-9 rounded-[10px] flex items-center justify-center text-sub hover:bg-hover hover:text-strong shrink-0"
+      data-theme-cycle
+      data-theme-names={names}
+      data-theme-label={t.theme}
+      aria-label={`${t.theme}: ${t.themeNames.system}`}
+      title={`${t.theme}: ${t.themeNames.system} · ${t.themeNames.light} · ${t.themeNames.dark}`}
+    >
+      {OPTIONS.map((o) => (
+        <Icon name={o.icon} width="18" height="18" class="theme-icon" data-theme-icon={o.id} aria-hidden="true" />
+      ))}
+    </button>
+  ) : (
+    <div class="segmented" role="group" aria-label={t.theme}>
+      {OPTIONS.map((o) => (
+        <button type="button" data-theme-set={o.id} aria-pressed="false" title={t.themeNames[o.id]} aria-label={t.themeNames[o.id]}>
+          <Icon name={o.icon} width="14" height="14" aria-hidden="true" />
+        </button>
+      ))}
+    </div>
+  )
+}
+
+<style is:global>
+  .theme-icon {
+    display: none;
+  }
+  :root[data-theme-pref="system"] .theme-icon[data-theme-icon="system"],
+  :root[data-theme-pref="light"] .theme-icon[data-theme-icon="light"],
+  :root[data-theme-pref="dark"] .theme-icon[data-theme-icon="dark"] {
+    display: block;
+    animation: panel-in 0.2s var(--ease-out-expo) both;
+  }
+  :root:not([data-theme-pref]) .theme-icon[data-theme-icon="system"] {
+    display: block;
+  }
+</style>

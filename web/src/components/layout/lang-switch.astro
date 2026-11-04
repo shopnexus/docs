@@ -1,0 +1,39 @@
+---
+import { withBase } from "../../lib/base";
+import type { Lang } from "../../lib/i18n";
+
+interface Props {
+  lang: Lang;
+  /** Same page in the other language (EN fallback pages exist for every VI path). */
+  altUrl: string;
+  size?: "md" | "lg";
+}
+
+const { lang, altUrl, size = "md" } = Astro.props;
+const enHref = lang === "en" ? "" : withBase(altUrl);
+const viHref = lang === "vi" ? "" : withBase(altUrl);
+---
+
+<div class:list={["segmented", size === "lg" && "segmented-lg"]} role="group" aria-label="Language" data-lang-switch>
+  <a
+    href={enHref || undefined}
+    hreflang="en"
+    lang="en"
+    aria-current={lang === "en" ? "true" : "false"}
+    data-lang-option="en">EN</a
+  >
+  <a
+    href={viHref || undefined}
+    hreflang="vi"
+    lang="vi"
+    aria-current={lang === "vi" ? "true" : "false"}
+    data-lang-option="vi">VI</a
+  >
+</div>
+
+<style is:global>
+  .segmented-lg > * {
+    height: 32px;
+    padding: 0 12px;
+  }
+</style>

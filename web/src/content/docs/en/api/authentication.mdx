@@ -1,0 +1,50 @@
+---
+title: Authentication
+description: How the app signs in with a Firebase-verified phone number, sends its access token and refreshes it.
+group: API
+order: 2
+groupOrder: 1
+audience: [developers]
+type: how-to
+readingTime: 3
+updated: 2026-11-04
+related: ["/en/architecture/sign-in", "/en/architecture/sessions", "/en/api/errors"]
+---
+
+A customer signs in with a phone number that Firebase has verified. The server sends no SMS itself. Staff sign in to the console separately, with a session cookie, and that flow is in [Staff](/en/architecture/staff).
+
+## Sign in
+
+The app verifies the number with Firebase, either by an SMS code through Firebase Authentication or by the SIM through Phone Number Verification. It then sends the token Firebase returned to `POST /v1/auth/sign-in`, with an `Idempotency-Key` header and an optional device name for the device list:
+
+```json title="POST /v1/auth/sign-in"
+{ "phone_token": "eyJhbGciOi...", "device_name": "Pixel 8" }
+```
+
+The verification must be at most five minutes old. The first sign-in with a number creates the account, and the answer then has `account.is_new` set to true so the app can ask for a profile. Once it has the token, the app signs out of Firebase.
+
+The answer holds an access token, its expiry time and a refresh token. A token that fails a check is 401 `invalid_phone_token`, a number outside Vietnam is 422 `invalid_phone`, and 503 `unavailable` means the server could not fetch Firebase's keys yet, so the app retries with the same token.
+
+## Calling the API
+
+Send the access token on every signed-in call:
+
+```http
+Authorization: Bearer <access_token>
+```
+
+The access token lasts 15 minutes. A missing or bad one answers 401.
+
+## Refresh
+
+`POST /v1/auth/refresh` with the refresh token returns a new pair. A refresh token works once, so the app must keep the new one. Presenting an old token again, or sending two refreshes with the same token, looks like a replay and signs the session out.
+
+The app therefore refreshes as a single flight. It refreshes when the access token has less than a minute left, or on the first 401. Other requests wait and retry with the new token. The refresh token is stored encrypted, under a Keystore key.
+
+A session ends 60 days after sign-in or after 30 days unused. When refresh answers `session_revoked` or `session_expired`, the app sends the user back to sign-in.
+
+## Sign out and devices
+
+- `POST /v1/auth/logout` ends the current session. The access token keeps working until it expires, so the app discards it.
+- `GET /v1/auth/sessions` lists signed-in devices and `DELETE /v1/auth/sessions/{id}` signs one out.
+- `POST /v1/auth/logout-all` signs out every device and needs a sign-in within the last 15 minutes; otherwise it answers 428 `reauth_required`.

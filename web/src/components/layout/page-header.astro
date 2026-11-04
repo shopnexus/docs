@@ -1,0 +1,83 @@
+---
+import { Icon } from "astro-icon/components";
+import { withBase } from "../../lib/base";
+import type { DocPage } from "../../lib/content";
+import { AUDIENCE_ICON, AUDIENCE_LABEL, formatDate, STRINGS, TYPE_ICON, TYPE_LABEL } from "../../lib/i18n";
+
+interface Props {
+  page: DocPage;
+}
+
+const { page } = Astro.props;
+const { lang, tab, entry, fallback } = page;
+const data = entry.data;
+const t = STRINGS[lang];
+const contentLang = fallback ? "en" : lang;
+const isLanding = page.slug === "";
+---
+
+<header class="page-header">
+  <div class="fade-up flex flex-wrap items-center gap-1.5 text-[13px] text-faint" data-pagefind-ignore>
+    <a href={withBase(`/${lang}/${tab.id}`)} class="hover:text-strong">{tab.label[lang]}</a>
+    {
+      !isLanding && (
+        <>
+          {data.group !== tab.label[lang] && (
+            <>
+              <Icon name="ri:arrow-right-s-line" width="14" height="14" aria-hidden="true" />
+              <span lang={contentLang}>{data.group}</span>
+            </>
+          )}
+          <Icon name="ri:arrow-right-s-line" width="14" height="14" aria-hidden="true" />
+          <span class="text-sub" lang={contentLang}>{data.title}</span>
+        </>
+      )
+    }
+  </div>
+  <div lang={contentLang}>
+    <h1 class="fade-up d1 mt-3 text-[28px] leading-[34px] md:text-[36px] md:leading-[44px] font-[650] tracking-[-0.022em] md:tracking-[-0.025em] text-strong" data-pagefind-meta="title">
+      {data.title}
+    </h1>
+    <p class="fade-up d1 mt-2.5 md:mt-3 text-[16px] leading-[26px] md:text-[18px] md:leading-[30px] text-sub">{data.description}</p>
+  </div>
+  <div class="fade-up d2 mt-4 md:mt-5 flex flex-wrap items-center gap-x-2 gap-y-2 text-[13px]" data-pagefind-ignore>
+    {
+      data.audience.map((a) => (
+        <span class="chip chip-brand">
+          <Icon name={AUDIENCE_ICON[a] ?? "ri:user-line"} width="13" height="13" aria-hidden="true" />
+          {AUDIENCE_LABEL[a]?.[lang] ?? a}
+        </span>
+      ))
+    }
+    <span class:list={["chip", data.type === "tutorial" && "chip-feature"]}>
+      <Icon name={TYPE_ICON[data.type] ?? "ri:file-text-line"} width="13" height="13" aria-hidden="true" />
+      {TYPE_LABEL[data.type]?.[lang] ?? data.type}
+    </span>
+    {
+      fallback && (
+        <span class="chip chip-outline" title="English">
+          <Icon name="ri:global-line" width="12" height="12" aria-hidden="true" />
+          EN
+        </span>
+      )
+    }
+    <span class="text-faint flex items-center gap-1">
+      <Icon name="ri:time-line" width="13" height="13" aria-hidden="true" />
+      {t.minRead(data.readingTime)}
+    </span>
+    <span class="text-line-strong hidden sm:inline" aria-hidden="true">·</span>
+    <time class="text-faint hidden sm:inline" datetime={data.updated.toISOString().slice(0, 10)}>
+      {t.updated(formatDate(data.updated, lang))}
+    </time>
+    <span class="flex-1"></span>
+    <button
+      type="button"
+      class="hidden sm:flex h-7 px-2.5 rounded-[8px] border border-line text-sub items-center gap-1.5 hover:bg-subtle"
+      data-copy-page
+      data-copied-label={t.copied}
+    >
+      <Icon name="ri:file-copy-line" width="14" height="14" aria-hidden="true" />
+      <span data-copy-page-label>{t.copyPage}</span>
+    </button>
+  </div>
+</header>

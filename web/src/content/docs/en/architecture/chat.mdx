@@ -1,0 +1,28 @@
+---
+title: Chat
+description: How the chat module stores conversations and messages, sends them through a Restate flow and tracks what is read.
+group: Marketplace modules
+order: 5
+groupOrder: 4
+audience: [developers]
+type: concept
+readingTime: 2
+updated: 2026-11-04
+related: ["/en/architecture/deal", "/en/architecture/screens", "/en/api/live-updates"]
+---
+
+There is one conversation per pair of people, whatever their roles. A buyer opens it from someone else's active listing, with a verified phone and no block between them, and the first message names that listing. The deals between the two show in the same thread; the screen module joins them in, and chat itself never calls the deal module.
+
+## Messages
+
+A message has 1 to 1,000 characters of text, up to 4 photos, or both, and may name a listing of either member. Nobody can edit or delete a message after it is sent.
+
+Every send runs as a Restate flow keyed by the sender and the request's `Idempotency-Key`, so a retried tap sends one message. The flow reads everything the send depends on in one step, decides, then opens the conversation if needed, adds the message and hands its photos to the media module. A photo message stays processing, visible only to its sender, until its photos are ready, then becomes sent or failed. Each sent message writes `message.sent`, which the notification module pushes.
+
+## Read state and the inbox
+
+Each member has a read marker that only a newer message moves, and an archive flag. Two devices of one person cannot undo each other's read. The next message clears both members' archives. Unread is the count of the other member's messages after the marker. An open app learns of new messages and reads through the [live stream](/en/api/live-updates) and reloads the screen it shows.
+
+## Not built
+
+Issue reports inside the chat, which the product model describes for problems after delivery, and location links in messages are not built.

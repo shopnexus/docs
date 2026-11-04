@@ -1,0 +1,130 @@
+html {
+  background: var(--bg-page);
+  color: var(--text-strong);
+  font-family: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  scroll-padding-top: 88px;
+  interpolate-size: allow-keywords;
+}
+
+body {
+  min-height: 100dvh;
+}
+
+::selection {
+  background: var(--mark-bg);
+}
+
+:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+.thin-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--stroke-sub) transparent;
+}
+
+/* Product UI label chip — always the English label. */
+.uilabel {
+  font-weight: 600;
+  font-size: 0.875em;
+  padding: 1px 7px;
+  border-radius: 6px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--stroke-soft);
+  color: var(--text-strong);
+  white-space: nowrap;
+}
+
+.kbd {
+  font-family: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  font-size: 11.5px;
+  font-weight: 500;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 6px;
+  border: 1px solid var(--stroke-soft);
+  background: var(--bg-subtle);
+  color: var(--text-sub);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  vertical-align: 1px;
+}
+
+.prose-link,
+.prose a:not(.heading-anchor):not(.card):not([data-plain]) {
+  color: var(--link);
+  text-decoration: underline;
+  text-decoration-color: var(--link-line);
+  text-underline-offset: 3px;
+  transition: text-decoration-color 0.15s;
+}
+.prose-link:hover,
+.prose a:not(.heading-anchor):not(.card):not([data-plain]):hover {
+  text-decoration-color: var(--link);
+}
+
+mark.hl,
+.search-excerpt mark {
+  background: var(--mark-bg);
+  color: var(--brand-text);
+  border-radius: 3px;
+  padding: 0 1px;
+  font-weight: 600;
+}
+
+/* Segmented control (language, theme). */
+.segmented {
+  display: flex;
+  align-items: center;
+  background: var(--bg-subtle);
+  padding: 2px;
+  border-radius: 10px;
+  font-size: 12.5px;
+  font-weight: 500;
+}
+.segmented > * {
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 8px;
+  color: var(--text-sub);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition:
+    color 0.15s,
+    background-color 0.15s;
+}
+.segmented > *:hover {
+  color: var(--text-strong);
+}
+.segmented > [aria-current="true"],
+.segmented > [aria-pressed="true"] {
+  background: var(--bg-raised);
+  color: var(--text-strong);
+  box-shadow: var(--shadow-chip);
+}
+:root[data-theme="dark"] .segmented > [aria-current="true"],
+:root[data-theme="dark"] .segmented > [aria-pressed="true"] {
+  background: var(--bg-selected);
+}
+
+/* Section illustrations are colourful 3D PNGs; soften them a touch in dark mode. */
+:root[data-theme="dark"] img.illus {
+  filter: brightness(0.92) saturate(0.95);
+}

@@ -1,0 +1,76 @@
+---
+title: Troubleshooting
+description: Problems people hit running the server, the Android app or the docs, or calling the API, and what fixes them.
+group: Get started
+order: 4
+groupOrder: 1
+audience: [developers]
+type: reference
+readingTime: 3
+updated: 2026-11-04
+related: ["/en/get-started/quick-start", "/en/operations/configuration", "/en/api/errors"]
+---
+
+## Server
+
+<AccordionGroup>
+<Accordion title="The server exits and lists variables" open>
+No setting has a default. The server checks every variable at start and exits with one line per variable that is missing, empty or invalid. Add them to `.env`. A fresh `.env` from `make run` still needs `LLM_API_KEY` and `LLM_MODEL`.
+</Accordion>
+<Accordion title='"restate not reachable yet" and then a failed start'>
+At start the server registers its endpoint with Restate's admin API and retries for about 30 seconds. If Restate never answers, check that its container is running. Restate uses the host network and binds to 127.0.0.1, because the development machine's firewall drops traffic from containers to the host.
+</Accordion>
+<Accordion title="Restate rejects calls to the server, or the server refuses them">
+Restate signs every request with the key in `.restate/identity.pem`, and the server accepts only requests signed with that key. `make run` keeps the file and the public key in `.env` in step. If you replace one by hand, delete the `RESTATE_IDENTITY_KEY` line in `.env` and run `make run` again.
+</Accordion>
+<Accordion title="The server will not start with APP_ENV=prod">
+Production refuses a few development settings: PNV test numbers (`PNV_TEST_NUMBERS=true`), an empty `FCM_CREDENTIALS`, which writes pushes to the log, and a missing `RESTATE_IDENTITY_KEY`.
+</Accordion>
+<Accordion title="A port is already taken">
+The development stack uses ports in the 564xx and 565xx range, and the test stack uses the same ports plus one, so the two can run together. Stop whatever else is listening on those ports.
+</Accordion>
+</AccordionGroup>
+
+## Tests
+
+<AccordionGroup>
+<Accordion title="A single package fails to connect">
+`go test` on one package needs the test stack, and only `make test` starts it. Run `make test` once. The stack then stays up until `make down`.
+</Accordion>
+</AccordionGroup>
+
+## Android app
+
+<AccordionGroup>
+<Accordion title="run.sh says no phone is attached">
+The script ignores emulators unless you choose one. Set `ANDROID_SERIAL` to the emulator's serial from `adb devices`.
+</Accordion>
+<Accordion title="The build cannot find the Android SDK">
+Set `ANDROID_HOME`, or put `sdk.dir` in `app/local.properties`. The build needs platform 36 and JDK 21. Gradle comes with the repository, so you don't need a system install.
+</Accordion>
+<Accordion title="The app shows data the server does not have">
+The app still runs on fixtures and a simulated seller, and it does not call the server yet.
+</Accordion>
+</AccordionGroup>
+
+## API
+
+<AccordionGroup>
+<Accordion title="Finding the log lines for a failed request">
+Every response carries a `Trace-Id` header, and every error body has a `trace_id`. Search the logs or Grafana for that id.
+</Accordion>
+<Accordion title="Sign-in answers 401 invalid_phone_token">
+The phone token failed a check, and the server log names which one. The verification must be at most five minutes old. In development, PNV test numbers pass only with `PNV_TEST_NUMBERS=true`.
+</Accordion>
+<Accordion title="Photo uploads work on the machine but fail from a phone">
+Upload URLs are signed for `OBJECT_STORE_PUBLIC_ENDPOINT`, and the signature covers the host. Set it to an address the phone can reach, such as this machine's LAN IP, and keep port 56490.
+</Accordion>
+</AccordionGroup>
+
+## Docs site
+
+<AccordionGroup>
+<Accordion title="Search finds nothing in the dev server">
+Search reads an index that only `bun run build` writes. Build once, then start `bun run dev` again.
+</Accordion>
+</AccordionGroup>

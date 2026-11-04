@@ -1,0 +1,35 @@
+---
+title: Phân trang
+description: Cách các endpoint danh sách phân trang bằng cursor, mới nhất trước.
+group: API
+order: 4
+groupOrder: 1
+audience: [developers]
+type: reference
+readingTime: 1
+updated: 2026-11-04
+related: ["/vi/api", "/vi/architecture/search-and-discovery"]
+---
+
+Các endpoint danh sách phân trang bằng cursor, mới nhất trước. Request nhận hai tham số query, đều không bắt buộc:
+
+- `limit`, cỡ trang, từ 1 đến 100, mặc định 20;
+- `cursor`, là `next_cursor` của trang trước. Trang đầu thì bỏ trống.
+
+Một trang trông như sau:
+
+```json
+{ "items": [ ... ], "next_cursor": "01927f3c-..." }
+```
+
+`next_cursor` chỉ có khi còn trang sau; không có nó thì danh sách đã hết. `items` luôn là mảng, rỗng khi không có gì.
+
+Cursor là ID của mục cuối trang, trang sau liệt kê các mục có ID nhỏ hơn. ID là UUIDv7, tăng theo thời gian, nên mục mới tạo trong lúc người dùng cuộn không làm xô lệch các trang đã tải. Lần tải lại từ đầu sẽ thấy chúng.
+
+## Tìm kiếm và feed gần bạn
+
+`GET /v1/search` và `GET /v1/feed/nearby` sắp theo độ liên quan hoặc khoảng cách chứ không theo thời gian, nên cursor của chúng là một chuỗi mờ, không phải ID. Cứ trả lại nguyên chuỗi đó. Kết quả dừng ở 500 mục. Cursor mà server không đọc được trả 400 `invalid_cursor`.
+
+## Screens
+
+Endpoint screen trả trang đầu của mỗi danh sách bên trong nó. Nút "tải thêm" gọi endpoint danh sách tương ứng với cursor của trang đó và nhận về đúng dạng item, như mô tả ở [Screens](/vi/architecture/screens).

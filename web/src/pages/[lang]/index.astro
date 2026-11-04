@@ -1,0 +1,71 @@
+---
+import HomeHero from "../../components/home/home-hero.astro";
+import HomeRecent from "../../components/home/home-recent.astro";
+import HomeSections from "../../components/home/home-sections.astro";
+import { HOME_STRINGS, POPULAR, QUICK_CHIPS } from "../../components/home/home-strings";
+import MobileDrawer from "../../components/layout/mobile-drawer.astro";
+import SiteFooter from "../../components/layout/site-footer.astro";
+import BaseLayout from "../../layouts/base-layout.astro";
+import { getPages, navFor, sortPages } from "../../lib/content";
+import { LANGS, type Lang, SITE_TITLE } from "../../lib/i18n";
+import { contentEnter } from "../../lib/motion";
+import { toLink } from "../../lib/related";
+import { INTERNAL_BUILD, TABS } from "../../lib/tabs";
+
+export function getStaticPaths() {
+  return LANGS.map((lang) => ({ params: { lang } }));
+}
+
+const lang = Astro.params.lang as Lang;
+const h = HOME_STRINGS[lang];
+const pages = (await getPages()).filter((p) => p.lang === lang);
+const byPath = new Map(pages.map((p) => [p.url.slice(lang.length + 1), p]));
+const crumbOf = (path: string) => {
+  const page = byPath.get(path);
+  return page ? toLink(page).crumb : "";
+};
+
+const paths = h.paths
+  .filter((p) => (INTERNAL_BUILD || !p.internal) && byPath.has(p.href))
+  .map((p) => ({ ...p, url: `/${lang}${p.href}` }));
+const popular = POPULAR.flatMap(({ href, icon }) => {
+  const page = byPath.get(href);
+  return page ? [{ page, icon, crumb: crumbOf(href) }] : [];
+});
+const chips = QUICK_CHIPS.flatMap((href) => {
+  const page = byPath.get(href);
+  return page ? [{ url: page.url, title: page.entry.data.title }] : [];
+});
+const sections = TABS.map((tab) => ({
+  tab,
+  links: navFor(pages, lang, tab.id)
+    .flatMap((g) => g.pages)
+    .filter((p) => p.slug !== "")
+    .slice(0, 3),
+})).filter((s) => s.links.length > 0);
+const recent = pages
+  .filter((p) => !p.fallback)
+  .sort((a, b) => b.entry.data.updated.getTime() - a.entry.data.updated.getTime() || sortPages(a, b))
+  .slice(0, 5)
+  .map((page) => ({ page, crumb: toLink(page).crumb }));
+const troubleshooting = byPath.get("/get-started/troubleshooting");
+const glossaryPage = byPath.get("/get-started/glossary");
+const footerLinks = [
+  glossaryPage && { url: glossaryPage.url, label: h.footerGlossary },
+  troubleshooting && { url: troubleshooting.url, label: h.footerTroubleshooting },
+].filter((l): l is { url: string; label: string } => Boolean(l));
+const altUrl = lang === "en" ? "/vi" : "/en";
+const suggestions = popular.slice(0, 3).map(({ page }) => toLink(page));
+---
+
+<BaseLayout title={SITE_TITLE} description={h.lead} lang={lang} altUrl={altUrl} suggestions={suggestions}>
+  <main id="main" transition:name="docs-content" transition:animate={contentEnter}>
+    <HomeHero lang={lang} chips={chips} />
+    <div class="max-w-[1120px] mx-auto px-4 sm:px-8 xl:px-0">
+      <HomeSections lang={lang} paths={paths} popular={popular} sections={sections} />
+      <HomeRecent lang={lang} recent={recent} troubleshootingUrl={troubleshooting?.url} />
+    </div>
+    <SiteFooter lang={lang} altUrl={altUrl} links={footerLinks} />
+  </main>
+  <MobileDrawer lang={lang} groups={[]} currentUrl={`/${lang}`} altUrl={altUrl} />
+</BaseLayout>

@@ -1,0 +1,42 @@
+---
+title: Deployment
+description: What runs where today. The docs ship through GitOps; the new server has no production deployment yet.
+group: Operations
+order: 1
+groupOrder: 1
+audience: [developers, admins]
+type: overview
+readingTime: 3
+updated: 2026-11-04
+related: ["/en/operations/local-stack", "/en/operations/configuration", "/en/operations/monitoring"]
+---
+
+The server runs only on developer machines for now. CI, a container image and a production deployment for it are listed as later work and are not built. The Android app is built and installed from Gradle.
+
+## The GitOps setup
+
+The umbrella repository holds a GitOps setup in `deploy/`. A k3d cluster runs Argo CD, which keeps the cluster in step with the Kubernetes manifests in `deploy/k8s`. Each component's repository has a GitHub Actions workflow that builds its image and pushes it to GHCR with a `:main` and a `:sha-<commit>` tag. Argo CD Image Updater watches the `:main` digest and triggers a sync when it changes. CI never reaches the cluster, because the cluster pulls its own updates.
+
+```mermaid title="From a push to a running pod"
+flowchart LR
+  push[git push] --> ci[GitHub Actions]
+  ci --> ghcr[GHCR :main]
+  ghcr --> iu[Image Updater]
+  iu --> argo[Argo CD sync]
+  argo --> k3d[k3d cluster]
+  k3d --> caddy[Caddy, TLS]
+```
+
+Caddy on the host terminates TLS and forwards to the cluster's Traefik ingress. The public domain names are configured only in Caddy.
+
+<Callout type="warning">
+Most of the manifests in `deploy/k8s` describe the old system: an API gateway, NATS, Redis and the Next.js storefront. They do not fit the new server, which needs Postgres with ParadeDB, Restate and RustFS.
+</Callout>
+
+## The docs
+
+The docs follow this path today. The `docs/Dockerfile` builds the Astro site with Bun and serves the static output with nginx. Two build arguments pass through: `DOCS_BASE` for a path prefix and `DOCS_INTERNAL` for the internal Developers tab. The cluster serves the image on its own `docs.` subdomain.
+
+## What production will need from the server
+
+The server already refuses to start in production with development shortcuts in place. `APP_ENV=prod` requires the Restate identity key, real push credentials, and PNV test numbers turned off. Logs should be JSON there (`LOG_FORMAT=json`).

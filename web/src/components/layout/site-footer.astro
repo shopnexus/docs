@@ -1,0 +1,29 @@
+---
+import { withBase } from "../../lib/base";
+import { type Lang, STRINGS } from "../../lib/i18n";
+import Brand from "./brand.astro";
+import LangSwitch from "./lang-switch.astro";
+import ThemeToggle from "./theme-toggle.astro";
+
+interface Props {
+  lang: Lang;
+  altUrl: string;
+  links: { url: string; label: string }[];
+}
+
+const { lang, altUrl, links } = Astro.props;
+const t = STRINGS[lang];
+---
+
+<footer class="border-t border-line bg-nav" data-pagefind-ignore>
+  <div class="max-w-[1120px] mx-auto px-4 sm:px-8 xl:px-0 py-8 flex flex-wrap items-center gap-x-8 gap-y-4">
+    <Brand href={`/${lang}`} size="sm" />
+    <nav class="flex flex-wrap items-center gap-5 text-[13.5px] text-sub">
+      {links.map((l) => <a href={withBase(l.url)} class="hover:text-strong">{l.label}</a>)}
+    </nav>
+    <div class="flex-1"></div>
+    <LangSwitch lang={lang} altUrl={altUrl} />
+    <ThemeToggle lang={lang} variant="segmented" />
+  </div>
+  <div class="max-w-[1120px] mx-auto px-4 sm:px-8 xl:px-0 pb-8 text-[12.5px] text-faint">{t.footerCopy}</div>
+</footer>

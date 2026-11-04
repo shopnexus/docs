@@ -1,0 +1,33 @@
+---
+title: Sau khi nhận hàng
+description: Ghi nhận sự cố trong chat, seller tự hoàn hoặc từ chối, nhận xét trung lập của AI, và dữ kiện công khai trên hồ sơ.
+group: Mô hình sàn
+order: 5
+groupOrder: 1
+audience: [everyone]
+type: concept
+readingTime: 2
+updated: 2026-11-04
+related: ["/vi/marketplace/trust-and-sanctions", "/vi/marketplace/money-and-cancellation", "/vi/architecture/trust"]
+---
+
+Sự cố sau khi nhận được ghi nhận, sàn không phân xử. Ở quy mô một vụ thì không ai biết ai đúng, và sàn cũng không cầm đồng tiền nào để chuyển qua lại.
+
+## Ghi nhận sự cố
+
+Buyer thấy hàng có vấn đề sau khi đã trả tiền thì mở <Term id="issue-report">ghi nhận sự cố</Term> ngay trong chat, kèm ảnh và vài dòng kể chuyện gì xảy ra, rồi seller chọn một trong hai cách trả lời:
+
+- Tự hoàn, chuyển khoản thẳng cho buyer. Seller tự hoàn được cộng điểm uy tín.
+- Từ chối. Khi đó ghi nhận và câu trả lời của seller thành dữ kiện công khai trên hồ sơ seller, buyer sau nào cũng đọc được.
+
+Ghi nhận còn mở thì buyer rút lại được.
+
+## Nhận xét của AI
+
+AI đưa một nhận xét trung lập cho cả hai cùng đọc. Nhận xét trích lại những gì tin đã ghi, ví dụ "Tin ghi: Pin 88% · Máy zin, chưa sửa · Bản VN/A", hoặc "Tin không ghi thông tin nào" nếu tin không ghi gì. Hai bên đọc cùng một bộ dữ kiện, và AI không kết luận ai đúng.
+
+## Đánh giá
+
+Buyer đánh giá seller khi đơn đã gửi, đã giao hoặc bị hoàn: 1 đến 5 sao, tối đa 500 ký tự. Mỗi đơn một đánh giá, buyer sửa hoặc xóa được trong 7 ngày kể từ lần gửi đầu. Buyer không xác nhận đã nhận hàng trong app, nên đánh giá thay cho xác nhận đó.
+
+Phần đánh giá đã có trên server. Ghi nhận sự cố và điểm uy tín đi kèm đã thiết kế trong app, sau này sẽ vào module trust của server.

@@ -1,0 +1,166 @@
+---
+import { Icon } from "astro-icon/components";
+import { type GlossaryCategory, glossary } from "../../data/glossary";
+import { pageLang } from "../../lib/page-lang";
+import { GLOSSARY_STRINGS } from "./glossary-strings";
+
+const lang = pageLang(Astro);
+const other = lang === "en" ? "vi" : "en";
+const s = GLOSSARY_STRINGS[lang];
+const collator = new Intl.Collator(lang);
+const entries = [...glossary].sort((a, b) => collator.compare(a[lang].term, b[lang].term));
+const byId = Object.fromEntries(glossary.map((g) => [g.id, g]));
+const letterOf = (term: string) =>
+  term.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/gi, "D").charAt(0).toUpperCase();
+const sections = new Map<string, typeof entries>();
+for (const entry of entries) {
+  const letter = letterOf(entry[lang].term);
+  sections.set(letter, [...(sections.get(letter) ?? []), entry]);
+}
+const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+const categories = Object.keys(s.categories) as GlossaryCategory[];
+const TONE: Record<GlossaryCategory, string> = {
+  marketplace: "bg-brand-soft text-brand-text",
+  architecture: "bg-info-soft text-info",
+  api: "bg-subtle text-sub",
+};
+---
+
+<div class="glossary not-prose" data-glossary>
+  <div class="glossary-controls">
+    <div class="flex flex-wrap items-center gap-3">
+      <label class="h-9 w-full sm:w-[260px] px-3 rounded-[10px] border border-line-sub bg-raised flex items-center gap-2 text-[14px] text-faint">
+        <Icon name="ri:filter-3-line" width="16" height="16" aria-hidden="true" />
+        <input type="search" class="flex-1 min-w-0 bg-transparent outline-none text-strong placeholder:text-faint" placeholder={s.filter} data-glossary-filter />
+      </label>
+      <div class="flex flex-wrap items-center gap-1.5" role="group" aria-label={s.category}>
+        <button type="button" class="scope-chip" aria-selected="true" data-glossary-cat="">{s.all} <span class="scope-count">{glossary.length}</span></button>
+        {categories.map((c) => (
+          <button type="button" class="scope-chip" aria-selected="false" data-glossary-cat={c}>{s.categories[c]}</button>
+        ))}
+      </div>
+      <span class="flex-1"></span>
+      <div class="segmented" role="group" aria-label={s.show}>
+        <button type="button" aria-pressed="false" data-glossary-mode="one">{s.oneLang}</button>
+        <button type="button" aria-pressed="true" data-glossary-mode="both">
+          <Icon name="ri:translate-2" width="13" height="13" aria-hidden="true" />{s.bothLangs}
+        </button>
+      </div>
+    </div>
+    <nav class="mt-3 flex flex-wrap items-center gap-0.5" aria-label="A–Z">
+      {letters.map((l) => sections.has(l) ? (
+        <a href={`#letter-${l}`} class="glossary-letter" data-glossary-letter={l} data-plain>{l}</a>
+      ) : (
+        <span class="glossary-letter is-empty" aria-hidden="true">{l}</span>
+      ))}
+    </nav>
+  </div>
+  <div class="glossary-head" aria-hidden="true">
+    <span>{s.term}</span><span>{s.meaning}</span><span class="glossary-col-other">{s.otherLang}</span>
+  </div>
+  {[...sections].map(([letter, items]) => (
+    <section class="mt-8" id={`letter-${letter}`} data-glossary-section>
+      <div class="flex items-center gap-3">
+        <span class="w-9 h-9 rounded-[10px] bg-subtle border border-line flex items-center justify-center text-[16px] font-semibold text-strong">{letter}</span>
+        <span class="text-[12.5px] text-faint">{s.count.replace("{n}", String(items.length))}</span>
+        <span class="flex-1 h-px bg-line"></span>
+      </div>
+      <div class="mt-3 rounded-2xl border border-line divide-y divide-line overflow-hidden">
+        {items.map((g) => (
+          <div id={`t-${g.id}`} class="glossary-row" data-glossary-row data-cat={g.category} data-text={`${g.en.term} ${g.vi.term} ${g.en.definition} ${g.vi.definition}`.toLowerCase()}>
+            <div>
+              <div class="text-[15.5px] font-semibold leading-6 text-strong">{g[lang].term}</div>
+              <span class={`mt-1.5 inline-flex h-5 px-1.5 rounded-md text-[11px] font-semibold items-center ${TONE[g.category]}`}>{s.categories[g.category]}</span>
+            </div>
+            <div>
+              <p class="text-[14.5px] leading-[23px] text-body">{g[lang].definition}</p>
+              {g.related && g.related.length > 0 && (
+                <div class="mt-2 flex flex-wrap items-center gap-1.5">
+                  <span class="text-[12px] text-faint mr-0.5">{s.seeAlso}</span>
+                  {g.related.filter((id) => byId[id]).map((id) => (
+                    <a href={`#t-${id}`} class="h-6 px-2 rounded-full border border-line text-[12px] text-sub flex items-center hover:bg-subtle hover:text-strong" data-plain>{byId[id]?.[lang].term}</a>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div class="glossary-col-other" lang={other}>
+              <div class="text-[14.5px] font-semibold leading-6 text-brand-text">{g[other].term}</div>
+              <p class="mt-0.5 text-[13px] leading-[20px] text-sub">{g[other].definition}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  ))}
+  <p class="mt-10 text-center text-[14px] text-sub" data-glossary-none hidden>{s.none}</p>
+</div>
+
+<script>
+  function apply(root: HTMLElement) {
+    const query = root.querySelector<HTMLInputElement>("[data-glossary-filter]")?.value.trim().toLowerCase() ?? "";
+    const cat = root.querySelector<HTMLElement>("[data-glossary-cat][aria-selected='true']")?.dataset.glossaryCat ?? "";
+    let shown = 0;
+    for (const section of root.querySelectorAll<HTMLElement>("[data-glossary-section]")) {
+      let inSection = 0;
+      for (const row of section.querySelectorAll<HTMLElement>("[data-glossary-row]")) {
+        const match = (!cat || row.dataset.cat === cat) && (!query || (row.dataset.text ?? "").includes(query));
+        row.hidden = !match;
+        if (match) inSection++;
+      }
+      section.hidden = inSection === 0;
+      shown += inSection;
+    }
+    const none = root.querySelector<HTMLElement>("[data-glossary-none]");
+    if (none) none.hidden = shown > 0;
+  }
+
+  document.addEventListener("input", (event) => {
+    const root = (event.target as Element).closest?.<HTMLElement>("[data-glossary]");
+    if (root) apply(root);
+  });
+
+  document.addEventListener("click", (event) => {
+    const target = event.target as Element;
+    const root = target.closest<HTMLElement>("[data-glossary]");
+    if (!root) return;
+    const chip = target.closest<HTMLElement>("[data-glossary-cat]");
+    if (chip) {
+      for (const c of root.querySelectorAll("[data-glossary-cat]")) c.setAttribute("aria-selected", String(c === chip));
+      apply(root);
+    }
+    const mode = target.closest<HTMLElement>("[data-glossary-mode]");
+    if (mode) {
+      for (const m of root.querySelectorAll("[data-glossary-mode]")) m.setAttribute("aria-pressed", String(m === mode));
+      root.classList.toggle("is-one-lang", mode.dataset.glossaryMode === "one");
+    }
+  });
+
+  // Highlight the letter of the section at the top of the screen.
+  let stopSpy: (() => void) | undefined;
+  document.addEventListener("astro:page-load", () => {
+    stopSpy?.();
+    stopSpy = undefined;
+    const root = document.querySelector<HTMLElement>("[data-glossary]");
+    if (!root) return;
+    const controls = root.querySelector<HTMLElement>(".glossary-controls");
+    const sections = [...root.querySelectorAll<HTMLElement>("[data-glossary-section]")];
+    // Active letter: the last visible section whose top has passed the sticky controls.
+    const update = () => {
+      const shown = sections.filter((s) => !s.hidden);
+      const edge = (controls?.getBoundingClientRect().bottom ?? 0) + 24;
+      const current = shown.filter((s) => s.getBoundingClientRect().top <= edge).at(-1) ?? shown[0];
+      const letter = current?.id.replace("letter-", "") ?? "";
+      for (const a of root.querySelectorAll<HTMLElement>("[data-glossary-letter]")) {
+        a.classList.toggle("is-active", a.dataset.glossaryLetter === letter);
+      }
+    };
+    let frame = 0;
+    const onScroll = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(update);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    stopSpy = () => window.removeEventListener("scroll", onScroll);
+    update();
+  });
+</script>

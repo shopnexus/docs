@@ -1,0 +1,38 @@
+---
+title: Thiết kế API
+description: Spec OpenAPI là hợp đồng giữa app và server, và mọi request đều được kiểm tra theo nó.
+group: API
+order: 1
+groupOrder: 1
+audience: [developers]
+type: reference
+readingTime: 2
+updated: 2026-11-04
+related: ["/vi/api/errors", "/vi/api/authentication", "/vi/architecture/screens"]
+---
+
+API HTTP đi theo hướng OpenAPI first. Thiết kế một tính năng bắt đầu từ `server/api/openapi.yaml` và các file nó tham chiếu trong `paths/`, `schemas/`, `parameters/` và `responses/`. Code viết ra để khớp với spec, chứ spec không chạy theo code.
+
+## Spec ràng buộc code thế nào
+
+Server nhúng spec vào binary và nạp nó lúc khởi động, nên binary luôn mang theo đúng hợp đồng mà nó dùng để kiểm tra. Trước khi handler chạy, một middleware validate request theo operation tương ứng: tham số path và query, header và body JSON. Luật về hình dạng dữ liệu (trường bắt buộc, độ dài, format, enum) chỉ nằm trong spec và handler không lặp lại, còn luật nghiệp vụ nằm trong các module.
+
+Bộ test giữ cho hai bên luôn khớp nhau:
+
+- spec nạp và validate được, kể cả các tham chiếu;
+- tập route đã đăng ký và tập operation trong spec phải trùng nhau, operation thiếu route hay route thiếu operation đều làm test fail;
+- client e2e validate mọi response theo operation nó gọi;
+- mỗi status code mà operation khai báo phải xuất hiện trong ít nhất một test e2e.
+
+## Quy ước
+
+- Mọi route bắt đầu bằng `/v1`. Khi có thay đổi phá vỡ tương thích thì thêm `/v2` song song, vì app đã cài có thể ở bản cũ hàng tháng trời.
+- JSON dùng `snake_case`, trường lạ bị từ chối, body tối đa 1 MB.
+- ID là UUIDv7.
+- `/healthz` và `/readyz` nằm ngoài `/v1`, báo process còn sống và đã sẵn sàng.
+
+## Đọc và thử API
+
+Server không phục vụ trang docs hay playground nào. Đọc thẳng các file spec, hoặc mở `openapi.yaml` bằng một trình xem OpenAPI 3.2 bất kỳ. Server local chạy ở `http://localhost:8080`; cách dựng xem ở [Môi trường local](/vi/operations/local-stack).
+
+Phần lớn màn hình của app được đọc bằng một lần gọi cho mỗi view, qua các endpoint mô tả ở [Screens](/vi/architecture/screens).

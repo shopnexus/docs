@@ -1,0 +1,32 @@
+---
+title: Test
+description: Test của server được tổ chức thế nào, chạy trên gì, và app được kiểm tra ra sao.
+group: Vận hành
+order: 5
+groupOrder: 1
+audience: [developers]
+type: reference
+readingTime: 2
+updated: 2026-11-04
+related: ["/vi/operations/local-stack", "/vi/architecture/durable-flows"]
+---
+
+## Server
+
+`make test` bật stack test, chạy toàn bộ test với race detector, rồi chạy golangci-lint. Bước lint cũng kiểm tra format bằng gofumpt. Sau một lần chạy, stack vẫn bật, nên `go test` cho từng package chạy được luôn. `go test -short` chỉ chạy những test không cần database.
+
+Không có fake trong bộ nhớ. Thứ gì đụng tới store đều test trên Postgres, mỗi test có một bản clone riêng từ database mẫu đã migrate. Một fake sẽ phải bắt chước hành vi của Postgres, rồi lại cần test riêng để chứng minh nó bắt chước đúng.
+
+| Tầng | Test thế nào |
+|---|---|
+| Entity | unit test không cần database; luật nghiệp vụ nằm ở đây |
+| Repository và service | trên Postgres, với đồng hồ đứng yên |
+| Handler Restate | chạy với Restate của stack test, endpoint mở ngay trong process, đồng hồ chỉnh tay; có wrapper làm một bước commit xong rồi lỗi một lần, để chứng minh retry không tạo bản trùng |
+| HTTP | test middleware trong process; các endpoint chạy trong bộ e2e |
+| E2E | cả server chạy trong process với Postgres và Restate, token số điện thoại do một issuer test ký, push bị một sender giả bắt lại |
+
+Bộ e2e trong `server/e2e` còn đối chiếu các route với spec OpenAPI. Mọi test đều chạy song song và linter bắt buộc điều đó. Test nào thay đổi trạng thái chung của process thì chạy riêng và ghi rõ lý do.
+
+## App Android
+
+`./gradlew check` chạy unit test, test UI bằng Robolectric, Android Lint, detekt, ktlint và một bước kiểm tra không màn hình nào dùng màu thô. `./gradlew spotlessApply` sửa format.

@@ -1,0 +1,47 @@
+---
+import { Icon } from "astro-icon/components";
+import { withBase } from "../../lib/base";
+import { type Lang, STRINGS } from "../../lib/i18n";
+import { HOME_STRINGS } from "./home-strings";
+
+interface Props {
+  lang: Lang;
+  chips: { url: string; title: string }[];
+}
+
+const { lang, chips } = Astro.props;
+const h = HOME_STRINGS[lang];
+const t = STRINGS[lang];
+---
+
+<section class="relative hero-glow border-b border-line overflow-hidden">
+  <div class="absolute inset-0 hero-dots opacity-70" aria-hidden="true"></div>
+  <div class="relative max-w-[1120px] mx-auto px-4 sm:px-8 xl:px-0 flex flex-col lg:flex-row items-center gap-6 lg:gap-10 pt-8 lg:pt-12 pb-10">
+    <div class="flex-1 min-w-0 w-full">
+      <div class="fade-up inline-flex items-center gap-2 h-7 pl-2 pr-3 rounded-full border border-line bg-page/80 text-[12.5px] font-medium text-sub">
+        <span class="w-1.5 h-1.5 rounded-full bg-brand"></span>{h.badge}
+      </div>
+      <h1 class="fade-up d1 mt-5 text-[34px] leading-[40px] sm:text-[48px] sm:leading-[56px] font-[650] tracking-[-0.03em] max-w-[620px] text-strong">
+        {h.title}
+      </h1>
+      <p class="fade-up d2 mt-4 text-[17px] leading-[28px] sm:text-[18px] sm:leading-[30px] text-sub max-w-[560px]">{h.lead}</p>
+      <button
+        type="button"
+        class="search-big fade-up d3 mt-7 w-full max-w-[580px] h-14 pl-4 pr-3 rounded-2xl border border-line-sub bg-raised flex items-center gap-3 text-[16px] text-faint"
+        data-search-open
+      >
+        <Icon name="ri:search-line" width="20" height="20" class="text-sub" aria-hidden="true" />
+        <span class="flex-1 text-left truncate">{t.searchHero}</span>
+        <span class="hidden sm:flex gap-1" aria-hidden="true"><kbd class="kbd h-6! min-w-6! text-[12.5px]!" data-mod-key>⌘K</kbd></span>
+      </button>
+      <div class="fade-up d4 mt-4 flex items-center gap-2 flex-wrap">
+        <span class="text-[13px] text-faint mr-0.5">{h.popularLabel}</span>
+        {chips.map((c) => <a href={withBase(c.url)} class="pill-link">{c.title}</a>)}
+      </div>
+    </div>
+    <div class="relative hidden md:block w-[320px] h-[280px] lg:w-[400px] lg:h-[340px] shrink-0" aria-hidden="true">
+      <div class="absolute left-1/2 bottom-6 -translate-x-1/2 w-[220px] h-6 rounded-[50%] bg-black/[.07] blur-md"></div>
+      <img src={withBase("/img/docs-hero.webp")} alt="" width="400" height="400" class="illus float relative w-full aspect-square -mt-8 object-contain" />
+    </div>
+  </div>
+</section>

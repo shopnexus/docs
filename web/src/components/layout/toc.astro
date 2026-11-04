@@ -1,0 +1,87 @@
+---
+import type { MarkdownHeading } from "astro";
+import { Icon } from "astro-icon/components";
+import { withBase } from "../../lib/base";
+import { type Lang, STRINGS } from "../../lib/i18n";
+
+interface RelatedLink {
+  url: string;
+  title: string;
+  icon: string;
+}
+
+interface Props {
+  lang: Lang;
+  headings: MarkdownHeading[];
+  related: RelatedLink[];
+}
+
+const { lang, headings, related } = Astro.props;
+const t = STRINGS[lang];
+---
+
+<div class="sticky top-[104px] max-h-[calc(100dvh-128px)] overflow-y-auto no-scrollbar pb-6" data-pagefind-ignore>
+  {
+    headings.length > 0 && (
+      <>
+        <p class="text-[12px] font-medium text-faint mb-3">{t.onThisPage}</p>
+        <div class="toc relative pl-3 border-l border-line" data-toc>
+          <span class="toc-bar" aria-hidden="true" data-toc-bar />
+          <ul class="space-y-2.5 text-[13.5px] leading-5">
+            {headings.map((h) => (
+              <li class:list={[h.depth === 3 && "pl-3"]}>
+                <a href={`#${h.slug}`} class="toc-link" data-toc-link={h.slug}>
+                  {h.text}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </>
+    )
+  }
+  {
+    related.length > 0 && (
+      <>
+        <p class:list={["text-[12px] font-medium text-faint mb-3", headings.length > 0 && "mt-8"]}>{t.related}</p>
+        <ul class="space-y-2 text-[13.5px]">
+          {related.map((r) => (
+            <li>
+              <a href={withBase(r.url)} class="flex items-start gap-2 text-body hover:text-strong leading-5">
+                <Icon name={r.icon} width="15" height="15" class="text-faint mt-0.5 shrink-0" aria-hidden="true" />
+                {r.title}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </>
+    )
+  }
+</div>
+
+<style is:global>
+  .toc-bar {
+    position: absolute;
+    left: -1px;
+    top: 0;
+    width: 2px;
+    height: var(--toc-h, 20px);
+    border-radius: 999px;
+    background: var(--brand);
+    transform: translateY(var(--toc-y, 0));
+    opacity: var(--toc-o, 0);
+    transition: transform 0.2s var(--ease-out-expo), height 0.2s var(--ease-out-expo), opacity 0.2s;
+  }
+  .toc-link {
+    display: block;
+    color: var(--text-soft);
+    transition: color 0.15s;
+  }
+  .toc-link:hover {
+    color: var(--text-strong);
+  }
+  .toc-link.is-active {
+    color: var(--text-strong);
+    font-weight: 500;
+  }
+</style>

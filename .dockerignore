@@ -3,6 +3,10 @@
 .claude
 typst
 manual
+scripts
+web/node_modules
+web/dist
+web/.astro
 node_modules
 *.pdf
 Dockerfile

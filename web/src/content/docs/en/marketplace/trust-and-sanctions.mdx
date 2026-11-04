@@ -1,0 +1,45 @@
+---
+title: Trust and sanctions
+description: The figures ShopNexus tracks for buyers and sellers, the ladder of rights a person loses past a threshold, and the limit on open COD orders.
+group: Marketplace
+order: 6
+groupOrder: 1
+audience: [everyone]
+type: concept
+readingTime: 2
+updated: 2026-11-04
+related: ["/en/marketplace/after-delivery", "/en/marketplace/moderation", "/en/architecture/trust"]
+---
+
+Since the platform judges no case, trust is a set of statistics. Nobody can tell who is right in a single case, but across fifty cases a pattern shows in the numbers.
+
+## What is tracked
+
+- For a buyer, the <Term id="refusal-rate">refusal rate</Term>: how often they refuse a parcel at the door, counted from the orders sellers report as returned.
+- For a seller, how often they decline issue reports.
+- For a seller, how many issue reports are still waiting for their answer.
+
+The app shows each person these figures over the last 90 days.
+
+## The ladder
+
+A person who crosses a threshold loses rights in this order:
+
+1. Lower visibility for their listings.
+2. A lower limit on COD orders.
+3. No COD at all.
+4. The account is locked.
+
+Every step is automatic and follows the figures. A sanction removes rights only, since the platform holds no money to fine anyone with. A seller plan cannot buy COD rights or a reputation tier; those come only from a person's history of deals.
+
+The thresholds are not decided yet. They do the work a judge would do in another marketplace, so they are the next part of the model to settle.
+
+## Open COD orders for new buyers
+
+When a buyer refuses a parcel, the seller pays shipping both ways. The refusal rate is the only thing that keeps buyers ordering seriously, so a new buyer may have only a few COD orders waiting for delivery at once. The plan is for that limit to grow with the number of orders the buyer has received. Today the server applies a fixed limit of 3 orders requested or shipped per buyer.
+
+## Sales outside the app
+
+A seller who sells an item off the app marks it with **Đánh dấu đã bán**. The sale counts in the seller's sold total and in their record.
+
+A suspended account cannot post, make offers or ask for COD. It can still finish or cancel an order already under way.

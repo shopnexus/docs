@@ -1,0 +1,61 @@
+---
+title: Quick start
+description: Run the server and its stack on your machine, put the Android app on a phone, and preview these docs.
+group: Get started
+order: 2
+groupOrder: 1
+audience: [developers]
+type: tutorial
+readingTime: 4
+updated: 2026-11-04
+related: ["/en/get-started/troubleshooting", "/en/operations/local-stack", "/en/operations/configuration"]
+---
+
+<Prereqs time="15 min" who="Developers">
+- Go 1.27 and Docker with Compose, for the server.
+- JDK 21, the Android SDK with platform 36, and a phone on Android 12 or later (or an API 36 emulator), for the app.
+- Bun, for the docs.
+</Prereqs>
+
+## The server
+
+<Steps>
+<Step title="Start everything">
+From `server/`:
+
+```bash title="Terminal"
+make run
+```
+
+The first run copies `.env.example` to `.env` and adds fresh signing keys. Every run then starts the development stack, applies migrations, prepares the object store bucket and starts the server on port 8080.
+</Step>
+
+<Step title="Fill in the model settings">
+Search reads queries through a language model, and `.env.example` leaves `LLM_API_KEY` and `LLM_MODEL` empty. Until you set them in `.env`, the server refuses to start and names every variable it is missing.
+</Step>
+
+<Step title="Check it is up">
+`GET /healthz` answers as soon as the process runs. `GET /readyz` also checks Postgres and Restate.
+</Step>
+
+<Step title="Create a staff admin">
+The API cannot create admins. Run `go run ./cmd/staff create-admin --email <email> --name <name>`, and it prints a temporary password.
+</Step>
+</Steps>
+
+`make down` stops the stacks and keeps the development database.
+
+## The Android app
+
+From `app/`, with a phone connected over adb:
+
+```bash title="Terminal"
+./run.sh        # install the debug build and open it
+./run.sh -w     # reinstall and reopen after every saved change
+```
+
+The script picks a real phone over an emulator. To use an emulator, set `ANDROID_SERIAL` to its serial. The app runs on fake data with a simulated seller and carrier, so it does not need the server. In a debug build, a long press on the location pill on Home opens the debug panel, where you can jump a deal to any state or reset the data.
+
+## These docs
+
+From `docs/web`, run `bun install`, then `bun run dev` to get a live preview at `http://localhost:4321`. Search only works after one `bun run build`, because the build writes the search index.

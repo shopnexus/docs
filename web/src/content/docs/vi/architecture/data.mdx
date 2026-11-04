@@ -1,0 +1,38 @@
+---
+title: Dữ liệu
+description: Postgres là kho duy nhất, transaction và ghi đồng thời hoạt động ra sao, và schema thay đổi thế nào.
+group: Nền tảng
+groupOrder: 2
+order: 4
+audience: [developers]
+type: concept
+readingTime: 3
+updated: 2026-11-04
+related: ["/vi/architecture/modules", "/vi/architecture/durable-flows"]
+---
+
+Mọi module giữ dữ liệu trong một database Postgres 18 chạy ParadeDB, bản này thêm index full-text cho tìm kiếm và hỗ trợ vector. Ảnh nằm trong RustFS; database chỉ giữ object key. Postgres sẽ lên lại bản 19 khi ParadeDB hỗ trợ.
+
+## Aggregate và transaction
+
+Aggregate là đơn vị mà module đọc và lưu nguyên khối: một tài khoản, một tin đăng, một deal, một phiên đăng nhập. Nó có thể trải trên nhiều bảng, như thông tin đăng nhập của một người gồm một hàng gốc và các danh tính số điện thoại. Một transaction nằm gọn trong một method của repository và chỉ phủ một aggregate. Lần đăng nhập đầu ghi hai aggregate, tài khoản rồi thông tin đăng nhập, nên nó chạy thành [durable flow](/vi/architecture/durable-flows) và xóa tài khoản đi nếu số điện thoại bị lấy mất ở giữa.
+
+## Ghi đồng thời
+
+Ghi được kiểm tra theo kiểu optimistic. Mỗi hàng aggregate mang một write ID, là ID của lần ghi gần nhất. Khi lưu, server nêu write ID đã đọc và write ID mới mang theo, và chỉ ghi được nếu hàng vẫn giữ một trong hai.
+
+- Lần lưu bình thường thấy đúng ID đã đọc.
+- Lần thử lại sau một commit chưa kịp báo về thấy ID mới của chính nó và ghi lại đúng các giá trị cũ.
+- Lần lưu đã thua người khác thấy một ID thứ ba và thất bại. Client nhận `try_again` rồi đọc lại; riêng deal trả `deal_changed`, vì bước đi của phía bên kia có thể làm đổi ý nghĩa của thao tác.
+
+Bộ đếm version không dùng được ở đây, vì người ghi khác có thể tăng nó lên đúng giá trị mà lần thử lại đang chờ.
+
+Các giới hạn trải trên nhiều hàng, như 20 tin đang mở mỗi người bán hay 3 đơn COD đang chạy mỗi người mua, được đếm dưới một advisory lock của Postgres trên tài khoản.
+
+## Insert idempotent
+
+Bên gọi chọn ID của hàng trước khi insert, một UUIDv7 theo thời gian, và các endpoint danh sách phân trang theo ID này, mới nhất trước. Trong durable flow, ID lấy từ journal nên bước thử lại gửi đúng ID cũ. Insert bỏ qua hàng có ID đã tồn tại, nên thử lại không thêm gì.
+
+## Migration
+
+Schema là chuỗi file SQL đánh số trong `server/migrations`. File đã chạy ở bất cứ đâu thì không bao giờ sửa; sai thì sửa bằng một file mới, và migrator dùng checksum để từ chối file bị đổi. Chạy `go run ./cmd/migrate`, hoặc `make run`, lệnh này áp migration trước khi bật server. Server không chịu khởi động khi còn migration chưa chạy. Không cột nào đặt tên trùng từ khóa SQL, và `sqlfluff lint migrations/` kiểm tra việc đó.

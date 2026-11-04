@@ -1,0 +1,28 @@
+---
+title: Thông báo
+description: Module notification biến event thành thông báo trong app và push qua Firebase thế nào.
+group: Module của sàn
+order: 6
+groupOrder: 4
+audience: [developers]
+type: concept
+readingTime: 2
+updated: 2026-11-04
+related: ["/vi/architecture/events", "/vi/architecture/sessions"]
+---
+
+Module notification báo cho người dùng về deal, đơn, tin đăng, đánh giá và tài khoản của họ, bằng danh sách trong app và push tới điện thoại Android. Không module nào gọi nó, trừ module screen lấy số chưa đọc cho màn Home; mọi việc nó làm đều bắt đầu từ một [event](/vi/architecture/events).
+
+## Worker
+
+Một worker Restate có một handler cho mỗi loại event: bước đi của deal, tin nhắn đã gửi, tin được duyệt hoặc bị từ chối, đánh giá mới, và tài khoản bị khóa hay mở khóa. Mỗi handler đọc dữ kiện từ module nguồn, quyết định ai nhận gì, ghi thông báo rồi push.
+
+Thông báo lưu loại và tham số, còn câu chữ tiếng Việt do server viết lúc liệt kê hoặc lúc push. Thông báo về cùng một deal hay một tin đăng được gộp: thông báo mới thay thông báo chưa đọc của cùng deal đó và đẩy lên đầu, còn thông báo đã đọc thì giữ nguyên và một thông báo mới bắt đầu. Event cũ hơn thông báo mới nhất của deal đó thì không ghi gì, nên event tới muộn không kéo lại nội dung cũ. Thông báo được giữ 90 ngày.
+
+Tin nhắn chat chỉ được push, không vào danh sách, vì hộp thư đã liệt kê rồi. Tài khoản bị khóa vẫn nhận thông báo để biết mình bị khóa.
+
+## Push
+
+Push đi qua Firebase Cloud Messaging. Mỗi device token thuộc về một phiên đăng nhập, và đăng ký token thì token bị gỡ khỏi mọi phiên khác, nên điện thoại đổi tài khoản sẽ thôi nhận push của tài khoản cũ. Trước mỗi lần push, worker xóa token của các phiên không còn hiệu lực, gồm đăng xuất, bị thu hồi và hết hạn. Không có credential FCM thì server chỉ ghi log thay cho push, và không chịu khởi động như vậy ở production.
+
+Cài đặt thông báo, email, SMS và báo giảm giá cho tin đã lưu đều chưa làm.

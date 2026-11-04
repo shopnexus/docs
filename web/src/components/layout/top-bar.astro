@@ -1,0 +1,96 @@
+---
+import { Icon } from "astro-icon/components";
+import { withBase } from "../../lib/base";
+import { type Lang, STRINGS } from "../../lib/i18n";
+import { INTERNAL_BUILD, TABS } from "../../lib/tabs";
+import Brand from "./brand.astro";
+import LangSwitch from "./lang-switch.astro";
+import ThemeToggle from "./theme-toggle.astro";
+
+interface Props {
+  lang: Lang;
+  tabId?: string;
+  altUrl: string;
+}
+
+const { lang, tabId, altUrl } = Astro.props;
+const t = STRINGS[lang];
+---
+
+<header
+  class="sticky top-0 z-40 h-14 lg:h-16 flex items-center gap-1 lg:gap-6 px-2 lg:px-6 border-b border-line bg-nav/90 backdrop-blur-md"
+  data-topbar
+  transition:persist={`topbar-${lang}`}
+>
+  <button
+    type="button"
+    class="lg:hidden w-10 h-10 rounded-[10px] flex items-center justify-center text-body hover:bg-hover"
+    aria-label={t.menu}
+    data-drawer-open
+  >
+    <Icon name="ri:menu-2-line" width="20" height="20" aria-hidden="true" />
+  </button>
+  <Brand href={`/${lang}`} />
+  {
+    INTERNAL_BUILD && (
+      <span class="hidden xl:inline-flex chip chip-outline text-warning! border-warning-line!">
+        <Icon name="ri:lock-line" width="12" height="12" aria-hidden="true" />
+        Internal
+      </span>
+    )
+  }
+  <nav class="hidden lg:flex self-stretch items-center gap-1 text-[14px] min-w-0 overflow-x-auto no-scrollbar" aria-label="Sections">
+    {
+      TABS.map((tab) => (
+        <a
+          href={withBase(`/${lang}/${tab.id}`)}
+          class="tab-link relative h-9 px-3 rounded-[10px] flex items-center whitespace-nowrap text-sub hover:text-strong hover:bg-hover"
+          data-tab-link={tab.id}
+          aria-current={tab.id === tabId ? "page" : undefined}
+        >
+          {tab.label[lang]}
+          <span class="tab-underline" aria-hidden="true" />
+        </a>
+      ))
+    }
+  </nav>
+  <span class="flex-1"></span>
+  <button
+    type="button"
+    class="search-trigger h-10 w-10 lg:h-9 lg:w-9 xl:w-[200px] 2xl:w-[260px] xl:px-3 rounded-[10px] lg:border border-line-sub lg:bg-raised flex items-center justify-center xl:justify-start gap-2 text-[14px] text-faint hover:border-line-strong shrink-0"
+    aria-label={t.search}
+    data-search-open
+  >
+    <Icon name="ri:search-line" width="16" height="16" class="text-body lg:text-faint" aria-hidden="true" />
+    <span class="hidden xl:block flex-1 text-left truncate">{t.search}</span>
+    <span class="hidden xl:flex kbd" data-mod-key>⌘K</span>
+  </button>
+  <div class="hidden lg:flex">
+    <LangSwitch lang={lang} altUrl={altUrl} />
+  </div>
+  <ThemeToggle lang={lang} />
+</header>
+
+<style is:global>
+  .tab-link[aria-current="page"] {
+    color: var(--text-strong);
+    font-weight: 500;
+  }
+  .tab-link[aria-current="page"]:hover {
+    background: transparent;
+  }
+  .tab-underline {
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: -14px;
+    height: 2px;
+    border-radius: 999px;
+    background: var(--text-strong);
+    transform: scaleX(0);
+    transition: transform 0.2s var(--ease-out-expo);
+  }
+  .tab-link[aria-current="page"] .tab-underline {
+    transform: none;
+  }
+</style>

@@ -1,0 +1,85 @@
+---
+import { Icon } from "astro-icon/components";
+import { withBase } from "../../lib/base";
+import type { DocPage } from "../../lib/content";
+import { type Lang, STRINGS } from "../../lib/i18n";
+
+interface Props {
+  lang: Lang;
+  prev?: DocPage;
+  next?: DocPage;
+}
+
+const { lang, prev, next } = Astro.props;
+const t = STRINGS[lang];
+---
+
+<footer class="mt-12" data-pagefind-ignore>
+  <div class="rounded-xl bg-nav border border-line px-4 min-h-14 py-2.5 flex flex-wrap items-center justify-between gap-3" data-feedback>
+    <span class="text-[14px] text-sub" data-feedback-question>{t.helpful}</span>
+    <span class="text-[14px] text-brand-text hidden items-center gap-1.5" data-feedback-thanks>
+      <Icon name="ri:checkbox-circle-line" width="16" height="16" aria-hidden="true" />
+      {t.thanks}
+    </span>
+    <div class="flex gap-2" data-feedback-buttons>
+      <button type="button" class="feedback-btn" data-feedback-vote="up" aria-pressed="false">
+        <Icon name="ri:thumb-up-line" width="15" height="15" aria-hidden="true" />
+        {t.yes}
+      </button>
+      <button type="button" class="feedback-btn" data-feedback-vote="down" aria-pressed="false">
+        <Icon name="ri:thumb-down-line" width="15" height="15" aria-hidden="true" />
+        {t.no}
+      </button>
+    </div>
+  </div>
+  {
+    (prev || next) && (
+      <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {prev ? (
+          <a href={withBase(prev.url)} class="lift rounded-xl border border-line p-4 block">
+            <span class="text-[12.5px] text-faint flex items-center gap-1">
+              <Icon name="ri:arrow-left-line" width="14" height="14" aria-hidden="true" />
+              {t.prev}
+            </span>
+            <span class="mt-1 block text-[15px] font-medium text-strong">{prev.entry.data.title}</span>
+          </a>
+        ) : (
+          <span class="hidden sm:block" />
+        )}
+        {next && (
+          <a href={withBase(next.url)} class="lift rounded-xl border border-line p-4 block text-right">
+            <span class="text-[12.5px] text-faint flex items-center justify-end gap-1">
+              {t.next}
+              <Icon name="ri:arrow-right-line" width="14" height="14" aria-hidden="true" />
+            </span>
+            <span class="mt-1 block text-[15px] font-medium text-strong">{next.entry.data.title}</span>
+          </a>
+        )}
+      </div>
+    )
+  }
+</footer>
+
+<style is:global>
+  .feedback-btn {
+    height: 32px;
+    padding: 0 12px;
+    border-radius: 8px;
+    border: 1px solid var(--stroke-sub);
+    background: var(--bg-raised);
+    font-size: 13.5px;
+    color: var(--text-strong);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+  }
+  .feedback-btn:hover {
+    background: var(--bg-subtle);
+  }
+  .feedback-btn[aria-pressed="true"] {
+    border-color: var(--brand);
+    background: var(--brand-soft);
+    color: var(--brand-text);
+  }
+</style>

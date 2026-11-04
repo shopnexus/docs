@@ -1,0 +1,58 @@
+---
+import { Icon } from "astro-icon/components";
+import { withBase } from "../../lib/base";
+import type { DocPage } from "../../lib/content";
+import { formatDate, type Lang } from "../../lib/i18n";
+import { HOME_STRINGS } from "./home-strings";
+
+interface Props {
+  lang: Lang;
+  recent: { page: DocPage; crumb: string }[];
+  troubleshootingUrl?: string;
+}
+
+const { lang, recent, troubleshootingUrl } = Astro.props;
+const h = HOME_STRINGS[lang];
+---
+
+<section class="pt-14 pb-16 grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-6">
+  <div>
+    <h2 class="text-[24px] leading-8 font-semibold tracking-[-0.015em]">{h.recentTitle}</h2>
+    <p class="mt-1 text-[15px] leading-6 text-sub">{h.recentLead}</p>
+    <ol class="mt-5 rounded-2xl border border-line p-4 sm:p-5">
+      {
+        recent.map(({ page, crumb }, i) => (
+          <li class:list={["relative flex gap-3 sm:gap-4", i < recent.length - 1 && "pb-5"]}>
+            <span class="w-[52px] sm:w-[68px] shrink-0 pt-0.5 text-[12.5px] text-faint text-right whitespace-nowrap">
+              {formatDate(page.entry.data.updated, lang, true)}
+            </span>
+            <span class="relative shrink-0 w-3 flex justify-center" aria-hidden="true">
+              <span class:list={["mt-[7px] w-2 h-2 rounded-full ring-4 ring-(--bg-page) z-10", i === 0 ? "bg-brand" : "bg-line-sub"]} />
+              {i < recent.length - 1 && <span class="absolute top-4 -bottom-5 w-px bg-line" />}
+            </span>
+            <a href={withBase(page.url)} class="flex-1 min-w-0 text-[14.5px] leading-6 text-body group">
+              <span class="mr-1.5 inline-flex h-5 px-1.5 rounded-md bg-info-soft text-info text-[11.5px] font-semibold items-center align-[1px]">
+                {h.updatedBadge}
+              </span>
+              <b class="font-semibold text-strong group-hover:text-brand-text">{page.entry.data.title}</b>
+              {crumb !== page.entry.data.title && <span class="text-faint"> · {crumb}</span>}
+            </a>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+  {
+    troubleshootingUrl && (
+      <div class="self-end rounded-2xl border border-line bg-nav p-6 flex flex-col items-start">
+        <img src={withBase("/img/docs-troubleshoot.webp")} alt="" width="96" height="96" class="illus w-24 h-24 -ml-2 object-contain" loading="lazy" />
+        <p class="mt-2 text-[17px] font-semibold tracking-[-0.01em]">{h.stuckTitle}</p>
+        <p class="mt-1.5 text-[14px] leading-[22px] text-sub">{h.stuckBody}</p>
+        <a href={troubleshootingUrl && withBase(troubleshootingUrl)} class="lift mt-4 h-9 px-3.5 rounded-[10px] border border-line-sub bg-raised text-[14px] font-medium flex items-center gap-1.5">
+          {h.stuckCta}
+          <Icon name="ri:arrow-right-line" width="15" height="15" aria-hidden="true" />
+        </a>
+      </div>
+    )
+  }
+</section>

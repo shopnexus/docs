@@ -1,0 +1,54 @@
+@import "tailwindcss";
+@import "./tokens.css";
+@import "./base.css" layer(components);
+@import "./prose.css" layer(components);
+@import "./code.css" layer(components);
+@import "./diagram.css" layer(components);
+@import "./components.css" layer(components);
+@import "./motion.css" layer(components);
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@theme inline {
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, SFMono-Regular, monospace;
+
+  --color-page: var(--bg-page);
+  --color-nav: var(--bg-nav);
+  --color-subtle: var(--bg-subtle);
+  --color-hover: var(--bg-hover);
+  --color-selected: var(--bg-selected);
+  --color-raised: var(--bg-raised);
+  --color-line: var(--stroke-soft);
+  --color-line-sub: var(--stroke-sub);
+  --color-line-strong: var(--stroke-strong);
+  --color-strong: var(--text-strong);
+  --color-body: var(--text-body);
+  --color-sub: var(--text-sub);
+  --color-faint: var(--text-soft);
+  --color-brand: var(--brand);
+  --color-brand-soft: var(--brand-soft);
+  --color-brand-line: var(--brand-line);
+  --color-brand-text: var(--brand-text);
+  --color-on-brand: var(--on-brand);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+  --color-info-line: var(--info-line);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-warning-line: var(--warning-line);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-danger-line: var(--danger-line);
+  --color-feature: var(--feature);
+  --color-feature-soft: var(--feature-soft);
+  --color-feature-line: var(--feature-line);
+  --color-inverse: var(--inverse-bg);
+  --color-on-inverse: var(--inverse-fg);
+  --shadow-lift: var(--shadow-card);
+  --shadow-frame: var(--shadow-shot);
+  --shadow-popover: var(--shadow-pop);
+  --shadow-segment: var(--shadow-chip);
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}

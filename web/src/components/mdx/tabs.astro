@@ -1,0 +1,30 @@
+---
+interface Props {
+  labels: string[];
+}
+
+const { labels } = Astro.props;
+---
+
+<div class="tabs" data-tabs>
+  <div class="tabs-list" role="tablist">
+    {
+      labels.map((label, i) => (
+        <button
+          type="button"
+          role="tab"
+          class="tabs-tab"
+          aria-selected={i === 0 ? "true" : "false"}
+          tabindex={i === 0 ? 0 : -1}
+          data-tab-index={i}
+        >
+          {label}
+        </button>
+      ))
+    }
+    <span class="tabs-indicator" aria-hidden="true" data-tabs-indicator></span>
+  </div>
+  <div class="tabs-panels" data-tabs-panels>
+    <slot />
+  </div>
+</div>

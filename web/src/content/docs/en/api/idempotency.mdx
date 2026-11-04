@@ -1,0 +1,34 @@
+---
+title: Idempotency
+description: The Idempotency-Key header that makes a retried action return the first result.
+group: API
+order: 5
+groupOrder: 1
+audience: [developers]
+type: reference
+readingTime: 1
+updated: 2026-11-04
+related: ["/en/architecture/durable-flows", "/en/api/errors"]
+---
+
+An endpoint that starts a durable flow requires an `Idempotency-Key` header. The server runs the flow in Restate under that key, so a repeated key attaches to the first run and returns its result instead of running again. A tap retried after a timeout gets the same answer, and no second listing, message or order appears.
+
+```http
+Idempotency-Key: 0192a4e1-7b3c-7d2e-9f10-5a6b7c8d9e0f
+```
+
+## Rules for the client
+
+- Make a new UUID for each user action.
+- Reuse the same key when retrying that action, whether the retry is automatic or the user taps again after an error.
+- Never share a key between two different actions.
+
+A missing or malformed key is 400 `invalid_request`.
+
+## Which endpoints need it
+
+The spec marks each one. Today the list is: sign-in, listing create and edit, new address, new conversation, new message, and the seller's shipping steps on an order (shipped, delivered, returned).
+
+Some keys are scoped. Sign-in combines the key with the verified phone number, and a listing post combines it with the seller. A key sent with another number's token, or by another seller, starts a separate run.
+
+Updating the profile with a new avatar takes no key. The photo step is already keyed by the upload ID, so a repeat attaches to the first run.

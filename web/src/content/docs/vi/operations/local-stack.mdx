@@ -1,0 +1,33 @@
+---
+title: Stack local
+description: Các container server cần khi dev và khi chạy test, và cách bật tắt chúng.
+group: Vận hành
+order: 2
+groupOrder: 1
+audience: [developers]
+type: reference
+readingTime: 2
+updated: 2026-11-04
+related: ["/vi/get-started/quick-start", "/vi/operations/testing", "/vi/operations/configuration"]
+---
+
+Server chạy trực tiếp trên host bằng `go run`, còn các dependency chạy trong Docker. Có hai stack, mỗi stack một file Compose trong `server/`: một cho dev, một cho test. Hai stack dùng cổng và tên project Compose khác nhau, nên chạy test không bao giờ đụng vào dữ liệu dev.
+
+| Container | Dev | Test |
+|---|---|---|
+| Postgres 18 dạng ParadeDB, có full-text search và vector | 56432, dữ liệu giữ trong volume | 56433, dữ liệu trên tmpfs |
+| Restate, server durable execution | ingress 56580, admin 56570 | ingress 56581, admin 56571 |
+| RustFS, object store tương thích S3 để chứa ảnh | 56490 | 56491, dữ liệu trên tmpfs |
+| Image otel-lgtm của Grafana, cho log, trace và metric | Grafana ở 56300, OTLP ở 56318 | không dùng |
+
+Restate chạy trên network của host và bind mọi cổng vào 127.0.0.1. Nó phải gọi được endpoint của server trên host, mà tường lửa trên máy dev chặn traffic từ container vào host. Các container còn lại publish cổng như bình thường.
+
+Container observability nằm sau profile Compose `obs`. `.env.example` đã bật profile này bằng `COMPOSE_PROFILES=obs`.
+
+## Bật và tắt
+
+`make run` bật stack dev và đợi tới khi các container healthy. Sau đó nó chạy migration, tạo bucket với tiền tố `media/` cho đọc public, rồi khởi động server.
+
+`make test` bật stack test và tạo lại Restate mỗi lần chạy, vì journal của Restate nằm trên tmpfs và phình ra sau mỗi lần.
+
+`make down` tắt cả hai. Database dev vẫn còn trong volume. Stack test để dữ liệu trên tmpfs nên tắt là mất.

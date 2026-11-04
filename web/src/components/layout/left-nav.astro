@@ -1,0 +1,109 @@
+---
+import { Icon } from "astro-icon/components";
+import { withBase } from "../../lib/base";
+import type { NavGroup } from "../../lib/content";
+
+interface Props {
+  groups: NavGroup[];
+  currentUrl: string;
+}
+
+const { groups, currentUrl } = Astro.props;
+---
+
+<nav class="docs-nav" aria-label="Pages" data-docs-nav>
+  {
+    groups.map((group) => (
+      <details class="nav-group" open>
+        <summary class="nav-group-label">
+          {group.label}
+          <Icon name="ri:arrow-down-s-line" width="14" height="14" class="nav-group-chevron" aria-hidden="true" />
+        </summary>
+        <ul>
+          {group.pages.map((page) => (
+            <li>
+              <a
+                href={withBase(page.url)}
+                class="nav-link"
+                data-nav-link
+                aria-current={page.url === currentUrl ? "page" : undefined}
+              >
+                {page.entry.data.title}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </details>
+    ))
+  }
+</nav>
+
+<style is:global>
+  .docs-nav {
+    padding: 20px 12px 32px;
+  }
+  .nav-group + .nav-group {
+    margin-top: 14px;
+  }
+  .nav-group-label {
+    list-style: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 10px;
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 500;
+    color: var(--text-soft);
+    border-radius: 6px;
+  }
+  .nav-group-label::-webkit-details-marker {
+    display: none;
+  }
+  .nav-group-label:hover {
+    color: var(--text-sub);
+  }
+  .nav-group-chevron {
+    opacity: 0;
+    transition: opacity 0.15s, transform 0.2s var(--ease-out-expo);
+  }
+  .nav-group-label:hover .nav-group-chevron,
+  .nav-group:not([open]) .nav-group-chevron {
+    opacity: 1;
+  }
+  .nav-group:not([open]) .nav-group-chevron {
+    transform: rotate(-90deg);
+  }
+  .nav-link {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 32px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--text-body);
+    transition: background-color 0.15s, color 0.15s;
+  }
+  .nav-link:hover {
+    background: var(--bg-hover);
+    color: var(--text-strong);
+  }
+  .nav-link[aria-current="page"] {
+    background: var(--bg-selected);
+    color: var(--text-strong);
+    font-weight: 500;
+  }
+  .nav-link[aria-current="page"]::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 6px;
+    bottom: 6px;
+    width: 2px;
+    border-radius: 999px;
+    background: var(--brand);
+  }
+</style>

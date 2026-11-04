@@ -1,0 +1,28 @@
+---
+title: Trust
+description: What the trust module holds today, reviews and the seller profile, and where blocks live.
+group: Marketplace modules
+order: 3
+groupOrder: 4
+audience: [developers]
+type: concept
+readingTime: 2
+updated: 2026-11-04
+related: ["/en/marketplace/trust-and-sanctions", "/en/marketplace/after-delivery", "/en/architecture/deal"]
+---
+
+The product model makes trust a matter of statistics: refusal rates, rejection rates and open complaints, with thresholds that limit or remove COD. That part is not built yet. The trust module holds reviews and the seller profile, and the only automatic limit is the deal module's cap of 3 open COD orders per buyer. The rules as designed are in [Trust and sanctions](/en/marketplace/trust-and-sanctions).
+
+## Reviews
+
+The buyer of an order reviews its seller once the order is shipped, delivered or returned: 1 to 5 stars and up to 500 characters. There is one review per order, since a deal can hold several orders. The buyer can edit, delete or post again for 7 days from the first submission, then the review is locked. A delete keeps the row without its text, so posting again does not restart the 7 days.
+
+Trust reads the order through the deal module and writes `review.posted` on the first submission, which the notification module turns into a notice for the seller.
+
+## Seller profile
+
+The seller profile combines the name, avatar, bio and join date with the average rating and the catalog's counts of listings on sale and sold. "Đã bán" counts every sold listing, through an order or marked by hand. The profile has no endpoint of its own; the seller screen reads it.
+
+## Blocks
+
+Blocks live in the account module, since both chat and deal check them. A block works both ways: neither person can message the other, open a conversation or open a deal on the other's listings. Deals and orders already running stay as they are.

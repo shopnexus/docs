@@ -1,0 +1,32 @@
+---
+title: Screens
+description: Why the app reads each screen in one call, and how the screen module composes it from other modules.
+group: Marketplace modules
+order: 8
+groupOrder: 4
+audience: [developers]
+type: concept
+readingTime: 2
+updated: 2026-11-04
+related: ["/en/architecture/modules", "/en/api/live-updates"]
+---
+
+The screen module serves one `GET` per view of the app. The app reads a view in one call, and after a [stream hint](/en/api/live-updates) it reloads the view it shows in one call. Mobile and desktop read the same views, and a desktop page that shows two views calls both at once.
+
+## Views
+
+- Home: the category tree with active listings counted per root, the first page of the nearby feed and the unread notification count.
+- Listing: the public listing, the seller's summary and, for a signed-in reader who is not the seller, whether they saved it, their deal and their conversation.
+- Seller: the trust profile, the first page of listings and reviews, and whether a block stands.
+- Inbox: a page of conversations, each with one deal of the pair chosen by the rule below, and the unread total.
+- Chat: the conversation, the deals between the pair and the first page of messages.
+
+The inbox row picks the newest deal where it is the caller's turn, else the newest active deal, else the newest one, where the turn rule comes from the deal module.
+
+"Load more" uses the plain list endpoints, which return the same item shapes.
+
+## Design
+
+Screen owns no table. Each view is one method that reads the other modules' services top to bottom. No other module may import screen, a rule the linter enforces, so it adds no dependency between them.
+
+Each piece of data has one read path. Endpoints that existed only to feed a screen were removed when the views came, and no resource carries fields for a single screen. A view makes a fixed number of service calls per page, and the services read a page's people, communes and listings in one query each.

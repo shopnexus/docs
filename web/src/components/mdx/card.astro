@@ -1,0 +1,33 @@
+---
+import { Icon } from "astro-icon/components";
+import { withBase } from "../../lib/base";
+
+interface Props {
+  title: string;
+  href: string;
+  /** Remix icon, e.g. "ri:team-line". */
+  icon?: string;
+  /** Illustration under public/, e.g. "/img/guides.png". Wins over `icon`. */
+  img?: string;
+}
+
+const { title, href, icon, img } = Astro.props;
+---
+
+<a href={withBase(href)} class="card group lift">
+  {img && <img src={withBase(img)} alt="" class="card-img illus icon-hop" loading="lazy" decoding="async" />}
+  {
+    !img && icon && (
+      <span class="card-icon">
+        <Icon name={icon} width="18" height="18" aria-hidden="true" />
+      </span>
+    )
+  }
+  <span class="card-text">
+    <span class="card-title">
+      {title}
+      <Icon name="ri:arrow-right-line" class="arrow-nudge card-arrow" width="15" height="15" aria-hidden="true" />
+    </span>
+    <span class="card-desc"><slot /></span>
+  </span>
+</a>

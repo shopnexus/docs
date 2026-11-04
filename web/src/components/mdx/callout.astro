@@ -1,0 +1,25 @@
+---
+import { Icon } from "astro-icon/components";
+
+interface Props {
+  type?: "note" | "tip" | "warning" | "danger" | "governance";
+  title?: string;
+}
+
+const { type = "note", title } = Astro.props;
+const ICONS: Record<NonNullable<Props["type"]>, string> = {
+  note: "ri:information-line",
+  tip: "ri:lightbulb-flash-line",
+  warning: "ri:error-warning-line",
+  danger: "ri:alarm-warning-line",
+  governance: "ri:shield-check-line",
+};
+---
+
+<aside class:list={["callout", `callout-${type}`]} role="note">
+  <Icon name={ICONS[type] ?? ICONS.note} class="callout-icon" width="18" height="18" aria-hidden="true" />
+  <div class="callout-body">
+    {title && <p class="callout-title">{title}</p>}
+    <slot />
+  </div>
+</aside>

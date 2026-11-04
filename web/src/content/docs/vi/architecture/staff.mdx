@@ -1,0 +1,34 @@
+---
+title: Nhân viên
+description: Tài khoản nhân viên cho console kiểm duyệt, cách đăng nhập, vai trò, nhật ký thao tác và các quy tắc tách họ khỏi người dùng.
+group: Định danh và truy cập
+order: 3
+groupOrder: 3
+audience: [developers]
+type: concept
+readingTime: 3
+updated: 2026-11-04
+related: ["/vi/architecture/sign-in", "/vi/marketplace/moderation"]
+---
+
+Moderator và admin làm việc trên một web console, bằng tài khoản nhân viên riêng. Tài khoản nhân viên không phải tài khoản người dùng gắn thêm vai trò, và đăng nhập bằng số điện thoại không mở được quyền nhân viên. Moderator tìm tài khoản người dùng, xem một tài khoản cùng lịch sử bị khóa, khóa hoặc mở khóa. Admin làm được mọi việc của moderator, thêm quản lý moderator và đọc nhật ký thao tác.
+
+## Đăng nhập của nhân viên
+
+Nhân viên đăng nhập bằng email, mật khẩu và mã TOTP; TOTP bắt buộc ngay từ lần đầu. Mỗi lần gọi đăng nhập đều gửi lại email và mật khẩu, server trả lời còn thiếu gì: mật khẩu mới ở lần đầu, đăng ký TOTP, hoặc mã hiện tại. Email không tồn tại, sai mật khẩu và tài khoản đã bị vô hiệu hóa đều nhận chung `invalid_credentials`.
+
+Sai mật khẩu hoặc mã năm lần thì email bị khóa 15 phút, dù email đó có thuộc nhân viên nào hay không. Lượt thử được tính trước khi kiểm tra bất cứ gì, nên đoán song song cũng không lọt qua. Không có mã khôi phục; admin đặt lại mật khẩu hoặc TOTP cho moderator.
+
+## Phiên của nhân viên
+
+Đăng nhập xong, server đặt một cookie sống 8 giờ và không gia hạn. Không có access token hay refresh, nên mọi tab console dùng chung một phiên. Mỗi request của nhân viên đều đọc phiên và tài khoản nhân viên từ database, nên vô hiệu hóa hay đặt lại có hiệu lực ngay ở request kế tiếp. Đổi mật khẩu, đặt lại hoặc vô hiệu hóa đều kết thúc mọi phiên của người đó.
+
+Cookie để `SameSite=Strict`, nên console và API phải cùng site, ví dụ `console.x.vn` và `api.x.vn`. Mọi route nhân viên còn bắt header `X-Requested-With: shopnexus-console`, thứ mà form hay link từ site khác không đặt được. CORS chỉ cho origin của console, cấu hình ở `STAFF_CONSOLE_ORIGIN`, và chỉ trên `/v1/staff/`. API của người dùng không trả header CORS nào.
+
+## Admin
+
+Admin chỉ được tạo qua công cụ dòng lệnh `cmd/staff`, chạy với quyền truy cập database. API chỉ quản lý moderator và từ chối mọi thao tác nhắm vào admin. Cũng công cụ đó gỡ khóa đăng nhập trên email của admin, vì ai cũng có thể làm email đó bị khóa bằng năm lần nhập sai mật khẩu.
+
+## Nhật ký thao tác
+
+Mọi thao tác ghi của nhân viên lên tài khoản người dùng hoặc lên nhân viên khác được ghi lại trong cùng transaction với thay đổi, kèm chi tiết như lý do và thời hạn khóa. Lượt đăng nhập bị từ chối được ghi vào security log cùng email và IP.

@@ -1,0 +1,62 @@
+/* Home (d01) + 404 (d05) backgrounds and the big search button. */
+.hero-glow {
+  background:
+    radial-gradient(600px 300px at 78% 30%, var(--glow), transparent 70%),
+    radial-gradient(500px 260px at 10% 0%, rgba(110, 160, 255, 0.06), transparent 70%);
+}
+.hero-dots {
+  background-image: radial-gradient(var(--dots) 1px, transparent 1px);
+  background-size: 22px 22px;
+  mask-image: radial-gradient(520px 260px at 75% 40%, #000 30%, transparent 75%);
+}
+.search-big {
+  transition:
+    box-shadow 0.18s ease,
+    border-color 0.18s ease;
+  box-shadow: 0 4px 16px -8px rgba(20, 20, 19, 0.12);
+}
+.search-big:hover {
+  border-color: var(--stroke-strong);
+  box-shadow:
+    0 10px 30px -12px rgba(20, 20, 19, 0.18),
+    0 0 0 4px rgba(6, 106, 97, 0.08);
+}
+.pill-link {
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid var(--stroke-soft);
+  background: color-mix(in srgb, var(--bg-page) 70%, transparent);
+  font-size: 13px;
+  color: var(--text-body);
+  display: inline-flex;
+  align-items: center;
+  transition:
+    border-color 0.15s,
+    color 0.15s;
+}
+.pill-link:hover {
+  border-color: var(--stroke-sub);
+  color: var(--text-strong);
+}
+.row-icon {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--stroke-soft);
+  color: var(--text-body);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    color 0.15s,
+    background-color 0.15s,
+    border-color 0.15s;
+}
+.group:hover .row-icon {
+  color: var(--brand-text);
+  background: var(--brand-soft);
+  border-color: var(--brand-line);
+}

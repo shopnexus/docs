@@ -1,0 +1,157 @@
+---
+import riIcons from "@iconify-json/ri/icons.json";
+import { Icon } from "astro-icon/components";
+import { withBase } from "../../lib/base";
+import type { Lang } from "../../lib/i18n";
+import type { PageLink } from "../../lib/related";
+import { TABS } from "../../lib/tabs";
+import { SEARCH_STRINGS } from "./search-strings";
+
+interface Props {
+  lang: Lang;
+  suggestions: PageLink[];
+}
+
+const { lang, suggestions } = Astro.props;
+const s = SEARCH_STRINGS[lang];
+const scopes = TABS.map((tab) => ({ id: tab.id, label: tab.label[lang] }));
+const config = JSON.stringify({ lang, strings: s, scopes });
+// Icons the client script needs when it renders results.
+const CLIENT_ICONS = [
+  "ri:file-text-line",
+  "ri:hashtag",
+  "ri:book-2-line",
+  "ri:arrow-right-s-line",
+  "ri:history-line",
+  "ri:close-line",
+];
+// Full SVG bodies for the client templates. Not <Icon>: astro-icon emits each sprite <symbol>
+// once per page, and a symbol inside an inert <template> leaves every other <use> blank.
+const clientIcons = CLIENT_ICONS.map((name) => ({
+  name,
+  body: riIcons.icons[name.slice(3) as keyof typeof riIcons.icons]?.body ?? "",
+}));
+---
+
+<dialog class="search" data-search aria-label={s.placeholder} data-pagefind-ignore>
+  <div class="search-panel">
+    <div class="h-14 shrink-0 px-4 flex items-center gap-3 border-b border-line">
+      <Icon name="ri:search-line" width="20" height="20" class="text-sub shrink-0" aria-hidden="true" />
+      <input
+        type="search"
+        class="search-input"
+        placeholder={s.placeholder}
+        autocomplete="off"
+        spellcheck="false"
+        enterkeyhint="go"
+        aria-controls="search-results"
+        data-search-input
+      />
+      <button type="button" class="search-clear" aria-label={s.clear} data-search-clear hidden>
+        <Icon name="ri:close-circle-fill" width="16" height="16" aria-hidden="true" />
+      </button>
+      <kbd class="kbd hidden sm:inline-flex">Esc</kbd>
+      <button type="button" class="sm:hidden text-[14px] font-medium text-brand-text px-1" data-search-close>{s.close}</button>
+    </div>
+    <div class="shrink-0 px-4 py-2.5 flex items-center gap-1.5 border-b border-line overflow-x-auto no-scrollbar" role="tablist" data-search-scopes>
+      <button type="button" class="scope-chip" role="tab" aria-selected="true" data-scope="">
+        {s.all}<span class="scope-count" data-scope-count=""></span>
+      </button>
+      {
+        scopes.map((scope) => (
+          <button type="button" class="scope-chip" role="tab" aria-selected="false" data-scope={scope.id}>
+            {scope.label}
+            <span class="scope-count" data-scope-count={scope.id} />
+          </button>
+        ))
+      }
+    </div>
+    <div id="search-results" class="flex-1 min-h-0 overflow-y-auto thin-scrollbar px-2 pb-2" role="listbox" data-search-results>
+      <div data-search-idle>
+        <div data-search-recent hidden>
+          <p class="search-group">{s.recent}</p>
+          <div class="stagger" data-search-recent-list></div>
+        </div>
+        {
+          suggestions.length > 0 && (
+            <>
+              <p class="search-group">{s.suggested}</p>
+              <div class="stagger">
+                {suggestions.map((p, i) => (
+                  <a href={withBase(p.url)} class="search-item" role="option" data-search-option style={`--i:${i}`}>
+                    <span class="search-item-icon">
+                      <Icon name={p.icon} width="15" height="15" aria-hidden="true" />
+                    </span>
+                    <span class="flex-1 min-w-0">
+                      <span class="search-item-title">{p.title}</span>
+                      <span class="search-item-crumb">{p.crumb}</span>
+                      <span class="search-item-excerpt">{p.description}</span>
+                    </span>
+                    <Icon name="ri:arrow-right-s-line" width="16" height="16" class="search-item-go" aria-hidden="true" />
+                  </a>
+                ))}
+              </div>
+            </>
+          )
+        }
+        <p class="search-group">{s.quick}</p>
+        <div class="stagger">
+          <button type="button" class="search-item search-item-compact" role="option" data-search-option data-action="lang" style="--i:0">
+            <span class="search-item-icon"><Icon name="ri:translate-2" width="15" height="15" aria-hidden="true" /></span>
+            <span class="flex-1 text-left text-[14.5px] text-body">{s.switchLang}</span>
+          </button>
+          <button type="button" class="search-item search-item-compact" role="option" data-search-option data-action="theme" style="--i:1">
+            <span class="search-item-icon"><Icon name="ri:contrast-2-line" width="15" height="15" aria-hidden="true" /></span>
+            <span class="flex-1 text-left text-[14.5px] text-body" data-theme-action-label>{s.toggleTheme}</span>
+          </button>
+          <button type="button" class="search-item search-item-compact" role="option" data-search-option data-action="copy-link" style="--i:2">
+            <span class="search-item-icon"><Icon name="ri:link" width="15" height="15" aria-hidden="true" /></span>
+            <span class="flex-1 text-left text-[14.5px] text-body" data-copy-link-label>{s.copyLink}</span>
+          </button>
+        </div>
+      </div>
+      <div data-search-list hidden></div>
+      <div class="flex flex-col items-center text-center px-6 sm:px-10 pt-8 pb-6" data-search-empty hidden>
+        <img src={withBase("/img/docs-search-empty.webp")} alt="" class="illus w-[120px] h-[120px] object-contain -my-2" loading="lazy" />
+        <p class="mt-3 text-[17px] font-semibold tracking-[-0.01em]" data-search-empty-title></p>
+        <p class="mt-1.5 max-w-[440px] text-[14px] leading-[22px] text-sub">{s.noResultsBody}</p>
+        <div class="mt-5 flex items-center gap-2 flex-wrap justify-center">
+          <span class="text-[13px] text-faint">{s.tryLabel}</span>
+          {
+            s.tries.map((q) => (
+              <button type="button" class="try-chip" data-search-try={q}>
+                <Icon name="ri:search-line" width="13" height="13" class="text-faint" aria-hidden="true" />
+                {q}
+              </button>
+            ))
+          }
+        </div>
+        <div class="mt-6 flex gap-2">
+          <a href={withBase(`/${lang}/get-started/glossary`)} class="lift h-9 px-3.5 rounded-[10px] bg-inverse text-on-inverse text-[14px] font-medium flex items-center gap-1.5">
+            <Icon name="ri:book-2-line" width="16" height="16" aria-hidden="true" />{s.browseGlossary}
+          </a>
+          <a href={withBase(`/${lang}/get-started/troubleshooting`)} class="lift h-9 px-3.5 rounded-[10px] border border-line-sub bg-raised text-[14px] font-medium flex items-center gap-1.5">
+            <Icon name="ri:tools-line" width="16" height="16" aria-hidden="true" />{s.troubleshooting}
+          </a>
+        </div>
+      </div>
+      <p class="px-4 py-10 text-center text-[14px] text-sub" data-search-status hidden></p>
+    </div>
+    <div class="h-11 shrink-0 px-4 border-t border-line bg-nav hidden sm:flex items-center gap-4 text-[12px] text-sub">
+      <span class="flex items-center gap-1.5"><kbd class="kbd">↑</kbd><kbd class="kbd">↓</kbd>{s.navigate}</span>
+      <span class="flex items-center gap-1.5"><kbd class="kbd">↵</kbd>{s.open}</span>
+      <span class="flex items-center gap-1.5"><kbd class="kbd">Tab</kbd>{s.scope}</span>
+      <span class="flex items-center gap-1.5"><kbd class="kbd">Esc</kbd>{s.close}</span>
+      <span class="flex-1"></span>
+      <span class="text-faint" data-search-count>{s.langs}</span>
+    </div>
+  </div>
+  <script type="application/json" data-search-config set:html={config.replace(/</g, "\\u003c")} />
+  {
+    clientIcons.map(({ name, body }) => (
+      <template data-search-icon={name}>
+        <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true" set:html={body} />
+      </template>
+    ))
+  }
+</dialog>

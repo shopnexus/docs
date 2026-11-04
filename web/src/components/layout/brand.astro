@@ -1,0 +1,36 @@
+---
+/*
+ * The single place the product logo is used. Logo files live in public/brand/
+ * (mark.svg for light UI, mark-dark.svg for dark UI) plus public/favicon.svg.
+ */
+import { withBase } from "../../lib/base";
+import { SITE_NAME, SITE_TITLE } from "../../lib/i18n";
+
+interface Props {
+  href: string;
+  size?: "md" | "sm";
+}
+
+const { href, size = "md" } = Astro.props;
+const markSize = size === "md" ? "w-6 h-6 lg:w-7 lg:h-7" : "w-6 h-6";
+---
+
+<a href={withBase(href)} class="flex items-center gap-2.5 shrink-0" aria-label={SITE_TITLE} data-plain>
+  <img src={withBase("/brand/mark.svg")} alt="" width="28" height="28" class:list={["brand-mark-light", markSize]} />
+  <img src={withBase("/brand/mark-dark.svg")} alt="" width="28" height="28" class:list={["brand-mark-dark", markSize]} />
+  <span class:list={["font-semibold tracking-[-0.01em] text-strong whitespace-nowrap", size === "md" ? "text-[15px]" : "text-[14px]"]}>
+    {SITE_NAME} <span class="text-faint font-medium">Docs</span>
+  </span>
+</a>
+
+<style is:global>
+  .brand-mark-dark {
+    display: none;
+  }
+  :root[data-theme="dark"] .brand-mark-light {
+    display: none;
+  }
+  :root[data-theme="dark"] .brand-mark-dark {
+    display: block;
+  }
+</style>

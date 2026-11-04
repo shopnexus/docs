@@ -1,0 +1,33 @@
+---
+title: Local stack
+description: The containers the server needs in development and in tests, and how they start and stop.
+group: Operations
+order: 2
+groupOrder: 1
+audience: [developers]
+type: reference
+readingTime: 2
+updated: 2026-11-04
+related: ["/en/get-started/quick-start", "/en/operations/testing", "/en/operations/configuration"]
+---
+
+The server runs on the host with `go run`, and its dependencies run in Docker. There are two stacks, each defined in its own Compose file under `server/`: one for development and one for tests. They use separate ports and separate Compose project names, so a test run never touches development data.
+
+| Container | Development | Tests |
+|---|---|---|
+| Postgres 18 as ParadeDB, with full-text search and vectors | 56432, data kept in a volume | 56433, data in tmpfs |
+| Restate, the durable execution server | ingress 56580, admin 56570 | ingress 56581, admin 56571 |
+| RustFS, the S3-compatible store for photos | 56490 | 56491, data in tmpfs |
+| Grafana's otel-lgtm image, for logs, traces and metrics | Grafana on 56300, OTLP on 56318 | not used |
+
+Restate runs on the host network and binds every port to 127.0.0.1. It has to call the server's endpoint on the host, and the development machine's firewall drops traffic from containers to the host. Every other container publishes its ports the usual way.
+
+The observability container sits behind the `obs` Compose profile. `.env.example` turns that profile on with `COMPOSE_PROFILES=obs`.
+
+## Start and stop
+
+`make run` starts the development stack and waits for it to be healthy. It then applies migrations, creates the bucket with a public-read `media/` prefix, and starts the server.
+
+`make test` starts the test stack and recreates Restate on every run, because Restate's journal lives in tmpfs and grows with each run.
+
+`make down` stops both. The development database stays in its volume. The test stack keeps its data in tmpfs, so stopping it wipes the data.

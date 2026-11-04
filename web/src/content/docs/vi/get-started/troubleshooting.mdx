@@ -1,0 +1,76 @@
+---
+title: Xử lý sự cố
+description: Những lỗi hay gặp khi chạy server, app Android hay tài liệu, hoặc khi gọi API, và cách sửa.
+group: Bắt đầu
+order: 4
+groupOrder: 1
+audience: [developers]
+type: reference
+readingTime: 3
+updated: 2026-11-04
+related: ["/vi/get-started/quick-start", "/vi/operations/configuration", "/vi/api/errors"]
+---
+
+## Server
+
+<AccordionGroup>
+<Accordion title="Server thoát và in ra danh sách biến" open>
+Không biến cấu hình nào có giá trị mặc định. Lúc khởi động, server kiểm tra hết các biến và thoát, mỗi biến thiếu, rỗng hoặc sai giá trị là một dòng. Thêm chúng vào `.env`. File `.env` mới do `make run` tạo vẫn còn thiếu `LLM_API_KEY` và `LLM_MODEL`.
+</Accordion>
+<Accordion title='"restate not reachable yet" rồi khởi động thất bại'>
+Khi khởi động, server đăng ký endpoint của mình với admin API của Restate và thử lại trong khoảng 30 giây. Nếu Restate không trả lời, kiểm tra container của nó có đang chạy không. Restate chạy trên network của host và chỉ bind 127.0.0.1, vì tường lửa trên máy dev chặn traffic từ container vào host.
+</Accordion>
+<Accordion title="Restate gọi server bị từ chối">
+Restate ký mọi request bằng khóa trong `.restate/identity.pem`, và server chỉ nhận request ký bằng khóa đó. `make run` giữ file này khớp với public key trong `.env`. Nếu đã thay một trong hai bằng tay, xóa dòng `RESTATE_IDENTITY_KEY` trong `.env` rồi chạy lại `make run`.
+</Accordion>
+<Accordion title="Server không chạy với APP_ENV=prod">
+Môi trường production không nhận vài thiết lập chỉ dành cho dev: số test của PNV (`PNV_TEST_NUMBERS=true`), `FCM_CREDENTIALS` để trống (push chỉ ghi ra log), và thiếu `RESTATE_IDENTITY_KEY`.
+</Accordion>
+<Accordion title="Cổng đã bị chiếm">
+Stack dev dùng các cổng trong dải 564xx và 565xx, stack test dùng cổng cao hơn một đơn vị để hai stack chạy cùng lúc được. Thứ gì đang chiếm các cổng đó thì phải dời đi.
+</Accordion>
+</AccordionGroup>
+
+## Test
+
+<AccordionGroup>
+<Accordion title="Chạy test một package thì không kết nối được">
+`go test` cho một package cần stack test, mà chỉ `make test` mới bật stack này. Chạy `make test` một lần, sau đó stack chạy tiếp cho tới khi `make down`.
+</Accordion>
+</AccordionGroup>
+
+## App Android
+
+<AccordionGroup>
+<Accordion title="run.sh báo không có điện thoại">
+Script bỏ qua emulator trừ khi bạn chỉ định. Đặt `ANDROID_SERIAL` bằng serial của emulator, lấy từ `adb devices`.
+</Accordion>
+<Accordion title="Build không tìm thấy Android SDK">
+Đặt `ANDROID_HOME`, hoặc ghi `sdk.dir` vào `app/local.properties`. Build cần platform 36 và JDK 21. Gradle wrapper đã có trong repo, không cần cài Gradle riêng.
+</Accordion>
+<Accordion title="App hiện dữ liệu mà server không có">
+App vẫn chạy bằng fixture và người bán giả lập, chưa gọi server.
+</Accordion>
+</AccordionGroup>
+
+## API
+
+<AccordionGroup>
+<Accordion title="Tìm log của một request bị lỗi">
+Response nào cũng có header `Trace-Id`, và body lỗi nào cũng có `trace_id`. Tìm id đó trong log hoặc Grafana.
+</Accordion>
+<Accordion title="Đăng nhập trả 401 invalid_phone_token">
+Token số điện thoại không qua một bước kiểm tra, và log của server ghi rõ bước nào. Lần xác minh phải trong vòng năm phút. Ở dev, số test của PNV chỉ qua được khi `PNV_TEST_NUMBERS=true`.
+</Accordion>
+<Accordion title="Upload ảnh chạy trên máy nhưng lỗi trên điện thoại">
+URL upload được ký cho `OBJECT_STORE_PUBLIC_ENDPOINT`, và chữ ký tính cả host. Đặt biến này thành địa chỉ điện thoại truy cập được, ví dụ IP LAN của máy, giữ cổng 56490.
+</Accordion>
+</AccordionGroup>
+
+## Trang tài liệu
+
+<AccordionGroup>
+<Accordion title="Tìm kiếm không ra gì khi chạy dev server">
+Tìm kiếm đọc một chỉ mục mà chỉ `bun run build` mới tạo ra. Build một lần rồi chạy lại `bun run dev`.
+</Accordion>
+</AccordionGroup>

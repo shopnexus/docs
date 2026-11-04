@@ -1,0 +1,44 @@
+---
+title: Configuration
+description: Every setting comes from an environment variable with no default. How to set them up, and what each group covers.
+group: Operations
+order: 3
+groupOrder: 1
+audience: [developers]
+type: reference
+readingTime: 3
+updated: 2026-11-04
+related: ["/en/operations/local-stack", "/en/get-started/troubleshooting"]
+---
+
+## No defaults
+
+No setting has a default, in the Go code, the Compose files, the Makefile or the test helpers. Every variable must be set. At start the server checks them all and exits with one line per variable that is missing, empty or invalid.
+
+Some variables mean something when empty: no OTLP export, no previous JWT key, no trusted proxies, pushes written to the log. They are still set, to the empty string, in `.env.example` and in every environment.
+
+## Setting up
+
+`server/.env.example` lists every variable with development values. The first `make run` copies it to `.env` and then appends the generated keys: the JWT signing key, the staff key and Restate's identity key. The server reads `.env` at start, and a variable already set in the process environment wins over the file.
+
+Two values are left for you: `LLM_API_KEY` and `LLM_MODEL`. If you add a variable to the code, add it to `.env.example` in the same change.
+
+Tests read their own file, `.env.test`, which points at the test stack. Its variables have a `TEST_` prefix.
+
+## The groups
+
+| Group | What it sets |
+|---|---|
+| Runtime | `APP_ENV` (dev, test or prod), the HTTP address, log level and format, trusted proxy ranges |
+| Database | the Postgres connection URL |
+| Restate | ingress and admin URLs, where the server serves its endpoint, a service name prefix, the identity key |
+| Tokens | JWT issuer, audience, signing key and an optional previous key during a key change |
+| Staff | the staff key and the one origin CORS allows for the staff console |
+| Object store | the RustFS endpoint, the public endpoint phones reach, credentials, bucket and the base URL for media |
+| Firebase | the project, the key URLs for phone tokens, whether PNV test numbers pass, push credentials |
+| Search model | base URL, key and model name of an OpenAI-compatible API |
+| Telemetry | the OTLP endpoint and the service name |
+
+## Production
+
+`APP_ENV=prod` adds rules: the Restate identity key must be set, PNV test numbers must be off, and push credentials must be present.

@@ -1,0 +1,38 @@
+---
+title: API design
+description: The OpenAPI spec is the contract between the app and the server, and every request is checked against it.
+group: API
+order: 1
+groupOrder: 1
+audience: [developers]
+type: reference
+readingTime: 2
+updated: 2026-11-04
+related: ["/en/api/errors", "/en/api/authentication", "/en/architecture/screens"]
+---
+
+The HTTP API is OpenAPI first. A feature's design starts in `server/api/openapi.yaml` and the files it references under `paths/`, `schemas/`, `parameters/` and `responses/`. The code is written to satisfy the spec, never the other way round.
+
+## How the spec holds the code
+
+The server embeds the spec and loads it at startup, so the binary always carries the contract it checks against. Before a handler runs, a middleware validates the request against its operation: path and query parameters, headers and the JSON body. Shape rules (required fields, lengths, formats, enums) live only in the spec and handlers do not repeat them, while business rules stay in the modules.
+
+Tests keep the two in step:
+
+- the spec loads and validates, references included;
+- the registered routes and the spec's operations are the same set, so an operation without a route or a route without an operation fails the build;
+- the end-to-end client validates every response against the operation it called;
+- every status code an operation declares shows up in at least one end-to-end test.
+
+## Conventions
+
+- Every route starts with `/v1`. A breaking change would add `/v2` beside it, because installed apps stay on old versions for months.
+- JSON uses `snake_case`, unknown fields are rejected and a body is capped at 1 MB.
+- IDs are UUIDv7.
+- `/healthz` and `/readyz` sit outside `/v1` and report liveness and readiness.
+
+## Reading and trying the API
+
+The server serves no docs page or playground. Read the spec files directly, or open `openapi.yaml` in any OpenAPI 3.2 viewer. The local server listens on `http://localhost:8080`; see [Local stack](/en/operations/local-stack) to run it.
+
+The app reads most screens through one call per view, using the endpoints described in [Screens](/en/architecture/screens).

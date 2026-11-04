@@ -1,0 +1,43 @@
+---
+title: Giới thiệu
+description: ShopNexus là sàn C2C mua bán đồ cũ ở Việt Nam. Tài liệu này nói về cách sàn vận hành, cách hệ thống được xây và cách chạy nó.
+group: Bắt đầu
+order: 1
+groupOrder: 1
+audience: [everyone]
+type: overview
+readingTime: 2
+updated: 2026-11-04
+related: ["/vi/get-started/quick-start", "/vi/marketplace", "/vi/get-started/glossary"]
+---
+
+ShopNexus là sàn để người Việt bán đồ cũ cho nhau. Có hai ràng buộc quyết định mọi thứ còn lại: sàn không cầm tiền của ai, và sàn không phân xử tranh chấp.
+
+Trong app chỉ có một đường giao dịch là <Term id="cod-inspection">COD đồng kiểm</Term>. Người mua xem hàng ở cửa rồi mới trả tiền cho shipper. Người bán tự tạo vận đơn trên tài khoản hãng vận chuyển đứng tên mình (GHTK, GHN, SPX…), rồi nhập hãng, mã vận đơn và phí ship vào ShopNexus. Hãng chuyển tiền COD thẳng vào tài khoản ngân hàng của người bán, ShopNexus không đụng tới khoản tiền đó.
+
+Uy tín dựa trên thống kê. Hệ thống đếm số đơn bị từ chối nhận, số ghi nhận sự cố bị từ chối và số khiếu nại còn treo. Con số nào vượt ngưỡng thì tài khoản bị hạ hiển thị hoặc mất quyền COD. Người thật chỉ can thiệp vào hàng cấm, hàng giả, lừa đảo có tổ chức và yêu cầu từ cơ quan chức năng.
+
+Đăng nhập bằng số điện thoại, xác minh qua Firebase.
+
+## Các phần của hệ thống
+
+ShopNexus gồm ba phần:
+
+- Server viết bằng Go, chạy trên Postgres (ParadeDB), Restate và RustFS, có hợp đồng OpenAPI.
+- App Android native. App vẫn chạy bằng dữ liệu giả và chưa gọi server.
+- Bộ tài liệu này.
+
+<Cards cols={2}>
+  <Card title="Sàn" href="/vi/marketplace" icon="ri:store-2-line">
+    Tin đăng, đơn COD, dòng tiền, uy tín và kiểm duyệt.
+  </Card>
+  <Card title="Kiến trúc" href="/vi/architecture" icon="ri:node-tree">
+    Các module, durable flow, sự kiện và dữ liệu mỗi module sở hữu.
+  </Card>
+  <Card title="API" href="/vi/api" icon="ri:braces-line">
+    Xác thực, lỗi, phân trang, idempotency và cập nhật trực tiếp.
+  </Card>
+  <Card title="Vận hành" href="/vi/operations" icon="ri:rocket-2-line">
+    Stack local, cấu hình, giám sát và test.
+  </Card>
+</Cards>

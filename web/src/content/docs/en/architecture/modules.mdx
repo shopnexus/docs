@@ -1,0 +1,56 @@
+---
+title: Modules
+description: How the server is cut into modules, what a module holds, and the rules between them.
+group: Foundations
+groupOrder: 2
+order: 1
+audience: [developers]
+type: concept
+readingTime: 3
+updated: 2026-11-04
+related: ["/en/architecture", "/en/architecture/events", "/en/architecture/data"]
+---
+
+The server is one binary made of modules under `server/internal/`. The modules follow the product model, a C2C marketplace for used goods. ShopNexus holds no money, so there is no wallet, payment or finance module.
+
+## The modules
+
+| Module | Holds |
+|---|---|
+| account | Profiles, suspension and the address book |
+| auth | Phone sign-in and the sessions of each device |
+| staff | Moderator and admin accounts for the web console |
+| catalog | Listings, categories, provinces and communes |
+| deal | Price negotiation and COD orders |
+| chat | Conversations between a buyer and a seller |
+| trust | Reviews and a seller's public profile |
+| discovery | Search, the nearby feed and saved listings |
+| media | Photo uploads and their processing |
+| notification | The in-app notice list and push |
+| screen | One read per app screen, built from the other modules |
+
+Two shared folders sit beside them. `platform` holds the plumbing every module uses: config, Postgres, the Restate helpers, the events bus, HTTP helpers, the live stream and errors. `provider` wraps outside services: Firebase token checks, FCM push and the language model.
+
+## Inside a module
+
+A module has four layers, and imports run one way, from handler down to domain:
+
+- domain holds the entities and their rules, and the business errors a client can see.
+- repository holds one interface per aggregate and its Postgres version, written in plain SQL.
+- service holds the module's contract and its use cases, one per file. The few use cases that must survive a crash run there as Restate services.
+- handler turns HTTP requests into service calls and adds no rules of its own.
+
+A module that reacts to events also has a worker, the Restate handlers for the event kinds it hears. Screen has only service and handler, since it owns no table. A root file per module wires the layers together, registers the routes and returns the service for the modules that depend on it.
+
+## Rules between modules
+
+<KeyRules>
+- A module calls another module only through that module's service.
+- A module never reads or writes another module's tables.
+- A module announces a change with an event and never lists who reacts to it.
+- No module imports screen, and only screen calls notification.
+</KeyRules>
+
+Lint rules in the server's linter config refuse an import against the layer order or these rules. Because every call crosses a service contract, a module could later run in its own process behind a network client of the same contract. Moving its tables out of the shared database would be separate work.
+
+`billing`, for boosts and seller plans, is the next planned module. There is no identity-check module: a verified phone is enough, since the carrier checks a seller's identity when it opens their account.

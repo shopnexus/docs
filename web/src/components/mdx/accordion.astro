@@ -1,0 +1,18 @@
+---
+import { Icon } from "astro-icon/components";
+
+interface Props {
+  title: string;
+  open?: boolean;
+}
+
+const { title, open = false } = Astro.props;
+---
+
+<details class="accordion" open={open}>
+  <summary class="accordion-summary">
+    <span>{title}</span>
+    <Icon name="ri:add-line" class="accordion-icon" width="18" height="18" aria-hidden="true" />
+  </summary>
+  <div class="accordion-body"><slot /></div>
+</details>

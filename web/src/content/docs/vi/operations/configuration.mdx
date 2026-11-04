@@ -1,0 +1,44 @@
+---
+title: Cấu hình
+description: Mọi thiết lập đến từ biến môi trường và không có giá trị mặc định. Cách thiết lập và từng nhóm biến dùng để làm gì.
+group: Vận hành
+order: 3
+groupOrder: 1
+audience: [developers]
+type: reference
+readingTime: 3
+updated: 2026-11-04
+related: ["/vi/operations/local-stack", "/vi/get-started/troubleshooting"]
+---
+
+## Không có giá trị mặc định
+
+Không thiết lập nào có giá trị mặc định, dù trong code Go, file Compose, Makefile hay helper của test. Biến nào cũng phải được đặt. Lúc khởi động, server kiểm tra tất cả và thoát, mỗi biến thiếu, rỗng hoặc sai là một dòng.
+
+Có những biến để trống cũng mang nghĩa: không export OTLP, không có JWT key cũ, không có proxy tin cậy, push chỉ ghi ra log. Các biến đó vẫn phải có mặt, với giá trị rỗng, trong `.env.example` và mọi môi trường.
+
+## Thiết lập
+
+`server/.env.example` liệt kê mọi biến kèm giá trị cho dev. Lần `make run` đầu tiên chép file này thành `.env` rồi nối thêm các khóa được sinh ra: khóa ký JWT, khóa staff và identity key của Restate. Server đọc `.env` khi khởi động, biến nào đã có sẵn trong môi trường của process thì được ưu tiên hơn file.
+
+Hai giá trị bạn phải tự điền là `LLM_API_KEY` và `LLM_MODEL`. Thêm biến mới vào code thì thêm luôn vào `.env.example` trong cùng thay đổi.
+
+Test đọc file riêng là `.env.test`, trỏ tới stack test. Các biến trong đó có tiền tố `TEST_`.
+
+## Các nhóm biến
+
+| Nhóm | Thiết lập gì |
+|---|---|
+| Runtime | `APP_ENV` (dev, test hoặc prod), địa chỉ HTTP, mức và định dạng log, dải IP của proxy tin cậy |
+| Database | URL kết nối Postgres |
+| Restate | URL ingress và admin, nơi server mở endpoint, tiền tố tên service, identity key |
+| Token | issuer, audience, khóa ký JWT, và khóa cũ khi đang đổi khóa |
+| Staff | khóa staff và origin duy nhất mà CORS cho phép, dành cho staff console |
+| Object store | endpoint RustFS, endpoint public mà điện thoại truy cập, credential, bucket và URL gốc của media |
+| Firebase | project, URL khóa để kiểm token số điện thoại, có cho số test của PNV hay không, credential push |
+| Model tìm kiếm | base URL, key và tên model của một API tương thích OpenAI |
+| Telemetry | endpoint OTLP và tên service |
+
+## Production
+
+`APP_ENV=prod` thêm vài luật: phải có identity key của Restate, phải tắt số test của PNV, và phải có credential push.

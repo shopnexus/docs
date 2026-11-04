@@ -1,0 +1,50 @@
+---
+title: Xác thực
+description: Cách app đăng nhập bằng số điện thoại đã được Firebase xác minh, gửi access token và refresh.
+group: API
+order: 2
+groupOrder: 1
+audience: [developers]
+type: how-to
+readingTime: 3
+updated: 2026-11-04
+related: ["/vi/architecture/sign-in", "/vi/architecture/sessions", "/vi/api/errors"]
+---
+
+Khách hàng đăng nhập bằng số điện thoại đã được Firebase xác minh. Server không tự gửi SMS. Nhân viên đăng nhập console theo đường riêng, bằng cookie phiên; xem ở [Nhân viên](/vi/architecture/staff).
+
+## Đăng nhập
+
+App xác minh số qua Firebase, hoặc bằng mã SMS của Firebase Authentication, hoặc bằng SIM qua Phone Number Verification. Sau đó app gửi token Firebase trả về lên `POST /v1/auth/sign-in`, kèm header `Idempotency-Key` và tên thiết bị (không bắt buộc) để hiện trong danh sách thiết bị:
+
+```json title="POST /v1/auth/sign-in"
+{ "phone_token": "eyJhbGciOi...", "device_name": "Pixel 8" }
+```
+
+Lần xác minh phải chưa quá năm phút. Lần đầu đăng nhập bằng một số sẽ tạo tài khoản, khi đó `account.is_new` là true để app hỏi thông tin hồ sơ. Có token rồi thì app đăng xuất khỏi Firebase.
+
+Kết quả gồm access token, thời điểm hết hạn của nó và refresh token. Token không qua được bước kiểm tra trả 401 `invalid_phone_token`, số ngoài Việt Nam trả 422 `invalid_phone`, còn 503 `unavailable` nghĩa là server chưa lấy được khóa của Firebase, app gửi lại với chính token đó.
+
+## Gọi API
+
+Gửi access token ở mọi lời gọi cần đăng nhập:
+
+```http
+Authorization: Bearer <access_token>
+```
+
+Access token sống 15 phút. Thiếu token hoặc token sai đều trả 401.
+
+## Refresh
+
+`POST /v1/auth/refresh` với refresh token trả về một cặp token mới. Mỗi refresh token chỉ dùng được một lần, nên app phải giữ token mới. Gửi lại token cũ, hoặc hai lần refresh cùng một token, bị coi là replay và phiên bị đăng xuất.
+
+Vì vậy app refresh theo kiểu single flight: refresh khi access token còn dưới một phút, hoặc khi gặp 401 đầu tiên, các request khác chờ rồi gửi lại với token mới. Refresh token được lưu mã hóa bằng khóa trong Keystore.
+
+Phiên hết hạn sau 60 ngày kể từ lúc đăng nhập, hoặc sau 30 ngày không dùng. Khi refresh trả `session_revoked` hay `session_expired`, app đưa người dùng về màn đăng nhập.
+
+## Đăng xuất và thiết bị
+
+- `POST /v1/auth/logout` kết thúc phiên hiện tại. Access token vẫn chạy tới khi hết hạn, nên app tự bỏ nó đi.
+- `GET /v1/auth/sessions` liệt kê các thiết bị đang đăng nhập, `DELETE /v1/auth/sessions/{id}` đăng xuất một thiết bị.
+- `POST /v1/auth/logout-all` đăng xuất mọi thiết bị và cần lần đăng nhập trong 15 phút gần nhất, nếu không sẽ trả 428 `reauth_required`.

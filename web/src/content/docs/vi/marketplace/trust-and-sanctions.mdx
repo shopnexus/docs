@@ -1,0 +1,45 @@
+---
+title: Uy tín và chế tài
+description: Các chỉ số ShopNexus theo dõi cho buyer và seller, các bậc mất quyền khi vượt ngưỡng, và hạn mức đơn COD đang mở.
+group: Mô hình sàn
+order: 6
+groupOrder: 1
+audience: [everyone]
+type: concept
+readingTime: 2
+updated: 2026-11-04
+related: ["/vi/marketplace/after-delivery", "/vi/marketplace/moderation", "/vi/architecture/trust"]
+---
+
+Sàn không phân xử, nên uy tín là thống kê. Ở quy mô một vụ bạn không biết ai đúng, ở quy mô năm mươi vụ thì con số tự nói.
+
+## Chỉ số theo dõi
+
+- Với buyer: <Term id="refusal-rate">tỉ lệ từ chối nhận</Term>, tính theo các đơn seller báo bị hoàn.
+- Với seller: tỉ lệ từ chối ghi nhận sự cố.
+- Với seller: số ghi nhận còn treo, chưa trả lời.
+
+App cho mỗi người xem các chỉ số này trong 90 ngày gần nhất.
+
+## Các bậc chế tài
+
+Vượt ngưỡng thì mất quyền theo thứ tự:
+
+1. Hạ hiển thị tin.
+2. Giới hạn số đơn COD.
+3. Mất quyền COD.
+4. Khóa tài khoản.
+
+Tất cả tự động theo thống kê. Chế tài chỉ lấy đi quyền, vì sàn không cầm tiền để phạt. Gói seller không mua được quyền COD hay bậc uy tín, những thứ đó chỉ đến từ lịch sử giao dịch.
+
+Ngưỡng cụ thể chưa chốt. Trong thiết kế này bộ chỉ số và ngưỡng gánh vai trò quan tòa, nên đây là phần cần bàn kỹ tiếp.
+
+## Hạn mức COD cho buyer mới
+
+Buyer từ chối nhận thì seller chịu phí ship hai chiều, nên tỉ lệ từ chối nhận là thứ duy nhất giữ buyer đặt nghiêm túc. Vì vậy buyer mới chỉ có một số ít đơn COD đang chờ giao cùng lúc, và theo mô hình thì hạn mức tăng dần theo số đơn đã nhận. Hiện server áp một mức cố định: mỗi buyer tối đa 3 đơn đang chờ gửi hoặc đang giao.
+
+## Bán ngoài app
+
+Món bán ngoài app thì seller ghi qua **Đánh dấu đã bán**. Đơn đó vẫn được tính vào số "Đã bán" và vào uy tín của seller.
+
+Tài khoản bị tạm khóa thì không đăng tin, không trả giá, không đặt COD được, nhưng vẫn hoàn tất hoặc hủy được đơn đang dở.

@@ -1,0 +1,31 @@
+---
+import { STRINGS } from "../../lib/i18n";
+import { pageLang } from "../../lib/page-lang";
+
+interface Props {
+  /** Show the "x of n steps" bar; ticks are remembered in this browser. */
+  progress?: boolean;
+}
+
+const { progress = false } = Astro.props;
+const t = STRINGS[pageLang(Astro)];
+---
+
+<div class="steps" data-steps data-label={t.stepsProgress("{done}", "{total}")} data-mark-label={t.markDone}>
+  {
+    progress && (
+      <div class="steps-progress" aria-live="polite">
+        <span class="steps-progress-label" data-steps-label />
+        <span class="steps-progress-track">
+          <span class="steps-progress-fill" data-steps-fill />
+        </span>
+      </div>
+    )
+  }
+  <div class="steps-track">
+    <span class="steps-line" aria-hidden="true"><span class="steps-line-fill" data-steps-line></span></span>
+    <ol class="steps-list">
+      <slot />
+    </ol>
+  </div>
+</div>

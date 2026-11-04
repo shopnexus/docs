@@ -1,0 +1,28 @@
+---
+title: Notifications
+description: How the notification module turns events into in-app notices and Firebase push.
+group: Marketplace modules
+order: 6
+groupOrder: 4
+audience: [developers]
+type: concept
+readingTime: 2
+updated: 2026-11-04
+related: ["/en/architecture/events", "/en/architecture/sessions"]
+---
+
+The notification module tells people about their deals, orders, listings, reviews and account, in a list in the app and by push to their Android phone. No other module calls it, except the screen module for the unread count on Home; everything it does starts from an [event](/en/architecture/events).
+
+## The worker
+
+A Restate worker has one handler per event kind: deal moves, sent messages, published and rejected listings, new reviews, and account suspension. Each handler reads the facts from the source module, decides who hears what, writes the notice, then pushes.
+
+A notice stores its type and parameters, and the server writes the Vietnamese text when it lists or pushes it. Notices about one deal or one listing collapse: a new one replaces the person's unread notice for the same deal and moves it to the top, while a read notice stays and a new one starts. An event older than the newest notice for that deal writes nothing, so a late delivery cannot bring back old text. Notices are kept for 90 days.
+
+Chat messages are pushed and never listed, since the inbox already lists them. A suspended account still gets notices, so it learns of the suspension.
+
+## Push
+
+Push goes through Firebase Cloud Messaging. A device token belongs to one sign-in session, and registering a token takes it from any other session, so a phone that switches accounts stops getting the first account's pushes. Before each push the worker drops tokens of sessions that are no longer active, which covers logout, revocation and expiry. Without FCM credentials the server logs pushes instead, and refuses to start that way in production.
+
+Notification settings, email and SMS, and price alerts on saved listings are not built.

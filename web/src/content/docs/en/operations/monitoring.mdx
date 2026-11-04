@@ -1,0 +1,30 @@
+---
+title: Monitoring
+description: How the server exports logs, traces and metrics over OpenTelemetry, and where to look at them.
+group: Operations
+order: 4
+groupOrder: 1
+audience: [developers, admins]
+type: concept
+readingTime: 3
+updated: 2026-11-04
+related: ["/en/operations/local-stack", "/en/api/errors"]
+---
+
+## What the server exports
+
+The server sends logs, traces and metrics over <Term id="otlp">OTLP</Term>/HTTP to `OTEL_EXPORTER_OTLP_ENDPOINT`. If that variable is empty, nothing leaves the process, but spans still get ids, so log lines and error bodies still carry the id of their request.
+
+- Logs go to stdout and to OTLP at once. They are text in development and JSON in production. Each line from a request carries `trace_id` and `span_id`. Passwords, codes and tokens are never logged, and phone numbers are masked.
+- Traces start with one span per HTTP request, named after the route pattern, and one span per SQL query. Development samples every request. Sampling for production will be decided with the deployment.
+- Metrics include HTTP request duration by route, method and status, the database pool, sign-in attempts, reused refresh tokens and events handed to Restate. They are labelled by route pattern and never by raw path.
+
+Every response has a `Trace-Id` header, and an error body repeats it as `trace_id`. That id is the way from a failed call to its logs and spans.
+
+## In development
+
+The development stack runs Grafana's otel-lgtm image, a single container with an OTLP collector, Grafana and stores for logs, traces and metrics. Open Grafana at `http://localhost:56300`. The server's OTLP endpoint in `.env.example` already points at it.
+
+## In the cluster
+
+The cluster has a separate monitoring app in `deploy/monitoring`: Alloy reads pod logs and ships them to Loki, and Grafana shows them. It was built for the old system, whose metrics lived in database tables, and it has no OTLP receiver. Monitoring for the new server in production is not set up yet.
