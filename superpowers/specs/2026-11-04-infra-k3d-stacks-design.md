@@ -36,6 +36,7 @@ Caddy snippet in `linux-server-setup`.
 | Postgres | CloudNativePG with the ParadeDB image. dev 1 instance, prod 2. |
 | Restate | `restate-operator`. `RestateCluster` dev 1 node, prod 3. `RestateDeployment` runs `server`. |
 | Object store | RustFS, 1 replica in each stack. Any S3 service can replace it by changing `OBJECT_STORE_*`. |
+| Language model | LiteLLM in each stack (`litellm:4000`), its own database `litellm` on the stack's CNPG cluster. The server calls the alias `search` (today `claude-haiku-5-5` through cli-proxy-api at `host.k3d.internal:8317`) with a virtual key: `models: [search]`, a daily budget of 200k tokens on dev and 2M on prod, `tpm_limit` 20k and 100k. Budgets count money, so every token is priced at 1e-6 and 1 of budget is 1M tokens. A Sync hook Job (wave 3) updates the key, or creates it with the sealed value. |
 | Components | `server`, `website`, `docs` and `console` (the staff console, its own repo and image; `console.enabled`). |
 | Out of scope | Real machines, backups, observability, the root `docker-compose.yml`. |
 

@@ -2046,9 +2046,9 @@ ssh khoakomlem-internal.ddns.net 'k3d cluster list; docker network rm k3d-main; 
 
 Expected: no clusters listed; the network removed; record "available" memory. If it is under 6 GB, stop and ask the user whether to run dev scaled to zero (`replicas.*: 0`, `postgres.instances: 1`, `restate.replicas: 1`) before going on.
 
-- [ ] **Step 4: Fill the language model values**
+- [ ] **Step 4: Language model**
 
-Ask the user for `LLM_MODEL`. Check on the server whether port 8317 listens on all addresses: `ssh khoakomlem-internal.ddns.net 'ss -ltn | grep 8317'`. If it is `0.0.0.0:8317` or `*:8317`, set `server.llmBaseURL: http://host.k3d.internal:8317/v1` in both values files (pods reach the host without leaving it); otherwise keep the public name. Set `server.llmModel`. Run `infra/check.sh`, commit, push to `main`.
+LiteLLM in each stack calls `litellm.model` (`claude-haiku-5-5`) at `litellm.apiBase` (`http://host.k3d.internal:8317/v1`, cli-proxy-api, which listens on `*:8317`). Nothing to change in values; Step 6 puts one of cli-proxy-api's `access.api-keys` into `LLM_UPSTREAM_API_KEY` of both `.env` files.
 
 - [ ] **Step 5: Create the cluster**
 
