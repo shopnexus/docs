@@ -1947,7 +1947,22 @@ k3d cluster delete shopnexus
 
 Expected: four nodes, `role` shows `stateful` on agent-0 and `app` on agent-1 and agent-2; Traefik runs on `k3d-shopnexus-server-0`; curl prints `404` (Traefik answered). Argo will fail to sync because the branch is not on `main` yet; that is expected here.
 
-- [ ] **Step 7: Commit**
+- [ ] **Step 7: Check the client address in direct mode**
+
+On the laptop, with ports 80 and 443 free:
+
+```bash
+ACME_EMAIL=test@example.com infra/cluster/up.sh direct
+kubectl -n kube-system patch helmchartconfig traefik --type merge -p '{"spec":{"valuesContent":"'"$(kubectl -n kube-system get helmchartconfig traefik -o jsonpath='{.spec.valuesContent}' | sed 's/"/\\"/g' | awk '{printf "%s\\n", $0}')"'logs:\n  access:\n    enabled: true\n"}}'
+sleep 30
+curl -sk -o /dev/null -H 'Host: nothing.example' https://$(ip -4 route get 1.1.1.1 | awk '{print $7; exit}')/
+kubectl -n kube-system logs -l app.kubernetes.io/name=traefik --tail=5
+k3d cluster delete shopnexus
+```
+
+Expected: the access log line starts with the laptop's LAN address. If it shows a `172.x` or `10.42.x` address instead, k3d's serverlb hides the client: change the `direct` ports in `up.sh` to `--port 80:80@server:0 --port 443:443@server:0`, add `service: { spec: { externalTrafficPolicy: Local } }` to `edge-direct.yaml`, repeat the check, and record the result in the spec's Edge section.
+
+- [ ] **Step 8: Commit**
 
 ```bash
 git add infra && git commit -m "infra: k3d cluster, two edge modes, up.sh and smoke.sh"
