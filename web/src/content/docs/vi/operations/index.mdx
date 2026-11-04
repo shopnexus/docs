@@ -35,7 +35,7 @@ Phần lớn manifest trong `deploy/k8s` là của hệ thống cũ: API gateway
 
 ## Tài liệu
 
-Hiện tài liệu đi đúng con đường trên. `docs/Dockerfile` build trang Astro bằng Bun rồi phục vụ bản tĩnh bằng nginx. Có hai build argument: `DOCS_BASE` cho tiền tố đường dẫn và `DOCS_INTERNAL` để bật tab Developers nội bộ. Cluster phục vụ image này trên subdomain `docs.` riêng.
+Tài liệu không đi con đường này. Mỗi lần push lên `main` của repo docs, trang Astro được build bằng Bun và xuất bản trên GitHub Pages tại https://shopnexus.github.io/docs/. Lúc build, `DOCS_BASE` được đặt theo tiền tố đường dẫn của Pages; tab Developers nội bộ không có trong bản này.
 
 ## Server cần gì khi lên production
 

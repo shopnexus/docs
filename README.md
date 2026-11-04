@@ -11,7 +11,7 @@ bun install
 bun run dev        # http://localhost:4321
 ```
 
-`docker compose up --build` serves the built site with nginx at `http://localhost:5000`, the same image CI pushes to GHCR.
+Every push to `main` builds the site and publishes it on GitHub Pages, at https://shopnexus.github.io/docs/ (`.github/workflows/pages.yml`).
 
 ## API reference
 

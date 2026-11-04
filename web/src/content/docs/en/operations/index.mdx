@@ -35,7 +35,7 @@ Most of the manifests in `deploy/k8s` describe the old system: an API gateway, N
 
 ## The docs
 
-The docs follow this path today. The `docs/Dockerfile` builds the Astro site with Bun and serves the static output with nginx. Two build arguments pass through: `DOCS_BASE` for a path prefix and `DOCS_INTERNAL` for the internal Developers tab. The cluster serves the image on its own `docs.` subdomain.
+The docs do not use this path. Every push to the docs repository's `main` builds the Astro site with Bun and publishes it on GitHub Pages at https://shopnexus.github.io/docs/. The build sets `DOCS_BASE` to the Pages path prefix; the internal Developers tab is left out of this build.
 
 ## What production will need from the server
 
