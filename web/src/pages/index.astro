@@ -1,5 +1,6 @@
 ---
-/* `/` picks the reader's language once: a saved choice, then navigator.language, else English. */
+/* `/` picks the reader's language once: a saved choice, then navigator.language, else English.
+   The targets end in a slash; nginx answers /vi with a redirect to /vi/. */
 import { BASE, withBase } from "../lib/base";
 import { SITE_TITLE } from "../lib/i18n";
 ---
@@ -11,7 +12,7 @@ import { SITE_TITLE } from "../lib/i18n";
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{SITE_TITLE}</title>
     <link rel="icon" type="image/svg+xml" href={withBase("/favicon.svg")} />
-    <noscript><meta http-equiv="refresh" content={`0; url=${withBase("/en")}`} /></noscript>
+    <noscript><meta http-equiv="refresh" content={`0; url=${withBase("/en/")}`} /></noscript>
     <script is:inline define:vars={{ base: BASE }}>
       (() => {
         let lang = "";
@@ -21,11 +22,11 @@ import { SITE_TITLE } from "../lib/i18n";
         if (lang !== "en" && lang !== "vi") {
           lang = (navigator.languages || [navigator.language]).some((l) => /^vi\b/i.test(l)) ? "vi" : "en";
         }
-        location.replace(`${base}/${lang}${location.search}${location.hash}`);
+        location.replace(`${base}/${lang}/${location.search}${location.hash}`);
       })();
     </script>
   </head>
   <body>
-    <a href={withBase("/en")}>{SITE_TITLE}</a> · <a href={withBase("/vi")}>Tiếng Việt</a>
+    <a href={withBase("/en/")}>{SITE_TITLE}</a> · <a href={withBase("/vi/")}>Tiếng Việt</a>
   </body>
 </html>
