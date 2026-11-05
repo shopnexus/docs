@@ -60,8 +60,8 @@ Out of scope, each for a later spec:
   - 409 `too_many_pending`: the caller has 3 `pending` payments. An advisory
     lock per account guards the count, as with blocks and saves.
   - 422 `invalid_boost`: `days` is not an offer.
+  - 409 `boosts_unavailable`: `PAYMENT_PROVIDER=off`.
   - 403 `account_suspended`.
-  - 503 `service_unavailable` when Restate is down.
 - `GET /v1/payments/{id}`, signed in, the owner only; anyone else gets 404
   `payment_not_found`. It reads and changes nothing.
 - `POST /v1/payments/{id}/check`, signed in, the owner only: asks
@@ -83,7 +83,8 @@ Out of scope, each for a later spec:
   provider's signature. A valid one sends `BillingSettle` and answers 204,
   a repeat or an unknown payment ID included, so the provider stops sending.
   A bad signature is 400 `invalid_signature`, logged, and changes nothing.
-  With Restate down it is 503, and the provider sends again later.
+  With Restate down it fails with 500, and the provider sends again later,
+  as the other durable flows answer.
 - `Listing`, as its seller reads it (`GET /v1/me/listings`,
   `GET /v1/listings/{id}` by the seller), gains `boosted_until`, absent when
   the listing is not boosted.
@@ -174,7 +175,11 @@ Out of scope, each for a later spec:
 
 New variables, required in every environment and in `.env.example`:
 
-- `PAYMENT_PROVIDER`: `fake` or `momo` (`momo` is refused until it exists).
+- `PAYMENT_PROVIDER`: `fake`, `off` or `momo` (`momo` is refused until it
+  exists). `off` is for prod until MoMo is live: `GET /v1/boost-offers`
+  answers `{offers: [], pay_with: ""}`, so the app hides Đẩy tin, a
+  purchase is 409 `boosts_unavailable`, the IPN route answers 400
+  `invalid_signature`, and `/dev/pay/*` is not mounted.
 - `PAYMENT_RETURN_URL`: where the way to pay sends the person back, an app
   link such as `https://shopnexus.vn/pay/return`, or `shopnexus://payments`
   in development.
@@ -208,8 +213,8 @@ holds `Provider` and the fake. The Restate services `StartBoost` and
 | `invalid_boost` | 422 | `days` is not an offer |
 | `account_suspended` | 403 | The caller is suspended |
 | `payment_not_found` | 404 | No such payment, or someone else's |
+| `boosts_unavailable` | 409 | `PAYMENT_PROVIDER=off` |
 | `invalid_signature` | 400 | An IPN with a bad signature |
-| `service_unavailable` | 503 | Restate is down; `GET /payments/{id}` still answers |
 
 ## Tests
 
