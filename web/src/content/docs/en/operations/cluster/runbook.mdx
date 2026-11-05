@@ -7,7 +7,7 @@ groupOrder: 2
 audience: [admins, developers]
 type: reference
 readingTime: 9
-updated: 2026-11-04
+updated: 2026-11-05
 related: ["/en/operations/cluster/bootstrap", "/en/operations/cluster/networking", "/en/operations/cluster/data", "/en/operations/cluster/secrets", "/en/operations/cluster/llm-gateway"]
 ---
 
@@ -63,10 +63,10 @@ kubectl -n argocd annotate application stack-dev argocd.argoproj.io/refresh=hard
 Check every public host of a stack:
 
 ```bash
-infra/smoke.sh dev.shopnexus.id.vn
+hurl --test --continue-on-error --variable domain=dev.shopnexus.id.vn infra/smoke.hurl
 ```
 
-Every line starts with `ok`. Add `-k` while the certificates come from Let's Encrypt staging.
+Hurl reports the file as a success and exits with 0. Add `--insecure` if the certificates come from Let's Encrypt staging.
 
 ## Logs
 
@@ -141,7 +141,7 @@ The drills come from the plan's Task 17. They have not been run on the author's 
 p=$(kubectl -n shopnexus-prod get cluster postgres -o jsonpath='{.status.currentPrimary}')
 kubectl -n shopnexus-prod delete pod "$p"
 for i in $(seq 30); do kubectl -n shopnexus-prod get cluster postgres -o jsonpath='{.status.currentPrimary} {.status.phase}{"\n"}'; sleep 2; done
-infra/smoke.sh shopnexus.id.vn
+hurl --test --continue-on-error --variable domain=shopnexus.id.vn infra/smoke.hurl
 ```
 
 Expected: `currentPrimary` changes to the other instance within a minute, and the smoke test passes.
@@ -152,7 +152,7 @@ docker stop k3d-shopnexus-agent-1
 sleep 90
 kubectl -n shopnexus-prod get pods -o wide
 kubectl -n restate-prod get pods -o wide
-infra/smoke.sh shopnexus.id.vn
+hurl --test --continue-on-error --variable domain=shopnexus.id.vn infra/smoke.hurl
 docker start k3d-shopnexus-agent-1
 ```
 
@@ -202,11 +202,11 @@ Record the available memory and the use of each k3d node in `infra/drills.md`. T
 ## Known failures
 
 <AccordionGroup>
-<Accordion title="stack-dev shows ComparisonError and asks to run seal.sh" open>
-The Application is `Unknown` with a message `infra/stack/secrets/dev/ holds no sealed secrets: run infra/cluster/seal.sh dev, commit and push`. The chart refuses to render a stack that has no SealedSecrets, and right after `up.sh` none exist yet. Run `infra/cluster/seal.sh dev`, commit `infra/stack/secrets/dev/*.yaml` and push. The Application retries on its own, every 30 seconds at first and at most every 5 minutes.
+<Accordion title="stack-dev shows ComparisonError and asks to run the seal command" open>
+The Application is `Unknown` with a message `infra/stack/secrets/dev/ holds no sealed secrets: run go -C infra run ./cmd/seal dev, commit and push`. The chart refuses to render a stack that has no SealedSecrets, and right after the cluster is created none exist yet. Run `go -C infra run ./cmd/seal dev`, commit `infra/stack/secrets/dev/*.yaml` and push. The Application retries on its own, every 30 seconds at first and at most every 5 minutes.
 </Accordion>
 <Accordion title="Traefik runs with defaults and ignores the edge config">
-In direct mode there is no HTTP to HTTPS redirect and no Let's Encrypt certificate, or `X-Forwarded-For` is not believed behind a proxy. k3s installs Traefik through its Helm controller, and when the `HelmChartConfig` from `infra/cluster/edge-*.yaml` fails the Traefik chart's schema, k3s runs Traefik with the chart's defaults and says so only in the install job's log. Read it with `kubectl -n kube-system logs job/helm-install-traefik`. The edge files are written for Traefik chart 41.4.0, and `infra/check.sh` renders both against it; run it after any edit to an edge file.
+In direct mode there is no HTTP to HTTPS redirect and no Let's Encrypt certificate, or `X-Forwarded-For` is not believed behind a proxy. k3s installs Traefik through its Helm controller, and when the `HelmChartConfig` from the k3d config (`infra/cluster/k3d-*.yaml`) fails the Traefik chart's schema, k3s runs Traefik with the chart's defaults and says so only in the install job's log. Read it with `kubectl -n kube-system logs job/helm-install-traefik`. The Traefik configs are written for Traefik chart 41.4.0, and `infra/check.sh` renders both against it; run it after any edit to a k3d config.
 </Accordion>
 <Accordion title="Postgres pods fail on the image or on file permissions">
 CNPG reads the Postgres major version from the image tag, and ParadeDB's tags such as `0.26.4-pg18` do not parse. The chart works around it with an `ImageCatalog` that states major 18, so keep `major: 18` in `postgres.yaml` in step with the tag in `images.postgres`. CNPG also assumes uid 26, its own images' user, while the ParadeDB image runs Postgres as uid 999; the chart sets `postgresUID: 999` and `postgresGID: 999`. A permission error on the data directory after an image change means the new image uses another uid: read it with `docker run --rm --entrypoint id paradedb/paradedb:0.26.4-pg18`, with the new tag.
@@ -214,17 +214,17 @@ CNPG reads the Postgres major version from the image tag, and ParadeDB's tags su
 <Accordion title="The server never becomes ready">
 `/readyz` answers 503 and the server logs `not ready` with `check restate: ...`. Readiness pings Postgres and Restate's admin API at `http://restate.restate-dev:9070`. restate-operator admits traffic to Restate's ingress and admin ports only from the peers in `spec.security.networkPeers` of the `RestateCluster`, which the chart sets to the server pods of the stack namespace. Check that the Restate pods run (`kubectl -n restate-dev get pods`) and that the operator's policies name the server (`kubectl -n restate-dev get networkpolicy -o yaml`). Restate can call back only pods labelled `allow.restate.dev/restate-dev: "true"`, which the server's pod template carries.
 </Accordion>
-<Accordion title="seal.sh stops on a missing restate.pem, or Restate's calls are refused">
-`seal.sh` keeps Restate's signing key in `infra/stack/secrets/<stack>.restate.pem` and its public half in `RESTATE_IDENTITY_KEY` in `<stack>.env`. When the `.env` has the public key but the `.pem` is gone, `seal.sh` stops with `restore dev.restate.pem from the backup`. Restore the file from the backup. A new pair would make Restate sign its requests with a key the running server does not know: the server refuses those requests, and durable flows stop while Restate retries them. A deliberate rotation deletes both the line and the `.pem` and restarts the Restate pods afterwards; [Secrets](/en/operations/cluster/secrets#the-restate-key) has the steps.
+<Accordion title="The seal command stops on a missing restate.pem, or Restate's calls are refused">
+The seal command keeps Restate's signing key in `infra/stack/secrets/<stack>.restate.pem` and its public half in `RESTATE_IDENTITY_KEY` in `<stack>.env`. When the `.env` has the public key but the `.pem` is gone, the seal command stops with `restore dev.restate.pem from the backup`. Restore the file from the backup. A new pair would make Restate sign its requests with a key the running server does not know: the server refuses those requests, and durable flows stop while Restate retries them. A deliberate rotation deletes both the line and the `.pem` and restarts the Restate pods afterwards; [Secrets](/en/operations/cluster/secrets#the-restate-key) has the steps.
 </Accordion>
 <Accordion title="The server crash-loops with LLM_* or another variable not set">
-The server has no defaults. At start it exits with one line per variable that is missing or empty, such as `LLM_API_KEY is not set`. `LLM_BASE_URL` and `LLM_MODEL` come from the ConfigMap `server-env`; `LLM_API_KEY` and the other keys come from the sealed `server-secrets`. A missing key in `server-secrets` means the SealedSecrets were made before `seal.sh` knew that key: run `infra/cluster/seal.sh dev` again (it keeps the existing keys and adds the new ones), commit and push. An empty `litellm.model` or `litellm.apiBase` never reaches the server: the chart fails to render with `litellm.model is required`, which Argo CD shows as a ComparisonError.
+The server has no defaults. At start it exits with one line per variable that is missing or empty, such as `LLM_API_KEY is not set`. `LLM_BASE_URL` and `LLM_MODEL` come from the ConfigMap `server-env`; `LLM_API_KEY` and the other keys come from the sealed `server-secrets`. A missing key in `server-secrets` means the SealedSecrets were made before the seal command knew that key: run `go -C infra run ./cmd/seal dev` again (it keeps the existing keys and adds the new ones), commit and push. An empty `litellm.model` or `litellm.apiBase` never reaches the server: the chart fails to render with `litellm.model is required`, which Argo CD shows as a ComparisonError.
 </Accordion>
 <Accordion title="dev.shopnexus.id.vn does not resolve">
 `api.dev.shopnexus.id.vn` resolves but `dev.shopnexus.id.vn` does not. A `*` record does not cover `dev` once a `*.dev` record exists, so the zone needs an explicit `dev` record next to `@`, `*` and `*.dev`. Check with `dig +short dev.shopnexus.id.vn`.
 </Accordion>
 <Accordion title="Let's Encrypt refuses certificates">
-In direct mode Traefik's log shows ACME errors about rate limits. Let's Encrypt's production endpoint limits how many certificates a domain gets per week, and repeated bring-ups use them up. `up.sh` defaults `ACME_SERVER` to the staging endpoint for this reason. Stay on staging until `infra/smoke.sh <domain> -k` passes, then set `ACME_SERVER=https://acme-v02.api.letsencrypt.org/directory` when you run `up.sh`. Behind a proxy, the proxy holds the certificates and this does not apply.
+In direct mode Traefik's log shows ACME errors about rate limits. Let's Encrypt's production endpoint limits how many certificates a domain gets per week, and repeated bring-ups use them up. Traefik uses the production endpoint by default. For repeated test bring-ups, add `caServer: https://acme-staging-v02.api.letsencrypt.org/directory` under `acme` in `infra/cluster/k3d-direct.yaml` before you create the cluster, and run the smoke test with `--insecure`. Behind a proxy, the proxy holds the certificates and this does not apply.
 </Accordion>
 <Accordion title="The host runs out of memory">
 Pods are `OOMKilled` or `Pending`, or the host swaps. The spec estimates both stacks at 6 to 8 GB, and the author's server already used 17 of 19 GB before them. Scale dev to zero when it is not in use: in `infra/stack/values-dev.yaml`, set `replicas.server`, `replicas.website`, `replicas.docs` and `replicas.console` to 0 and keep `postgres.instances: 1` and `restate.replicas: 1`, then commit and push. `kubectl scale` does not last, because Argo CD's self-heal puts the replica count from git back. Another fallback in the spec is a cluster with two agents.

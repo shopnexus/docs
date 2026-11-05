@@ -1,38 +1,39 @@
 ---
 title: Bring up a cluster
-description: From a bare machine to the dev and prod stacks running on k3d, in the order the scripts in infra/ expect.
+description: From a bare machine to the dev and prod stacks running on k3d, in the order the files in infra/ expect.
 group: Cluster
 order: 2
 groupOrder: 2
 audience: [admins, developers]
 type: tutorial
 readingTime: 12
-updated: 2026-11-04
+updated: 2026-11-05
 related: ["/en/operations/cluster", "/en/operations/cluster/networking", "/en/operations/cluster/secrets", "/en/operations/cluster/runbook"]
 ---
 
-This tutorial takes a fork of the umbrella repo to one k3d cluster named `shopnexus` that runs two stacks: dev in `shopnexus-dev` and prod in `shopnexus-prod`. You run three scripts: `infra/cluster/up.sh` creates the cluster and installs Argo CD, `infra/cluster/seal.sh` writes the secrets, and `infra/smoke.sh` checks the result. Argo CD installs and syncs everything else from your fork.
+This tutorial takes a fork of the umbrella repo to one k3d cluster named `shopnexus` that runs two stacks: dev in `shopnexus-dev` and prod in `shopnexus-prod`. You run three commands: `k3d cluster create` with a config from `infra/cluster/` creates the cluster, and k3s installs Argo CD in it; `go -C infra run ./cmd/seal` writes the secrets; and Hurl runs `infra/smoke.hurl` to check the result. Argo CD installs and syncs everything else from your fork.
 
 <Prereqs time="1 hour" who="Admins and developers">
 - A Linux machine with a public IP address and enough free memory for two stacks. The author's bring-up plan stops to reconsider when less than 6 GB is available.
-- Docker. `seal.sh` also runs the server image with Docker to generate keys.
-- k3d. The cluster was built with k3d v5.9.0; the author's server runs v5.8.3. `infra/cluster/k3d.yaml` pins the node image `rancher/k3s:v1.37.1-k3s1`.
+- Docker. The seal command also runs the server image with Docker to generate keys.
+- k3d. The cluster was built with k3d v5.9.0; the author's server runs v5.8.3. Both configs in `infra/cluster/`, `k3d-direct.yaml` and `k3d-behind-proxy.yaml`, pin the node image `rancher/k3s:v1.37.1-k3s1`.
 - kubectl (tested with v1.37.2), Helm (v4.3.1) and kubeseal (0.41.2).
-- openssl, which `seal.sh` uses for random passwords.
-- yq (v4.54.1), which only `infra/check.sh` needs, to check the chart before you push a change.
+- Go, to run the seal command in `infra/cmd/seal`. `infra/go.mod` asks for Go 1.27.
+- Hurl, to run the smoke test in `infra/smoke.hurl`.
+- yq (v4.54.1) and the Helm plugin helm-unittest (v1.2.1), which only `infra/check.sh` needs, to check the chart before you push a change. Install the plugin with `helm plugin install https://github.com/helm-unittest/helm-unittest --version v1.2.1 --verify=false`.
 - A domain whose DNS you control, and a GitHub account to hold the fork.
 </Prereqs>
 
 ## Bootstrap order
 
-```mermaid title="What runs after up.sh"
+```mermaid title="What runs after k3d cluster create"
 flowchart TD
-  up["infra/cluster/up.sh"] --> k3d["k3d cluster shopnexus<br/>+ Traefik edge config"]
+  up["k3d cluster create<br/>--config infra/cluster/k3d-#lt;mode#gt;.yaml"] --> k3d["k3d cluster shopnexus<br/>+ Traefik edge config"]
   k3d --> argo["Argo CD<br/>(Helm chart 10.11.7)"]
   argo --> root["Application root"]
   root --> w0["Wave 0: platform<br/>cnpg, sealed-secrets,<br/>restate-operator, image-updater"]
   w0 --> w1["Wave 1: stack-dev, stack-prod,<br/>ImageUpdater shopnexus"]
-  w1 -->|"ComparisonError:<br/>no sealed secrets"| seal["seal.sh dev, seal.sh prod<br/>commit and push"]
+  w1 -->|"ComparisonError:<br/>no sealed secrets"| seal["cmd/seal dev, cmd/seal prod<br/>commit and push"]
   seal --> sm1["Stack wave -1<br/>Namespace restate-#lt;stack#gt;"]
   sm1 --> s0["Stack wave 0<br/>postgres, rustfs, SealedSecrets"]
   s0 --> s1["Stack wave 1<br/>migrate, objectstore-init,<br/>RestateCluster"]
@@ -86,22 +87,24 @@ dig +short api.dev.example.com
 ```
 </Step>
 
-<Step title="Create the cluster with up.sh">
+<Step title="Create the cluster with k3d">
 Pick the edge mode. `direct` lets Traefik inside the cluster take ports 80 and 443 and get certificates from Let's Encrypt. `behind-proxy` is for a machine where another proxy already holds those ports; Traefik then listens on `127.0.0.1:18080` and the proxy terminates TLS. A fresh machine uses `direct`. The author's server uses `behind-proxy` behind a shared Caddy.
 
 <Tabs labels={["direct", "behind-proxy"]}>
 <Tab>
-`ACME_EMAIL` is required. `ACME_SERVER` defaults to Let's Encrypt staging, whose certificates browsers do not trust but whose rate limits are loose. Start there and switch to production after the smoke test passes.
+`ACME_EMAIL` is required; k3d fills `${ACME_EMAIL}` in the config from the environment. Traefik gets its certificates from Let's Encrypt's production server.
 
 ```bash title="Terminal"
-ACME_EMAIL=you@example.com infra/cluster/up.sh direct
+ACME_EMAIL=you@example.com k3d cluster create --config infra/cluster/k3d-direct.yaml
 ```
+
+To try the setup against Let's Encrypt's staging server, whose rate limits are higher and whose certificates browsers do not trust, add `caServer: https://acme-staging-v02.api.letsencrypt.org/directory` under `acme` in `infra/cluster/k3d-direct.yaml` before you create the cluster. k3d copies the Traefik config into the cluster when it creates it, so a later edit to the file does not reach a running cluster.
 
 Traefik answers the TLS-ALPN-01 challenge on port 443, so port 443 must be open from the internet. Port 80 redirects to HTTPS with a 301. [Edge and network](/en/operations/cluster/networking#edge-modes) has the port mapping and the Traefik settings of this mode.
 </Tab>
 <Tab>
 ```bash title="Terminal"
-infra/cluster/up.sh behind-proxy
+k3d cluster create --config infra/cluster/k3d-behind-proxy.yaml
 ```
 
 The proxy on the host terminates TLS and forwards plain HTTP to `127.0.0.1:18080`. Traefik trusts the `X-Forwarded-*` headers that arrive from private addresses. The Caddy block on the author's server lists every host of both stacks:
@@ -120,18 +123,18 @@ Replace the names with your domain, then run `caddy validate --adapter caddyfile
 </Tab>
 </Tabs>
 
-up.sh then does the following, in order:
+The cluster has one server node and three agents, with the port mapping of the edge mode. `agent-0` carries the label `role=stateful`, and `agent-1` and `agent-2` carry `role=app`. The config's `files:` list puts three manifests into the k3s manifests directory on the server node, and k3s applies them at its first start:
 
-1. `k3d cluster create --config k3d.yaml` with the port mapping for the edge mode. The cluster has one server node and three agents. `agent-0` carries the label `role=stateful`, and `agent-1` and `agent-2` carry `role=app`.
-2. Fills `${ACME_EMAIL}` and `${ACME_SERVER}` into `edge-<mode>.yaml` and applies it. The file is a `HelmChartConfig` that reconfigures the Traefik k3s ships.
-3. Installs Argo CD from the `argo/argo-cd` chart, version 10.11.7, into the namespace `argocd`, with `infra/cluster/argocd-values.yaml`. That file adds a health check for Applications, without which `root` would not wait for the platform to be healthy before starting the stacks.
-4. Applies `infra/argocd/root.yaml`. From here on Argo CD manages that file too.
+1. A `HelmChartConfig` that reconfigures the Traefik k3s ships. It is written inline in the k3d config of each mode.
+2. `infra/cluster/argocd.yaml`, a k3s `HelmChart` that installs the `argo-cd` chart, version 10.11.7, into the namespace `argocd`. Its values add a health check for Applications, without which `root` would not wait for the platform to be healthy before starting the stacks.
+3. `infra/argocd/root.yaml`. k3s retries it until Argo CD's CRDs exist. From then on Argo CD manages that file too.
 
-You should see these two lines at the end:
+When the server node restarts, k3s applies the copy of `root.yaml` it got at cluster creation again. If the file in git has changed since, Argo CD's self-heal puts the git version back within minutes.
 
-```text
-Argo CD is syncing. Watch it with: kubectl -n argocd get applications -w
-Then seal the secrets: infra/cluster/seal.sh dev && infra/cluster/seal.sh prod
+You should see `root` in the list once Argo CD is up:
+
+```bash title="Terminal"
+kubectl -n argocd get applications
 ```
 </Step>
 
@@ -143,7 +146,7 @@ kubectl -n argocd get applications
 After a few minutes the four platform Applications `cnpg`, `sealed-secrets`, `restate-operator` and `image-updater` are Synced and Healthy. `stack-dev` and `stack-prod` show Unknown with a ComparisonError:
 
 ```text
-infra/stack/secrets/dev/ holds no sealed secrets: run infra/cluster/seal.sh dev, commit and push
+infra/stack/secrets/dev/ holds no sealed secrets: run go -C infra run ./cmd/seal dev, commit and push
 ```
 
 The error is expected. The chart in `infra/stack/templates/secrets.yaml` refuses to render while `infra/stack/secrets/<stack>/` holds no SealedSecrets, because the stack cannot start without them. The secrets cannot exist yet: `kubeseal` encrypts with the certificate of the Sealed Secrets controller, and that controller came up a minute ago in wave 0. Both stack Applications retry, with a backoff that grows from 30 seconds to 5 minutes, until the sealed files arrive in git.
@@ -157,16 +160,16 @@ kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.pas
 </Step>
 
 <Step title="Seal the secrets">
-Run `seal.sh` once per stack. It needs Docker and a kubectl context on this cluster, which k3d set as the current one.
+Run the seal command once per stack, from the umbrella root. It needs Docker, Go, and a kubectl context on this cluster, which k3d set as the current one.
 
 ```bash title="Terminal"
-infra/cluster/seal.sh dev
+go -C infra run ./cmd/seal dev
 ```
 
-The first run copies `infra/stack/secrets/example.env` to `infra/stack/secrets/dev.env` with mode 600, generates every key the stack needs and appends them: the JWT and staff keys and the Restate signing key (from the server image's `/keygen`), the RustFS keys, the LiteLLM master key and database password, and the server's virtual LiteLLM key. The Restate private key goes to `dev.restate.pem` beside it. Then it stops:
+The first run copies `infra/stack/secrets/example.env` to `infra/stack/secrets/dev.env` with mode 600 and generates every key the stack needs, filling an empty `KEY=` line in place or adding a line: the JWT and staff keys and the Restate signing key (from the server image's `/envgen`), the RustFS keys, the LiteLLM master key and database password, and the server's virtual LiteLLM key. The Restate private key goes to `dev.restate.pem` beside it. Then it stops:
 
 ```text
-.../infra/stack/secrets/dev.env: set LLM_UPSTREAM_API_KEY
+seal: .../infra/stack/secrets/dev.env: set LLM_UPSTREAM_API_KEY
 ```
 
 Open `dev.env` and fill the values the script cannot make:
@@ -174,16 +177,16 @@ Open `dev.env` and fill the values the script cannot make:
 | Variable | dev | prod |
 |---|---|---|
 | `LLM_UPSTREAM_API_KEY` | required | required |
-| `FCM_CREDENTIALS` | optional; empty logs push notifications instead of sending them | required; `APP_ENV=prod` refuses it empty, and so does `seal.sh prod` |
+| `FCM_CREDENTIALS` | optional; empty logs push notifications instead of sending them | required; `APP_ENV=prod` refuses it empty, and so does the seal command for prod |
 
 `LLM_UPSTREAM_API_KEY` is the key of the API at `litellm.apiBase`. `FCM_CREDENTIALS` is a Firebase service account's JSON, encoded in base64.
 
-Run the script again for dev, then twice for prod:
+Run the command again for dev, then twice for prod:
 
 ```bash title="Terminal"
-infra/cluster/seal.sh dev
-infra/cluster/seal.sh prod     # creates prod.env and stops
-infra/cluster/seal.sh prod     # after filling prod.env
+go -C infra run ./cmd/seal dev
+go -C infra run ./cmd/seal prod     # creates prod.env and stops
+go -C infra run ./cmd/seal prod     # after filling prod.env
 ```
 
 A second run keeps the keys already in `<stack>.env`, so it seals the same values. Each successful run writes four SealedSecrets to `infra/stack/secrets/<stack>/`: `server-secrets.yaml`, `restate-secrets.yaml`, `litellm-secrets.yaml` and `litellm-db.yaml`. Commit and push them:
@@ -196,7 +199,7 @@ git push
 
 The `.env` and `.pem` files are git-ignored and stay on the machine.
 
-You should see `sealed into infra/stack/secrets/<stack>/; commit and push` after each successful run.
+You should see `sealed into .../infra/stack/secrets/<stack>; commit and push` after each successful run.
 
 <Callout type="warning" title="Back up the keys now">
 Copy `dev.env`, `prod.env`, `dev.restate.pem` and `prod.restate.pem` into a password manager, together with the controller's key:
@@ -229,37 +232,16 @@ You should see `stack-dev` and `stack-prod` Synced and Healthy. Dev runs one of 
 </Step>
 
 <Step title="Run the smoke test">
-`infra/smoke.sh` requests every public host of one stack. Pass `-k` while the certificates come from Let's Encrypt staging.
+`infra/smoke.hurl` requests every public host of one stack. Add `--insecure` if the certificates come from Let's Encrypt staging.
 
 ```bash title="Terminal"
-infra/smoke.sh dev.example.com -k
-infra/smoke.sh example.com -k
+hurl --test --continue-on-error --variable domain=dev.example.com infra/smoke.hurl
+hurl --test --continue-on-error --variable domain=example.com infra/smoke.hurl
 ```
 
-It checks `https://<domain>/`, `https://api.<domain>/healthz` and `/readyz`, `https://docs.<domain>/` and `https://media.<domain>/health` for a 200, and `http://api.<domain>/healthz` for a redirect (301 from Traefik, 308 from Caddy). It does not request `console.`.
+It checks `https://<domain>/`, `https://api.<domain>/healthz` and `/readyz`, `https://docs.<domain>/`, `https://console.<domain>/` and `https://media.<domain>/health` for a 200, and `http://api.<domain>/healthz` for a redirect to HTTPS (301 from Traefik, 308 from Caddy). `--continue-on-error` runs all seven requests even after one fails, so the report lists every failing host.
 
-You should see six `ok` lines and an exit status of 0. A `FAIL` line names the URL, the status it got and the status it wanted.
-</Step>
-
-<Step title="Switch to production certificates">
-This step applies to `direct` only; in `behind-proxy` mode the proxy on the host gets the certificates.
-
-Apply the edge config again with the production ACME directory:
-
-```bash title="Terminal"
-sed -e "s|\${ACME_EMAIL}|you@example.com|" \
-    -e "s|\${ACME_SERVER}|https://acme-v02.api.letsencrypt.org/directory|" \
-    infra/cluster/edge-direct.yaml | kubectl apply -f -
-```
-
-k3s redeploys Traefik with the new `caServer`. Traefik keeps its certificates in `/data/acme.json` on a volume, and that file still holds the staging certificates. Delete it and restart Traefik so it requests new ones:
-
-```bash title="Terminal"
-kubectl -n kube-system exec deploy/traefik -- rm /data/acme.json
-kubectl -n kube-system rollout restart deploy/traefik
-```
-
-You should see `infra/smoke.sh example.com` pass without `-k`.
+You should see the file reported as a success and an exit status of 0.
 </Step>
 
 <Step title="Open the console">
@@ -282,7 +264,7 @@ You should see the console's home page. [Runbook](/en/operations/cluster/runbook
 k3d cluster delete shopnexus
 ```
 
-This deletes every node, volume and database in the cluster, including the Sealed Secrets controller's key. The SealedSecrets in git can only be opened on a new cluster if you restore that key from the backup before sealing again; [Secrets](/en/operations/cluster/secrets) has the procedure. Without the key, run `seal.sh` against the new cluster, which reuses the keys in `<stack>.env`, and commit the new SealedSecrets.
+This deletes every node, volume and database in the cluster, including the Sealed Secrets controller's key. The SealedSecrets in git can only be opened on a new cluster if you restore that key from the backup before sealing again; [Secrets](/en/operations/cluster/secrets) has the procedure. Without the key, run the seal command against the new cluster, which reuses the keys in `<stack>.env`, and commit the new SealedSecrets.
 
 <Cards>
 <Card title="Cluster overview" href="/en/operations/cluster">What runs in the cluster and why.</Card>

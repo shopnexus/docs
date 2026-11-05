@@ -7,7 +7,7 @@ groupOrder: 2
 audience: [developers, admins]
 type: concept
 readingTime: 9
-updated: 2026-11-04
+updated: 2026-11-05
 related: ["/vi/operations", "/vi/operations/cluster/bootstrap", "/vi/operations/cluster/networking", "/vi/operations/cluster/data", "/vi/operations/cluster/releases", "/vi/operations/cluster/secrets"]
 ---
 
@@ -15,7 +15,7 @@ Một cluster k3d tên `shopnexus` chạy hai stack ShopNexus là dev và prod. 
 
 ## Các node
 
-`infra/cluster/k3d.yaml` tạo một server node và ba agent từ image `rancher/k3s:v1.37.1-k3s1`. Mỗi agent đóng vai một máy và mang một nhãn `role` mà các workload của chart ưu tiên.
+Cả hai file cấu hình k3d, `infra/cluster/k3d-direct.yaml` và `infra/cluster/k3d-behind-proxy.yaml`, tạo một server node và ba agent từ image `rancher/k3s:v1.37.1-k3s1`. Mỗi agent đóng vai một máy và mang một nhãn `role` mà các workload của chart ưu tiên.
 
 | Node | Nhãn | Ưu tiên chạy |
 |---|---|---|
@@ -94,7 +94,7 @@ Argo CD áp dụng một stack theo các sync wave từ -1 tới 3. Bảng ghi m
 
 ## App-of-apps
 
-`infra/cluster/up.sh` cài Argo CD (chart `argo-cd` 10.11.7, namespace `argocd`) và apply một Application duy nhất là `root`. Từ đó Argo CD quản lý mọi thứ còn lại, kể cả `root`.
+Ở lần khởi động đầu, k3s cài Argo CD (chart `argo-cd` 10.11.7, namespace `argocd`) từ `infra/cluster/argocd.yaml` và apply một Application duy nhất là `root`; cả hai file đến từ danh sách `files:` trong file cấu hình k3d. Từ đó Argo CD quản lý mọi thứ còn lại, kể cả `root`. Khi server node khởi động lại, k3s apply lại bản `root.yaml` nó nhận lúc tạo cluster, và self-heal của Argo CD đưa bản trong git trở lại trong vòng vài phút.
 
 ```mermaid title="Các Application trong Argo CD"
 flowchart LR
@@ -114,22 +114,23 @@ flowchart LR
 
 `root` có hai nguồn trong repo tổng: `infra/platform`, chứa một Application cho mỗi chart nền tảng, và `infra/argocd`, chứa chính `root.yaml`, `stack-dev`, `stack-prod` và `ImageUpdater`. Các chart nền tảng lấy từ Helm repository gốc của chúng, không được vendor vào repo. Chart của restate-operator được đọc từ GHCR dưới dạng OCI repository qua Secret `repo-restatedev-oci`.
 
-Từ bản 1.8, Argo CD không còn tự đánh giá health của một Application. `infra/cluster/argocd-values.yaml` thêm một health check cho `argoproj.io/Application`, nhờ đó `root` chờ các Application nền tảng ở wave 0 Healthy rồi mới tạo các stack ở wave 1. Mọi Application tự sync với `prune` và `selfHeal`, và retry không giới hạn. `root` bỏ qua `/spec/source/helm/parameters` trên các Application của stack, vì Image Updater ghi tag image vào đó và self-heal sẽ đặt lại giá trị cũ nếu không bỏ qua.
+Từ bản 1.8, Argo CD không còn tự đánh giá health của một Application. Phần values trong `infra/cluster/argocd.yaml` thêm một health check cho `argoproj.io/Application`, nhờ đó `root` chờ các Application nền tảng ở wave 0 Healthy rồi mới tạo các stack ở wave 1. Mọi Application tự sync với `prune` và `selfHeal`, và retry không giới hạn. `root` bỏ qua `/spec/source/helm/parameters` trên các Application của stack, vì Image Updater ghi tag image vào đó và self-heal sẽ đặt lại giá trị cũ nếu không bỏ qua.
 
 ## Cấu trúc thư mục
 
 ```text title="infra/"
 infra/
-├── check.sh                      # render chart cho dev và prod rồi kiểm tra; CI chạy file này
-├── smoke.sh                      # smoke.sh <domain> [-k]: gọi mọi host của một stack
-├── cluster/                      # chạy tay, mỗi máy một lần; phần duy nhất gắn với k3d
-│   ├── k3d.yaml                  # một server, ba agent, nhãn role
-│   ├── edge-direct.yaml          # HelmChartConfig: Traefik trên 80/443 với ACME
-│   ├── edge-behind-proxy.yaml    # HelmChartConfig: Traefik sau một proxy, tại 127.0.0.1:18080
-│   ├── argocd-values.yaml        # values của Argo CD: health check cho Application
-│   ├── up.sh                     # up.sh direct|behind-proxy: cluster, biên, Argo CD, root
-│   ├── seal.sh                   # seal.sh dev|prod [--dry-run]: seal secret của một stack
-│   └── seal-test.sh              # test cho seal.sh
+├── check.sh                      # lint chart, chạy test của chart, kiểm Argo CD và biên; CI chạy file này
+├── smoke.hurl                    # hurl --test --variable domain=<domain>: gọi mọi host của một stack
+├── go.mod                        # module Go cho cmd/
+├── cmd/
+│   └── seal/                     # go -C infra run ./cmd/seal dev|prod [-dry-run]: seal secret của một stack
+│       ├── main.go
+│       └── main_test.go          # go -C infra test ./...; cần Docker
+├── cluster/                      # dùng một lần cho mỗi máy; phần duy nhất gắn với k3d
+│   ├── k3d-direct.yaml           # cấu hình k3d: Traefik trên 80/443 với ACME, Argo CD, root
+│   ├── k3d-behind-proxy.yaml     # cấu hình k3d: Traefik sau một proxy, tại 127.0.0.1:18080, Argo CD, root
+│   └── argocd.yaml               # HelmChart của k3s: Argo CD, kèm health check cho Application
 ├── argocd/
 │   ├── root.yaml                 # app-of-apps
 │   └── stacks.yaml               # stack-dev, stack-prod và ImageUpdater
@@ -144,14 +145,15 @@ infra/
     ├── values-dev.yaml           # stack, domain, appEnv, ngân sách LiteLLM
     ├── values-prod.yaml          # như trên, thêm replica, storage và tag 0.1.0
     ├── secrets/
-    │   ├── example.env           # mẫu mà seal.sh chép thành <stack>.env
+    │   ├── example.env           # mẫu mà cmd/seal chép thành <stack>.env
     │   ├── dev/                  # SealedSecret của stack-dev, có commit
     │   └── prod/                 # SealedSecret của stack-prod, có commit
-    └── templates/                # server, web, postgres, restate, rustfs, litellm,
-                                  # jobs, ingress, networkpolicy, secrets, validate
+    ├── templates/                # server, web, postgres, restate, rustfs, litellm,
+    │                             # jobs, ingress, networkpolicy, secrets, validate
+    └── tests/                    # các suite helm-unittest, và SealedSecret mẫu mà chúng render cùng
 ```
 
-`seal.sh` giữ các khóa nó sinh ra trong `infra/stack/secrets/<stack>.env` và `<stack>.restate.pem`. Git bỏ qua các file này, và chúng cần được sao lưu cùng khóa của controller ([Secret](/vi/operations/cluster/secrets)).
+Lệnh seal giữ các khóa nó sinh ra trong `infra/stack/secrets/<stack>.env` và `<stack>.restate.pem`. Git bỏ qua các file này, và chúng cần được sao lưu cùng khóa của controller ([Secret](/vi/operations/cluster/secrets)).
 
 ## Nguyên tắc thiết kế
 
@@ -169,8 +171,8 @@ Một bản fork, theo trang [Dựng một cluster](/vi/operations/cluster/boots
 
 Bản thiết kế để sao lưu, quan sát hệ thống, máy thật và file `docker-compose.yml` ở gốc repo ra ngoài phạm vi.
 
-- Không có gì sao lưu Postgres, RustFS hay Restate. Khóa của controller Sealed Secrets và các file `seal.sh` ghi ra phải được lưu bằng tay.
+- Không có gì sao lưu Postgres, RustFS hay Restate. Khóa của controller Sealed Secrets và các file lệnh seal ghi ra phải được lưu bằng tay.
 - Chart đặt `OTEL_EXPORTER_OTLP_ENDPOINT` là chuỗi rỗng, nên server không gửi gì qua OTLP và chỉ ghi log JSON ra stdout. Cluster không chạy collector nào.
 - Các agent là container trên cùng một host và dùng chung ổ đĩa của nó, nên hỏng ổ đĩa là mất mọi node. Chuyển sang k3s trên các máy riêng thì đổi `infra/cluster/` và `litellm.apiBase`.
-- File `docker-compose.yml` ở gốc repo giữ nguyên và không thuộc hệ thống này.
+- File `docker-compose.yml` ở gốc repo giờ có hai profile. `dev` chạy dev server của docs, website và console với Compose Watch. `prod` build mọi thành phần từ Dockerfile của nó và chạy chúng cùng Postgres, Restate và RustFS riêng, sau Caddy ở cổng 56480. `infra/check.sh` báo lỗi khi tag image của Postgres, Restate và RustFS trong file đó khác với `infra/stack/values.yaml`.
 - Bản thiết kế ước tính hai stack dùng 6 đến 8 GB bộ nhớ; con số này chưa được đo trên server của tác giả. Phương án dự phòng là scale dev về 0 khi không dùng, hoặc giảm cluster xuống hai agent.

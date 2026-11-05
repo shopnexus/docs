@@ -7,7 +7,7 @@ groupOrder: 2
 audience: [developers, admins]
 type: concept
 readingTime: 8
-updated: 2026-11-04
+updated: 2026-11-05
 related: ["/en/operations", "/en/operations/cluster/bootstrap", "/en/operations/cluster/networking", "/en/operations/cluster/data", "/en/operations/cluster/releases", "/en/operations/cluster/secrets"]
 ---
 
@@ -15,7 +15,7 @@ One k3d cluster named `shopnexus` runs two stacks of ShopNexus, dev and prod. Ea
 
 ## Nodes
 
-`infra/cluster/k3d.yaml` creates one server node and three agents from the image `rancher/k3s:v1.37.1-k3s1`. Each agent stands in for a machine and carries a `role` label that the chart's workloads prefer.
+Both k3d configs, `infra/cluster/k3d-direct.yaml` and `infra/cluster/k3d-behind-proxy.yaml`, create one server node and three agents from the image `rancher/k3s:v1.37.1-k3s1`. Each agent stands in for a machine and carries a `role` label that the chart's workloads prefer.
 
 | Node | Label | Prefers |
 |---|---|---|
@@ -94,7 +94,7 @@ Argo CD applies a stack in sync waves -1 to 3. The table of what each wave holds
 
 ## The app-of-apps
 
-`infra/cluster/up.sh` installs Argo CD (chart `argo-cd` 10.11.7, namespace `argocd`) and applies one Application, `root`. From then on Argo CD manages everything else, `root` included.
+k3s installs Argo CD (chart `argo-cd` 10.11.7, namespace `argocd`) from `infra/cluster/argocd.yaml` and applies one Application, `root`, at its first start; both files come in through the k3d config's `files:` list. From then on Argo CD manages everything else, `root` included. When the server node restarts, k3s applies the copy of `root.yaml` it got at cluster creation again, and Argo CD's self-heal puts the git version back within minutes.
 
 ```mermaid title="Applications in Argo CD"
 flowchart LR
@@ -114,22 +114,23 @@ flowchart LR
 
 `root` has two sources in the umbrella repo: `infra/platform`, with one Application per platform chart, and `infra/argocd`, with `root.yaml` itself, `stack-dev`, `stack-prod` and the `ImageUpdater`. The platform charts come from their upstream Helm repositories and are not vendored. restate-operator's chart is read from GHCR as an OCI repository through the Secret `repo-restatedev-oci`.
 
-Argo CD stopped judging the health of an Application in version 1.8. `infra/cluster/argocd-values.yaml` adds a health check for `argoproj.io/Application`, so `root` waits for the platform Applications in wave 0 to be Healthy before it creates the stacks in wave 1. Every Application syncs automatically with `prune` and `selfHeal` and retries without limit. `root` ignores `/spec/source/helm/parameters` on the stack Applications, because Image Updater writes the image tags there and self-heal would otherwise put them back.
+Argo CD stopped judging the health of an Application in version 1.8. The values in `infra/cluster/argocd.yaml` add a health check for `argoproj.io/Application`, so `root` waits for the platform Applications in wave 0 to be Healthy before it creates the stacks in wave 1. Every Application syncs automatically with `prune` and `selfHeal` and retries without limit. `root` ignores `/spec/source/helm/parameters` on the stack Applications, because Image Updater writes the image tags there and self-heal would otherwise put them back.
 
 ## Repository layout
 
 ```text title="infra/"
 infra/
-├── check.sh                      # renders the chart for dev and prod and checks it; CI runs it
-├── smoke.sh                      # smoke.sh <domain> [-k]: requests every host of one stack
-├── cluster/                      # run by hand, once per machine; the only k3d-specific part
-│   ├── k3d.yaml                  # one server, three agents, role labels
-│   ├── edge-direct.yaml          # HelmChartConfig: Traefik on 80/443 with ACME
-│   ├── edge-behind-proxy.yaml    # HelmChartConfig: Traefik behind a proxy on 127.0.0.1:18080
-│   ├── argocd-values.yaml        # Argo CD values: health check for Applications
-│   ├── up.sh                     # up.sh direct|behind-proxy: cluster, edge, Argo CD, root
-│   ├── seal.sh                   # seal.sh dev|prod [--dry-run]: seals a stack's secrets
-│   └── seal-test.sh              # tests seal.sh
+├── check.sh                      # lints the chart, runs its tests, checks Argo CD and the edge; CI runs it
+├── smoke.hurl                    # hurl --test --variable domain=<domain>: requests every host of one stack
+├── go.mod                        # Go module for cmd/
+├── cmd/
+│   └── seal/                     # go -C infra run ./cmd/seal dev|prod [-dry-run]: seals a stack's secrets
+│       ├── main.go
+│       └── main_test.go          # go -C infra test ./...; needs Docker
+├── cluster/                      # used once per machine; the only k3d-specific part
+│   ├── k3d-direct.yaml           # k3d config: Traefik on 80/443 with ACME, Argo CD, root
+│   ├── k3d-behind-proxy.yaml     # k3d config: Traefik behind a proxy on 127.0.0.1:18080, Argo CD, root
+│   └── argocd.yaml               # k3s HelmChart: Argo CD, with a health check for Applications
 ├── argocd/
 │   ├── root.yaml                 # the app-of-apps
 │   └── stacks.yaml               # stack-dev, stack-prod and the ImageUpdater
@@ -144,14 +145,15 @@ infra/
     ├── values-dev.yaml           # stack, domain, appEnv, LiteLLM budget
     ├── values-prod.yaml          # the same, plus replicas, storage and 0.1.0 tags
     ├── secrets/
-    │   ├── example.env           # template that seal.sh copies to <stack>.env
+    │   ├── example.env           # template that cmd/seal copies to <stack>.env
     │   ├── dev/                  # SealedSecrets of stack-dev, committed
     │   └── prod/                 # SealedSecrets of stack-prod, committed
-    └── templates/                # server, web, postgres, restate, rustfs, litellm,
-                                  # jobs, ingress, networkpolicy, secrets, validate
+    ├── templates/                # server, web, postgres, restate, rustfs, litellm,
+    │                             # jobs, ingress, networkpolicy, secrets, validate
+    └── tests/                    # helm-unittest suites, and probe SealedSecrets they render with
 ```
 
-`seal.sh` keeps the generated keys in `infra/stack/secrets/<stack>.env` and `<stack>.restate.pem`, which git ignores and which belong in a backup with the controller's key ([Secrets](/en/operations/cluster/secrets)).
+The seal command keeps the generated keys in `infra/stack/secrets/<stack>.env` and `<stack>.restate.pem`, which git ignores and which belong in a backup with the controller's key ([Secrets](/en/operations/cluster/secrets)).
 
 ## Design principles
 
@@ -169,8 +171,8 @@ A fork, following [Bring up a cluster](/en/operations/cluster/bootstrap), change
 
 The spec leaves backups, observability, real machines and the root `docker-compose.yml` out of scope.
 
-- Nothing backs up Postgres, RustFS or Restate. The Sealed Secrets controller's key and the files `seal.sh` writes are saved by hand.
+- Nothing backs up Postgres, RustFS or Restate. The Sealed Secrets controller's key and the files the seal command writes are saved by hand.
 - The chart sets `OTEL_EXPORTER_OTLP_ENDPOINT` to an empty string, so the server sends nothing over OTLP and writes its JSON logs to stdout only. The cluster runs no collector.
 - The agents are containers on one host and share its disk, so a failed disk takes every node with it. A move to k3s on separate hosts changes `infra/cluster/` and `litellm.apiBase`.
-- The root `docker-compose.yml` stays as it is and is not part of this setup.
+- The root `docker-compose.yml` now has two profiles. `dev` runs the dev servers of the docs, website and console with Compose Watch. `prod` builds every component from its Dockerfile and runs it with its own Postgres, Restate and RustFS behind Caddy on port 56480. `infra/check.sh` fails when the Postgres, Restate and RustFS image tags there differ from `infra/stack/values.yaml`.
 - The spec estimates the two stacks at 6 to 8 GB of memory; nobody has measured it on the author's server yet. The fallbacks are to scale dev to zero when unused or to drop the cluster to two agents.

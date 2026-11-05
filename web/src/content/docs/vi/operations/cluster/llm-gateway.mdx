@@ -7,7 +7,7 @@ groupOrder: 2
 audience: [admins, developers]
 type: concept
 readingTime: 7
-updated: 2026-11-04
+updated: 2026-11-05
 related: ["/vi/operations/cluster/secrets", "/vi/operations/cluster/data", "/vi/operations/cluster/runbook", "/vi/architecture/search-and-discovery"]
 ---
 
@@ -78,7 +78,7 @@ flowchart TD
 
 Hai lời gọi gửi cùng một body: giá trị key lấy từ `server-secrets`, `key_alias: server`, `models: ["search"]`, `max_budget`, `budget_duration: 1d` và `tpm_limit`. Chúng xác thực bằng master key trong `litellm-secrets`.
 
-Giá trị key được định sẵn: `seal.sh` sinh `LLM_API_KEY` và seal nó vào secret của server, còn Job ghi đúng giá trị đó vào LiteLLM. Chạy hook hai lần cho cùng một kết quả. Nếu database của LiteLLM bị mất, lời gọi update thất bại, lời gọi generate tạo lại key với giá trị mà server đang giữ, và server không phải khởi động lại.
+Giá trị key được định sẵn: lệnh seal sinh `LLM_API_KEY` và seal nó vào secret của server, còn Job ghi đúng giá trị đó vào LiteLLM. Chạy hook hai lần cho cùng một kết quả. Nếu database của LiteLLM bị mất, lời gọi update thất bại, lời gọi generate tạo lại key với giá trị mà server đang giữ, và server không phải khởi động lại.
 
 Response của LiteLLM có chứa key, nên Job chỉ log HTTP status. Khi lỗi, nó in thêm trường `message` của câu trả lời.
 
@@ -100,7 +100,7 @@ Dữ liệu của server nằm trong database `app` của cùng cluster. Role c�
 
 ## Secret
 
-`infra/cluster/seal.sh <stack>` sinh ba trong bốn giá trị dưới đây vào file `infra/stack/secrets/<stack>.env`, file này bị git bỏ qua. `LLM_UPSTREAM_API_KEY` thì bạn tự điền, và `seal.sh` dừng với `set LLM_UPSTREAM_API_KEY` cho tới khi bạn điền.
+`go -C infra run ./cmd/seal <stack>` sinh ba trong bốn giá trị dưới đây vào file `infra/stack/secrets/<stack>.env`, file này bị git bỏ qua. `LLM_UPSTREAM_API_KEY` thì bạn tự điền, và lệnh seal dừng với `set LLM_UPSTREAM_API_KEY` cho tới khi bạn điền.
 
 | Giá trị trong `<stack>.env` | Seal vào | Khóa | Ai đọc |
 |---|---|---|---|
@@ -109,7 +109,7 @@ Dữ liệu của server nằm trong database `app` của cùng cluster. Role c�
 | `LITELLM_DB_PASSWORD` | `litellm-db` (basic-auth) | `password` | CNPG cho role, LiteLLM cho `DATABASE_URL` |
 | `LLM_API_KEY` | `server-secrets` | `LLM_API_KEY` | server, Job `litellm-key` |
 
-Hiện tại `LLM_UPSTREAM_API_KEY` là một trong các key ở mục `access.api-keys` của cli-proxy-api. Seal lại sẽ đổi checksum trên pod template của LiteLLM, nên LiteLLM khởi động lại với giá trị mới. [Secret](/vi/operations/cluster/secrets) mô tả cách `seal.sh` và controller seal chúng.
+Hiện tại `LLM_UPSTREAM_API_KEY` là một trong các key ở mục `access.api-keys` của cli-proxy-api. Seal lại sẽ đổi checksum trên pod template của LiteLLM, nên LiteLLM khởi động lại với giá trị mới. [Secret](/vi/operations/cluster/secrets) mô tả cách lệnh seal và controller seal chúng.
 
 ## Khi hết ngân sách
 
@@ -142,7 +142,7 @@ Server luôn hỏi `search`. Để đổi thứ trả lời:
 Trong `infra/stack/values.yaml`, đặt `litellm.model` là tên mô hình ở upstream và `litellm.apiBase` là base URL tương thích OpenAI của nó, kết thúc bằng `/v1`. Để chỉ đổi một stack, đặt `litellm.model` và `litellm.apiBase` trong `values-dev.yaml` hoặc `values-prod.yaml`. Chart từ chối render nếu một trong hai để trống.
 </Step>
 <Step title="Đổi key upstream">
-Nếu đổi nhà cung cấp, ghi key của họ vào `LLM_UPSTREAM_API_KEY` trong `infra/stack/secrets/<stack>.env`, rồi chạy `infra/cluster/seal.sh dev` và `infra/cluster/seal.sh prod`.
+Nếu đổi nhà cung cấp, ghi key của họ vào `LLM_UPSTREAM_API_KEY` trong `infra/stack/secrets/<stack>.env`, rồi chạy `go -C infra run ./cmd/seal dev` và `go -C infra run ./cmd/seal prod`.
 </Step>
 <Step title="Commit và push">
 Commit `values*.yaml` và `infra/stack/secrets/`, rồi push lên `main`. Argo CD sẽ sync. Annotation `checksum/config` trên pod LiteLLM đổi theo cấu hình, nên LiteLLM khởi động lại với mô hình mới.
@@ -202,6 +202,6 @@ curl -s "http://localhost:4000/key/info?key=$key" -H "Authorization: Bearer $mas
 <KeyRules>
 - Server chỉ gọi alias `search`; mô hình phía sau được đặt trong `values.yaml`.
 - Ngân sách tính bằng token trong values và bằng tiền trong LiteLLM, với giá `0.000001` mỗi token.
-- Giá trị key của server do `seal.sh` sinh ra; hook `litellm-key` chỉ ghi nó vào LiteLLM.
+- Giá trị key của server do lệnh seal sinh ra; hook `litellm-key` chỉ ghi nó vào LiteLLM.
 - Pod nào trong stack cũng gọi được LiteLLM của stack đó, nhưng chỉ server có virtual key.
 </KeyRules>

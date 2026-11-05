@@ -1,38 +1,39 @@
 ---
 title: Dựng một cluster
-description: Từ một máy trống đến hai stack dev và prod chạy trên k3d, theo đúng thứ tự mà các script trong infra/ cần.
+description: Từ một máy trống đến hai stack dev và prod chạy trên k3d, theo đúng thứ tự mà các file trong infra/ cần.
 group: Cụm máy chủ
 order: 2
 groupOrder: 2
 audience: [admins, developers]
 type: tutorial
 readingTime: 12
-updated: 2026-11-04
+updated: 2026-11-05
 related: ["/vi/operations/cluster", "/vi/operations/cluster/networking", "/vi/operations/cluster/secrets", "/vi/operations/cluster/runbook"]
 ---
 
-Bài hướng dẫn này đưa một bản fork của repo umbrella thành một cluster k3d tên `shopnexus` chạy hai stack: dev trong `shopnexus-dev` và prod trong `shopnexus-prod`. Bạn chạy ba script: `infra/cluster/up.sh` tạo cluster và cài Argo CD, `infra/cluster/seal.sh` ghi các secret, còn `infra/smoke.sh` kiểm tra kết quả. Argo CD cài và đồng bộ mọi thứ còn lại từ bản fork của bạn.
+Bài hướng dẫn này đưa một bản fork của repo umbrella thành một cluster k3d tên `shopnexus` chạy hai stack: dev trong `shopnexus-dev` và prod trong `shopnexus-prod`. Bạn chạy ba lệnh: `k3d cluster create` với một file cấu hình trong `infra/cluster/` tạo cluster, và k3s cài Argo CD vào đó; `go -C infra run ./cmd/seal` ghi các secret; còn Hurl chạy `infra/smoke.hurl` để kiểm tra kết quả. Argo CD cài và đồng bộ mọi thứ còn lại từ bản fork của bạn.
 
 <Prereqs time="1 giờ" who="Quản trị viên và lập trình viên">
 - Một máy Linux có địa chỉ IP công khai và đủ bộ nhớ trống cho hai stack. Kế hoạch dựng hệ thống của tác giả dừng lại để cân nhắc khi còn dưới 6 GB khả dụng.
-- Docker. `seal.sh` cũng dùng Docker để chạy image server sinh khóa.
-- k3d. Cluster được dựng bằng k3d v5.9.0; server của tác giả chạy v5.8.3. `infra/cluster/k3d.yaml` ghim image node `rancher/k3s:v1.37.1-k3s1`.
+- Docker. Lệnh seal cũng dùng Docker để chạy image server sinh khóa.
+- k3d. Cluster được dựng bằng k3d v5.9.0; server của tác giả chạy v5.8.3. Cả hai file cấu hình trong `infra/cluster/`, `k3d-direct.yaml` và `k3d-behind-proxy.yaml`, ghim image node `rancher/k3s:v1.37.1-k3s1`.
 - kubectl (đã thử với v1.37.2), Helm (v4.3.1) và kubeseal (0.41.2).
-- openssl, `seal.sh` dùng nó để sinh mật khẩu ngẫu nhiên.
-- yq (v4.54.1), chỉ `infra/check.sh` cần, để kiểm tra chart trước khi bạn push một thay đổi.
+- Go, để chạy lệnh seal trong `infra/cmd/seal`. `infra/go.mod` yêu cầu Go 1.27.
+- Hurl, để chạy smoke test trong `infra/smoke.hurl`.
+- yq (v4.54.1) và plugin Helm helm-unittest (v1.2.1), chỉ `infra/check.sh` cần, để kiểm tra chart trước khi bạn push một thay đổi. Cài plugin bằng `helm plugin install https://github.com/helm-unittest/helm-unittest --version v1.2.1 --verify=false`.
 - Một tên miền mà bạn quản lý được DNS, và một tài khoản GitHub để chứa bản fork.
 </Prereqs>
 
 ## Thứ tự khởi động
 
-```mermaid title="Những gì chạy sau up.sh"
+```mermaid title="Những gì chạy sau k3d cluster create"
 flowchart TD
-  up["infra/cluster/up.sh"] --> k3d["Cluster k3d shopnexus<br/>+ cấu hình edge của Traefik"]
+  up["k3d cluster create<br/>--config infra/cluster/k3d-#lt;mode#gt;.yaml"] --> k3d["Cluster k3d shopnexus<br/>+ cấu hình edge của Traefik"]
   k3d --> argo["Argo CD<br/>(Helm chart 10.11.7)"]
   argo --> root["Application root"]
   root --> w0["Wave 0: platform<br/>cnpg, sealed-secrets,<br/>restate-operator, image-updater"]
   w0 --> w1["Wave 1: stack-dev, stack-prod,<br/>ImageUpdater shopnexus"]
-  w1 -->|"ComparisonError:<br/>chưa có sealed secret"| seal["seal.sh dev, seal.sh prod<br/>commit và push"]
+  w1 -->|"ComparisonError:<br/>chưa có sealed secret"| seal["cmd/seal dev, cmd/seal prod<br/>commit và push"]
   seal --> sm1["Wave -1 của stack<br/>Namespace restate-#lt;stack#gt;"]
   sm1 --> s0["Wave 0 của stack<br/>postgres, rustfs, SealedSecret"]
   s0 --> s1["Wave 1 của stack<br/>migrate, objectstore-init,<br/>RestateCluster"]
@@ -86,22 +87,24 @@ dig +short api.dev.example.com
 ```
 </Step>
 
-<Step title="Tạo cluster bằng up.sh">
+<Step title="Tạo cluster bằng k3d">
 Chọn chế độ biên. `direct` để Traefik trong cluster giữ cổng 80 và 443 và lấy chứng chỉ từ Let's Encrypt. `behind-proxy` dành cho máy đã có một proxy khác giữ các cổng đó; khi ấy Traefik nghe ở `127.0.0.1:18080` và proxy lo phần TLS. Máy mới dùng `direct`. Server của tác giả dùng `behind-proxy`, đứng sau một Caddy dùng chung.
 
 <Tabs labels={["direct", "behind-proxy"]}>
 <Tab>
-`ACME_EMAIL` là bắt buộc. `ACME_SERVER` mặc định là môi trường staging của Let's Encrypt, có chứng chỉ mà trình duyệt không tin nhưng giới hạn tần suất thoáng hơn. Bắt đầu với staging và chuyển sang production sau khi smoke test qua.
+`ACME_EMAIL` là bắt buộc; k3d điền `${ACME_EMAIL}` trong file cấu hình từ biến môi trường. Traefik lấy chứng chỉ từ server production của Let's Encrypt.
 
 ```bash title="Terminal"
-ACME_EMAIL=you@example.com infra/cluster/up.sh direct
+ACME_EMAIL=you@example.com k3d cluster create --config infra/cluster/k3d-direct.yaml
 ```
+
+Để thử với server staging của Let's Encrypt, có giới hạn tần suất cao hơn và chứng chỉ mà trình duyệt không tin, thêm `caServer: https://acme-staging-v02.api.letsencrypt.org/directory` dưới `acme` trong `infra/cluster/k3d-direct.yaml` trước khi tạo cluster. k3d chép cấu hình Traefik vào cluster lúc tạo cluster, nên sửa file về sau không đến được cluster đang chạy.
 
 Traefik trả lời thử thách TLS-ALPN-01 trên cổng 443, nên cổng 443 phải mở ra internet. Cổng 80 chuyển hướng sang HTTPS bằng mã 301. Trang [Biên và mạng](/vi/operations/cluster/networking#chế-độ-biên) có ánh xạ cổng và các thiết lập Traefik của chế độ này.
 </Tab>
 <Tab>
 ```bash title="Terminal"
-infra/cluster/up.sh behind-proxy
+k3d cluster create --config infra/cluster/k3d-behind-proxy.yaml
 ```
 
 Proxy trên máy host kết thúc TLS và chuyển HTTP thường đến `127.0.0.1:18080`. Traefik tin các header `X-Forwarded-*` đến từ địa chỉ private. Khối Caddy trên server của tác giả liệt kê mọi host của cả hai stack:
@@ -120,18 +123,18 @@ Thay các tên bằng tên miền của bạn, chạy `caddy validate --adapter 
 </Tab>
 </Tabs>
 
-Sau đó up.sh làm lần lượt:
+Cluster có một node server và ba agent, với ánh xạ cổng của chế độ biên. `agent-0` mang nhãn `role=stateful`, còn `agent-1` và `agent-2` mang `role=app`. Danh sách `files:` của file cấu hình đặt ba manifest vào thư mục manifests của k3s trên node server, và k3s áp dụng chúng ở lần khởi động đầu:
 
-1. `k3d cluster create --config k3d.yaml` với ánh xạ cổng của chế độ biên. Cluster có một node server và ba agent. `agent-0` mang nhãn `role=stateful`, còn `agent-1` và `agent-2` mang `role=app`.
-2. Điền `${ACME_EMAIL}` và `${ACME_SERVER}` vào `edge-<mode>.yaml` rồi áp dụng. File này là một `HelmChartConfig` cấu hình lại Traefik đi kèm k3s.
-3. Cài Argo CD từ chart `argo/argo-cd`, phiên bản 10.11.7, vào namespace `argocd`, với `infra/cluster/argocd-values.yaml`. File đó thêm phần kiểm tra health cho Application; thiếu nó, `root` sẽ không chờ platform healthy rồi mới khởi động các stack.
-4. Áp dụng `infra/argocd/root.yaml`. Từ đây Argo CD quản lý luôn file đó.
+1. Một `HelmChartConfig` cấu hình lại Traefik đi kèm k3s. Nó được viết thẳng trong file cấu hình k3d của từng chế độ.
+2. `infra/cluster/argocd.yaml`, một `HelmChart` của k3s cài chart `argo-cd`, phiên bản 10.11.7, vào namespace `argocd`. Phần values của nó thêm kiểm tra health cho Application; thiếu nó, `root` sẽ không chờ platform healthy rồi mới khởi động các stack.
+3. `infra/argocd/root.yaml`. k3s thử lại file này cho đến khi các CRD của Argo CD tồn tại. Từ đó Argo CD quản lý luôn file đó.
 
-Bạn sẽ thấy hai dòng này ở cuối:
+Khi node server khởi động lại, k3s áp dụng lại bản `root.yaml` mà nó nhận lúc tạo cluster. Nếu file trong git đã đổi từ đó, cơ chế self-heal của Argo CD đưa bản trong git trở lại trong vòng vài phút.
 
-```text
-Argo CD is syncing. Watch it with: kubectl -n argocd get applications -w
-Then seal the secrets: infra/cluster/seal.sh dev && infra/cluster/seal.sh prod
+Bạn sẽ thấy `root` trong danh sách khi Argo CD đã lên:
+
+```bash title="Terminal"
+kubectl -n argocd get applications
 ```
 </Step>
 
@@ -143,7 +146,7 @@ kubectl -n argocd get applications
 Sau vài phút, bốn Application của platform là `cnpg`, `sealed-secrets`, `restate-operator` và `image-updater` ở trạng thái Synced và Healthy. `stack-dev` và `stack-prod` hiện Unknown kèm một ComparisonError:
 
 ```text
-infra/stack/secrets/dev/ holds no sealed secrets: run infra/cluster/seal.sh dev, commit and push
+infra/stack/secrets/dev/ holds no sealed secrets: run go -C infra run ./cmd/seal dev, commit and push
 ```
 
 Lỗi này nằm trong dự tính. Chart trong `infra/stack/templates/secrets.yaml` từ chối render khi `infra/stack/secrets/<stack>/` chưa có SealedSecret nào, vì stack không thể chạy thiếu chúng. Lúc này các secret chưa thể có: `kubeseal` mã hóa bằng chứng chỉ của controller Sealed Secrets, và controller đó vừa lên ở wave 0 một phút trước. Cả hai Application của stack thử lại, với thời gian chờ tăng dần từ 30 giây đến 5 phút, cho đến khi các file đã niêm phong có mặt trong git.
@@ -157,33 +160,33 @@ kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.pas
 </Step>
 
 <Step title="Niêm phong các secret">
-Chạy `seal.sh` một lần cho mỗi stack. Script cần Docker và một context kubectl trỏ vào cluster này; k3d đã đặt nó làm context hiện tại.
+Chạy lệnh seal một lần cho mỗi stack, từ thư mục gốc của umbrella. Lệnh cần Docker, Go và một context kubectl trỏ vào cluster này; k3d đã đặt nó làm context hiện tại.
 
 ```bash title="Terminal"
-infra/cluster/seal.sh dev
+go -C infra run ./cmd/seal dev
 ```
 
-Lần chạy đầu chép `infra/stack/secrets/example.env` thành `infra/stack/secrets/dev.env` với quyền 600, sinh mọi khóa stack cần rồi ghi thêm vào: khóa JWT, khóa staff và khóa ký của Restate (từ `/keygen` trong image server), khóa RustFS, master key và mật khẩu database của LiteLLM, và virtual key LiteLLM của server. Khóa riêng của Restate nằm ở `dev.restate.pem` bên cạnh. Rồi script dừng:
+Lần chạy đầu chép `infra/stack/secrets/example.env` thành `infra/stack/secrets/dev.env` với quyền 600 và sinh mọi khóa stack cần, điền thẳng vào dòng `KEY=` còn trống hoặc thêm một dòng mới: khóa JWT, khóa staff và khóa ký của Restate (từ `/envgen` trong image server), khóa RustFS, master key và mật khẩu database của LiteLLM, và virtual key LiteLLM của server. Khóa riêng của Restate nằm ở `dev.restate.pem` bên cạnh. Rồi lệnh dừng:
 
 ```text
-.../infra/stack/secrets/dev.env: set LLM_UPSTREAM_API_KEY
+seal: .../infra/stack/secrets/dev.env: set LLM_UPSTREAM_API_KEY
 ```
 
-Mở `dev.env` và điền các giá trị mà script không tự sinh được:
+Mở `dev.env` và điền các giá trị mà lệnh không tự sinh được:
 
 | Biến | dev | prod |
 |---|---|---|
 | `LLM_UPSTREAM_API_KEY` | bắt buộc | bắt buộc |
-| `FCM_CREDENTIALS` | tùy chọn; để trống thì thông báo đẩy chỉ được ghi log thay vì gửi đi | bắt buộc; `APP_ENV=prod` không chấp nhận giá trị trống, và `seal.sh prod` cũng vậy |
+| `FCM_CREDENTIALS` | tùy chọn; để trống thì thông báo đẩy chỉ được ghi log thay vì gửi đi | bắt buộc; `APP_ENV=prod` không chấp nhận giá trị trống, và lệnh seal cho prod cũng vậy |
 
 `LLM_UPSTREAM_API_KEY` là khóa của API tại `litellm.apiBase`. `FCM_CREDENTIALS` là JSON của một service account Firebase, mã hóa base64.
 
-Chạy lại script cho dev, rồi hai lần cho prod:
+Chạy lại lệnh cho dev, rồi hai lần cho prod:
 
 ```bash title="Terminal"
-infra/cluster/seal.sh dev
-infra/cluster/seal.sh prod     # tạo prod.env rồi dừng
-infra/cluster/seal.sh prod     # sau khi điền prod.env
+go -C infra run ./cmd/seal dev
+go -C infra run ./cmd/seal prod     # tạo prod.env rồi dừng
+go -C infra run ./cmd/seal prod     # sau khi điền prod.env
 ```
 
 Lần chạy thứ hai giữ các khóa đã có trong `<stack>.env`, nên niêm phong đúng những giá trị đó. Mỗi lần chạy thành công ghi bốn SealedSecret vào `infra/stack/secrets/<stack>/`: `server-secrets.yaml`, `restate-secrets.yaml`, `litellm-secrets.yaml` và `litellm-db.yaml`. Commit và push chúng:
@@ -196,7 +199,7 @@ git push
 
 Các file `.env` và `.pem` bị git bỏ qua và chỉ nằm trên máy.
 
-Sau mỗi lần chạy thành công, bạn sẽ thấy `sealed into infra/stack/secrets/<stack>/; commit and push`.
+Sau mỗi lần chạy thành công, bạn sẽ thấy `sealed into .../infra/stack/secrets/<stack>; commit and push`.
 
 <Callout type="warning" title="Sao lưu khóa ngay bây giờ">
 Chép `dev.env`, `prod.env`, `dev.restate.pem` và `prod.restate.pem` vào một trình quản lý mật khẩu, cùng với khóa của controller:
@@ -229,37 +232,16 @@ Bạn sẽ thấy `stack-dev` và `stack-prod` ở trạng thái Synced và Heal
 </Step>
 
 <Step title="Chạy smoke test">
-`infra/smoke.sh` gửi request đến mọi host công khai của một stack. Thêm `-k` khi chứng chỉ còn đến từ staging của Let's Encrypt.
+`infra/smoke.hurl` gửi request đến mọi host công khai của một stack. Thêm `--insecure` nếu chứng chỉ đến từ staging của Let's Encrypt.
 
 ```bash title="Terminal"
-infra/smoke.sh dev.example.com -k
-infra/smoke.sh example.com -k
+hurl --test --continue-on-error --variable domain=dev.example.com infra/smoke.hurl
+hurl --test --continue-on-error --variable domain=example.com infra/smoke.hurl
 ```
 
-Script kiểm tra `https://<domain>/`, `https://api.<domain>/healthz` và `/readyz`, `https://docs.<domain>/` và `https://media.<domain>/health` trả 200, và `http://api.<domain>/healthz` trả về chuyển hướng (301 từ Traefik, 308 từ Caddy). Nó không gọi `console.`.
+File kiểm tra `https://<domain>/`, `https://api.<domain>/healthz` và `/readyz`, `https://docs.<domain>/`, `https://console.<domain>/` và `https://media.<domain>/health` trả 200, và `http://api.<domain>/healthz` trả về chuyển hướng sang HTTPS (301 từ Traefik, 308 từ Caddy). `--continue-on-error` chạy đủ bảy request kể cả khi một request thất bại, nên báo cáo liệt kê mọi host lỗi.
 
-Bạn sẽ thấy sáu dòng `ok` và mã thoát 0. Một dòng `FAIL` ghi URL, mã trạng thái nhận được và mã trạng thái mong đợi.
-</Step>
-
-<Step title="Chuyển sang chứng chỉ production">
-Bước này chỉ áp dụng cho `direct`; ở chế độ `behind-proxy`, proxy trên máy host tự lấy chứng chỉ.
-
-Áp dụng lại cấu hình edge với thư mục ACME production:
-
-```bash title="Terminal"
-sed -e "s|\${ACME_EMAIL}|you@example.com|" \
-    -e "s|\${ACME_SERVER}|https://acme-v02.api.letsencrypt.org/directory|" \
-    infra/cluster/edge-direct.yaml | kubectl apply -f -
-```
-
-k3s triển khai lại Traefik với `caServer` mới. Traefik giữ chứng chỉ trong `/data/acme.json` trên một volume, và file đó vẫn chứa chứng chỉ staging. Xóa nó và khởi động lại Traefik để Traefik xin chứng chỉ mới:
-
-```bash title="Terminal"
-kubectl -n kube-system exec deploy/traefik -- rm /data/acme.json
-kubectl -n kube-system rollout restart deploy/traefik
-```
-
-Bạn sẽ thấy `infra/smoke.sh example.com` qua mà không cần `-k`.
+Bạn sẽ thấy file được báo là thành công và mã thoát 0.
 </Step>
 
 <Step title="Mở console">
@@ -282,7 +264,7 @@ Bạn sẽ thấy trang chính của console. Trang [Runbook](/vi/operations/clu
 k3d cluster delete shopnexus
 ```
 
-Lệnh này xóa mọi node, volume và database trong cluster, kể cả khóa của controller Sealed Secrets. Các SealedSecret trong git chỉ mở được trên một cluster mới nếu bạn khôi phục khóa đó từ bản sao lưu trước khi niêm phong lại; trang [Secret](/vi/operations/cluster/secrets) có quy trình. Nếu không có khóa, chạy `seal.sh` với cluster mới, script dùng lại các khóa trong `<stack>.env`, rồi commit các SealedSecret mới.
+Lệnh này xóa mọi node, volume và database trong cluster, kể cả khóa của controller Sealed Secrets. Các SealedSecret trong git chỉ mở được trên một cluster mới nếu bạn khôi phục khóa đó từ bản sao lưu trước khi niêm phong lại; trang [Secret](/vi/operations/cluster/secrets) có quy trình. Nếu không có khóa, chạy lệnh seal với cluster mới, lệnh dùng lại các khóa trong `<stack>.env`, rồi commit các SealedSecret mới.
 
 <Cards>
 <Card title="Tổng quan cluster" href="/vi/operations/cluster">Những gì chạy trong cluster và lý do.</Card>

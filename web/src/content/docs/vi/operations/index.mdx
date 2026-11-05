@@ -7,7 +7,7 @@ groupOrder: 1
 audience: [developers, admins]
 type: overview
 readingTime: 4
-updated: 2026-11-04
+updated: 2026-11-05
 related: ["/vi/operations/cluster", "/vi/operations/cluster/bootstrap", "/vi/operations/cluster/releases", "/vi/operations/configuration", "/vi/operations/local-stack"]
 ---
 
@@ -44,11 +44,11 @@ Argo CD Image Updater theo dõi GHCR. Với `stack-dev`, nó theo digest của `
 
 <Cards cols={2}>
   <Card title="Tổng quan cluster" href="/vi/operations/cluster" icon="ri:node-tree">Các node, hai stack, từng thành phần và số replica của nó.</Card>
-  <Card title="Dựng một cluster" href="/vi/operations/cluster/bootstrap" icon="ri:rocket-line">Fork, đặt tên miền, chạy up.sh, seal secret, push.</Card>
+  <Card title="Dựng một cluster" href="/vi/operations/cluster/bootstrap" icon="ri:rocket-line">Fork, đặt tên miền, tạo cluster bằng k3d, seal secret, push.</Card>
   <Card title="Biên và mạng" href="/vi/operations/cluster/networking" icon="ri:global-line">Hai chế độ biên, TLS, các host và NetworkPolicy.</Card>
   <Card title="Postgres, Restate và RustFS" href="/vi/operations/cluster/data" icon="ri:database-2-line">Các workload có trạng thái, operator và storage của chúng.</Card>
   <Card title="Phát hành" href="/vi/operations/cluster/releases" icon="ri:price-tag-3-line">dev theo main và prod theo tag phiên bản thế nào.</Card>
-  <Card title="Secret" href="/vi/operations/cluster/secrets" icon="ri:key-2-line">Sealed Secrets, seal.sh và khóa cần sao lưu.</Card>
+  <Card title="Secret" href="/vi/operations/cluster/secrets" icon="ri:key-2-line">Sealed Secrets, lệnh seal và khóa cần sao lưu.</Card>
   <Card title="Cổng mô hình ngôn ngữ" href="/vi/operations/cluster/llm-gateway" icon="ri:robot-2-line">LiteLLM trong mỗi stack, alias search và ngân sách theo ngày.</Card>
   <Card title="Runbook và xử lý sự cố" href="/vi/operations/cluster/runbook" icon="ri:first-aid-kit-line">Lệnh hằng ngày, bài diễn tập và cách sửa các lỗi đã biết.</Card>
 </Cards>

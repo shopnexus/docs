@@ -7,7 +7,7 @@ groupOrder: 2
 audience: [developers, admins]
 type: how-to
 readingTime: 10
-updated: 2026-11-04
+updated: 2026-11-05
 related: ["/en/operations/cluster", "/en/operations/cluster/bootstrap", "/en/operations/cluster/data", "/en/operations/cluster/secrets", "/en/operations/cluster/runbook"]
 ---
 
@@ -69,14 +69,14 @@ syncPolicy:
 
 ## Argo CD settings
 
-`infra/cluster/up.sh` installs the `argo-cd` chart 10.11.7 with `infra/cluster/argocd-values.yaml` and applies `root.yaml` once. From then on Argo CD manages `root` from git.
+At its first start k3s installs the `argo-cd` chart 10.11.7 from `infra/cluster/argocd.yaml` and applies `root.yaml` once; the k3d config lists both files. From then on Argo CD manages `root` from git. A restart of the server node makes k3s apply its copy of `root.yaml` again, and self-heal puts the git version back within minutes.
 
 | Setting | Where | Effect |
 |---|---|---|
 | `automated: { prune: true, selfHeal: true }` | every Application | a commit is applied without a click, a resource removed from git is deleted, and a hand edit in the cluster is reverted |
 | `retry: { limit: -1, backoff: { duration: 30s, factor: 2, maxDuration: 5m } }` | every Application | a failed sync is retried forever, 30 s apart at first and at most 5 min apart |
 | sync waves | platform Applications wave 0, `stack-dev`, `stack-prod` and the `ImageUpdater` wave 1 | the stacks start after the operators |
-| Lua health check for `argoproj.io/Application` | `argocd-values.yaml` | `root` reads each child Application's health, so wave 1 waits for the platform Applications to be Healthy |
+| Lua health check for `argoproj.io/Application` | the values in `argocd.yaml` | `root` reads each child Application's health, so wave 1 waits for the platform Applications to be Healthy |
 
 Argo CD stopped judging the health of Application resources in version 1.8. Without the Lua check, `root` would treat the platform Applications as healthy at once, and the stacks would start before CloudNativePG, Sealed Secrets and restate-operator had their CRDs. The `ImageUpdater` carries `SkipDryRunOnMissingResource=true`, because its CRD arrives with the `image-updater` Application in the same sync.
 
@@ -140,10 +140,10 @@ kubectl -n argocd get application stack-prod \
 <Step title="Check the new version">
 ```bash title="Terminal"
 kubectl -n shopnexus-prod get rs -l app.kubernetes.io/name=server
-infra/smoke.sh shopnexus.id.vn
+hurl --test --continue-on-error --variable domain=shopnexus.id.vn infra/smoke.hurl
 ```
 
-Prod runs three server pods per version. You should see the new ReplicaSet at 3/3 and every smoke line `ok`.
+Prod runs three server pods per version. You should see the new ReplicaSet at 3/3 and Hurl report the smoke test as a success.
 </Step>
 </Steps>
 
@@ -240,7 +240,7 @@ When the fix is tagged, put the `stack-prod` entry back in `stacks.yaml`. Image 
 
 ## Change a config value
 
-Non-secret settings live in `infra/stack/values.yaml` and the two stack files. Secrets go through `seal.sh` ([Secrets](/en/operations/cluster/secrets)).
+Non-secret settings live in `infra/stack/values.yaml` and the two stack files. Secrets go through the seal command, `infra/cmd/seal` ([Secrets](/en/operations/cluster/secrets)).
 
 <Steps>
 <Step title="Edit the values file">
@@ -334,6 +334,6 @@ kubectl -n argocd logs deploy/image-updater-argocd-image-updater-controller --ta
 </Accordion>
 
 <Accordion title="A stack Application stays OutOfSync or Unknown">
-Read the condition with `kubectl -n argocd get application stack-prod -o jsonpath='{.status.conditions}'`. A ComparisonError that names `seal.sh` means `infra/stack/secrets/<stack>/` holds no SealedSecrets. Other errors come from the chart; reproduce them with `infra/check.sh`. Argo CD retries the sync with backoff up to 5 minutes, so a fix in git is picked up without a click.
+Read the condition with `kubectl -n argocd get application stack-prod -o jsonpath='{.status.conditions}'`. A ComparisonError that names `./cmd/seal` means `infra/stack/secrets/<stack>/` holds no SealedSecrets. Other errors come from the chart; reproduce them with `infra/check.sh`. Argo CD retries the sync with backoff up to 5 minutes, so a fix in git is picked up without a click.
 </Accordion>
 </AccordionGroup>

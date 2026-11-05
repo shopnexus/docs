@@ -7,7 +7,7 @@ groupOrder: 1
 audience: [developers, admins]
 type: overview
 readingTime: 4
-updated: 2026-11-04
+updated: 2026-11-05
 related: ["/en/operations/cluster", "/en/operations/cluster/bootstrap", "/en/operations/cluster/releases", "/en/operations/configuration", "/en/operations/local-stack"]
 ---
 
@@ -44,11 +44,11 @@ Argo CD Image Updater watches GHCR. For `stack-dev` it follows the digest of `:m
 
 <Cards cols={2}>
   <Card title="Cluster overview" href="/en/operations/cluster" icon="ri:node-tree">Nodes, the two stacks, every component and its replica count.</Card>
-  <Card title="Bring up a cluster" href="/en/operations/cluster/bootstrap" icon="ri:rocket-line">Fork, set the domains, run up.sh, seal the secrets, push.</Card>
+  <Card title="Bring up a cluster" href="/en/operations/cluster/bootstrap" icon="ri:rocket-line">Fork, set the domains, create the cluster with k3d, seal the secrets, push.</Card>
   <Card title="Edge and network" href="/en/operations/cluster/networking" icon="ri:global-line">The two edge modes, TLS, hosts and NetworkPolicy.</Card>
   <Card title="Postgres, Restate and RustFS" href="/en/operations/cluster/data" icon="ri:database-2-line">The stateful workloads, their operators and their storage.</Card>
   <Card title="Releases" href="/en/operations/cluster/releases" icon="ri:price-tag-3-line">How dev follows main and prod follows a version tag.</Card>
-  <Card title="Secrets" href="/en/operations/cluster/secrets" icon="ri:key-2-line">Sealed Secrets, seal.sh and the key to back up.</Card>
+  <Card title="Secrets" href="/en/operations/cluster/secrets" icon="ri:key-2-line">Sealed Secrets, the seal command and the key to back up.</Card>
   <Card title="Language model gateway" href="/en/operations/cluster/llm-gateway" icon="ri:robot-2-line">LiteLLM in each stack, the search alias and its daily budget.</Card>
   <Card title="Runbook and troubleshooting" href="/en/operations/cluster/runbook" icon="ri:first-aid-kit-line">Daily commands, drills and fixes for known failures.</Card>
 </Cards>

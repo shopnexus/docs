@@ -7,7 +7,7 @@ groupOrder: 2
 audience: [developers, admins]
 type: how-to
 readingTime: 11
-updated: 2026-11-04
+updated: 2026-11-05
 related: ["/vi/operations/cluster", "/vi/operations/cluster/bootstrap", "/vi/operations/cluster/data", "/vi/operations/cluster/secrets", "/vi/operations/cluster/runbook"]
 ---
 
@@ -69,14 +69,14 @@ syncPolicy:
 
 ## Thiết lập Argo CD
 
-`infra/cluster/up.sh` cài chart `argo-cd` 10.11.7 (Argo CD v3.5.7) với `infra/cluster/argocd-values.yaml` và apply `root.yaml` một lần. Từ đó Argo CD quản lý `root` từ git.
+Ở lần khởi động đầu, k3s cài chart `argo-cd` 10.11.7 (Argo CD v3.5.7) từ `infra/cluster/argocd.yaml` và apply `root.yaml` một lần; file cấu hình k3d liệt kê cả hai file. Từ đó Argo CD quản lý `root` từ git. Khi node server khởi động lại, k3s apply lại bản `root.yaml` nó giữ, và self-heal đưa bản trong git trở lại trong vòng vài phút.
 
 | Thiết lập | Ở đâu | Tác dụng |
 |---|---|---|
 | `automated: { prune: true, selfHeal: true }` | mọi Application | commit được apply mà không cần bấm, resource bị xóa khỏi git thì bị xóa khỏi cluster, và sửa tay trong cluster bị hoàn lại |
 | `retry: { limit: -1, backoff: { duration: 30s, factor: 2, maxDuration: 5m } }` | mọi Application | lần sync lỗi được thử lại mãi, lúc đầu cách 30 giây, tối đa cách 5 phút |
 | sync wave | Application platform ở wave 0; `stack-dev`, `stack-prod` và `ImageUpdater` ở wave 1 | các stack khởi động sau các operator |
-| health check Lua cho `argoproj.io/Application` | `argocd-values.yaml` | `root` đọc health của từng Application con, nên wave 1 chờ các Application platform Healthy |
+| health check Lua cho `argoproj.io/Application` | phần values trong `argocd.yaml` | `root` đọc health của từng Application con, nên wave 1 chờ các Application platform Healthy |
 
 Argo CD thôi đánh giá health của resource Application từ phiên bản 1.8. Không có check Lua, `root` sẽ coi các Application platform là healthy ngay lập tức, và các stack sẽ khởi động trước khi CloudNativePG, Sealed Secrets và restate-operator có CRD. `ImageUpdater` mang `SkipDryRunOnMissingResource=true`, vì CRD của nó đến cùng Application `image-updater` trong cùng lần sync.
 
@@ -140,10 +140,10 @@ kubectl -n argocd get application stack-prod \
 <Step title="Kiểm tra phiên bản mới">
 ```bash title="Terminal"
 kubectl -n shopnexus-prod get rs -l app.kubernetes.io/name=server
-infra/smoke.sh shopnexus.id.vn
+hurl --test --continue-on-error --variable domain=shopnexus.id.vn infra/smoke.hurl
 ```
 
-Prod chạy ba pod server cho mỗi phiên bản. Bạn sẽ thấy ReplicaSet mới ở 3/3 và mọi dòng smoke là `ok`.
+Prod chạy ba pod server cho mỗi phiên bản. Bạn sẽ thấy ReplicaSet mới ở 3/3 và Hurl báo smoke test thành công.
 </Step>
 </Steps>
 
@@ -240,7 +240,7 @@ Khi bản sửa đã có tag, đưa mục `stack-prod` trở lại `stacks.yaml`
 
 ## Đổi một giá trị cấu hình
 
-Thiết lập không bí mật nằm trong `infra/stack/values.yaml` và hai file của từng stack. Secret đi qua `seal.sh` ([Secret](/vi/operations/cluster/secrets)).
+Thiết lập không bí mật nằm trong `infra/stack/values.yaml` và hai file của từng stack. Secret đi qua lệnh seal, `infra/cmd/seal` ([Secret](/vi/operations/cluster/secrets)).
 
 <Steps>
 <Step title="Sửa file values">
@@ -334,6 +334,6 @@ kubectl -n argocd logs deploy/image-updater-argocd-image-updater-controller --ta
 </Accordion>
 
 <Accordion title="Application của stack đứng ở OutOfSync hoặc Unknown">
-Đọc condition bằng `kubectl -n argocd get application stack-prod -o jsonpath='{.status.conditions}'`. Một ComparisonError có nhắc `seal.sh` nghĩa là `infra/stack/secrets/<stack>/` chưa có SealedSecret nào. Các lỗi khác đến từ chart; tái hiện chúng bằng `infra/check.sh`. Argo CD thử sync lại với backoff tối đa 5 phút, nên bản sửa trong git được nhận mà không cần bấm.
+Đọc condition bằng `kubectl -n argocd get application stack-prod -o jsonpath='{.status.conditions}'`. Một ComparisonError có nhắc `./cmd/seal` nghĩa là `infra/stack/secrets/<stack>/` chưa có SealedSecret nào. Các lỗi khác đến từ chart; tái hiện chúng bằng `infra/check.sh`. Argo CD thử sync lại với backoff tối đa 5 phút, nên bản sửa trong git được nhận mà không cần bấm.
 </Accordion>
 </AccordionGroup>

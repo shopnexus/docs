@@ -7,15 +7,15 @@ groupOrder: 2
 audience: [admins, developers]
 type: concept
 readingTime: 9
-updated: 2026-11-04
+updated: 2026-11-05
 related: ["/en/operations/cluster", "/en/operations/cluster/bootstrap", "/en/operations/cluster/data", "/en/operations/cluster/runbook"]
 ---
 
-Each stack is a namespace, `shopnexus-dev` or `shopnexus-prod`, and each stack's hosts come from its `domain` value. Traefik, the ingress controller bundled with k3s, receives every request and routes it by its `Host` header. How a request reaches Traefik depends on the edge mode passed to `infra/cluster/up.sh`.
+Each stack is a namespace, `shopnexus-dev` or `shopnexus-prod`, and each stack's hosts come from its `domain` value. Traefik, the ingress controller bundled with k3s, receives every request and routes it by its `Host` header. How a request reaches Traefik depends on the edge mode, which is the k3d config the cluster was created from.
 
 ## Edge modes
 
-`up.sh direct` or `up.sh behind-proxy` picks two things when it creates the cluster: the k3d port mapping, and the Traefik `HelmChartConfig` it applies from `infra/cluster/edge-direct.yaml` or `infra/cluster/edge-behind-proxy.yaml`. In both modes Traefik runs one replica, pinned to the control-plane node `server-0`.
+`infra/cluster/k3d-direct.yaml` and `infra/cluster/k3d-behind-proxy.yaml` differ in two things: the k3d port mapping, and the Traefik `HelmChartConfig` written inline in the config's `files:` list, which k3s applies at its first start. In both modes Traefik runs one replica, pinned to the control-plane node `server-0`.
 
 ```mermaid title="From the internet to Traefik"
 flowchart TB
@@ -36,16 +36,16 @@ flowchart TB
 
 <Tabs labels={["direct", "behind-proxy"]}>
 <Tab>
-Use `direct` on a machine where nothing else holds ports 80 and 443. `up.sh` refuses to run without `ACME_EMAIL`.
+Use `direct` on a machine where nothing else holds ports 80 and 443. Set `ACME_EMAIL`; k3d fills `${ACME_EMAIL}` in the config from the environment.
 
 ```bash
-ACME_EMAIL=you@example.com infra/cluster/up.sh direct
+ACME_EMAIL=you@example.com k3d cluster create --config infra/cluster/k3d-direct.yaml
 ```
 
-- `up.sh` maps `--port 80:80@server:0:direct` and `--port 443:443@server:0:direct`. The ports go straight onto `server-0`, where Traefik runs, and skip k3d's serverlb, an nginx stream proxy that replaces the client's address with its own.
+- The config maps ports `80:80` and `443:443` with the node filter `server:0:direct`. The ports go straight onto `server-0`, where Traefik runs, and skip k3d's serverlb, an nginx stream proxy that replaces the client's address with its own.
 - Traefik's Service has `externalTrafficPolicy: Local`, so klipper-lb hands the connection to the Traefik pod on the same node and keeps the source address.
 - The resolver `le` gets certificates from Let's Encrypt with the TLS-ALPN-01 challenge (`tlsChallenge: true`), which answers on port 443 itself. Certificates live in `/data/acme.json` on a 128Mi volume. Because one pod owns that volume, the Deployment uses `updateStrategy: Recreate`.
-- `ACME_SERVER` defaults to the Let's Encrypt staging directory, `https://acme-staging-v02.api.letsencrypt.org/directory`, whose certificates browsers reject. Set `ACME_SERVER=https://acme-v02.api.letsencrypt.org/directory` for real certificates once staging works.
+- The resolver uses Let's Encrypt's production directory. To try the setup against the staging directory, whose rate limits are higher and whose certificates browsers reject, add `caServer: https://acme-staging-v02.api.letsencrypt.org/directory` under `acme` in `k3d-direct.yaml` before you create the cluster.
 - The `web` entrypoint redirects to `websecure` with `permanent: true`. Plain HTTP gets a 301.
 - Access logs are on (`accessLog.enabled: true`).
 </Tab>
@@ -53,10 +53,10 @@ ACME_EMAIL=you@example.com infra/cluster/up.sh direct
 Use `behind-proxy` when a proxy on the host already holds 80 and 443. The author's server runs this mode behind a Caddy shared with other projects.
 
 ```bash
-infra/cluster/up.sh behind-proxy
+k3d cluster create --config infra/cluster/k3d-behind-proxy.yaml
 ```
 
-- `up.sh` maps `--port 127.0.0.1:18080:80@loadbalancer`. Only the host itself can reach port 18080.
+- The config maps port `127.0.0.1:18080:80` with the node filter `loadbalancer`. Only the host itself can reach port 18080.
 - The outer proxy terminates TLS, redirects plain HTTP (Caddy answers 308) and sends HTTP to `127.0.0.1:18080`. On the author's server that proxy configuration is `conf.d/shopnexus.caddy`, which lists the hosts of both stacks.
 - Traefik's `web` entrypoint trusts `X-Forwarded-*` headers from `10.0.0.0/8`, `172.16.0.0/12` and `192.168.0.0/16`, which covers the k3d Docker network. Traefik passes the client address from the outer proxy's `X-Forwarded-For` on to the pods.
 - Traefik does no TLS and no redirect in this mode.
@@ -81,18 +81,18 @@ The helper `sn.host` builds every host from `domain`: an empty prefix gives the 
 | `docs.<domain>` | `docs` | 80 | `docs.shopnexus.id.vn` | `docs.dev.shopnexus.id.vn` |
 | `console.<domain>` | `console` | 80 | `console.shopnexus.id.vn` | `console.dev.shopnexus.id.vn` |
 
-Every path (`/`, `pathType: Prefix`) of a host goes to the one Service. `infra/check.sh` compares the rendered host lists of both stacks with these values.
+Every path (`/`, `pathType: Prefix`) of a host goes to the one Service. `infra/stack/tests/web_test.yaml`, which `infra/check.sh` runs, compares the rendered host lists of both stacks with these values.
 
 ## Traefik chart 41
 
-k3s `v1.37.1-k3s1`, the image in `infra/cluster/k3d.yaml`, bundles Traefik chart 41.4.0. Its values schema refuses keys it does not know. The first draft of `edge-direct.yaml` used older keys (`ports.web.redirections`, `ports.websecure.tls`, `logs`). The chart rejected them, and k3s ran Traefik with its default values (no ACME, no redirect, no access log) without an error on any resource.
+k3s `v1.37.1-k3s1`, the image in both k3d configs, bundles Traefik chart 41.4.0. Its values schema refuses keys it does not know. The first draft of the direct Traefik config used older keys (`ports.web.redirections`, `ports.websecure.tls`, `logs`). The chart rejected them, and k3s ran Traefik with its default values (no ACME, no redirect, no access log) without an error on any resource.
 
-The keys now in use are `ports.web.http.redirections`, `ports.websecure.http.tls`, `accessLog.enabled` and `certificatesResolvers.le.acme.tlsChallenge`. `infra/check.sh` renders both edge files with `helm template` against chart 41.4.0 and looks for the resulting Traefik arguments:
+The keys now in use are `ports.web.http.redirections`, `ports.websecure.http.tls`, `accessLog.enabled` and `certificatesResolvers.le.acme.tlsChallenge`. `infra/check.sh` takes the Traefik config out of each k3d config, renders it with `helm template` against chart 41.4.0 and looks for the resulting Traefik arguments:
 
 - direct: `externalTrafficPolicy: Local`, `--entryPoints.websecure.http.tls.certResolver=le`, `--entryPoints.web.http.redirections.entryPoint.to=:443`, `--certificatesresolvers.le.acme.tlsChallenge=true`, `--accesslog=true`;
 - behind-proxy: `--entryPoints.web.forwardedHeaders.trustedIPs=10.0.0.0/8,172.16.0.0/12,192.168.0.0/16`, and no redirection.
 
-The check also pins the k3s image to `rancher/k3s:v1.37.1-k3s1`. A k3s upgrade that brings a different Traefik chart fails the check until the edge files are rendered against the new chart.
+The check also pins the k3s image to `rancher/k3s:v1.37.1-k3s1`. A k3s upgrade that brings a different Traefik chart fails the check until the Traefik configs are rendered against the new chart.
 
 <Callout type="warning" title="Client addresses in direct mode">
 On the local k3d cluster, the serverlb route showed Traefik a pod address (`10.42.x`) and then the serverlb's own (`172.24.0.6`). With `@server:0:direct` and `externalTrafficPolicy: Local`, a request from the same machine still shows the Docker gateway, because Docker's userland proxy handles it. A request from another machine could not be tested, since the laptop's firewall blocked it. Whether `direct` keeps the address of an external client is checked on the first `direct` deployment; until then, logs may show the gateway address. `behind-proxy` is unaffected, because Caddy sets `X-Forwarded-For`.

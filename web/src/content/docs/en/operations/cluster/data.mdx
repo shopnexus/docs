@@ -7,7 +7,7 @@ groupOrder: 2
 audience: [admins, developers]
 type: concept
 readingTime: 10
-updated: 2026-11-04
+updated: 2026-11-05
 related: ["/en/operations/cluster", "/en/operations/cluster/bootstrap", "/en/operations/cluster/releases", "/en/operations/cluster/secrets", "/en/operations/cluster/runbook"]
 ---
 
@@ -67,7 +67,7 @@ CNPG creates the Secret `postgres-app`. The server and its jobs read `DATABASE_U
 
 ### LiteLLM's database
 
-The `Cluster` also manages a role `litellm` (`ensure: present`, `login: true`) whose password CNPG reads from the basic-auth Secret `litellm-db`, sealed by `infra/cluster/seal.sh`. A separate `Database` resource named `litellm`, owned by `litellm`, creates the database on the same cluster in wave 1. LiteLLM keeps its virtual keys and spend there, as described in [Language model gateway](/en/operations/cluster/llm-gateway).
+The `Cluster` also manages a role `litellm` (`ensure: present`, `login: true`) whose password CNPG reads from the basic-auth Secret `litellm-db`, sealed by the seal command, `infra/cmd/seal`. A separate `Database` resource named `litellm`, owned by `litellm`, creates the database on the same cluster in wave 1. LiteLLM keeps its virtual keys and spend there, as described in [Language model gateway](/en/operations/cluster/llm-gateway).
 
 ### Placement
 
@@ -95,7 +95,7 @@ sequenceDiagram
   C->>P1: recreate the pod as a replica of postgres-2
 ```
 
-The drill for this is written (plan Task 17, step 1) and has not been run yet. Its expected result is that `currentPrimary` changes to the other instance within a minute and `infra/smoke.sh` passes. To watch it:
+The drill for this is written (plan Task 17, step 1) and has not been run yet. Its expected result is that `currentPrimary` changes to the other instance within a minute and `infra/smoke.hurl` passes. To watch it:
 
 ```bash
 kubectl -n shopnexus-prod get cluster postgres \
@@ -125,7 +125,7 @@ The `RestateCluster` is named `restate-<stack>`, and the operator puts it in a n
 
 Snapshots go to the stack's RustFS with the access keys stored in `restate-secrets` as `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`. They are the same keys RustFS itself runs with. The operator's README advises against a distributed cluster without snapshots, because a node that falls behind catches up from a snapshot.
 
-Restate signs every request it sends to the server with `private.pem`. The server holds the public key in `RESTATE_IDENTITY_KEY` and rejects unsigned requests. `seal.sh` keeps the private key in `infra/stack/secrets/<stack>.restate.pem` and stops if that file is missing while the `.env` still has a public key; see [Secrets](/en/operations/cluster/secrets).
+Restate signs every request it sends to the server with `private.pem`. The server holds the public key in `RESTATE_IDENTITY_KEY` and rejects unsigned requests. The seal command keeps the private key in `infra/stack/secrets/<stack>.restate.pem` and stops if that file is missing while the `.env` still has a public key; see [Secrets](/en/operations/cluster/secrets).
 
 `spec.security.networkPeers` admits traffic to the ingress and admin ports only from the stack's server pods. In the other direction, Restate may reach only pods labelled `allow.restate.dev/restate-<stack>: "true"`, which the chart sets on the server and RustFS pods.
 
@@ -241,7 +241,7 @@ What is not covered:
 - Deleted or corrupted rows in Postgres. The replica copies a bad write within a moment.
 - dev's Postgres and Restate, which run one instance each.
 - RustFS on any stack: one replica, one volume.
-- The SealedSecrets controller's key and the files `seal.sh` keeps. [Secrets](/en/operations/cluster/secrets#files-to-back-up) lists them; back them up by hand.
+- The SealedSecrets controller's key and the files the seal command keeps. [Secrets](/en/operations/cluster/secrets#files-to-back-up) lists them; back them up by hand.
 
 <AccordionGroup>
 <Accordion title='Server pods crash-loop with "migrations pending"'>

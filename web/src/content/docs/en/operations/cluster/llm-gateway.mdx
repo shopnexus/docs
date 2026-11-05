@@ -7,7 +7,7 @@ groupOrder: 2
 audience: [admins, developers]
 type: concept
 readingTime: 7
-updated: 2026-11-04
+updated: 2026-11-05
 related: ["/en/operations/cluster/secrets", "/en/operations/cluster/data", "/en/operations/cluster/runbook", "/en/architecture/search-and-discovery"]
 ---
 
@@ -78,7 +78,7 @@ flowchart TD
 
 Both calls send the same body: the key value from `server-secrets`, `key_alias: server`, `models: ["search"]`, `max_budget`, `budget_duration: 1d` and `tpm_limit`. They authenticate with the master key from `litellm-secrets`.
 
-The key value is fixed in advance: `seal.sh` generates `LLM_API_KEY` and seals it into the server's secret, and the Job writes that same value into LiteLLM. Running the hook twice gives the same result. After LiteLLM's database is lost, the update fails, the generate call recreates the key with the value the server already holds, and the server does not restart.
+The key value is fixed in advance: the seal command generates `LLM_API_KEY` and seals it into the server's secret, and the Job writes that same value into LiteLLM. Running the hook twice gives the same result. After LiteLLM's database is lost, the update fails, the generate call recreates the key with the value the server already holds, and the server does not restart.
 
 The response of LiteLLM contains the key, so the Job logs only the HTTP status. On a failure it also prints the `message` field of the answer.
 
@@ -100,7 +100,7 @@ The server's data lives in the database `app` of the same cluster. LiteLLM's rol
 
 ## Secrets
 
-`infra/cluster/seal.sh <stack>` generates three of the four values below into the git-ignored `infra/stack/secrets/<stack>.env`. You write `LLM_UPSTREAM_API_KEY` yourself, and `seal.sh` stops with `set LLM_UPSTREAM_API_KEY` until you do.
+`go -C infra run ./cmd/seal <stack>` generates three of the four values below into the git-ignored `infra/stack/secrets/<stack>.env`. You write `LLM_UPSTREAM_API_KEY` yourself, and the seal command stops with `set LLM_UPSTREAM_API_KEY` until you do.
 
 | Value in `<stack>.env` | Sealed into | Key | Read by |
 |---|---|---|---|
@@ -109,7 +109,7 @@ The server's data lives in the database `app` of the same cluster. LiteLLM's rol
 | `LITELLM_DB_PASSWORD` | `litellm-db` (basic-auth) | `password` | CNPG for the role, LiteLLM for `DATABASE_URL` |
 | `LLM_API_KEY` | `server-secrets` | `LLM_API_KEY` | the server, the `litellm-key` Job |
 
-Today `LLM_UPSTREAM_API_KEY` is one of the keys under cli-proxy-api's `access.api-keys`. A reseal changes the checksum on the LiteLLM pod template, so LiteLLM restarts with the new values. [Secrets](/en/operations/cluster/secrets) covers how `seal.sh` and the controller seal them.
+Today `LLM_UPSTREAM_API_KEY` is one of the keys under cli-proxy-api's `access.api-keys`. A reseal changes the checksum on the LiteLLM pod template, so LiteLLM restarts with the new values. [Secrets](/en/operations/cluster/secrets) covers how the seal command and the controller seal them.
 
 ## When the budget runs out
 
@@ -142,7 +142,7 @@ The server always asks for `search`. To change what answers:
 In `infra/stack/values.yaml`, set `litellm.model` to the upstream model name and `litellm.apiBase` to its OpenAI-compatible base URL, ending in `/v1`. To change one stack only, set `litellm.model` and `litellm.apiBase` in `values-dev.yaml` or `values-prod.yaml` instead. The chart refuses to render if either is empty.
 </Step>
 <Step title="Change the upstream key">
-If the provider changes, put its key into `LLM_UPSTREAM_API_KEY` in `infra/stack/secrets/<stack>.env`, then run `infra/cluster/seal.sh dev` and `infra/cluster/seal.sh prod`.
+If the provider changes, put its key into `LLM_UPSTREAM_API_KEY` in `infra/stack/secrets/<stack>.env`, then run `go -C infra run ./cmd/seal dev` and `go -C infra run ./cmd/seal prod`.
 </Step>
 <Step title="Commit and push">
 Commit `values*.yaml` and `infra/stack/secrets/`, and push to `main`. Argo CD syncs. The `checksum/config` annotation on LiteLLM's pod changes with the config, so LiteLLM restarts on the new model.
@@ -202,6 +202,6 @@ curl -s "http://localhost:4000/key/info?key=$key" -H "Authorization: Bearer $mas
 <KeyRules>
 - The server calls only the alias `search`; the model behind it is set in `values.yaml`.
 - Budgets are in tokens in values and in money in LiteLLM, at `0.000001` per token.
-- The server's key value comes from `seal.sh`; the `litellm-key` hook only writes it into LiteLLM.
+- The server's key value comes from the seal command; the `litellm-key` hook only writes it into LiteLLM.
 - Any pod of a stack can reach its LiteLLM, but only the server holds a virtual key.
 </KeyRules>

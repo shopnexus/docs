@@ -7,7 +7,7 @@ groupOrder: 2
 audience: [admins, developers]
 type: concept
 readingTime: 11
-updated: 2026-11-04
+updated: 2026-11-05
 related: ["/vi/operations/cluster", "/vi/operations/cluster/bootstrap", "/vi/operations/cluster/releases", "/vi/operations/cluster/secrets", "/vi/operations/cluster/runbook"]
 ---
 
@@ -67,7 +67,7 @@ CNPG tạo Secret `postgres-app`. Server và các job của nó đọc `DATABASE
 
 ### Database của LiteLLM
 
-`Cluster` còn quản lý role `litellm` (`ensure: present`, `login: true`); CNPG đọc mật khẩu của role từ Secret basic-auth `litellm-db`, do `infra/cluster/seal.sh` niêm phong. Một resource `Database` riêng tên `litellm`, chủ sở hữu `litellm`, tạo database trên cùng cluster ở wave 1. LiteLLM lưu virtual key và mức chi tiêu ở đó, như mô tả trong [Cổng mô hình ngôn ngữ](/vi/operations/cluster/llm-gateway).
+`Cluster` còn quản lý role `litellm` (`ensure: present`, `login: true`); CNPG đọc mật khẩu của role từ Secret basic-auth `litellm-db`, do lệnh seal, `infra/cmd/seal`, niêm phong. Một resource `Database` riêng tên `litellm`, chủ sở hữu `litellm`, tạo database trên cùng cluster ở wave 1. LiteLLM lưu virtual key và mức chi tiêu ở đó, như mô tả trong [Cổng mô hình ngôn ngữ](/vi/operations/cluster/llm-gateway).
 
 ### Bố trí pod
 
@@ -95,7 +95,7 @@ sequenceDiagram
   C->>P1: tạo lại pod làm replica của postgres-2
 ```
 
-Bài diễn tập cho tình huống này đã được viết (plan Task 17, bước 1) nhưng chưa chạy. Kết quả mong đợi là `currentPrimary` đổi sang instance còn lại trong vòng một phút và `infra/smoke.sh` qua. Để theo dõi:
+Bài diễn tập cho tình huống này đã được viết (plan Task 17, bước 1) nhưng chưa chạy. Kết quả mong đợi là `currentPrimary` đổi sang instance còn lại trong vòng một phút và `infra/smoke.hurl` qua. Để theo dõi:
 
 ```bash
 kubectl -n shopnexus-prod get cluster postgres \
@@ -125,7 +125,7 @@ restate-operator 3.2.0 chạy hai resource cho mỗi stack: một `RestateCluste
 
 Snapshot được ghi vào RustFS của stack bằng access key lưu trong `restate-secrets` dưới tên `AWS_ACCESS_KEY_ID` và `AWS_SECRET_ACCESS_KEY`. Đó cũng là cặp key mà RustFS dùng để chạy. README của operator khuyên không chạy cluster phân tán mà thiếu snapshot, vì node bị tụt lại sẽ bắt kịp từ snapshot.
 
-Restate ký mọi request gửi tới server bằng `private.pem`. Server giữ public key trong `RESTATE_IDENTITY_KEY` và từ chối request không có chữ ký. `seal.sh` giữ private key trong `infra/stack/secrets/<stack>.restate.pem` và dừng lại nếu file này mất trong khi `.env` vẫn còn public key; xem [Secret](/vi/operations/cluster/secrets).
+Restate ký mọi request gửi tới server bằng `private.pem`. Server giữ public key trong `RESTATE_IDENTITY_KEY` và từ chối request không có chữ ký. Lệnh seal giữ private key trong `infra/stack/secrets/<stack>.restate.pem` và dừng lại nếu file này mất trong khi `.env` vẫn còn public key; xem [Secret](/vi/operations/cluster/secrets).
 
 `spec.security.networkPeers` chỉ cho traffic vào cổng ingress và admin từ các pod server của stack. Ở chiều ngược lại, Restate chỉ được tới các pod mang nhãn `allow.restate.dev/restate-<stack>: "true"`, nhãn mà chart gắn cho pod server và pod RustFS.
 
@@ -241,7 +241,7 @@ Những gì không được bảo vệ:
 - Dòng dữ liệu bị xoá hay hỏng trong Postgres. Replica chép lại lần ghi sai gần như ngay lập tức.
 - Postgres và Restate của dev, mỗi thứ chạy một instance.
 - RustFS ở mọi stack: một replica, một volume.
-- Key của controller SealedSecrets và các file mà `seal.sh` giữ. Trang [Secret](/vi/operations/cluster/secrets#các-file-cần-sao-lưu) liệt kê chúng; hãy sao lưu chúng bằng tay.
+- Key của controller SealedSecrets và các file mà lệnh seal giữ. Trang [Secret](/vi/operations/cluster/secrets#các-file-cần-sao-lưu) liệt kê chúng; hãy sao lưu chúng bằng tay.
 
 <AccordionGroup>
 <Accordion title='Pod server crash-loop với "migrations pending"'>

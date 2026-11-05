@@ -7,7 +7,7 @@ groupOrder: 2
 audience: [admins, developers]
 type: reference
 readingTime: 9
-updated: 2026-11-04
+updated: 2026-11-05
 related: ["/vi/operations/cluster/bootstrap", "/vi/operations/cluster/networking", "/vi/operations/cluster/data", "/vi/operations/cluster/secrets", "/vi/operations/cluster/llm-gateway"]
 ---
 
@@ -63,10 +63,10 @@ kubectl -n argocd annotate application stack-dev argocd.argoproj.io/refresh=hard
 Kiểm tra mọi host công khai của một stack:
 
 ```bash
-infra/smoke.sh dev.shopnexus.id.vn
+hurl --test --continue-on-error --variable domain=dev.shopnexus.id.vn infra/smoke.hurl
 ```
 
-Mọi dòng đều bắt đầu bằng `ok`. Thêm `-k` trong lúc chứng chỉ còn lấy từ môi trường staging của Let's Encrypt.
+Hurl báo file thành công và thoát với mã 0. Thêm `--insecure` nếu chứng chỉ lấy từ môi trường staging của Let's Encrypt.
 
 ## Log
 
@@ -141,7 +141,7 @@ Các bài diễn tập lấy từ Task 17 của plan và chưa chạy trên serv
 p=$(kubectl -n shopnexus-prod get cluster postgres -o jsonpath='{.status.currentPrimary}')
 kubectl -n shopnexus-prod delete pod "$p"
 for i in $(seq 30); do kubectl -n shopnexus-prod get cluster postgres -o jsonpath='{.status.currentPrimary} {.status.phase}{"\n"}'; sleep 2; done
-infra/smoke.sh shopnexus.id.vn
+hurl --test --continue-on-error --variable domain=shopnexus.id.vn infra/smoke.hurl
 ```
 
 Mong đợi: `currentPrimary` chuyển sang instance còn lại trong vòng một phút, và smoke test qua.
@@ -152,7 +152,7 @@ docker stop k3d-shopnexus-agent-1
 sleep 90
 kubectl -n shopnexus-prod get pods -o wide
 kubectl -n restate-prod get pods -o wide
-infra/smoke.sh shopnexus.id.vn
+hurl --test --continue-on-error --variable domain=shopnexus.id.vn infra/smoke.hurl
 docker start k3d-shopnexus-agent-1
 ```
 
@@ -202,11 +202,11 @@ Ghi bộ nhớ còn trống và mức dùng của từng node k3d vào `infra/dr
 ## Lỗi đã biết
 
 <AccordionGroup>
-<Accordion title="stack-dev báo ComparisonError và đòi chạy seal.sh" open>
-Application ở trạng thái `Unknown` với thông báo `infra/stack/secrets/dev/ holds no sealed secrets: run infra/cluster/seal.sh dev, commit and push`. Chart từ chối render một stack chưa có SealedSecret, và ngay sau `up.sh` thì chưa có cái nào. Chạy `infra/cluster/seal.sh dev`, commit `infra/stack/secrets/dev/*.yaml` rồi push. Application tự thử lại, lúc đầu mỗi 30 giây và thưa nhất là mỗi 5 phút.
+<Accordion title="stack-dev báo ComparisonError và đòi chạy lệnh seal" open>
+Application ở trạng thái `Unknown` với thông báo `infra/stack/secrets/dev/ holds no sealed secrets: run go -C infra run ./cmd/seal dev, commit and push`. Chart từ chối render một stack chưa có SealedSecret, và ngay sau khi tạo cluster thì chưa có cái nào. Chạy `go -C infra run ./cmd/seal dev`, commit `infra/stack/secrets/dev/*.yaml` rồi push. Application tự thử lại, lúc đầu mỗi 30 giây và thưa nhất là mỗi 5 phút.
 </Accordion>
 <Accordion title="Traefik chạy cấu hình mặc định và bỏ qua cấu hình edge">
-Ở chế độ direct không có chuyển hướng HTTP sang HTTPS và không có chứng chỉ Let's Encrypt, hoặc khi đứng sau proxy thì `X-Forwarded-For` không được tin. k3s cài Traefik qua Helm controller của nó, và khi `HelmChartConfig` trong `infra/cluster/edge-*.yaml` không qua được schema của chart Traefik, k3s chạy Traefik với giá trị mặc định của chart và chỉ báo điều đó trong log của job cài đặt. Đọc log bằng `kubectl -n kube-system logs job/helm-install-traefik`. Các file edge viết cho chart Traefik 41.4.0, và `infra/check.sh` render cả hai file với chart đó; chạy nó sau mỗi lần sửa file edge.
+Ở chế độ direct không có chuyển hướng HTTP sang HTTPS và không có chứng chỉ Let's Encrypt, hoặc khi đứng sau proxy thì `X-Forwarded-For` không được tin. k3s cài Traefik qua Helm controller của nó, và khi `HelmChartConfig` trong file cấu hình k3d (`infra/cluster/k3d-*.yaml`) không qua được schema của chart Traefik, k3s chạy Traefik với giá trị mặc định của chart và chỉ báo điều đó trong log của job cài đặt. Đọc log bằng `kubectl -n kube-system logs job/helm-install-traefik`. Các cấu hình Traefik viết cho chart Traefik 41.4.0, và `infra/check.sh` render cả hai với chart đó; chạy nó sau mỗi lần sửa một file cấu hình k3d.
 </Accordion>
 <Accordion title="Pod Postgres lỗi vì image hoặc quyền file">
 CNPG đọc major version của Postgres từ tag image, và tag của ParadeDB như `0.26.4-pg18` không parse được. Chart xử lý bằng một `ImageCatalog` ghi rõ major 18, nên hãy giữ `major: 18` trong `postgres.yaml` khớp với tag trong `images.postgres`. CNPG còn mặc định uid 26, user trong image của chính nó, trong khi image ParadeDB chạy Postgres bằng uid 999; chart đặt `postgresUID: 999` và `postgresGID: 999`. Lỗi quyền trên thư mục dữ liệu sau khi đổi image nghĩa là image mới dùng uid khác: đọc uid bằng `docker run --rm --entrypoint id paradedb/paradedb:0.26.4-pg18`, thay bằng tag mới.
@@ -214,17 +214,17 @@ CNPG đọc major version của Postgres từ tag image, và tag của ParadeDB 
 <Accordion title="Server không bao giờ ready">
 `/readyz` trả 503 và server log `not ready` kèm `check restate: ...`. Readiness ping Postgres và admin API của Restate tại `http://restate.restate-dev:9070`. restate-operator chỉ cho traffic vào cổng ingress và admin của Restate từ các peer trong `spec.security.networkPeers` của `RestateCluster`, và chart đặt peer là các pod server trong namespace của stack. Kiểm tra pod Restate có chạy không (`kubectl -n restate-dev get pods`) và policy của operator có nhắc tới server không (`kubectl -n restate-dev get networkpolicy -o yaml`). Restate chỉ gọi ngược được các pod có nhãn `allow.restate.dev/restate-dev: "true"`, và pod template của server có nhãn này.
 </Accordion>
-<Accordion title="seal.sh dừng vì thiếu restate.pem, hoặc lời gọi của Restate bị từ chối">
-`seal.sh` giữ khóa ký của Restate trong `infra/stack/secrets/<stack>.restate.pem` và nửa công khai của nó trong `RESTATE_IDENTITY_KEY` ở `<stack>.env`. Khi `.env` có khóa công khai mà file `.pem` đã mất, `seal.sh` dừng với `restore dev.restate.pem from the backup`. Khôi phục file từ bản sao lưu. Một cặp khóa mới sẽ khiến Restate ký request bằng khóa mà server đang chạy không biết: server từ chối các request đó, và các flow durable đứng lại trong lúc Restate thử lại. Đổi khóa có chủ đích thì xóa cả dòng lẫn file `.pem`, rồi khởi động lại các pod Restate; trang [Secret](/vi/operations/cluster/secrets#khóa-restate) có các bước.
+<Accordion title="Lệnh seal dừng vì thiếu restate.pem, hoặc lời gọi của Restate bị từ chối">
+Lệnh seal giữ khóa ký của Restate trong `infra/stack/secrets/<stack>.restate.pem` và nửa công khai của nó trong `RESTATE_IDENTITY_KEY` ở `<stack>.env`. Khi `.env` có khóa công khai mà file `.pem` đã mất, lệnh seal dừng với `restore dev.restate.pem from the backup`. Khôi phục file từ bản sao lưu. Một cặp khóa mới sẽ khiến Restate ký request bằng khóa mà server đang chạy không biết: server từ chối các request đó, và các flow durable đứng lại trong lúc Restate thử lại. Đổi khóa có chủ đích thì xóa cả dòng lẫn file `.pem`, rồi khởi động lại các pod Restate; trang [Secret](/vi/operations/cluster/secrets#khóa-restate) có các bước.
 </Accordion>
 <Accordion title="Server crash-loop vì LLM_* hoặc biến khác chưa được đặt">
-Server không có giá trị mặc định. Khi khởi động, nó thoát và in một dòng cho mỗi biến bị thiếu hoặc để trống, ví dụ `LLM_API_KEY is not set`. `LLM_BASE_URL` và `LLM_MODEL` lấy từ ConfigMap `server-env`; `LLM_API_KEY` và các khóa khác lấy từ `server-secrets` đã seal. Thiếu một khóa trong `server-secrets` nghĩa là SealedSecret được tạo trước khi `seal.sh` biết tới khóa đó: chạy lại `infra/cluster/seal.sh dev` (nó giữ các khóa cũ và thêm khóa mới), commit rồi push. `litellm.model` hay `litellm.apiBase` để trống thì không tới được server: chart render lỗi với `litellm.model is required`, và Argo CD hiện nó thành ComparisonError.
+Server không có giá trị mặc định. Khi khởi động, nó thoát và in một dòng cho mỗi biến bị thiếu hoặc để trống, ví dụ `LLM_API_KEY is not set`. `LLM_BASE_URL` và `LLM_MODEL` lấy từ ConfigMap `server-env`; `LLM_API_KEY` và các khóa khác lấy từ `server-secrets` đã seal. Thiếu một khóa trong `server-secrets` nghĩa là SealedSecret được tạo trước khi lệnh seal biết tới khóa đó: chạy lại `go -C infra run ./cmd/seal dev` (nó giữ các khóa cũ và thêm khóa mới), commit rồi push. `litellm.model` hay `litellm.apiBase` để trống thì không tới được server: chart render lỗi với `litellm.model is required`, và Argo CD hiện nó thành ComparisonError.
 </Accordion>
 <Accordion title="dev.shopnexus.id.vn không phân giải được">
 `api.dev.shopnexus.id.vn` phân giải được nhưng `dev.shopnexus.id.vn` thì không. Bản ghi `*` không còn phủ `dev` khi đã có bản ghi `*.dev`, nên zone cần một bản ghi `dev` riêng bên cạnh `@`, `*` và `*.dev`. Kiểm tra bằng `dig +short dev.shopnexus.id.vn`.
 </Accordion>
 <Accordion title="Let's Encrypt từ chối cấp chứng chỉ">
-Ở chế độ direct, log của Traefik có lỗi ACME về rate limit. Endpoint production của Let's Encrypt giới hạn số chứng chỉ một domain nhận được mỗi tuần, và dựng lại nhiều lần sẽ dùng hết hạn mức. Vì vậy `up.sh` mặc định `ACME_SERVER` là endpoint staging. Dùng staging cho tới khi `infra/smoke.sh <domain> -k` qua, rồi đặt `ACME_SERVER=https://acme-v02.api.letsencrypt.org/directory` khi chạy `up.sh`. Khi đứng sau proxy, proxy giữ chứng chỉ và lỗi này không xảy ra.
+Ở chế độ direct, log của Traefik có lỗi ACME về rate limit. Endpoint production của Let's Encrypt giới hạn số chứng chỉ một domain nhận được mỗi tuần, và dựng lại nhiều lần sẽ dùng hết hạn mức. Traefik mặc định dùng endpoint production. Khi dựng thử nhiều lần, thêm `caServer: https://acme-staging-v02.api.letsencrypt.org/directory` dưới `acme` trong `infra/cluster/k3d-direct.yaml` trước khi tạo cluster, và chạy smoke test với `--insecure`. Khi đứng sau proxy, proxy giữ chứng chỉ và lỗi này không xảy ra.
 </Accordion>
 <Accordion title="Host hết bộ nhớ">
 Pod bị `OOMKilled` hoặc `Pending`, hoặc host phải swap. Spec ước tính hai stack cần 6 đến 8 GB, và server của tác giả đã dùng 17 trên 19 GB từ trước. Khi không dùng dev, scale dev về 0: trong `infra/stack/values-dev.yaml`, đặt `replicas.server`, `replicas.website`, `replicas.docs` và `replicas.console` bằng 0, giữ `postgres.instances: 1` và `restate.replicas: 1`, rồi commit và push. `kubectl scale` không giữ được lâu vì self-heal của Argo CD đặt lại số replica theo git. Spec còn một phương án dự phòng khác là cluster chỉ có hai agent.
