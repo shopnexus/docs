@@ -25,6 +25,8 @@ Out of scope, each for a later spec:
 - The real MoMo provider, a merchant contract, e-invoices for the fee, and
   daily reconciliation with MoMo's file.
 - A payments screen or manual refund in the staff console.
+- Switching a provider off and watching its health, needed once there is
+  more than one provider.
 
 ## Decisions
 
@@ -32,9 +34,12 @@ Out of scope, each for a later spec:
 |---|---|
 | Provider | A `Provider` interface with a fake behind it; MoMo plugs in later without changing the API. |
 | Where a boost shows | At the top of Gần bạn for searchers within 15 km of the listing; Search keeps its order. Every card carries `boosted`, and the app labels it "Được đẩy". |
-| Payment shape | Asynchronous from the start: a `pending` payment, a way to pay, a provider notification (IPN) that settles it. |
-| Durability | One Restate workflow per payment, keyed by its ID. |
+| Payment shape | Asynchronous from the start: a `pending` payment, a way to pay, and a check against the provider that settles it. |
+| Durability | One plain Restate service, `BillingSettle`, settles a payment. Its callers are the IPN, the app's check, and two calls scheduled with a delay when the payment starts. Concurrent runs are safe through the payment's `write_id`; there is no workflow, promise or virtual object. |
+| Trusting an IPN | A valid signature only wakes `BillingSettle`; the provider's answer to `Query` decides, checked against the payment's ID and amount. |
 | Paid but the listing cannot be boosted | Refund automatically. |
+| Paid after the payment expired | Boost if the listing is still `active`, else refund. |
+| A second purchase while one is pending | The same listing and days reuse the pending payment; the provider is not called again. |
 | Boost on a boosted listing | Stack: `boosted_until = max(now, boosted_until) + days`. The card shows days left. |
 | Listing leaves `active` during a boost | The clock runs on. A sold or deleted listing loses the rest, without refund. |
 | Where boost state lives | Billing owns payments and decides; catalog keeps `listings.boosted_until` in its search index. |
@@ -48,6 +53,8 @@ Out of scope, each for a later spec:
   The offers are constants in `billing/domain`; a price change is a deploy.
 - `POST /v1/listings/{id}/boosts {days}` with an `Idempotency-Key`: 202 with
   the `Payment`. A repeated key returns the payment its first request made.
+  A `pending` payment of the caller for the same listing and days, not yet
+  expired, is returned as it is.
   - 404 `listing_not_found`: no such listing, or not the caller's.
   - 409 `listing_not_boostable`: the listing is not `active`.
   - 409 `too_many_pending`: the caller has 3 `pending` payments. An advisory
@@ -56,18 +63,27 @@ Out of scope, each for a later spec:
   - 403 `account_suspended`.
   - 503 `service_unavailable` when Restate is down.
 - `GET /v1/payments/{id}`, signed in, the owner only; anyone else gets 404
-  `payment_not_found`. The app polls it after opening the way to pay.
+  `payment_not_found`. It reads and changes nothing.
+- `POST /v1/payments/{id}/check`, signed in, the owner only: asks
+  `BillingSettle` to check a `pending` payment now and returns the `Payment`
+  as it stands. The app calls it when the person comes back through
+  `PAYMENT_RETURN_URL` and each time it polls a pending payment. A settled
+  payment sends nothing. The send's idempotency key is
+  `check:{id}:{unix seconds / 10}`, so a payment is checked at most once
+  every 10 seconds however often the app calls.
 - `Payment {id, status, amount, purpose: {kind: "boost", listing_id, days},
   pay: {url, deeplink?, qr?}, expires_at, paid_at?, boosted_until?,
   refunded_at?, refund_reason?}`.
   - `status`: `pending`, `paid` (money received and the boost applied),
-    `expired`, `refunded`.
-  - `refund_reason`: `listing_not_boostable` or `payment_expired`.
+    `expired`, `refunded`. An `expired` payment paid late becomes `paid` or
+    `refunded`.
+  - `refund_reason`: `listing_not_boostable`.
   - `pay` is present while `pending`.
 - `POST /v1/payments/ipn/{provider}`, public, trusted only through the
-  provider's signature. A valid one answers 204, a repeat included, so the
-  provider stops sending. A bad signature is 400 `invalid_signature`, logged,
-  and changes nothing.
+  provider's signature. A valid one sends `BillingSettle` and answers 204,
+  a repeat or an unknown payment ID included, so the provider stops sending.
+  A bad signature is 400 `invalid_signature`, logged, and changes nothing.
+  With Restate down it is 503, and the provider sends again later.
 - `Listing`, as its seller reads it (`GET /v1/me/listings`,
   `GET /v1/listings/{id}` by the seller), gains `boosted_until`, absent when
   the listing is not boosted.
@@ -76,16 +92,17 @@ Out of scope, each for a later spec:
 
 ## Data
 
-- `billing.payments`: `id` (UUIDv7, also the `orderId` sent to the
-  provider), `account_id`, `provider` (`fake` or `momo`), `provider_ref`,
-  `amount`, `listing_id`, `days`, `status`, `pay_url`, `pay_deeplink`,
-  `pay_qr`, `expires_at`, `paid_at`, `boosted_until`, `refunded_at`,
-  `refund_reason`, `created_at`, `write_id`. One payment buys one boost, so
-  the purpose lives on the row; a plan purchase in part 2 may split it out.
+- `payments`: `id` (UUIDv7, also the order ID sent to the provider),
+  `account_id`, `provider` (`fake` or `momo`), `provider_ref`, `amount`,
+  `listing_id`, `days`, `status`, `pay_url`, `pay_deeplink`, `pay_qr`,
+  `expires_at`, `paid_at`, `boosted_until`, `refunded_at`, `refund_reason`,
+  `created_at`, `write_id`. `(provider, provider_ref)` is unique. One payment
+  buys one boost, so the purpose lives on the row; a plan purchase in part 2
+  may split it out.
 - Catalog: `listings.boosted_until` (nullable), added to `listings_search`.
   `listing_boosts (payment_id PK, listing_id, until)` makes
-  `catalogsvc.Boost` idempotent: a retried step inserts with
-  `ON CONFLICT DO NOTHING` and returns the `until` of the first run.
+  `catalogsvc.Boost` idempotent: a repeat with the same payment returns the
+  `until` of the first and adds no days.
 - Stacking is one statement, so two purchases at once both count:
   `UPDATE listings SET boosted_until = greatest(now, coalesce(boosted_until,
   now)) + days WHERE id = $1 AND status = 'active'`. No row updated is the
@@ -97,25 +114,34 @@ Out of scope, each for a later spec:
    `Idempotency-Key`:
    1. read the listing through catalog; not the caller's is
       `listing_not_found`, not `active` is `listing_not_boostable`;
-   2. count the caller's pending payments under the lock, mint the payment
+   2. return the caller's pending payment for the same listing and days when
+      there is one;
+   3. under the account's lock, count the pending payments, mint the payment
       ID, insert the row `pending` with `expires_at` 15 minutes on;
-   3. step `provider.Create(id, amount, expires_at)` returns `provider_ref`
+   4. step `provider.Create(id, amount, expires_at)` returns `provider_ref`
       and `pay`, saved on the row;
-   4. a one-way send starts the workflow `Payment/{id}`; the service returns
-      the `Payment`.
-2. Workflow `Payment/{id}` waits for the durable promise `settled` or a
-   15-minute timer, whichever comes first.
-   - `settled` says paid: step `catalogsvc.Boost(payment_id, listing, days)`.
-     - Applied: save `paid` with `paid_at` and `boosted_until`.
-     - Refused because the listing is no longer `active`: step
-       `provider.Refund`, save `refunded` with `listing_not_boostable`, and
-       write the event `payment.refunded` with the save.
-   - The timer first: step `provider.Query`. Paid goes as above; otherwise
-     save `expired`.
-3. The IPN handler checks the signature and calls `Payment/{id}.Settle`,
-   which resolves the promise. When the payment is already `expired` and the
-   IPN reports a success, the service `Refund/{id}` refunds it with
-   `payment_expired`.
+   5. two sends of `BillingSettle.Run`, one with a delay of 15 minutes
+      (`trigger: expire`) and one of 24 hours (`trigger: recheck`). They are
+      journaled, so a retried `StartBoost` schedules them once; media
+      schedules an upload's expiry the same way.
+2. `BillingSettle.Run {payment_id, trigger}` reads top to bottom:
+   1. read the payment; `paid` or `refunded` ends the run;
+   2. step `provider.Query(payment)`; an answer for another order or amount
+      counts as unpaid;
+   3. unpaid: at or past `expires_at`, save `expired`; before it, end;
+   4. paid: step `catalogsvc.Boost(payment_id, listing, days)`.
+      - Applied: save `paid` with `paid_at` and `boosted_until`.
+      - Refused because the listing is not `active`: step `provider.Refund`,
+        save `refunded` with `listing_not_boostable`, and write the event
+        `payment.refunded` with the save.
+   5. A save that loses to another run (`write_id`) reads again from step 1,
+      up to three times, then fails so Restate retries. The boost is
+      idempotent by payment ID and the refund by a refund ID derived from it,
+      so two runs that both reach step 4 add the days once and refund once.
+3. Callers of `BillingSettle.Run`: the IPN handler after the signature check
+   (`trigger: ipn`), `POST /payments/{id}/check` (`trigger: check`), and the
+   two delayed sends. An IPN that never comes delays a boost to the app's
+   next check or to the 15-minute run; money is not lost.
 4. `payment.refunded` carries the payment ID as event ID and subject.
    Notification hears it, reads the facts through billing's service, and
    writes "Đã hoàn {amount}: tin {title} không còn đẩy được". A payment that
@@ -127,18 +153,22 @@ Out of scope, each for a later spec:
 - `Create` returns `pay.url = {PUBLIC_API_URL}/dev/pay/{payment_id}`,
   `pay.qr` = the same URL, and no `deeplink`. Scanning the QR with a phone
   opens the page there, so the web and desktop path can be tried for real.
+- The fake keeps what each order is in its own table, `fake_payments`
+  (`payment_id`, `amount`, `paid_at`, `refunded_at`), so `Query` and
+  `Refund` answer as a provider would.
 - The page is a small HTML page with the amount, the listing's title and
   three buttons:
-  - **Trả tiền** sends an IPN signed with the fake's static key into the
-    handler the HTTP IPN calls, then redirects to `PAYMENT_RETURN_URL`.
-  - **Hủy** redirects without an IPN; the payment expires after 15 minutes.
-  - **Trả muộn**, shown once the payment is `expired`, sends a successful
-    IPN to exercise the `payment_expired` refund.
+  - **Trả tiền** marks the order paid, sends an IPN signed with the fake's
+    static key into the function the HTTP IPN calls, then redirects to
+    `PAYMENT_RETURN_URL`.
+  - **Hủy** redirects without paying; the payment expires after 15 minutes.
+  - **Trả muộn**, shown once the payment is `expired`, pays and sends the
+    IPN, to exercise a late payment.
 - Each button posts to `POST /dev/pay/{id}/{pay|cancel|late}`, which tests
   call directly.
-- `Refund` and `Query` succeed. `/dev/pay/*` is mounted only when the
-  provider is `fake`, and with `APP_ENV=prod` the server refuses to start on
-  the fake, as it does on the log push sender.
+- `/dev/pay/*` is mounted only when the provider is `fake`, and with
+  `APP_ENV=prod` the server refuses to start on the fake, as it does on the
+  log push sender.
 
 ## Configuration
 
@@ -165,8 +195,8 @@ New variables, required in every environment and in `.env.example`:
 Module `billing` has the four packages (`domain`, `repository`, `service`,
 `handler`). It depends on catalog's service; no module depends on billing
 except notification, which reads refund facts. `internal/provider/payment`
-holds `Provider` and the fake. The Restate services `StartBoost`, `Payment`
-(a workflow) and `Refund` live in `billing/service`.
+holds `Provider` and the fake. The Restate services `StartBoost` and
+`BillingSettle` live in `billing/service`.
 
 ## Errors
 
@@ -184,15 +214,17 @@ holds `Provider` and the fake. The Restate services `StartBoost`, `Payment`
 ## Tests
 
 - Domain: the offers, an unknown `days`, the allowed status changes of
-  `Payment`, the refund reasons.
+  `Payment` (an `expired` one may still become `paid` or `refunded`).
 - Repository: stacking, two purchases at once included; `listing_boosts`
   adding no days on a repeat; a listing not `active` refused; the cap of 3
-  pending; `write_id` on payments.
-- Restate (restatetest), one test per branch: paid and boosted; listing not
-  `active` at settle and refunded; timer, `Query` paid, boosted; timer,
-  unpaid, expired; a late IPN after expiry refunded with `payment_expired`;
-  a repeated IPN boosting once; a repeated `Idempotency-Key` returning the
-  same payment.
+  pending; reusing a pending payment; `write_id` on payments; the unique
+  `(provider, provider_ref)`.
+- Restate (restatetest), one test per branch: paid and boosted; paid with
+  the listing no longer `active` and refunded; the 15-minute run finding it
+  paid and boosting; the 15-minute run finding it unpaid and expiring it; a
+  late payment after expiry boosting, and refunding when the listing is gone;
+  two runs at once boosting once; a repeated `Idempotency-Key` returning the
+  same payment; a provider answer for another amount counting as unpaid.
 - Ranking: a boosted listing within 15 km leads Gần bạn; one at 20 km gets
   no tier; an ended boost loses it; Search's order unchanged with `boosted`
   set.
