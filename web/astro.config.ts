@@ -17,9 +17,10 @@ export default defineConfig({
   base,
   trailingSlash: "ignore",
   // The page was architecture/staff until module staff became module console (2026-11-08).
+  // Astro does not add base to a redirect's destination.
   redirects: {
-    "/en/architecture/staff": "/en/architecture/console",
-    "/vi/architecture/staff": "/vi/architecture/console",
+    "/en/architecture/staff": `${base.replace(/\/$/, "")}/en/architecture/console`,
+    "/vi/architecture/staff": `${base.replace(/\/$/, "")}/vi/architecture/console`,
   },
   env: {
     schema: {
