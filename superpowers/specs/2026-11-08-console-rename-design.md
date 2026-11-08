@@ -106,6 +106,25 @@ The change ships as one release across the submodules.
 Every console session and dashboard cookie from before ends with the
 rename; members sign in again.
 
+Order on a live cluster (added 2026-11-08 after the branch review). Argo CD
+syncs `infra/stack` from the root repo's `main` for both stacks, while prod
+runs the newest `X.Y.Z` image. An old image refuses to start without
+`STAFF_CONSOLE_ORIGIN`, and a new one refuses without `CONSOLE_KEY` and
+`CONSOLE_ORIGIN` and fails migrate on an old database, so the two halves
+must land together:
+
+1. Pause auto-sync on `stack-dev` and `stack-prod`.
+2. Drop each stack's server database in CloudNativePG.
+3. Reseal both stacks (step 2 above) and commit the sealed secrets.
+4. Merge the server, console and docs branches; tag the server so prod gets
+   an image with the rename.
+5. Merge the root repo (infra, submodule pointers).
+6. Resume auto-sync, wait for both stacks to be healthy, then create the
+   admins (step 3 above).
+
+If no cluster runs these stacks yet, none of this applies: merge in any
+order.
+
 ## Checks
 
 - `grep -rIi staff` over `server`, `console`, `infra`, `docs/web`, the root
