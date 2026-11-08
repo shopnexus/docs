@@ -19,7 +19,7 @@ Có những biến để trống cũng mang nghĩa: không export OTLP, không c
 
 ## Thiết lập
 
-`server/.env.example` liệt kê mọi biến kèm giá trị cho dev. Lần `make run` đầu tiên chép file này thành `.env` rồi nối thêm các khóa được sinh ra: khóa ký JWT, khóa staff và identity key của Restate. Server đọc `.env` khi khởi động, biến nào đã có sẵn trong môi trường của process thì được ưu tiên hơn file.
+`server/.env.example` liệt kê mọi biến kèm giá trị cho dev. Lần `make run` đầu tiên chép file này thành `.env` rồi nối thêm các khóa được sinh ra: khóa ký JWT, khóa console và identity key của Restate. Server đọc `.env` khi khởi động, biến nào đã có sẵn trong môi trường của process thì được ưu tiên hơn file.
 
 Hai giá trị bạn phải tự điền là `LLM_API_KEY` và `LLM_MODEL`. Thêm biến mới vào code thì thêm luôn vào `.env.example` trong cùng thay đổi.
 
@@ -33,7 +33,7 @@ Test đọc file riêng là `.env.test`, trỏ tới stack test. Các biến tro
 | Database | URL kết nối Postgres |
 | Restate | URL ingress và admin, nơi server mở endpoint, tiền tố tên service, identity key |
 | Token | issuer, audience, khóa ký JWT, và khóa cũ khi đang đổi khóa |
-| Staff | khóa staff và origin duy nhất mà CORS cho phép, dành cho staff console |
+| Console | khóa console và origin duy nhất mà CORS cho phép, dành cho console |
 | Object store | endpoint RustFS, endpoint public mà điện thoại truy cập, credential, bucket và URL gốc của media |
 | Firebase | project, URL khóa để kiểm token số điện thoại, có cho số test của PNV hay không, credential push |
 | Model tìm kiếm | base URL, key và tên model của một API tương thích OpenAI |

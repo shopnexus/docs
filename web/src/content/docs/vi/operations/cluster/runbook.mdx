@@ -114,10 +114,10 @@ Mở `http://localhost:4000/ui` và đăng nhập với user `admin`, mật kh�
 
 ## Tài khoản admin
 
-Admin chỉ tồn tại qua lệnh `staff` (`server/cmd/staff`). API và console tạo và quản lý moderator, và từ chối thao tác lên một admin. Image server có sẵn lệnh này ở `/staff`, và lệnh đọc database cùng `STAFF_KEY` từ môi trường của pod, nên hãy chạy nó trong một pod server của stack:
+Admin chỉ tồn tại qua lệnh `console` (`server/cmd/console`). API và console tạo và quản lý moderator, và từ chối thao tác lên một admin. Image server có sẵn lệnh này ở `/console`, và lệnh đọc database cùng `CONSOLE_KEY` từ môi trường của pod, nên hãy chạy nó trong một pod server của stack:
 
 ```bash
-kubectl -n shopnexus-prod exec -it $(kubectl -n shopnexus-prod get pod -l app.kubernetes.io/name=server -o name | head -1) -- /staff create-admin --email <email> --name <name>
+kubectl -n shopnexus-prod exec -it $(kubectl -n shopnexus-prod get pod -l app.kubernetes.io/name=server -o name | head -1) -- /console create-admin --email <email> --name <name>
 ```
 
 | Lệnh | Dùng khi |
@@ -129,7 +129,7 @@ kubectl -n shopnexus-prod exec -it $(kubectl -n shopnexus-prod get pod -l app.ku
 | `disable --email <email>` | một admin rời đi. Lệnh kết thúc mọi phiên của người đó. |
 | `enable --email <email>` | một admin đã bị vô hiệu hóa quay lại. Các phiên cũ vẫn đã kết thúc. |
 
-Mọi lệnh trừ `create-admin` cũng dùng được cho moderator, và mỗi thay đổi được ghi vào `staff_actions` với CLI là người thực hiện. Dùng `shopnexus-dev` cho stack dev.
+Mọi lệnh trừ `create-admin` cũng dùng được cho moderator, và mỗi thay đổi được ghi vào `console_actions` với CLI là người thực hiện. Dùng `shopnexus-dev` cho stack dev.
 
 ## Diễn tập failover
 

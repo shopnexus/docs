@@ -8,7 +8,7 @@ audience: [developers]
 type: concept
 readingTime: 3
 updated: 2026-11-04
-related: ["/vi/architecture/sessions", "/vi/architecture/staff", "/vi/api/authentication"]
+related: ["/vi/architecture/sessions", "/vi/architecture/console", "/vi/api/authentication"]
 ---
 
 Tài khoản người dùng nào cũng có số điện thoại, và số điện thoại là cách đăng nhập duy nhất. Server không tự gửi mã. App xác minh số qua Firebase rồi gửi lên server token mà Firebase trả về.
@@ -48,4 +48,4 @@ Khóa của invocation ghép số điện thoại với idempotency key của re
 
 ## Email và OTP
 
-Đăng nhập bằng email, mã OTP do server gửi và quota của chúng đã bị bỏ từ 2026-10-28. Migration đã xóa các tài khoản chỉ có email, và database giờ chỉ nhận identity loại phone. Nhân viên vẫn đăng nhập bằng email, qua một luồng riêng ở trang [Nhân viên](/vi/architecture/staff).
+Đăng nhập bằng email, mã OTP do server gửi và quota của chúng đã bị bỏ từ 2026-10-28. Migration đã xóa các tài khoản chỉ có email, và database giờ chỉ nhận identity loại phone. Nhân viên vẫn đăng nhập bằng email, qua một luồng riêng ở trang [Nhân viên](/vi/architecture/console).

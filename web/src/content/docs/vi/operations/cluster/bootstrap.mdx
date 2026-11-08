@@ -166,7 +166,7 @@ Chạy lệnh seal một lần cho mỗi stack, từ thư mục gốc của umbr
 go -C infra run ./cmd/seal dev
 ```
 
-Lần chạy đầu chép `infra/stack/secrets/example.env` thành `infra/stack/secrets/dev.env` với quyền 600 và sinh mọi khóa stack cần, điền thẳng vào dòng `KEY=` còn trống hoặc thêm một dòng mới: khóa JWT, khóa staff và khóa ký của Restate (từ `/envgen` trong image server), khóa RustFS, master key và mật khẩu database của LiteLLM, và virtual key LiteLLM của server. Khóa riêng của Restate nằm ở `dev.restate.pem` bên cạnh. Rồi lệnh dừng:
+Lần chạy đầu chép `infra/stack/secrets/example.env` thành `infra/stack/secrets/dev.env` với quyền 600 và sinh mọi khóa stack cần, điền thẳng vào dòng `KEY=` còn trống hoặc thêm một dòng mới: khóa JWT, khóa console và khóa ký của Restate (từ `/envgen` trong image server), khóa RustFS, master key và mật khẩu database của LiteLLM, và virtual key LiteLLM của server. Khóa riêng của Restate nằm ở `dev.restate.pem` bên cạnh. Rồi lệnh dừng:
 
 ```text
 seal: .../infra/stack/secrets/dev.env: set LLM_UPSTREAM_API_KEY
@@ -208,7 +208,7 @@ Chép `dev.env`, `prod.env`, `dev.restate.pem` và `prod.restate.pem` vào một
 kubectl -n kube-system get secret -l sealedsecrets.bitnami.com/sealed-secrets-key -o yaml > sealed-secrets-key.yaml
 ```
 
-Thiếu khóa của controller, các SealedSecret trong git không mở được trên một cluster mới. Thiếu các file `.env`, một lần niêm phong lại sẽ sinh khóa mới. `STAFF_KEY` mới làm mọi secret TOTP đã lưu không đọc được nữa, và không nhân viên nào đăng nhập được cho tới khi `/staff reset-totp` xóa TOTP của họ. Khóa JWT mới chỉ làm hỏng các access token ký trước nó, vốn sống 15 phút; refresh token nằm trong Postgres và vẫn dùng được. Bảng ghi mỗi file bảo vệ điều gì nằm ở trang [Secret](/vi/operations/cluster/secrets#các-file-cần-sao-lưu), cùng các lệnh xuất và khôi phục.
+Thiếu khóa của controller, các SealedSecret trong git không mở được trên một cluster mới. Thiếu các file `.env`, một lần niêm phong lại sẽ sinh khóa mới. `CONSOLE_KEY` mới làm mọi secret TOTP đã lưu không đọc được nữa, và không nhân viên nào đăng nhập được cho tới khi `/console reset-totp` xóa TOTP của họ. Khóa JWT mới chỉ làm hỏng các access token ký trước nó, vốn sống 15 phút; refresh token nằm trong Postgres và vẫn dùng được. Bảng ghi mỗi file bảo vệ điều gì nằm ở trang [Secret](/vi/operations/cluster/secrets#các-file-cần-sao-lưu), cùng các lệnh xuất và khôi phục.
 </Callout>
 </Step>
 
@@ -245,16 +245,16 @@ Bạn sẽ thấy file được báo là thành công và mã thoát 0.
 </Step>
 
 <Step title="Mở console">
-Console nhân viên ở `console.<domain>` cần một tài khoản nhân viên, và cluster mới chưa có tài khoản nào. API và console chỉ tạo được moderator; admin đầu tiên được tạo bằng lệnh `staff` trong một pod server:
+Console ở `console.<domain>` cần một tài khoản nhân viên, và cluster mới chưa có tài khoản nào. API và console chỉ tạo được moderator; admin đầu tiên được tạo bằng lệnh `console` trong một pod server:
 
 ```bash title="Terminal"
 kubectl -n shopnexus-prod exec -it $(kubectl -n shopnexus-prod get pod -l app.kubernetes.io/name=server -o name | head -1) -- \
-  /staff create-admin --email you@example.com --name "Your Name"
+  /console create-admin --email you@example.com --name "Your Name"
 ```
 
 Lệnh in ra `created admin you@example.com (<id>)` và một mật khẩu tạm. Mở `https://console.example.com` và đăng nhập bằng mật khẩu đó. Console yêu cầu đặt mật khẩu mới, rồi đăng ký một ứng dụng xác thực TOTP. Chạy cùng lệnh đó trong `shopnexus-dev` cho console của dev.
 
-Bạn sẽ thấy trang chính của console. Trang [Runbook](/vi/operations/cluster/runbook#tài-khoản-admin) có các lệnh `staff` còn lại.
+Bạn sẽ thấy trang chính của console. Trang [Runbook](/vi/operations/cluster/runbook#tài-khoản-admin) có các lệnh `console` còn lại.
 </Step>
 </Steps>
 

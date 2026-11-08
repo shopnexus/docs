@@ -19,7 +19,7 @@ Some variables mean something when empty: no OTLP export, no previous JWT key, n
 
 ## Setting up
 
-`server/.env.example` lists every variable with development values. The first `make run` copies it to `.env` and then appends the generated keys: the JWT signing key, the staff key and Restate's identity key. The server reads `.env` at start, and a variable already set in the process environment wins over the file.
+`server/.env.example` lists every variable with development values. The first `make run` copies it to `.env` and then appends the generated keys: the JWT signing key, the console key and Restate's identity key. The server reads `.env` at start, and a variable already set in the process environment wins over the file.
 
 Two values are left for you: `LLM_API_KEY` and `LLM_MODEL`. If you add a variable to the code, add it to `.env.example` in the same change.
 
@@ -33,7 +33,7 @@ Tests read their own file, `.env.test`, which points at the test stack. Its vari
 | Database | the Postgres connection URL |
 | Restate | ingress and admin URLs, where the server serves its endpoint, a service name prefix, the identity key |
 | Tokens | JWT issuer, audience, signing key and an optional previous key during a key change |
-| Staff | the staff key and the one origin CORS allows for the staff console |
+| Console | the console key and the one origin CORS allows for the console |
 | Object store | the RustFS endpoint, the public endpoint phones reach, credentials, bucket and the base URL for media |
 | Firebase | the project, the key URLs for phone tokens, whether PNV test numbers pass, push credentials |
 | Search model | base URL, key and model name of an OpenAI-compatible API |

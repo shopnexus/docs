@@ -166,7 +166,7 @@ Run the seal command once per stack, from the umbrella root. It needs Docker, Go
 go -C infra run ./cmd/seal dev
 ```
 
-The first run copies `infra/stack/secrets/example.env` to `infra/stack/secrets/dev.env` with mode 600 and generates every key the stack needs, filling an empty `KEY=` line in place or adding a line: the JWT and staff keys and the Restate signing key (from the server image's `/envgen`), the RustFS keys, the LiteLLM master key and database password, and the server's virtual LiteLLM key. The Restate private key goes to `dev.restate.pem` beside it. Then it stops:
+The first run copies `infra/stack/secrets/example.env` to `infra/stack/secrets/dev.env` with mode 600 and generates every key the stack needs, filling an empty `KEY=` line in place or adding a line: the JWT and console keys and the Restate signing key (from the server image's `/envgen`), the RustFS keys, the LiteLLM master key and database password, and the server's virtual LiteLLM key. The Restate private key goes to `dev.restate.pem` beside it. Then it stops:
 
 ```text
 seal: .../infra/stack/secrets/dev.env: set LLM_UPSTREAM_API_KEY
@@ -208,7 +208,7 @@ Copy `dev.env`, `prod.env`, `dev.restate.pem` and `prod.restate.pem` into a pass
 kubectl -n kube-system get secret -l sealedsecrets.bitnami.com/sealed-secrets-key -o yaml > sealed-secrets-key.yaml
 ```
 
-Without the controller's key, the SealedSecrets in git cannot be opened on a new cluster. Without the `.env` files, a reseal generates new keys. A new `STAFF_KEY` makes every stored TOTP secret unreadable, and no staff member can sign in until `/staff reset-totp` clears their TOTP. A new JWT key only rejects the access tokens signed before it, which live 15 minutes; refresh tokens are stored in Postgres and keep working. The table of what each file protects is in [Secrets](/en/operations/cluster/secrets#files-to-back-up), with the commands to export and restore them.
+Without the controller's key, the SealedSecrets in git cannot be opened on a new cluster. Without the `.env` files, a reseal generates new keys. A new `CONSOLE_KEY` makes every stored TOTP secret unreadable, and no console member can sign in until `/console reset-totp` clears their TOTP. A new JWT key only rejects the access tokens signed before it, which live 15 minutes; refresh tokens are stored in Postgres and keep working. The table of what each file protects is in [Secrets](/en/operations/cluster/secrets#files-to-back-up), with the commands to export and restore them.
 </Callout>
 </Step>
 
@@ -245,16 +245,16 @@ You should see the file reported as a success and an exit status of 0.
 </Step>
 
 <Step title="Open the console">
-The staff console at `console.<domain>` needs a staff account, and a new cluster has none. The API and the console create moderators only; the first admin comes from the `staff` command in a server pod:
+The console at `console.<domain>` needs a member account, and a new cluster has none. The API and the console create moderators only; the first admin comes from the `console` command in a server pod:
 
 ```bash title="Terminal"
 kubectl -n shopnexus-prod exec -it $(kubectl -n shopnexus-prod get pod -l app.kubernetes.io/name=server -o name | head -1) -- \
-  /staff create-admin --email you@example.com --name "Your Name"
+  /console create-admin --email you@example.com --name "Your Name"
 ```
 
 It prints `created admin you@example.com (<id>)` and a temporary password. Open `https://console.example.com` and sign in with it. The console asks for a new password and then for a TOTP authenticator. Run the same command in `shopnexus-dev` for the dev console.
 
-You should see the console's home page. [Runbook](/en/operations/cluster/runbook#staff-admins) has the other `staff` commands.
+You should see the console's home page. [Runbook](/en/operations/cluster/runbook#console-admins) has the other `console` commands.
 </Step>
 </Steps>
 

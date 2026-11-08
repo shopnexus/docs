@@ -1,13 +1,13 @@
 ---
-title: Nhân viên
-description: Tài khoản nhân viên cho console kiểm duyệt, cách đăng nhập, vai trò, nhật ký thao tác và các quy tắc tách họ khỏi người dùng.
+title: Console
+description: Tài khoản nhân viên trong console kiểm duyệt, cách đăng nhập, vai trò, nhật ký thao tác và các quy tắc tách họ khỏi người dùng.
 group: Định danh và truy cập
 order: 3
 groupOrder: 3
 audience: [developers]
 type: concept
 readingTime: 3
-updated: 2026-11-04
+updated: 2026-11-08
 related: ["/vi/architecture/sign-in", "/vi/marketplace/moderation"]
 ---
 
@@ -23,11 +23,11 @@ Sai mật khẩu hoặc mã năm lần thì email bị khóa 15 phút, dù email
 
 Đăng nhập xong, server đặt một cookie sống 8 giờ và không gia hạn. Không có access token hay refresh, nên mọi tab console dùng chung một phiên. Mỗi request của nhân viên đều đọc phiên và tài khoản nhân viên từ database, nên vô hiệu hóa hay đặt lại có hiệu lực ngay ở request kế tiếp. Đổi mật khẩu, đặt lại hoặc vô hiệu hóa đều kết thúc mọi phiên của người đó.
 
-Cookie để `SameSite=Strict`, nên console và API phải cùng site, ví dụ `console.x.vn` và `api.x.vn`. Mọi route nhân viên còn bắt header `X-Requested-With: shopnexus-console`, thứ mà form hay link từ site khác không đặt được. CORS chỉ cho origin của console, cấu hình ở `STAFF_CONSOLE_ORIGIN`, và chỉ trên `/v1/staff/`. API của người dùng không trả header CORS nào.
+Cookie để `SameSite=Strict`, nên console và API phải cùng site, ví dụ `console.x.vn` và `api.x.vn`. Mọi route nhân viên còn bắt header `X-Requested-With: shopnexus-console`, thứ mà form hay link từ site khác không đặt được. CORS chỉ cho origin của console, cấu hình ở `CONSOLE_ORIGIN`, và chỉ trên `/v1/console/`. API của người dùng không trả header CORS nào.
 
 ## Admin
 
-Admin chỉ được tạo qua công cụ dòng lệnh `cmd/staff`, chạy với quyền truy cập database. API chỉ quản lý moderator và từ chối mọi thao tác nhắm vào admin. Cũng công cụ đó gỡ khóa đăng nhập trên email của admin, vì ai cũng có thể làm email đó bị khóa bằng năm lần nhập sai mật khẩu.
+Admin chỉ được tạo qua công cụ dòng lệnh `cmd/console`, chạy với quyền truy cập database. API chỉ quản lý moderator và từ chối mọi thao tác nhắm vào admin. Cũng công cụ đó gỡ khóa đăng nhập trên email của admin, vì ai cũng có thể làm email đó bị khóa bằng năm lần nhập sai mật khẩu.
 
 ## Nhật ký thao tác
 

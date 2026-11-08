@@ -11,14 +11,14 @@ updated: 2026-11-05
 related: ["/vi/operations/cluster", "/vi/operations/cluster/bootstrap", "/vi/operations/cluster/releases", "/vi/operations/configuration", "/vi/operations/local-stack"]
 ---
 
-Server, website, tài liệu và staff console chạy trên một cluster k3d, chia thành hai stack là dev và prod. Mỗi stack có namespace riêng và có Postgres, Restate, RustFS, LiteLLM của riêng nó. Mọi thứ cluster cần đều nằm trong `infra/` ở repo tổng. App Android được build và cài bằng Gradle, không thuộc cluster.
+Server, website, tài liệu và console chạy trên một cluster k3d, chia thành hai stack là dev và prod. Mỗi stack có namespace riêng và có Postgres, Restate, RustFS, LiteLLM của riêng nó. Mọi thứ cluster cần đều nằm trong `infra/` ở repo tổng. App Android được build và cài bằng Gradle, không thuộc cluster.
 
 | Stack | Tên miền | Namespace | Theo dõi |
 |---|---|---|---|
 | dev | `dev.shopnexus.id.vn` | `shopnexus-dev` | `:main`, theo digest |
 | prod | `shopnexus.id.vn` | `shopnexus-prod` | tag `X.Y.Z` mới nhất |
 
-Mỗi stack phục vụ website trên tên miền của nó và bốn host bên dưới: `api.` cho server, `media.` cho object store, `docs.` cho tài liệu và `console.` cho staff console.
+Mỗi stack phục vụ website trên tên miền của nó và bốn host bên dưới: `api.` cho server, `media.` cho object store, `docs.` cho tài liệu và `console.` cho console.
 
 Hệ thống đã được build và kiểm tra trên một cluster k3d chạy cục bộ. Việc dựng nó trên server của tác giả và chạy các bài diễn tập failover là bước tiếp theo, nên các host public ở trên chưa hoạt động.
 

@@ -8,7 +8,7 @@ audience: [developers]
 type: concept
 readingTime: 3
 updated: 2026-11-04
-related: ["/en/architecture/sessions", "/en/architecture/staff", "/en/api/authentication"]
+related: ["/en/architecture/sessions", "/en/architecture/console", "/en/api/authentication"]
 ---
 
 Every customer account has a phone number, and the phone number is the only way to sign in. The server sends no codes. The app verifies the number through Firebase and hands the server the token Firebase returns.
@@ -48,4 +48,4 @@ The invocation key combines the number with the request's idempotency key. A ret
 
 ## Email and OTP
 
-Email sign-in, server-sent OTP codes and their quotas were removed on 2026-10-28. The migration deleted accounts that had only an email, and the database now accepts phone identities only. Staff still sign in with email, through a separate flow described in [Staff](/en/architecture/staff).
+Email sign-in, server-sent OTP codes and their quotas were removed on 2026-10-28. The migration deleted accounts that had only an email, and the database now accepts phone identities only. Console members still sign in with email, through a separate flow described in [Console](/en/architecture/console).

@@ -16,6 +16,11 @@ const base = process.env.DOCS_BASE || "/";
 export default defineConfig({
   base,
   trailingSlash: "ignore",
+  // The page was architecture/staff until module staff became module console (2026-11-08).
+  redirects: {
+    "/en/architecture/staff": "/en/architecture/console",
+    "/vi/architecture/staff": "/vi/architecture/console",
+  },
   env: {
     schema: {
       // `DOCS_INTERNAL=true` adds the internal tabs (Developers, Delivery) and internal pages.

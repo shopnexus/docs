@@ -112,12 +112,12 @@ Open `http://localhost:4000/ui` and sign in as `admin` with the master key. [Lan
 </Tab>
 </Tabs>
 
-## Staff admins
+## Console admins
 
-Admins exist only through the `staff` command (`server/cmd/staff`). The API and the console create and manage moderators, and refuse to act on an admin. The server image ships the command as `/staff`, and it reads the database and `STAFF_KEY` from the pod's environment, so run it inside a server pod of the stack:
+Admins exist only through the `console` command (`server/cmd/console`). The API and the console create and manage moderators, and refuse to act on an admin. The server image ships the command as `/console`, and it reads the database and `CONSOLE_KEY` from the pod's environment, so run it inside a server pod of the stack:
 
 ```bash
-kubectl -n shopnexus-prod exec -it $(kubectl -n shopnexus-prod get pod -l app.kubernetes.io/name=server -o name | head -1) -- /staff create-admin --email <email> --name <name>
+kubectl -n shopnexus-prod exec -it $(kubectl -n shopnexus-prod get pod -l app.kubernetes.io/name=server -o name | head -1) -- /console create-admin --email <email> --name <name>
 ```
 
 | Command | Use it when |
@@ -129,7 +129,7 @@ kubectl -n shopnexus-prod exec -it $(kubectl -n shopnexus-prod get pod -l app.ku
 | `disable --email <email>` | an admin leaves. It ends every session of the member. |
 | `enable --email <email>` | a disabled admin comes back. Old sessions stay ended. |
 
-Every command except `create-admin` also works on a moderator, and each change is recorded in `staff_actions` with the CLI as its author. Use `shopnexus-dev` for the dev stack.
+Every command except `create-admin` also works on a moderator, and each change is recorded in `console_actions` with the CLI as its author. Use `shopnexus-dev` for the dev stack.
 
 ## Failover drills
 

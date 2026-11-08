@@ -11,14 +11,14 @@ updated: 2026-11-05
 related: ["/en/operations/cluster", "/en/operations/cluster/bootstrap", "/en/operations/cluster/releases", "/en/operations/configuration", "/en/operations/local-stack"]
 ---
 
-The server, the website, the docs and the staff console run on one k3d cluster in two stacks, dev and prod. Each stack has its own namespace and its own Postgres, Restate, RustFS and LiteLLM. Everything the cluster needs is in `infra/` in the umbrella repo. The Android app is built and installed from Gradle and is not part of the cluster.
+The server, the website, the docs and the console run on one k3d cluster in two stacks, dev and prod. Each stack has its own namespace and its own Postgres, Restate, RustFS and LiteLLM. Everything the cluster needs is in `infra/` in the umbrella repo. The Android app is built and installed from Gradle and is not part of the cluster.
 
 | Stack | Domain | Namespace | Follows |
 |---|---|---|---|
 | dev | `dev.shopnexus.id.vn` | `shopnexus-dev` | `:main`, by digest |
 | prod | `shopnexus.id.vn` | `shopnexus-prod` | the newest `X.Y.Z` tag |
 
-Each stack serves the website on its domain and four hosts below it: `api.` for the server, `media.` for the object store, `docs.` for the docs and `console.` for the staff console.
+Each stack serves the website on its domain and four hosts below it: `api.` for the server, `media.` for the object store, `docs.` for the docs and `console.` for the console.
 
 The system is built and checked on a local k3d cluster. Bringing it up on the author's server and running the failover drills are the next steps, so the public hosts above are not live yet.
 
