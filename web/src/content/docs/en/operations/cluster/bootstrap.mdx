@@ -56,7 +56,7 @@ Set `repoURL` to your fork's clone URL in two files:
 
 Set `domain` in `infra/stack/values-dev.yaml` and `infra/stack/values-prod.yaml`. The upstream values are `dev.shopnexus.id.vn` and `shopnexus.id.vn`; keep the same shape, with dev one label below prod.
 
-Each stack runs LiteLLM, which sends search to `litellm.model` at `litellm.apiBase` in `infra/stack/values.yaml`. The defaults are `claude-haiku-5-5` and `http://host.k3d.internal:8317/v1`, a cli-proxy-api on the host. Point `apiBase` at any OpenAI-compatible API you have a key for. If you build your own images, change the `ghcr.io/shopnexus/*` names in `infra/stack/values.yaml` and `infra/argocd/stacks.yaml`, and make the GHCR packages public.
+Each stack runs LiteLLM, which sends search to `litellm.aliases.search.model` at `litellm.aliases.search.apiBase` in `infra/stack/values.yaml`. The values are `openai/claude-haiku-5-5` (LiteLLM's model string, provider prefix included) and `http://host.k3d.internal:8317/v1`, a cli-proxy-api on the host. Point `apiBase` at any OpenAI-compatible API you have a key for. If you build your own images, change the `ghcr.io/shopnexus/*` names in `infra/stack/values.yaml` and `infra/argocd/stacks.yaml`, and make the GHCR packages public.
 
 Commit and push to `main`.
 
@@ -179,7 +179,7 @@ Open `dev.env` and fill the values the script cannot make:
 | `LLM_UPSTREAM_API_KEY` | required | required |
 | `FCM_CREDENTIALS` | optional; empty logs push notifications instead of sending them | required; `APP_ENV=prod` refuses it empty, and so does the seal command for prod |
 
-`LLM_UPSTREAM_API_KEY` is the key of the API at `litellm.apiBase`. `FCM_CREDENTIALS` is a Firebase service account's JSON, encoded in base64.
+`LLM_UPSTREAM_API_KEY` is the key of the API at `litellm.aliases.search.apiBase`. `FCM_CREDENTIALS` is a Firebase service account's JSON, encoded in base64.
 
 Run the command again for dev, then twice for prod:
 

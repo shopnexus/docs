@@ -1,21 +1,21 @@
 ---
 title: Language model gateway
-description: The LiteLLM gateway in each stack, its daily budgets, the ai service behind speech to text, and how to change a model, a budget or an alias.
+description: The LiteLLM gateway in each stack, its aliases and keys as chart data, daily budgets, TEI and the ai service behind speech to text and embeddings, and how to change a model, a budget or an alias.
 group: Cluster
 order: 7
 groupOrder: 2
 audience: [admins, developers]
 type: concept
-readingTime: 9
-updated: 2026-11-09
+readingTime: 12
+updated: 2026-11-10
 related: ["/en/operations/cluster/secrets", "/en/operations/cluster/data", "/en/operations/cluster/runbook", "/en/architecture/search-and-discovery"]
 ---
 
-Search asks a language model what a query means. In the cluster the server does not call a model provider itself. Each stack runs its own LiteLLM, a proxy with an OpenAI-compatible API, and the server calls it with a virtual key that has a daily token budget.
+Search asks a language model what a query means, and photo search compares embeddings of text and photos. In the cluster the server does not call a model provider itself. Each stack runs its own LiteLLM, a proxy with an OpenAI-compatible API, and the server calls it with virtual keys that have daily budgets.
 
-The key's budget caps the tokens the server can use in a day. Each stack has its own LiteLLM, key and budget, so a loop in dev cannot use up the prod allowance.
+A key's budget caps what the server can use in a day. Each stack has its own LiteLLM, keys and budgets, so a loop in dev cannot use up the prod allowance.
 
-The server knows two model names: `search` reads a query, and `stt` turns speech into text. The model and the provider behind each name are LiteLLM configuration in `infra/stack/values.yaml`, and changing them needs no new server image.
+The server knows four model names: `search` reads a query, `stt` turns speech into text, `embed-text` embeds text with bge-m3, and `embed-image` embeds photos and short English descriptions with SigLIP 2. Each name is an entry of `litellm.aliases` in `infra/stack/values.yaml`, and changing the model behind one needs no new server image.
 
 ## Request path
 
@@ -33,9 +33,60 @@ flowchart LR
   litellm -->|"openai/gipformer-1.5<br/>no key"| ai["ai:8000<br/>ffmpeg, Silero VAD, Gipformer"]
 ```
 
-The server's ConfigMap `server-env` sets `LLM_BASE_URL=http://litellm:4000/v1` and `LLM_MODEL=search`. The Service name `litellm` resolves inside the stack's own namespace, so the dev server reaches dev's LiteLLM and the prod server reaches prod's.
+```mermaid title="Embeddings, from the server to TEI and ai"
+flowchart LR
+  server["server pod<br/>EMBED_TEXT_MODEL=embed-text<br/>EMBED_IMAGE_MODEL=embed-image"] -->|"POST /v1/embeddings<br/>Bearer EMBED_INDEX_API_KEY or EMBED_SEARCH_API_KEY"| litellm["litellm:4000<br/>aliases embed-text, embed-image"]
+  litellm -->|"checks key, budget, rpm"| db[("Postgres<br/>database litellm")]
+  litellm -->|"openai/bge-m3<br/>no key"| tei["tei:80<br/>Text Embeddings Inference, bge-m3"]
+  litellm -->|"openai/siglip2-so400m-patch16-384<br/>no key"| ai["ai:8000<br/>SigLIP 2"]
+```
 
-LiteLLM's config, rendered from `infra/stack/templates/litellm.yaml` into the ConfigMap `litellm-config`, has two entries:
+The server's ConfigMap `server-env` sets `LLM_BASE_URL=http://litellm:4000/v1` and `LLM_MODEL=search`, and for embeddings:
+
+```yaml
+EMBED_TEXT_BASE_URL: http://litellm:4000/v1
+EMBED_IMAGE_BASE_URL: http://litellm:4000/v1
+EMBED_TEXT_MODEL: embed-text
+EMBED_IMAGE_MODEL: embed-image
+EMBED_TEXT_VERSION: bge-m3@5617a9f61b028005a4858fdac845db406aefb181
+EMBED_IMAGE_VERSION: siglip2-so400m-patch16-384@29f74e673c298fd07482d8e20138179282001eb7-int8
+```
+
+The Service name `litellm` resolves inside the stack's own namespace, so the dev server reaches dev's LiteLLM and the prod server reaches prod's.
+
+The aliases and keys are data in `infra/stack/values.yaml`:
+
+```yaml
+litellm:
+  aliases:
+    search:
+      model: openai/claude-haiku-5-5
+      apiBase: http://host.k3d.internal:8317/v1   # cli-proxy-api on the host
+      apiKeySecret: LLM_UPSTREAM_API_KEY          # a key of litellm-secrets
+      price: token
+    stt:
+      model: openai/gipformer-1.5
+      apiBase: http://ai:8000/v1
+      mode: audio_transcription
+      price: second
+    embed-text:
+      model: openai/bge-m3   # TEI serves one model and ignores the name
+      apiBase: http://tei:80/v1
+      mode: embedding
+      price: token
+    embed-image:
+      model: openai/siglip2-so400m-patch16-384
+      apiBase: http://ai:8000/v1
+      mode: embedding
+      price: token   # ai counts 576 tokens an image, a text its tokens
+  keys:
+    server-llm: { secret: LLM_API_KEY, models: [search], dailyUnits: 0, tpmLimit: 0 }
+    server-stt: { secret: STT_API_KEY, models: [stt], dailyUnits: 0, rpmLimit: 0 }
+    server-embed-index: { secret: EMBED_INDEX_API_KEY, models: [embed-text, embed-image], dailyUnits: 0, rpmLimit: 0 }
+    server-embed-search: { secret: EMBED_SEARCH_API_KEY, models: [embed-text, embed-image], dailyUnits: 0, rpmLimit: 0 }
+```
+
+`values-dev.yaml` and `values-prod.yaml` set each key's `dailyUnits` and limit. `infra/stack/templates/litellm.yaml` renders one `model_list` entry per alias into the ConfigMap `litellm-config`. The `search` entry comes out as:
 
 ```yaml
 model_list:
@@ -47,21 +98,15 @@ model_list:
     model_info:
       input_cost_per_token: 0.000001
       output_cost_per_token: 0.000001
-  - model_name: stt
-    litellm_params:
-      model: openai/gipformer-1.5
-      api_base: http://ai:8000/v1
-      api_key: none
-    model_info:
-      mode: audio_transcription
-      input_cost_per_second: 0.000001
+general_settings:
+  store_prompts_in_spend_logs: false
 litellm_settings:
   drop_params: true
 ```
 
-The `openai/` prefix tells LiteLLM to speak the OpenAI chat API to `api_base`. `host.k3d.internal` is the name k3d gives the Docker host inside the cluster, and cli-proxy-api listens there on port 8317. `drop_params: true` makes LiteLLM drop request fields the upstream does not accept. The stack's NetworkPolicies leave egress open, so LiteLLM can reach the host.
+The `openai/` prefix tells LiteLLM to speak the OpenAI API to `api_base`. An alias with `apiKeySecret` sends that key of `litellm-secrets`; one without it sends `api_key: none`, for a backend of the stack that has no authentication. `price: token` gives `input_cost_per_token` and `output_cost_per_token`, `price: second` gives `input_cost_per_second`. `host.k3d.internal` is the name k3d gives the Docker host inside the cluster, and cli-proxy-api listens there on port 8317. `drop_params: true` makes LiteLLM drop request fields the upstream does not accept. The stack's NetworkPolicies leave egress open, so LiteLLM can reach the host.
 
-For `stt`, `litellm.stt.model` holds LiteLLM's full model string, prefix included, and `litellm.stt.apiBase` the address of the stack's `ai` service. `api_key` is `none` because `ai` has no authentication; only pods of the stack reach it.
+`store_prompts_in_spend_logs: false` keeps request bodies, the photos of photo search among them, out of LiteLLM's spend logs. `infra/probes/litellm-embed/run.sh` measures this on the pinned LiteLLM, with a stub upstream. On v1.108.0 on 2026-11-10: data URLs of 706 kB and 1.72 MB reached the upstream unchanged, three calls cost 0.001728 (576 tokens each, priced from the upstream's `usage`), and none of the three spend log rows held an input. LiteLLM sent the upstream only `model` and `input`.
 
 <Callout type="warning" title="cli-proxy-api is a personal-subscription proxy">
 cli-proxy-api turns one person's model subscription into an OpenAI-compatible API on the host. That is fine for dev and for a demo. For real production traffic, point `litellm.apiBase` at a provider's official API and seal that provider's key as `LLM_UPSTREAM_API_KEY`.
@@ -69,38 +114,39 @@ cli-proxy-api turns one person's model subscription into an OpenAI-compatible AP
 
 ## Budget model
 
-LiteLLM budgets count money. Every token, input and output, is priced at `0.000001`, so 1 unit of budget is 1,000,000 tokens. The chart takes the budget in tokens and divides by 1,000,000 when it builds the key.
+LiteLLM budgets count money. Every token, input and output, is priced at `0.000001`, so 1 unit of budget is 1,000,000 tokens; every second of audio is priced the same, so 1 unit is 1,000,000 seconds. A key's `dailyUnits` is in the unit of its aliases' price, and the chart divides it by 1,000,000 for `max_budget`. The chart refuses a key over aliases priced in different units.
 
-| Value | dev | prod |
-|---|---|---|
-| `litellm.dailyTokens` | 200000 | 2000000 |
-| `max_budget` on the key | 0.2 | 2 |
-| `litellm.tpmLimit` (tokens per minute) | 20000 | 100000 |
-| `budget_duration` | `1d` | `1d` |
-| `litellm.stt.dailySeconds` (audio seconds per day) | 3600 | 36000 |
-| `max_budget` on the `server-stt` key | 0.0036 | 0.036 |
-| `litellm.stt.rpmLimit` (requests per minute) | 10 | 60 |
+| Key | Aliases | dev `dailyUnits` | dev limit | prod `dailyUnits` | prod limit |
+|---|---|---|---|---|---|
+| `server-llm` | `search` | 200,000 tokens | 20,000 tpm | 2,000,000 tokens | 100,000 tpm |
+| `server-stt` | `stt` | 3,600 seconds | 10 rpm | 36,000 seconds | 60 rpm |
+| `server-embed-index` | `embed-text`, `embed-image` | 10,000,000 tokens | 120 rpm | 50,000,000 tokens | 600 rpm |
+| `server-embed-search` | `embed-text`, `embed-image` | 1,000,000 tokens | 60 rpm | 10,000,000 tokens | 600 rpm |
 
-`values.yaml` sets both numbers to 0 and the per-stack files set the real ones. LiteLLM resets the spend of the key every day. The key is also limited to `models: ["search"]`. A test on a local k3d cluster set a 60-token budget: once it was spent, calls failed with HTTP 422 and `Budget has been exceeded`, and a call for any model other than `search` got a 403.
+`values.yaml` sets every `dailyUnits` and limit to 0, and the per-stack files set the real ones. Helm merges a stack file into `values.yaml` key by key, so a stack file that sets one key leaves the others as `values.yaml` has them. LiteLLM resets each key's spend every day, with `budget_duration: 1d`.
 
-Speech is priced per second of audio at `0.000001`, so 1 unit of budget is 1,000,000 seconds. The `server-stt` key is limited to `models: ["stt"]` and has an `rpm_limit` instead of a token limit. Each key has its own budget, so audio cannot spend the search budget. LiteLLM asks `ai` for `verbose_json` when the caller names no `response_format`, and prices every call from the `duration` field that `json` and `verbose_json` answers carry. A `text` answer has no duration and costs 0, so the server must not ask for `text`. A test against LiteLLM v1.108.0 sent 5.55 s of audio, and the spend of `server-stt` rose by 0.00000555. Each key got a 403 `key_model_access_denied` for the other key's alias.
+The server indexes listings with `server-embed-index` and embeds queries with `server-embed-search`. A backfill of every listing spends the index key, and photo search keeps its own budget. `ai` counts 576 tokens an image, its 24 × 24 patches, and a text its token count; LiteLLM prices from that `usage`. A listing of ten photos costs about 5,800 tokens, so dev's index budget covers about 1,700 listings a day.
+
+A test on a local k3d cluster set a 60-token budget on the search key: once it was spent, calls failed with HTTP 422 and `Budget has been exceeded`, and a call for an alias outside the key's `models` got a 403. A test against LiteLLM v1.108.0 sent 5.55 s of audio, and the spend of `server-stt` rose by 0.00000555. LiteLLM asks `ai` for `verbose_json` when the caller names no `response_format`, and prices every speech call from the `duration` field that `json` and `verbose_json` answers carry. A `text` answer has no duration and costs 0, so the server must not ask for `text`.
 
 ## The key hook
 
-The server's two keys are created by the Job `litellm-key`, an Argo CD Sync hook in wave 3, after LiteLLM (wave 2) is ready. Its pod runs `curlimages/curl` and does this:
+The server's keys are created by the Job `litellm-key`, an Argo CD Sync hook in wave 3, after LiteLLM (wave 2) is ready. `infra/stack/templates/litellm-keys.yaml` renders it from `litellm.keys`. Its pod runs `curlimages/curl` and does this for each key:
 
-```mermaid title="litellm-key on every sync"
+```mermaid title="litellm-key on every sync, for each key"
 flowchart TD
-  start["Sync hook litellm-key"] --> update["POST /key/update<br/>key = LLM_API_KEY"]
-  update -->|200| ok["log: litellm key server: HTTP 200"]
+  start["Sync hook litellm-key"] --> update["POST /key/update<br/>key = the key's value from server-secrets"]
+  update -->|200| ok["log: litellm key server-llm: HTTP 200"]
   update -->|not 200| generate["POST /key/generate<br/>same key value"]
   generate -->|200| ok
   generate -->|not 200| fail["log status and message<br/>exit 1, retry up to 10 times"]
 ```
 
-Both calls send the same body: the key value from `server-secrets`, `key_alias: server`, `models: ["search"]`, `max_budget`, `budget_duration: 1d` and `tpm_limit`. They authenticate with the master key from `litellm-secrets`. The Job then runs the same flow for `server-stt`: the key value `STT_API_KEY` from `server-secrets`, `key_alias: server-stt`, `models: ["stt"]`, `max_budget` from `litellm.stt.dailySeconds`, `budget_duration: 1d` and `rpm_limit` from `litellm.stt.rpmLimit`.
+Both calls send the same body: the key's value from `server-secrets` (the key's `secret`), `key_alias` (the key's name), `models`, `max_budget`, `budget_duration: 1d`, and `tpm_limit` or `rpm_limit`. They authenticate with the master key from `litellm-secrets`. A successful sync logs four lines, `litellm key server-embed-index: HTTP 200`, `litellm key server-embed-search: HTTP 200`, `litellm key server-llm: HTTP 200` and `litellm key server-stt: HTTP 200`.
 
-The key value is fixed in advance: the seal command generates `LLM_API_KEY` and `STT_API_KEY` and seals them into the server's secret, and the Job writes the same values into LiteLLM. Running the hook twice gives the same result. After LiteLLM's database is lost, the update fails, the generate call recreates the key with the value the server already holds, and the server does not restart.
+The key `server` was renamed `server-llm` on 2026-11-09. Its value stayed `LLM_API_KEY`, so `/key/update` found the key by its value and changed its alias, and the key kept its spend.
+
+The key values are fixed in advance: the seal command generates `LLM_API_KEY`, `STT_API_KEY`, `EMBED_INDEX_API_KEY` and `EMBED_SEARCH_API_KEY` and seals them into the server's secret, and the Job writes the same values into LiteLLM. Running the hook twice gives the same result. After LiteLLM's database is lost, the update fails, the generate call recreates the key with the value the server already holds, and the server does not restart.
 
 The response of LiteLLM contains the key, so the Job logs only the HTTP status. On a failure it also prints the `message` field of the answer.
 
@@ -122,17 +168,19 @@ The server's data lives in the database `app` of the same cluster. LiteLLM's rol
 
 ## Secrets
 
-`go -C infra run ./cmd/seal <stack>` generates four of the five values below into the git-ignored `infra/stack/secrets/<stack>.env`. You write `LLM_UPSTREAM_API_KEY` yourself, and the seal command stops with `set LLM_UPSTREAM_API_KEY` until you do.
+`go -C infra run ./cmd/seal <stack>` generates every value below but `LLM_UPSTREAM_API_KEY` into the git-ignored `infra/stack/secrets/<stack>.env`. You write `LLM_UPSTREAM_API_KEY` yourself, and the seal command stops with `set LLM_UPSTREAM_API_KEY` until you do.
 
 | Value in `<stack>.env` | Sealed into | Key | Read by |
 |---|---|---|---|
 | `LITELLM_MASTER_KEY` | `litellm-secrets` | `LITELLM_MASTER_KEY` | LiteLLM, the `litellm-key` Job, you in the admin UI |
 | `LLM_UPSTREAM_API_KEY` | `litellm-secrets` | `LLM_UPSTREAM_API_KEY` | LiteLLM, toward the upstream API |
 | `LITELLM_DB_PASSWORD` | `litellm-db` (basic-auth) | `password` | CNPG for the role, LiteLLM for `DATABASE_URL` |
-| `LLM_API_KEY` | `server-secrets` | `LLM_API_KEY` | the server, the `litellm-key` Job |
-| `STT_API_KEY` | `server-secrets` | `STT_API_KEY` | the server, once it transcribes listing videos; the `litellm-key` Job |
+| `LLM_API_KEY` | `server-secrets` | `LLM_API_KEY` | the server, the `litellm-key` Job (key `server-llm`) |
+| `STT_API_KEY` | `server-secrets` | `STT_API_KEY` | the server, once it transcribes listing videos; the `litellm-key` Job (key `server-stt`) |
+| `EMBED_INDEX_API_KEY` | `server-secrets` | `EMBED_INDEX_API_KEY` | the server, when it indexes listings; the `litellm-key` Job (key `server-embed-index`) |
+| `EMBED_SEARCH_API_KEY` | `server-secrets` | `EMBED_SEARCH_API_KEY` | the server, when it embeds a query; the `litellm-key` Job (key `server-embed-search`) |
 
-Today `LLM_UPSTREAM_API_KEY` is one of the keys under cli-proxy-api's `access.api-keys`. A reseal changes the checksum on the LiteLLM pod template, so LiteLLM restarts with the new values. [Secrets](/en/operations/cluster/secrets) covers how the seal command and the controller seal them.
+Today `LLM_UPSTREAM_API_KEY` is one of the keys under cli-proxy-api's `access.api-keys`. A reseal changes the checksum on the LiteLLM pod template, so LiteLLM restarts with the new values. A key the chart names but `server-secrets` lacks keeps the `litellm-key` pod from starting, and the sync stops at wave 3: reseal and push the secrets in the commit that adds the key. [Secrets](/en/operations/cluster/secrets) covers how the seal command and the controller seal them.
 
 ## When the budget runs out
 
@@ -160,11 +208,11 @@ Calls over the tokens-per-minute limit fail too, and search falls back to the ra
 
 Each stack runs `ai` (repo `shopnexus/ai`), a Deployment and a Service on port 8000 with no Ingress. It serves OpenAI's `POST /v1/audio/transcriptions` with Gipformer 1.5, a Vietnamese model with 68.6M parameters, on CPU. It takes any audio or video file ffmpeg reads, up to 100 MB and 300 s of audio (`ai.maxUploadMB`, `ai.maxAudioSeconds`). Silero VAD cuts the speech at silences into pieces of at most 20 s, and the answer is lower-case text without punctuation.
 
-Two requests decode at once (`ai.maxConcurrent`), and the others wait. The pod requests 1 CPU and 1 GiB of memory and is limited to 2 GiB.
+Two requests decode at once (`ai.maxConcurrent`), and the others wait. The pod requests 1 CPU and `ai.memoryRequest` of memory and is limited to `ai.memoryLimit`, 2Gi and 4Gi with SigLIP 2's int8 files.
 
 No server code calls `stt` yet; the first caller will be the feature that prefills a listing from a seller's video.
 
-To send `stt` to another provider, set `litellm.stt.model` to that provider's LiteLLM model string, for example `groq/whisper-large-v3`, change or remove `litellm.stt.apiBase`, and add the provider's key to `litellm-secrets` and to the `stt` entry in `infra/stack/templates/litellm.yaml`. The server keeps asking for `stt`.
+To send `stt` to another provider, set `litellm.aliases.stt.model` to that provider's LiteLLM model string, for example `groq/whisper-large-v3`, and `litellm.aliases.stt.apiBase` to its base URL; add the provider's key to `litellm-secrets` and name it in `litellm.aliases.stt.apiKeySecret`. The server keeps asking for `stt`.
 
 `ai` logs one line per request, without the transcript:
 
@@ -172,13 +220,34 @@ To send `stt` to another provider, set `litellm.stt.model` to that provider's Li
 kubectl -n shopnexus-dev logs deploy/ai
 ```
 
+## Embeddings: TEI and ai
+
+`embed-text` goes to the stack's TEI, Hugging Face's Text Embeddings Inference (`ghcr.io/huggingface/text-embeddings-inference:cpu-1.9.4`), serving `BAAI/bge-m3` at revision `tei.revision`, `5617a9f61b028005a4858fdac845db406aefb181`. That revision has no safetensors, and TEI loads its ONNX weights. The vectors have 1024 dimensions. `templates/tei.yaml` runs a Deployment and the Service `tei` on port 80, with no Ingress; only `from-stack` admits traffic to it.
+
+The values were measured on 2026-11-10 on the dev machine:
+
+| Value | Setting | Measured |
+|---|---|---|
+| `tei.storage` | `5Gi`, a claim `tei-data` | the weights are 2.2 GB, and the first start takes 248 s, 196 s of it the download; a restart takes 24 to 57 s |
+| `tei.startupSeconds` | 500 | twice the first start |
+| `tei.maxBatchTokens` | 2048, passed as `--max-batch-tokens` | with TEI's default of 16384, TEI held 8 to 11 GiB and was killed under a 4 GiB limit; at 2048, 16 listing texts of about 650 tokens peaked at 3.4 GiB and took 36 s |
+| `tei.memoryRequest`, `tei.memoryLimit` | 3584Mi, 7Gi | the 3.4 GiB peak |
+
+`embed-image` goes to `ai`, which serves `POST /v1/embeddings` with SigLIP 2 (`siglip2-so400m-patch16-384`, 1152 dimensions) beside speech to text. An input that starts with `data:image/` is a photo; any other input is text for SigLIP's text tower. `ai.embedVersion` names the SigLIP 2 files in the `ai` image, and `ai.memoryRequest` and `ai.memoryLimit` (2Gi and 4Gi for the int8 files) give it room.
+
+The server stores `EMBED_TEXT_VERSION` (`bge-m3@<tei.revision>`) and `EMBED_IMAGE_VERSION` (`ai.embedVersion`) with every vector. A new revision or model changes the version, the server treats the stored vectors as missing, and `go run ./cmd/search-reindex` in the server embeds every listing again. Change the model and its version in the same commit.
+
+Locally, `docker-compose.yml` runs `tei-dev` on 127.0.0.1:56493 and `tei-prod` on 127.0.0.1:56492, with the same image, revision and `--max-batch-tokens` as the chart; `infra/check.sh` fails when they differ. There is no LiteLLM locally, so the local server calls `tei-<stack>` and `ai-<stack>` directly, names the models `bge-m3` and `siglip2-so400m-patch16-384`, and sends empty keys.
+
+`infra/smoke-models.sh <stack>` port-forwards the stack's LiteLLM and calls every alias with the server's keys: `search`, `stt` with a silent clip, `embed-text` (1024 dimensions), `embed-image` with a photo and with a text (1152 dimensions), and `embed-text` with the search key `server-llm`, which LiteLLM refuses with a 403. It needs `hurl` and `kubectl`.
+
 ## Change the model or the provider
 
-The server always asks for `search`. To change what answers:
+The server always asks for the same aliases. To change what answers `search`:
 
 <Steps>
 <Step title="Edit the values">
-In `infra/stack/values.yaml`, set `litellm.model` to the upstream model name and `litellm.apiBase` to its OpenAI-compatible base URL, ending in `/v1`. To change one stack only, set `litellm.model` and `litellm.apiBase` in `values-dev.yaml` or `values-prod.yaml` instead. The chart refuses to render if either is empty.
+In `infra/stack/values.yaml`, set `litellm.aliases.search.model` to LiteLLM's model string, provider prefix included (`openai/claude-haiku-5-5`), and `litellm.aliases.search.apiBase` to its OpenAI-compatible base URL, ending in `/v1`. To change one stack only, set them under `litellm.aliases.search` in `values-dev.yaml` or `values-prod.yaml` instead. The chart refuses to render if either is empty.
 </Step>
 <Step title="Change the upstream key">
 If the provider changes, put its key into `LLM_UPSTREAM_API_KEY` in `infra/stack/secrets/<stack>.env`, then run `go -C infra run ./cmd/seal dev` and `go -C infra run ./cmd/seal prod`.
@@ -191,31 +260,31 @@ Search for something on the stack and read the server log. A line `the model did
 </Step>
 </Steps>
 
-The server asks for a strict `json_schema` response format. A model that ignores it returns text the server cannot decode, and search falls back to the raw words on every query.
+The server asks for a strict `json_schema` response format. A model that ignores it returns text the server cannot decode, and search falls back to the raw words on every query. To change `embed-text` or `embed-image`, see [Embeddings: TEI and ai](#embeddings-tei-and-ai): the vectors' version changes with the model.
 
 ## Change a budget
 
 <Steps>
 <Step title="Edit the stack's values">
-In `infra/stack/values-dev.yaml` or `values-prod.yaml`, change `litellm.dailyTokens` (tokens per day), `litellm.tpmLimit` (tokens per minute), `litellm.stt.dailySeconds` (audio seconds per day) or `litellm.stt.rpmLimit` (requests per minute).
+In `infra/stack/values-dev.yaml` or `values-prod.yaml`, change a key's `dailyUnits` (tokens or seconds a day) or its `tpmLimit` or `rpmLimit` under `litellm.keys`.
 </Step>
 <Step title="Commit and push">
-Argo CD syncs, and the `litellm-key` hook runs `/key/update` on both keys with the new limits.
+Argo CD syncs, and the `litellm-key` hook runs `/key/update` on every key with the new limits.
 </Step>
 <Step title="Check the hook">
-`kubectl -n shopnexus-dev logs job/litellm-key` prints `litellm key server: HTTP 200` and `litellm key server-stt: HTTP 200`.
+`kubectl -n shopnexus-dev logs job/litellm-key` prints one `litellm key <name>: HTTP 200` line per key.
 </Step>
 </Steps>
 
 ## Add another model alias
 
-The chart has two aliases. Another one, for a fallback model or a new caller, needs three edits:
+An alias is an entry of `litellm.aliases`, and a key reaches only the aliases in its `models`:
 
-1. In `infra/stack/templates/litellm.yaml`, add an entry to `model_list` in `sn.litellmConfig`, with its own `model_name`, `litellm_params` and the same `model_info` prices so the budget still counts tokens.
-2. In the same file, add the name to the `models` list of the key that calls it in the `litellm-key` Job's script, or that key gets a 403 for it.
-3. Add values for the new model to `values.yaml` next to `litellm.model`, and run `infra/check.sh` before you push.
+1. Add the entry to `litellm.aliases` in `infra/stack/values.yaml`, with `model`, `apiBase`, `price` (`token` or `second`), and `apiKeySecret` or `mode` when it needs them.
+2. Add its name to the `models` of the key that calls it. For a new caller, add an entry to `litellm.keys` with its `secret`, `models`, `dailyUnits` and a `tpmLimit` or `rpmLimit`, set its budget in `values-dev.yaml` and `values-prod.yaml`, and add the secret to the seal command's generated keys and to `server-secrets`.
+3. Run `infra/check.sh` before you push. The chart refuses a key that names a missing alias, a key over aliases priced by token and by second, a key with neither limit, and an alias without a model.
 
-The server reads one name from `LLM_MODEL`, set to `search` in `infra/stack/templates/_server-env.tpl`. A new alias is used only by a caller that asks for it.
+A new alias is used only by a caller that asks for it.
 
 ## Admin UI and spend
 
@@ -226,7 +295,7 @@ kubectl -n shopnexus-dev get secret litellm-secrets -o jsonpath='{.data.LITELLM_
 kubectl -n shopnexus-dev port-forward svc/litellm 4000:4000
 ```
 
-Open `http://localhost:4000/ui` and sign in with user `admin` and the master key as the password. The UI lists the keys with aliases `server` and `server-stt`, each with its spend, budget and reset time. Use `shopnexus-prod` for prod.
+Open `http://localhost:4000/ui` and sign in with user `admin` and the master key as the password. The UI lists the keys with aliases `server-llm`, `server-stt`, `server-embed-index` and `server-embed-search`, each with its spend, budget and reset time. Use `shopnexus-prod` for prod.
 
 To read the spend from a shell while the port-forward runs:
 
@@ -239,8 +308,9 @@ curl -s "http://localhost:4000/key/info?key=$key" -H "Authorization: Bearer $mas
 `info.spend` is in budget units: a spend of `0.05` is 50,000 tokens today. `info.max_budget` is the day's limit and `info.budget_reset_at` the next reset.
 
 <KeyRules>
-- The server calls only the alias `search`; the model behind it is set in `values.yaml`.
-- Budgets are in tokens in values and in money in LiteLLM, at `0.000001` per token.
-- The server's key value comes from the seal command; the `litellm-key` hook only writes it into LiteLLM.
-- Any pod of a stack can reach its LiteLLM, but only the server holds a virtual key.
+- The server calls only aliases of `litellm.aliases`; the model behind each is set in `values.yaml`.
+- Budgets are in tokens or seconds in values and in money in LiteLLM, at `0.000001` per token or second.
+- Indexing and search embed with separate keys, `server-embed-index` and `server-embed-search`.
+- The server's key values come from the seal command; the `litellm-key` hook only writes them into LiteLLM.
+- Any pod of a stack can reach its LiteLLM, but only the server holds virtual keys.
 </KeyRules>
