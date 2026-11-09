@@ -1,7 +1,7 @@
 # Design: the `ai` provider and the STT gateway
 
 Date: 2026-11-09.
-Status: decided in conversation, question by question.
+Status: decided in conversation, question by question; amended 2026-11-09 after implementation (verbose_json, one decode per piece, the seconds risk resolved).
 
 ## Why
 
@@ -80,8 +80,10 @@ ai/
   `gipformer-1.5`. LiteLLM strips the `openai/` prefix of its model string and
   sends this name.
 - `language` (optional): empty or `vi`. Anything else is 400.
-- `response_format` (optional): `json` (default) or `text`. Anything else is
-  400.
+- `response_format` (optional): `json` (default), `verbose_json` or `text`.
+  Anything else is 400. LiteLLM sends `verbose_json` when its caller names no
+  format and prices the call from `duration` (found on 2026-11-09 in
+  `litellm/llms/openai/transcriptions/whisper_transformation.py`).
 - Any other field (`prompt`, `temperature`, `timestamp_granularities`, ...) is
   ignored.
 
@@ -92,7 +94,8 @@ Response for `json`:
 ```
 
 `usage` has the shape OpenAI returns for whisper-1; `seconds` is the decoded
-audio length rounded up. For `text` the body is the transcript alone,
+audio length rounded up. `verbose_json` answers `{"task": "transcribe",
+"language": "vietnamese", "duration": 41.2, "text": "...", "usage": {...}}`. For `text` the body is the transcript alone,
 `text/plain; charset=utf-8`.
 
 The transcript is lower case (Gipformer writes upper case without
@@ -131,8 +134,11 @@ OpenAI's shape, so LiteLLM passes them through: `{"error": {"message": "...",
    (`silero_vad.onnx`, about 2 MB). Constants in code: threshold 0.5, minimum
    silence 0.5 s, minimum speech 0.25 s, maximum speech 20 s (sherpa-onnx
    splits longer speech).
-4. **Recognise.** One `OfflineStream` per piece, one `DecodeStreams` call per
-   request. The recognizer config matches zaic's
+4. **Recognise.** One `OfflineStream` and one `Decode` call per piece, in
+   order. A single `DecodeStreams` call over all pieces made memory grow with
+   the audio length (two concurrent 288 s requests: 2.1 to 2.6 GiB, still
+   growing), and batches of 30 s did not stop it; one piece at a time held
+   about 1 GiB and was faster (4.3 s against 6.1 s per 288 s request). The recognizer config matches zaic's
    `voice/lifemate_voice/backends/sherpa_transducer.py`: transducer, fp32,
    `greedy_search`, sample rate 16000, feature dim 80, dither 0.
 5. **Join.** Texts in order, lower-cased, whitespace collapsed.
@@ -255,7 +261,13 @@ for `dailyTokens`. `go -C infra run ./cmd/seal <stack>` generates
 `STT_API_KEY` into `<stack>.env` and seals it into `server-secrets`. The server
 does not read it until part 2; `envFrom` makes the extra variable harmless.
 
-### Risk: does LiteLLM count the seconds?
+### Risk: does LiteLLM count the seconds? (resolved)
+
+Resolved on 2026-11-09 on a local stack (Postgres, LiteLLM v1.108.0 with the
+chart's rendered config and key script, the `ai` image): 5.55 s of audio
+raised the spend of `server-stt` by 0.00000555, priced from `verbose_json`'s
+`duration`. Each key got 403 `key_model_access_denied` on the other alias,
+and `rpm_limit` answered 429. The original note follows.
 
 It is not confirmed that LiteLLM computes the cost of a transcription from an
 `openai/` model on a self-hosted `api_base`: it may read `usage.seconds`, it
