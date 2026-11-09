@@ -49,7 +49,7 @@ EMBED_IMAGE_BASE_URL: http://litellm:4000/v1
 EMBED_TEXT_MODEL: embed-text
 EMBED_IMAGE_MODEL: embed-image
 EMBED_TEXT_VERSION: bge-m3@5617a9f61b028005a4858fdac845db406aefb181
-EMBED_IMAGE_VERSION: siglip2-so400m-patch16-384@29f74e673c298fd07482d8e20138179282001eb7-int8
+EMBED_IMAGE_VERSION: siglip2-so400m-patch16-384@29f74e673c298fd07482d8e20138179282001eb7-fp32
 ```
 
 The Service name `litellm` resolves inside the stack's own namespace, so the dev server reaches dev's LiteLLM and the prod server reaches prod's.
@@ -208,7 +208,7 @@ Calls over the tokens-per-minute limit fail too, and search falls back to the ra
 
 Each stack runs `ai` (repo `shopnexus/ai`), a Deployment and a Service on port 8000 with no Ingress. It serves OpenAI's `POST /v1/audio/transcriptions` with Gipformer 1.5, a Vietnamese model with 68.6M parameters, on CPU. It takes any audio or video file ffmpeg reads, up to 100 MB and 300 s of audio (`ai.maxUploadMB`, `ai.maxAudioSeconds`). Silero VAD cuts the speech at silences into pieces of at most 20 s, and the answer is lower-case text without punctuation.
 
-Two requests decode at once (`ai.maxConcurrent`), and the others wait. The pod requests 1 CPU and `ai.memoryRequest` of memory and is limited to `ai.memoryLimit`, 2Gi and 4Gi with SigLIP 2's int8 files.
+Two requests decode at once (`ai.maxConcurrent`), and the others wait. The pod requests 1 CPU and `ai.memoryRequest` of memory and is limited to `ai.memoryLimit`, 6Gi and 8Gi with SigLIP 2's fp32 files.
 
 No server code calls `stt` yet; the first caller will be the feature that prefills a listing from a seller's video.
 
@@ -233,7 +233,7 @@ The values were measured on 2026-11-10 on the dev machine:
 | `tei.maxBatchTokens` | 2048, passed as `--max-batch-tokens` | with TEI's default of 16384, TEI held 8 to 11 GiB and was killed under a 4 GiB limit; at 2048, 16 listing texts of about 650 tokens peaked at 3.4 GiB and took 36 s |
 | `tei.memoryRequest`, `tei.memoryLimit` | 3584Mi, 7Gi | the 3.4 GiB peak |
 
-`embed-image` goes to `ai`, which serves `POST /v1/embeddings` with SigLIP 2 (`siglip2-so400m-patch16-384`, 1152 dimensions) beside speech to text. An input that starts with `data:image/` is a photo; any other input is text for SigLIP's text tower. `ai.embedVersion` names the SigLIP 2 files in the `ai` image, and `ai.memoryRequest` and `ai.memoryLimit` (2Gi and 4Gi for the int8 files) give it room.
+`embed-image` goes to `ai`, which serves `POST /v1/embeddings` with SigLIP 2 (`siglip2-so400m-patch16-384`, 1152 dimensions) beside speech to text. An input that starts with `data:image/` is a photo; any other input is text for SigLIP's text tower. `ai.embedVersion` names the SigLIP 2 files in the `ai` image, and `ai.memoryRequest` and `ai.memoryLimit` (6Gi and 8Gi for the fp32 files, which the image carries) give it room.
 
 The server stores `EMBED_TEXT_VERSION` (`bge-m3@<tei.revision>`) and `EMBED_IMAGE_VERSION` (`ai.embedVersion`) with every vector. A new revision or model changes the version, the server treats the stored vectors as missing, and `go run ./cmd/search-reindex` in the server embeds every listing again. Change the model and its version in the same commit.
 

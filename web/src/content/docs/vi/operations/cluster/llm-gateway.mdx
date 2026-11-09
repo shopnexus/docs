@@ -49,7 +49,7 @@ EMBED_IMAGE_BASE_URL: http://litellm:4000/v1
 EMBED_TEXT_MODEL: embed-text
 EMBED_IMAGE_MODEL: embed-image
 EMBED_TEXT_VERSION: bge-m3@5617a9f61b028005a4858fdac845db406aefb181
-EMBED_IMAGE_VERSION: siglip2-so400m-patch16-384@29f74e673c298fd07482d8e20138179282001eb7-int8
+EMBED_IMAGE_VERSION: siglip2-so400m-patch16-384@29f74e673c298fd07482d8e20138179282001eb7-fp32
 ```
 
 Tên Service `litellm` được phân giải trong chính namespace của stack, nên server dev gọi tới LiteLLM của dev và server prod gọi tới LiteLLM của prod.
@@ -208,7 +208,7 @@ Lời gọi vượt giới hạn token mỗi phút cũng lỗi, và tìm kiếm 
 
 Mỗi stack chạy `ai` (repo `shopnexus/ai`), gồm một Deployment và một Service ở cổng 8000, không có Ingress. Nó phục vụ `POST /v1/audio/transcriptions` của OpenAI bằng Gipformer 1.5, một mô hình tiếng Việt 68,6 triệu tham số, chạy trên CPU. Nó nhận mọi file audio hay video mà ffmpeg đọc được, tối đa 100 MB và 300 giây audio (`ai.maxUploadMB`, `ai.maxAudioSeconds`). Silero VAD cắt phần có tiếng nói tại các khoảng lặng thành các đoạn dài tối đa 20 giây, và câu trả lời là văn bản chữ thường, không dấu câu.
 
-Mỗi lúc có hai request được giải mã (`ai.maxConcurrent`), các request khác chờ. Pod xin 1 CPU và `ai.memoryRequest` bộ nhớ, giới hạn ở `ai.memoryLimit`, 2Gi và 4Gi với các file int8 của SigLIP 2.
+Mỗi lúc có hai request được giải mã (`ai.maxConcurrent`), các request khác chờ. Pod xin 1 CPU và `ai.memoryRequest` bộ nhớ, giới hạn ở `ai.memoryLimit`, 6Gi và 8Gi với các file fp32 của SigLIP 2.
 
 Chưa có code nào của server gọi `stt`; bên gọi đầu tiên sẽ là tính năng điền sẵn tin đăng từ video của người bán.
 
@@ -233,7 +233,7 @@ Các giá trị được đo ngày 2026-11-10 trên máy dev:
 | `tei.maxBatchTokens` | 2048, truyền qua `--max-batch-tokens` | với mặc định 16384 của TEI, TEI giữ 8 đến 11 GiB và bị kill ở giới hạn 4 GiB; ở 2048, 16 đoạn chữ tin đăng khoảng 650 token đạt đỉnh 3,4 GiB và mất 36 giây |
 | `tei.memoryRequest`, `tei.memoryLimit` | 3584Mi, 7Gi | đỉnh 3,4 GiB |
 
-`embed-image` đi tới `ai`, service phục vụ `POST /v1/embeddings` bằng SigLIP 2 (`siglip2-so400m-patch16-384`, 1152 chiều) bên cạnh chuyển giọng nói thành văn bản. Input bắt đầu bằng `data:image/` là ảnh; mọi input khác là chữ cho text tower của SigLIP. `ai.embedVersion` gọi tên các file SigLIP 2 trong image `ai`, và `ai.memoryRequest`, `ai.memoryLimit` (2Gi và 4Gi với các file int8) cấp bộ nhớ cho nó.
+`embed-image` đi tới `ai`, service phục vụ `POST /v1/embeddings` bằng SigLIP 2 (`siglip2-so400m-patch16-384`, 1152 chiều) bên cạnh chuyển giọng nói thành văn bản. Input bắt đầu bằng `data:image/` là ảnh; mọi input khác là chữ cho text tower của SigLIP. `ai.embedVersion` gọi tên các file SigLIP 2 trong image `ai`, và `ai.memoryRequest`, `ai.memoryLimit` (6Gi và 8Gi với các file fp32 mà image mang theo) cấp bộ nhớ cho nó.
 
 Server lưu `EMBED_TEXT_VERSION` (`bge-m3@<tei.revision>`) và `EMBED_IMAGE_VERSION` (`ai.embedVersion`) cùng mỗi vector. Revision hay mô hình mới làm đổi version, server coi các vector đã lưu là thiếu, và `go run ./cmd/search-reindex` trong server embed lại mọi tin đăng. Đổi mô hình và version của nó trong cùng một commit.
 
