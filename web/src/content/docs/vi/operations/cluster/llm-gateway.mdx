@@ -83,7 +83,7 @@ Ngân sách của LiteLLM tính bằng tiền. Mỗi token, cả đầu vào l�
 
 `values.yaml` đặt cả hai số bằng 0, còn file của từng stack đặt số thật. LiteLLM đưa mức chi của key về 0 mỗi ngày. Key cũng chỉ được dùng `models: ["search"]`. Một lần thử trên cluster k3d cục bộ đặt ngân sách 60 token: khi tiêu hết, các lời gọi lỗi với HTTP 422 và `Budget has been exceeded`, còn lời gọi tới bất kỳ mô hình nào khác `search` nhận 403.
 
-Giọng nói được tính giá theo giây audio, `0.000001` mỗi giây, nên 1 đơn vị ngân sách là 1.000.000 giây. Key `server-stt` chỉ được dùng `models: ["stt"]` và có `rpm_limit` thay cho giới hạn token. Mỗi key có ngân sách riêng, nên audio không tiêu được vào ngân sách của tìm kiếm. LiteLLM yêu cầu `ai` trả `verbose_json` và tính giá lời gọi theo trường `duration`. Một lần thử với LiteLLM v1.108.0 gửi 5,55 giây audio, và mức chi của `server-stt` tăng 0,00000555. Mỗi key nhận 403 `key_model_access_denied` khi gọi alias của key kia.
+Giọng nói được tính giá theo giây audio, `0.000001` mỗi giây, nên 1 đơn vị ngân sách là 1.000.000 giây. Key `server-stt` chỉ được dùng `models: ["stt"]` và có `rpm_limit` thay cho giới hạn token. Mỗi key có ngân sách riêng, nên audio không tiêu được vào ngân sách của tìm kiếm. LiteLLM yêu cầu `ai` trả `verbose_json` khi bên gọi không chỉ định `response_format`, và tính giá mọi lời gọi theo trường `duration` có trong câu trả lời `json` và `verbose_json`. Câu trả lời `text` không có duration nên tính giá 0, vì vậy server không được hỏi `text`. Một lần thử với LiteLLM v1.108.0 gửi 5,55 giây audio, và mức chi của `server-stt` tăng 0,00000555. Mỗi key nhận 403 `key_model_access_denied` khi gọi alias của key kia.
 
 ## Hook tạo key
 
