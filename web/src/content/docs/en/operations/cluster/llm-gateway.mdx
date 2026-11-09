@@ -109,7 +109,7 @@ The `openai/` prefix tells LiteLLM to speak the OpenAI API to `api_base`. An ali
 `store_prompts_in_spend_logs: false` keeps request bodies, the photos of photo search among them, out of LiteLLM's spend logs. `infra/probes/litellm-embed/run.sh` measures this on the pinned LiteLLM, with a stub upstream. On v1.108.0 on 2026-11-10: data URLs of 706 kB and 1.72 MB reached the upstream unchanged, three calls cost 0.001728 (576 tokens each, priced from the upstream's `usage`), and none of the three spend log rows held an input. LiteLLM sent the upstream only `model` and `input`.
 
 <Callout type="warning" title="cli-proxy-api is a personal-subscription proxy">
-cli-proxy-api turns one person's model subscription into an OpenAI-compatible API on the host. That is fine for dev and for a demo. For real production traffic, point `litellm.apiBase` at a provider's official API and seal that provider's key as `LLM_UPSTREAM_API_KEY`.
+cli-proxy-api turns one person's model subscription into an OpenAI-compatible API on the host. That is fine for dev and for a demo. For real production traffic, point `litellm.aliases.search.apiBase` at a provider's official API and seal that provider's key as `LLM_UPSTREAM_API_KEY`.
 </Callout>
 
 ## Budget model
@@ -144,7 +144,7 @@ flowchart TD
 
 Both calls send the same body: the key's value from `server-secrets` (the key's `secret`), `key_alias` (the key's name), `models`, `max_budget`, `budget_duration: 1d`, and `tpm_limit` or `rpm_limit`. They authenticate with the master key from `litellm-secrets`. A successful sync logs four lines, `litellm key server-embed-index: HTTP 200`, `litellm key server-embed-search: HTTP 200`, `litellm key server-llm: HTTP 200` and `litellm key server-stt: HTTP 200`.
 
-The key `server` was renamed `server-llm` on 2026-11-09. Its value stayed `LLM_API_KEY`, so `/key/update` found the key by its value and changed its alias, and the key kept its spend.
+The key `server` became `server-llm` with the chart of 2026-11-09. Its value stays `LLM_API_KEY`, so the next sync's `/key/update` finds the key by its value and changes its alias. `infra/probes/litellm-embed/run.sh` measures this on the pinned LiteLLM: on v1.108.0 on 2026-11-10 the renamed key kept its spend of 0.001728, and one key carried the two aliases' names.
 
 The key values are fixed in advance: the seal command generates `LLM_API_KEY`, `STT_API_KEY`, `EMBED_INDEX_API_KEY` and `EMBED_SEARCH_API_KEY` and seals them into the server's secret, and the Job writes the same values into LiteLLM. Running the hook twice gives the same result. After LiteLLM's database is lost, the update fails, the generate call recreates the key with the value the server already holds, and the server does not restart.
 
@@ -235,7 +235,7 @@ The values were measured on 2026-11-10 on the dev machine:
 
 `embed-image` goes to `ai`, which serves `POST /v1/embeddings` with SigLIP 2 (`siglip2-so400m-patch16-384`, 1152 dimensions) beside speech to text. An input that starts with `data:image/` is a photo; any other input is text for SigLIP's text tower. `ai.embedVersion` names the SigLIP 2 files in the `ai` image, and `ai.memoryRequest` and `ai.memoryLimit` (6Gi and 8Gi for the fp32 files, which the image carries) give it room.
 
-The server stores `EMBED_TEXT_VERSION` (`bge-m3@<tei.revision>`) and `EMBED_IMAGE_VERSION` (`ai.embedVersion`) with every vector. A new revision or model changes the version, the server treats the stored vectors as missing, and `go run ./cmd/search-reindex` in the server embeds every listing again. Change the model and its version in the same commit.
+The server stores `EMBED_TEXT_VERSION` (`bge-m3@<tei.revision>`) and `EMBED_IMAGE_VERSION` (`ai.embedVersion`) with every vector. A new revision or model changes the version, the server treats the stored vectors as missing, and `go run ./cmd/search-reindex -every 2s` in the server embeds every listing again, one listing every 2 s. Change the model and its version in the same commit.
 
 Locally, `docker-compose.yml` runs `tei-dev` on 127.0.0.1:56493 and `tei-prod` on 127.0.0.1:56492, with the same image, revision and `--max-batch-tokens` as the chart; `infra/check.sh` fails when they differ. There is no LiteLLM locally, so the local server calls `tei-<stack>` and `ai-<stack>` directly, names the models `bge-m3` and `siglip2-so400m-patch16-384`, and sends empty keys.
 

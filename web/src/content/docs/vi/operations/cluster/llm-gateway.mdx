@@ -109,7 +109,7 @@ Tiền tố `openai/` báo LiteLLM nói API của OpenAI với `api_base`. Alias
 `store_prompts_in_spend_logs: false` giữ body của request, trong đó có ảnh của tìm bằng ảnh, ngoài spend log của LiteLLM. `infra/probes/litellm-embed/run.sh` đo điều này trên LiteLLM đã ghim, với một upstream giả. Trên v1.108.0 ngày 2026-11-10: data URL 706 kB và 1,72 MB tới upstream nguyên vẹn, ba lời gọi tốn 0,001728 (mỗi lời gọi 576 token, tính theo `usage` của upstream), và không dòng nào trong ba dòng spend log chứa input. LiteLLM chỉ gửi upstream `model` và `input`.
 
 <Callout type="warning" title="cli-proxy-api là proxy của một gói đăng ký cá nhân">
-cli-proxy-api biến gói đăng ký mô hình của một người thành một API tương thích OpenAI trên host. Dùng cho dev và cho demo thì được. Với traffic production thật, hãy trỏ `litellm.apiBase` vào API chính thức của một nhà cung cấp và seal key của nhà cung cấp đó vào `LLM_UPSTREAM_API_KEY`.
+cli-proxy-api biến gói đăng ký mô hình của một người thành một API tương thích OpenAI trên host. Dùng cho dev và cho demo thì được. Với traffic production thật, hãy trỏ `litellm.aliases.search.apiBase` vào API chính thức của một nhà cung cấp và seal key của nhà cung cấp đó vào `LLM_UPSTREAM_API_KEY`.
 </Callout>
 
 ## Mô hình ngân sách
@@ -144,7 +144,7 @@ flowchart TD
 
 Hai lời gọi gửi cùng một body: giá trị của key lấy từ `server-secrets` (trường `secret` của key), `key_alias` (tên key), `models`, `max_budget`, `budget_duration: 1d`, và `tpm_limit` hoặc `rpm_limit`. Chúng xác thực bằng master key trong `litellm-secrets`. Một lần sync thành công ghi bốn dòng log: `litellm key server-embed-index: HTTP 200`, `litellm key server-embed-search: HTTP 200`, `litellm key server-llm: HTTP 200` và `litellm key server-stt: HTTP 200`.
 
-Key `server` được đổi tên thành `server-llm` ngày 2026-11-09. Giá trị của nó vẫn là `LLM_API_KEY`, nên `/key/update` tìm thấy key theo giá trị và đổi alias, và key giữ nguyên mức chi.
+Key `server` thành `server-llm` từ chart ngày 2026-11-09. Giá trị của nó vẫn là `LLM_API_KEY`, nên `/key/update` của lần sync sau tìm thấy key theo giá trị và đổi alias. `infra/probes/litellm-embed/run.sh` đo điều này trên LiteLLM đã ghim: trên v1.108.0 ngày 2026-11-10, key được đổi tên giữ nguyên mức chi 0,001728, và chỉ một key mang tên của hai alias.
 
 Giá trị của các key được cố định từ trước: lệnh seal sinh `LLM_API_KEY`, `STT_API_KEY`, `EMBED_INDEX_API_KEY` và `EMBED_SEARCH_API_KEY` rồi seal vào secret của server, và Job ghi đúng các giá trị đó vào LiteLLM. Chạy hook hai lần cho cùng một kết quả. Khi mất database của LiteLLM, lời gọi update thất bại, lời gọi generate tạo lại key với giá trị server đang giữ, và server không phải khởi động lại.
 
@@ -235,7 +235,7 @@ Các giá trị được đo ngày 2026-11-10 trên máy dev:
 
 `embed-image` đi tới `ai`, service phục vụ `POST /v1/embeddings` bằng SigLIP 2 (`siglip2-so400m-patch16-384`, 1152 chiều) bên cạnh chuyển giọng nói thành văn bản. Input bắt đầu bằng `data:image/` là ảnh; mọi input khác là chữ cho text tower của SigLIP. `ai.embedVersion` gọi tên các file SigLIP 2 trong image `ai`, và `ai.memoryRequest`, `ai.memoryLimit` (6Gi và 8Gi với các file fp32 mà image mang theo) cấp bộ nhớ cho nó.
 
-Server lưu `EMBED_TEXT_VERSION` (`bge-m3@<tei.revision>`) và `EMBED_IMAGE_VERSION` (`ai.embedVersion`) cùng mỗi vector. Revision hay mô hình mới làm đổi version, server coi các vector đã lưu là thiếu, và `go run ./cmd/search-reindex` trong server embed lại mọi tin đăng. Đổi mô hình và version của nó trong cùng một commit.
+Server lưu `EMBED_TEXT_VERSION` (`bge-m3@<tei.revision>`) và `EMBED_IMAGE_VERSION` (`ai.embedVersion`) cùng mỗi vector. Revision hay mô hình mới làm đổi version, server coi các vector đã lưu là thiếu, và `go run ./cmd/search-reindex -every 2s` trong server embed lại mọi tin đăng, mỗi 2 giây một tin. Đổi mô hình và version của nó trong cùng một commit.
 
 Ở máy cục bộ, `docker-compose.yml` chạy `tei-dev` ở 127.0.0.1:56493 và `tei-prod` ở 127.0.0.1:56492, với cùng image, revision và `--max-batch-tokens` như chart; `infra/check.sh` báo lỗi khi chúng khác nhau. Máy cục bộ không có LiteLLM, nên server cục bộ gọi thẳng `tei-<stack>` và `ai-<stack>`, gọi mô hình là `bge-m3` và `siglip2-so400m-patch16-384`, và gửi key rỗng.
 
