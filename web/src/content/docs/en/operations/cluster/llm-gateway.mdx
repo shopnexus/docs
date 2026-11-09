@@ -83,7 +83,7 @@ LiteLLM budgets count money. Every token, input and output, is priced at `0.0000
 
 `values.yaml` sets both numbers to 0 and the per-stack files set the real ones. LiteLLM resets the spend of the key every day. The key is also limited to `models: ["search"]`. A test on a local k3d cluster set a 60-token budget: once it was spent, calls failed with HTTP 422 and `Budget has been exceeded`, and a call for any model other than `search` got a 403.
 
-Speech is priced per second of audio at `0.000001`, so 1 unit of budget is 1,000,000 seconds. The `server-stt` key is limited to `models: ["stt"]` and has an `rpm_limit` instead of a token limit. Each key has its own budget, so audio cannot spend the search budget.
+Speech is priced per second of audio at `0.000001`, so 1 unit of budget is 1,000,000 seconds. The `server-stt` key is limited to `models: ["stt"]` and has an `rpm_limit` instead of a token limit. Each key has its own budget, so audio cannot spend the search budget. LiteLLM asks `ai` for `verbose_json` and prices the call from its `duration` field. A test against LiteLLM v1.108.0 sent 5.55 s of audio, and the spend of `server-stt` rose by 0.00000555. Each key got a 403 `key_model_access_denied` for the other key's alias.
 
 ## The key hook
 
