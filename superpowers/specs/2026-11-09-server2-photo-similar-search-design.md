@@ -3,7 +3,10 @@
 Date: 2026-11-09.
 Status: decided in conversation, question by question; amended 2026-11-09
 when the `ai` repo landed: the models run behind LiteLLM (TEI and `ai`), not
-in a Python service of the server's. When the work lands, the decisions
+in a Python service of the server's; amended again while planning (422 for
+`invalid_upload`, deleted listings keep their rows, `smoke-models.hurl`,
+starting budgets and floors, local compose, the query vector cache key,
+and SigLIP 2's int8 or fp32 ONNX chosen by measurement). When the work lands, the decisions
 below go into `~/shopnexus/server/ARCHITECTURE.md` (sections Search,
 Catalog, Discovery, Infrastructure), `ai/README.md` and the docs page
 `operations/cluster/llm-gateway`.
@@ -86,7 +89,7 @@ Errors, beside today's:
 | Status | Code | When |
 |---|---|---|
 | 400 | `search_conflict` | `photo` with `q` or `like`. |
-| 400 | `invalid_upload` | The upload is not the caller's, not waiting, expired, or not a valid image. Media's code. |
+| 422 | `invalid_upload` | The upload is not the caller's, not waiting, expired, or not a valid image. Media's code and status (`KindInvalid`). |
 | 401 | `unauthenticated` | `photo` signed out. |
 | 404 | `listing_not_found` | `like` names a listing that is not public. |
 | 503 | `search_unavailable` | `photo` and `embed-image` did not answer (down, budget spent, rate limited). |
@@ -155,8 +158,10 @@ CREATE INDEX search_query_vectors_created ON search_query_vectors (created_at);
   configured version string. A row whose version differs from the
   configured one counts as missing, and `ListingEmbed` embeds it again.
 - Vectors stay while a listing is hidden or sold: queries read only active
-  listings, and a listing back on sale needs no new embedding. A deleted
-  row takes its vectors with it.
+  listings, and a listing back on sale needs no new embedding. Deleting a
+  listing is a status change and its row stays, so its vectors stay too,
+  kept out of every result by the `active` filter; `ON DELETE CASCADE`
+  only matters if a row is ever removed.
 - The text and photo vectors are derived data and hold nothing a listing
   does not already show publicly.
 
@@ -215,8 +220,9 @@ type Understanding struct {
 - The model failing or passing 4 seconds: BM25 on the raw words as today,
   the text vector on the raw query (BGE-M3 reads unfixed Vietnamese), no
   visual list.
-- Query vectors are cached in `search_query_vectors` by the query key, the
-  prompt version and the model version, 7 days; the write of a new row
+- Query vectors are cached in `search_query_vectors` by the normalized text
+  actually embedded (the rewrite, or the visual description), the prompt
+  version and the model version, 7 days; the write of a new row
   deletes the expired ones, as `search_understandings` does. Query-time
   calls use `EMBED_SEARCH_API_KEY`.
 
@@ -380,8 +386,18 @@ litellm:
 - The seal command generates `EMBED_INDEX_API_KEY` and
   `EMBED_SEARCH_API_KEY` into `server-secrets`.
 - `infra/check.sh` and `smoke.hurl` pass for `search` and `stt` as before;
-  that is the measure of the refactor. `smoke.hurl` gains one call to each
-  embed alias.
+  that is the measure of the refactor. LiteLLM has no Ingress and
+  `smoke.hurl` only reaches public hosts, so the alias calls go in
+  `smoke-models.hurl`, run through a port-forward: all four aliases, and a
+  key refused another key's alias.
+- Starting budgets, tuned later: dev `server-embed-index` 10M tokens a day
+  at 120 rpm, `server-embed-search` 1M at 60 rpm; prod 50M at 600 rpm and
+  10M at 600 rpm. Starting floors: text 0.45, photo 0.6, tuned by the eval.
+- Locally there is no LiteLLM: the umbrella compose runs `tei-dev`/`tei-prod`
+  beside `ai-dev`/`ai-prod`, and the server repo's compose runs `tei` and
+  `ai` under the profile `models` for `make run`. The server then names the
+  models themselves (`bge-m3`, `siglip2-so400m-patch16-384`) with empty
+  keys.
 
 ### Measured first
 
@@ -446,7 +462,7 @@ Server, Go, in `make test`:
   cosine against reference vectors from transformers, stored in the repo.
 
 `infra`: `check.sh` renders every stack and fails on a key naming a missing
-alias; `smoke.hurl` calls all four aliases on a running stack.
+alias; `smoke-models.hurl` calls all four aliases on a running stack.
 
 Eval, `make search-eval` in the server, against the real models:
 
