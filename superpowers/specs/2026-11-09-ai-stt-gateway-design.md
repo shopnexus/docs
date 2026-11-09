@@ -90,7 +90,7 @@ ai/
 Response for `json`:
 
 ```json
-{"text": "...", "usage": {"type": "duration", "seconds": 42}}
+{"text": "...", "duration": 41.2, "usage": {"type": "duration", "seconds": 42}}
 ```
 
 `usage` has the shape OpenAI returns for whisper-1; `seconds` is the decoded
@@ -117,7 +117,7 @@ OpenAI's shape, so LiteLLM passes them through: `{"error": {"message": "...",
 | ffmpeg cannot read the file, or it has no audio track | 400 | `unsupported_media` |
 | body over `AI_MAX_UPLOAD_MB` | 413 | `too_large` |
 | audio over `AI_MAX_AUDIO_SECONDS` | 413 | `too_long` |
-| ffmpeg crash, model failure | 500 | `internal_error` |
+| ffmpeg crash, model failure, the temp file cannot be written | 500 | `internal_error` |
 
 ### One request
 
@@ -267,7 +267,7 @@ Resolved on 2026-11-09 on a local stack (Postgres, LiteLLM v1.108.0 with the
 chart's rendered config and key script, the `ai` image): 5.55 s of audio
 raised the spend of `server-stt` by 0.00000555, priced from `verbose_json`'s
 `duration`. Each key got 403 `key_model_access_denied` on the other alias,
-and `rpm_limit` answered 429. The original note follows.
+and `rpm_limit` answered 429. LiteLLM reads `duration` from the response, so `json` answers carry it too; a `text` answer has none and costs 0, and the server must not ask for `text`. The original note follows.
 
 It is not confirmed that LiteLLM computes the cost of a transcription from an
 `openai/` model on a self-hosted `api_base`: it may read `usage.seconds`, it
