@@ -1,13 +1,13 @@
 ---
 title: Cổng mô hình ngôn ngữ
-description: LiteLLM trong mỗi stack, ngân sách token theo ngày, và cách đổi mô hình, ngân sách hay alias.
+description: LiteLLM trong mỗi stack, ngân sách theo ngày, service ai đứng sau chuyển giọng nói thành văn bản, và cách đổi mô hình, ngân sách hay alias.
 group: Cụm máy chủ
 order: 7
 groupOrder: 2
 audience: [admins, developers]
 type: concept
-readingTime: 7
-updated: 2026-11-05
+readingTime: 9
+updated: 2026-11-09
 related: ["/vi/operations/cluster/secrets", "/vi/operations/cluster/data", "/vi/operations/cluster/runbook", "/vi/architecture/search-and-discovery"]
 ---
 
@@ -15,7 +15,7 @@ Tìm kiếm hỏi một mô hình ngôn ngữ xem câu truy vấn có nghĩa gì
 
 Ngân sách của key giới hạn số token server được dùng trong một ngày. Mỗi stack có LiteLLM, key và ngân sách riêng, nên một vòng lặp ở dev không thể tiêu hết phần của prod.
 
-Server chỉ biết một tên mô hình là `search`. Mô hình và nhà cung cấp đứng sau tên đó là cấu hình LiteLLM trong `infra/stack/values.yaml`, và đổi chúng không cần build lại image server.
+Server biết hai tên mô hình: `search` đọc câu truy vấn, `stt` chuyển giọng nói thành văn bản. Mô hình và nhà cung cấp đứng sau mỗi tên là cấu hình LiteLLM trong `infra/stack/values.yaml`, và đổi chúng không cần build lại image server.
 
 ## Đường đi của request
 
@@ -26,9 +26,16 @@ flowchart LR
   litellm -->|"openai/claude-haiku-5-5<br/>Bearer LLM_UPSTREAM_API_KEY"| proxy["cli-proxy-api<br/>host.k3d.internal:8317"]
 ```
 
+```mermaid title="Chuyển giọng nói thành văn bản, từ server tới service ai"
+flowchart LR
+  server["pod server<br/>STT_API_KEY"] -->|"POST /v1/audio/transcriptions<br/>model stt"| litellm["litellm:4000<br/>alias stt"]
+  litellm -->|"kiểm tra key, ngân sách, rpm"| db[("Postgres<br/>database litellm")]
+  litellm -->|"openai/gipformer-1.5<br/>không có key"| ai["ai:8000<br/>ffmpeg, Silero VAD, Gipformer"]
+```
+
 ConfigMap `server-env` của server đặt `LLM_BASE_URL=http://litellm:4000/v1` và `LLM_MODEL=search`. Tên Service `litellm` được phân giải trong chính namespace của stack, nên server dev gọi tới LiteLLM của dev và server prod gọi tới LiteLLM của prod.
 
-Cấu hình của LiteLLM được render từ `infra/stack/templates/litellm.yaml` vào ConfigMap `litellm-config` và có một mục duy nhất:
+Cấu hình của LiteLLM được render từ `infra/stack/templates/litellm.yaml` vào ConfigMap `litellm-config` và có hai mục:
 
 ```yaml
 model_list:
@@ -40,11 +47,21 @@ model_list:
     model_info:
       input_cost_per_token: 0.000001
       output_cost_per_token: 0.000001
+  - model_name: stt
+    litellm_params:
+      model: openai/gipformer-1.5
+      api_base: http://ai:8000/v1
+      api_key: none
+    model_info:
+      mode: audio_transcription
+      input_cost_per_second: 0.000001
 litellm_settings:
   drop_params: true
 ```
 
 Tiền tố `openai/` bảo LiteLLM nói chuyện với `api_base` theo API chat của OpenAI. `host.k3d.internal` là tên k3d đặt cho máy Docker host bên trong cluster, và cli-proxy-api lắng nghe ở đó trên cổng 8317. `drop_params: true` khiến LiteLLM bỏ các trường request mà upstream không nhận. NetworkPolicy của stack để egress mở, nên LiteLLM ra được tới host.
+
+Với `stt`, `litellm.stt.model` chứa chuỗi mô hình đầy đủ của LiteLLM, gồm cả tiền tố, còn `litellm.stt.apiBase` là địa chỉ service `ai` của stack. `api_key` là `none` vì `ai` không có xác thực; chỉ các pod trong stack gọi được nó.
 
 <Callout type="warning" title="cli-proxy-api là proxy của một gói đăng ký cá nhân">
 cli-proxy-api biến gói đăng ký mô hình của một người thành một API tương thích OpenAI trên host. Dùng cho dev và cho demo thì được. Với traffic production thật, hãy trỏ `litellm.apiBase` vào API chính thức của một nhà cung cấp và seal key của nhà cung cấp đó vào `LLM_UPSTREAM_API_KEY`.
@@ -60,25 +77,30 @@ Ngân sách của LiteLLM tính bằng tiền. Mỗi token, cả đầu vào l�
 | `max_budget` trên key | 0.2 | 2 |
 | `litellm.tpmLimit` (token mỗi phút) | 20000 | 100000 |
 | `budget_duration` | `1d` | `1d` |
+| `litellm.stt.dailySeconds` (giây audio mỗi ngày) | 3600 | 36000 |
+| `max_budget` trên key `server-stt` | 0.0036 | 0.036 |
+| `litellm.stt.rpmLimit` (request mỗi phút) | 10 | 60 |
 
 `values.yaml` đặt cả hai số bằng 0, còn file của từng stack đặt số thật. LiteLLM đưa mức chi của key về 0 mỗi ngày. Key cũng chỉ được dùng `models: ["search"]`. Một lần thử trên cluster k3d cục bộ đặt ngân sách 60 token: khi tiêu hết, các lời gọi lỗi với HTTP 422 và `Budget has been exceeded`, còn lời gọi tới bất kỳ mô hình nào khác `search` nhận 403.
 
+Giọng nói được tính giá theo giây audio, `0.000001` mỗi giây, nên 1 đơn vị ngân sách là 1.000.000 giây. Key `server-stt` chỉ được dùng `models: ["stt"]` và có `rpm_limit` thay cho giới hạn token. Mỗi key có ngân sách riêng, nên audio không tiêu được vào ngân sách của tìm kiếm.
+
 ## Hook tạo key
 
-Key của server do Job `litellm-key` tạo, một Sync hook của Argo CD ở wave 3, chạy sau khi LiteLLM (wave 2) đã sẵn sàng. Pod của nó chạy `curlimages/curl` và làm như sau:
+Hai key của server do Job `litellm-key` tạo, một Sync hook của Argo CD ở wave 3, chạy sau khi LiteLLM (wave 2) đã sẵn sàng. Pod của nó chạy `curlimages/curl` và làm như sau:
 
 ```mermaid title="litellm-key ở mỗi lần sync"
 flowchart TD
   start["Sync hook litellm-key"] --> update["POST /key/update<br/>key = LLM_API_KEY"]
-  update -->|200| ok["log: litellm key: HTTP 200"]
+  update -->|200| ok["log: litellm key server: HTTP 200"]
   update -->|khác 200| generate["POST /key/generate<br/>cùng giá trị key"]
   generate -->|200| ok
   generate -->|khác 200| fail["log status và message<br/>exit 1, thử lại tối đa 10 lần"]
 ```
 
-Hai lời gọi gửi cùng một body: giá trị key lấy từ `server-secrets`, `key_alias: server`, `models: ["search"]`, `max_budget`, `budget_duration: 1d` và `tpm_limit`. Chúng xác thực bằng master key trong `litellm-secrets`.
+Hai lời gọi gửi cùng một body: giá trị key lấy từ `server-secrets`, `key_alias: server`, `models: ["search"]`, `max_budget`, `budget_duration: 1d` và `tpm_limit`. Chúng xác thực bằng master key trong `litellm-secrets`. Sau đó Job chạy cùng quy trình cho `server-stt`: giá trị key `STT_API_KEY` từ `server-secrets`, `key_alias: server-stt`, `models: ["stt"]`, `max_budget` lấy từ `litellm.stt.dailySeconds`, `budget_duration: 1d` và `rpm_limit` lấy từ `litellm.stt.rpmLimit`.
 
-Giá trị key được định sẵn: lệnh seal sinh `LLM_API_KEY` và seal nó vào secret của server, còn Job ghi đúng giá trị đó vào LiteLLM. Chạy hook hai lần cho cùng một kết quả. Nếu database của LiteLLM bị mất, lời gọi update thất bại, lời gọi generate tạo lại key với giá trị mà server đang giữ, và server không phải khởi động lại.
+Giá trị key được định sẵn: lệnh seal sinh `LLM_API_KEY` và `STT_API_KEY` rồi seal chúng vào secret của server, còn Job ghi đúng các giá trị đó vào LiteLLM. Chạy hook hai lần cho cùng một kết quả. Nếu database của LiteLLM bị mất, lời gọi update thất bại, lời gọi generate tạo lại key với giá trị mà server đang giữ, và server không phải khởi động lại.
 
 Response của LiteLLM có chứa key, nên Job chỉ log HTTP status. Khi lỗi, nó in thêm trường `message` của câu trả lời.
 
@@ -100,7 +122,7 @@ Dữ liệu của server nằm trong database `app` của cùng cluster. Role c�
 
 ## Secret
 
-`go -C infra run ./cmd/seal <stack>` sinh ba trong bốn giá trị dưới đây vào file `infra/stack/secrets/<stack>.env`, file này bị git bỏ qua. `LLM_UPSTREAM_API_KEY` thì bạn tự điền, và lệnh seal dừng với `set LLM_UPSTREAM_API_KEY` cho tới khi bạn điền.
+`go -C infra run ./cmd/seal <stack>` sinh bốn trong năm giá trị dưới đây vào file `infra/stack/secrets/<stack>.env`, file này bị git bỏ qua. `LLM_UPSTREAM_API_KEY` thì bạn tự điền, và lệnh seal dừng với `set LLM_UPSTREAM_API_KEY` cho tới khi bạn điền.
 
 | Giá trị trong `<stack>.env` | Seal vào | Khóa | Ai đọc |
 |---|---|---|---|
@@ -108,6 +130,7 @@ Dữ liệu của server nằm trong database `app` của cùng cluster. Role c�
 | `LLM_UPSTREAM_API_KEY` | `litellm-secrets` | `LLM_UPSTREAM_API_KEY` | LiteLLM, khi gọi API upstream |
 | `LITELLM_DB_PASSWORD` | `litellm-db` (basic-auth) | `password` | CNPG cho role, LiteLLM cho `DATABASE_URL` |
 | `LLM_API_KEY` | `server-secrets` | `LLM_API_KEY` | server, Job `litellm-key` |
+| `STT_API_KEY` | `server-secrets` | `STT_API_KEY` | server, khi nó chuyển video tin đăng thành văn bản; Job `litellm-key` |
 
 Hiện tại `LLM_UPSTREAM_API_KEY` là một trong các key ở mục `access.api-keys` của cli-proxy-api. Seal lại sẽ đổi checksum trên pod template của LiteLLM, nên LiteLLM khởi động lại với giá trị mới. [Secret](/vi/operations/cluster/secrets) mô tả cách lệnh seal và controller seal chúng.
 
@@ -132,6 +155,22 @@ sequenceDiagram
 Người dùng vẫn nhận một trang tin đăng, khớp theo các từ họ đã gõ. Trang không có dòng `understood`, và không có các boost về danh mục, giá, nơi chốn hay độ mới mà mô hình lẽ ra đọc ra từ câu truy vấn. Một câu truy vấn mô hình đã đọc trong 7 ngày qua được lấy từ cache của server và giữ nguyên phần hiểu của nó. Lỗi của server khi câu trả lời khác 200 là `model answered <status>`, nên khi hết ngân sách log ghi `model answered 422`.
 
 Lời gọi vượt giới hạn token mỗi phút cũng lỗi, và tìm kiếm quay về các từ gốc cho tới khi sang phút mới. [Tìm kiếm và khám phá](/vi/architecture/search-and-discovery) liệt kê các boost mà mô hình có thể đặt.
+
+## Chuyển giọng nói thành văn bản và service ai
+
+Mỗi stack chạy `ai` (repo `shopnexus/ai`), gồm một Deployment và một Service ở cổng 8000, không có Ingress. Nó phục vụ `POST /v1/audio/transcriptions` của OpenAI bằng Gipformer 1.5, một mô hình tiếng Việt 68,6 triệu tham số, chạy trên CPU. Nó nhận mọi file audio hay video mà ffmpeg đọc được, tối đa 100 MB và 300 giây audio (`ai.maxUploadMB`, `ai.maxAudioSeconds`). Silero VAD cắt phần có tiếng nói tại các khoảng lặng thành các đoạn dài tối đa 20 giây, và câu trả lời là văn bản chữ thường, không dấu câu.
+
+Mỗi lúc có hai request được giải mã (`ai.maxConcurrent`), các request khác chờ. Pod xin 1 CPU và 1 GiB bộ nhớ, giới hạn ở 2 GiB.
+
+Chưa có code nào của server gọi `stt`; bên gọi đầu tiên sẽ là tính năng điền sẵn tin đăng từ video của người bán.
+
+Để chuyển `stt` sang nhà cung cấp khác, đặt `litellm.stt.model` là chuỗi mô hình LiteLLM của nhà cung cấp đó, ví dụ `groq/whisper-large-v3`, đổi hoặc bỏ `litellm.stt.apiBase`, rồi thêm key của nhà cung cấp vào `litellm-secrets` và vào mục `stt` trong `infra/stack/templates/litellm.yaml`. Server vẫn hỏi `stt` như cũ.
+
+`ai` ghi một dòng log cho mỗi request, không kèm nội dung transcript:
+
+```bash
+kubectl -n shopnexus-dev logs deploy/ai
+```
 
 ## Đổi mô hình hoặc nhà cung cấp
 
@@ -158,22 +197,22 @@ Server yêu cầu response format `json_schema` ở chế độ strict. Mô hìn
 
 <Steps>
 <Step title="Sửa values của stack">
-Trong `infra/stack/values-dev.yaml` hoặc `values-prod.yaml`, đổi `litellm.dailyTokens` (token mỗi ngày) hoặc `litellm.tpmLimit` (token mỗi phút).
+Trong `infra/stack/values-dev.yaml` hoặc `values-prod.yaml`, đổi `litellm.dailyTokens` (token mỗi ngày), `litellm.tpmLimit` (token mỗi phút), `litellm.stt.dailySeconds` (giây audio mỗi ngày) hoặc `litellm.stt.rpmLimit` (request mỗi phút).
 </Step>
 <Step title="Commit và push">
-Argo CD sync, và hook `litellm-key` gọi `/key/update` với `max_budget` và `tpm_limit` mới.
+Argo CD sync, và hook `litellm-key` gọi `/key/update` cho cả hai key với giới hạn mới.
 </Step>
 <Step title="Kiểm tra hook">
-`kubectl -n shopnexus-dev logs job/litellm-key` in ra `litellm key: HTTP 200`.
+`kubectl -n shopnexus-dev logs job/litellm-key` in ra `litellm key server: HTTP 200` và `litellm key server-stt: HTTP 200`.
 </Step>
 </Steps>
 
-## Thêm alias mô hình thứ hai
+## Thêm một alias mô hình
 
-Chart có một alias. Thêm alias thứ hai, cho một mô hình dự phòng hay một bên gọi mới, cần sửa ba chỗ:
+Chart có hai alias. Thêm một alias nữa, cho một mô hình dự phòng hay một bên gọi mới, cần sửa ba chỗ:
 
 1. Trong `infra/stack/templates/litellm.yaml`, thêm một mục vào `model_list` trong `sn.litellmConfig`, với `model_name`, `litellm_params` riêng và cùng giá trong `model_info` để ngân sách vẫn tính theo token.
-2. Cũng trong file đó, thêm tên mới vào `"models":["search"]` trong body của Job `litellm-key`, nếu không key của server sẽ nhận 403 với alias đó.
+2. Cũng trong file đó, thêm tên mới vào danh sách `models` của key sẽ gọi nó trong script của Job `litellm-key`, nếu không key đó sẽ nhận 403 với alias này.
 3. Thêm values cho mô hình mới vào `values.yaml` cạnh `litellm.model`, và chạy `infra/check.sh` trước khi push.
 
 Server đọc một tên duy nhất từ `LLM_MODEL`, được đặt là `search` trong `infra/stack/templates/_server-env.tpl`. Alias mới chỉ được dùng bởi bên gọi nào hỏi đúng tên nó.
@@ -187,7 +226,7 @@ kubectl -n shopnexus-dev get secret litellm-secrets -o jsonpath='{.data.LITELLM_
 kubectl -n shopnexus-dev port-forward svc/litellm 4000:4000
 ```
 
-Mở `http://localhost:4000/ui` và đăng nhập với user `admin`, mật khẩu là master key. UI liệt kê key có alias `server` cùng mức chi, ngân sách và thời điểm reset. Với prod, dùng `shopnexus-prod`.
+Mở `http://localhost:4000/ui` và đăng nhập với user `admin`, mật khẩu là master key. UI liệt kê các key có alias `server` và `server-stt`, mỗi key kèm mức chi, ngân sách và thời điểm reset. Với prod, dùng `shopnexus-prod`.
 
 Để đọc mức chi từ shell trong lúc port-forward đang chạy:
 

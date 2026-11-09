@@ -1,13 +1,13 @@
 ---
 title: Language model gateway
-description: The LiteLLM gateway in each stack, its daily token budget, and how to change the model, the budget or the aliases.
+description: The LiteLLM gateway in each stack, its daily budgets, the ai service behind speech to text, and how to change a model, a budget or an alias.
 group: Cluster
 order: 7
 groupOrder: 2
 audience: [admins, developers]
 type: concept
-readingTime: 7
-updated: 2026-11-05
+readingTime: 9
+updated: 2026-11-09
 related: ["/en/operations/cluster/secrets", "/en/operations/cluster/data", "/en/operations/cluster/runbook", "/en/architecture/search-and-discovery"]
 ---
 
@@ -15,7 +15,7 @@ Search asks a language model what a query means. In the cluster the server does 
 
 The key's budget caps the tokens the server can use in a day. Each stack has its own LiteLLM, key and budget, so a loop in dev cannot use up the prod allowance.
 
-The server knows one model name, `search`. The model and the provider behind that name are LiteLLM configuration in `infra/stack/values.yaml`, and changing them needs no new server image.
+The server knows two model names: `search` reads a query, and `stt` turns speech into text. The model and the provider behind each name are LiteLLM configuration in `infra/stack/values.yaml`, and changing them needs no new server image.
 
 ## Request path
 
@@ -26,9 +26,16 @@ flowchart LR
   litellm -->|"openai/claude-haiku-5-5<br/>Bearer LLM_UPSTREAM_API_KEY"| proxy["cli-proxy-api<br/>host.k3d.internal:8317"]
 ```
 
+```mermaid title="Speech to text, from the server to the ai service"
+flowchart LR
+  server["server pod<br/>STT_API_KEY"] -->|"POST /v1/audio/transcriptions<br/>model stt"| litellm["litellm:4000<br/>alias stt"]
+  litellm -->|"checks key, budget, rpm"| db[("Postgres<br/>database litellm")]
+  litellm -->|"openai/gipformer-1.5<br/>no key"| ai["ai:8000<br/>ffmpeg, Silero VAD, Gipformer"]
+```
+
 The server's ConfigMap `server-env` sets `LLM_BASE_URL=http://litellm:4000/v1` and `LLM_MODEL=search`. The Service name `litellm` resolves inside the stack's own namespace, so the dev server reaches dev's LiteLLM and the prod server reaches prod's.
 
-LiteLLM's config, rendered from `infra/stack/templates/litellm.yaml` into the ConfigMap `litellm-config`, has one entry:
+LiteLLM's config, rendered from `infra/stack/templates/litellm.yaml` into the ConfigMap `litellm-config`, has two entries:
 
 ```yaml
 model_list:
@@ -40,11 +47,21 @@ model_list:
     model_info:
       input_cost_per_token: 0.000001
       output_cost_per_token: 0.000001
+  - model_name: stt
+    litellm_params:
+      model: openai/gipformer-1.5
+      api_base: http://ai:8000/v1
+      api_key: none
+    model_info:
+      mode: audio_transcription
+      input_cost_per_second: 0.000001
 litellm_settings:
   drop_params: true
 ```
 
 The `openai/` prefix tells LiteLLM to speak the OpenAI chat API to `api_base`. `host.k3d.internal` is the name k3d gives the Docker host inside the cluster, and cli-proxy-api listens there on port 8317. `drop_params: true` makes LiteLLM drop request fields the upstream does not accept. The stack's NetworkPolicies leave egress open, so LiteLLM can reach the host.
+
+For `stt`, `litellm.stt.model` holds LiteLLM's full model string, prefix included, and `litellm.stt.apiBase` the address of the stack's `ai` service. `api_key` is `none` because `ai` has no authentication; only pods of the stack reach it.
 
 <Callout type="warning" title="cli-proxy-api is a personal-subscription proxy">
 cli-proxy-api turns one person's model subscription into an OpenAI-compatible API on the host. That is fine for dev and for a demo. For real production traffic, point `litellm.apiBase` at a provider's official API and seal that provider's key as `LLM_UPSTREAM_API_KEY`.
@@ -60,25 +77,30 @@ LiteLLM budgets count money. Every token, input and output, is priced at `0.0000
 | `max_budget` on the key | 0.2 | 2 |
 | `litellm.tpmLimit` (tokens per minute) | 20000 | 100000 |
 | `budget_duration` | `1d` | `1d` |
+| `litellm.stt.dailySeconds` (audio seconds per day) | 3600 | 36000 |
+| `max_budget` on the `server-stt` key | 0.0036 | 0.036 |
+| `litellm.stt.rpmLimit` (requests per minute) | 10 | 60 |
 
 `values.yaml` sets both numbers to 0 and the per-stack files set the real ones. LiteLLM resets the spend of the key every day. The key is also limited to `models: ["search"]`. A test on a local k3d cluster set a 60-token budget: once it was spent, calls failed with HTTP 422 and `Budget has been exceeded`, and a call for any model other than `search` got a 403.
 
+Speech is priced per second of audio at `0.000001`, so 1 unit of budget is 1,000,000 seconds. The `server-stt` key is limited to `models: ["stt"]` and has an `rpm_limit` instead of a token limit. Each key has its own budget, so audio cannot spend the search budget.
+
 ## The key hook
 
-The server's key is created by the Job `litellm-key`, an Argo CD Sync hook in wave 3, after LiteLLM (wave 2) is ready. Its pod runs `curlimages/curl` and does this:
+The server's two keys are created by the Job `litellm-key`, an Argo CD Sync hook in wave 3, after LiteLLM (wave 2) is ready. Its pod runs `curlimages/curl` and does this:
 
 ```mermaid title="litellm-key on every sync"
 flowchart TD
   start["Sync hook litellm-key"] --> update["POST /key/update<br/>key = LLM_API_KEY"]
-  update -->|200| ok["log: litellm key: HTTP 200"]
+  update -->|200| ok["log: litellm key server: HTTP 200"]
   update -->|not 200| generate["POST /key/generate<br/>same key value"]
   generate -->|200| ok
   generate -->|not 200| fail["log status and message<br/>exit 1, retry up to 10 times"]
 ```
 
-Both calls send the same body: the key value from `server-secrets`, `key_alias: server`, `models: ["search"]`, `max_budget`, `budget_duration: 1d` and `tpm_limit`. They authenticate with the master key from `litellm-secrets`.
+Both calls send the same body: the key value from `server-secrets`, `key_alias: server`, `models: ["search"]`, `max_budget`, `budget_duration: 1d` and `tpm_limit`. They authenticate with the master key from `litellm-secrets`. The Job then runs the same flow for `server-stt`: the key value `STT_API_KEY` from `server-secrets`, `key_alias: server-stt`, `models: ["stt"]`, `max_budget` from `litellm.stt.dailySeconds`, `budget_duration: 1d` and `rpm_limit` from `litellm.stt.rpmLimit`.
 
-The key value is fixed in advance: the seal command generates `LLM_API_KEY` and seals it into the server's secret, and the Job writes that same value into LiteLLM. Running the hook twice gives the same result. After LiteLLM's database is lost, the update fails, the generate call recreates the key with the value the server already holds, and the server does not restart.
+The key value is fixed in advance: the seal command generates `LLM_API_KEY` and `STT_API_KEY` and seals them into the server's secret, and the Job writes the same values into LiteLLM. Running the hook twice gives the same result. After LiteLLM's database is lost, the update fails, the generate call recreates the key with the value the server already holds, and the server does not restart.
 
 The response of LiteLLM contains the key, so the Job logs only the HTTP status. On a failure it also prints the `message` field of the answer.
 
@@ -100,7 +122,7 @@ The server's data lives in the database `app` of the same cluster. LiteLLM's rol
 
 ## Secrets
 
-`go -C infra run ./cmd/seal <stack>` generates three of the four values below into the git-ignored `infra/stack/secrets/<stack>.env`. You write `LLM_UPSTREAM_API_KEY` yourself, and the seal command stops with `set LLM_UPSTREAM_API_KEY` until you do.
+`go -C infra run ./cmd/seal <stack>` generates four of the five values below into the git-ignored `infra/stack/secrets/<stack>.env`. You write `LLM_UPSTREAM_API_KEY` yourself, and the seal command stops with `set LLM_UPSTREAM_API_KEY` until you do.
 
 | Value in `<stack>.env` | Sealed into | Key | Read by |
 |---|---|---|---|
@@ -108,6 +130,7 @@ The server's data lives in the database `app` of the same cluster. LiteLLM's rol
 | `LLM_UPSTREAM_API_KEY` | `litellm-secrets` | `LLM_UPSTREAM_API_KEY` | LiteLLM, toward the upstream API |
 | `LITELLM_DB_PASSWORD` | `litellm-db` (basic-auth) | `password` | CNPG for the role, LiteLLM for `DATABASE_URL` |
 | `LLM_API_KEY` | `server-secrets` | `LLM_API_KEY` | the server, the `litellm-key` Job |
+| `STT_API_KEY` | `server-secrets` | `STT_API_KEY` | the server, once it transcribes listing videos; the `litellm-key` Job |
 
 Today `LLM_UPSTREAM_API_KEY` is one of the keys under cli-proxy-api's `access.api-keys`. A reseal changes the checksum on the LiteLLM pod template, so LiteLLM restarts with the new values. [Secrets](/en/operations/cluster/secrets) covers how the seal command and the controller seal them.
 
@@ -132,6 +155,22 @@ sequenceDiagram
 The person still gets a page of listings, matched on the words they typed. The page has no `understood` text, and there are no boosts for category, price, place or freshness that the model would have read out of the query. A query the model read in the last 7 days comes from the server's cache and keeps its understanding. The server's error for a non-200 answer is `model answered <status>`, so a spent budget logs `model answered 422`.
 
 Calls over the tokens-per-minute limit fail too, and search falls back to the raw words until the minute has passed. [Search and discovery](/en/architecture/search-and-discovery) lists the boosts the model can set.
+
+## Speech to text and the ai service
+
+Each stack runs `ai` (repo `shopnexus/ai`), a Deployment and a Service on port 8000 with no Ingress. It serves OpenAI's `POST /v1/audio/transcriptions` with Gipformer 1.5, a Vietnamese model with 68.6M parameters, on CPU. It takes any audio or video file ffmpeg reads, up to 100 MB and 300 s of audio (`ai.maxUploadMB`, `ai.maxAudioSeconds`). Silero VAD cuts the speech at silences into pieces of at most 20 s, and the answer is lower-case text without punctuation.
+
+Two requests decode at once (`ai.maxConcurrent`), and the others wait. The pod requests 1 CPU and 1 GiB of memory and is limited to 2 GiB.
+
+No server code calls `stt` yet; the first caller will be the feature that prefills a listing from a seller's video.
+
+To send `stt` to another provider, set `litellm.stt.model` to that provider's LiteLLM model string, for example `groq/whisper-large-v3`, change or remove `litellm.stt.apiBase`, and add the provider's key to `litellm-secrets` and to the `stt` entry in `infra/stack/templates/litellm.yaml`. The server keeps asking for `stt`.
+
+`ai` logs one line per request, without the transcript:
+
+```bash
+kubectl -n shopnexus-dev logs deploy/ai
+```
 
 ## Change the model or the provider
 
@@ -158,22 +197,22 @@ The server asks for a strict `json_schema` response format. A model that ignores
 
 <Steps>
 <Step title="Edit the stack's values">
-In `infra/stack/values-dev.yaml` or `values-prod.yaml`, change `litellm.dailyTokens` (tokens per day) or `litellm.tpmLimit` (tokens per minute).
+In `infra/stack/values-dev.yaml` or `values-prod.yaml`, change `litellm.dailyTokens` (tokens per day), `litellm.tpmLimit` (tokens per minute), `litellm.stt.dailySeconds` (audio seconds per day) or `litellm.stt.rpmLimit` (requests per minute).
 </Step>
 <Step title="Commit and push">
-Argo CD syncs, and the `litellm-key` hook runs `/key/update` with the new `max_budget` and `tpm_limit`.
+Argo CD syncs, and the `litellm-key` hook runs `/key/update` on both keys with the new limits.
 </Step>
 <Step title="Check the hook">
-`kubectl -n shopnexus-dev logs job/litellm-key` prints `litellm key: HTTP 200`.
+`kubectl -n shopnexus-dev logs job/litellm-key` prints `litellm key server: HTTP 200` and `litellm key server-stt: HTTP 200`.
 </Step>
 </Steps>
 
-## Add a second model alias
+## Add another model alias
 
-The chart has one alias. A second one, for a fallback model or a new caller, needs three edits:
+The chart has two aliases. Another one, for a fallback model or a new caller, needs three edits:
 
 1. In `infra/stack/templates/litellm.yaml`, add an entry to `model_list` in `sn.litellmConfig`, with its own `model_name`, `litellm_params` and the same `model_info` prices so the budget still counts tokens.
-2. In the same file, add the name to `"models":["search"]` in the `litellm-key` Job's body, or the server's key gets a 403 for it.
+2. In the same file, add the name to the `models` list of the key that calls it in the `litellm-key` Job's script, or that key gets a 403 for it.
 3. Add values for the new model to `values.yaml` next to `litellm.model`, and run `infra/check.sh` before you push.
 
 The server reads one name from `LLM_MODEL`, set to `search` in `infra/stack/templates/_server-env.tpl`. A new alias is used only by a caller that asks for it.
@@ -187,7 +226,7 @@ kubectl -n shopnexus-dev get secret litellm-secrets -o jsonpath='{.data.LITELLM_
 kubectl -n shopnexus-dev port-forward svc/litellm 4000:4000
 ```
 
-Open `http://localhost:4000/ui` and sign in with user `admin` and the master key as the password. The UI lists the key with alias `server`, its spend, budget and reset time. Use `shopnexus-prod` for prod.
+Open `http://localhost:4000/ui` and sign in with user `admin` and the master key as the password. The UI lists the keys with aliases `server` and `server-stt`, each with its spend, budget and reset time. Use `shopnexus-prod` for prod.
 
 To read the spend from a shell while the port-forward runs:
 
