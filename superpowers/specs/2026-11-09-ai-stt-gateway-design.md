@@ -178,9 +178,10 @@ they are what a person said.
   (`libsherpa-onnx-c-api.so`, `libonnxruntime.so`) are copied to
   `/usr/local/lib`, then `ldconfig`.
 - **models:** `encoder.onnx`, `decoder.onnx`, `joiner.onnx` and `tokens.txt`
-  from Hugging Face at the pinned revision, and `silero_vad.onnx` from a pinned
-  sherpa-onnx release. Every file has its sha256 written in the Dockerfile; a
-  mismatch fails the build.
+  from Hugging Face at the pinned revision, and `silero_vad.onnx` from
+  sherpa-onnx's `asr-models` release. `scripts/fetch-assets.sh` downloads them
+  and checks each against its sha256 in `scripts/assets.sha256`; a mismatch
+  fails the build.
 - **test:** a stage that runs the integration tests against the models (see
   Testing).
 - **runtime:** `debian:trixie-slim` with `ffmpeg` (`--no-install-recommends`),
@@ -189,7 +190,9 @@ they are what a person said.
 
 `.github/workflows/build.yml` is the server's: a push to `main` builds `:main`
 and `:sha-<commit>`; a `vX.Y.Z` tag adds `X.Y.Z` to the digest already built
-for that commit. The workflow runs the unit tests before the build.
+for that commit. Every test, unit and integration, runs in the image's test
+stage, and the runtime stage depends on it, so a failing test fails the
+build.
 
 ## Cluster
 
@@ -229,7 +232,8 @@ A second entry in `sn.litellmConfig`:
 `litellm.stt.model` is LiteLLM's full model string, provider prefix included,
 so another provider is a values change (plus that provider's key, added when
 needed). The chart refuses to render when `litellm.stt.model` or
-`litellm.stt.apiBase` is empty.
+`litellm.stt.apiBase` is empty. Every STT setting of LiteLLM sits under
+`litellm.stt`: `model`, `apiBase`, `dailySeconds`, `rpmLimit`.
 
 ### The `server-stt` key
 
@@ -238,13 +242,13 @@ flow as `server`:
 
 - key value `STT_API_KEY` from `server-secrets`, `key_alias: server-stt`
 - `models: ["stt"]`
-- `max_budget: sttDailySeconds / 1e6`, `budget_duration: 1d`
-- `rpm_limit: sttRpmLimit`
+- `max_budget: litellm.stt.dailySeconds / 1e6`, `budget_duration: 1d`
+- `rpm_limit: litellm.stt.rpmLimit`
 
 | Value | dev | prod |
 |---|---|---|
-| `litellm.sttDailySeconds` | 3600 | 36000 |
-| `litellm.sttRpmLimit` | 10 | 60 |
+| `litellm.stt.dailySeconds` | 3600 | 36000 |
+| `litellm.stt.rpmLimit` | 10 | 60 |
 
 `values.yaml` sets both to 0 and the per-stack files set the real numbers, as
 for `dailyTokens`. `go -C infra run ./cmd/seal <stack>` generates
@@ -263,8 +267,9 @@ only cap, and the gateway docs say so.
 ## Local stacks
 
 `docker-compose.yml` gets a service `ai`, built from `./ai` as
-`shopnexus-ai:local`, in the dev and prod profiles. Compose sets every `AI_*`
-variable and publishes `127.0.0.1:8000:8000`. The local stacks have no
+`shopnexus-ai:local`, as `ai-dev` and `ai-prod` in the dev and prod profiles.
+Compose sets every `AI_*` variable and publishes `127.0.0.1:56491` (dev) and
+`127.0.0.1:56490` (prod), since both stacks can run at once. The local stacks have no
 LiteLLM: in part 2 the server will call `http://ai:8000/v1` directly with model
 `gipformer-1.5`. This spec does not change the server's environment.
 
@@ -282,8 +287,14 @@ In the `ai` repo:
      audio over the limit.
 2. **Integration tests, real model** (build tag `model`, model paths from the
    environment, run in the image's test stage).
-   - Speech fixtures: a few Vietnamese clips from Common Voice (CC0),
-     committed with their source noted. No zaic or competition data.
+   A throwaway spike on 2026-11-09 (Go binding v1.13.8, base Gipformer) split
+   a 32 s mp4 into 8 pieces with the right text in 0.9 s, and 24 concurrent
+   runs on one shared recognizer gave identical output.
+   - Speech fixtures: the three Vietnamese clips in sherpa-onnx's
+     `csukuangfj/sherpa-onnx-zipformer-vi-2025-04-20` (`test_wavs/0-2.wav`,
+     from `nguyenvulebinh/wav2vec2-base-vietnamese-250h`, CC BY-NC 4.0),
+     downloaded at test time with pinned hashes. They are not committed and
+     not shipped in the runtime image. No zaic or competition data.
    - The test joins the clips with silences into one file longer than 20 s, so
      VAD must split it, and also wraps it in an mp4.
    - Assertions check expected keywords, not exact text.
