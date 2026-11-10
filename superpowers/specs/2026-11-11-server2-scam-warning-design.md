@@ -81,7 +81,7 @@ Rules, pure functions in the domain:
 
 ## 2. Data
 
-Migration `0035_scam_warnings.sql`:
+Migration `0036_scam_warnings.sql` (`0035` is the search watches'):
 
 ```sql
 CREATE TABLE scam_warnings (
@@ -116,9 +116,9 @@ CREATE INDEX ON scam_checks (created_at);
   `dismissed_at` and with `reports` (`reason = 'scam'`, `conversation_id`)
   it gives labels. A future model can run in shadow and write rows with its
   own `classifier` for comparison; that is not built now.
-- `scam_checks` rows older than 365 days are deleted, 10,000 at a time,
-  once an hour by the trust worker's cleanup (the way the stream hub prunes
-  `account_updates`).
+- `scam_checks` rows older than 365 days are deleted by the save step of
+  each check, at most 1,000 a run, oldest first. Checks run after every
+  message with text, so the table never needs a job of its own.
 
 ## 3. Interfaces
 
@@ -136,10 +136,14 @@ type Classifier interface {
     Classify(ctx context.Context, w domain.Window) (domain.Verdict, error)
 }
 
-// FactSource tells which fact signals hold now for the suspect.
+// FactSource tells which fact signals hold at now for the suspect.
 type FactSource interface {
-    Signals(ctx context.Context, suspect uuid.UUID, w domain.Window) ([]domain.Signal, error)
+    Signals(ctx context.Context, suspect uuid.UUID, w domain.Window, now time.Time) ([]domain.Signal, error)
 }
+
+// ErrRefused is wrapped by a classifier's error when the same window would
+// be refused again; the check is skipped without a retry.
+var ErrRefused = errors.New("trust: the classifier refused the window")
 ```
 
 - `domain.Window` is the redacted lines, oldest first; each line says
@@ -154,9 +158,10 @@ type FactSource interface {
   `<URL:domain>`. Amounts of money ("500k", "1.200.000đ") stay, since the
   model needs them.
 - Two fact sources: `accountAge` (`accountsvc.Get`, `created_at`) and
-  `marketPrice` (a new `catalogsvc.Service.MarketPrice(ctx, listing)` that
-  runs `PriceSample` with the listing's stored vectors and returns the
-  listing's price, the sample's median and its size).
+  `marketGap` (a new `catalogsvc.Service.MarketPrice(ctx, listing,
+  textMin, photoMin)` that runs `PriceSample` with the listing's stored
+  vectors and returns the listing's seller and price, the sample's median
+  and its size; the floors are search's, `EMBED_*_MIN_SIMILARITY`).
 - The first classifier, `LLMClassifier` in
   `internal/trust/service/scam_llm.go`, uses `provider/llm`. Its prompt
   explains each message code; the schema is strict,
@@ -165,7 +170,9 @@ type FactSource interface {
   characters, the codes and the time taken, never the text.
 
 Replacing the LLM is a new type with `Name`, `PromptVersion` and
-`Classify`, passed to `trust.Mount` in place of `LLMClassifier`.
+`Classify`. `app` imports no package inside a module, so the root package
+`trust` builds each classifier (`trust.LLMClassifier(...)` today) and app
+passes the result as `trust.Settings.Classifier`.
 
 ## 4. Detection flow
 
@@ -177,14 +184,15 @@ Replacing the LLM is a new type with `Name`, `PromptVersion` and
   `ListingEmbed`: one `Run` per conversation at a time, so a burst of
   messages queues and later runs find nothing new. `Run` reads top to
   bottom:
-  1. Step plan: `chatsvc.Service.Window(ctx, conversation, 20)` (new) reads
-     the last 20 `sent` messages with text, oldest first, with sender and
-     listing. The step compares the last message ID with the
+  1. Step plan: `chatsvc.Service.Window(ctx, conversation, upTo, 20)` (new)
+     reads the last 20 `sent` messages with text up to message `upTo` (the
+     newest for the zero ID), oldest first, with sender and listing. The step compares the last message ID with the
      `last_message_id` of the conversation's newest check and stops when
      they match. It also stops when the conversation had 50 checks in the
      last 24 hours. It returns IDs only to the journal.
-  2. Step classify: reads the window again, redacts it and calls the
-     classifier. It returns codes only, so message text never reaches the
+  2. Step classify: reads the window again up to the planned last message,
+     so a message sent meanwhile waits for its own run, redacts it and calls
+     the classifier. It returns codes only, so message text never reaches the
      journal (as assist's fill step does with the transcript). It runs with
      `restate.WithMaxRetryDuration` of 10 minutes and at most 3 attempts.
   3. Step facts, only for a side with message codes: each fact source in
