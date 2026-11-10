@@ -38,7 +38,7 @@ phone. When the work lands, the decisions below go into
 
 ## Data
 
-Migration: `0029_email_identities.sql`, after main's `0028`.
+Migration: `0032_email_identities.sql`, after main's `0031`.
 
 1. `identities`: the kind check becomes `kind IN ('phone', 'email')`, and
    `UNIQUE (account_id, kind)` keeps one identity of each kind.
