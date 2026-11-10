@@ -33,13 +33,12 @@ phone. When the work lands, the decisions below go into
 | Adding a phone identity | Only on purpose: the phone sheet the trade actions open, or Settings. |
 | Phone already another account's identity | Refused with `409 identity_taken`. Accounts are never merged. |
 | Changing or removing an identity | Out of scope. Only adding. |
+| Re-authentication | Adding an identity, and mailing the code that adds an email, need a sign-in within 15 minutes (428 `reauth_required`) and an account that may write: an identity added with a leaked access token could never be removed. Decided after the branch's review. |
 | Email provider | Resend over its HTTP API in production; the log sender in development. |
 
 ## Data
 
-Migration: the next free number when the work starts (`0027` on
-2026-11-10: `0026_follows_reports.sql` exists and `0025` is claimed by the
-realtime-ws plan).
+Migration: `0029_email_identities.sql`, after main's `0028`.
 
 1. `identities`: the kind check becomes `kind IN ('phone', 'email')`, and
    `UNIQUE (account_id, kind)` keeps one identity of each kind.
