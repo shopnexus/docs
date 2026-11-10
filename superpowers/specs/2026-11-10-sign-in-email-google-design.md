@@ -37,8 +37,9 @@ phone. When the work lands, the decisions below go into
 
 ## Data
 
-Migration: the next free number when the work starts (`0025` is claimed by
-the follows-reports and realtime-ws plans).
+Migration: the next free number when the work starts (`0027` on
+2026-11-10: `0026_follows_reports.sql` exists and `0025` is claimed by the
+realtime-ws plan).
 
 1. `identities`: the kind check becomes `kind IN ('phone', 'email')`, and
    `UNIQUE (account_id, kind)` keeps one identity of each kind.
@@ -93,7 +94,7 @@ one of these fields.
 | `POST /v1/auth/email-codes` | none | `{email}` | `{challenge_id, expires_at, resend_at}`, purpose `sign_in` |
 | `POST /v1/accounts/me/email-codes` | signed in | `{email}` | as above, purpose `add_identity`, bound to the caller |
 | `POST /v1/accounts/me/identities` | signed in | a proof | `{identities: [{kind, value}]}` |
-| `GET /v1/accounts/me` | signed in | | gains `identities: [{kind, value}]` |
+| `GET /v1/accounts/me` | signed in | | `MyAccount`: the `Account` fields and `identities: [{kind, value}]`. `Account` stays as it is, since other modules return it as the public view. |
 
 The app that sends `phone_token` today keeps working.
 
@@ -184,8 +185,9 @@ The key fetching and caching of `provider/firebase` (`keySet`) moves to
 ### `phone_required`
 
 Account's `Service` gains `HasPhone(ctx, id) (bool, error)`. `ListingPost`,
-`Deals.Open` and `MessageSend` when `Opening` read it in the step that reads
-`Suspended`, and return `phone_required` as data. This is `dd2ed059` undone,
+`Deals.Open` and `MessageSend` when `Opening` read it right after
+`Suspended` (catalog in a step of its own, chat in its facts step, deal in
+its plain method) and refuse with `phone_required`. This is `dd2ed059` undone,
 calling module account instead of the old module auth; catalog, deal and
 chat depend on account already.
 
@@ -203,8 +205,8 @@ A missing variable stops the process with its name.
 | `OTP_KEY` | printed by `cmd/keygen` | Returns, with the `make run` check. |
 | `EMAIL_SENDER` | `log` | `log` or `resend`; `APP_ENV=prod` with `log` stops the server. |
 | `RESEND_API_KEY` | empty | Required when `EMAIL_SENDER=resend`. |
-| `EMAIL_FROM` | `ShopNexus <no-reply@...>` | Resend sends only from a domain verified there; the user names the domain before production. Development logs and needs none. |
-| `GOOGLE_CLIENT_ID` | the web client ID (`...apps.googleusercontent.com`) | The OAuth client of type Web in project `shopnexus-26aca`, created when the Google provider is turned on; the app passes the same ID as `serverClientId`. |
+| `EMAIL_FROM` | `ShopNexus <no-reply@shopnexus.id.vn>` | Resend sends only from a domain verified there, so `shopnexus.id.vn` is verified at Resend before production. Development logs and needs none. |
+| `GOOGLE_CLIENT_ID` | empty until the client exists | The OAuth client of type Web in project `shopnexus-26aca`, created when the Google provider is turned on; the app passes the same ID as `serverClientId`. Empty turns Google sign-in off: every `google_token` is `invalid_google_token`. |
 | `GOOGLE_JWKS_URL` | `https://www.googleapis.com/oauth2/v3/certs` | |
 
 `login_total{method}` gains `google` and `email`.
