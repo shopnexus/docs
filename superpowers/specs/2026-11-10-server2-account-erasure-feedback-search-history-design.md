@@ -10,6 +10,47 @@ lands, the decisions go into `server/ARCHITECTURE.md` (sections Erasure,
 Support, and Search history under Discovery) and the three checklist rows are
 ticked, the history row reading "(lưu, xoá)".
 
+## Revisions made while planning
+
+Reading the code for the plan changed these points. Where a later section
+disagrees, this list wins.
+
+1. A deleted caller whose access token has not expired gets
+   `401 session_revoked` from every write, the answer its revoked session
+   already gives at refresh. `409 account_deleted` is only about the other
+   person: replying in a conversation with a deleted account, and following
+   one. Every write endpoint already documents 401, so no endpoint gains a
+   status for the caller's own deletion.
+2. `accountsvc.Service.Suspended` becomes `Status(ctx, id) (domain.Status,
+   error)`, the status in force now: `active`, `suspended` or `deleted`.
+   `domain.Status` gains `StatusDeleted`. There is no separate `Standing`
+   type.
+3. Opening a deal and requesting COD from a deleted seller need no new
+   check: the seller's listings are deleted, and catalog and deal already
+   answer for a deleted listing. A buyer's deletion reaches deal through
+   the worker.
+4. Media does nothing on `account.deleted`: a waiting upload expires within
+   a day by `MediaExpire` already.
+5. The avatar object stays in the store; removing an avatar today does not
+   delete the object either.
+6. `search_history` keeps `category` (the chip's label) and `photo_url`
+   (the first card's `cover_thumb_url`) as text. The search use case has
+   both at hand and neither needs a join at read.
+7. `discovery.Service.Search` writes the history itself, so the handler
+   still calls one Service method.
+8. `GET /v1/console/feedback` is a console route: console's handler calls
+   `supportsvc.Service.Feedback`, since `Require` lives in console. Support
+   mounts after account and before console.
+9. `GET /v1/accounts/me` of a deleted account returns the tombstone with
+   `status: deleted` while the token lives (at most 15 minutes).
+10. A deleted person shows as `deleted: true` on chat's `Person` and on a
+   review's `buyer`; `Account.status` and the console account's `status`
+   gain `deleted`. The other summaries name people only on pages a deleted
+   account no longer reaches (seller page, listing page, blocks, follows).
+11. `account.Erase` writes the account, its credentials, addresses, blocks,
+   follows and sessions in one transaction: the second exception to "one
+   aggregate per transaction", beside sign-up.
+
 ## Decisions
 
 | Question | Decision |
