@@ -375,8 +375,10 @@ table.
 
 ### Erasure
 
-Deleting an account deletes its `video_reads`. Its videos and frames are
-uploads and go with the existing upload erasure.
+Deleting an account deletes its `video_reads` (assist's worker on
+`account.deleted`). Media does nothing, as for any upload: a frame not
+posted is a waiting upload and expires within a day, and a video is
+consumed when its read ends.
 
 ### Configuration
 
@@ -384,7 +386,7 @@ Required, no defaults, in `.env.example`, compose and the chart:
 
 | Variable | Meaning |
 |---|---|
-| `AI_FRAMES_BASE_URL` | `ai`'s base URL for `/v1/video/frames` |
+| `AI_FRAMES_BASE_URL` | `ai`'s base URL ending in `/v1`; the client posts to `<base>/video/frames` |
 | `STT_BASE_URL`, `STT_API_KEY`, `STT_MODEL` | `stt` through LiteLLM; locally `ai` directly with `gipformer-1.5` |
 | `ASSIST_LLM_BASE_URL`, `ASSIST_LLM_API_KEY`, `ASSIST_LLM_MODEL` | `video-read` through LiteLLM; locally the LLM in `.env` |
 | `ASSIST_CALL_TIMEOUT` | timeout of one call to `ai`, STT or the LLM |
