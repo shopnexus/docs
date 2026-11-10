@@ -1,12 +1,12 @@
 ---
 title: Cổng mô hình ngôn ngữ
-description: LiteLLM trong mỗi stack, alias và key dưới dạng dữ liệu của chart, ngân sách theo ngày, TEI và service ai đứng sau chuyển giọng nói thành văn bản và embedding, và cách đổi mô hình, ngân sách hay alias.
+description: LiteLLM trong mỗi stack, alias và key dưới dạng dữ liệu của chart, ngân sách theo ngày, TEI và service ai đứng sau chuyển giọng nói thành văn bản, khung hình video và embedding, và cách đổi mô hình, ngân sách hay alias.
 group: Cụm máy chủ
 order: 7
 groupOrder: 2
 audience: [admins, developers]
 type: concept
-readingTime: 12
+readingTime: 13
 updated: 2026-11-10
 related: ["/vi/operations/cluster/secrets", "/vi/operations/cluster/data", "/vi/operations/cluster/runbook", "/vi/architecture/search-and-discovery"]
 ---
@@ -15,7 +15,7 @@ Tìm kiếm hỏi một mô hình ngôn ngữ xem câu truy vấn có nghĩa gì
 
 Ngân sách của một key giới hạn phần server được dùng trong một ngày. Mỗi stack có LiteLLM, key và ngân sách riêng, nên một vòng lặp ở dev không thể tiêu hết phần của prod.
 
-Server biết bốn tên mô hình: `search` đọc câu truy vấn, `stt` chuyển giọng nói thành văn bản, `embed-text` embed chữ bằng bge-m3, và `embed-image` embed ảnh cùng các mô tả ngắn tiếng Anh bằng SigLIP 2. Mỗi tên là một mục của `litellm.aliases` trong `infra/stack/values.yaml`, và đổi mô hình đứng sau một tên không cần image server mới.
+Server biết năm tên mô hình: `search` đọc câu truy vấn, `video-read` đọc khung hình và lời nói trong video của người bán thành bản nháp tin đăng, `stt` chuyển giọng nói thành văn bản, `embed-text` embed chữ bằng bge-m3, và `embed-image` embed ảnh cùng các mô tả ngắn tiếng Anh bằng SigLIP 2. Mỗi tên là một mục của `litellm.aliases` trong `infra/stack/values.yaml`, và đổi mô hình đứng sau một tên không cần image server mới.
 
 ## Đường đi của request
 
@@ -31,6 +31,15 @@ flowchart LR
   server["pod server<br/>STT_API_KEY"] -->|"POST /v1/audio/transcriptions<br/>model stt"| litellm["litellm:4000<br/>alias stt"]
   litellm -->|"kiểm tra key, ngân sách, rpm"| db[("Postgres<br/>database litellm")]
   litellm -->|"openai/gipformer-1.5<br/>không có key"| ai["ai:8000<br/>ffmpeg, Silero VAD, Gipformer"]
+```
+
+```mermaid title="Một lượt đọc video, từ server tới ai và mô hình"
+flowchart LR
+  server["pod server<br/>module assist"] -->|"POST /v1/video/frames<br/>không có key"| ai["ai:8000<br/>ffmpeg, frames, Gipformer"]
+  server -->|"POST /v1/audio/transcriptions, model stt<br/>Bearer STT_API_KEY"| litellm["litellm:4000<br/>aliases stt, video-read"]
+  server -->|"POST /v1/chat/completions, model video-read<br/>Bearer ASSIST_LLM_API_KEY"| litellm
+  litellm -->|"openai/gipformer-1.5<br/>không có key"| ai
+  litellm -->|"openai/claude-haiku-5-5<br/>Bearer LLM_UPSTREAM_API_KEY"| proxy["cli-proxy-api<br/>host.k3d.internal:8317"]
 ```
 
 ```mermaid title="Embedding, từ server tới TEI và ai"
@@ -52,6 +61,19 @@ EMBED_TEXT_VERSION: bge-m3@5617a9f61b028005a4858fdac845db406aefb181
 EMBED_IMAGE_VERSION: siglip2-so400m-patch16-384@29f74e673c298fd07482d8e20138179282001eb7-fp32
 ```
 
+Cho lượt đọc video, nó đặt:
+
+```yaml
+AI_FRAMES_BASE_URL: http://ai:8000/v1
+STT_BASE_URL: http://litellm:4000/v1
+STT_MODEL: stt
+ASSIST_LLM_BASE_URL: http://litellm:4000/v1
+ASSIST_LLM_MODEL: video-read
+ASSIST_CALL_TIMEOUT: 30s
+```
+
+Server tự gọi `/v1/video/frames` của `ai`, vì LiteLLM chỉ định tuyến API của OpenAI, còn `stt` và `video-read` thì gọi qua LiteLLM.
+
 Tên Service `litellm` được phân giải trong chính namespace của stack, nên server dev gọi tới LiteLLM của dev và server prod gọi tới LiteLLM của prod.
 
 Alias và key là dữ liệu trong `infra/stack/values.yaml`:
@@ -64,6 +86,30 @@ litellm:
       apiBase: http://host.k3d.internal:8317/v1   # cli-proxy-api on the host
       apiKeySecret: LLM_UPSTREAM_API_KEY          # a key of litellm-secrets
       price: token
+  or reserved and published in the last 90 at weight 1, the seller's own
+  left out. With 5 or more it is their weighted p25, median and p75 rounded
+  to 10,000, `source: market`; with fewer it is the model's range,
+  `source: model`; without that, none. An embedding failure falls back to
+  the model's range.
+- A 4xx from `ai` fails the read: `unreadable_video`, `video_too_short`
+  (under 3 s) or `video_too_long` (over 35 s). The run has a 2-minute
+  deadline from `created_at`. Each model step runs with
+  `restate.WithMaxRetryDuration` set to the time left, and a step that
+  would start after the deadline saves `failed` with `unavailable`. Every
+  end, done or failed, consumes the video.
+- `GET /v1/video-reads/{id}` returns the read to its account until
+  `expires_at`; any other read is `video_read_not_found` 404. Frame URLs
+  are presigned GETs valid for an hour. `Expire` deletes the row after 24
+  hours; frames not posted expire with their uploads.
+- The transcript is never stored, logged or returned. The fill's log line
+  holds the model, the prompt version, the frame count, the transcript's
+  length in characters, the fields filled, the category asked for and the
+  one kept, the numbers and the time taken.
+- Configuration: `AI_FRAMES_BASE_URL`, `STT_BASE_URL`, `STT_API_KEY`,
+  `STT_MODEL`, `ASSIST_LLM_BASE_URL`, `ASSIST_LLM_API_KEY`,
+  `ASSIST_LLM_MODEL`, and `ASSIST_CALL_TIMEOUT` for one call. In the
+  cluster the keys are LiteLLM's `server-stt` and `server-assist`. The
+  estimate embeds with the search key, `EMBED_SEARCH_API_KEY`.
     stt:
       model: openai/gipformer-1.5
       apiBase: http://ai:8000/v1
@@ -82,6 +128,7 @@ litellm:
   keys:
     server-llm: { secret: LLM_API_KEY, models: [search], dailyUnits: 0, tpmLimit: 0 }
     server-stt: { secret: STT_API_KEY, models: [stt], dailyUnits: 0, rpmLimit: 0 }
+    server-assist: { secret: ASSIST_LLM_API_KEY, models: [video-read], dailyUnits: 0, tpmLimit: 0 }
     server-embed-index: { secret: EMBED_INDEX_API_KEY, models: [embed-text, embed-image], dailyUnits: 0, rpmLimit: 0 }
     server-embed-search: { secret: EMBED_SEARCH_API_KEY, models: [embed-text, embed-image], dailyUnits: 0, rpmLimit: 0 }
 ```
@@ -120,12 +167,15 @@ Ngân sách của LiteLLM tính bằng tiền. Mỗi token, cả input lẫn out
 |---|---|---|---|---|---|
 | `server-llm` | `search` | 200.000 token | 20.000 tpm | 2.000.000 token | 100.000 tpm |
 | `server-stt` | `stt` | 3.600 giây | 10 rpm | 36.000 giây | 60 rpm |
+| `server-assist` | `video-read` | 1.200.000 token | 60.000 tpm | 12.000.000 token | 300.000 tpm |
 | `server-embed-index` | `embed-text`, `embed-image` | 10.000.000 token | 120 rpm | 50.000.000 token | 600 rpm |
 | `server-embed-search` | `embed-text`, `embed-image` | 1.000.000 token | 60 rpm | 10.000.000 token | 600 rpm |
 
 `values.yaml` đặt mọi `dailyUnits` và giới hạn bằng 0, và file của từng stack đặt giá trị thật. Helm gộp file của stack vào `values.yaml` theo từng khóa, nên một file stack đặt một key thì các key khác vẫn giữ giá trị của `values.yaml`. LiteLLM reset mức chi của mỗi key hằng ngày, với `budget_duration: 1d`.
 
 Server index tin đăng bằng `server-embed-index` và embed câu truy vấn bằng `server-embed-search`. Một lần backfill toàn bộ tin đăng tiêu key index, còn tìm bằng ảnh giữ ngân sách riêng. `ai` tính mỗi ảnh 576 token, tức 24 × 24 patch, và mỗi đoạn chữ theo số token của nó; LiteLLM tính giá theo `usage` đó. Một tin 10 ảnh tốn khoảng 5.800 token, nên ngân sách index của dev đủ cho khoảng 1.700 tin mỗi ngày.
+
+Một lượt đọc video gửi cho `video-read` 8 khung hình 768 px, danh sách danh mục con và lời nói đã chép, khoảng 5.500 token, nên ngân sách dev đủ cho khoảng 200 lượt mỗi ngày và prod khoảng 2.000 lượt. Mỗi tài khoản được bắt đầu 30 lượt mỗi ngày.
 
 Một lần thử trên cluster k3d cục bộ đặt ngân sách 60 token cho key tìm kiếm: khi tiêu hết, các lời gọi thất bại với HTTP 422 và `Budget has been exceeded`, còn lời gọi tới một alias ngoài `models` của key nhận 403. Một lần thử trên LiteLLM v1.108.0 gửi 5,55 giây audio, và mức chi của `server-stt` tăng 0,00000555. LiteLLM hỏi `ai` định dạng `verbose_json` khi bên gọi không nêu `response_format`, và tính giá mỗi lời gọi giọng nói theo trường `duration` mà câu trả lời `json` và `verbose_json` mang theo. Câu trả lời `text` không có duration và có giá 0, nên server không được hỏi `text`.
 
@@ -176,7 +226,8 @@ Dữ liệu của server nằm trong database `app` của cùng cluster. Role c�
 | `LLM_UPSTREAM_API_KEY` | `litellm-secrets` | `LLM_UPSTREAM_API_KEY` | LiteLLM, khi gọi API upstream |
 | `LITELLM_DB_PASSWORD` | `litellm-db` (basic-auth) | `password` | CNPG cho role, LiteLLM cho `DATABASE_URL` |
 | `LLM_API_KEY` | `server-secrets` | `LLM_API_KEY` | server, Job `litellm-key` (key `server-llm`) |
-| `STT_API_KEY` | `server-secrets` | `STT_API_KEY` | server, khi nó chép lời video tin đăng; Job `litellm-key` (key `server-stt`) |
+| `STT_API_KEY` | `server-secrets` | `STT_API_KEY` | server, khi đọc video của người bán; Job `litellm-key` (key `server-stt`) |
+| `ASSIST_LLM_API_KEY` | `server-secrets` | `ASSIST_LLM_API_KEY` | server, khi đọc video của người bán; Job `litellm-key` (key `server-assist`) |
 | `EMBED_INDEX_API_KEY` | `server-secrets` | `EMBED_INDEX_API_KEY` | server, khi index tin đăng; Job `litellm-key` (key `server-embed-index`) |
 | `EMBED_SEARCH_API_KEY` | `server-secrets` | `EMBED_SEARCH_API_KEY` | server, khi embed câu truy vấn; Job `litellm-key` (key `server-embed-search`) |
 
@@ -210,7 +261,7 @@ Mỗi stack chạy `ai` (repo `shopnexus/ai`), gồm một Deployment và một 
 
 Mỗi lúc có hai request được giải mã (`ai.maxConcurrent`), các request khác chờ. Pod xin 1 CPU và `ai.memoryRequest` bộ nhớ, giới hạn ở `ai.memoryLimit`, 6Gi và 8Gi với các file fp32 của SigLIP 2.
 
-Chưa có code nào của server gọi `stt`; bên gọi đầu tiên sẽ là tính năng điền sẵn tin đăng từ video của người bán.
+Server gọi `stt` khi đọc video của người bán (module assist). Nó xin `response_format: json`, nên LiteLLM tính giá lời gọi theo `duration`.
 
 Để chuyển `stt` sang nhà cung cấp khác, đặt `litellm.aliases.stt.model` là chuỗi mô hình LiteLLM của nhà cung cấp đó, ví dụ `groq/whisper-large-v3`, và `litellm.aliases.stt.apiBase` là base URL của họ; thêm key của nhà cung cấp vào `litellm-secrets` và ghi tên nó vào `litellm.aliases.stt.apiKeySecret`. Server vẫn hỏi `stt` như cũ.
 
@@ -219,6 +270,10 @@ Chưa có code nào của server gọi `stt`; bên gọi đầu tiên sẽ là t
 ```bash
 kubectl -n shopnexus-dev logs deploy/ai
 ```
+
+## Khung hình video
+
+`ai` còn phục vụ `POST /v1/video/frames`. Đây không phải route của OpenAI, nên server gọi nó ở `AI_FRAMES_BASE_URL`, không có key, và LiteLLM không tính gì cho nó; `from-stack` cho server đi vào. Nó nhận video dài 3 đến 35 giây (`ai.framesMaxSeconds`), giải mã 2 khung mỗi giây với cạnh dài tối đa 1600 px, bỏ các khung có phương sai Laplacian dưới `ai.framesMinSharpness` và các khung lặp lại khung khác, rồi trả về tối đa 8 ảnh JPEG rải đều trên video. Mỗi lúc có hai request cắt khung (`ai.framesMaxConcurrent`), ngoài hai request giải mã giọng nói. Ngày 10/11/2026, hai request cắt khung của một video 1080p dài 30 giây và hai request chép lời cùng lúc đưa pod lên 2,42 GiB.
 
 ## Embedding: TEI và ai
 
@@ -239,7 +294,7 @@ Server lưu `EMBED_TEXT_VERSION` (`bge-m3@<tei.revision>`) và `EMBED_IMAGE_VERS
 
 Ở máy cục bộ, `docker-compose.yml` chạy `tei-dev` ở 127.0.0.1:56493 và `tei-prod` ở 127.0.0.1:56492, với cùng image, revision và `--max-batch-tokens` như chart; `infra/check.sh` báo lỗi khi chúng khác nhau. Máy cục bộ không có LiteLLM, nên server cục bộ gọi thẳng `tei-<stack>` và `ai-<stack>`, gọi mô hình là `bge-m3` và `siglip2-so400m-patch16-384`, và gửi key rỗng.
 
-`infra/smoke-models.sh <stack>` port-forward LiteLLM của stack và gọi mọi alias bằng key của server: `search`, `stt` với một đoạn audio im lặng, `embed-text` (1024 chiều), `embed-image` với một ảnh và với một đoạn chữ (1152 chiều), và `embed-text` với key tìm kiếm `server-llm`, mà LiteLLM từ chối bằng 403. Nó cần `hurl` và `kubectl`.
+`infra/smoke-models.sh <stack>` port-forward LiteLLM của stack và gọi mọi alias bằng key của server: `search`, `video-read` với một ảnh, `stt` với một đoạn audio im lặng, `embed-text` (1024 chiều), `embed-image` với một ảnh và với một đoạn chữ (1152 chiều), `embed-text` với key tìm kiếm `server-llm` và `search` với key `server-assist`, cả hai bị LiteLLM từ chối bằng 403. Nó cần `hurl` và `kubectl`.
 
 ## Đổi mô hình hoặc nhà cung cấp
 
@@ -295,7 +350,7 @@ kubectl -n shopnexus-dev get secret litellm-secrets -o jsonpath='{.data.LITELLM_
 kubectl -n shopnexus-dev port-forward svc/litellm 4000:4000
 ```
 
-Mở `http://localhost:4000/ui` và đăng nhập với user `admin`, mật khẩu là master key. UI liệt kê các key có alias `server-llm`, `server-stt`, `server-embed-index` và `server-embed-search`, mỗi key kèm mức chi, ngân sách và thời điểm reset. Với prod, dùng `shopnexus-prod`.
+Mở `http://localhost:4000/ui` và đăng nhập với user `admin`, mật khẩu là master key. UI liệt kê các key có alias `server-llm`, `server-stt`, `server-assist`, `server-embed-index` và `server-embed-search`, mỗi key kèm mức chi, ngân sách và thời điểm reset. Với prod, dùng `shopnexus-prod`.
 
 Để đọc mức chi từ shell trong lúc port-forward đang chạy:
 
