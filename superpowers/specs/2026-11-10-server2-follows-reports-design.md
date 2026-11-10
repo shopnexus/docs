@@ -57,8 +57,8 @@ endpoints and `POST /v1/blocks`.
   - 409 `follow_limit_reached`: the caller follows 1,000 accounts.
 - `DELETE /v1/follows/{account_id}` → 204; an absent follow is fine.
 - `GET /v1/follows?cursor=&limit=` → `FollowList`, newest follow first.
-  A `Follow` is `{id, account_id, display_name, avatar_url, created_at}`;
-  `id` is the follow's UUIDv7, which the cursor pages by, as blocks do.
+  A `Follow` is `{id, account_id, display_name, avatar_url, at}`, named as
+  `Block` is; `id` is the follow's UUIDv7, which the cursor pages by.
 - `POST /v1/blocks` deletes the follows between the two, both ways.
 - `GET /v1/screens/seller/{id}`: `SellerViewer` gains `following`
   (boolean, required); `SellerProfile` gains `followers` (integer,
@@ -72,7 +72,8 @@ bought once may sell later.
 - `POST /v1/reports`, body `ReportCreate`:
   - exactly one of `listing_id` and `account_id`;
   - `reason`: `banned`, `fake`, `scam` or `other`;
-  - `note`: optional, 0 to 500 characters, kept as written.
+  - `note`: optional, 0 to 500 characters after trimming, as a review's
+    text is.
 
   It answers 201 with a `Report` when it opens one, and 200 with the open
   one when the caller already has an open report of the same target, with
