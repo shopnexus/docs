@@ -6,6 +6,19 @@ the decisions below go into `~/shopnexus/server/ARCHITECTURE.md` (sections
 Assist, Media, Catalog, Stream, Erasure, Infrastructure) and
 `~/shopnexus/checklist.md` gains a ticked line for "Đăng tin từ link".
 
+Changed while planning (plan `2026-11-11-server2-link-read.md`):
+
+- `CHOTOT_CDN_HOST` became `CHOTOT_CDN_URL` (`https://cdn.chotot.com`): a
+  photo is read only when its scheme and host equal the URL's, so e2e can
+  stub the CDN over plain HTTP.
+- `link_reads` has no `photos` column: the copies are the draft's
+  `photos`, and the view's `photos` list is built from them. The upload
+  origin is its own migration, `0037_upload_origin.sql`, before
+  `0038_link_reads.sql`.
+- "The listing's body is absent from every step's journaled result" is a
+  rule on the code, checked in review: the read step's result type has no
+  field for the subject or the body.
+
 ## Why
 
 The app's mockups have a third way to post (`app/.superdesign/mockups/sell-link.html`,
@@ -197,7 +210,7 @@ func (c *Client) Image(ctx context.Context, url string) ([]byte, string, error)
   404 is `ErrNotFound`. 5xx, 403, 429 and timeouts are `ErrUnavailable`. A
   body without `subject` or `images` is `ErrFormat`, which is logged as an
   error so a change on Chợ Tốt's side shows.
-- `Image` refuses a URL that is not `https://` on `CHOTOT_CDN_HOST`,
+- `Image` refuses a URL whose scheme and host are not those of `CHOTOT_CDN_URL`,
   follows no redirect, reads at most 15 MB and returns the content type from
   the magic bytes (JPEG, PNG or WebP). Anything else is `ErrBadImage`.
 - One `http.Client` with `ASSIST_CALL_TIMEOUT` per call and a fixed
@@ -249,7 +262,6 @@ CREATE TABLE link_reads (
     status          text NOT NULL CHECK (status IN ('reading', 'done', 'failed')),
     failure         text CHECK (failure IN ('listing_not_found', 'no_item', 'unavailable')),
     photo_count     integer,
-    photos          jsonb,
     draft           jsonb,
     contact_removed boolean,
     estimate        jsonb,
@@ -262,7 +274,7 @@ CREATE INDEX link_reads_account_created ON link_reads (account_id, created_at);
 ALTER TABLE account_updates ADD COLUMN link_read_id uuid;
 ```
 
-Plus the `uploads.origin` column above. Neither the listing's description as
+The `uploads.origin` column above comes in `0037_upload_origin.sql`, before it. Neither the listing's description as
 Chợ Tốt has it nor anything about its seller is stored.
 
 ### `LinkRead.Start`
@@ -354,7 +366,7 @@ not posted expire with their uploads.
 ### Configuration
 
 New, both required: `CHOTOT_GATEWAY_URL` (`https://gateway.chotot.com`) and
-`CHOTOT_CDN_HOST` (`cdn.chotot.com`). In `.env.example`, Compose, the test
+`CHOTOT_CDN_URL` (`https://cdn.chotot.com`). In `.env.example`, Compose, the test
 helpers and the stack's server Deployment. Egress is already open in the
 cluster.
 
@@ -396,8 +408,7 @@ Not part of this work, listed so the API fits:
   inserts at once, a `write_id` conflict, an erased account.
 - **Service:** against fake Chợ Tốt, LLM and media, as the video read's
   `helpers_test.go` does: the happy path; each failure; a skipped image; no
-  image copied; the deadline; a `Notify` after each save; the listing's body
-  absent from every step's journaled result.
+  image copied; the deadline; a `Notify` after each save.
 - **Handlers:** `Idempotency-Key`, another account's read is 404, an expired
   read is 404, the preview's errors.
 - **Media and catalog:** `SavePhoto` with each origin; a copy posted with
