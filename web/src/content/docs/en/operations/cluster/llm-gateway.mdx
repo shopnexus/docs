@@ -15,7 +15,7 @@ Search asks a language model what a query means, and photo search compares embed
 
 A key's budget caps what the server can use in a day. Each stack has its own LiteLLM, keys and budgets, so a loop in dev cannot use up the prod allowance.
 
-The server knows five model names: `search` reads a query, `video-read` reads the frames and words of a seller's video into a listing draft, `stt` turns speech into text, `embed-text` embeds text with bge-m3, and `embed-image` embeds photos and short English descriptions with SigLIP 2. Each name is an entry of `litellm.aliases` in `infra/stack/values.yaml`, and changing the model behind one needs no new server image.
+The server knows five model names: `search` reads a query, `listing-read` reads a seller's video frames and words, one photo, or their Chợ Tốt listing into a listing draft, `stt` turns speech into text, `embed-text` embeds text with bge-m3, and `embed-image` embeds photos and short English descriptions with SigLIP 2. Each name is an entry of `litellm.aliases` in `infra/stack/values.yaml`, and changing the model behind one needs no new server image.
 
 ## Request path
 
@@ -36,8 +36,8 @@ flowchart LR
 ```mermaid title="A video read, from the server to ai and the model"
 flowchart LR
   server["server pod<br/>module assist"] -->|"POST /v1/video/frames<br/>no key"| ai["ai:8000<br/>ffmpeg, frames, Gipformer"]
-  server -->|"POST /v1/audio/transcriptions, model stt<br/>Bearer STT_API_KEY"| litellm["litellm:4000<br/>aliases stt, video-read"]
-  server -->|"POST /v1/chat/completions, model video-read<br/>Bearer ASSIST_LLM_API_KEY"| litellm
+  server -->|"POST /v1/audio/transcriptions, model stt<br/>Bearer STT_API_KEY"| litellm["litellm:4000<br/>aliases stt, listing-read"]
+  server -->|"POST /v1/chat/completions, model listing-read<br/>Bearer ASSIST_LLM_API_KEY"| litellm
   litellm -->|"openai/gipformer-1.5<br/>no key"| ai
   litellm -->|"openai/claude-haiku-5-5<br/>Bearer LLM_UPSTREAM_API_KEY"| proxy["cli-proxy-api<br/>host.k3d.internal:8317"]
 ```
@@ -68,11 +68,11 @@ AI_FRAMES_BASE_URL: http://ai:8000/v1
 STT_BASE_URL: http://litellm:4000/v1
 STT_MODEL: stt
 ASSIST_LLM_BASE_URL: http://litellm:4000/v1
-ASSIST_LLM_MODEL: video-read
+ASSIST_LLM_MODEL: listing-read
 ASSIST_CALL_TIMEOUT: 30s
 ```
 
-The server calls `ai`'s `/v1/video/frames` itself, because LiteLLM routes only OpenAI's API, and calls `stt` and `video-read` through LiteLLM.
+The server calls `ai`'s `/v1/video/frames` itself, because LiteLLM routes only OpenAI's API, and calls `stt` and `listing-read` through LiteLLM.
 
 The Service name `litellm` resolves inside the stack's own namespace, so the dev server reaches dev's LiteLLM and the prod server reaches prod's.
 
@@ -91,17 +91,17 @@ litellm:
   to 10,000, `source: market`; with fewer it is the model's range,
   `source: model`; without that, none. An embedding failure falls back to
   the model's range.
-- A 4xx from `ai` fails the read: `unreadable_video`, `video_too_short`
+- A 4xx from `ai` fails the read: `unreadable`, `video_too_short`
   (under 3 s) or `video_too_long` (over 35 s). The run has a 2-minute
   deadline from `created_at`. Each model step runs with
   `restate.WithMaxRetryDuration` set to the time left, and a step that
   would start after the deadline saves `failed` with `unavailable`. Every
   end, done or failed, consumes the video.
-- `GET /v1/video-reads/{id}` returns the read to its account until
-  `expires_at`; any other read is `video_read_not_found` 404. Frame URLs
+- `GET /v1/listing-reads/{id}` returns the read to its account until
+  `expires_at`; any other read is `listing_read_not_found` 404. Frame URLs
   are presigned GETs valid for an hour. `Expire` deletes the row after 24
   hours; frames not posted expire with their uploads.
-- The transcript is never stored, logged or returned. The fill's log line
+- The transcript is never logged or returned, and the phone's is stored only while its read runs. The fill's log line
   holds the model, the prompt version, the frame count, the transcript's
   length in characters, the fields filled, the category asked for and the
   one kept, the numbers and the time taken.
@@ -128,7 +128,7 @@ litellm:
   keys:
     server-llm: { secret: LLM_API_KEY, models: [search], dailyUnits: 0, tpmLimit: 0 }
     server-stt: { secret: STT_API_KEY, models: [stt], dailyUnits: 0, rpmLimit: 0 }
-    server-assist: { secret: ASSIST_LLM_API_KEY, models: [video-read], dailyUnits: 0, tpmLimit: 0 }
+    server-assist: { secret: ASSIST_LLM_API_KEY, models: [listing-read], dailyUnits: 0, tpmLimit: 0 }
     server-embed-index: { secret: EMBED_INDEX_API_KEY, models: [embed-text, embed-image], dailyUnits: 0, rpmLimit: 0 }
     server-embed-search: { secret: EMBED_SEARCH_API_KEY, models: [embed-text, embed-image], dailyUnits: 0, rpmLimit: 0 }
 ```
@@ -167,7 +167,7 @@ LiteLLM budgets count money. Every token, input and output, is priced at `0.0000
 |---|---|---|---|---|---|
 | `server-llm` | `search` | 200,000 tokens | 20,000 tpm | 2,000,000 tokens | 100,000 tpm |
 | `server-stt` | `stt` | 3,600 seconds | 10 rpm | 36,000 seconds | 60 rpm |
-| `server-assist` | `video-read` | 1,200,000 tokens | 60,000 tpm | 12,000,000 tokens | 300,000 tpm |
+| `server-assist` | `listing-read` | 1,200,000 tokens | 60,000 tpm | 12,000,000 tokens | 300,000 tpm |
 | `server-embed-index` | `embed-text`, `embed-image` | 10,000,000 tokens | 120 rpm | 50,000,000 tokens | 600 rpm |
 | `server-embed-search` | `embed-text`, `embed-image` | 1,000,000 tokens | 60 rpm | 10,000,000 tokens | 600 rpm |
 
@@ -175,7 +175,7 @@ LiteLLM budgets count money. Every token, input and output, is priced at `0.0000
 
 The server indexes listings with `server-embed-index` and embeds queries with `server-embed-search`. A backfill of every listing spends the index key, and photo search keeps its own budget. `ai` counts 576 tokens an image, its 24 × 24 patches, and a text its token count; LiteLLM prices from that `usage`. A listing of ten photos costs about 5,800 tokens, so dev's index budget covers about 1,700 listings a day.
 
-A video read sends `video-read` 8 frames at 768 px, the list of subcategories and the transcript, about 5,500 tokens, so dev's budget covers about 200 reads a day and prod's about 2,000. Each account may start 30 reads a day.
+A video read sends `listing-read` 8 frames at 768 px, the list of subcategories and the transcript, about 5,500 tokens, so dev's budget covers about 200 reads a day and prod's about 2,000. A photo read sends one photo, about 1,500 tokens; each account may start 30 video reads, 60 photo reads and 30 link reads a day.
 
 A test on a local k3d cluster set a 60-token budget on the search key: once it was spent, calls failed with HTTP 422 and `Budget has been exceeded`, and a call for an alias outside the key's `models` got a 403. A test against LiteLLM v1.108.0 sent 5.55 s of audio, and the spend of `server-stt` rose by 0.00000555. LiteLLM asks `ai` for `verbose_json` when the caller names no `response_format`, and prices every speech call from the `duration` field that `json` and `verbose_json` answers carry. A `text` answer has no duration and costs 0, so the server must not ask for `text`.
 
@@ -294,7 +294,7 @@ The server stores `EMBED_TEXT_VERSION` (`bge-m3@<tei.revision>`) and `EMBED_IMAG
 
 Locally, `docker-compose.yml` runs `tei-dev` on 127.0.0.1:56493 and `tei-prod` on 127.0.0.1:56492, with the same image, revision and `--max-batch-tokens` as the chart; `infra/check.sh` fails when they differ. There is no LiteLLM locally, so the local server calls `tei-<stack>` and `ai-<stack>` directly, names the models `bge-m3` and `siglip2-so400m-patch16-384`, and sends empty keys.
 
-`infra/smoke-models.sh <stack>` port-forwards the stack's LiteLLM and calls every alias with the server's keys: `search`, `video-read` with a photo, `stt` with a silent clip, `embed-text` (1024 dimensions), `embed-image` with a photo and with a text (1152 dimensions), `embed-text` with the search key `server-llm` and `search` with the key `server-assist`, both of which LiteLLM refuses with a 403. It needs `hurl` and `kubectl`.
+`infra/smoke-models.sh <stack>` port-forwards the stack's LiteLLM and calls every alias with the server's keys: `search`, `listing-read` with a photo, `stt` with a silent clip, `embed-text` (1024 dimensions), `embed-image` with a photo and with a text (1152 dimensions), `embed-text` with the search key `server-llm` and `search` with the key `server-assist`, both of which LiteLLM refuses with a 403. It needs `hurl` and `kubectl`.
 
 ## Change the model or the provider
 

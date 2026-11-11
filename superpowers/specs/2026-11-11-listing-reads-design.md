@@ -7,6 +7,22 @@ Assist, Stream, Erasure, Infrastructure) and `~/shopnexus/checklist.md`
 ticks "AI đọc ảnh (không có video) để tự điền tin đăng" and rewrites the
 video read's line to name `/v1/listing-reads`.
 
+Changed while planning (plan `2026-11-11-server2-listing-reads.md`):
+
+- Migration 0039 copies the rows of `video_reads` and `link_reads` and moves
+  their updates to `listing_read`, but drops neither table nor
+  `account_updates.video_read_id` and `link_read_id`: the release before
+  still writes them while the migration runs. A later release drops them.
+- A transcript over 1,000 characters is `invalid_request` 400 from the
+  schema's `maxLength`, not `invalid_transcript` 422: the request validator
+  holds every shape rule.
+- The photo check is media's `QueryUpload` (waiting, before its expiry, in
+  the store as declared), and it runs after the insert under the cap, as
+  the video read's hold does, so `read_limit_reached` answers before
+  `invalid_upload`.
+- `ReadPhoto.at_seconds` is a pointer in Go, so a frame at 0 s still sends
+  `0` and a copy or a photo sends nothing.
+
 ## Why
 
 The server reads a seller's video (`/v1/video-reads`, spec
