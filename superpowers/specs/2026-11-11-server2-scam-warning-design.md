@@ -75,7 +75,9 @@ Rules, pure functions in the domain:
   that check.
 - `dismissed` is true when the warning was dismissed and no message code
   has a `first_seen_at` after `dismissed_at`. A new fact code does not undo
-  a dismissal.
+  a dismissal. A code raised by a check whose clock was read before a
+  dismissal (the dismissal landed while the model ran) is first seen a
+  microsecond after the dismissal.
 - Signals are listed in order of `first_seen_at`, then in the table's
   order.
 
@@ -98,8 +100,7 @@ CREATE TABLE scam_warnings (
 CREATE TABLE scam_checks (
     id               uuid PRIMARY KEY,           -- UUIDv7
     conversation_id  uuid NOT NULL REFERENCES conversations (id),
-    first_message_id uuid NOT NULL,
-    last_message_id  uuid NOT NULL,
+    message_ids      uuid[] NOT NULL,            -- the window, oldest first
     classifier       text NOT NULL,              -- e.g. 'llm:scam-check'
     prompt_version   int NOT NULL,
     codes_a          text[] NOT NULL,            -- conversation's account_a
@@ -112,7 +113,8 @@ CREATE INDEX ON scam_checks (created_at);
 
 - `scam_warnings` is what the app reads. Writes follow the `write_id` rule.
 - `scam_checks` records every verdict and holds no message text. Joined with
-  `messages` over the window it gives the input; joined with
+  `messages` by `message_ids` it gives exactly the input the classifier
+  read; joined with
   `dismissed_at` and with `reports` (`reason = 'scam'`, `conversation_id`)
   it gives labels. A future model can run in shadow and write rows with its
   own `classifier` for comparison; that is not built now.
@@ -186,12 +188,13 @@ passes the result as `trust.Settings.Classifier`.
   bottom:
   1. Step plan: `chatsvc.Service.Window(ctx, conversation, upTo, 20)` (new)
      reads the last 20 `sent` messages with text up to message `upTo` (the
-     newest for the zero ID), oldest first, with sender and listing. The step compares the last message ID with the
-     `last_message_id` of the conversation's newest check and stops when
-     they match. It also stops when the conversation had 50 checks in the
+     newest for the zero ID), oldest first, with sender and listing. The step
+     stops when the window's message IDs equal the `message_ids` of the
+     conversation's newest check, so a photo message that becomes `sent`
+     after a newer message still gets a check. It also stops when the conversation had 50 checks in the
      last 24 hours. It returns IDs only to the journal.
-  2. Step classify: reads the window again up to the planned last message,
-     so a message sent meanwhile waits for its own run, redacts it and calls
+  2. Step classify: reads exactly the planned messages, so a message sent
+     or published meanwhile waits for its own run, redacts them and calls
      the classifier. It returns codes only, so message text never reaches the
      journal (as assist's fill step does with the transcript). It runs with
      `restate.WithMaxRetryDuration` of 10 minutes and at most 3 attempts.
@@ -255,7 +258,8 @@ an older app.
 - `POST /v1/conversations/{id}/scam-warning/dismiss` (`api/paths/trust.yaml`,
   served by trust's handler) answers 204. It sets `dismissed_at` to now.
   Dismissing again, or a conversation without a warning, changes nothing
-  and answers 204. Anyone but a member gets 404 `conversation_not_found`,
+  and answers 204. The dismissal reads and writes the row under its lock,
+  so it never answers `try_again`. Anyone but a member gets 404 `conversation_not_found`,
   checked through `chatsvc.Service.Get`, which answers that for a
   non-member and, unlike `Peer`, still answers a member who blocks or is
   blocked. A suspended account may dismiss, since it changes
