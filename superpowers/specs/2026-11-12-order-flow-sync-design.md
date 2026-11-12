@@ -5,6 +5,28 @@ Status: decided in conversation, question by question and section by
 section. Part 1 of 4 (see Scope). When the work lands, the server decisions
 go into `server/ARCHITECTURE.md`.
 
+Changed while planning (plan `2026-11-12-server2-order-flow.md`):
+
+- No new event kinds. The spec lists `order.requested`, `order.shipped`, `order.completed`, `order.failed`, `order.cancelled` and `shipment.updated`; the server announces order changes as moves (`cod_requested`, `shipped`, `shipment_updated`, `completed`, `failed`, `order_cancelled`) on the existing `deal.moved`, whose only subscriber, notification, reads moves. New kinds would have no subscriber.
+- `carrier.Client` has a third method, `Cancel(ctx, carrier, code)`, for the pickup timeout of a linked shipment and for a linked shipment whose order's save lost a race. The fake and `None` cancel nothing.
+- The spec says nothing about production. The fake carrier and its dev endpoint run on the dev and test stacks only; production runs `CARRIER=none`, where the lookup and both shipment endpoints answer 503 `carrier_unavailable`, a status the spec's API table does not list, until part 2 brings GHTK. `app.New` refuses `APP_ENV=prod` with `CARRIER=fake`.
+- The order routes keep the path parameter name `order_id` (`/v1/orders/{order_id}/shipment`, `/confirm`), as `/v1/orders/{order_id}/review` and the routes they replace; the URLs are the spec's.
+- The migration leaves `orders_shipped_per_listing`: its predicate `status = 'shipped'` already reads the new names. It recreates `orders_open_per_deal` on `pending` and `shipped`.
+- An order shipped on carrier `other` (development data only; the app was never wired) loses its shipment in the migration: `other` has no place in the new carrier CHECK and its name column goes. The order keeps its status and `shipped_at`; only the buyer's confirmation closes it.
+- The migration also renames the stored notifications of types `delivered` and `returned` to `completed` and `failed` and the reason `sent_to_another` in their params, adds CHECK `orders_shipment_check` (a shipment's mode, carrier, code and status are set together; `delivered_at` only on a delivered one) and index `orders_tracking_code` for `ShipmentUpdated`. `GET /v1/notifications` names the types `completed` and `failed` instead of `delivered` and `returned`.
+
+Settled while planning, where the spec is silent:
+
+- The linked shipment's `service` is `standard` or `express`, `weight_grams` 1 to 20,000.
+- A parcel the carrier already reports failed is refused at creation and at a corrected code (`invalid_shipment`); one it reports delivered ships delivered and schedules the auto-complete.
+- The seller's turn (`your_turn`) is only a pending order; nobody's turn comes while an order is shipped.
+- The seller reads a cancelled order's recipient as name and commune only, the pickup timeout's included.
+- The dev endpoint answers 204, also when every order with the code is closed; 404 only when no order has it.
+- `carrier_unavailable` is 503 (`apperr.KindUnavailable`, as `search_unavailable` and `source_unavailable`): the stack lacks a service the request needs, and no change to the request or the order would help.
+- A manual shipment's carrier and code are checked and read from the carrier before the order is looked up, so the 422s and the 503 answer the same for any order ID.
+- The fake reads every known code as one parcel waiting for pickup: COD 1,500,000 đ, fee 22,000 đ.
+- Migration 0040 breaks the release before during its rollout (see the plan's Global Constraints).
+
 ## Scope
 
 The app and the server describe a COD order differently. The app has 15
