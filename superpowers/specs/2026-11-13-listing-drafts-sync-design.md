@@ -7,6 +7,24 @@ cut down to this one before planning: drafts are one person's notes, and a
 rare lost edit is accepted. When the work lands, the server decisions go
 into `server/ARCHITECTURE.md` (sections Media, Catalog, Erasure).
 
+Changed while planning (plan `2026-11-13-server2-listing-drafts.md`):
+
+- A repeated ID in `photos` is kept once instead of refused, so a draft's
+  content never leaves it unsynced for good.
+- `PUT` can also answer 409 `try_again` when media's save of the extension
+  collides with another write of the same upload; the app sends the PUT
+  again.
+- `MediaExpire`, finding `expires_at` still ahead, sends itself again with
+  the idempotency key `<upload id>/<expires_at in Unix seconds>`, since the
+  upload ID keyed the first run.
+- A suspended account still writes its drafts; only a deleted account is
+  refused (`session_revoked`).
+- Go renames beyond the schema: `domain.Draft` is `domain.ListingInput`,
+  the flows' `PostInput.Draft` and `EditInput.Draft` are `.Listing` (JSON
+  `listing`), the handler's `draftBody` is `listingBody`.
+- Erasure deletes the drafts inside `Catalog.SellerLeft`, which catalog's
+  `account.deleted` worker already calls.
+
 ## Why
 
 A seller who starts a listing on one phone and opens the app on another
