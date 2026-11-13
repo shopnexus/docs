@@ -53,6 +53,19 @@ stops repeating it.
 | Seller plan perk | "Tin được ưu tiên quanh bạn" | "Tin được ưu tiên hiển thị" |
 | Đăng tin, Xem lại | the card among "Gần bạn", "Trang chủ của người mua quanh X" | the card among "Dành cho bạn", "Trang chủ của người mua" |
 
+## Decided while drawing Home (2026-11-14)
+
+- Home's AI interest chips ("Bạn hay xem") go: the recent-search chips
+  under the search field take their place.
+- The debug panel's long press moves from the area chip, which is gone, to
+  the bell.
+- The signed-out Home is its own draft, "Home · Chưa đăng nhập"
+  (96819cec), so both can be reviewed side by side on the canvas.
+- A followed recent search shows its new-listing count on its chip
+  ("+3"), from the search's watch.
+- Only Home is redrawn now. The other screens change copy alone (the
+  "Copy" table), so they go straight to code; their drafts follow later.
+
 ## Designs (Superdesign canvas, project 56eb6c5a)
 
 The agent edits the Python builders in `app/.superdesign/tools/`, rebuilds
