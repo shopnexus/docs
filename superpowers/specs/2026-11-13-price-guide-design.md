@@ -90,6 +90,8 @@ PriceGuideRequest:
 Answers 200 with `PriceGuide`. Errors:
 
 - `invalid_request` 400: the shape (the validator).
+- `account_suspended` 403, as `/v1/link-previews` answers (decided while
+  planning).
 - `invalid_listing` 422 with `fields`: `category_code` not a subcategory,
   `commune_code` not a commune of the list (catalog's rule and messages).
 - `invalid_upload` 422: a photo that is not the caller's waiting,
