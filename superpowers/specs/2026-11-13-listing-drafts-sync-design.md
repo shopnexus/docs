@@ -1,33 +1,30 @@
 # Design: listing drafts kept on the server
 
 Date: 2026-11-13.
-Status: decided in conversation, question by question and section by
-section. When the work lands, the server decisions go into
-`server/ARCHITECTURE.md` (sections Media, Catalog, Notifications, Erasure,
-Stream).
+Status: decided in conversation. A first, larger design (revisions with
+conflict copies, held photos, an expiry chain with a warning notice) was
+cut down to this one before planning: drafts are one person's notes, and a
+rare lost edit is accepted. When the work lands, the server decisions go
+into `server/ARCHITECTURE.md` (sections Media, Catalog, Erasure).
 
 ## Why
 
 A seller who starts a listing on one phone and opens the app on another
 should find the draft there. Today a draft lives only in the app
 (`FakeWorld.drafts`): a new phone, a reinstall or cleared data loses it.
-Listings take a while to write (photos, title, price, specs, the model's
-read), so sellers finish them later, sometimes on another device.
 
 The app saves locally first, so typing never waits for the network, and
 syncs each draft to the server in the background.
 
 ## Scope
 
-- **Server:** the `/v1/listing-drafts` resource, the table, drafts holding
-  their photos, expiry with a warning notice, posting from a draft,
+- **Server:** the `/v1/listing-drafts` resource, the table, draft photos
+  that outlive the 24-hour upload expiry, lazy deletion after 30 days,
   erasure.
 - **App:** the model fields sync needs, a fake repository that plays the
-  phone and the server so every branch can be tried on one device, and the
-  labels the draft card and Sell show.
+  phone and the server, and two labels and one message.
 - **Not in scope:** Room or DataStore, an HTTP client, real uploads (the
-  app stays on fake data, as in the other specs since 2026-10-26), and
-  Superdesign mockups for the new labels.
+  app stays on fake data), mockups.
 
 "Sửa tin" never makes a draft (`FakeSellRepository.saveDraft` requires
 `editing == null`), so only drafts of new listings sync.
@@ -37,14 +34,17 @@ syncs each draft to the server in the background.
 | Question | Decision |
 |---|---|
 | Local or server | Both: the app writes locally at once and syncs in the background. Another device sees the draft. |
-| How the server stores a draft | Typed where the server needs the field (photos, title, price, revision, times); everything else is a JSON `body` the app owns, with `schema_version`. The server does not validate the body. Posting rules stay in `POST /v1/listings` only. |
-| Who mints the ID | The app, a UUIDv7, so a draft made offline has its ID before it reaches the server and a repeated PUT is harmless. |
-| Concurrent edits | Optimistic, by `revision`. A stale PUT is `409 draft_conflict`; the app saves its version as a new draft labelled "Bản trên máy này". No dialog, nothing lost. |
-| Draft gone on the server | `404 draft_not_found` (deleted, posted or expired elsewhere, or another account's ID). The app saves its version as a new draft when it has unsynced edits, otherwise drops it. |
-| Retention | 30 days after the last edit. A notice 3 days before. Photos go with the draft. |
+| Concurrent edits | Last write wins. No revision, no conflict answer. Two devices editing one draft at the same moment can lose one side's edit; accepted. |
+| How the server stores a draft | Typed where the server needs the field (photos, title, price, times); everything else is `body`, a JSON string the app owns, with `schema_version`. The server does not read the body. Posting rules stay in `POST /v1/listings` only. |
+| Who mints the ID | The app, a UUIDv7, so a draft made offline has its ID before it reaches the server. |
+| Retention | 30 days after the last edit. No notice: the draft card shows "Còn {n} ngày" from 3 days before. |
+| Deleting expired drafts | Lazily: `GET` and `PUT` delete the caller's expired drafts first. No job. |
 | Limit | 20 drafts per account, `409 draft_limit_reached`. |
+| Draft photos | Each `PUT` extends its photos' upload expiry to now + 30 days; nothing shortens it. No hold or release. A photo dropped from a draft, or of a deleted draft, stays in the private `uploads/` until its own expiry. |
 | Photo URLs | A presigned GET of the original upload, valid for an hour (`PresignPhoto`). Unposted photos never go under the public `media/`. The app scales every Sell photo to 2048 px on the long side before upload. |
+| Posting | `POST /v1/listings` does not change. After a post succeeds the app deletes the draft with `DELETE`. If that call fails, the draft stays until the person deletes it. |
 | Schema name | Today's `ListingDraft` schema (the body of `POST /v1/listings` and `PUT /v1/listings/{id}`) becomes `ListingInput`; `ListingDraft` names the new resource. |
+| Spelling | Vietnamese copy writes "Xóa", as the app does everywhere. |
 
 ## Server
 
@@ -53,59 +53,41 @@ syncs each draft to the server in the background.
 | Endpoint | What it does |
 |---|---|
 | `PUT /v1/listing-drafts/{id}` | Creates or replaces a draft. 201 on create, 200 on replace. |
-| `GET /v1/listing-drafts` | All the caller's drafts as summaries, last edited first. No paging: at most 20. |
-| `GET /v1/listing-drafts/{id}` | One draft in full. |
-| `DELETE /v1/listing-drafts/{id}` | 204, also when the draft is already gone. |
-| `POST /v1/listings` | Takes an optional `draft_id`. |
+| `GET /v1/listing-drafts` | All the caller's drafts in full, last edited first. No paging: at most 20. |
+| `DELETE /v1/listing-drafts/{id}` | 204, also when there is no such draft of the caller. |
 
 `PUT` request:
 
 ```yaml
 ListingDraftInput:
-  base_revision: integer   # 0 to create
   schema_version: integer  # >= 1
   title: string            # 0..100 characters, may be empty
-  price: integer | null    # VND
+  price: integer | null    # VND, >= 0
   photos: [uuid]           # 0..10 upload IDs, in order
-  body: object             # the app's fields, at most 32 KB serialized
+  body: string             # JSON the app owns, maxLength 32768
 ```
 
-`ListingDraft` (PUT, `GET /{id}`, and the 409 body):
+`ListingDraft` (PUT and each item of GET):
 
 ```yaml
 ListingDraft:
   id: uuid
-  revision: integer
   schema_version: integer
   title: string
   price: integer | null
   photos: [{ upload_id: uuid, url: string }]   # url presigned, 1 hour
-  body: object
+  body: string
   updated_at: date-time
   expires_at: date-time
 ```
 
-`ListingDraftSummary` (the list): `id`, `revision`, `title`, `price`,
-`cover_url` (presigned, null without photos), `photo_count`, `updated_at`,
-`expires_at`. The app compares `revision` with its own copy and fetches only
-the drafts that changed.
-
 Errors:
 
-- `409 draft_conflict`: `base_revision` is not the stored revision. The
-  body carries the stored `ListingDraft`.
-- `404 draft_not_found`: no draft of the caller with this ID, for `PUT`
-  with `base_revision > 0` and `GET /{id}`. A `PUT` with `base_revision =
-  0` on an ID that is another account's is also `draft_not_found`, so an
-  ID reveals nothing.
+- `404 draft_not_found`: `PUT` on an ID that is another account's draft.
 - `409 draft_limit_reached`: a create when the caller has 20 drafts.
-- `422 invalid_upload`: a photo that is not the caller's, or neither
-  waiting (before its expiry, in the store as declared) nor held.
-- `400 invalid_request`: shape rules, from the schema (body over 32 KB
-  included).
-
-`POST /v1/listings` with a `draft_id` of another account, or of no draft,
-ignores it: the post goes on.
+- `422 invalid_upload`: a photo that is not the caller's photo upload,
+  waiting, before its expiry and in the store as declared.
+- `400 invalid_request`: shape rules, from the schema.
 
 ### Table
 
@@ -113,191 +95,118 @@ ignores it: the post goes on.
 listing_drafts
   id              uuid primary key       -- minted by the app
   account_id      uuid not null references accounts
-  revision        bigint not null
   schema_version  int not null
   title           text not null
   price           bigint
   photos          uuid[] not null
-  body            jsonb not null
+  body            text not null
   created_at      timestamptz not null
   updated_at      timestamptz not null
   expires_at      timestamptz not null
-  warned          boolean not null default false
 index (account_id, updated_at desc)
 ```
 
-### Writing a draft
+### Use cases
 
-`PUT` runs in one transaction:
+`PUT`, in order:
 
-1. `pg_advisory_xact_lock` on `'drafts:' || account`, then a share lock
-   on the caller's `accounts` row; a tombstone is `session_revoked`.
-2. Read the draft. Missing with `base_revision > 0`, or another account's:
-   `draft_not_found`. Present with a different revision: `draft_conflict`.
-   Missing with `base_revision = 0`: count the caller's drafts, 20 or more
-   is `draft_limit_reached`.
-3. Drop from the incoming list the caller's photos that a listing took or
-   that expired (`media.Gone(owner, ids)`); see Photos. Any other photo
-   that is not usable is left for `Hold` to refuse.
-4. Write the row: `revision + 1`, `updated_at = now`, `expires_at = now +
-   30 days`, `warned = false`.
-5. `media.Hold(owner, photos)`. A refusal rolls the transaction back and
-   answers `invalid_upload`, so no photo is held for a draft that was not
-   written.
-6. `stream.Notify` with hint `listing_draft`.
+1. Drop from the incoming list the caller's photos that a listing took or
+   that expired (`media.Gone(owner, ids)`).
+2. `media.Extend(owner, photos)`. A photo that is not usable is
+   `invalid_upload` and nothing is written. An extension whose write then
+   fails is harmless: the photo only lives longer.
+3. One catalog transaction: `pg_advisory_xact_lock` on `'drafts:' ||
+   account`, a share lock on the caller's `accounts` row (a tombstone is
+   `session_revoked`), delete the caller's expired drafts, read the draft.
+   Another account's: `draft_not_found`. Missing: count the caller's
+   drafts, 20 or more is `draft_limit_reached`, else insert. Present:
+   update. Either way `updated_at = now`, `expires_at = now + 30 days`.
 
-After the commit, photos the PUT removed and no other draft of the caller
-uses are released (`media.Release`). A crash between the commit and the
-release leaves a photo held and never a draft pointing at a released one.
-The released photo expires 24 hours later.
+`GET` deletes the caller's expired drafts, reads the rest, and leaves out of
+each draft the photos `media.Gone` names, without writing. Each photo gets
+a `PresignPhoto` URL.
 
-A create also sends `DraftExpire.Run(draft_id)` with a 27-day delay and the
-draft ID as idempotency key, before the row is inserted, as an upload's
-expiry is.
-
-`DELETE` locks as above, deletes the row, notifies the stream, and releases
-the photos no other draft uses.
+`DELETE` deletes the caller's draft with that ID. Its photos expire on
+their own.
 
 ### Photos (module media)
 
-- New upload status `held`: held for its owner's drafts. A photo can be in
-  several drafts of one person (a draft and its conflict copy), so a held
-  upload has no holder ID; `listing_drafts.photos` records which drafts use
-  it.
-- `Hold(owner, ids)`, all or none: each upload is the owner's and either
-  waiting, before its expiry and in the store as declared, or held already.
-  Waiting becomes held. `MediaExpire` deletes only waiting uploads, so a
-  held one stays.
-- `Release(owner, ids)`: each held upload of the owner goes back to
-  waiting and gets a new `MediaExpire` with a 24-hour delay. Not deleted at
-  once: another device may hold a conflict copy that names it and will PUT
-  it again within the day. An upload that is not held is skipped.
-- `Attach` also takes an upload the owner holds, so a listing takes a
-  draft's photos as it takes fresh ones.
+- `uploads` gets `expires_at`, set to created + 24 hours
+  (`domain.ExpireAfter`). `QueryUpload` and every other "before its
+  expiry" check read it.
+- `Extend(owner, ids)`, all or none: each upload is the owner's photo,
+  waiting, before its `expires_at` and in the store as declared, otherwise
+  `invalid_upload`. It sets `expires_at = max(expires_at, now + 30 days)`.
+  The upload stays `waiting`, so `Attach` takes it for a listing as today.
+- `MediaExpire` still wakes 24 hours after the upload. When `expires_at` is
+  still ahead it sends itself again for that moment; otherwise it expires
+  the upload and deletes its object, as today.
 - `Gone(owner, ids)` returns those of the owner's uploads that are
   attached to a holder, expired, or have no row.
-- A photo a listing took leaves every other draft that named it. `GET`
-  leaves such photos out of its answer without writing; `PUT` drops them
-  before it writes (step 3 above). The app takes the shorter list either
-  way.
-- A draft's photo URL is `PresignPhoto(id)`, an hour. Nothing is processed
-  before the listing is posted; processing strips EXIF then, as it does for
-  every listing photo.
-
-### Expiry
-
-Restate service `DraftExpire.Run(draft_id)`, a chain like
-`SearchWatchSweep`'s, one pending invocation per draft:
-
-- The draft is gone: the chain ends.
-- `expires_at - 3 days` is still ahead (the draft was edited): send the
-  next run for that moment.
-- Not yet `warned`: in one step set `warned` and write the event
-  `listing_draft.expiring`, then send the next run for `expires_at`.
-- `expires_at` reached: delete the draft, notify the stream, release the
-  photos no other draft uses.
-
-Every step reads the row again, so an edit between steps moves the chain
-on rather than deleting a draft that was just edited.
-
-### Notice
-
-Notification hears `listing_draft.expiring` and writes `draft_expiring`:
-"Nháp “{title}” sẽ bị xoá sau 3 ngày", or "Nháp tin đăng của bạn sẽ bị xoá
-sau 3 ngày" without a title. It opens the draft and collapses on
-`draft:<id>`. The worker reads the draft through catalog and tells no one
-when the draft is gone or its `expires_at` moved past 3 days away. It is
-pushed.
-
-### Posting from a draft
-
-`ListingPost` takes `draft_id`. After the step that attaches the uploads it
-runs one more step: delete the draft of the seller with that ID (nothing
-when it is gone), notify the stream, and release the draft's photos the
-listing did not take and no other draft uses. A refused post leaves the
-draft as it was.
 
 ### Erasure
 
-Catalog's `account.deleted` worker deletes the account's drafts and
-releases their photos, which expire within a day. No stream hint: the
-sessions are revoked.
-
-### Stream
-
-Hint `listing_draft` with the draft ID on each write, delete, post and
-expiry. An open app on another device reloads the draft list.
+Catalog's `account.deleted` worker deletes the account's drafts. Their
+photos stay in the private `uploads/` until their own expiry, at most 30
+days, where ARCHITECTURE.md says a day today; no URL reaches them once the
+drafts are gone.
 
 ## App
 
 ### Model
 
-- `ListingDraft` gets:
-  - `revision: Long`, the server's revision this copy is based on, 0 before
-    the first sync;
-  - `sync: DraftSync`, `SYNCED`, `PENDING` (edits not on the server yet) or
-    `LIMIT` (the server refused it for the 20-draft limit);
-  - `copyOf: DraftId?`, set on a conflict copy.
-- A draft's `Photo` carries its `uploadId`, which is what the server knows.
-  The other fields of `ListingDraft` go in `body` as they are.
-- `DraftCard` gets `expiresAt`, `isCopy` and `sync`.
+- `ListingDraft` gets `synced: Boolean` (false while this phone has edits
+  the server lacks) and `expiresAt: Moment?` (the server's, as last read;
+  null before the first sync).
+- A draft's `Photo` carries its `uploadId` where the app has one.
+- `DraftCard` gets `synced` and `expiresAt`.
 
 ### Fake repository
 
-`FakeWorld` splits drafts in two:
+`FakeWorld` keeps two stores: `drafts` (this phone) and `serverDrafts` (the
+server, with the 20-draft limit and the 30-day expiry).
 
-- `drafts`: this phone's store.
-- `serverDrafts`: the server, with revisions, the `base_revision` check,
-  the 20-draft limit and expiry.
+- `saveDraft` writes `drafts` at once with `synced = false`, then puts the
+  draft to `serverDrafts`. Accepted: `synced = true`, `expiresAt` taken.
+  `draft_limit_reached`: the draft stays on the phone, unsynced, and the
+  call reports the limit.
+- Reading the list pulls `serverDrafts`: a draft the server has replaces
+  the phone's synced copy; a synced draft the server lacks was deleted
+  elsewhere and leaves the phone; an unsynced one is put again.
+- Unsynced drafts are put again on the next save, the next pull, after a
+  delete frees a slot, and when "Mất mạng" is turned off.
+- `post(draft)` posts, then deletes the draft from both stores.
+- `newestDraft()` reads the merged list.
 
-`saveDraft` writes `drafts` at once with `sync = PENDING`, then syncs by the
-server rules above:
-
-- accepted: take the new revision, `SYNCED`;
-- `draft_conflict`: keep the server's draft under its ID and save this
-  version as a new draft with `copyOf` set;
-- `draft_not_found` with unsynced edits: save this version as a new draft;
-  without: drop the local copy;
-- `draft_limit_reached`: keep it locally with `sync = LIMIT`.
-
-`post(draft)` sends the draft's ID and removes the draft from both stores.
-`newestDraft()` reads the merged list, drafts from the other device
-included.
-
-`DebugControls` gets "Máy khác sửa nháp", "Máy khác đăng nháp", "Máy khác
-xoá nháp", "Mất mạng" (sync waits, drafts stay `PENDING`) and "Tua tới sắp
-hết hạn", so every branch can be shown on one phone.
+`DebugControls` gets "Máy khác sửa nháp" (the server's copy changes and the
+phone takes it on the next pull), "Máy khác xóa nháp", "Mất mạng" (puts
+wait, drafts stay unsynced) and "Tua tới sắp hết hạn".
 
 ### UI
 
-Labels and messages only, no new screen:
-
-- Draft card in Tin của bạn: "Bản trên máy này" on a conflict copy,
-  "Chưa đồng bộ" while `PENDING` or `LIMIT`, "Còn {n} ngày" from 3 days
-  before expiry.
-- Saving a draft at the limit: the draft stays on the phone and Sell shows
-  "Bạn đã có 20 tin nháp. Xoá bớt nháp cũ để lưu nháp này lên tài khoản."
+- Draft card in Tin của bạn: "Chưa đồng bộ" while unsynced, "Còn {n} ngày"
+  from 3 days before expiry, on one line.
+- Saving a draft at the limit: Sell shows "Bạn đã có 20 tin nháp. Xóa bớt
+  nháp cũ để lưu nháp này lên tài khoản."
 - Home's "Tiếp tục nháp": the newest draft of the merged list.
-- The `draft_expiring` notice in Thông báo opens the draft.
 
 ## Testing
 
 Server:
 
-- Domain: revision check, the limit, dropping photos a listing took or
-  that expired.
-- Repository against Postgres: the advisory lock under two concurrent
-  creates at 19 drafts, the stream hint, the tombstone refusal.
-- Media: `Hold`, `Release`, `Attach` of a held upload, `MediaExpire`
-  leaving a held upload alone.
-- Flows: `DraftExpire` (moved on by an edit, warns once, deletes),
-  `ListingPost` with `draft_id` (deletes the draft, releases the photos the
-  listing did not take, a refused post keeps the draft), erasure.
+- Use cases: create, replace, another account's ID, the limit at 20 with
+  two concurrent creates at 19, expired drafts deleted on `GET` and `PUT`,
+  gone photos dropped, the tombstone refusal.
+- Media: `Extend` (moves the expiry out, never in; refuses another
+  account's or an expired upload), `MediaExpire` sending itself again while
+  `expires_at` is ahead, `Attach` of an extended upload, `Gone`.
+- Erasure deletes the drafts.
 - HTTP: every error above, and `ListingInput` replacing the old schema
   name.
 
 App:
 
-- Fake repository: each sync branch (accepted, conflict, not found with and
-  without edits, limit, offline then online).
-- ViewModels: the draft card labels and the limit message.
+- Fake repository: save online, save offline then back online, the limit
+  and the slot a delete frees, a draft edited and one deleted on the other
+  device, post deleting the draft, expiry.
+- View models: the card labels and the limit message.
