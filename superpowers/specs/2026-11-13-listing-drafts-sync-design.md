@@ -20,8 +20,9 @@ Changed while planning (plan `2026-11-13-server2-listing-drafts.md`):
 - A suspended account still writes its drafts; only a deleted account is
   refused (`session_revoked`).
 - Go renames beyond the schema: `domain.Draft` is `domain.ListingInput`,
-  the flows' `PostInput.Draft` and `EditInput.Draft` are `.Listing` (JSON
-  `listing`), the handler's `draftBody` is `listingBody`.
+  the flows' `PostInput.Draft` and `EditInput.Draft` are `.Listing` (the
+  wire key stays `draft` for a rolling deploy), the handler's `draftBody` is
+  `listingBody`.
 - Erasure deletes the drafts inside `Catalog.SellerLeft`, which catalog's
   `account.deleted` worker already calls.
 
