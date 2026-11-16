@@ -51,3 +51,9 @@ Tài nguyên mà người gọi không được xem cũng trả 404, giống nh�
 `try_again` dùng chung cho mọi module: lần ghi thua một lần ghi khác vào cùng bản ghi, gửi lại là an toàn. Mỗi operation trong spec liệt kê các mã nó có thể trả, nên xem operation trước khi xử lý một mã.
 
 Nguyên nhân thật của lỗi 500 chỉ nằm trong log server, không bao giờ nằm trong body.
+
+## Mã lỗi theo ca sử dụng
+
+Luồng ngoại lệ nào kết thúc bằng một mã lỗi thì ghi mã đó trong registry. Bảng dưới sinh từ các mã đó; mã không có ở đây là mã dùng chung cho mọi module hoặc chưa được truy vết tới ca sử dụng nào.
+
+<ReqTable kind="errors" />

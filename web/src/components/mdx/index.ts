@@ -1,4 +1,7 @@
 import GlossaryList from "../glossary/glossary-list.astro";
+import Req from "../requirements/req.astro";
+import ReqTable from "../requirements/req-table.astro";
+import UseCases from "../requirements/use-cases.astro";
 import Accordion from "./accordion.astro";
 import AccordionGroup from "./accordion-group.astro";
 import Callout from "./callout.astro";
@@ -26,6 +29,8 @@ export const components = {
   Kbd,
   KeyRules,
   Prereqs,
+  Req,
+  ReqTable,
   Shot,
   Step,
   Steps,
@@ -33,4 +38,5 @@ export const components = {
   Tabs,
   Term,
   UI,
+  UseCases,
 };

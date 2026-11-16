@@ -473,3 +473,130 @@
   text-decoration: underline;
   text-underline-offset: 4px;
 }
+
+/* Requirements (components/requirements): registry IDs, use cases, status. */
+.req-link {
+  text-decoration: none;
+}
+.req-link code {
+  color: var(--link);
+}
+.req-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.req-index {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+.req-index a {
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--stroke-soft);
+  background: var(--bg-nav);
+  color: var(--text-body);
+  font-size: 14px;
+  text-decoration: none;
+}
+.req-index a span {
+  color: var(--text-soft);
+}
+.req-uc {
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid var(--stroke-soft);
+  scroll-margin-top: 80px;
+}
+.req-uc h3 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+  margin-top: 0;
+}
+.req-status {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 1px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--stroke-sub);
+  color: var(--text-sub);
+  white-space: nowrap;
+}
+.req-status-done {
+  border-color: var(--brand-line);
+  background: var(--brand-soft);
+  color: var(--brand-text);
+}
+.req-status-doing,
+.req-status-planned {
+  border-color: var(--info-line);
+  background: var(--info-soft);
+  color: var(--info);
+}
+.req-meta {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 6px 16px;
+  margin-top: 12px;
+  font-size: 15px;
+}
+.req-meta dt {
+  color: var(--text-sub);
+}
+.req-meta dd {
+  margin: 0;
+  min-width: 0;
+}
+.req-label {
+  margin-top: 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-strong);
+}
+.req-empty {
+  color: var(--text-soft);
+}
+.req-steps {
+  margin-top: 6px;
+}
+.req-gaps {
+  margin-top: 16px;
+  padding: 4px 16px 8px;
+  border-radius: 12px;
+  border: 1px solid var(--warning-line);
+  background: var(--warning-soft);
+}
+.req-trace {
+  margin-top: 16px;
+  font-size: 14px;
+}
+.req-trace summary {
+  cursor: pointer;
+  color: var(--text-sub);
+}
+.req-refs {
+  margin-top: 4px;
+}
+.req-refs a {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 640px) {
+  .req-meta {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+  .req-meta dd {
+    margin-bottom: 8px;
+  }
+}
+.req-table code,
+.req-uc h3 a {
+  white-space: nowrap;
+}
+.req-table td:nth-child(2) {
+  min-width: 12em;
+}

@@ -1,0 +1,16 @@
+---
+import { withBase } from "../../lib/base";
+import { pageLang } from "../../lib/page-lang";
+import { hrefOf, label } from "../../lib/registry";
+
+/** An inline link to one requirement: <Req id="BR-ACC-01" />. An unknown ID fails the build. */
+interface Props {
+  id: string;
+}
+
+const { id } = Astro.props;
+const lang = pageLang(Astro);
+const title = label(id, lang);
+---
+
+<a class="req-link" href={withBase(hrefOf(id, lang))} title={title}><code>{id}</code></a>

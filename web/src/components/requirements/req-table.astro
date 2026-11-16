@@ -1,0 +1,151 @@
+---
+import { withBase } from "../../lib/base";
+import { pageLang } from "../../lib/page-lang";
+import { type Entry, errorCodes, hrefOf, REQ_STRINGS, registry, tr, trace, useCases } from "../../lib/registry";
+import Req from "./req.astro";
+
+/**
+ * One table from the registry. kind "coverage" lists the use cases with how
+ * much code and how many tests name them; "errors" maps each error code to
+ * the exception flows that end on it; the others list FR, BR, NFR or ADR.
+ */
+interface Props {
+  kind: "coverage" | "errors" | "fr" | "br" | "nfr" | "adr";
+}
+
+const { kind } = Astro.props;
+const lang = pageLang(Astro);
+const t = REQ_STRINGS[lang];
+const entries: Entry[] = kind === "fr" || kind === "br" || kind === "nfr" || kind === "adr" ? registry[kind] : [];
+const counts = (id: string) => {
+  const c = trace.coverage[id];
+  return c && (c.code || c.tests) ? `${c.code} / ${c.tests}` : "";
+};
+// Only a finished use case is held to its exception flows.
+const exc = (id: string) => {
+  if (registry.uc.find((u) => u.id === id)?.status !== "done") return "";
+  const flows = Object.entries(trace.coverage[id]?.flows ?? {}).filter(([f]) => f.startsWith("E"));
+  return flows.length ? `${flows.filter(([, ok]) => ok).length}/${flows.length}` : "";
+};
+---
+
+<div class="table-wrap">
+  <table class="req-table">
+    {
+      kind === "coverage" && (
+        <>
+          <thead>
+            <tr>
+              <th>{t.id}</th>
+              <th>{t.useCase}</th>
+              <th>{t.statusLabel}</th>
+              <th>{t.refs}</th>
+              <th>{t.flowsTested}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {useCases().map((u) => (
+              <tr>
+                <td>
+                  <a href={withBase(hrefOf(u.id, lang))}>
+                    <code>{u.id}</code>
+                  </a>
+                </td>
+                <td>{tr(u.title, lang)}</td>
+                <td>
+                  <span class={`req-status req-status-${u.status}`}>
+                    {t.status[u.status as keyof typeof t.status]}
+                  </span>
+                </td>
+                <td>{counts(u.id)}</td>
+                <td>{exc(u.id)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </>
+      )
+    }
+    {
+      kind === "errors" && (
+        <>
+          <thead>
+            <tr>
+              <th>{t.error}</th>
+              <th>{t.flow}</th>
+              <th>{t.rules}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[...errorCodes()].map(([code, uses]) => (
+              <tr>
+                <td>
+                  <code>{code}</code>
+                </td>
+                <td>
+<div class="req-chips">
+                  {uses.map((x) => (
+                    <a href={withBase(hrefOf(x.uc, lang))}>
+                      <code>
+                        {x.uc} {x.flow}
+                      </code>
+                    </a>
+                  ))}
+                </div>
+</td>
+                <td>
+<div class="req-chips">
+                  {[...new Set(uses.map((x) => x.br).filter(Boolean))].map((br) => (
+                    <Req id={br as string} />
+                  ))}
+                </div>
+</td>
+              </tr>
+            ))}
+          </tbody>
+        </>
+      )
+    }
+    {
+      entries.length > 0 && (
+        <>
+          <thead>
+            <tr>
+              <th>{t.id}</th>
+              {kind === "nfr" && <th>{t.attr}</th>}
+              <th>{kind === "adr" ? t.title : t.text}</th>
+              {kind === "fr" && <th>{t.ucs}</th>}
+            </tr>
+          </thead>
+          <tbody>
+            {entries.map((e) => (
+              <tr id={e.id.toLowerCase()}>
+                <td>
+                  <code>{e.id}</code>
+                </td>
+                {kind === "nfr" && <td>{e.attr}</td>}
+                <td>
+                  {kind === "adr" && e.title && (
+                    <>
+                      <strong>{tr(e.title, lang)}</strong>
+                      <br />
+                    </>
+                  )}
+                  {tr(e.text, lang)}
+                </td>
+                {kind === "fr" && (
+                  <td>
+<div class="req-chips">
+                    {(e.uc ?? []).map((id) => (
+                      <Req id={id} />
+                    ))}
+                  </div>
+</td>
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </>
+      )
+    }
+  </table>
+</div>

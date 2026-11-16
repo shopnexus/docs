@@ -14,7 +14,7 @@ bun run preview    # serves dist/ at http://localhost:4321
 | Command | What it does |
 |---|---|
 | `bun run dev` | Live-reload dev server. Search needs a built index, so run `bun run build` once first. |
-| `bun run build` | Public site: Get started, Architecture, API, Operations. |
+| `bun run build` | Public site: Get started, Marketplace, Requirements, Architecture, API, Operations. |
 | `bun run build:internal` | The public site plus the internal Developers tab (`DOCS_INTERNAL=true`). |
 | `bun run preview` | Serves the last build. |
 | `bun run lint` | Biome check. |
@@ -26,7 +26,8 @@ bun run preview    # serves dist/ at http://localhost:4321
 - The left nav is built from the frontmatter fields `group`, `groupOrder` and `order`. `related: [urls]` fills the Related rail, and `toc: false` hides the page outline.
 - A Vietnamese page that does not exist yet renders the English one under `/vi/...` with a "not translated yet" banner.
 - A page with `internal: true` exists only in `build:internal`.
-- MDX components need no import: `Callout`, `Steps`/`Step`, `Shot`, `Tabs`/`Tab`, `Cards`/`Card`, `Prereqs`, `KeyRules`, `Accordion`/`AccordionGroup`, `UI`, `Term`, `Kbd` and `Glossary`. Glossary terms are in `src/data/glossary.ts`.
+- MDX components need no import: `Callout`, `Steps`/`Step`, `Shot`, `Tabs`/`Tab`, `Cards`/`Card`, `Prereqs`, `KeyRules`, `Accordion`/`AccordionGroup`, `UI`, `Term`, `Kbd`, `Glossary`, `Req`, `ReqTable` and `UseCases`. Glossary terms are in `src/data/glossary.ts`.
+- The Requirements tab reads `../registry/requirements.yaml` and `../registry/trace.json` at build time (`src/lib/registry.ts`). `<Req id="BR-ACC-01" />` links one ID and fails the build on an unknown one; `<ReqTable kind="coverage|errors|fr|br|nfr|adr" />` prints a table; `<UseCases />` prints every use case with its flows and the server lines that name it.
 - A fenced block with the language `mermaid` is drawn as a diagram in the site's colours and redrawn when the theme changes. `title="…"` sets the caption. The renderer is `src/scripts/mermaid.ts` and loads only on pages that have a diagram.
 - Tables are wrapped in a scroll frame by `src/lib/markdown/rehype-table-wrap.ts`.
 - Tabs are declared in `src/lib/tabs.ts` and the home page copy in `src/components/home/home-strings.ts`.

@@ -1,0 +1,194 @@
+---
+import { withBase } from "../../lib/base";
+import { pageLang } from "../../lib/page-lang";
+import {
+  type Flow,
+  hrefOf,
+  REQ_STRINGS,
+  refsOf,
+  registry,
+  sourceUrl,
+  tr,
+  trace,
+  type UseCase,
+  useCases,
+} from "../../lib/registry";
+import Req from "./req.astro";
+
+/** Every use case of the registry, by group, with its flows and where the server implements and tests it. */
+const lang = pageLang(Astro);
+const t = REQ_STRINGS[lang];
+const groups = Object.entries(registry.groups)
+  .map(([key, name]) => ({ key, name: tr(name, lang), ucs: useCases(key) }))
+  .filter((g) => g.ucs.length > 0);
+const actor = (k: string) => tr(registry.actors[k], lang);
+const flows = (u: UseCase, kind: "alt" | "exc") => Object.entries(u[kind] ?? {}) as [string, Flow][];
+const actorsOf = (u: UseCase) =>
+  u.actors.map(actor).join(", ") +
+  (u.secondary?.length ? `; ${t.secondary.toLowerCase()}: ${u.secondary.map(actor).join(", ")}` : "");
+const tested = (u: UseCase, flow: string) => trace.coverage[u.id]?.flows[flow] ?? false;
+const links = (u: UseCase) => ({
+  code: refsOf(u.id).filter((r) => r.kind === "code"),
+  tests: refsOf(u.id).filter((r) => r.kind === "test"),
+});
+const ids = (u: UseCase) => [...(u.fr ?? []), ...(u.br ?? []), ...(u.nfr ?? []), ...(u.adr ?? [])];
+---
+
+<nav class="req-index" aria-label={t.ucs}>
+  {
+    groups.map((g) => (
+      <a href={`#group-${g.key.toLowerCase()}`}>
+        {g.name} <span>{g.ucs.length}</span>
+      </a>
+    ))
+  }
+</nav>
+
+{
+  groups.map((g) => (
+    <section>
+      <h2 id={`group-${g.key.toLowerCase()}`}>{g.name}</h2>
+      {g.ucs.map((u) => {
+        const { code, tests } = links(u);
+        return (
+          <article class="req-uc" id={u.id.toLowerCase()}>
+            <h3>
+              <a href={withBase(hrefOf(u.id, lang))}>{u.id}</a> {tr(u.title, lang)}
+              <span class={`req-status req-status-${u.status}`}>{t.status[u.status as keyof typeof t.status]}</span>
+            </h3>
+            <dl class="req-meta">
+              <dt>{t.actors}</dt>
+              <dd>{actorsOf(u)}</dd>
+              {ids(u).length > 0 && (
+                <>
+                  <dt>{t.rules}</dt>
+                  <dd class="req-chips">
+                    {ids(u).map((id) => (
+                      <Req id={id} />
+                    ))}
+                  </dd>
+                </>
+              )}
+              {u.api?.length && (
+                <>
+                  <dt>{t.api}</dt>
+                  <dd class="req-chips">
+                    {u.api.map((op) => (
+                      <code>{op}</code>
+                    ))}
+                  </dd>
+                </>
+              )}
+              {u.pre && (
+                <>
+                  <dt>{t.pre}</dt>
+                  <dd>{u.pre}</dd>
+                </>
+              )}
+              {u.post && (
+                <>
+                  <dt>{t.post}</dt>
+                  <dd>{u.post}</dd>
+                </>
+              )}
+            </dl>
+            {u.main ? (
+              <>
+                <p class="req-label">{t.main}</p>
+                <ol class="req-steps">
+                  {Object.entries(u.main).map(([n, s]) => (
+                    <li value={Number(n)}>{s}</li>
+                  ))}
+                </ol>
+              </>
+            ) : (
+              <p class="req-empty">{t.noSpec}</p>
+            )}
+            {(["alt", "exc"] as const).map(
+              (kind) =>
+                flows(u, kind).length > 0 && (
+                  <>
+                    <p class="req-label">{t[kind]}</p>
+                    <div class="table-wrap">
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>{t.flow}</th>
+                            <th>{t.step}</th>
+                            <th>{t.text}</th>
+                            {kind === "exc" && <th>{t.error}</th>}
+                            {u.status === "done" && <th>{t.tested}</th>}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {flows(u, kind).map(([fid, f]) => (
+                            <tr>
+                              <td>
+                                <code>{fid}</code>
+                              </td>
+                              <td>{f.at ?? ""}</td>
+                              <td>
+                                {f.text}
+                                {f.br && (
+                                  <>
+                                    {" "}
+                                    <Req id={f.br} />
+                                  </>
+                                )}
+                              </td>
+                              {kind === "exc" && <td>{f.error && <code>{f.error}</code>}</td>}
+                              {u.status === "done" && <td>{tested(u, fid) ? "✓" : "—"}</td>}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </>
+                ),
+            )}
+            {u.gaps?.length && (
+              <div class="req-gaps">
+                <p class="req-label">{t.gaps}</p>
+                <ul>
+                  {u.gaps.map((gap) => (
+                    <li>{gap}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {(code.length > 0 || tests.length > 0) && (
+              <details class="req-trace">
+                <summary>
+                  {t.code}: {code.length} · {t.tests}: {tests.length}
+                </summary>
+                {[
+                  [t.code, code],
+                  [t.tests, tests],
+                ].map(
+                  ([name, refs]) =>
+                    (refs as typeof code).length > 0 && (
+                      <>
+                        <p class="req-label">{name as string}</p>
+                        <ul class="req-refs">
+                          {(refs as typeof code).map((r) => (
+                            <li>
+                              <a href={sourceUrl(r)} rel="noopener">
+                                <code>
+                                  {r.file.replace(/^server\//, "")}:{r.line}
+                                </code>
+                              </a>
+                              {r.flows.length > 0 && <span> {r.flows.join(", ")}</span>}
+                            </li>
+                          ))}
+                        </ul>
+                      </>
+                    ),
+                )}
+              </details>
+            )}
+          </article>
+        );
+      })}
+    </section>
+  ))
+}

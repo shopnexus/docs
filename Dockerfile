@@ -4,6 +4,8 @@ WORKDIR /src/web
 COPY web/package.json web/bun.lock ./
 RUN bun install --frozen-lockfile
 COPY web/ ./
+# The Requirements pages read ../registry at build time.
+COPY registry/ ../registry/
 ENV DOCS_BASE=/
 RUN bun run build
 

@@ -51,3 +51,9 @@ A resource the caller may not see answers 404, the same as one that does not exi
 `try_again` is shared by every module: the write lost a race with another write to the same record, and sending it again is safe. Each operation in the spec lists the codes it can return, so check the operation before handling a code.
 
 The real cause of a 500 goes to the server log only and never into the body.
+
+## Codes by use case
+
+Each exception flow of a use case that ends on an error code lists it in the registry. The table below is built from that list; a code missing here is either shared by every module or not yet traced to a use case.
+
+<ReqTable kind="errors" />

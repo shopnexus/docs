@@ -1,0 +1,32 @@
+---
+title: Requirements
+description: Each use case, rule and quality requirement of ShopNexus has one ID, and the server's code and tests name the IDs they implement.
+group: Requirements
+order: 1
+groupOrder: 1
+audience: [everyone]
+type: overview
+readingTime: 2
+updated: 2026-11-16
+related: ["/en/requirements/use-cases", "/en/requirements/rules"]
+---
+
+The IDs come from one file, `docs/registry/requirements.yaml`. The thesis report and these pages read it, and `make trace` in the umbrella repository checks the server's code, tests and API spec against it.
+
+## IDs
+
+| Kind | Form | Example |
+|---|---|---|
+| Use case | `UC-<group>-nn` | <Req id="UC-DEAL-02" /> |
+| Functional requirement | `FR-<group>-nn` | <Req id="FR-DEAL-02" /> |
+| Business rule | `BR-<group>-nn` | <Req id="BR-DEAL-03" /> |
+| Quality requirement | `NFR-<quality>-nn` | <Req id="NFR-CONC-01" /> |
+| Architecture decision | `ADR-nnnn` | <Req id="ADR-0002" /> |
+
+The groups are `ACC` accounts, `LST` listings, `DSC` discovery, `DEAL` chat and deals, `TRS` trust after the sale, `MOD` operations and `SHR` use cases that others include. A use case numbers its own flows: `A1`, `A2` and on are alternate flows that still reach the goal, and `E1`, `E2` and on are exception flows that end without it. An ID is never given twice; a dropped one is marked retired.
+
+## Coverage
+
+<ReqTable kind="coverage" />
+
+The counts come from `registry/trace.json`, which `make trace` writes from one commit of the server. A use case marked not traced has no tags in the code yet.

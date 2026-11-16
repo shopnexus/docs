@@ -1,7 +1,14 @@
 import { DOCS_INTERNAL } from "astro:env/server";
 import type { Lang } from "./i18n";
 
-export type TabId = "get-started" | "marketplace" | "architecture" | "api" | "operations" | "developers";
+export type TabId =
+  | "get-started"
+  | "marketplace"
+  | "requirements"
+  | "architecture"
+  | "api"
+  | "operations"
+  | "developers";
 
 export interface Tab {
   id: TabId;
@@ -38,6 +45,17 @@ const ALL_TABS: Tab[] = [
     blurb: {
       en: "How buying and selling work: listings, COD with inspection, trust.",
       vi: "Mua bán diễn ra thế nào: tin đăng, COD đồng kiểm, uy tín.",
+    },
+  },
+  {
+    id: "requirements",
+    img: "/img/sec-guides.webp",
+    icon: "ri:list-check-3",
+    internal: false,
+    label: { en: "Requirements", vi: "Yêu cầu" },
+    blurb: {
+      en: "Use cases, rules and quality requirements, with the code and tests behind each.",
+      vi: "Ca sử dụng, quy tắc và yêu cầu chất lượng, kèm code và test của từng mục.",
     },
   },
   {
