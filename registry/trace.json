@@ -1,7 +1,7 @@
 {
   "server": {
     "repo": "https://github.com/shopnexus/server",
-    "commit": "948038b71de79f30eea5814e69bf397d1b11b59c"
+    "commit": "430d3e4a4256334a7d7f627503478b3d9721aa7d"
   },
   "refs": {
     "UC-DEAL-02": [
@@ -373,19 +373,19 @@
       },
       {
         "file": "server/internal/deal/service/order_test.go",
-        "line": 48,
+        "line": 51,
         "kind": "test",
         "flows": []
       },
       {
         "file": "server/internal/deal/service/order_test.go",
-        "line": 72,
+        "line": 75,
         "kind": "test",
         "flows": []
       },
       {
         "file": "server/internal/deal/service/order_test.go",
-        "line": 95,
+        "line": 98,
         "kind": "test",
         "flows": [
           "E1",
@@ -701,13 +701,13 @@
       },
       {
         "file": "server/internal/deal/service/order_test.go",
-        "line": 139,
+        "line": 142,
         "kind": "test",
         "flows": []
       },
       {
         "file": "server/internal/deal/service/order_test.go",
-        "line": 172,
+        "line": 175,
         "kind": "test",
         "flows": [
           "A3"
@@ -715,7 +715,7 @@
       },
       {
         "file": "server/internal/deal/service/order_test.go",
-        "line": 208,
+        "line": 258,
         "kind": "test",
         "flows": [
           "A3"
@@ -789,7 +789,7 @@
       },
       {
         "file": "server/api/paths/deal.yaml",
-        "line": 718,
+        "line": 689,
         "kind": "api",
         "flows": []
       }
@@ -869,7 +869,7 @@
       },
       {
         "file": "server/internal/deal/service/order_test.go",
-        "line": 139,
+        "line": 142,
         "kind": "test",
         "flows": [
           "E1"
@@ -1150,7 +1150,7 @@
       },
       {
         "file": "server/internal/deal/service/order_test.go",
-        "line": 172,
+        "line": 175,
         "kind": "test",
         "flows": []
       }
