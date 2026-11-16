@@ -1,7 +1,7 @@
 {
   "server": {
     "repo": "https://github.com/shopnexus/server",
-    "commit": "1dea84848eead492bbd42cd7a961cd35416132af"
+    "commit": "aca1e9c64ac2bfe479dc15012566b82ae190d3b6"
   },
   "refs": {
     "UC-LST-01": [
@@ -410,7 +410,7 @@
       },
       {
         "file": "server/internal/catalog/service/listing_test.go",
-        "line": 29,
+        "line": 30,
         "kind": "test",
         "flows": [
           "E1",
@@ -422,7 +422,7 @@
       },
       {
         "file": "server/internal/catalog/service/listing_test.go",
-        "line": 82,
+        "line": 83,
         "kind": "test",
         "flows": [
           "A6"
@@ -430,7 +430,7 @@
       },
       {
         "file": "server/internal/catalog/service/listing_test.go",
-        "line": 113,
+        "line": 114,
         "kind": "test",
         "flows": [
           "E3"
@@ -438,7 +438,7 @@
       },
       {
         "file": "server/internal/catalog/service/listing_test.go",
-        "line": 433,
+        "line": 458,
         "kind": "test",
         "flows": [
           "A5"
@@ -549,6 +549,12 @@
         "line": 103,
         "kind": "code",
         "flows": []
+      },
+      {
+        "file": "server/internal/catalog/service/listing_test.go",
+        "line": 189,
+        "kind": "test",
+        "flows": []
       }
     ],
     "UC-LST-02": [
@@ -620,7 +626,7 @@
       },
       {
         "file": "server/internal/catalog/service/listing_test.go",
-        "line": 147,
+        "line": 148,
         "kind": "test",
         "flows": [
           "E2"
@@ -628,7 +634,15 @@
       },
       {
         "file": "server/internal/catalog/service/listing_test.go",
-        "line": 188,
+        "line": 189,
+        "kind": "test",
+        "flows": [
+          "E3"
+        ]
+      },
+      {
+        "file": "server/internal/catalog/service/listing_test.go",
+        "line": 213,
         "kind": "test",
         "flows": [
           "E1",
@@ -2044,14 +2058,14 @@
     },
     "UC-LST-02": {
       "code": 13,
-      "tests": 5,
+      "tests": 6,
       "flows": {
         "A1": false,
         "A2": true,
         "A3": false,
         "E1": true,
         "E2": true,
-        "E3": false
+        "E3": true
       }
     },
     "UC-LST-03": {
