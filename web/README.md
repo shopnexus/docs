@@ -23,7 +23,7 @@ bun run preview    # serves dist/ at http://localhost:4321
 ## Writing pages
 
 - A page lives at `src/content/docs/<en|vi>/<tab>/<slug>.mdx` and is served at `/<lang>/<tab>/<slug>`. `index.mdx` is the landing page of a tab or folder. `src/content.config.ts` validates the frontmatter.
-- The left nav is built from the frontmatter fields `group`, `groupOrder` and `order`. `related: [urls]` fills the Related rail, and `toc: false` hides the page outline. `wide: true` drops the left nav and the outline and gives the page body the full width, for an embedded app.
+- The left nav is built from the frontmatter fields `group`, `groupOrder` and `order`. `related: [urls]` fills the Related rail, and `toc: false` hides the page outline. `wide: true` drops the left nav, the outline and the visible page header (the title and description stay for screen readers and search) and gives the page body the full width, for an embedded app.
 - A Vietnamese page that does not exist yet renders the English one under `/vi/...` with a "not translated yet" banner.
 - A page with `internal: true` exists only in `build:internal`.
 - MDX components need no import: `Callout`, `Steps`/`Step`, `Shot`, `Tabs`/`Tab`, `Cards`/`Card`, `Prereqs`, `KeyRules`, `Accordion`/`AccordionGroup`, `UI`, `Term`, `Kbd`, `Glossary`, `Req`, `ReqTable`, `UseCases` and `ApiPlayground`. Glossary terms are in `src/data/glossary.ts`.

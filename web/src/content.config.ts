@@ -25,7 +25,7 @@ const docs = defineCollection({
     internal: z.boolean().default(false),
     related: z.array(z.string()).optional(),
     toc: z.boolean().default(true),
-    /** Full width, without the left nav or the outline, for an embedded app such as the API playground. */
+    /** Full width, without the left nav, the outline or a visible page header, for an embedded app such as the API playground. */
     wide: z.boolean().default(false),
   }),
 });

@@ -60,17 +60,19 @@ const markdownJson = JSON.stringify(markdown).replace(/</g, "\\u003c");
       {
         wide ? (
           <>
+            {/* The embedded app is the page: no visible header, only its title and description for screen readers and search. */}
             <div
-              class="px-4 sm:px-8 lg:px-12 pt-6 lg:pt-10 pb-6 max-w-[1096px]"
+              class="sr-only"
               data-pagefind-body={indexed ? "" : undefined}
               data-pagefind-filter={indexed ? `lang:${lang}` : undefined}
               data-pagefind-meta={indexed ? `crumb:${crumb}` : undefined}
             >
               {indexed && <span hidden data-pagefind-filter={`section:${tab.id}`} />}
-              <PageNotices page={page} />
-              <PageHeader page={page} />
+              <h1 data-pagefind-meta="title">{entry.data.title}</h1>
+              <p>{entry.data.description}</p>
             </div>
-            <div class="fade-up d3 border-t border-line" lang={fallback ? "en" : lang} data-doc-body>
+            <PageNotices page={page} />
+            <div class="fade-up d3" lang={fallback ? "en" : lang} data-doc-body>
               <slot />
             </div>
           </>
