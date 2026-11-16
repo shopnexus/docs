@@ -18,17 +18,17 @@ Phần lớn yêu cầu chức năng ở Chương 3 chỉ thêm một chức nă
     columns: (0.5fr, 1.7fr, 0.6fr, 2.3fr),
     align: (center + horizon, left + horizon, left + horizon, left + horizon),
     table.header([Mã], [Yếu tố], [Nguồn], [Cách thiết kế đáp ứng]),
-    [AD-01], [Quy trình nhiều bước có liên quan tới hãng vận chuyển không được dừng dở dang], [NFR-01],
+    [AD-01], [Quy trình nhiều bước có liên quan tới hãng vận chuyển không được dừng dở dang], [NFR-DUR-01],
     [Mỗi quy trình ghi nhận từng bước đã xong; máy chủ gặp sự cố thì quy trình chạy tiếp từ bước đã ghi, không làm lại bước cũ [3]],
-    [AD-02], [Người dùng bấm lặp, mạng chập chờn hoặc hãng báo trùng không được tạo hai đơn, hai vận đơn], [NFR-02],
+    [AD-02], [Người dùng bấm lặp, mạng chập chờn hoặc hãng báo trùng không được tạo hai đơn, hai vận đơn], [NFR-IDEM-01],
     [Mỗi thao tác quan trọng mang một mã yêu cầu do ứng dụng sinh; gửi lại cùng mã thì nhận lại kết quả của lần đầu],
-    [AD-03], [Hai người cùng thao tác trên một thương lượng; hạn mức đơn COD và số tin đang bán không được vượt], [NFR-03],
+    [AD-03], [Hai người cùng thao tác trên một thương lượng; hạn mức đơn COD và số tin đang bán không được vượt], [NFR-CONC-01],
     [Chỉ lượt ghi đến trước được nhận, lượt sau được báo dữ liệu đã đổi để xem lại; hạn mức được đếm lần lượt theo từng người],
-    [AD-04], [Tin báo giữa các phân hệ, như đơn đã giao hay tin đã bán, không được mất], [NFR-04],
+    [AD-04], [Tin báo giữa các phân hệ, như đơn đã giao hay tin đã bán, không được mất], [NFR-MSG-01],
     [Tin báo được lưu cùng lúc với thay đổi sinh ra nó và được gửi lại cho tới khi nơi nhận xử lý xong],
-    [AD-05], [Tách một phân hệ ra máy chủ riêng khi tải tăng mà không viết lại nghiệp vụ], [NFR-10],
+    [AD-05], [Tách một phân hệ ra máy chủ riêng khi tải tăng mà không viết lại nghiệp vụ], [NFR-ARCH-01],
     [Phân hệ chỉ gọi nhau qua các chức năng đã công bố và chỉ dùng dữ liệu của chính mình [10]],
-    [AD-06], [Tìm kiếm bằng AI phải trả kết quả trong thời gian chờ chấp nhận được và không kém tìm theo bộ lọc], [NFR-05],
+    [AD-06], [Tìm kiếm bằng AI phải trả kết quả trong thời gian chờ chấp nhận được và không kém tìm theo bộ lọc], [NFR-PERF-01],
     [Agent tối đa 4 vòng gọi công cụ và 8 giây; quá hạn thì dùng tìm kiếm lai với câu gốc của người mua],
   ),
 )
@@ -181,7 +181,7 @@ Sàn không phán xử từng vụ việc, nên mọi hệ quả với người 
   ]), shape: rect, name: <r-bac>),
   ncore((3, 0), [Quyền\ hiện có], shape: rect, name: <r-q>),
   nr((2.5, 1), align(left, text(size: 9pt)[
-    *Chế tài tự động (BR-15)*, khi có ≥ 5 đơn COD/90 ngày\
+    *Chế tài tự động (BR-TRS-02)*, khi có ≥ 5 đơn COD/90 ngày\
     từ chối nhận ≥ 20%: còn 1 đơn COD mở\
     từ chối nhận ≥ 35%: mất quyền COD 30 ngày\
     30 ngày không từ chối: hồi lại một nấc
@@ -192,7 +192,7 @@ Sàn không phán xử từng vụ việc, nên mọi hệ quả với người 
   edge(<r-ct>, <r-q>, "-|>", stroke: (dash: "dashed"), label-side: right, rel[giới hạn thêm]),
 )
 
-Từ điểm suy ra bậc, từ bậc suy ra hạn mức số đơn COD đang mở (BR-09) và số tin đang bán (BR-04). Chế tài đặt chồng lên hạn mức của bậc: người mua thường xuyên từ chối nhận hàng bị giảm số đơn COD được mở rồi mất quyền COD, và được hồi dần khi không còn từ chối. Đơn tự gửi không tính vào tỉ lệ vì sàn không quan sát được việc giao nhận. Phía người bán, tỉ lệ bị từ chối nhận và số ghi nhận sự cố chưa trả lời được theo dõi theo cùng cách, với nấc đầu tiên là hạ thứ tự hiển thị. Quyền COD và bậc uy tín không mua được bằng gói trả phí (BR-16), nên doanh thu của sàn không làm lệch thước đo niềm tin.
+Từ điểm suy ra bậc, từ bậc suy ra hạn mức số đơn COD đang mở (BR-DEAL-06) và số tin đang bán (BR-LST-02). Chế tài đặt chồng lên hạn mức của bậc: người mua thường xuyên từ chối nhận hàng bị giảm số đơn COD được mở rồi mất quyền COD, và được hồi dần khi không còn từ chối. Đơn tự gửi không tính vào tỉ lệ vì sàn không quan sát được việc giao nhận. Phía người bán, tỉ lệ bị từ chối nhận và số ghi nhận sự cố chưa trả lời được theo dõi theo cùng cách, với nấc đầu tiên là hạ thứ tự hiển thị. Quyền COD và bậc uy tín không mua được bằng gói trả phí (BR-TRS-03), nên doanh thu của sàn không làm lệch thước đo niềm tin.
 
 == Thiết kế dữ liệu
 
@@ -268,10 +268,10 @@ Khi hai thao tác cùng sửa một thương lượng, ví dụ người bán ph
 
 == Thiết kế các luồng xử lý chính
 
-Hình 4.5 là trình tự của UC-16. Khi người bán tạo đơn, phân hệ giao dịch kiểm đơn còn ở trạng thái đã yêu cầu. Với đơn qua hãng có liên kết, phân hệ vận chuyển tạo vận đơn trên tài khoản hãng của chính người bán, đặt chế độ người nhận trả phí ship, rồi nhận mã vận đơn và phí thật; với đơn tự gửi, hệ thống dùng tên hãng, mã vận đơn và phí do người bán nhập. Sau đó phân hệ tin đăng giữ tin cho người mua này, đơn chuyển đã tạo vận đơn và các yêu cầu COD khác trên cùng tin tự hủy với lý do đã gửi cho người khác (BR-07); người mua và những người bị hủy yêu cầu đều được báo. Nếu máy chủ gặp sự cố giữa chừng, quy trình tiếp tục từ bước đã xong nên hãng không nhận lệnh tạo vận đơn lần hai (NFR-01); người bán bấm lặp cũng chỉ nhận lại đơn đã tạo (NFR-02).
+Hình 4.5 là trình tự của UC-DEAL-04. Khi người bán tạo đơn, phân hệ giao dịch kiểm đơn còn ở trạng thái đã yêu cầu. Với đơn qua hãng có liên kết, phân hệ vận chuyển tạo vận đơn trên tài khoản hãng của chính người bán, đặt chế độ người nhận trả phí ship, rồi nhận mã vận đơn và phí thật; với đơn tự gửi, hệ thống dùng tên hãng, mã vận đơn và phí do người bán nhập. Sau đó phân hệ tin đăng giữ tin cho người mua này, đơn chuyển đã tạo vận đơn và các yêu cầu COD khác trên cùng tin tự hủy với lý do đã gửi cho người khác (BR-DEAL-04); người mua và những người bị hủy yêu cầu đều được báo. Nếu máy chủ gặp sự cố giữa chừng, quy trình tiếp tục từ bước đã xong nên hãng không nhận lệnh tạo vận đơn lần hai (NFR-DUR-01); người bán bấm lặp cũng chỉ nhận lại đơn đã tạo (NFR-IDEM-01).
 
 #fig(
-  [Sơ đồ trình tự UC-16: người bán tạo đơn gửi hàng],
+  [Sơ đồ trình tự UC-DEAL-04: người bán tạo đơn gửi hàng],
   spacing: (10mm, 4.9mm),
   np((0, 0), [:Người bán], shape: rect),
   ncore((1, 0), [Giao dịch], shape: rect),
@@ -299,10 +299,10 @@ Hình 4.5 là trình tự của UC-16. Khi người bán tạo đơn, phân hệ
   nr((4.5, 8.2), text(size: 8pt)[Sự cố giữa chừng:\ quy trình chạy tiếp\ từ bước đã xong,\ không tạo vận đơn\ lần hai], shape: rect),
 )
 
-Hình 4.6 là trình tự của UC-09. Agent nạp các ràng buộc người mua đã chốt trong phiên rồi vào vòng lặp: hỏi mô hình ngôn ngữ lớn nên làm gì, thực hiện công cụ mô hình chọn (thường là tìm tin trên chỉ mục lai, hợp nhất ba danh sách xếp hạng [5]), rồi đưa kết quả lại cho mô hình. Vòng lặp dừng khi mô hình đưa ra câu trả lời cuối hoặc đủ 4 vòng. Khung alt thể hiện trần thời gian: quá 8 giây hoặc công cụ lỗi thì hệ thống chạy tìm kiếm lai với câu gốc, nên người mua luôn có kết quả trong giới hạn của NFR-05.
+Hình 4.6 là trình tự của UC-DSC-01. Agent nạp các ràng buộc người mua đã chốt trong phiên rồi vào vòng lặp: hỏi mô hình ngôn ngữ lớn nên làm gì, thực hiện công cụ mô hình chọn (thường là tìm tin trên chỉ mục lai, hợp nhất ba danh sách xếp hạng [5]), rồi đưa kết quả lại cho mô hình. Vòng lặp dừng khi mô hình đưa ra câu trả lời cuối hoặc đủ 4 vòng. Khung alt thể hiện trần thời gian: quá 8 giây hoặc công cụ lỗi thì hệ thống chạy tìm kiếm lai với câu gốc, nên người mua luôn có kết quả trong giới hạn của NFR-PERF-01.
 
 #fig(
-  [Sơ đồ trình tự UC-09: tìm kiếm bằng AI agent],
+  [Sơ đồ trình tự UC-DSC-01: tìm kiếm bằng AI agent],
   spacing: (12mm, 5.6mm),
   np((0, 0), [:Người mua], shape: rect),
   np((1, 0), [Tìm kiếm], shape: rect),
@@ -350,7 +350,7 @@ Tìm kiếm lai so khớp cả câu theo nghĩa, nên với câu "kiếm gì đ�
   ),
 )
 
-Agent nhớ hội thoại theo phiên: giá tối đa, danh mục, tình trạng, bán kính và những điều cần tránh được lưu lại, lượt hỏi sau kế thừa. Kết quả luôn gồm danh sách tin, các chip ràng buộc và một câu diễn giải. Mọi ràng buộc agent đặt ra đều hiện thành chip (BR-18); khi người mua xóa hoặc sửa chip, ứng dụng tìm lại theo bộ ràng buộc mới mà không hỏi lại mô hình ngôn ngữ.
+Agent nhớ hội thoại theo phiên: giá tối đa, danh mục, tình trạng, bán kính và những điều cần tránh được lưu lại, lượt hỏi sau kế thừa. Kết quả luôn gồm danh sách tin, các chip ràng buộc và một câu diễn giải. Mọi ràng buộc agent đặt ra đều hiện thành chip (BR-DSC-01); khi người mua xóa hoặc sửa chip, ứng dụng tìm lại theo bộ ràng buộc mới mà không hỏi lại mô hình ngôn ngữ.
 
 Có bốn lớp bảo vệ người dùng. Bộ công cụ không có thao tác ghi, nên agent không thể đặt hàng, thương lượng hay thanh toán thay người dùng. Câu gốc của người mua luôn được giữ trong lần tìm, nên trường hợp xấu nhất cũng bằng tìm kiếm lai. Vòng lặp bị chặn ở 4 vòng và 8 giây (AD-06). Mỗi lần hỏi mô hình và gọi công cụ là một bước có ghi nhận, nên thử lại sau sự cố không hỏi mô hình hai lần cho cùng một bước.
 
@@ -377,6 +377,6 @@ Mọi chức năng mà ứng dụng gọi tới được mô tả trước trong
   ),
 )
 
-Về đăng nhập (NFR-06), khách hàng dùng mã OTP 6 chữ số, hiệu lực 5 phút, nhập sai 5 lần thì mã bị hủy. Mỗi số điện thoại hay email chỉ nhận tối đa 1 mã mỗi 45 giây và 5 mã mỗi giờ, nên không ai dùng sàn để gửi tin nhắn rác tới người khác. Người dùng xem được danh sách thiết bị đang đăng nhập, đăng xuất từng máy hoặc tất cả; phiên trên một thiết bị hết hạn sau 30 ngày không dùng, và nếu có dấu hiệu phiên bị đánh cắp thì hệ thống tự đăng xuất thiết bị đó. Tài khoản nhân viên tách hẳn khỏi tài khoản khách hàng: nhân viên đăng nhập bằng mật khẩu kèm mã xác thực hai lớp, nhập sai 5 lần bị khóa 15 phút, và mọi thao tác của nhân viên lên tài khoản khách hàng đều được ghi lại để quản trị viên tra cứu.
+Về đăng nhập (NFR-SEC-01), khách hàng dùng mã OTP 6 chữ số, hiệu lực 5 phút, nhập sai 5 lần thì mã bị hủy. Mỗi số điện thoại hay email chỉ nhận tối đa 1 mã mỗi 45 giây và 5 mã mỗi giờ, nên không ai dùng sàn để gửi tin nhắn rác tới người khác. Người dùng xem được danh sách thiết bị đang đăng nhập, đăng xuất từng máy hoặc tất cả; phiên trên một thiết bị hết hạn sau 30 ngày không dùng, và nếu có dấu hiệu phiên bị đánh cắp thì hệ thống tự đăng xuất thiết bị đó. Tài khoản nhân viên tách hẳn khỏi tài khoản khách hàng: nhân viên đăng nhập bằng mật khẩu kèm mã xác thực hai lớp, nhập sai 5 lần bị khóa 15 phút, và mọi thao tác của nhân viên lên tài khoản khách hàng đều được ghi lại để quản trị viên tra cứu.
 
-Về quyền riêng tư (NFR-07), ảnh tải lên được xóa thông tin vị trí chụp trước khi hiển thị; vị trí tin đăng chỉ ghi tới xã, phường nên người lạ không suy ra được nhà của người bán. Thông tin kết nối tới tài khoản hãng của người bán được giữ kín, và hệ thống không bao giờ giữ mật khẩu tài khoản hãng. Theo BR-21, thông báo khi gửi mã OTP giống hệt nhau dù số điện thoại đã có tài khoản hay chưa, và dữ liệu người dùng không được xem thì được báo là không tồn tại, nên không ai dò được một số điện thoại đã đăng ký hay một đơn hàng có thật hay không.
+Về quyền riêng tư (NFR-PRIV-01), ảnh tải lên được xóa thông tin vị trí chụp trước khi hiển thị; vị trí tin đăng chỉ ghi tới xã, phường nên người lạ không suy ra được nhà của người bán. Thông tin kết nối tới tài khoản hãng của người bán được giữ kín, và hệ thống không bao giờ giữ mật khẩu tài khoản hãng. Theo BR-ACC-02, thông báo khi gửi mã OTP giống hệt nhau dù số điện thoại đã có tài khoản hay chưa, và dữ liệu người dùng không được xem thì được báo là không tồn tại, nên không ai dò được một số điện thoại đã đăng ký hay một đơn hàng có thật hay không.

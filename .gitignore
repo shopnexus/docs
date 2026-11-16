@@ -9,6 +9,7 @@
 !/Dockerfile
 !/LICENSE
 !/README.md
+!/registry/
 !/manual/
 !/nginx.conf
 !/package.json

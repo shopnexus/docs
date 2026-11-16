@@ -1,7 +1,7 @@
 # Biên dịch các báo cáo. Chạy từ thư mục typst/: `make`, `make all`, `make cuoi`...
-# Mọi tài liệu import từ common/, nên luôn cần --root . và --font-path common/fonts.
+# Mọi tài liệu import từ common/ và đọc ../registry/, nên luôn cần --root .. và --font-path common/fonts.
 TYPST ?= typst
-FLAGS := --root . --font-path common/fonts
+FLAGS := --root .. --font-path common/fonts
 OUT   := out
 
 TUAN    := $(wildcard bao-cao-tuan/*.typ)

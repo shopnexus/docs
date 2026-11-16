@@ -9,11 +9,11 @@ Chương này trình bày bốn nhóm chức năng của giai đoạn 2 theo gó
 
 == Vận chuyển qua GHTK và GHN
 
-Người bán liên kết tài khoản GHTK hoặc GHN đứng tên mình một lần trong màn hình "Thiết lập giao COD" (UC-04): khai địa chỉ lấy hàng, chọn hãng và nhập khóa kết nối do hãng cấp. Trước khi lưu, hệ thống thử hỏi phí với hãng nên khóa sai bị báo ngay. Khóa được mã hóa khi lưu; hệ thống không bao giờ giữ mật khẩu tài khoản hãng (NFR-07).
+Người bán liên kết tài khoản GHTK hoặc GHN đứng tên mình một lần trong màn hình "Thiết lập giao COD" (UC-ACC-04): khai địa chỉ lấy hàng, chọn hãng và nhập khóa kết nối do hãng cấp. Trước khi lưu, hệ thống thử hỏi phí với hãng nên khóa sai bị báo ngay. Khóa được mã hóa khi lưu; hệ thống không bao giờ giữ mật khẩu tài khoản hãng (NFR-PRIV-01).
 
-Khi có yêu cầu COD, người mua đã thấy phí ship ước tính (UC-15). Người bán chỉ cần chọn dịch vụ nhanh hoặc tiết kiệm và nhập khối lượng (UC-16); hệ thống tạo vận đơn trên tài khoản hãng của người bán và hiện phí thật. Vận đơn luôn đặt chế độ người nhận trả phí ship và cho xem hàng [9][10], nên shipper thu tiền hàng cùng phí ship tại cửa sau khi người mua đã xem hàng (BR-08). Nếu người mua từ chối nhận, hàng quay về, hãng tính phí hai chiều vào tài khoản người bán và người mua không mất tiền (BR-11). Người bán vẫn có thể tự gửi qua hãng khác bằng cách nhập mã vận đơn, nhưng đơn tự gửi không được tính vào tỉ lệ dùng cho chế tài.
+Khi có yêu cầu COD, người mua đã thấy phí ship ước tính (UC-DEAL-03). Người bán chỉ cần chọn dịch vụ nhanh hoặc tiết kiệm và nhập khối lượng (UC-DEAL-04); hệ thống tạo vận đơn trên tài khoản hãng của người bán và hiện phí thật. Vận đơn luôn đặt chế độ người nhận trả phí ship và cho xem hàng [9][10], nên shipper thu tiền hàng cùng phí ship tại cửa sau khi người mua đã xem hàng (BR-DEAL-05). Nếu người mua từ chối nhận, hàng quay về, hãng tính phí hai chiều vào tài khoản người bán và người mua không mất tiền (BR-DEAL-08). Người bán vẫn có thể tự gửi qua hãng khác bằng cách nhập mã vận đơn, nhưng đơn tự gửi không được tính vào tỉ lệ dùng cho chế tài.
 
-Hình 2.1 là trình tự tạo đơn gửi hàng. Quy trình gồm nhiều bước nối tiếp: kiểm tra đơn, tạo vận đơn, giữ tin cho người mua này và hủy các yêu cầu COD khác trên cùng tin. Kết quả mỗi bước được ghi lại [12], nên nếu máy chủ gặp sự cố giữa chừng, quy trình chạy tiếp từ bước đã xong và không tạo vận đơn thứ hai (NFR-01) [3]. Nếu tin đã đóng trước khi kịp giữ, vận đơn vừa tạo bị hủy ngay.
+Hình 2.1 là trình tự tạo đơn gửi hàng. Quy trình gồm nhiều bước nối tiếp: kiểm tra đơn, tạo vận đơn, giữ tin cho người mua này và hủy các yêu cầu COD khác trên cùng tin. Kết quả mỗi bước được ghi lại [12], nên nếu máy chủ gặp sự cố giữa chừng, quy trình chạy tiếp từ bước đã xong và không tạo vận đơn thứ hai (NFR-DUR-01) [3]. Nếu tin đã đóng trước khi kịp giữ, vận đơn vừa tạo bị hủy ngay.
 
 #fig-xoay(
   [Sơ đồ trình tự tạo đơn gửi hàng qua hãng vận chuyển],
@@ -42,7 +42,7 @@ Hình 2.1 là trình tự tạo đơn gửi hàng. Quy trình gồm nhiều bư�
   rmsg(1, 0, 13.6, nl[10. Báo kết quả: mã vận đơn, phí thật]),
 )
 
-Trước khi hãng lấy hàng, cả hai bên đều hủy được đơn và vận đơn trên tài khoản hãng bị hủy theo; khi hãng đã lấy hàng, lệnh hủy bị từ chối (UC-18, BR-10). Sau đó người mua theo dõi đơn theo trạng thái hãng báo về (UC-17) mà không phải tự xác nhận. Hai hãng gọi trạng thái khác nhau nên được quy về trạng thái chung của đơn như ở Bảng 2.1. Hãng có thể báo trùng hoặc sai thứ tự; mỗi tin báo chỉ được ghi nhận một lần và chỉ áp vào đơn khi đơn đang ở đúng bước liền trước, nên đơn không lùi trạng thái và một lần giao không bị tính hai lần (NFR-02) [6].
+Trước khi hãng lấy hàng, cả hai bên đều hủy được đơn và vận đơn trên tài khoản hãng bị hủy theo; khi hãng đã lấy hàng, lệnh hủy bị từ chối (UC-DEAL-06, BR-DEAL-07). Sau đó người mua theo dõi đơn theo trạng thái hãng báo về (UC-DEAL-05) mà không phải tự xác nhận. Hai hãng gọi trạng thái khác nhau nên được quy về trạng thái chung của đơn như ở Bảng 2.1. Hãng có thể báo trùng hoặc sai thứ tự; mỗi tin báo chỉ được ghi nhận một lần và chỉ áp vào đơn khi đơn đang ở đúng bước liền trước, nên đơn không lùi trạng thái và một lần giao không bị tính hai lần (NFR-IDEM-01) [6].
 
 #figure(
   kind: table,
@@ -86,13 +86,13 @@ Lớp dưới là tìm kiếm lai trên các tin đang bán. Mỗi tin được 
   edge((4, 1), (5, 1), "-|>"),
 )
 
-Lớp trên là AI agent (UC-09). Người dùng gõ một câu như "kiếm xe đạp cũ dưới 3 triệu, gần đây"; agent dùng một mô hình ngôn ngữ lớn có sẵn, tự chọn công cụ cần tra cứu như tìm tin, xem danh mục, xem khu vực hay sở thích của người dùng, rồi đặt bộ lọc phù hợp [7]. Kết quả gồm danh sách tin, các chip điều kiện sửa được và một câu diễn giải ngắn. Lượt sau trong cùng phiên kế thừa các điều kiện đã chốt. Agent chỉ đọc (BR-18): không đặt hàng, không thương lượng, không thanh toán. Mỗi lượt gọi công cụ tối đa 4 lần; quá 8 giây hoặc gặp lỗi thì hệ thống trả kết quả tìm kiếm lai với câu gốc (NFR-05). Người dùng cũng lưu được tin để theo dõi giá (REQ-12).
+Lớp trên là AI agent (UC-DSC-01). Người dùng gõ một câu như "kiếm xe đạp cũ dưới 3 triệu, gần đây"; agent dùng một mô hình ngôn ngữ lớn có sẵn, tự chọn công cụ cần tra cứu như tìm tin, xem danh mục, xem khu vực hay sở thích của người dùng, rồi đặt bộ lọc phù hợp [7]. Kết quả gồm danh sách tin, các chip điều kiện sửa được và một câu diễn giải ngắn. Lượt sau trong cùng phiên kế thừa các điều kiện đã chốt. Agent chỉ đọc (BR-DSC-01): không đặt hàng, không thương lượng, không thanh toán. Mỗi lượt gọi công cụ tối đa 4 lần; quá 8 giây hoặc gặp lỗi thì hệ thống trả kết quả tìm kiếm lai với câu gốc (NFR-PERF-01). Người dùng cũng lưu được tin để theo dõi giá (FR-DSC-03).
 
 == Uy tín và chế tài
 
-Sau khi đơn đã gửi, người mua đánh giá người bán một lần từ 1 đến 5 sao (UC-19, BR-17). Nếu phát hiện vấn đề sau khi nhận hàng, người mua mở ghi nhận sự cố kèm ảnh (UC-20); AI viết một nhận xét trung lập đối chiếu mô tả với cam kết của tin đăng, không kết luận ai đúng. Người bán có 3 ngày để tự hoàn hoặc từ chối (UC-21); từ chối hoặc quá hạn thì ghi nhận hiện công khai trên hồ sơ người bán (BR-14).
+Sau khi đơn đã gửi, người mua đánh giá người bán một lần từ 1 đến 5 sao (UC-TRS-01, BR-TRS-04). Nếu phát hiện vấn đề sau khi nhận hàng, người mua mở ghi nhận sự cố kèm ảnh (UC-TRS-02); AI viết một nhận xét trung lập đối chiếu mô tả với cam kết của tin đăng, không kết luận ai đúng. Người bán có 3 ngày để tự hoàn hoặc từ chối (UC-TRS-03); từ chối hoặc quá hạn thì ghi nhận hiện công khai trên hồ sơ người bán (BR-TRS-01).
 
-Điểm uy tín từ 0 đến 1000 được tính lại sau mỗi sự kiện: giao dịch thành công cộng 10, được đánh giá 5 sao cộng 5, tự hoàn cho một ghi nhận cộng 15, xác minh danh tính cộng 100, bị đánh giá 1–2 sao trừ 15; sự kiện cũ hơn 365 ngày chỉ tính một nửa. Điểm quyết định bậc và quyền như ở Bảng 2.2. Quyền COD và bậc uy tín không mua được bằng gói trả phí (BR-16).
+Điểm uy tín từ 0 đến 1000 được tính lại sau mỗi sự kiện: giao dịch thành công cộng 10, được đánh giá 5 sao cộng 5, tự hoàn cho một ghi nhận cộng 15, xác minh danh tính cộng 100, bị đánh giá 1–2 sao trừ 15; sự kiện cũ hơn 365 ngày chỉ tính một nửa. Điểm quyết định bậc và quyền như ở Bảng 2.2. Quyền COD và bậc uy tín không mua được bằng gói trả phí (BR-TRS-03).
 
 #figure(
   kind: table,
@@ -108,7 +108,7 @@ Sau khi đơn đã gửi, người mua đánh giá người bán một lần t�
   ),
 )
 
-Chế tài chạy tự động theo BR-15 khi người mua có ít nhất 5 đơn COD qua hãng trong 90 ngày: tỉ lệ từ chối nhận từ 20% thì chỉ còn 1 đơn COD mở, từ 35% thì mất quyền COD trong 30 ngày, và 30 ngày không từ chối lần nào thì hồi lại một nấc. Hạn mức được kiểm tra ngay khi gửi yêu cầu COD; hai yêu cầu cùng lúc được xét lần lượt nên không vượt hạn mức được (BR-09, NFR-03).
+Chế tài chạy tự động theo BR-TRS-02 khi người mua có ít nhất 5 đơn COD qua hãng trong 90 ngày: tỉ lệ từ chối nhận từ 20% thì chỉ còn 1 đơn COD mở, từ 35% thì mất quyền COD trong 30 ngày, và 30 ngày không từ chối lần nào thì hồi lại một nấc. Hạn mức được kiểm tra ngay khi gửi yêu cầu COD; hai yêu cầu cùng lúc được xét lần lượt nên không vượt hạn mức được (BR-DEAL-06, NFR-CONC-01).
 
 == Ứng dụng di động
 
@@ -123,7 +123,7 @@ Hình 2.3 là luồng tìm kiếm: người dùng gõ câu tự nhiên (a), nh�
   cao: 8cm,
 )
 
-Hình 2.4 là luồng đơn COD: người bán chọn hãng, khối lượng, dịch vụ và xem phí trước khi tạo đơn (a); khi shipper đến, người mua được nhắc xem hàng trước vì sau khi trả tiền sàn không đòi lại được (b, BR-12); màn hình (c) hiện điểm uy tín 386/1000 ở bậc Tin cậy với hạn mức 5 đơn COD mở và 20 tin đang bán.
+Hình 2.4 là luồng đơn COD: người bán chọn hãng, khối lượng, dịch vụ và xem phí trước khi tạo đơn (a); khi shipper đến, người mua được nhắc xem hàng trước vì sau khi trả tiền sàn không đòi lại được (b, BR-DEAL-09); màn hình (c) hiện điểm uy tín 386/1000 ở bậc Tin cậy với hạn mức 5 đơn COD mở và 20 tin đang bán.
 
 #anh-mobile(
   [Tạo đơn gửi hàng, nhận hàng đồng kiểm và điểm uy tín],

@@ -212,7 +212,7 @@
   stroke: (paint: muted, dash: "dashed", thickness: 0.6pt))
 
 // ---- Bảng đặc tả ca sử dụng (fully dressed, UML) ----------
-// Dùng: #ucspec("UC-005", "Đặt hàng & Thanh toán Escrow", [Tác nhân chính], [User], ...)
+// Dùng: #ucspec("UC-DEAL-03", "Yêu cầu giao COD", [Tác nhân chính], [User], ...)
 #let ucspec(ma, ten, ..rows) = {
   let r = rows.pos()
   let cells = ()

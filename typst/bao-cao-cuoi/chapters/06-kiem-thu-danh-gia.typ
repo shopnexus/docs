@@ -17,7 +17,7 @@ Bảng 6.1 và Bảng 6.2 đặc tả hai kịch bản khó nhất: máy chủ g
 #tcspec(
   "TC-01", "Máy chủ gặp sự cố giữa lúc tạo đơn gửi hàng",
   [Mục tiêu], [Xác nhận sự cố máy chủ trong lúc tạo đơn không sinh ra vận đơn trùng và không để tin, đơn, thương lượng lệch nhau],
-  [Truy vết], [UC-16, BR-07; REQ-15; NFR-01, NFR-02],
+  [Truy vết], [UC-DEAL-04, BR-DEAL-04; FR-DEAL-03; NFR-DUR-01, NFR-IDEM-01],
   [Tiền điều kiện], [Người mua A đã chốt giá và gửi yêu cầu COD; người mua B cũng gửi yêu cầu COD trên cùng tin; tin đang bán; người bán đã liên kết hãng vận chuyển, máy chủ giả của hãng đếm số vận đơn được tạo],
   [Các bước], [
     1. Đặt máy chủ dừng ngay sau khi bước lưu đơn ghi xong.
@@ -31,7 +31,7 @@ Bảng 6.1 và Bảng 6.2 đặc tả hai kịch bản khó nhất: máy chủ g
 #tcspec(
   "TC-02", "Năm mươi lượt đoán mã đăng nhập cùng lúc",
   [Mục tiêu], [Xác nhận kẻ gian gửi đồng thời nhiều lượt đoán vẫn không vượt được giới hạn 5 lần nhập sai, và phản hồi không cho biết lượt nào đã đoán đúng],
-  [Truy vết], [UC-01, BR-21; REQ-01; NFR-03, NFR-06],
+  [Truy vết], [UC-ACC-01, BR-ACC-02; FR-ACC-01; NFR-CONC-01, NFR-SEC-01],
   [Tiền điều kiện], [Một mã đăng nhập đang còn hiệu lực cho một số di động; mã đúng đọc được từ hộp thư giả],
   [Các bước], [
     1. Gửi cùng lúc 50 lượt nhập mã, trong đó chỉ một lượt mang mã đúng.
@@ -48,24 +48,24 @@ Bảng 6.1 và Bảng 6.2 đặc tả hai kịch bản khó nhất: máy chủ g
     columns: (auto, 1fr, auto),
     align: (left + top, left + top, left + top),
     table.header([*Mã*], [*Kịch bản và kết quả mong đợi*], [*Truy vết*]),
-    [TC-03], [Mạng chập chờn khiến ứng dụng gửi lại yêu cầu COD; người mua nhận đúng phản hồi lần đầu, chỉ có một đơn], [UC-15, NFR-02],
-    [TC-04], [Hãng vận chuyển báo "đã giao" hai lần cho cùng một đơn; đơn chỉ chuyển sang đã giao một lần, tin chỉ bán một lần], [UC-17, REQ-16, NFR-02],
-    [TC-05], [Người mua chấp nhận giá đúng lúc người bán gửi phản giá; một thao tác được nhận, thao tác kia được báo thương lượng vừa thay đổi và hiện lại trạng thái mới], [UC-14, NFR-03],
-    [TC-06], [Người mua bậc Mới gửi cùng lúc 5 yêu cầu COD trên 5 tin; đúng 2 yêu cầu được nhận, 3 yêu cầu bị từ chối vì vượt hạn mức], [BR-09, NFR-03],
-    [TC-07], [Kẻ gian dùng lại một phiên đã bị lấy cắp sau khi thiết bị thật đã làm mới; cả phiên bị thu hồi, hai bên đều phải đăng nhập lại], [UC-02, NFR-06],
-    [TC-08], [Xin mã cho một số đã có tài khoản và một số chưa có; hai phản hồi giống hệt nhau], [UC-01, BR-21, NFR-06],
-    [TC-09], [Báo "đã giao" cho đơn còn ở trạng thái đã yêu cầu, và hủy một đơn đang giao; cả hai thao tác bị từ chối, đơn không đổi], [UC-17, UC-18, BR-10],
-    [TC-10], [Trả giá thấp hơn nửa giá niêm yết; lời trả giá bị từ chối kèm khoảng giá hợp lệ], [UC-14, BR-06, REQ-14],
-    [TC-11], [Người mua có 5 đơn COD trong 90 ngày, trong đó 1 lần từ chối nhận (20%); hạn mức còn 1 đơn COD đang mở], [UC-22, BR-15, REQ-19],
-    [TC-12], [Người bán không trả lời ghi nhận sự cố; sau 3 ngày ghi nhận tự chuyển sang bị từ chối và hiện trên hồ sơ người bán], [UC-21, BR-14, REQ-18],
-    [TC-13], [Mô hình ngôn ngữ trả lời chậm hơn 8 giây; người mua vẫn nhận kết quả tìm kiếm lai theo câu gốc], [UC-09, REQ-10, NFR-05],
-    [TC-14], [Người bán tải ảnh có ghi tọa độ vị trí và thông tin máy chụp; ảnh trên tin không còn thông tin nào trong số đó], [UC-06, REQ-06, NFR-07],
+    [TC-03], [Mạng chập chờn khiến ứng dụng gửi lại yêu cầu COD; người mua nhận đúng phản hồi lần đầu, chỉ có một đơn], [UC-DEAL-03, NFR-IDEM-01],
+    [TC-04], [Hãng vận chuyển báo "đã giao" hai lần cho cùng một đơn; đơn chỉ chuyển sang đã giao một lần, tin chỉ bán một lần], [UC-DEAL-05, FR-DEAL-04, NFR-IDEM-01],
+    [TC-05], [Người mua chấp nhận giá đúng lúc người bán gửi phản giá; một thao tác được nhận, thao tác kia được báo thương lượng vừa thay đổi và hiện lại trạng thái mới], [UC-DEAL-02, NFR-CONC-01],
+    [TC-06], [Người mua bậc Mới gửi cùng lúc 5 yêu cầu COD trên 5 tin; đúng 2 yêu cầu được nhận, 3 yêu cầu bị từ chối vì vượt hạn mức], [BR-DEAL-06, NFR-CONC-01],
+    [TC-07], [Kẻ gian dùng lại một phiên đã bị lấy cắp sau khi thiết bị thật đã làm mới; cả phiên bị thu hồi, hai bên đều phải đăng nhập lại], [UC-ACC-02, NFR-SEC-01],
+    [TC-08], [Xin mã cho một số đã có tài khoản và một số chưa có; hai phản hồi giống hệt nhau], [UC-ACC-01, BR-ACC-02, NFR-SEC-01],
+    [TC-09], [Báo "đã giao" cho đơn còn ở trạng thái đã yêu cầu, và hủy một đơn đang giao; cả hai thao tác bị từ chối, đơn không đổi], [UC-DEAL-05, UC-DEAL-06, BR-DEAL-07],
+    [TC-10], [Trả giá thấp hơn nửa giá niêm yết; lời trả giá bị từ chối kèm khoảng giá hợp lệ], [UC-DEAL-02, BR-DEAL-03, FR-DEAL-02],
+    [TC-11], [Người mua có 5 đơn COD trong 90 ngày, trong đó 1 lần từ chối nhận (20%); hạn mức còn 1 đơn COD đang mở], [UC-TRS-04, BR-TRS-02, FR-TRS-03],
+    [TC-12], [Người bán không trả lời ghi nhận sự cố; sau 3 ngày ghi nhận tự chuyển sang bị từ chối và hiện trên hồ sơ người bán], [UC-TRS-03, BR-TRS-01, FR-TRS-02],
+    [TC-13], [Mô hình ngôn ngữ trả lời chậm hơn 8 giây; người mua vẫn nhận kết quả tìm kiếm lai theo câu gốc], [UC-DSC-01, FR-DSC-01, NFR-PERF-01],
+    [TC-14], [Người bán tải ảnh có ghi tọa độ vị trí và thông tin máy chụp; ảnh trên tin không còn thông tin nào trong số đó], [UC-LST-01, FR-SHR-01, NFR-PRIV-01],
   ),
 )
 
 == Đối chiếu yêu cầu phi chức năng
 
-Bảng 6.4 đối chiếu từng yêu cầu phi chức năng ở Chương 3 với cách kiểm chứng. Riêng NFR-05 được kiểm bằng kiểm thử tải trên bộ dữ liệu trình diễn: thời gian phản hồi mà 95% số yêu cầu đạt được so với các ngưỡng 300 ms cho thao tác xem, 800 ms cho tìm kiếm lai và 8 giây cho AI agent.
+Bảng 6.4 đối chiếu từng yêu cầu phi chức năng ở Chương 3 với cách kiểm chứng. Riêng NFR-PERF-01 được kiểm bằng kiểm thử tải trên bộ dữ liệu trình diễn: thời gian phản hồi mà 95% số yêu cầu đạt được so với các ngưỡng 300 ms cho thao tác xem, 800 ms cho tìm kiếm lai và 8 giây cho AI agent.
 
 #figure(
   kind: table,
@@ -74,17 +74,17 @@ Bảng 6.4 đối chiếu từng yêu cầu phi chức năng ở Chương 3 vớ
     columns: (auto, 1fr),
     align: (left + top, left + top),
     table.header([*Mã*], [*Cách kiểm chứng*]),
-    [NFR-01], [Làm máy chủ dừng giữa các quy trình gửi mã, đăng nhập lần đầu, đăng tin, tạo đơn và kết thúc đơn; quy trình phải chạy tiếp, không gửi hai tin nhắn, không tạo hai vận đơn (TC-01)],
-    [NFR-02], [Gửi lại mọi thao tác ghi quan trọng; hãng vận chuyển gửi trùng thông báo (TC-03, TC-04)],
-    [NFR-03], [Cho nhiều thao tác chạy cùng lúc trên một thương lượng, trên hạn mức đơn COD và trên số tin đang bán (TC-02, TC-05, TC-06)],
-    [NFR-04], [Tạm dừng nền tảng điều phối quy trình khi đang có thay đổi: thay đổi vẫn phải được lưu, thông báo cho các phân hệ chờ lại và được gửi khi nền tảng chạy lại; người dùng vẫn xem được và giữ được phiên đăng nhập],
-    [NFR-05], [Kiểm thử tải trên bộ dữ liệu trình diễn với các ngưỡng đã đặt; AI agent quá giờ (TC-13)],
-    [NFR-06], [Dùng lại phiên cũ, vượt hạn mức gửi mã, so phản hồi cho số có và chưa có tài khoản (TC-02, TC-07, TC-08)],
-    [NFR-07], [Ảnh không còn tọa độ (TC-14); tin chỉ lưu phường xã; nhật ký không chứa số điện thoại, email; thông tin kết nối hãng vận chuyển được giữ kín],
-    [NFR-08], [Mỗi lỗi người dùng gặp phải tra lại được đúng yêu cầu gây lỗi trên màn hình quan trắc],
-    [NFR-09], [Mọi phản hồi trong kiểm thử đầu-cuối được đối chiếu với đặc tả; mọi trường hợp đã khai trong đặc tả phải xuất hiện ít nhất một lần],
-    [NFR-10], [Kiểm tra tự động chặn mọi lời gọi từ một phân hệ vào phần bên trong của phân hệ khác],
-    [NFR-11], [Chạy trên điện thoại có phiên bản hệ điều hành thấp nhất mà yêu cầu đặt ra; so ảnh chụp giao diện tối và cỡ chữ lớn; kiểm vùng chạm tối thiểu trên từng màn hình],
+    [NFR-DUR-01], [Làm máy chủ dừng giữa các quy trình gửi mã, đăng nhập lần đầu, đăng tin, tạo đơn và kết thúc đơn; quy trình phải chạy tiếp, không gửi hai tin nhắn, không tạo hai vận đơn (TC-01)],
+    [NFR-IDEM-01], [Gửi lại mọi thao tác ghi quan trọng; hãng vận chuyển gửi trùng thông báo (TC-03, TC-04)],
+    [NFR-CONC-01], [Cho nhiều thao tác chạy cùng lúc trên một thương lượng, trên hạn mức đơn COD và trên số tin đang bán (TC-02, TC-05, TC-06)],
+    [NFR-MSG-01], [Tạm dừng nền tảng điều phối quy trình khi đang có thay đổi: thay đổi vẫn phải được lưu, thông báo cho các phân hệ chờ lại và được gửi khi nền tảng chạy lại; người dùng vẫn xem được và giữ được phiên đăng nhập],
+    [NFR-PERF-01], [Kiểm thử tải trên bộ dữ liệu trình diễn với các ngưỡng đã đặt; AI agent quá giờ (TC-13)],
+    [NFR-SEC-01], [Dùng lại phiên cũ, vượt hạn mức gửi mã, so phản hồi cho số có và chưa có tài khoản (TC-02, TC-07, TC-08)],
+    [NFR-PRIV-01], [Ảnh không còn tọa độ (TC-14); tin chỉ lưu phường xã; nhật ký không chứa số điện thoại, email; thông tin kết nối hãng vận chuyển được giữ kín],
+    [NFR-OBS-01], [Mỗi lỗi người dùng gặp phải tra lại được đúng yêu cầu gây lỗi trên màn hình quan trắc],
+    [NFR-API-01], [Mọi phản hồi trong kiểm thử đầu-cuối được đối chiếu với đặc tả; mọi trường hợp đã khai trong đặc tả phải xuất hiện ít nhất một lần],
+    [NFR-ARCH-01], [Kiểm tra tự động chặn mọi lời gọi từ một phân hệ vào phần bên trong của phân hệ khác],
+    [NFR-UX-01], [Chạy trên điện thoại có phiên bản hệ điều hành thấp nhất mà yêu cầu đặt ra; so ảnh chụp giao diện tối và cỡ chữ lớn; kiểm vùng chạm tối thiểu trên từng màn hình],
   ),
 )
 

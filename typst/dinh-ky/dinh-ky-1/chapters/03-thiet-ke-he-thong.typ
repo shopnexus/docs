@@ -67,7 +67,7 @@ Hình 3.1 trình bày kiến trúc theo tầng. Ứng dụng di động và bả
 
 == Luồng tiền và hàng của đơn COD đồng kiểm
 
-Hình 3.2 cho thấy tiền và hàng đi giữa ba bên của một đơn COD đồng kiểm. Người mua chỉ trả tiền cho shipper sau khi xem hàng, hãng chuyển tiền thu hộ về tài khoản người bán, còn sàn chỉ ghi nhận trạng thái đơn để cập nhật tin đăng và uy tín (BR-08). Người mua từ chối nhận thì không mất gì, hàng quay về và phí hai chiều tính vào tài khoản hãng của người bán (BR-11).
+Hình 3.2 cho thấy tiền và hàng đi giữa ba bên của một đơn COD đồng kiểm. Người mua chỉ trả tiền cho shipper sau khi xem hàng, hãng chuyển tiền thu hộ về tài khoản người bán, còn sàn chỉ ghi nhận trạng thái đơn để cập nhật tin đăng và uy tín (BR-DEAL-05). Người mua từ chối nhận thì không mất gì, hàng quay về và phí hai chiều tính vào tài khoản hãng của người bán (BR-DEAL-08).
 
 #fig(
   [Luồng tiền và hàng của một đơn COD đồng kiểm],
@@ -138,4 +138,4 @@ Hình 3.3 là sơ đồ thực thể quan hệ của các phân hệ đã hiện
 
 == Thiết kế sơ bộ tìm kiếm và AI agent
 
-Tìm kiếm và AI agent thuộc phân hệ khám phá, sẽ hiện thực ở giai đoạn 2. Mỗi lượt tìm chạy song song theo nghĩa của câu và theo từ khóa tiếng Việt, rồi gộp các danh sách kết quả theo thứ hạng [5] và ưu tiên nhẹ tin ở gần, của người bán có bậc cao. AI agent là một mô hình ngôn ngữ lớn được trao bộ công cụ chỉ đọc [12]: agent tách câu nói của người mua thành các bộ lọc như giá tối đa, khu vực, danh mục, rồi gọi tìm kiếm. Mỗi ràng buộc agent suy ra hiện thành nhãn để người mua sửa (BR-18). Agent được tối đa 4 vòng gọi công cụ; quá 8 giây hoặc gặp lỗi thì hệ thống tìm kiếm thường với câu gốc, nên người mua luôn nhận được kết quả.
+Tìm kiếm và AI agent thuộc phân hệ khám phá, sẽ hiện thực ở giai đoạn 2. Mỗi lượt tìm chạy song song theo nghĩa của câu và theo từ khóa tiếng Việt, rồi gộp các danh sách kết quả theo thứ hạng [5] và ưu tiên nhẹ tin ở gần, của người bán có bậc cao. AI agent là một mô hình ngôn ngữ lớn được trao bộ công cụ chỉ đọc [12]: agent tách câu nói của người mua thành các bộ lọc như giá tối đa, khu vực, danh mục, rồi gọi tìm kiếm. Mỗi ràng buộc agent suy ra hiện thành nhãn để người mua sửa (BR-DSC-01). Agent được tối đa 4 vòng gọi công cụ; quá 8 giây hoặc gặp lỗi thì hệ thống tìm kiếm thường với câu gốc, nên người mua luôn nhận được kết quả.

@@ -1,0 +1,1396 @@
+{
+  "server": {
+    "repo": "https://github.com/shopnexus/server",
+    "commit": "aad1f144131b4a5230942d1319dc862e757f5c85"
+  },
+  "refs": {
+    "UC-DEAL-02": [
+      {
+        "file": "server/internal/deal/domain/deal_test.go",
+        "line": 61,
+        "kind": "test",
+        "flows": [
+          "E9"
+        ]
+      },
+      {
+        "file": "server/internal/deal/domain/deal_test.go",
+        "line": 143,
+        "kind": "test",
+        "flows": [
+          "E6"
+        ]
+      },
+      {
+        "file": "server/internal/deal/domain/deal_test.go",
+        "line": 187,
+        "kind": "test",
+        "flows": [
+          "E6"
+        ]
+      },
+      {
+        "file": "server/internal/deal/domain/deal_test.go",
+        "line": 300,
+        "kind": "test",
+        "flows": [
+          "E7"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/deal_move.go",
+        "line": 15,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/deal_move.go",
+        "line": 27,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/deal_move.go",
+        "line": 39,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/deal_move.go",
+        "line": 51,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/deal_move.go",
+        "line": 63,
+        "kind": "code",
+        "flows": [
+          "A3"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/deal_move.go",
+        "line": 86,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/deal_move.go",
+        "line": 95,
+        "kind": "code",
+        "flows": [
+          "E1"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/deal_move.go",
+        "line": 114,
+        "kind": "code",
+        "flows": [
+          "E8"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/deal_open.go",
+        "line": 15,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/deal_open.go",
+        "line": 21,
+        "kind": "code",
+        "flows": [
+          "A1"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/deal_open.go",
+        "line": 30,
+        "kind": "code",
+        "flows": [
+          "E1"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/deal_open.go",
+        "line": 38,
+        "kind": "code",
+        "flows": [
+          "E2"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/deal_open.go",
+        "line": 46,
+        "kind": "code",
+        "flows": [
+          "E3"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/deal_open.go",
+        "line": 50,
+        "kind": "code",
+        "flows": [
+          "E4"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/deal_open.go",
+        "line": 58,
+        "kind": "code",
+        "flows": [
+          "E5"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/deal_open.go",
+        "line": 62,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/deal_test.go",
+        "line": 20,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/deal_test.go",
+        "line": 84,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/deal_test.go",
+        "line": 99,
+        "kind": "test",
+        "flows": [
+          "A1",
+          "E1",
+          "E2",
+          "E3",
+          "E5"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/deal_test.go",
+        "line": 170,
+        "kind": "test",
+        "flows": [
+          "E7"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/deal_test.go",
+        "line": 188,
+        "kind": "test",
+        "flows": [
+          "A4"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/deal_test.go",
+        "line": 215,
+        "kind": "test",
+        "flows": [
+          "E1"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/deal_test.go",
+        "line": 235,
+        "kind": "test",
+        "flows": [
+          "E8"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/deal_test.go",
+        "line": 258,
+        "kind": "test",
+        "flows": [
+          "E4"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/listing_changed.go",
+        "line": 14,
+        "kind": "code",
+        "flows": [
+          "A4"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/listing_changed_test.go",
+        "line": 33,
+        "kind": "test",
+        "flows": [
+          "A4"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/moves_post_test.go",
+        "line": 20,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/service.go",
+        "line": 34,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/service.go",
+        "line": 57,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/service.go",
+        "line": 61,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/service.go",
+        "line": 65,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/service.go",
+        "line": 69,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/service.go",
+        "line": 73,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/service.go",
+        "line": 132,
+        "kind": "code",
+        "flows": [
+          "A4"
+        ]
+      },
+      {
+        "file": "server/api/paths/deal.yaml",
+        "line": 4,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/deal.yaml",
+        "line": 91,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/deal.yaml",
+        "line": 150,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/deal.yaml",
+        "line": 203,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/deal.yaml",
+        "line": 243,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/deal.yaml",
+        "line": 283,
+        "kind": "api",
+        "flows": []
+      }
+    ],
+    "BR-DEAL-03": [
+      {
+        "file": "server/internal/deal/domain/deal_test.go",
+        "line": 143,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/domain/deal_test.go",
+        "line": 187,
+        "kind": "test",
+        "flows": []
+      }
+    ],
+    "UC-DEAL-03": [
+      {
+        "file": "server/internal/deal/domain/order_test.go",
+        "line": 156,
+        "kind": "test",
+        "flows": [
+          "E5"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/deal_move.go",
+        "line": 87,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/order_request.go",
+        "line": 14,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/order_request.go",
+        "line": 21,
+        "kind": "code",
+        "flows": [
+          "E2"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/order_request.go",
+        "line": 29,
+        "kind": "code",
+        "flows": [
+          "E4",
+          "E5",
+          "E3"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/order_test.go",
+        "line": 48,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/order_test.go",
+        "line": 72,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/order_test.go",
+        "line": 95,
+        "kind": "test",
+        "flows": [
+          "E1",
+          "E2",
+          "E3",
+          "E4",
+          "E5"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/service.go",
+        "line": 78,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/deal.yaml",
+        "line": 351,
+        "kind": "api",
+        "flows": []
+      }
+    ],
+    "UC-DEAL-04": [
+      {
+        "file": "server/internal/deal/domain/order_test.go",
+        "line": 156,
+        "kind": "test",
+        "flows": [
+          "E6",
+          "E8"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/flow_test.go",
+        "line": 78,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/flow_test.go",
+        "line": 145,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/flow_test.go",
+        "line": 165,
+        "kind": "test",
+        "flows": [
+          "A3"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/flow_test.go",
+        "line": 201,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/flow_test.go",
+        "line": 220,
+        "kind": "test",
+        "flows": [
+          "E5"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/flow_test.go",
+        "line": 265,
+        "kind": "test",
+        "flows": [
+          "E7"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/flow_test.go",
+        "line": 298,
+        "kind": "test",
+        "flows": [
+          "E1",
+          "E6",
+          "E8"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/flow_test.go",
+        "line": 362,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/no_carrier_test.go",
+        "line": 28,
+        "kind": "test",
+        "flows": [
+          "E2"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/order_ship_durable.go",
+        "line": 39,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/order_ship_durable.go",
+        "line": 58,
+        "kind": "code",
+        "flows": [
+          "E5"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/order_ship_durable.go",
+        "line": 63,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/order_ship_durable.go",
+        "line": 98,
+        "kind": "code",
+        "flows": [
+          "E4"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/order_ship_durable.go",
+        "line": 115,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/order_ship_durable.go",
+        "line": 128,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/order_ship_durable.go",
+        "line": 134,
+        "kind": "code",
+        "flows": [
+          "A2"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/order_ship_durable.go",
+        "line": 141,
+        "kind": "code",
+        "flows": [
+          "E7"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/order_shipment_create.go",
+        "line": 27,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/order_shipment_create.go",
+        "line": 35,
+        "kind": "code",
+        "flows": [
+          "E6"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/order_shipment_create.go",
+        "line": 51,
+        "kind": "code",
+        "flows": [
+          "E1",
+          "E2"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/order_shipment_create.go",
+        "line": 52,
+        "kind": "code",
+        "flows": [
+          "E3"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/order_shipment_edit.go",
+        "line": 16,
+        "kind": "code",
+        "flows": [
+          "A3"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/order_timers_test.go",
+        "line": 152,
+        "kind": "test",
+        "flows": [
+          "A2"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/service.go",
+        "line": 85,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/service.go",
+        "line": 90,
+        "kind": "code",
+        "flows": [
+          "A3"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/service.go",
+        "line": 101,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/shipping_test.go",
+        "line": 27,
+        "kind": "test",
+        "flows": [
+          "E3"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/shipping_test.go",
+        "line": 92,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/deal.yaml",
+        "line": 408,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/deal.yaml",
+        "line": 479,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/deal.yaml",
+        "line": 583,
+        "kind": "api",
+        "flows": []
+      }
+    ],
+    "UC-DEAL-06": [
+      {
+        "file": "server/internal/deal/domain/order_test.go",
+        "line": 156,
+        "kind": "test",
+        "flows": [
+          "E1"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/deal_move.go",
+        "line": 63,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/listing_changed.go",
+        "line": 14,
+        "kind": "code",
+        "flows": [
+          "A3"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/listing_changed_test.go",
+        "line": 90,
+        "kind": "test",
+        "flows": [
+          "A3"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/order_request.go",
+        "line": 34,
+        "kind": "code",
+        "flows": [
+          "A1"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/order_test.go",
+        "line": 139,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/order_test.go",
+        "line": 172,
+        "kind": "test",
+        "flows": [
+          "A3"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/order_test.go",
+        "line": 208,
+        "kind": "test",
+        "flows": [
+          "A3"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/order_timers_durable.go",
+        "line": 34,
+        "kind": "code",
+        "flows": [
+          "A1"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/order_timers_durable.go",
+        "line": 60,
+        "kind": "code",
+        "flows": [
+          "A2"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/order_timers_test.go",
+        "line": 72,
+        "kind": "test",
+        "flows": [
+          "A1"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/order_timers_test.go",
+        "line": 89,
+        "kind": "test",
+        "flows": [
+          "A2"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/service.go",
+        "line": 73,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/service.go",
+        "line": 132,
+        "kind": "code",
+        "flows": [
+          "A3"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/shipping_test.go",
+        "line": 212,
+        "kind": "test",
+        "flows": [
+          "A2"
+        ]
+      },
+      {
+        "file": "server/api/paths/deal.yaml",
+        "line": 283,
+        "kind": "api",
+        "flows": []
+      }
+    ],
+    "UC-DEAL-05": [
+      {
+        "file": "server/internal/deal/domain/order_test.go",
+        "line": 339,
+        "kind": "test",
+        "flows": [
+          "A1"
+        ]
+      },
+      {
+        "file": "server/internal/deal/domain/order_test.go",
+        "line": 458,
+        "kind": "test",
+        "flows": [
+          "E2"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/flow_test.go",
+        "line": 78,
+        "kind": "test",
+        "flows": [
+          "A2"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/flow_test.go",
+        "line": 119,
+        "kind": "test",
+        "flows": [
+          "A2"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/flow_test.go",
+        "line": 298,
+        "kind": "test",
+        "flows": [
+          "E3"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/flow_test.go",
+        "line": 381,
+        "kind": "test",
+        "flows": [
+          "E3"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/order_confirm.go",
+        "line": 8,
+        "kind": "code",
+        "flows": [
+          "A2"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/order_confirm_durable.go",
+        "line": 20,
+        "kind": "code",
+        "flows": [
+          "A2"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/order_confirm_durable.go",
+        "line": 31,
+        "kind": "code",
+        "flows": [
+          "E3"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/order_test.go",
+        "line": 139,
+        "kind": "test",
+        "flows": [
+          "E1"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/order_timers_durable.go",
+        "line": 119,
+        "kind": "code",
+        "flows": [
+          "A4"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/order_timers_durable.go",
+        "line": 146,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/order_timers_test.go",
+        "line": 121,
+        "kind": "test",
+        "flows": [
+          "A4"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/service.go",
+        "line": 96,
+        "kind": "code",
+        "flows": [
+          "A2"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/service.go",
+        "line": 114,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/shipment_updated.go",
+        "line": 10,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/shipment_updated_durable.go",
+        "line": 39,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/shipment_updated_durable.go",
+        "line": 69,
+        "kind": "code",
+        "flows": [
+          "A1"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/shipment_updated_durable.go",
+        "line": 81,
+        "kind": "code",
+        "flows": [
+          "E2"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/shipment_updated_test.go",
+        "line": 19,
+        "kind": "test",
+        "flows": [
+          "A1",
+          "E2"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/shipment_updated_test.go",
+        "line": 79,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/shipping_test.go",
+        "line": 264,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/deal.yaml",
+        "line": 540,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/shipping.yaml",
+        "line": 222,
+        "kind": "api",
+        "flows": []
+      }
+    ],
+    "NFR-IDEM-01": [
+      {
+        "file": "server/internal/deal/domain/order_test.go",
+        "line": 339,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/flow_test.go",
+        "line": 119,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/order_confirm.go",
+        "line": 9,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/order_shipment_create.go",
+        "line": 30,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/service.go",
+        "line": 85,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/service.go",
+        "line": 96,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/service.go",
+        "line": 114,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/shipment_updated_durable.go",
+        "line": 69,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/shipment_updated_test.go",
+        "line": 19,
+        "kind": "test",
+        "flows": []
+      }
+    ],
+    "BR-DEAL-08": [
+      {
+        "file": "server/internal/deal/domain/order_test.go",
+        "line": 458,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/shipment_updated_durable.go",
+        "line": 81,
+        "kind": "code",
+        "flows": []
+      }
+    ],
+    "BR-MOD-02": [
+      {
+        "file": "server/internal/deal/service/deal_move.go",
+        "line": 95,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/deal_open.go",
+        "line": 30,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/deal_test.go",
+        "line": 215,
+        "kind": "test",
+        "flows": []
+      }
+    ],
+    "NFR-CONC-01": [
+      {
+        "file": "server/internal/deal/service/deal_move.go",
+        "line": 115,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/deal_open.go",
+        "line": 80,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/deal_test.go",
+        "line": 235,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/flow_test.go",
+        "line": 265,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/flow_test.go",
+        "line": 362,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/order_ship_durable.go",
+        "line": 141,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/service.go",
+        "line": 34,
+        "kind": "code",
+        "flows": []
+      }
+    ],
+    "BR-ACC-03": [
+      {
+        "file": "server/internal/deal/service/deal_open.go",
+        "line": 38,
+        "kind": "code",
+        "flows": []
+      }
+    ],
+    "BR-ACC-01": [
+      {
+        "file": "server/internal/deal/service/deal_open.go",
+        "line": 50,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/deal_test.go",
+        "line": 258,
+        "kind": "test",
+        "flows": []
+      }
+    ],
+    "BR-DEAL-04": [
+      {
+        "file": "server/internal/deal/service/deal_test.go",
+        "line": 84,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/order_ship_durable.go",
+        "line": 122,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/order_test.go",
+        "line": 172,
+        "kind": "test",
+        "flows": []
+      }
+    ],
+    "BR-ACC-02": [
+      {
+        "file": "server/internal/deal/service/deal_test.go",
+        "line": 139,
+        "kind": "test",
+        "flows": []
+      }
+    ],
+    "ADR-0001": [
+      {
+        "file": "server/internal/deal/service/flow_test.go",
+        "line": 145,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/order_ship_durable.go",
+        "line": 39,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/shipping_test.go",
+        "line": 92,
+        "kind": "test",
+        "flows": []
+      }
+    ],
+    "UC-DEAL-01": [
+      {
+        "file": "server/internal/deal/service/moves_post.go",
+        "line": 15,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/moves_post_test.go",
+        "line": 20,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/moves_post_test.go",
+        "line": 49,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/service.go",
+        "line": 50,
+        "kind": "code",
+        "flows": []
+      }
+    ],
+    "BR-DEAL-06": [
+      {
+        "file": "server/internal/deal/service/order_request.go",
+        "line": 30,
+        "kind": "code",
+        "flows": []
+      }
+    ],
+    "ADR-0002": [
+      {
+        "file": "server/internal/deal/service/order_ship_durable.go",
+        "line": 39,
+        "kind": "code",
+        "flows": []
+      }
+    ]
+  },
+  "coverage": {
+    "UC-ACC-01": {
+      "code": 0,
+      "tests": 0,
+      "flows": {}
+    },
+    "UC-ACC-02": {
+      "code": 0,
+      "tests": 0,
+      "flows": {}
+    },
+    "UC-ACC-03": {
+      "code": 0,
+      "tests": 0,
+      "flows": {}
+    },
+    "UC-ACC-04": {
+      "code": 0,
+      "tests": 0,
+      "flows": {}
+    },
+    "UC-ACC-05": {
+      "code": 0,
+      "tests": 0,
+      "flows": {}
+    },
+    "UC-LST-01": {
+      "code": 0,
+      "tests": 0,
+      "flows": {
+        "A1": false,
+        "E1": false,
+        "E2": false,
+        "E3": false
+      }
+    },
+    "UC-LST-02": {
+      "code": 0,
+      "tests": 0,
+      "flows": {}
+    },
+    "UC-LST-03": {
+      "code": 0,
+      "tests": 0,
+      "flows": {}
+    },
+    "UC-DSC-01": {
+      "code": 0,
+      "tests": 0,
+      "flows": {
+        "A1": false,
+        "A2": false,
+        "A3": false
+      }
+    },
+    "UC-DSC-02": {
+      "code": 0,
+      "tests": 0,
+      "flows": {}
+    },
+    "UC-DSC-03": {
+      "code": 0,
+      "tests": 0,
+      "flows": {}
+    },
+    "UC-DSC-04": {
+      "code": 0,
+      "tests": 0,
+      "flows": {}
+    },
+    "UC-DEAL-01": {
+      "code": 2,
+      "tests": 2,
+      "flows": {
+        "E1": false,
+        "E2": false
+      }
+    },
+    "UC-DEAL-02": {
+      "code": 24,
+      "tests": 14,
+      "flows": {
+        "A1": true,
+        "A2": false,
+        "A3": false,
+        "A4": true,
+        "E1": true,
+        "E2": true,
+        "E3": true,
+        "E4": true,
+        "E5": true,
+        "E6": true,
+        "E7": true,
+        "E8": true,
+        "E9": true
+      }
+    },
+    "UC-DEAL-03": {
+      "code": 5,
+      "tests": 4,
+      "flows": {
+        "A1": false,
+        "E1": true,
+        "E2": true,
+        "E3": true,
+        "E4": true,
+        "E5": true
+      }
+    },
+    "UC-DEAL-04": {
+      "code": 16,
+      "tests": 13,
+      "flows": {
+        "A1": false,
+        "A2": true,
+        "A3": true,
+        "E1": true,
+        "E2": true,
+        "E3": true,
+        "E4": false,
+        "E5": true,
+        "E6": true,
+        "E7": true,
+        "E8": true
+      }
+    },
+    "UC-DEAL-05": {
+      "code": 11,
+      "tests": 11,
+      "flows": {
+        "A1": true,
+        "A2": true,
+        "A3": false,
+        "A4": true,
+        "E1": true,
+        "E2": true,
+        "E3": true
+      }
+    },
+    "UC-DEAL-06": {
+      "code": 7,
+      "tests": 8,
+      "flows": {
+        "A1": true,
+        "A2": true,
+        "A3": true,
+        "E1": true
+      }
+    },
+    "UC-TRS-01": {
+      "code": 0,
+      "tests": 0,
+      "flows": {}
+    },
+    "UC-TRS-02": {
+      "code": 0,
+      "tests": 0,
+      "flows": {}
+    },
+    "UC-TRS-03": {
+      "code": 0,
+      "tests": 0,
+      "flows": {}
+    },
+    "UC-TRS-04": {
+      "code": 0,
+      "tests": 0,
+      "flows": {}
+    },
+    "UC-MOD-01": {
+      "code": 0,
+      "tests": 0,
+      "flows": {}
+    },
+    "UC-MOD-02": {
+      "code": 0,
+      "tests": 0,
+      "flows": {}
+    },
+    "UC-MOD-03": {
+      "code": 0,
+      "tests": 0,
+      "flows": {}
+    },
+    "UC-MOD-04": {
+      "code": 0,
+      "tests": 0,
+      "flows": {}
+    },
+    "UC-MOD-05": {
+      "code": 0,
+      "tests": 0,
+      "flows": {}
+    },
+    "UC-SHR-01": {
+      "code": 0,
+      "tests": 0,
+      "flows": {}
+    },
+    "UC-SHR-02": {
+      "code": 0,
+      "tests": 0,
+      "flows": {}
+    }
+  }
+}

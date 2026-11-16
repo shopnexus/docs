@@ -26,7 +26,7 @@ make watch SRC=bao-cao-cuoi/main.typ    # live preview
 ```
 
 PDFs land in `typst/out/` (gitignored). **Do not call `typst compile` bare** — every
-document imports from `common/`, so `--root .` is mandatory, and the submission font
+document imports from `common/` and `common/req.typ` reads `../registry/`, so `--root ..` is mandatory, and the submission font
 lives in `common/fonts`, so `--font-path` is too. The Makefile supplies both.
 
 Required system fonts: **TeX Gyre Termes** (serif body), **TeX Gyre Heros** (sans headings),
@@ -42,6 +42,8 @@ Two top-level areas with very different roles:
   - `diagram/` — exported diagram images (`.webp`/`.png`/`.svg`) plus per-type `hướng dẫn.txt` guidance notes (usecase, ERD, sequence, class, component, architecture, wireframe, activity, system context).
   - `*.txt` (`total recipe.txt`, `delivarable.txt`, `phần *.txt`) — long-form drafts and the consolidated brief.
   - `teacher_messages.txt` — the original assignment brief / scope from the instructor.
+
+- **`registry/`** — `requirements.yaml`, the one source of UC, FR, BR, NFR and ADR IDs, and `trace.json`, which `make trace` in the umbrella repository writes from the server code. The reports and the docs site both read them.
 
 - **`typst/`** — the compiled deliverables. There are
   **three kinds of report**, one directory each:
@@ -64,7 +66,8 @@ Two top-level areas with very different roles:
 ## Typst authoring conventions
 
 - **Apply the template once**, in each report's `main.typ` (`#show: quyen.with(...)` or `#show: a4.with(...)`). Chapter files never re-apply it.
-- **One import per chapter file:** `#import "../../common/tokens.typ": *`. Do not import `@preview/fletcher` again — `tokens.typ` re-exports it.
+- **One import per chapter file:** `#import "../../common/tokens.typ": *`. Do not import `@preview/fletcher` again — `tokens.typ` re-exports it. A chapter that prints requirement tables or spec tables also imports `../../common/req.typ`.
+- **Requirement IDs come from `registry/requirements.yaml`.** The UC, FR, BR and NFR tables and the use case spec tables are generated (`uc-table()`, `fr-table()`, `br-table()`, `nfr-table()`, `ucspec-of(id)` in `common/req.typ`); edit the YAML, not the table. Rename an ID with `make trace-rename` in the umbrella repository, and run `make trace` after editing the YAML or any prose that names an ID. `scripts/trace/README.md` lists what it checks.
 - **Never redefine design tokens in a chapter.** Duplicated palette/helper blocks were consolidated into `common/tokens.typ`; don't reintroduce them.
 - **Never hardcode team/topic strings** — read them from `common/info.typ`.
 - **Diagrams** are drawn inline with **fletcher** and wrapped in `fig(caption, ...)`, which produces a `figure` with `kind: image` so it lands in the *Danh mục các hình*. Bare `figure` for a diagram is a bug. App screenshots go through `anh-mobile(caption, ("a.png", …))`; other images through `assets("path.png")`.

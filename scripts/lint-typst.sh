@@ -69,7 +69,7 @@ for f in "${files[@]}"; do
   abs="$(cd "$(dirname "$f")" && pwd)/$(basename "$f")"
 
   out=$(cd "$TYPST_ROOT" && tinymist lint \
-    --root . \
+    --root .. \
     --font-path "$FONT_PATH" \
     --diagnostic-format short \
     "$abs" 2>&1)
