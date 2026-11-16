@@ -68,11 +68,15 @@ uc:
   # ---- LST ----
   - id: UC-LST-01
     was: [UC-06]
-    status: untraced
-    title: { vi: "Đăng tin với AI điền giúp (từ ảnh hoặc video)", en: "Post a listing with AI filling it in" }
+    status: done
+    title: { vi: Đăng tin với AI điền giúp (từ ảnh hoặc video), en: Post a listing with AI filling it in }
     actors: [seller]
     secondary: [llm]
+    fr: [FR-LST-01]
     br: [BR-LST-01, BR-LST-02, BR-LST-03]
+    nfr: [NFR-IDEM-01, NFR-DUR-01]
+    adr: [ADR-0002]
+    api: ["POST /v1/listing-reads", "GET /v1/listing-reads/{id}", "POST /v1/link-previews", "POST /v1/price-guides", "GET /v1/listing-drafts", "PUT /v1/listing-drafts/{id}", "DELETE /v1/listing-drafts/{id}", "POST /v1/listings", "POST /v1/listings/{id}/photo-copies"]
     pre: Đã đăng nhập.
     post: Tin được lưu ở trạng thái đang xử lý; khi mọi ảnh xử lý xong, tin chuyển sang đang bán và bắt đầu xuất hiện trong kết quả tìm kiếm.
     main:
@@ -83,21 +87,51 @@ uc:
       5: Hệ thống lưu tin ở trạng thái đang xử lý, chuẩn hóa ảnh và xóa thông tin vị trí chụp trong ảnh; xong thì tin chuyển sang đang bán, ứng dụng báo "Đã đăng tin".
     alt:
       A1: { at: 2, text: "Mô hình không trả kết quả: người bán tự điền biểu mẫu, tiếp tục bước 3." }
+      A2: { at: 1, text: "Người bán dán link tin của mình trên Chợ Tốt: hệ thống hiện thẻ xem trước rồi đọc tin đó thành biểu mẫu." }
+      A3: { at: 3, text: "Hệ thống gợi ý giá từ các tin tương tự và số người mua đang theo dõi loại hàng này." }
+      A4: { at: 3, text: "Người bán lưu nháp và quay lại sau; nháp giữ ảnh đã tải." }
+      A5: { at: 1, text: "Người bán đăng lại từ một tin cũ của mình: ảnh của tin đó được chép thành ảnh tải lên mới." }
+      A6: { at: 4, text: "Ứng dụng gửi lại cùng một lần đăng: trả đúng tin của lần đầu, không tạo tin thứ hai.", nfr: NFR-IDEM-01 }
     exc:
-      E1: { at: 4, text: "Chưa xác minh danh tính hoặc đang bị tạm khóa: từ chối đăng, ứng dụng dẫn sang UC-ACC-03." }
-      E2: { at: 4, text: "Đã đạt trần số tin theo bậc (5/20/20/20): từ chối, báo số tin tối đa." }
+      E1: { at: 4, text: "Chưa xác minh danh tính hoặc đang bị tạm khóa: từ chối đăng, ứng dụng dẫn sang UC-ACC-03.", br: BR-LST-02, error: account_suspended }
+      E2: { at: 4, text: "Đã đạt trần số tin theo bậc (5/20/20/20): từ chối, báo số tin tối đa.", br: BR-LST-02, error: listing_cap_reached }
       E3: { at: 5, text: "Có ảnh lỗi: tin chuyển sang bị từ chối kèm lý do; sửa tin hoặc thêm ảnh đưa tin về đang xử lý." }
+      E4: { at: 4, text: Người bán chưa có số điện thoại, br: BR-ACC-03, error: phone_required }
+      E5: { at: 4, text: Nội dung tin sai giới hạn, br: BR-LST-03, error: invalid_listing }
+      E6: { at: 2, text: "Người bán đã dùng hết lượt đọc bằng AI trong 24 giờ (30 video, 60 ảnh, 30 link)", error: read_limit_reached }
+      E7: { at: 1, text: Link không phải tin trên Chợ Tốt, error: unsupported_source }
+      E8: { at: 4, text: "Ảnh không thuộc người bán hoặc chưa tải xong", error: invalid_upload }
+    gaps:
+      - "BR-LST-02 đòi xác minh danh tính và trần theo bậc 5/20/20/20; code chỉ kiểm tài khoản bị khóa, số điện thoại và trần cố định 20 tin (domain.MaxOnSale)."
   - id: UC-LST-02
     was: [UC-07]
-    status: untraced
+    status: done
     title: { vi: "Quản lý tin đăng (sửa, đổi giá, ẩn/hiện, đánh dấu đã bán, xóa)", en: "Manage listings" }
     actors: [seller]
-    api: ["POST /v1/listings/{id}/photo-copies"]
+    fr: [FR-LST-02]
+    br: [BR-LST-02, BR-LST-03, BR-ACC-02]
+    nfr: [NFR-IDEM-01, NFR-CONC-01]
+    api: ["PUT /v1/listings/{id}", "DELETE /v1/listings/{id}", "POST /v1/listings/{id}/hide", "POST /v1/listings/{id}/unhide", "POST /v1/listings/{id}/mark-sold", "POST /v1/listings/{id}/unmark-sold"]
+    pre: Người bán có tin chưa xóa.
+    post: Tin mang nội dung hoặc trạng thái mới; các thương lượng trên tin đi theo thay đổi đó (UC-DEAL-02 A4).
+    main:
+      1: Người bán mở một tin của mình trong Tin của bạn.
+      2: Người bán sửa nội dung, đổi giá, ẩn hoặc hiện tin, đánh dấu đã bán hoặc xóa tin.
+      3: Hệ thống lưu thay đổi; tin sửa có ảnh mới quay lại đang xử lý cho tới khi ảnh xử lý xong.
+    alt:
+      A1: { at: 2, text: "Người bán đổi giá hoặc ẩn tin: giá đang mở trong các thương lượng bị rút (UC-DEAL-02 A4)." }
+      A2: { at: 2, text: "Người bán bỏ đánh dấu đã bán: tin bán lại, vẫn tính vào trần số tin.", br: BR-LST-02 }
+      A3: { at: 3, text: "Ứng dụng gửi lại cùng một lần sửa: không sửa thêm lần nào.", nfr: NFR-IDEM-01 }
+    exc:
+      E1: { at: 2, text: "Trạng thái tin không cho thao tác này, ví dụ hiện một tin đang bán hay sửa tin đang giữ cho một đơn", error: listing_state_conflict }
+      E2: { at: 1, text: Tin không phải của người bán hoặc đã xóa, br: BR-ACC-02, error: listing_not_found }
+      E3: { at: 3, text: Nội dung sửa sai giới hạn, br: BR-LST-03, error: invalid_listing }
   - id: UC-LST-03
     was: [UC-08]
-    status: untraced
-    title: { vi: "Đẩy tin và đăng ký gói người bán", en: "Boost listings and seller plans" }
+    status: planned
+    title: { vi: Đẩy tin và đăng ký gói người bán, en: Boost listings and seller plans }
     actors: [seller]
+    fr: [FR-LST-03]
 
   # ---- DSC ----
   - id: UC-DSC-01

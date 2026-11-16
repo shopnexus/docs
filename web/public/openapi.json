@@ -1400,6 +1400,9 @@
     "/v1/listing-reads": {
       "post": {
         "operationId": "createListingRead",
+        "x-uc": [
+          "UC-LST-01"
+        ],
         "summary": "Read a video, a photo or the seller's Chợ Tốt listing into a listing draft.",
         "description": "Starts reading what the body names: a video the caller uploaded with\nPOST /v1/uploads, one photo upload of the caller's, or the link to the\nseller's own listing on Chợ Tốt.\nA video may carry the phone's transcript; then the server runs no\nspeech recognition.\nThe answer comes at once with status reading. Each step that finishes\nadds its fields and sends a listing_read update on /v1/ws; the app\nthen reads the read with GET. Checks, in order: for a link not_a_link\nand unsupported_source; then account_suspended, phone_required,\nread_limit_reached (30 video reads, 60 photo reads or 30 link reads in\n24 hours); then invalid_upload for a video or a photo. A link is not\nfetched until the read runs.\n",
         "tags": [
@@ -1478,6 +1481,9 @@
     "/v1/listing-reads/{id}": {
       "get": {
         "operationId": "getListingRead",
+        "x-uc": [
+          "UC-LST-01"
+        ],
         "summary": "Read a listing read.",
         "tags": [
           "assist"
@@ -1531,6 +1537,9 @@
     "/v1/link-previews": {
       "post": {
         "operationId": "previewLink",
+        "x-uc": [
+          "UC-LST-01"
+        ],
         "summary": "Preview the listing a pasted link names.",
         "description": "Reads the seller's listing on Chợ Tốt for the card the app shows under\nthe paste field, before the seller asks for a read. Nothing is stored.\nPOST keeps the link out of access logs.\n",
         "tags": [
@@ -1614,6 +1623,9 @@
     "/v1/price-guides": {
       "post": {
         "operationId": "createPriceGuide",
+        "x-uc": [
+          "UC-LST-01"
+        ],
         "summary": "Price a listing draft against similar listings and the buyers watching for it.",
         "description": "Compares the draft with the listings most like it, by text and by\nphoto, and answers the range, the two suggestions, the similar\nlistings, their prices, and the search watches a listing of the draft\nwould match. Stores nothing. POST because the body carries the draft.\n",
         "tags": [
@@ -1677,6 +1689,9 @@
     "/v1/listings": {
       "post": {
         "operationId": "createListing",
+        "x-uc": [
+          "UC-LST-01"
+        ],
         "summary": "Post a listing.",
         "description": "The listing starts in processing while its photos are processed, then\nturns active, or rejected when a photo is refused. Checks, in order:\naccount_suspended, listing_cap_reached (20 listings in\nprocessing, active, hidden, rejected or reserved), invalid_listing,\ninvalid_upload.\n",
         "tags": [
@@ -1808,6 +1823,9 @@
       },
       "put": {
         "operationId": "updateListing",
+        "x-uc": [
+          "UC-LST-02"
+        ],
         "summary": "Replace a listing's content.",
         "description": "The body is the whole listing, as when posting. Photos not in the\nlisting yet take it back to processing until they are processed; an\nedit of a rejected listing does too. Sold listings cannot be edited.\n",
         "tags": [
@@ -1896,6 +1914,9 @@
       },
       "delete": {
         "operationId": "deleteListing",
+        "x-uc": [
+          "UC-LST-02"
+        ],
         "summary": "Delete a listing.",
         "tags": [
           "catalog"
@@ -1952,6 +1973,9 @@
     "/v1/listings/{id}/hide": {
       "post": {
         "operationId": "hideListing",
+        "x-uc": [
+          "UC-LST-02"
+        ],
         "summary": "Take an active listing off sale.",
         "tags": [
           "catalog"
@@ -2015,6 +2039,9 @@
     "/v1/listings/{id}/unhide": {
       "post": {
         "operationId": "unhideListing",
+        "x-uc": [
+          "UC-LST-02"
+        ],
         "summary": "Put a hidden listing back on sale.",
         "tags": [
           "catalog"
@@ -2078,6 +2105,9 @@
     "/v1/listings/{id}/mark-sold": {
       "post": {
         "operationId": "markListingSold",
+        "x-uc": [
+          "UC-LST-02"
+        ],
         "summary": "Record a sale made off the app.",
         "tags": [
           "catalog"
@@ -2141,6 +2171,9 @@
     "/v1/listings/{id}/unmark-sold": {
       "post": {
         "operationId": "unmarkListingSold",
+        "x-uc": [
+          "UC-LST-02"
+        ],
         "summary": "Undo marking a listing sold; it goes back on sale.",
         "tags": [
           "catalog"
@@ -2205,7 +2238,7 @@
       "post": {
         "operationId": "copyListingPhotos",
         "x-uc": [
-          "UC-LST-02"
+          "UC-LST-01"
         ],
         "summary": "Copy the photos of one of the caller's listings into new uploads, to post a new listing from them.",
         "description": "For Đăng lại. Each processed photo of the listing, in order, becomes\na new waiting upload of the caller's, which POST /v1/listings and\nPUT /v1/listing-drafts/{id} take like a photo the app put; the\nlisting keeps its own photos. An upload expires 24 hours after the\ncopy unless a listing takes it or a draft keeps it. A photo copied\nfrom the caller's listing on another site stays marked copied once\nthe new listing is processed. A photo not processed yet is left out.\nAny status but deleted may be copied. A repeated Idempotency-Key for\nthe same listing returns the same uploads, with fresh URLs; a new key\nmakes new ones.\n",
@@ -2264,6 +2297,9 @@
     "/v1/listing-drafts": {
       "get": {
         "operationId": "listListingDrafts",
+        "x-uc": [
+          "UC-LST-01"
+        ],
         "summary": "List the caller's drafts.",
         "description": "Every draft of the caller's, in full, last edited first; at most 20,\nso there are no pages. Drafts past expires_at are deleted first.\n",
         "tags": [
@@ -2294,6 +2330,9 @@
     "/v1/listing-drafts/{id}": {
       "put": {
         "operationId": "putListingDraft",
+        "x-uc": [
+          "UC-LST-01"
+        ],
         "summary": "Create or replace one of the caller's drafts.",
         "description": "The app mints the ID, a UUIDv7, so a draft made offline has its ID\nbefore it reaches the server. The last PUT wins. Photos a listing took\nor that expired are dropped; each of the others is kept 30 days from\nthis PUT, and a later PUT never shortens that. The draft is kept 30\ndays from this PUT. Drafts of the caller's past expires_at are deleted\nfirst, so they free their places.\n",
         "tags": [
@@ -2386,6 +2425,9 @@
       },
       "delete": {
         "operationId": "deleteListingDraft",
+        "x-uc": [
+          "UC-LST-01"
+        ],
         "summary": "Delete one of the caller's drafts.",
         "description": "Its photos expire on their own. The app calls it after a post from the draft.",
         "tags": [

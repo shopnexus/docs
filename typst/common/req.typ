@@ -118,7 +118,8 @@
 
 #let _flows(flows) = _grid(flows.pairs().map(((fid, f)) => {
   let at = f.at("at", default: none)
-  let body = if at != none { [Ở bước #at: #f.text] } else { [#f.text] }
+  let text = if f.text.ends-with(".") { f.text } else { f.text + "." }
+  let body = if at != none { [Ở bước #at: #text] } else { [#text] }
   ([#fid.], body)
 }))
 
