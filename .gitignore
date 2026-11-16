@@ -26,3 +26,6 @@ typst/out/
 # Bản nháp đã nghỉ hưu và tệp không dùng: giữ trên đĩa, không theo dõi.
 typst/tmp/
 
+
+# Superdesign scratch files.
+web/.superdesign/tmp/
