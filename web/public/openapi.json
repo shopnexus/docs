@@ -1678,7 +1678,7 @@
       "post": {
         "operationId": "createListing",
         "summary": "Post a listing.",
-        "description": "The listing starts in processing while its photos are processed, then\nturns active, or rejected when a photo is refused. Checks, in order:\naccount_suspended, listing_cap_reached (20 listings in\nprocessing, active, hidden or rejected), invalid_listing, invalid_upload.\n",
+        "description": "The listing starts in processing while its photos are processed, then\nturns active, or rejected when a photo is refused. Checks, in order:\naccount_suspended, listing_cap_reached (20 listings in\nprocessing, active, hidden, rejected or reserved), invalid_listing,\ninvalid_upload.\n",
         "tags": [
           "catalog"
         ],
@@ -1730,7 +1730,7 @@
             }
           },
           "409": {
-            "description": "The seller has 20 listings on sale or hidden (listing_cap_reached).",
+            "description": "The seller has 20 listings in processing, active, hidden, rejected or reserved (listing_cap_reached).",
             "content": {
               "application/json": {
                 "schema": {
@@ -2189,7 +2189,7 @@
             }
           },
           "409": {
-            "description": "The listing is not sold (listing_state_conflict), the seller has 20 listings on sale or hidden (listing_cap_reached), or it changed meanwhile (try_again).",
+            "description": "The listing is not sold (listing_state_conflict), the seller has 20 listings in processing, active, hidden, rejected or reserved (listing_cap_reached), or it changed meanwhile (try_again).",
             "content": {
               "application/json": {
                 "schema": {
@@ -2201,10 +2201,14 @@
         }
       }
     },
-    "/v1/me/listings": {
-      "get": {
-        "operationId": "listMyListings",
-        "summary": "List the caller's listings, newest first.",
+    "/v1/listings/{id}/photo-copies": {
+      "post": {
+        "operationId": "copyListingPhotos",
+        "x-uc": [
+          "UC-LST-02"
+        ],
+        "summary": "Copy the photos of one of the caller's listings into new uploads, to post a new listing from them.",
+        "description": "For Đăng lại. Each processed photo of the listing, in order, becomes\na new waiting upload of the caller's, which POST /v1/listings and\nPUT /v1/listing-drafts/{id} take like a photo the app put; the\nlisting keeps its own photos. An upload expires 24 hours after the\ncopy unless a listing takes it or a draft keeps it. A photo copied\nfrom the caller's listing on another site stays marked copied once\nthe new listing is processed. A photo not processed yet is left out.\nAny status but deleted may be copied. A repeated Idempotency-Key for\nthe same listing returns the same uploads, with fresh URLs; a new key\nmakes new ones.\n",
         "tags": [
           "catalog"
         ],
@@ -2215,32 +2219,25 @@
         ],
         "parameters": [
           {
-            "name": "pane",
-            "in": "query",
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "name": "id",
+            "in": "path",
             "required": true,
-            "description": "on_sale holds listings in processing, active, hidden, rejected and reserved; sold holds sold ones.",
             "schema": {
               "type": "string",
-              "enum": [
-                "on_sale",
-                "sold"
-              ]
+              "format": "uuid"
             }
-          },
-          {
-            "$ref": "#/components/parameters/Cursor"
-          },
-          {
-            "$ref": "#/components/parameters/Limit"
           }
         ],
         "responses": {
-          "200": {
-            "description": "One page of listings.",
+          "201": {
+            "description": "The new uploads, in the listing's photo order.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ListingList"
+                  "$ref": "#/components/schemas/ListingPhotoCopies"
                 }
               }
             }
@@ -2250,6 +2247,16 @@
           },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "description": "No such listing of the caller's, or it is deleted (listing_not_found).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           }
         }
       }
@@ -3639,6 +3646,60 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/OrdersScreen"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/v1/screens/my-listings": {
+      "get": {
+        "operationId": "getMyListingsScreen",
+        "summary": "One page of one of the caller's panes of listings, each with how it does, and the last seven days.",
+        "description": "Tin của bạn. Newest listing first, paged by listing ID. Each listing\nis the canonical Listing, as its seller reads it, with its views, its\naskers, its saves and, while an order on it is pending or shipped,\nthat order. week sums the last seven days of the caller's listings on\nsale, whichever pane and page the call reads.\n\nA view is a signed-in reader other than the seller opening the\nlisting view (GET /v1/screens/listing/{id}) of an active or reserved\nlisting, counted once per reader and UTC day. An asker is someone\nwith a deal on the listing or who wrote to the seller about it in\nchat. The seven days are the seven UTC days that end today, for\nviews_7d and for the week's views, askers and saves alike; the week\ncounts the askers who first asked in them.\n",
+        "tags": [
+          "screen"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "pane",
+            "in": "query",
+            "required": true,
+            "description": "on_sale holds listings in processing, active, hidden, rejected and reserved; sold holds sold ones.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "on_sale",
+                "sold"
+              ]
+            }
+          },
+          {
+            "$ref": "#/components/parameters/Cursor"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The view.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyListingsScreen"
                 }
               }
             }
@@ -5551,7 +5612,7 @@
       "get": {
         "operationId": "getListingScreen",
         "summary": "The listing view, a listing on sale with its seller and the reader's ties to it.",
-        "description": "Only an active or reserved listing has the view; its seller reads it\nin another status through GET /v1/listings/{id}. A signed-in reader\nwho is not the seller also gets `viewer`. With a position the view\nhas distance_km, measured as GET /v1/search measures it.\n",
+        "description": "Only an active or reserved listing has the view; its seller reads it\nin another status through GET /v1/listings/{id}. A signed-in reader\nwho is not the seller also gets `viewer`, and the read counts as a\nview of the listing, once per reader and UTC day; a signed-out read\ncounts none (GET /v1/screens/my-listings). With a position the view\nhas distance_km, measured as GET /v1/search measures it.\n",
         "tags": [
           "screen"
         ],
@@ -11053,7 +11114,34 @@
           }
         }
       },
-      "ListingList": {
+      "ListingOrder": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "deal_id",
+          "order_id",
+          "status"
+        ],
+        "description": "The order on the listing the seller acts on: the shipped one, else the\npending order requested first. Absent while none is pending or shipped.\n",
+        "properties": {
+          "deal_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "order_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "shipped"
+            ]
+          }
+        }
+      },
+      "ListingPhotoCopies": {
         "type": "object",
         "additionalProperties": false,
         "required": [
@@ -11062,14 +11150,10 @@
         "properties": {
           "items": {
             "type": "array",
+            "maxItems": 10,
             "items": {
-              "$ref": "#/components/schemas/Listing"
+              "$ref": "#/components/schemas/ListingDraftPhoto"
             }
-          },
-          "next_cursor": {
-            "type": "string",
-            "format": "uuid",
-            "description": "Present when more listings follow; pass it as cursor."
           }
         }
       },
@@ -11221,6 +11305,32 @@
             "type": "string",
             "format": "uuid",
             "description": "The reader's conversation with the seller; absent when there is none."
+          }
+        }
+      },
+      "ListingWeek": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "views",
+          "askers",
+          "saves"
+        ],
+        "description": "The last seven days of the caller's listings on sale.",
+        "properties": {
+          "views": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "askers": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "The people who first asked about one of the listings in the seven days, once per listing."
+          },
+          "saves": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "The saves made in the seven days that still stand."
           }
         }
       },
@@ -11672,6 +11782,66 @@
               "$ref": "#/components/schemas/Identity"
             },
             "description": "How the account signs in. Posting, opening a deal and opening a chat need a phone."
+          }
+        }
+      },
+      "MyListingsItem": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "listing",
+          "views",
+          "views_7d",
+          "askers",
+          "saves"
+        ],
+        "properties": {
+          "listing": {
+            "$ref": "#/components/schemas/Listing"
+          },
+          "views": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "views_7d": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "askers": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "saves": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "The saves that stand now."
+          },
+          "order": {
+            "$ref": "#/components/schemas/ListingOrder"
+          }
+        }
+      },
+      "MyListingsScreen": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "week",
+          "items"
+        ],
+        "properties": {
+          "week": {
+            "$ref": "#/components/schemas/ListingWeek"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MyListingsItem"
+            }
+          },
+          "next_cursor": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Present when more listings follow; pass it as cursor."
           }
         }
       },
