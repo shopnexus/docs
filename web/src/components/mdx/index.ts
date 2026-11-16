@@ -1,3 +1,4 @@
+import ApiPlayground from "../api/api-playground.astro";
 import GlossaryList from "../glossary/glossary-list.astro";
 import Req from "../requirements/req.astro";
 import ReqTable from "../requirements/req-table.astro";
@@ -21,6 +22,7 @@ import UI from "./ui-label.astro";
 /** Global MDX components — content files use these without imports. */
 export const components = {
   Accordion,
+  ApiPlayground,
   AccordionGroup,
   Callout,
   Card,

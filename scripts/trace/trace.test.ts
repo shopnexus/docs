@@ -2,6 +2,7 @@ import { afterEach, describe, expect, test } from "bun:test";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { check } from "./check";
+import { bundle } from "./openapi";
 import { expandFlows, loadRegistry } from "./registry";
 import { rename, renameFromWas } from "./rename";
 import { scanAll } from "./scan";
@@ -209,4 +210,60 @@ test("expandFlows", () => {
   expect(expandFlows("E1–E3")).toEqual(["E1", "E2", "E3"]);
   expect(expandFlows("A2")).toEqual(["A2"]);
   expect(expandFlows("E2-4")).toEqual(["E2", "E3", "E4"]);
+});
+
+describe("openapi bundle", () => {
+  test("keeps component names, prefixes duplicates and inlines path files", async () => {
+    dir = mkdtempSync(`${tmpdir()}/trace-`);
+    const files: Record<string, string> = {
+      "api/openapi.yaml": `openapi: 3.2.0
+info: { title: T, version: "1" }
+paths:
+  /quotes:
+    $ref: "paths/q.yaml#/quotes"
+components:
+  securitySchemes:
+    bearer: { type: http, scheme: bearer }
+`,
+      "api/paths/q.yaml": `quotes:
+  get:
+    parameters:
+      - $ref: "../parameters/common.yaml#/Limit"
+    responses:
+      "200":
+        description: ok
+        content:
+          application/json:
+            schema:
+              $ref: "../schemas/chat.yaml#/Quote"
+      "400":
+        $ref: "../responses/common.yaml#/BadRequest"
+`,
+      "api/schemas/chat.yaml": `Quote:
+  type: object
+  properties:
+    reply: { $ref: "#/Quote" }
+    price: { $ref: "shipping.yaml#/Quote" }
+`,
+      "api/schemas/shipping.yaml": "Quote: { type: integer }\n",
+      "api/responses/common.yaml": `BadRequest:
+  description: bad
+  content:
+    application/json:
+      schema: { $ref: "../schemas/shipping.yaml#/Quote" }
+`,
+      "api/parameters/common.yaml": "Limit: { name: limit, in: query, schema: { type: integer } }\n",
+    };
+    for (const [p, text] of Object.entries(files)) await Bun.write(`${dir}/${p}`, text);
+    const doc = (await bundle(`${dir}/api`)) as any;
+    const get = doc.paths["/quotes"].get;
+    expect(get.parameters[0]).toEqual({ $ref: "#/components/parameters/Limit" });
+    expect(get.responses["200"].content["application/json"].schema).toEqual({ $ref: "#/components/schemas/ChatQuote" });
+    expect(get.responses["400"]).toEqual({ $ref: "#/components/responses/BadRequest" });
+    expect(doc.components.schemas.ChatQuote.properties).toEqual({
+      reply: { $ref: "#/components/schemas/ChatQuote" },
+      price: { $ref: "#/components/schemas/ShippingQuote" },
+    });
+    expect(doc.components.securitySchemes.bearer.scheme).toBe("bearer");
+  });
 });

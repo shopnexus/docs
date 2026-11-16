@@ -1,0 +1,76 @@
+/*
+ * Scalar's colours and type, taken from the site's tokens (styles/tokens.css).
+ * The tokens switch with :root[data-theme], so one block serves both modes;
+ * api-playground.astro keeps Scalar's own light/dark class in step for its
+ * code highlighting.
+ */
+.light-mode,
+.dark-mode,
+.light-mode .dark-mode {
+  --scalar-font: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --scalar-font-code: "JetBrains Mono Variable", ui-monospace, SFMono-Regular, monospace;
+
+  --scalar-background-1: var(--bg-page);
+  --scalar-background-2: var(--bg-subtle);
+  --scalar-background-3: var(--bg-hover);
+  --scalar-background-card: var(--bg-raised);
+  --scalar-background-accent: var(--brand-soft);
+
+  --scalar-color-1: var(--text-strong);
+  --scalar-color-2: var(--text-sub);
+  --scalar-color-3: var(--text-soft);
+  --scalar-color-accent: var(--brand);
+  --scalar-link-color: var(--link);
+  --scalar-link-color-hover: var(--brand-text);
+
+  --scalar-border-color: var(--stroke-soft);
+  --scalar-focus-color: var(--brand);
+  --scalar-scrollbar-color: var(--stroke-sub);
+  --scalar-scrollbar-color-active: var(--stroke-strong);
+
+  --scalar-color-green: var(--brand);
+  --scalar-color-blue: var(--info);
+  --scalar-color-orange: var(--warning);
+  --scalar-color-yellow: var(--warning);
+  --scalar-color-red: var(--danger);
+  --scalar-color-purple: var(--feature);
+  --scalar-color-query: var(--info);
+  --scalar-color-danger: var(--danger);
+  --scalar-background-danger: var(--danger-soft);
+  --scalar-color-alert: var(--warning);
+  --scalar-background-alert: var(--warning-soft);
+
+  --scalar-button-1: var(--brand);
+  --scalar-button-1-hover: var(--brand-text);
+  --scalar-button-1-color: var(--on-brand);
+
+  --scalar-tooltip-background: var(--inverse-bg);
+  --scalar-tooltip-color: var(--inverse-fg);
+
+  --scalar-shadow-1: var(--shadow-chip);
+  --scalar-shadow-2: var(--shadow-card);
+
+  --scalar-radius: 8px;
+  --scalar-radius-lg: 12px;
+  --scalar-radius-xl: 16px;
+
+  /* The site's top bar is 64px and stays on screen. */
+  --scalar-custom-header-height: 64px;
+
+  --scalar-sidebar-background-1: var(--bg-nav);
+  --scalar-sidebar-color-1: var(--text-strong);
+  --scalar-sidebar-color-2: var(--text-sub);
+  --scalar-sidebar-border-color: var(--stroke-soft);
+  --scalar-sidebar-item-hover-background: var(--bg-hover);
+  --scalar-sidebar-item-hover-color: var(--text-strong);
+  --scalar-sidebar-item-active-background: var(--bg-selected);
+  --scalar-sidebar-color-active: var(--text-strong);
+  --scalar-sidebar-search-background: var(--bg-page);
+  --scalar-sidebar-search-color: var(--text-soft);
+  --scalar-sidebar-search-border-color: var(--stroke-sub);
+}
+
+/* Method colours in the sidebar stay readable on the nav background. */
+.t-doc__sidebar {
+  --scalar-color-green: var(--brand-text);
+}

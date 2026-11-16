@@ -5,11 +5,16 @@
 ADR. Chạy từ repo gốc `shopnexus`, nơi có đủ submodule `docs` và `server`:
 
 ```sh
-make trace                                         # kiểm tra, rồi ghi registry/trace.json
+make trace                                         # kiểm tra, ghi registry/trace.json và web/public/openapi.json
 make trace-rename FROM=UC-DEAL-02 TO=UC-DEAL-07    # đổi một mã ở mọi nơi
 make trace-rename FROM_WAS=1                       # thay mọi mã cũ ghi trong `was`
 cd docs/scripts/trace && bun test                  # test của chính công cụ
 ```
+
+`openapi` gom `server/api/openapi.yaml` và các file nó tham chiếu thành
+`web/public/openapi.json` cho trang Playground. Schema, response và parameter
+giữ tên dưới `components`; tên trùng giữa hai file được thêm tên file phía
+trước (`ChatQuote`, `ShippingQuote`); file `paths/` được chép thẳng vào.
 
 ## Lỗi (thoát 1)
 

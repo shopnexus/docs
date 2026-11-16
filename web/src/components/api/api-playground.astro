@@ -1,0 +1,87 @@
+---
+import { withBase } from "../../lib/base";
+
+/**
+ * The API playground: Scalar's API reference over /openapi.json, which
+ * `make trace` bundles from server/api. Requests go straight from the
+ * browser to the server picked in it, so the server lists this site in
+ * DOCS_ORIGINS; Scalar's proxy, telemetry and AI features are off.
+ */
+---
+
+<div class="api-playground" data-api-playground data-spec={withBase("/openapi.json")}>
+  <p class="api-playground-loading">Loading the API reference…</p>
+  <noscript><a href={withBase("/openapi.json")}>openapi.json</a></noscript>
+</div>
+
+<script>
+  import { createApiReference } from "@scalar/api-reference";
+  import "@scalar/api-reference/style.css";
+  import theme from "./scalar-theme.css?raw";
+
+  type Instance = ReturnType<typeof createApiReference>;
+  let current: Instance | undefined;
+  let watcher: MutationObserver | undefined;
+
+  const isDark = () => document.documentElement.dataset.theme === "dark";
+
+  function mount() {
+    const el = document.querySelector<HTMLElement>("[data-api-playground]");
+    if (!el || el.dataset.mounted) return;
+    el.dataset.mounted = "true";
+    el.querySelector(".api-playground-loading")?.remove();
+    const configuration = {
+      url: el.dataset.spec,
+      theme: "none",
+      customCss: theme,
+      withDefaultFonts: false,
+      darkMode: isDark(),
+      forceDarkModeState: isDark() ? "dark" : "light",
+      hideDarkModeToggle: true,
+      // Requests go to the chosen server, never through proxy.scalar.com.
+      proxyUrl: "",
+      telemetry: false,
+      agent: { disabled: true },
+      mcp: { disabled: true },
+      showDeveloperTools: "never",
+      // The token pasted under Authentication stays in this browser.
+      persistAuth: true,
+      authentication: { preferredSecurityScheme: "bearerAuth" },
+      documentDownloadType: "json",
+      defaultHttpClient: { targetKey: "shell", clientKey: "curl" },
+      // Ctrl+K is the site's search.
+      searchHotKey: "j",
+    } as Parameters<typeof createApiReference>[1];
+    current = createApiReference(el, configuration);
+    watcher = new MutationObserver(() => {
+      if (!current) return;
+      current.updateConfiguration({
+        ...current.getConfiguration(),
+        darkMode: isDark(),
+        forceDarkModeState: isDark() ? "dark" : "light",
+      } as Parameters<Instance["updateConfiguration"]>[0]);
+    });
+    watcher.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+  }
+
+  function unmount() {
+    watcher?.disconnect();
+    current?.destroy();
+    current = undefined;
+    watcher = undefined;
+  }
+
+  mount();
+  document.addEventListener("astro:page-load", mount);
+  document.addEventListener("astro:before-swap", unmount);
+</script>
+
+<style>
+  .api-playground {
+    min-height: 60vh;
+  }
+  .api-playground-loading {
+    padding: 48px 24px;
+    color: var(--text-soft);
+  }
+</style>

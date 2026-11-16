@@ -23,10 +23,11 @@ bun run preview    # serves dist/ at http://localhost:4321
 ## Writing pages
 
 - A page lives at `src/content/docs/<en|vi>/<tab>/<slug>.mdx` and is served at `/<lang>/<tab>/<slug>`. `index.mdx` is the landing page of a tab or folder. `src/content.config.ts` validates the frontmatter.
-- The left nav is built from the frontmatter fields `group`, `groupOrder` and `order`. `related: [urls]` fills the Related rail, and `toc: false` hides the page outline.
+- The left nav is built from the frontmatter fields `group`, `groupOrder` and `order`. `related: [urls]` fills the Related rail, and `toc: false` hides the page outline. `wide: true` drops the left nav and the outline and gives the page body the full width, for an embedded app.
 - A Vietnamese page that does not exist yet renders the English one under `/vi/...` with a "not translated yet" banner.
 - A page with `internal: true` exists only in `build:internal`.
-- MDX components need no import: `Callout`, `Steps`/`Step`, `Shot`, `Tabs`/`Tab`, `Cards`/`Card`, `Prereqs`, `KeyRules`, `Accordion`/`AccordionGroup`, `UI`, `Term`, `Kbd`, `Glossary`, `Req`, `ReqTable` and `UseCases`. Glossary terms are in `src/data/glossary.ts`.
+- MDX components need no import: `Callout`, `Steps`/`Step`, `Shot`, `Tabs`/`Tab`, `Cards`/`Card`, `Prereqs`, `KeyRules`, `Accordion`/`AccordionGroup`, `UI`, `Term`, `Kbd`, `Glossary`, `Req`, `ReqTable`, `UseCases` and `ApiPlayground`. Glossary terms are in `src/data/glossary.ts`.
+- `<ApiPlayground />` (API → Playground) is Scalar's API reference over `public/openapi.json`, which `make trace` bundles from `server/api`. Requests go from the browser straight to the server picked in it, so each server lists the docs origins in `DOCS_ORIGINS`; Scalar's proxy, telemetry and AI features are off, and its colours come from `src/components/api/scalar-theme.css`.
 - The Requirements tab reads `../registry/requirements.yaml` and `../registry/trace.json` at build time (`src/lib/registry.ts`). `<Req id="BR-ACC-01" />` links one ID and fails the build on an unknown one; `<ReqTable kind="coverage|errors|fr|br|nfr|adr" />` prints a table; `<UseCases />` prints every use case with its flows and the server lines that name it.
 - A fenced block with the language `mermaid` is drawn as a diagram in the site's colours and redrawn when the theme changes. `title="…"` sets the caption. The renderer is `src/scripts/mermaid.ts` and loads only on pages that have a diagram.
 - Tables are wrapped in a scroll frame by `src/lib/markdown/rehype-table-wrap.ts`.
