@@ -1,7 +1,7 @@
 {
   "server": {
     "repo": "https://github.com/shopnexus/server",
-    "commit": "430d3e4a4256334a7d7f627503478b3d9721aa7d"
+    "commit": "c63cb7227abfbd5ebbf6a5c51d2294faec7e0455"
   },
   "refs": {
     "UC-DEAL-02": [
@@ -1222,6 +1222,14 @@
         "file": "server/internal/deal/service/order_ship_durable.go",
         "line": 44,
         "kind": "code",
+        "flows": []
+      }
+    ],
+    "UC-LST-02": [
+      {
+        "file": "server/api/paths/catalog.yaml",
+        "line": 324,
+        "kind": "api",
         "flows": []
       }
     ]

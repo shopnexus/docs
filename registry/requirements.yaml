@@ -92,6 +92,7 @@ uc:
     status: untraced
     title: { vi: "Quản lý tin đăng (sửa, đổi giá, ẩn/hiện, đánh dấu đã bán, xóa)", en: "Manage listings" }
     actors: [seller]
+    api: ["POST /v1/listings/{id}/photo-copies"]
   - id: UC-LST-03
     was: [UC-08]
     status: untraced
