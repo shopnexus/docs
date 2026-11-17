@@ -296,7 +296,7 @@ Dev không nạp SigLIP 2 vì máy dev không còn chỗ cho nó (2026-11-17). V
 
 ## Vector và version của chúng
 
-Server lưu `EMBED_TEXT_VERSION` và `EMBED_IMAGE_VERSION` cùng mỗi vector. Cả hai là values của stack, `server.embed.textVersion` và `server.embed.imageVersion` trong `infra/stack/values.yaml`. Một mô hình mới cần một version mới trong cùng thay đổi: server khi đó coi các vector đã lưu là thiếu, và `go run ./cmd/search-reindex -every 2s` trong server embed lại mọi tin đăng, mỗi 2 giây một tin.
+Server lưu `EMBED_TEXT_VERSION` và `EMBED_IMAGE_VERSION` cùng mỗi vector. Cả hai nằm trong `infra/stack/env/server.env`, file mà chart của cluster và `docker-compose.yml` ở gốc cùng đọc. Một mô hình mới cần một version mới trong cùng thay đổi: server khi đó coi các vector đã lưu là thiếu, và `go run ./cmd/search-reindex -every 2s` trong server embed lại mọi tin đăng, mỗi 2 giây một tin.
 
 `EMBED_TEXT_VERSION` giữ nguyên `bge-m3@5617a9f61b028005a4858fdac845db406aefb181` khi `embed-text` chuyển từ TEI sang OpenRouter, vì vector của DeepInfra khớp. Một văn bản dài hơn 2048 token cho cosine 0,90, vì TEI cắt input ở 2048 token còn OpenRouter thì không. Server cắt chữ của tin đăng ở 2.000 ký tự (`EmbeddingTextMax`), dưới 2048 token.
 

@@ -296,7 +296,7 @@ Dev loads no SigLIP 2 because the dev machine has no room for it (2026-11-17). I
 
 ## Vectors and their versions
 
-The server stores `EMBED_TEXT_VERSION` and `EMBED_IMAGE_VERSION` with every vector. Both are stack values, `server.embed.textVersion` and `server.embed.imageVersion` in `infra/stack/values.yaml`. A new model needs a new version in the same change: the server then treats the stored vectors as missing, and `go run ./cmd/search-reindex -every 2s` in the server embeds every listing again, one listing every 2 s.
+The server stores `EMBED_TEXT_VERSION` and `EMBED_IMAGE_VERSION` with every vector. Both are in `infra/stack/env/server.env`, which the cluster's chart and the root `docker-compose.yml` both read. A new model needs a new version in the same change: the server then treats the stored vectors as missing, and `go run ./cmd/search-reindex -every 2s` in the server embeds every listing again, one listing every 2 s.
 
 `EMBED_TEXT_VERSION` stayed `bge-m3@5617a9f61b028005a4858fdac845db406aefb181` when `embed-text` moved from TEI to OpenRouter, since DeepInfra's vectors match. A text over 2048 tokens gave a cosine of 0.90, because TEI cut inputs at 2048 tokens and OpenRouter does not. The server cuts listing text at 2,000 characters (`EmbeddingTextMax`), under 2048 tokens.
 
