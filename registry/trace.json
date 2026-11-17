@@ -2221,6 +2221,34 @@
       "tests": 0,
       "flows": {}
     },
+    "UC-MOD-06": {
+      "code": 0,
+      "tests": 0,
+      "flows": {
+        "A1": false,
+        "A2": false,
+        "A3": false,
+        "A4": false
+      }
+    },
+    "UC-MOD-07": {
+      "code": 0,
+      "tests": 0,
+      "flows": {
+        "A1": false,
+        "A2": false,
+        "A3": false
+      }
+    },
+    "UC-MOD-08": {
+      "code": 0,
+      "tests": 0,
+      "flows": {
+        "A1": false,
+        "A2": false,
+        "E1": false
+      }
+    },
     "UC-SHR-01": {
       "code": 0,
       "tests": 0,

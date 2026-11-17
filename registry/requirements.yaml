@@ -388,6 +388,66 @@ uc:
     title: { vi: "Tra cứu nhật ký kiểm toán", en: "Search the audit log" }
     actors: [admin]
 
+  - id: UC-MOD-06
+    status: planned
+    title: { vi: "Xử lý ca báo cáo với đề xuất của agent", en: "Handle a report case with the agent's proposal" }
+    actors: [moderator]
+    secondary: [llm]
+    fr: [FR-MOD-03]
+    br: [BR-MOD-01, BR-MOD-03]
+    nfr: [NFR-PRIV-02, NFR-PERF-02, NFR-DUR-01]
+    pre: "Có ít nhất một báo cáo đang mở về một tài khoản; điều phối viên đã đăng nhập console."
+    post: "Đề xuất được làm theo, sửa hoặc bỏ; mọi thay đổi do điều phối viên bấm và được ghi nhật ký thao tác."
+    main:
+      1: "Báo cáo mới tới; hệ thống gom báo cáo theo tài khoản bị báo thành một ca và cho agent đọc ca ở nền."
+      2: "Agent đọc tin, ảnh giống nhau, giá tham khảo, các cuộc chat bị báo và lịch sử tài khoản bằng các công cụ chỉ đọc, rồi ghi bằng chứng và một đề xuất (ẩn tin, tạm khóa, nhắn người mua)."
+      3: "Điều phối viên mở ca, xem bằng chứng và đề xuất, tick hoặc bỏ tick từng dòng."
+      4: "Điều phối viên bấm làm theo; console gọi các thao tác của console, mỗi thao tác một dòng nhật ký."
+      5: "Khối đề xuất chuyển thành đã làm, ghi người làm và thời điểm, kèm Hoàn tác."
+    alt:
+      A1: { at: 3, text: "Điều phối viên nhắn để agent sửa đề xuất; agent trả lời bằng bản kế tiếp, bản cũ thu gọn." }
+      A2: { at: 3, text: "Điều phối viên chọn Không vi phạm; ca đóng, không thao tác nào trên tài khoản." }
+      A3: { at: 5, text: "Điều phối viên bấm Hoàn tác; hệ thống làm ngược từng thao tác, bỏ qua thao tác đã đổi từ trước, tin đã gửi cho người mua giữ nguyên." }
+      A4: { at: 2, text: "Ca liên quan một nhóm tài khoản: agent vẽ đồ thị liên kết và đề xuất cho cả nhóm." }
+    notes: "Agent không có quyền ghi; một chỉ dẫn lẫn trong tin nhắn của người dùng chỉ có thể làm sai đề xuất."
+  - id: UC-MOD-07
+    status: planned
+    title: { vi: "Trả lời ticket bằng câu trả lời agent soạn", en: "Answer a ticket with the agent's reply" }
+    actors: [moderator]
+    secondary: [llm]
+    fr: [FR-MOD-03]
+    br: [BR-MOD-03]
+    nfr: [NFR-PRIV-02, NFR-PERF-02]
+    pre: "Có ticket đang mở; điều phối viên đã đăng nhập console."
+    post: "Người gửi nhận câu trả lời dưới tên ShopNexus; câu trả lời và người gửi được ghi nhật ký."
+    main:
+      1: "Ticket mới hoặc tin nhắn mới của người gửi tới; agent đọc ticket, đơn, vận đơn và soạn câu trả lời ở nền."
+      2: "Điều phối viên mở ticket, xem phần agent đọc và câu trả lời soạn sẵn."
+      3: "Điều phối viên bấm gửi; câu trả lời vào cuộc chat của ticket dưới tên ShopNexus."
+    alt:
+      A1: { at: 2, text: "Điều phối viên nhắn để agent viết lại; agent trả lời bằng bản kế tiếp." }
+      A2: { at: 2, text: "Điều phối viên sửa trực tiếp câu trả lời rồi gửi." }
+      A3: { at: 2, text: "Điều phối viên tự viết trong cuộc chat với khách, không dùng câu trả lời soạn sẵn." }
+  - id: UC-MOD-08
+    status: planned
+    title: { vi: "Hỏi agent về một ticket, ca báo cáo hoặc tài khoản", en: "Ask the agent about a ticket, a report case or an account" }
+    actors: [moderator, admin]
+    secondary: [llm]
+    fr: [FR-MOD-03]
+    br: [BR-MOD-03]
+    nfr: [NFR-PRIV-02, NFR-PERF-02]
+    pre: "Thành viên console đã đăng nhập."
+    post: "Thành viên nhận câu trả lời kèm nguồn; không dữ liệu nghiệp vụ nào bị thay đổi."
+    main:
+      1: "Thành viên mở cuộc chat với agent của một bản ghi, hoặc cuộc chat mới gắn một bản ghi."
+      2: "Thành viên đặt câu hỏi; mỗi câu hỏi ghi tên người hỏi, cuộc chat của bản ghi dùng chung cho mọi thành viên."
+      3: "Agent dùng các công cụ chỉ đọc, hiện nguồn đã đọc, rồi trả lời bằng chữ và các khối (bằng chứng, bảng, đồ thị)."
+    alt:
+      A1: { at: 3, text: "Quá 60 giây: lượt dừng, thành viên hỏi lại hoặc cho chạy nền và được báo khi xong.", nfr: NFR-PERF-02 }
+      A2: { at: 3, text: "Thành viên bấm Dừng; lượt bị hủy, phần đã đọc giữ lại." }
+    exc:
+      E1: { at: 3, text: "Hết hạn mức chi phí trong ngày: agent không trả lời, console vẫn dùng được." }
+
   # ---- SHR ----
   - id: UC-SHR-01
     was: [UC-S1]
@@ -424,6 +484,7 @@ fr:
   - { id: FR-MOD-01, was: [REQ-20], module: "Uy tín, Nhân viên", uc: [UC-MOD-01, UC-MOD-02], text: { vi: "Báo cáo vi phạm; điều phối viên xử lý và tạm khóa tài khoản" } }
   - { id: FR-SHR-02, was: [REQ-21], module: Thông báo, uc: [UC-DEAL-02, UC-DEAL-03, UC-DEAL-04, UC-DEAL-05, UC-DEAL-06, UC-TRS-01, UC-TRS-02, UC-TRS-03], ucText: UC-DEAL-02 – UC-TRS-03, text: { vi: "Thông báo trong ứng dụng và đẩy tới điện thoại" } }
   - { id: FR-MOD-02, was: [REQ-22], module: Nhân viên, uc: [UC-MOD-04, UC-MOD-05, UC-SHR-02], text: { vi: "Quản lý nhân viên, đăng nhập có mã xác thực hai lớp, nhật ký kiểm toán" } }
+  - { id: FR-MOD-03, module: "Nhân viên, AI", uc: [UC-MOD-06, UC-MOD-07, UC-MOD-08], text: { vi: "Agent của console đọc ca báo cáo và ticket, trình bằng chứng, đề xuất thao tác và soạn câu trả lời; nhân viên duyệt, sửa bằng tick hoặc chat, làm theo và hoàn tác" } }
 
 br:
   - { id: BR-DEAL-01, was: [BR-01], text: { vi: "Sàn không giữ tiền: không ví, không cọc, không thu hộ, không hoàn tiền qua sàn." } }
@@ -449,6 +510,7 @@ br:
   - { id: BR-ACC-02, was: [BR-21], text: { vi: "Không luồng nào tiết lộ một số điện thoại hoặc email đã có tài khoản hay chưa; khi người dùng mở nội dung không thuộc quyền xem của mình, hệ thống trả lời như thể nội dung đó không tồn tại." } }
   - { id: BR-ACC-03, text: { vi: "Tài khoản phải có số điện thoại mới được đăng tin, mở thương lượng hoặc mở cuộc trò chuyện." } }
   - { id: BR-MOD-02, text: { vi: "Tài khoản đang bị tạm khóa không được trả giá, chấp nhận giá hay yêu cầu COD; vẫn được rút giá, từ chối và hủy." } }
+  - { id: BR-MOD-03, text: { vi: "Agent của console chỉ đọc và đề xuất; mọi thay đổi do nhân viên bấm và được ghi nhật ký thao tác; tin nhắn gửi cho người dùng luôn mang tên ShopNexus." } }
 
 nfr:
   - { id: NFR-DUR-01, was: [NFR-01], attr: Độ bền, text: { vi: "Máy chủ gặp sự cố giữa một quy trình nhiều bước không để lại dữ liệu dở dang; quy trình chạy tiếp từ bước đã xong và không lặp việc đã làm (không tạo hai vận đơn, không gửi hai SMS)." } }
@@ -459,6 +521,8 @@ nfr:
   - { id: NFR-SEC-01, was: [NFR-06], attr: An toàn xác thực, text: { vi: "Phiên đăng nhập ngắn hạn sống 15 phút và được làm mới tự động; mã làm mới bị dùng lại thì phiên bị thu hồi; có hạn mức gửi OTP; không lộ việc một số điện thoại hay email đã có tài khoản." } }
   - { id: NFR-PRIV-01, was: [NFR-07], attr: Quyền riêng tư, text: { vi: "Xóa thông tin vị trí chụp khỏi ảnh; vị trí tin theo xã; che số điện thoại, email trong nhật ký; mã hóa khóa kết nối tài khoản hãng vận chuyển của người bán." } }
   - { id: NFR-OBS-01, was: [NFR-08], attr: Quan trắc, text: { vi: "Mọi yêu cầu được theo vết; thông báo lỗi mang mã tra cứu để đối chiếu nhật ký; có số liệu đăng nhập, gửi OTP và thông báo đã gửi giữa các phân hệ." } }
+  - { id: NFR-PERF-02, attr: Hiệu năng, text: { vi: "Một lượt hỏi agent của console trả lời trong 60 giây hoặc dừng và cho chạy nền, báo khi xong." } }
+  - { id: NFR-PRIV-02, attr: Quyền riêng tư, text: { vi: "Mỗi lần agent của console đọc dữ liệu cá nhân được ghi lại kèm nhân viên đã hỏi; cuộc chat với agent giữ 180 ngày; xóa tài khoản thì xóa các phần trích dữ liệu của tài khoản đó." } }
   - { id: NFR-API-01, was: [NFR-09], attr: Tuân thủ hợp đồng API, text: { vi: "Mọi yêu cầu được kiểm theo đặc tả API; bộ kiểm thử đầu-cuối gặp đủ mọi kết quả trả về đã khai trong đặc tả." } }
   - { id: NFR-ARCH-01, was: [NFR-10], attr: Khả năng tách phân hệ, text: { vi: "Mỗi phân hệ chỉ cho phân hệ khác dùng qua giao diện đã công bố; tách ra chạy riêng không phải sửa nghiệp vụ." } }
   - { id: NFR-UX-01, was: [NFR-11], attr: Ứng dụng di động, text: { vi: "Chạy trên điện thoại Android 12 trở lên, có giao diện tối, cỡ chữ 130%, vùng chạm tối thiểu 48 dp." } }
@@ -472,3 +536,7 @@ adr:
     status: accepted
     title: { vi: "Quy trình nhiều bước chạy trên Restate", en: "Multi-step flows run on Restate" }
     text: { vi: "Mỗi quy trình gọi ra ngoài nhiều bước (giữ tin, tạo vận đơn, lưu đơn) là một service Restate: từng bước được ghi lại, máy chủ chết giữa chừng thì chạy tiếp từ bước đã xong, gọi lại cùng khóa thì trả kết quả lần đầu (NFR-DUR-01, NFR-IDEM-01)." }
+  - id: ADR-0003
+    status: accepted
+    title: { vi: "Agent của console chạy riêng, đọc qua MCP của máy chủ", en: "The console agent runs apart and reads through the server's MCP" }
+    text: { vi: "Vòng lặp agent là dịch vụ riêng (shopnexus/agent) trong mạng nội bộ; console chỉ gọi máy chủ, máy chủ kiểm phiên rồi chuyển tiếp. Agent lấy dữ liệu qua MCP của máy chủ, chỉ có công cụ đọc; mọi thao tác ghi đi qua các endpoint console có nhật ký (BR-MOD-03). Việc chạy nền do Restate của máy chủ gọi agent (ADR-0002)." }
