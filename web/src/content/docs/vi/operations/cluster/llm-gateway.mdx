@@ -29,7 +29,7 @@ Mỗi alias là một mục của `gateway.aliases` trong `chart/values.yaml` c�
 
 ## Triển khai
 
-Repo `ai` có một Helm chart trong `chart/`. Repo tổng triển khai nó một lần cho mỗi stack bằng hai Application của Argo CD trong `infra/argocd/ai.yaml`: `ai-dev` vào `shopnexus-dev` và `ai-prod` vào `shopnexus-prod`. Mỗi Application có một nguồn, `chart/` của repo `ai` ở nhánh `main`, và đặt values riêng của stack ngay trong `spec.source.helm.valuesObject`. `root` tạo chúng ở wave 2, sau các Application của stack ở wave 1, vì Postgres của stack chứa database của gateway và secret đã seal của stack chứa các key.
+Repo `ai` có một Helm chart trong `chart/`. Repo tổng triển khai nó một lần cho mỗi stack bằng hai Application của Argo CD trong `infra/argocd/ai.yaml`: `ai-dev` vào `shopnexus-dev` và `ai-prod` vào `shopnexus-prod`. Mỗi Application có một nguồn, `chart/` của repo `ai`, `ai-dev` ở nhánh `main` và `ai-prod` ở commit ai của bản phát hành của repo tổng, và đặt values riêng của stack ngay trong `spec.source.helm.valuesObject`. `root` tạo chúng ở wave 2, sau các Application của stack ở wave 1, vì Postgres của stack chứa database của gateway và secret đã seal của stack chứa các key.
 
 ```mermaid title="Những gì ai-dev render vào shopnexus-dev"
 flowchart TB
@@ -45,7 +45,7 @@ flowchart TB
 | lựa chọn của hub | `chart/values.yaml` trong repo `ai` | các alias và mô hình của chúng, các image, các key và alias mỗi key được gọi, thiết lập của `ai-models` |
 | của stack | `valuesObject` của `ai-<stack>` trong `infra/argocd/ai.yaml` | `stack`, `dailyUnits` và `tpmLimit` hoặc `rpmLimit` của mọi key, `models.embedModels`, `models.memoryRequest` và `models.memoryLimit` |
 
-Chart từ chối render khi thiếu values của stack. Image Updater dời image `ai-models` trên `ai-dev` theo digest của `:main` và trên `ai-prod` tới tag `X.Y.Z` mới nhất, như với các image khác của stack. Một thay đổi ở chart hay ở `chart/values.yaml` tới cả hai stack ngay khi nó nằm trên `main` của repo `ai`.
+Chart từ chối render khi thiếu values của stack. Image Updater dời image `ai-models` trên `ai-dev` theo digest của `:main`. Trên `ai-prod`, workflow Release của repo tổng ghi commit ai và `images.models.tag` ([Phát hành](/vi/operations/cluster/releases)). Một thay đổi ở chart hay ở `chart/values.yaml` tới dev ngay khi nó nằm trên `main` của repo `ai`, và tới prod cùng bản phát hành tiếp theo.
 
 ## Đường đi của request
 
@@ -322,7 +322,7 @@ Trong `chart/values.yaml` của repo `ai`, đặt `gateway.aliases.search.model`
 Với nhà cung cấp khác OpenRouter, thêm key của họ vào `infra/stack/secrets/<stack>.env` và vào `litellm-secrets` trong lệnh seal, ghi tên nó vào `apiKeySecret`, seal lại cả hai stack rồi push, và khởi động lại `ai-gateway`.
 </Step>
 <Step title="Chạy test và push">
-Chạy `helm unittest chart` trong repo `ai`, commit rồi push lên `main` của nó. Argo CD sync `ai-dev` và `ai-prod`. Annotation `checksum/config` trên pod của `ai-gateway` đổi theo cấu hình, nên gateway khởi động lại với mô hình mới.
+Chạy `helm unittest chart` trong repo `ai`, commit rồi push lên `main` của nó. Argo CD sync `ai-dev`; `ai-prod` nhận thay đổi cùng bản phát hành tiếp theo. Annotation `checksum/config` trên pod của `ai-gateway` đổi theo cấu hình, nên gateway khởi động lại với mô hình mới.
 </Step>
 <Step title="Kiểm tra một lần tìm kiếm">
 Tìm một thứ gì đó trên stack và đọc log của server. Dòng `the model did not read the query` nghĩa là mô hình mới thất bại.

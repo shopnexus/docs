@@ -60,7 +60,7 @@ k3d runs every node as a Docker container on one host, so the agents share one k
 | Argo CD Application | `stack-dev` | `stack-prod` |
 | Values file | `values-dev.yaml` | `values-prod.yaml` |
 | `APP_ENV` | `dev` | `prod` |
-| Images | `:main`, by digest | newest `X.Y.Z`, by semver |
+| Images | `:main`, by digest | `X.Y.Z` of the umbrella's release `vX.Y.Z` |
 
 The `RestateCluster` of a stack is named `restate-<stack>`, and restate-operator puts it in a namespace of the same name. The chart creates that namespace in sync wave -1, so the sealed `restate-secrets` land in it before the cluster starts. NetworkPolicy denies all ingress in a stack namespace and opens only the paths the stack needs ([Edge and network](/en/operations/cluster/networking) lists them). No policy opens a path between `shopnexus-dev` and `shopnexus-prod`.
 
@@ -104,21 +104,21 @@ flowchart LR
   root -->|wave 0| iuapp["image-updater<br/>argocd-image-updater 1.4.0<br/>ns argocd"]
   root -->|wave 0| ro["restate-operator<br/>restate-operator-helm 3.2.0<br/>ns restate-operator"]
   root -->|wave 1| dev["stack-dev<br/>infra/stack + values-dev.yaml"]
-  root -->|wave 1| prod["stack-prod<br/>infra/stack + values-prod.yaml"]
+  root -->|wave 1| prod["stack-prod<br/>infra/stack + values-prod.yaml<br/>at vX.Y.Z"]
   root -->|wave 1| iu["ImageUpdater shopnexus"]
   root -->|wave 2| aidev["ai-dev<br/>repo ai, chart/"]
   root -->|wave 2| aiprod["ai-prod<br/>repo ai, chart/"]
   iu -. "digest of :main" .-> dev
-  iu -. "newest X.Y.Z" .-> prod
+  iu -. "digest of :main" .-> aidev
   dev --> devns[shopnexus-dev]
   prod --> prodns[shopnexus-prod]
   aidev --> devns
   aiprod --> prodns
 ```
 
-`root` has two sources in the umbrella repo: `infra/platform`, with one Application per platform chart, and `infra/argocd`, with `root.yaml` itself, `stack-dev`, `stack-prod`, the `ImageUpdater`, and `ai-dev` and `ai-prod` in `ai.yaml`. The platform charts come from their upstream Helm repositories and are not vendored. restate-operator's chart is read from GHCR as an OCI repository through the Secret `repo-restatedev-oci`. `ai-dev` and `ai-prod` render the chart in `chart/` of the `ai` repo (`shopnexus/ai`) at `main` into the stack namespaces, after the stacks; [AI hub](/en/operations/cluster/llm-gateway) describes them.
+`root` has two sources in the umbrella repo: `infra/platform`, with one Application per platform chart, and `infra/argocd`, with `root.yaml` itself, `stack-dev`, `stack-prod`, the `ImageUpdater`, and `ai-dev` and `ai-prod` in `ai.yaml`. The platform charts come from their upstream Helm repositories and are not vendored. restate-operator's chart is read from GHCR as an OCI repository through the Secret `repo-restatedev-oci`. `ai-dev` and `ai-prod` render the chart in `chart/` of the `ai` repo (`shopnexus/ai`) into the stack namespaces, `ai-dev` at `main` and `ai-prod` at the ai commit of the release, after the stacks; [AI hub](/en/operations/cluster/llm-gateway) describes them.
 
-Argo CD stopped judging the health of an Application in version 1.8. The values in `infra/cluster/argocd.yaml` add a health check for `argoproj.io/Application`, so `root` waits for the platform Applications in wave 0 to be Healthy before it creates the stacks in wave 1. Every Application syncs automatically with `prune` and `selfHeal` and retries without limit. `root` ignores `/spec/source/helm/parameters` on the stack Applications, because Image Updater writes the image tags there and self-heal would otherwise put them back.
+Argo CD stopped judging the health of an Application in version 1.8. The values in `infra/cluster/argocd.yaml` add a health check for `argoproj.io/Application`, so `root` waits for the platform Applications in wave 0 to be Healthy before it creates the stacks in wave 1. Every Application syncs automatically with `prune` and `selfHeal` and retries without limit. `root` ignores `/spec/source/helm/parameters` on the Applications, because Image Updater writes the image tags of `stack-dev` and `ai-dev` there and self-heal would otherwise put them back.
 
 ## Repository layout
 

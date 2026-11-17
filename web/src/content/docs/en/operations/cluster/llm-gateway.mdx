@@ -29,7 +29,7 @@ Each alias is an entry of `gateway.aliases` in the `ai` repo's `chart/values.yam
 
 ## Deployment
 
-The `ai` repo holds a Helm chart in `chart/`. The umbrella deploys it once per stack with two Argo CD Applications in `infra/argocd/ai.yaml`, `ai-dev` into `shopnexus-dev` and `ai-prod` into `shopnexus-prod`. Each has one source, the `ai` repo's `chart/` at `main`, and sets the stack's own values inline in `spec.source.helm.valuesObject`. `root` creates them in wave 2, after the stack Applications in wave 1, whose Postgres holds the gateway's database and whose sealed secrets hold the keys.
+The `ai` repo holds a Helm chart in `chart/`. The umbrella deploys it once per stack with two Argo CD Applications in `infra/argocd/ai.yaml`, `ai-dev` into `shopnexus-dev` and `ai-prod` into `shopnexus-prod`. Each has one source, the `ai` repo's `chart/`, `ai-dev` at `main` and `ai-prod` at the ai commit of the umbrella's release, and sets the stack's own values inline in `spec.source.helm.valuesObject`. `root` creates them in wave 2, after the stack Applications in wave 1, whose Postgres holds the gateway's database and whose sealed secrets hold the keys.
 
 ```mermaid title="What ai-dev renders into shopnexus-dev"
 flowchart TB
@@ -45,7 +45,7 @@ flowchart TB
 | the hub's choices | `chart/values.yaml` in the `ai` repo | the aliases and their models, the images, the keys and the aliases each may call, the settings of `ai-models` |
 | the stack's | `valuesObject` of `ai-<stack>` in `infra/argocd/ai.yaml` | `stack`, every key's `dailyUnits` and `tpmLimit` or `rpmLimit`, `models.embedModels`, `models.memoryRequest` and `models.memoryLimit` |
 
-The chart refuses to render without the stack's values. Image Updater moves the `ai-models` image on `ai-dev` by the digest of `:main` and on `ai-prod` to the newest `X.Y.Z` tag, as for the stacks' other images. A change to the chart or to `chart/values.yaml` reaches both stacks as soon as it is on the `ai` repo's `main`.
+The chart refuses to render without the stack's values. Image Updater moves the `ai-models` image on `ai-dev` by the digest of `:main`. On `ai-prod` the umbrella's Release workflow writes the ai commit and `images.models.tag` ([Releases](/en/operations/cluster/releases)). A change to the chart or to `chart/values.yaml` reaches dev as soon as it is on the `ai` repo's `main`, and prod with the next release.
 
 ## Request path
 
@@ -322,7 +322,7 @@ In the `ai` repo's `chart/values.yaml`, set `gateway.aliases.search.model` to Li
 For a provider other than OpenRouter, add its key to `infra/stack/secrets/<stack>.env` and to `litellm-secrets` in the seal command, name it in `apiKeySecret`, reseal both stacks and push, and restart `ai-gateway`.
 </Step>
 <Step title="Run the tests and push">
-Run `helm unittest chart` in the `ai` repo, commit and push to its `main`. Argo CD syncs `ai-dev` and `ai-prod`. The `checksum/config` annotation on `ai-gateway`'s pod changes with the config, so the gateway restarts on the new model.
+Run `helm unittest chart` in the `ai` repo, commit and push to its `main`. Argo CD syncs `ai-dev`; `ai-prod` gets the change with the next release. The `checksum/config` annotation on `ai-gateway`'s pod changes with the config, so the gateway restarts on the new model.
 </Step>
 <Step title="Check a search">
 Search for something on the stack and read the server log. A line `the model did not read the query` means the new model failed.

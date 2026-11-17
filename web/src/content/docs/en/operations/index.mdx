@@ -16,7 +16,7 @@ The server, the website, the docs and the console run on one k3d cluster in two 
 | Stack | Domain | Namespace | Follows |
 |---|---|---|---|
 | dev | `dev.shopnexus.id.vn` | `shopnexus-dev` | `:main`, by digest |
-| prod | `shopnexus.id.vn` | `shopnexus-prod` | the newest `X.Y.Z` tag |
+| prod | `shopnexus.id.vn` | `shopnexus-prod` | a release of the umbrella, `vX.Y.Z` |
 
 Each stack serves the website on its domain and four hosts below it: `api.` for the server, `media.` for the object store, `docs.` for the docs and `console.` for the console.
 
@@ -26,19 +26,20 @@ The system is built and checked on a local k3d cluster. Bringing it up on the au
 
 ```mermaid title="From a push to a running pod"
 flowchart TB
-  push[git push or tag vX.Y.Z] --> ci[GitHub Actions build.yml]
-  ci --> ghcr["GHCR ghcr.io/shopnexus/*<br/>:main and X.Y.Z"]
+  push[git push to main] --> ci[GitHub Actions build.yml]
+  ci --> ghcr["GHCR ghcr.io/shopnexus/*<br/>:main and sha-#lt;commit#gt;"]
   ghcr --> iu[Argo CD Image Updater]
   iu --> argo[Argo CD]
+  rel["umbrella release.yml<br/>X.Y.Z, tag vX.Y.Z"] --> argo
   argo --> devns[shopnexus-dev]
   argo --> prodns[shopnexus-prod]
   devns --> traefik[Traefik]
   prodns --> traefik
 ```
 
-Each component repo (`server`, `website`, `docs`, `console`) has a `.github/workflows/build.yml`. A push to `main` builds the image and pushes it to GHCR with the tags `main` and `sha-<commit>`. A tag `vX.Y.Z` pushes the tag `X.Y.Z`. The packages are public, because the cluster pulls them without credentials.
+Each component repo (`server`, `website`, `docs`, `console`) has a `.github/workflows/build.yml`. A push to `main` builds the image and pushes it to GHCR with the tags `main` and `sha-<commit>`. For a prod release, the umbrella's Release workflow adds the tag `X.Y.Z` to the `sha-<commit>` images of the commits its submodules point at. The packages are public, because the cluster pulls them without credentials.
 
-Argo CD Image Updater watches GHCR. For `stack-dev` it follows the digest of `:main`; for `stack-prod` it follows the newest `X.Y.Z` by semver. It writes the new tag as a Helm parameter on the stack's Argo CD Application, and Argo CD syncs the chart in `infra/stack` into the stack's namespace. CI never connects to the cluster. Traefik, bundled with k3s, routes each request by its `Host` header to the stack's Services.
+Argo CD Image Updater watches GHCR for dev. It follows the digest of `:main`, writes the new tag as a Helm parameter on `stack-dev`, and Argo CD syncs the chart in `infra/stack` into `shopnexus-dev`. Prod has no Image Updater: the Release workflow writes the version into `infra/` and tags the umbrella `vX.Y.Z`, and `stack-prod` renders `infra/stack` at that tag. CI never connects to the cluster. Traefik, bundled with k3s, routes each request by its `Host` header to the stack's Services.
 
 ## The cluster
 
@@ -47,7 +48,7 @@ Argo CD Image Updater watches GHCR. For `stack-dev` it follows the digest of `:m
   <Card title="Bring up a cluster" href="/en/operations/cluster/bootstrap" icon="ri:rocket-line">Fork, set the domains, create the cluster with k3d, seal the secrets, push.</Card>
   <Card title="Edge and network" href="/en/operations/cluster/networking" icon="ri:global-line">The two edge modes, TLS, hosts and NetworkPolicy.</Card>
   <Card title="Postgres, Restate and RustFS" href="/en/operations/cluster/data" icon="ri:database-2-line">The stateful workloads, their operators and their storage.</Card>
-  <Card title="Releases" href="/en/operations/cluster/releases" icon="ri:price-tag-3-line">How dev follows main and prod follows a version tag.</Card>
+  <Card title="Releases" href="/en/operations/cluster/releases" icon="ri:price-tag-3-line">How dev follows main and prod runs a release of the umbrella.</Card>
   <Card title="Secrets" href="/en/operations/cluster/secrets" icon="ri:key-2-line">Sealed Secrets, the seal command and the key to back up.</Card>
   <Card title="AI hub" href="/en/operations/cluster/llm-gateway" icon="ri:robot-2-line">ai-gateway and ai-models in each stack, the aliases, keys and daily budgets.</Card>
   <Card title="Runbook and troubleshooting" href="/en/operations/cluster/runbook" icon="ri:first-aid-kit-line">Daily commands, drills and fixes for known failures.</Card>

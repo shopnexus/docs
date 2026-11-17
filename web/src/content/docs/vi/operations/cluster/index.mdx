@@ -60,7 +60,7 @@ k3d chạy mỗi node thành một container Docker trên cùng một host, nên
 | Application Argo CD | `stack-dev` | `stack-prod` |
 | File values | `values-dev.yaml` | `values-prod.yaml` |
 | `APP_ENV` | `dev` | `prod` |
-| Image | `:main`, theo digest | `X.Y.Z` mới nhất, theo semver |
+| Image | `:main`, theo digest | `X.Y.Z` của bản phát hành `vX.Y.Z` của repo tổng |
 
 `RestateCluster` của một stack tên là `restate-<stack>`, và restate-operator đặt nó vào namespace cùng tên. Chart tạo namespace đó ở sync wave -1 để `restate-secrets` đã seal có mặt trước khi cluster khởi động. NetworkPolicy chặn mọi ingress trong namespace của stack và chỉ mở những đường stack cần ([Biên và mạng](/vi/operations/cluster/networking) liệt kê chúng). Không policy nào mở đường giữa `shopnexus-dev` và `shopnexus-prod`.
 
@@ -104,21 +104,21 @@ flowchart LR
   root -->|wave 0| iuapp["image-updater<br/>argocd-image-updater 1.4.0<br/>ns argocd"]
   root -->|wave 0| ro["restate-operator<br/>restate-operator-helm 3.2.0<br/>ns restate-operator"]
   root -->|wave 1| dev["stack-dev<br/>infra/stack + values-dev.yaml"]
-  root -->|wave 1| prod["stack-prod<br/>infra/stack + values-prod.yaml"]
+  root -->|wave 1| prod["stack-prod<br/>infra/stack + values-prod.yaml<br/>ở vX.Y.Z"]
   root -->|wave 1| iu["ImageUpdater shopnexus"]
   root -->|wave 2| aidev["ai-dev<br/>repo ai, chart/"]
   root -->|wave 2| aiprod["ai-prod<br/>repo ai, chart/"]
   iu -. "digest của :main" .-> dev
-  iu -. "X.Y.Z mới nhất" .-> prod
+  iu -. "digest của :main" .-> aidev
   dev --> devns[shopnexus-dev]
   prod --> prodns[shopnexus-prod]
   aidev --> devns
   aiprod --> prodns
 ```
 
-`root` có hai nguồn trong repo tổng: `infra/platform`, chứa một Application cho mỗi chart nền tảng, và `infra/argocd`, chứa chính `root.yaml`, `stack-dev`, `stack-prod`, `ImageUpdater`, cùng `ai-dev` và `ai-prod` trong `ai.yaml`. Các chart nền tảng lấy từ Helm repository gốc của chúng, không được vendor vào repo. Chart của restate-operator được đọc từ GHCR dưới dạng OCI repository qua Secret `repo-restatedev-oci`. `ai-dev` và `ai-prod` render chart trong `chart/` của repo `ai` (`shopnexus/ai`) ở nhánh `main` vào namespace của stack, sau các stack; trang [Hub AI](/vi/operations/cluster/llm-gateway) mô tả chúng.
+`root` có hai nguồn trong repo tổng: `infra/platform`, chứa một Application cho mỗi chart nền tảng, và `infra/argocd`, chứa chính `root.yaml`, `stack-dev`, `stack-prod`, `ImageUpdater`, cùng `ai-dev` và `ai-prod` trong `ai.yaml`. Các chart nền tảng lấy từ Helm repository gốc của chúng, không được vendor vào repo. Chart của restate-operator được đọc từ GHCR dưới dạng OCI repository qua Secret `repo-restatedev-oci`. `ai-dev` và `ai-prod` render chart trong `chart/` của repo `ai` (`shopnexus/ai`) vào namespace của stack, `ai-dev` ở nhánh `main` và `ai-prod` ở commit ai của bản phát hành, sau các stack; trang [Hub AI](/vi/operations/cluster/llm-gateway) mô tả chúng.
 
-Từ bản 1.8, Argo CD không còn tự đánh giá health của một Application. Phần values trong `infra/cluster/argocd.yaml` thêm một health check cho `argoproj.io/Application`, nhờ đó `root` chờ các Application nền tảng ở wave 0 Healthy rồi mới tạo các stack ở wave 1. Mọi Application tự sync với `prune` và `selfHeal`, và retry không giới hạn. `root` bỏ qua `/spec/source/helm/parameters` trên các Application của stack, vì Image Updater ghi tag image vào đó và self-heal sẽ đặt lại giá trị cũ nếu không bỏ qua.
+Từ bản 1.8, Argo CD không còn tự đánh giá health của một Application. Phần values trong `infra/cluster/argocd.yaml` thêm một health check cho `argoproj.io/Application`, nhờ đó `root` chờ các Application nền tảng ở wave 0 Healthy rồi mới tạo các stack ở wave 1. Mọi Application tự sync với `prune` và `selfHeal`, và retry không giới hạn. `root` bỏ qua `/spec/source/helm/parameters` trên các Application, vì Image Updater ghi tag image của `stack-dev` và `ai-dev` vào đó và self-heal sẽ đặt lại giá trị cũ nếu không bỏ qua.
 
 ## Cấu trúc thư mục
 

@@ -16,7 +16,7 @@ Server, website, tài liệu và console chạy trên một cluster k3d, chia th
 | Stack | Tên miền | Namespace | Theo dõi |
 |---|---|---|---|
 | dev | `dev.shopnexus.id.vn` | `shopnexus-dev` | `:main`, theo digest |
-| prod | `shopnexus.id.vn` | `shopnexus-prod` | tag `X.Y.Z` mới nhất |
+| prod | `shopnexus.id.vn` | `shopnexus-prod` | một bản phát hành của repo tổng, `vX.Y.Z` |
 
 Mỗi stack phục vụ website trên tên miền của nó và bốn host bên dưới: `api.` cho server, `media.` cho object store, `docs.` cho tài liệu và `console.` cho console.
 
@@ -26,19 +26,20 @@ Hệ thống đã được build và kiểm tra trên một cluster k3d chạy c
 
 ```mermaid title="Từ git push tới pod đang chạy"
 flowchart TB
-  push[git push hoặc tag vX.Y.Z] --> ci[GitHub Actions build.yml]
-  ci --> ghcr["GHCR ghcr.io/shopnexus/*<br/>:main và X.Y.Z"]
+  push[git push lên main] --> ci[GitHub Actions build.yml]
+  ci --> ghcr["GHCR ghcr.io/shopnexus/*<br/>:main và sha-#lt;commit#gt;"]
   ghcr --> iu[Argo CD Image Updater]
   iu --> argo[Argo CD]
+  rel["release.yml của repo tổng<br/>X.Y.Z, tag vX.Y.Z"] --> argo
   argo --> devns[shopnexus-dev]
   argo --> prodns[shopnexus-prod]
   devns --> traefik[Traefik]
   prodns --> traefik
 ```
 
-Repo của từng thành phần (`server`, `website`, `docs`, `console`) có một file `.github/workflows/build.yml`. Mỗi lần push lên `main`, workflow build image rồi đẩy lên GHCR với hai tag `main` và `sha-<commit>`. Một tag `vX.Y.Z` đẩy tag `X.Y.Z`. Các package để public, vì cluster kéo image về mà không có credential.
+Repo của từng thành phần (`server`, `website`, `docs`, `console`) có một file `.github/workflows/build.yml`. Mỗi lần push lên `main`, workflow build image rồi đẩy lên GHCR với hai tag `main` và `sha-<commit>`. Khi phát hành lên prod, workflow Release của repo tổng thêm tag `X.Y.Z` vào image `sha-<commit>` của các commit mà submodule của nó trỏ tới. Các package để public, vì cluster kéo image về mà không có credential.
 
-Argo CD Image Updater theo dõi GHCR. Với `stack-dev`, nó theo digest của `:main`; với `stack-prod`, nó theo tag `X.Y.Z` mới nhất bằng semver. Nó ghi tag mới thành một tham số Helm trên Application Argo CD của stack, rồi Argo CD sync chart trong `infra/stack` vào namespace của stack đó. CI không bao giờ kết nối tới cluster. Traefik, đi kèm k3s, định tuyến mỗi request theo header `Host` tới các Service của stack.
+Argo CD Image Updater theo dõi GHCR cho dev. Nó theo digest của `:main`, ghi tag mới thành một tham số Helm trên `stack-dev`, rồi Argo CD sync chart trong `infra/stack` vào `shopnexus-dev`. Prod không dùng Image Updater: workflow Release ghi phiên bản vào `infra/` và gắn tag `vX.Y.Z` cho repo tổng, rồi `stack-prod` render `infra/stack` ở tag đó. CI không bao giờ kết nối tới cluster. Traefik, đi kèm k3s, định tuyến mỗi request theo header `Host` tới các Service của stack.
 
 ## Cluster
 
@@ -47,7 +48,7 @@ Argo CD Image Updater theo dõi GHCR. Với `stack-dev`, nó theo digest của `
   <Card title="Dựng một cluster" href="/vi/operations/cluster/bootstrap" icon="ri:rocket-line">Fork, đặt tên miền, tạo cluster bằng k3d, seal secret, push.</Card>
   <Card title="Biên và mạng" href="/vi/operations/cluster/networking" icon="ri:global-line">Hai chế độ biên, TLS, các host và NetworkPolicy.</Card>
   <Card title="Postgres, Restate và RustFS" href="/vi/operations/cluster/data" icon="ri:database-2-line">Các workload có trạng thái, operator và storage của chúng.</Card>
-  <Card title="Phát hành" href="/vi/operations/cluster/releases" icon="ri:price-tag-3-line">dev theo main và prod theo tag phiên bản thế nào.</Card>
+  <Card title="Phát hành" href="/vi/operations/cluster/releases" icon="ri:price-tag-3-line">dev theo main và prod chạy một bản phát hành của repo tổng thế nào.</Card>
   <Card title="Secret" href="/vi/operations/cluster/secrets" icon="ri:key-2-line">Sealed Secrets, lệnh seal và khóa cần sao lưu.</Card>
   <Card title="Hub AI" href="/vi/operations/cluster/llm-gateway" icon="ri:robot-2-line">ai-gateway và ai-models trong mỗi stack, alias, key và ngân sách theo ngày.</Card>
   <Card title="Runbook và xử lý sự cố" href="/vi/operations/cluster/runbook" icon="ri:first-aid-kit-line">Lệnh hằng ngày, bài diễn tập và cách sửa các lỗi đã biết.</Card>
