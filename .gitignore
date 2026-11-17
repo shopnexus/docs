@@ -5,7 +5,7 @@
 !/.dockerignore
 !/.github/
 !/.gitignore
-!/CLAUDE.md
+!/AGENTS.md
 !/Dockerfile
 !/LICENSE
 !/README.md
