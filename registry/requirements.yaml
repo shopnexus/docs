@@ -436,6 +436,7 @@ uc:
     fr: [FR-MOD-03]
     br: [BR-MOD-03]
     nfr: [NFR-PRIV-02, NFR-PERF-02]
+    api: ["GET /v1/console/agent/conversations", "POST /v1/console/agent/conversations", "GET /v1/console/agent/conversations/{id}", "POST /v1/console/agent/conversations/{id}/turns"]
     pre: "Thành viên console đã đăng nhập."
     post: "Thành viên nhận câu trả lời kèm nguồn; không dữ liệu nghiệp vụ nào bị thay đổi."
     main:
