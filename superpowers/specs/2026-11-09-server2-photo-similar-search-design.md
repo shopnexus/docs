@@ -6,7 +6,10 @@ when the `ai` repo landed: the models run behind LiteLLM (TEI and `ai`), not
 in a Python service of the server's; amended again while planning (422 for
 `invalid_upload`, deleted listings keep their rows, `smoke-models.hurl`,
 starting budgets and floors, local compose, the query vector cache key,
-and SigLIP 2's int8 or fp32 ONNX chosen by measurement). When the work lands, the decisions
+and SigLIP 2's int8 or fp32 ONNX chosen by measurement). Superseded in
+part on 2026-11-17 by `2026-11-17-ai-hub-design.md`: `embed-text` is
+`baai/bge-m3` through OpenRouter (TEI removed), the gateway lives in the
+`ai` repo, and each embedder can be off. When the work lands, the decisions
 below go into `~/shopnexus/server/ARCHITECTURE.md` (sections Search,
 Catalog, Discovery, Infrastructure), `ai/README.md` and the docs page
 `operations/cluster/llm-gateway`.

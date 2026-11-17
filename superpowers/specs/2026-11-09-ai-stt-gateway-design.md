@@ -1,7 +1,7 @@
 # Design: the `ai` provider and the STT gateway
 
 Date: 2026-11-09.
-Status: decided in conversation, question by question; amended 2026-11-09 after implementation (verbose_json, one decode per piece, the seconds risk resolved).
+Status: decided in conversation, question by question; amended 2026-11-09 after implementation (verbose_json, one decode per piece, the seconds risk resolved). Superseded in part on 2026-11-17 by `2026-11-17-ai-hub-design.md`: the `ai` repo also owns the LiteLLM gateway, LLMs go through OpenRouter, and TEI is removed.
 
 ## Why
 
