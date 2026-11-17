@@ -7,7 +7,7 @@ groupOrder: 2
 audience: [developers, admins]
 type: how-to
 readingTime: 10
-updated: 2026-11-05
+updated: 2026-11-17
 related: ["/en/operations/cluster", "/en/operations/cluster/bootstrap", "/en/operations/cluster/data", "/en/operations/cluster/secrets", "/en/operations/cluster/runbook"]
 ---
 
@@ -45,7 +45,7 @@ The `v` prefix is dropped, so tag `v0.2.0` gives the image tag `0.2.0`. A tag th
 | Moves when | the digest behind `:main` changes | a higher `X.Y.Z` tag appears |
 | Tag it writes | `main@sha256:…` | `X.Y.Z` |
 
-For each of the four components it writes two Helm parameters on the Application, `images.<component>.repository` and `images.<component>.tag`. The other images in `values.yaml` (Postgres, Restate, RustFS, LiteLLM, curl) are pinned there and change only by a commit.
+For each of the four components it writes two Helm parameters on the Application, `images.<component>.repository` and `images.<component>.tag`. The other images in `values.yaml` (Postgres, Restate, RustFS) are pinned there and change only by a commit. The same `ImageUpdater` has entries for `ai-dev` and `ai-prod`, which move `ai-models` (`ghcr.io/shopnexus/ai`) by digest and by semver through `images.models.repository` and `images.models.tag`. The gateway and curl images are pinned in the `ai` repo's `chart/values.yaml`.
 
 `semver` picks the highest version in the registry, whatever the order of the pushes. After `0.2.0` exists, a new tag `v0.1.9` never reaches prod. Image Updater's handling of pre-release tags such as `v0.3.0-rc.1` has not been checked, so release with plain `vX.Y.Z` tags.
 
@@ -80,7 +80,7 @@ At its first start k3s installs the `argo-cd` chart 10.11.7 from `infra/cluster/
 
 Argo CD stopped judging the health of Application resources in version 1.8. Without the Lua check, `root` would treat the platform Applications as healthy at once, and the stacks would start before CloudNativePG, Sealed Secrets and restate-operator had their CRDs. The `ImageUpdater` carries `SkipDryRunOnMissingResource=true`, because its CRD arrives with the `image-updater` Application in the same sync.
 
-Inside a stack, each sync runs the waves of the chart again, including the Sync hook Jobs `migrate`, `objectstore-init` and `objectstore-init-snapshots` (wave 1) and `litellm-key` (wave 3). A new server image therefore runs its migrations before the new server pods start; the table of every wave is in [Postgres, Restate and RustFS](/en/operations/cluster/data#sync-waves-and-jobs).
+Inside a stack, each sync runs the waves of the chart again, including the Sync hook Jobs `migrate`, `objectstore-init` and `objectstore-init-snapshots` (wave 1). A sync of `ai-<stack>` runs its Sync hook Job `ai-gateway-keys` (its wave 1). A new server image therefore runs its migrations before the new server pods start; the table of every wave is in [Postgres, Restate and RustFS](/en/operations/cluster/data#sync-waves-and-jobs).
 
 ## Ship to dev
 
@@ -264,7 +264,7 @@ kubectl -n argocd annotate application stack-prod argocd.argoproj.io/refresh=nor
 </Step>
 
 <Step title="Watch it roll">
-The server's pod template carries `checksum/env`, a hash of the `server-env` ConfigMap, so a server setting starts a new server version. LiteLLM's Deployment carries `checksum/config` for its config.
+The server's pod template carries `checksum/env`, a hash of the `server-env` ConfigMap, so a server setting starts a new server version. `ai-gateway`'s Deployment carries `checksum/config` for its config, and no checksum of the stack's secrets: after a reseal of `litellm-secrets`, run `kubectl -n shopnexus-<stack> rollout restart deploy/ai-gateway`.
 </Step>
 </Steps>
 

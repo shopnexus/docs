@@ -7,11 +7,11 @@ groupOrder: 1
 audience: [developers, admins]
 type: overview
 readingTime: 4
-updated: 2026-11-05
+updated: 2026-11-17
 related: ["/vi/operations/cluster", "/vi/operations/cluster/bootstrap", "/vi/operations/cluster/releases", "/vi/operations/configuration", "/vi/operations/local-stack"]
 ---
 
-Server, website, tài liệu và console chạy trên một cluster k3d, chia thành hai stack là dev và prod. Mỗi stack có namespace riêng và có Postgres, Restate, RustFS, LiteLLM của riêng nó. Mọi thứ cluster cần đều nằm trong `infra/` ở repo tổng. App Android được build và cài bằng Gradle, không thuộc cluster.
+Server, website, tài liệu và console chạy trên một cluster k3d, chia thành hai stack là dev và prod. Mỗi stack có namespace riêng và có Postgres, Restate, RustFS và hub AI (`ai-gateway` và `ai-models`, từ repo `ai`) của riêng nó. Mọi thứ cluster cần đều nằm trong `infra/` ở repo tổng. App Android được build và cài bằng Gradle, không thuộc cluster.
 
 | Stack | Tên miền | Namespace | Theo dõi |
 |---|---|---|---|
@@ -49,7 +49,7 @@ Argo CD Image Updater theo dõi GHCR. Với `stack-dev`, nó theo digest của `
   <Card title="Postgres, Restate và RustFS" href="/vi/operations/cluster/data" icon="ri:database-2-line">Các workload có trạng thái, operator và storage của chúng.</Card>
   <Card title="Phát hành" href="/vi/operations/cluster/releases" icon="ri:price-tag-3-line">dev theo main và prod theo tag phiên bản thế nào.</Card>
   <Card title="Secret" href="/vi/operations/cluster/secrets" icon="ri:key-2-line">Sealed Secrets, lệnh seal và khóa cần sao lưu.</Card>
-  <Card title="Cổng mô hình ngôn ngữ" href="/vi/operations/cluster/llm-gateway" icon="ri:robot-2-line">LiteLLM trong mỗi stack, alias search và ngân sách theo ngày.</Card>
+  <Card title="Hub AI" href="/vi/operations/cluster/llm-gateway" icon="ri:robot-2-line">ai-gateway và ai-models trong mỗi stack, alias, key và ngân sách theo ngày.</Card>
   <Card title="Runbook và xử lý sự cố" href="/vi/operations/cluster/runbook" icon="ri:first-aid-kit-line">Lệnh hằng ngày, bài diễn tập và cách sửa các lỗi đã biết.</Card>
 </Cards>
 

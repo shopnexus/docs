@@ -7,7 +7,7 @@ groupOrder: 2
 audience: [admins, developers]
 type: concept
 readingTime: 9
-updated: 2026-11-05
+updated: 2026-11-17
 related: ["/vi/operations/cluster", "/vi/operations/cluster/bootstrap", "/vi/operations/cluster/data", "/vi/operations/cluster/runbook"]
 ---
 
@@ -111,7 +111,9 @@ flowchart TB
   SA --> S1["pod server<br/>mọi phiên bản"]
   S1 -->|"DATABASE_URL"| PG["postgres-rw"]
   S1 -->|"http://rustfs:9000"| RF
-  S1 -->|"http://litellm:4000/v1"| LL["litellm"]
+  S1 -->|"http://ai-gateway:4000/v1"| LL["ai-gateway"]
+  S1 -->|"http://ai-models:8000/v1, frames"| AM["ai-models"]
+  LL -->|"stt, embed-image"| AM
   S1 -->|"restate.restate-#lt;stack#gt;:8080, :9070"| R["Restate"]
   R -->|"HTTP/1.1, :9080"| SV["Service server theo phiên bản"]
   R -->|"snapshot"| RF
@@ -152,7 +154,7 @@ flowchart TB
     SRV["server"]
     RFS["rustfs"]
     PG["postgres"]
-    LLM["litellm"]
+    LLM["ai-gateway, ai-models"]
   end
   subgraph sd["shopnexus-dev"]
     DEV["mọi pod"]
@@ -178,8 +180,8 @@ Restate-operator tự viết policy cho namespace của Restate dựa trên `Res
 <KeyRules>
 - `from-stack` không có `namespaceSelector`, nên chỉ cho pod trong chính namespace của nó.
 - Không policy nào mở đường từ `shopnexus-dev` vào `shopnexus-prod` hay theo chiều ngược lại, và `from-restate` của mỗi stack chỉ ghi namespace `restate-<stack>` của chính stack đó.
-- Egress để mở. Server gọi Firebase, FCM và upstream của mô hình ngôn ngữ ở ngoài cluster.
-- Mọi pod trong stack gọi được `litellm` qua `from-stack`. Chỉ server giữ virtual key của nó.
+- Egress để mở. Server gọi Firebase và FCM ở ngoài cluster, còn `ai-gateway` gọi OpenRouter.
+- Mọi pod trong stack gọi được `ai-gateway` và `ai-models` qua `from-stack`. Chỉ server và console agent giữ virtual key của `ai-gateway`; `ai-models` không có xác thực.
 </KeyRules>
 
 Bài diễn tập trong [Runbook](/vi/operations/cluster/runbook#diễn-tập-failover) kết nối từ một pod trong `shopnexus-dev` tới `postgres-rw.shopnexus-prod`. NetworkPolicy bỏ các gói tin, nên kết nối hết thời gian chờ (timeout). Bài diễn tập được lên kế hoạch cho server thật và chưa chạy.

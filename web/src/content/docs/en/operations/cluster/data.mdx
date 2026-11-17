@@ -7,7 +7,7 @@ groupOrder: 2
 audience: [admins, developers]
 type: concept
 readingTime: 10
-updated: 2026-11-05
+updated: 2026-11-17
 related: ["/en/operations/cluster", "/en/operations/cluster/bootstrap", "/en/operations/cluster/releases", "/en/operations/cluster/secrets", "/en/operations/cluster/runbook"]
 ---
 
@@ -65,9 +65,9 @@ The ParadeDB image runs `postgres` as uid 999. CNPG assumes uid 26, the uid in i
 
 CNPG creates the Secret `postgres-app`. The server and its jobs read `DATABASE_URL` from its `uri` key. That URI names the Service `postgres-rw`, which CNPG keeps pointed at the current primary, so the stack's configuration names no Postgres pod.
 
-### LiteLLM's database
+### The AI gateway's database
 
-The `Cluster` also manages a role `litellm` (`ensure: present`, `login: true`) whose password CNPG reads from the basic-auth Secret `litellm-db`, sealed by the seal command, `infra/cmd/seal`. A separate `Database` resource named `litellm`, owned by `litellm`, creates the database on the same cluster in wave 1. LiteLLM keeps its virtual keys and spend there, as described in [Language model gateway](/en/operations/cluster/llm-gateway).
+The `Cluster` also manages a role `litellm` (`ensure: present`, `login: true`) whose password CNPG reads from the basic-auth Secret `litellm-db`, sealed by the seal command, `infra/cmd/seal`. A separate `Database` resource named `litellm`, owned by `litellm`, creates the database on the same cluster in wave 1. `ai-gateway`, the LiteLLM of the `ai` repo's chart, keeps its virtual keys and spend there, as described in [AI hub](/en/operations/cluster/llm-gateway). The stack chart keeps the role and the database, since Postgres belongs to the stack; the Application `ai-<stack>` syncs after the stack.
 
 ### Placement
 
@@ -208,8 +208,9 @@ Argo CD applies a stack in waves. It starts a wave only after every resource of 
 | -1 | Namespace `restate-<stack>` |
 | 0 | `ImageCatalog` and `Cluster` `postgres`, StatefulSet `rustfs`, the SealedSecrets; resources without a wave annotation (ConfigMap `server-env`, Services, NetworkPolicies) |
 | 1 | `RestateCluster`, `Database` `litellm`, Sync hook jobs `migrate`, `objectstore-init`, `objectstore-init-snapshots` |
-| 2 | `RestateDeployment` `server`, Deployments `website`, `docs`, `console`, `litellm`, Ingress `shopnexus` |
-| 3 | Sync hook job `litellm-key` |
+| 2 | `RestateDeployment` `server`, Deployments `website`, `docs`, `console`, Ingress `shopnexus` |
+
+The Application `ai-<stack>` syncs after the stack Application is Healthy. It applies `ai-gateway` and `ai-models` in its wave 0 and the Sync hook job `ai-gateway-keys` in its wave 1.
 
 The three wave-1 jobs run the server image with the server's full environment. Each has `backoffLimit: 6`, `restartPolicy: OnFailure` and `hook-delete-policy: BeforeHookCreation`, so every sync deletes the previous run and runs the job again.
 

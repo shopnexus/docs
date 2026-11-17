@@ -7,7 +7,7 @@ groupOrder: 2
 audience: [admins, developers]
 type: concept
 readingTime: 11
-updated: 2026-11-05
+updated: 2026-11-17
 related: ["/vi/operations/cluster", "/vi/operations/cluster/bootstrap", "/vi/operations/cluster/releases", "/vi/operations/cluster/secrets", "/vi/operations/cluster/runbook"]
 ---
 
@@ -65,9 +65,9 @@ Image ParadeDB chạy `postgres` với uid 999. CNPG mặc định uid 26, uid t
 
 CNPG tạo Secret `postgres-app`. Server và các job của nó đọc `DATABASE_URL` từ key `uri`. URI đó chỉ tới Service `postgres-rw`, được CNPG giữ trỏ vào primary hiện tại, nên cấu hình của stack không nêu tên pod Postgres nào.
 
-### Database của LiteLLM
+### Database của gateway AI
 
-`Cluster` còn quản lý role `litellm` (`ensure: present`, `login: true`); CNPG đọc mật khẩu của role từ Secret basic-auth `litellm-db`, do lệnh seal, `infra/cmd/seal`, niêm phong. Một resource `Database` riêng tên `litellm`, chủ sở hữu `litellm`, tạo database trên cùng cluster ở wave 1. LiteLLM lưu virtual key và mức chi tiêu ở đó, như mô tả trong [Cổng mô hình ngôn ngữ](/vi/operations/cluster/llm-gateway).
+`Cluster` còn quản lý role `litellm` (`ensure: present`, `login: true`); CNPG đọc mật khẩu của role từ Secret basic-auth `litellm-db`, do lệnh seal, `infra/cmd/seal`, niêm phong. Một resource `Database` riêng tên `litellm`, chủ sở hữu `litellm`, tạo database trên cùng cluster ở wave 1. `ai-gateway`, LiteLLM trong chart của repo `ai`, lưu virtual key và mức chi tiêu ở đó, như mô tả trong [Hub AI](/vi/operations/cluster/llm-gateway). Chart của stack giữ role và database, vì Postgres thuộc về stack; Application `ai-<stack>` sync sau stack.
 
 ### Bố trí pod
 
@@ -208,8 +208,9 @@ Argo CD áp một stack theo từng wave. Nó chỉ bắt đầu một wave khi 
 | -1 | Namespace `restate-<stack>` |
 | 0 | `ImageCatalog` và `Cluster` `postgres`, StatefulSet `rustfs`, các SealedSecret; resource không có annotation wave (ConfigMap `server-env`, Service, NetworkPolicy) |
 | 1 | `RestateCluster`, `Database` `litellm`, các job Sync hook `migrate`, `objectstore-init`, `objectstore-init-snapshots` |
-| 2 | `RestateDeployment` `server`, Deployment `website`, `docs`, `console`, `litellm`, Ingress `shopnexus` |
-| 3 | Job Sync hook `litellm-key` |
+| 2 | `RestateDeployment` `server`, Deployment `website`, `docs`, `console`, Ingress `shopnexus` |
+
+Application `ai-<stack>` sync sau khi Application của stack đã Healthy. Nó apply `ai-gateway` và `ai-models` ở wave 0 của nó và job Sync hook `ai-gateway-keys` ở wave 1 của nó.
 
 Ba job ở wave 1 chạy image server với đầy đủ môi trường của server. Mỗi job có `backoffLimit: 6`, `restartPolicy: OnFailure` và `hook-delete-policy: BeforeHookCreation`, nên mỗi lần sync sẽ xoá lần chạy trước và chạy lại job.
 

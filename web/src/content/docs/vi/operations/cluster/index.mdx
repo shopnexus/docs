@@ -7,11 +7,11 @@ groupOrder: 2
 audience: [developers, admins]
 type: concept
 readingTime: 9
-updated: 2026-11-05
+updated: 2026-11-17
 related: ["/vi/operations", "/vi/operations/cluster/bootstrap", "/vi/operations/cluster/networking", "/vi/operations/cluster/data", "/vi/operations/cluster/releases", "/vi/operations/cluster/secrets"]
 ---
 
-Một cluster k3d tên `shopnexus` chạy hai stack ShopNexus là dev và prod. Mỗi stack nằm trong namespace riêng và có database, cluster Restate, object store và cổng mô hình ngôn ngữ của riêng nó. Argo CD giữ cả hai stack khớp với repo tổng; bản thiết kế nằm ở `docs/superpowers/specs/2026-11-04-infra-k3d-stacks-design.md`.
+Một cluster k3d tên `shopnexus` chạy hai stack ShopNexus là dev và prod. Mỗi stack nằm trong namespace riêng và có database, cluster Restate, object store và hub AI của riêng nó. Argo CD giữ cả hai stack khớp với repo tổng; bản thiết kế nằm ở `docs/superpowers/specs/2026-11-04-infra-k3d-stacks-design.md`.
 
 ## Các node
 
@@ -21,7 +21,7 @@ Cả hai file cấu hình k3d, `infra/cluster/k3d-direct.yaml` và `infra/cluste
 |---|---|---|
 | `server-0` | control plane | Traefik (cả hai cấu hình biên ghim nó ở đây bằng `nodeSelector`) |
 | `agent-0` | `role=stateful` | RustFS |
-| `agent-1` | `role=app` | `server`, `website`, `docs`, `console`, LiteLLM |
+| `agent-1` | `role=app` | `server`, `website`, `docs`, `console`, `ai-gateway`, `ai-models` |
 | `agent-2` | `role=app` | giống `agent-1` |
 
 ```mermaid title="Pod ưu tiên chạy ở đâu"
@@ -33,10 +33,10 @@ flowchart TB
     rustfs[rustfs]
   end
   subgraph a1["agent-1, role=app"]
-    app1["server, website, docs,<br/>console, litellm"]
+    app1["server, website, docs,<br/>console, ai-gateway, ai-models"]
   end
   subgraph a2["agent-2, role=app"]
-    app2["server, website, docs,<br/>console, litellm"]
+    app2["server, website, docs,<br/>console, ai-gateway, ai-models"]
   end
   spread["pod postgres và restate:<br/>mỗi node một pod nếu được"] -.-> a0
   spread -.-> a1
@@ -48,7 +48,7 @@ flowchart TB
 
 Mọi quy tắc xếp chỗ đều là ưu tiên. Node affinity theo `role` và pod anti-affinity của `server`, `website`, `docs`, `console` dùng `preferredDuringSchedulingIgnoredDuringExecution`. CloudNativePG dùng `podAntiAffinityType: preferred`, còn `RestateCluster` rải pod bằng `topologySpreadConstraints` với `whenUnsatisfiable: ScheduleAnyway`. Vì vậy pod vẫn được xếp lịch khi một agent bị dừng; khi cả ba agent chạy, ba pod Restate của prod nằm trên ba agent.
 
-k3d chạy mỗi node thành một container Docker trên cùng một host, nên các agent dùng chung một kernel và một ổ đĩa. Với Kubernetes, dừng một agent bằng `docker stop` vẫn giống mất một máy, và các bài diễn tập failover cần đúng điều đó. Đây là dự án để học, và k3d giữ chi phí ở mức một máy. Ngoài `infra/cluster/`, tên k3d chỉ xuất hiện ở `litellm.aliases.search.apiBase` trong `infra/stack/values.yaml`, giá trị trỏ tới cli-proxy-api trên host tại `host.k3d.internal:8317`. Chuyển sang k3s trên máy thật thì đổi `infra/cluster/` và giá trị đó.
+k3d chạy mỗi node thành một container Docker trên cùng một host, nên các agent dùng chung một kernel và một ổ đĩa. Với Kubernetes, dừng một agent bằng `docker stop` vẫn giống mất một máy, và các bài diễn tập failover cần đúng điều đó. Đây là dự án để học, và k3d giữ chi phí ở mức một máy. Không file nào ngoài `infra/cluster/` nhắc tới k3d, nên chuyển sang k3s trên máy thật chỉ đổi `infra/cluster/`.
 
 ## Các stack
 
@@ -74,23 +74,23 @@ Mỗi dòng là một resource mà chart trong `infra/stack` render vào namespa
 | `website` | `Deployment` | 3000 | 1 | 2 |
 | `docs` | `Deployment` | 80 | 1 | 1 |
 | `console` | `Deployment` | 80 | 1 | 2 |
-| `litellm` | `Deployment` | 4000 | 1 | 1 |
 | `postgres` | `Cluster` của CloudNativePG | 5432 | 1 instance, 5Gi | 2 instance, 10Gi |
 | `restate-<stack>` | `RestateCluster` | 8080 ingress, 9070 admin | 1 node, 2 GiB | 3 node, 4 GiB |
 | `rustfs` | `StatefulSet` | 9000 | 1, 10Gi | 1, 10Gi |
 
-Restate nhân bản mỗi partition ra `min(2, replicas)` node, tức 1 bản ở dev và 2 bản ở prod. Postgres chạy image `paradedb/paradedb:0.26.4-pg18`; LiteLLM có database riêng `litellm` trên cùng cluster CloudNativePG. Service `server-api` ở cổng 8080 chọn mọi pod server thuộc mọi phiên bản, còn restate-operator tạo cho mỗi phiên bản server một Service ở cổng 9080.
+Application `ai-<stack>` render `ai-gateway` (cổng 4000) và `ai-models` (cổng 8000) vào cùng namespace từ chart của repo `ai`, mỗi thứ một replica ở cả hai stack.
 
-Bốn Job chạy dưới dạng Sync hook của Argo CD:
+Restate nhân bản mỗi partition ra `min(2, replicas)` node, tức 1 bản ở dev và 2 bản ở prod. Postgres chạy image `paradedb/paradedb:0.26.4-pg18`; `ai-gateway` có database riêng `litellm` trên cùng cluster CloudNativePG. Service `server-api` ở cổng 8080 chọn mọi pod server thuộc mọi phiên bản, còn restate-operator tạo cho mỗi phiên bản server một Service ở cổng 9080.
+
+Ba Job chạy dưới dạng Sync hook của Argo CD:
 
 | Job | Wave | Việc làm |
 |---|---|---|
 | `migrate` | 1 | chạy migration của server (`cmd/migrate`) |
 | `objectstore-init` | 1 | tạo bucket `shopnexus` |
 | `objectstore-init-snapshots` | 1 | tạo bucket `restate-snapshots` |
-| `litellm-key` | 3 | tạo hoặc cập nhật các virtual key LiteLLM của server, mỗi mục của `litellm.keys` một key |
 
-Argo CD áp dụng một stack theo các sync wave từ -1 tới 3. Bảng ghi mỗi wave gồm những gì, cùng các workload có trạng thái, nằm ở trang [Postgres, Restate và RustFS](/vi/operations/cluster/data#sync-wave-và-job).
+Argo CD áp dụng một stack theo các sync wave từ -1 tới 2. Bảng ghi mỗi wave gồm những gì, cùng các workload có trạng thái, nằm ở trang [Postgres, Restate và RustFS](/vi/operations/cluster/data#sync-wave-và-job).
 
 ## App-of-apps
 
@@ -106,13 +106,17 @@ flowchart LR
   root -->|wave 1| dev["stack-dev<br/>infra/stack + values-dev.yaml"]
   root -->|wave 1| prod["stack-prod<br/>infra/stack + values-prod.yaml"]
   root -->|wave 1| iu["ImageUpdater shopnexus"]
+  root -->|wave 2| aidev["ai-dev<br/>repo ai, chart/"]
+  root -->|wave 2| aiprod["ai-prod<br/>repo ai, chart/"]
   iu -. "digest của :main" .-> dev
   iu -. "X.Y.Z mới nhất" .-> prod
   dev --> devns[shopnexus-dev]
   prod --> prodns[shopnexus-prod]
+  aidev --> devns
+  aiprod --> prodns
 ```
 
-`root` có hai nguồn trong repo tổng: `infra/platform`, chứa một Application cho mỗi chart nền tảng, và `infra/argocd`, chứa chính `root.yaml`, `stack-dev`, `stack-prod` và `ImageUpdater`. Các chart nền tảng lấy từ Helm repository gốc của chúng, không được vendor vào repo. Chart của restate-operator được đọc từ GHCR dưới dạng OCI repository qua Secret `repo-restatedev-oci`.
+`root` có hai nguồn trong repo tổng: `infra/platform`, chứa một Application cho mỗi chart nền tảng, và `infra/argocd`, chứa chính `root.yaml`, `stack-dev`, `stack-prod`, `ImageUpdater`, cùng `ai-dev` và `ai-prod` trong `ai.yaml`. Các chart nền tảng lấy từ Helm repository gốc của chúng, không được vendor vào repo. Chart của restate-operator được đọc từ GHCR dưới dạng OCI repository qua Secret `repo-restatedev-oci`. `ai-dev` và `ai-prod` render chart trong `chart/` của repo `ai` (`shopnexus/ai`) ở nhánh `main` vào namespace của stack, sau các stack; trang [Hub AI](/vi/operations/cluster/llm-gateway) mô tả chúng.
 
 Từ bản 1.8, Argo CD không còn tự đánh giá health của một Application. Phần values trong `infra/cluster/argocd.yaml` thêm một health check cho `argoproj.io/Application`, nhờ đó `root` chờ các Application nền tảng ở wave 0 Healthy rồi mới tạo các stack ở wave 1. Mọi Application tự sync với `prune` và `selfHeal`, và retry không giới hạn. `root` bỏ qua `/spec/source/helm/parameters` trên các Application của stack, vì Image Updater ghi tag image vào đó và self-heal sẽ đặt lại giá trị cũ nếu không bỏ qua.
 
@@ -133,7 +137,8 @@ infra/
 │   └── argocd.yaml               # HelmChart của k3s: Argo CD, kèm health check cho Application
 ├── argocd/
 │   ├── root.yaml                 # app-of-apps
-│   └── stacks.yaml               # stack-dev, stack-prod và ImageUpdater
+│   ├── stacks.yaml               # stack-dev, stack-prod và ImageUpdater
+│   └── ai.yaml                   # ai-dev, ai-prod: chart của repo ai, ngân sách key theo stack
 ├── platform/                     # mỗi chart gốc một Application
 │   ├── cnpg.yaml
 │   ├── image-updater.yaml
@@ -142,13 +147,13 @@ infra/
 └── stack/                        # Helm chart "shopnexus": một stack
     ├── Chart.yaml
     ├── values.yaml               # giá trị mặc định, cũng là giá trị của dev
-    ├── values-dev.yaml           # stack, domain, appEnv, ngân sách LiteLLM
+    ├── values-dev.yaml           # stack, domain, appEnv, loại vector nào bật
     ├── values-prod.yaml          # như trên, thêm replica, storage và tag 0.1.0
     ├── secrets/
     │   ├── example.env           # mẫu mà cmd/seal chép thành <stack>.env
     │   ├── dev/                  # SealedSecret của stack-dev, có commit
     │   └── prod/                 # SealedSecret của stack-prod, có commit
-    ├── templates/                # server, web, postgres, restate, rustfs, litellm,
+    ├── templates/                # server, web, postgres, restate, rustfs,
     │                             # jobs, ingress, networkpolicy, secrets, validate
     └── tests/                    # các suite helm-unittest, và SealedSecret mẫu mà chúng render cùng
 ```
@@ -161,7 +166,7 @@ Lệnh seal giữ các khóa nó sinh ra trong `infra/stack/secrets/<stack>.env`
 - Một Helm chart, `infra/stack`, render cả hai stack. `values-dev.yaml` và `values-prod.yaml` chứa mọi khác biệt giữa chúng.
 - Mọi host suy ra từ một giá trị `domain`: `<domain>`, `api.<domain>`, `media.<domain>`, `docs.<domain>` và `console.<domain>`.
 - Mọi thứ riêng của một môi trường đều nằm trong `infra/`. Ngoại lệ duy nhất là file proxy trên host `conf.d/shopnexus.caddy` trong `linux-server-setup`, dùng cho chế độ `behind-proxy`.
-- Chỉ `infra/cluster/` và `litellm.aliases.search.apiBase` biết đến k3d.
+- Chỉ `infra/cluster/` biết đến k3d.
 - CI build image và không bao giờ kết nối tới cluster; Argo CD kéo mọi thay đổi từ git.
 </KeyRules>
 
@@ -173,6 +178,6 @@ Bản thiết kế để sao lưu, quan sát hệ thống, máy thật và file 
 
 - Không có gì sao lưu Postgres, RustFS hay Restate. Khóa của controller Sealed Secrets và các file lệnh seal ghi ra phải được lưu bằng tay.
 - Chart đặt `OTEL_EXPORTER_OTLP_ENDPOINT` là chuỗi rỗng, nên server không gửi gì qua OTLP và chỉ ghi log JSON ra stdout. Cluster không chạy collector nào.
-- Các agent là container trên cùng một host và dùng chung ổ đĩa của nó, nên hỏng ổ đĩa là mất mọi node. Chuyển sang k3s trên các máy riêng thì đổi `infra/cluster/` và `litellm.aliases.search.apiBase`.
+- Các agent là container trên cùng một host và dùng chung ổ đĩa của nó, nên hỏng ổ đĩa là mất mọi node. Chuyển sang k3s trên các máy riêng thì đổi `infra/cluster/`.
 - File `docker-compose.yml` ở gốc repo giờ có ba stack, mỗi profile một stack, mỗi stack có network, Postgres, Restate, RustFS và volume riêng. `dev` chạy server bằng `go run` và dev server của các web app với Compose Watch, sau Caddy ở cổng 56481. `prod` build mọi thành phần từ Dockerfile của nó, sau Caddy ở cổng 56480. `test` chạy các test Go của server. `infra/check.sh` báo lỗi khi tag image của Postgres, Restate và RustFS trong file đó khác với `infra/stack/values.yaml`.
-- Trước khi có tìm bằng ảnh, bản thiết kế ước tính hai stack dùng 6 đến 8 GB bộ nhớ. Tìm bằng ảnh thêm cho mỗi stack `ai` xin 6Gi (giữ 4,0 GiB lúc rảnh, đo ngày 2026-11-10) và TEI xin 3584Mi (đỉnh 3,4 GiB), nên hai stack cần thêm khoảng 17 GiB; con số này chưa được đo trên server của tác giả. Phương án dự phòng là scale dev về 0 khi không dùng, hoặc giảm cluster xuống hai agent.
+- Trước khi có tìm bằng ảnh, bản thiết kế ước tính hai stack dùng 6 đến 8 GB bộ nhớ. Tìm bằng ảnh thêm `ai-models`: xin 6Gi ở prod, có SigLIP 2 (giữ 4,0 GiB lúc rảnh, đo ngày 2026-11-10), và 2Gi ở dev, nơi không nạp SigLIP 2 từ 2026-11-17. `ai-gateway` giữ khoảng 0,6 GiB mỗi stack. Embedding chữ lấy từ OpenRouter, nên không stack nào chạy TEI. Ngày 2026-11-17, TEI (5,5 GiB) và `ai` (4,1 GiB) cùng các dự án khác đã lấp đầy máy dev 19 GiB. Phương án dự phòng là scale dev về 0 khi không dùng, hoặc giảm cluster xuống hai agent.

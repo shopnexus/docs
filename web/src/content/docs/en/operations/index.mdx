@@ -7,11 +7,11 @@ groupOrder: 1
 audience: [developers, admins]
 type: overview
 readingTime: 4
-updated: 2026-11-05
+updated: 2026-11-17
 related: ["/en/operations/cluster", "/en/operations/cluster/bootstrap", "/en/operations/cluster/releases", "/en/operations/configuration", "/en/operations/local-stack"]
 ---
 
-The server, the website, the docs and the console run on one k3d cluster in two stacks, dev and prod. Each stack has its own namespace and its own Postgres, Restate, RustFS and LiteLLM. Everything the cluster needs is in `infra/` in the umbrella repo. The Android app is built and installed from Gradle and is not part of the cluster.
+The server, the website, the docs and the console run on one k3d cluster in two stacks, dev and prod. Each stack has its own namespace and its own Postgres, Restate, RustFS and AI hub (`ai-gateway` and `ai-models`, from the `ai` repo). Everything the cluster needs is in `infra/` in the umbrella repo. The Android app is built and installed from Gradle and is not part of the cluster.
 
 | Stack | Domain | Namespace | Follows |
 |---|---|---|---|
@@ -49,7 +49,7 @@ Argo CD Image Updater watches GHCR. For `stack-dev` it follows the digest of `:m
   <Card title="Postgres, Restate and RustFS" href="/en/operations/cluster/data" icon="ri:database-2-line">The stateful workloads, their operators and their storage.</Card>
   <Card title="Releases" href="/en/operations/cluster/releases" icon="ri:price-tag-3-line">How dev follows main and prod follows a version tag.</Card>
   <Card title="Secrets" href="/en/operations/cluster/secrets" icon="ri:key-2-line">Sealed Secrets, the seal command and the key to back up.</Card>
-  <Card title="Language model gateway" href="/en/operations/cluster/llm-gateway" icon="ri:robot-2-line">LiteLLM in each stack, the search alias and its daily budget.</Card>
+  <Card title="AI hub" href="/en/operations/cluster/llm-gateway" icon="ri:robot-2-line">ai-gateway and ai-models in each stack, the aliases, keys and daily budgets.</Card>
   <Card title="Runbook and troubleshooting" href="/en/operations/cluster/runbook" icon="ri:first-aid-kit-line">Daily commands, drills and fixes for known failures.</Card>
 </Cards>
 

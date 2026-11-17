@@ -7,7 +7,7 @@ groupOrder: 2
 audience: [admins, developers]
 type: concept
 readingTime: 9
-updated: 2026-11-05
+updated: 2026-11-17
 related: ["/en/operations/cluster", "/en/operations/cluster/bootstrap", "/en/operations/cluster/data", "/en/operations/cluster/runbook"]
 ---
 
@@ -111,7 +111,9 @@ flowchart TB
   SA --> S1["server pods<br/>all versions"]
   S1 -->|"DATABASE_URL"| PG["postgres-rw"]
   S1 -->|"http://rustfs:9000"| RF
-  S1 -->|"http://litellm:4000/v1"| LL["litellm"]
+  S1 -->|"http://ai-gateway:4000/v1"| LL["ai-gateway"]
+  S1 -->|"http://ai-models:8000/v1, frames"| AM["ai-models"]
+  LL -->|"stt, embed-image"| AM
   S1 -->|"restate.restate-#lt;stack#gt;:8080, :9070"| R["Restate"]
   R -->|"HTTP/1.1, :9080"| SV["per-version server Service"]
   R -->|"snapshots"| RF
@@ -152,7 +154,7 @@ flowchart TB
     SRV["server"]
     RFS["rustfs"]
     PG["postgres"]
-    LLM["litellm"]
+    LLM["ai-gateway, ai-models"]
   end
   subgraph sd["shopnexus-dev"]
     DEV["any pod"]
@@ -178,8 +180,8 @@ The restate-operator writes the policies for the Restate namespace from the `Res
 <KeyRules>
 - `from-stack` has no `namespaceSelector`, so it admits pods of its own namespace only.
 - No policy admits traffic from `shopnexus-dev` into `shopnexus-prod` or the reverse, and each stack's `from-restate` names only its own `restate-<stack>` namespace.
-- Egress is open. The server calls Firebase, FCM and the language model upstream outside the cluster.
-- `litellm` is reachable from every pod of its stack through `from-stack`. Only the server holds a virtual key for it.
+- Egress is open. The server calls Firebase and FCM outside the cluster, and `ai-gateway` calls OpenRouter.
+- `ai-gateway` and `ai-models` are reachable from every pod of their stack through `from-stack`. Only the server and the console agent hold virtual keys for `ai-gateway`; `ai-models` has no authentication.
 </KeyRules>
 
 The failover drill in the [Runbook](/en/operations/cluster/runbook#failover-drills) connects from a `shopnexus-dev` pod to `postgres-rw.shopnexus-prod`. The NetworkPolicy drops the packets, so the connection times out. The drill is planned for the live server and has not run yet.

@@ -7,7 +7,7 @@ groupOrder: 2
 audience: [developers, admins]
 type: how-to
 readingTime: 11
-updated: 2026-11-05
+updated: 2026-11-17
 related: ["/vi/operations/cluster", "/vi/operations/cluster/bootstrap", "/vi/operations/cluster/data", "/vi/operations/cluster/secrets", "/vi/operations/cluster/runbook"]
 ---
 
@@ -45,7 +45,7 @@ Tiền tố `v` bị bỏ, nên tag `v0.2.0` cho ra tag image `0.2.0`. Một tag
 | Đổi khi | digest đằng sau `:main` thay đổi | xuất hiện một tag `X.Y.Z` cao hơn |
 | Tag được ghi | `main@sha256:…` | `X.Y.Z` |
 
-Với mỗi thành phần trong bốn thành phần, nó ghi hai Helm parameter lên Application: `images.<thành phần>.repository` và `images.<thành phần>.tag`. Các image khác trong `values.yaml` (Postgres, Restate, RustFS, LiteLLM, curl) được ghim ở đó và chỉ đổi qua commit.
+Với mỗi thành phần trong bốn thành phần, nó ghi hai Helm parameter lên Application: `images.<thành phần>.repository` và `images.<thành phần>.tag`. Các image khác trong `values.yaml` (Postgres, Restate, RustFS) được ghim ở đó và chỉ đổi qua commit. Cùng `ImageUpdater` đó có mục cho `ai-dev` và `ai-prod`, dời `ai-models` (`ghcr.io/shopnexus/ai`) theo digest và theo semver qua `images.models.repository` và `images.models.tag`. Image của gateway và curl được ghim trong `chart/values.yaml` của repo `ai`.
 
 `semver` chọn phiên bản cao nhất trong registry, bất kể thứ tự push. Khi đã có `0.2.0`, một tag mới `v0.1.9` sẽ không bao giờ tới prod. Cách Image Updater xử lý tag pre-release như `v0.3.0-rc.1` chưa được kiểm tra, nên hãy phát hành bằng tag `vX.Y.Z` thường.
 
@@ -80,7 +80,7 @@ syncPolicy:
 
 Argo CD thôi đánh giá health của resource Application từ phiên bản 1.8. Không có check Lua, `root` sẽ coi các Application platform là healthy ngay lập tức, và các stack sẽ khởi động trước khi CloudNativePG, Sealed Secrets và restate-operator có CRD. `ImageUpdater` mang `SkipDryRunOnMissingResource=true`, vì CRD của nó đến cùng Application `image-updater` trong cùng lần sync.
 
-Bên trong một stack, mỗi lần sync chạy lại các wave của chart, kể cả các Job Sync hook `migrate`, `objectstore-init` và `objectstore-init-snapshots` (wave 1) và `litellm-key` (wave 3). Vì thế một image server mới chạy migration của nó trước khi các pod server mới khởi động. Bảng đầy đủ các wave, từ -1 tới 3, nằm ở trang [Postgres, Restate và RustFS](/vi/operations/cluster/data#sync-wave-và-job).
+Bên trong một stack, mỗi lần sync chạy lại các wave của chart, kể cả các Job Sync hook `migrate`, `objectstore-init` và `objectstore-init-snapshots` (wave 1). Một lần sync `ai-<stack>` chạy Job Sync hook `ai-gateway-keys` (wave 1 của nó). Vì thế một image server mới chạy migration của nó trước khi các pod server mới khởi động. Bảng đầy đủ các wave, từ -1 tới 2, nằm ở trang [Postgres, Restate và RustFS](/vi/operations/cluster/data#sync-wave-và-job).
 
 ## Đưa lên dev
 
@@ -264,7 +264,7 @@ kubectl -n argocd annotate application stack-prod argocd.argoproj.io/refresh=nor
 </Step>
 
 <Step title="Theo dõi rollout">
-Template pod của server mang `checksum/env`, một mã băm của ConfigMap `server-env`, nên một thiết lập của server khởi động một phiên bản server mới. Deployment của LiteLLM mang `checksum/config` cho cấu hình của nó.
+Template pod của server mang `checksum/env`, một mã băm của ConfigMap `server-env`, nên một thiết lập của server khởi động một phiên bản server mới. Deployment `ai-gateway` mang `checksum/config` cho cấu hình của nó, và không mang checksum của secret của stack: sau khi seal lại `litellm-secrets`, chạy `kubectl -n shopnexus-<stack> rollout restart deploy/ai-gateway`.
 </Step>
 </Steps>
 

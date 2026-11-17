@@ -7,7 +7,7 @@ groupOrder: 2
 audience: [admins, developers]
 type: reference
 readingTime: 9
-updated: 2026-11-05
+updated: 2026-11-17
 related: ["/vi/operations/cluster/bootstrap", "/vi/operations/cluster/networking", "/vi/operations/cluster/data", "/vi/operations/cluster/secrets", "/vi/operations/cluster/llm-gateway"]
 ---
 
@@ -28,10 +28,13 @@ flowchart LR
   subgraph argocd["namespace argocd"]
     root["root"] --> sd["stack-dev"]
     root --> sp["stack-prod"]
+    root --> ad["ai-dev"]
   end
   subgraph dev["namespace shopnexus-dev"]
     server["server"] --> pg[("postgres")]
-    server --> litellm["litellm"]
+    server --> gw["ai-gateway"]
+    server --> models["ai-models"]
+    gw --> models
     server --> rustfs["rustfs"]
   end
   subgraph rdev["namespace restate-dev"]
@@ -39,6 +42,7 @@ flowchart LR
   end
   sd --> dev
   sd --> rdev
+  ad --> dev
   server <--> restate
 ```
 
@@ -72,20 +76,21 @@ Hurl báo file thành công và thoát với mã 0. Thêm `--insecure` nếu ch�
 
 ```bash
 kubectl -n shopnexus-dev logs -l app.kubernetes.io/name=server --prefix --tail=200
-kubectl -n shopnexus-dev logs deploy/litellm --tail=200
-kubectl -n shopnexus-dev logs job/litellm-key
+kubectl -n shopnexus-dev logs deploy/ai-gateway --tail=200
+kubectl -n shopnexus-dev logs job/ai-gateway-keys
+kubectl -n shopnexus-dev logs deploy/ai-models --tail=200
 kubectl -n shopnexus-dev logs job/migrate
 kubectl -n restate-dev logs restate-dev-0 --tail=200
 kubectl -n shopnexus-dev logs postgres-1 --tail=200
 ```
 
-Server ghi log dạng JSON. CNPG đặt tên pod Postgres là `postgres-1`, `postgres-2`; primary hiện tại nằm ở `kubectl -n shopnexus-dev get cluster postgres -o jsonpath='{.status.currentPrimary}'`. Các Job Sync hook `migrate`, `objectstore-init`, `objectstore-init-snapshots` và `litellm-key` được giữ lại cho tới khi lần sync sau thay chúng.
+Server ghi log dạng JSON. CNPG đặt tên pod Postgres là `postgres-1`, `postgres-2`; primary hiện tại nằm ở `kubectl -n shopnexus-dev get cluster postgres -o jsonpath='{.status.currentPrimary}'`. Các Job Sync hook `migrate`, `objectstore-init`, `objectstore-init-snapshots` và `ai-gateway-keys` được giữ lại cho tới khi lần sync sau thay chúng.
 
 ## Port-forward
 
 Không cái nào dưới đây có Ingress. Mỗi lệnh chiếm terminal; mở địa chỉ bằng trình duyệt hoặc bằng `curl` từ một terminal khác.
 
-<Tabs labels={["Argo CD", "Restate admin", "LiteLLM"]}>
+<Tabs labels={["Argo CD", "Restate admin", "ai-gateway"]}>
 <Tab>
 ```bash
 kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d; echo
@@ -105,10 +110,10 @@ Cổng 9070 là admin API của Restate, có UI ở `http://localhost:9070/ui`. 
 <Tab>
 ```bash
 kubectl -n shopnexus-dev get secret litellm-secrets -o jsonpath='{.data.LITELLM_MASTER_KEY}' | base64 -d; echo
-kubectl -n shopnexus-dev port-forward svc/litellm 4000:4000
+kubectl -n shopnexus-dev port-forward svc/ai-gateway 4000:4000
 ```
 
-Mở `http://localhost:4000/ui` và đăng nhập với user `admin`, mật khẩu là master key. [Cổng mô hình ngôn ngữ](/vi/operations/cluster/llm-gateway) chỉ cách đọc mức chi.
+Mở `http://localhost:4000/ui` và đăng nhập với user `admin`, mật khẩu là master key; các lệnh đọc mức chi của từng key từ shell nằm ở [Hub AI](/vi/operations/cluster/llm-gateway#admin-ui-và-mức-chi).
 </Tab>
 </Tabs>
 
@@ -218,7 +223,7 @@ CNPG đọc major version của Postgres từ tag image, và tag của ParadeDB 
 Lệnh seal giữ khóa ký của Restate trong `infra/stack/secrets/<stack>.restate.pem` và nửa công khai của nó trong `RESTATE_IDENTITY_KEY` ở `<stack>.env`. Khi `.env` có khóa công khai mà file `.pem` đã mất, lệnh seal dừng với `restore dev.restate.pem from the backup`. Khôi phục file từ bản sao lưu. Một cặp khóa mới sẽ khiến Restate ký request bằng khóa mà server đang chạy không biết: server từ chối các request đó, và các flow durable đứng lại trong lúc Restate thử lại. Đổi khóa có chủ đích thì xóa cả dòng lẫn file `.pem`, rồi khởi động lại các pod Restate; trang [Secret](/vi/operations/cluster/secrets#khóa-restate) có các bước.
 </Accordion>
 <Accordion title="Server crash-loop vì LLM_* hoặc biến khác chưa được đặt">
-Server không có giá trị mặc định. Khi khởi động, nó thoát và in một dòng cho mỗi biến bị thiếu hoặc để trống, ví dụ `LLM_API_KEY is not set`. `LLM_BASE_URL` và `LLM_MODEL` lấy từ ConfigMap `server-env`; `LLM_API_KEY` và các khóa khác lấy từ `server-secrets` đã seal. Thiếu một khóa trong `server-secrets` nghĩa là SealedSecret được tạo trước khi lệnh seal biết tới khóa đó: chạy lại `go -C infra run ./cmd/seal dev` (nó giữ các khóa cũ và thêm khóa mới), commit rồi push. `litellm.aliases.search.model` hay `litellm.aliases.search.apiBase` để trống thì không tới được server: chart render lỗi với `litellm.aliases.search.model is required`, và Argo CD hiện nó thành ComparisonError.
+Server không có giá trị mặc định. Khi khởi động, nó thoát và in một dòng cho mỗi biến bị thiếu hoặc để trống, ví dụ `LLM_API_KEY is not set`. `LLM_BASE_URL` và `LLM_MODEL` lấy từ ConfigMap `server-env`; `LLM_API_KEY` và các khóa khác lấy từ `server-secrets` đã seal. Thiếu một khóa trong `server-secrets` nghĩa là SealedSecret được tạo trước khi lệnh seal biết tới khóa đó: chạy lại `go -C infra run ./cmd/seal dev` (nó giữ các khóa cũ và thêm khóa mới), commit rồi push. `gateway.aliases.search.model` hay `gateway.aliases.search.apiBase` để trống trong chart `ai` thì không tới được server: chart render lỗi với `gateway.aliases.search.model is required`, và Argo CD hiện nó thành ComparisonError trên `ai-<stack>`.
 </Accordion>
 <Accordion title="dev.shopnexus.id.vn không phân giải được">
 `api.dev.shopnexus.id.vn` phân giải được nhưng `dev.shopnexus.id.vn` thì không. Bản ghi `*` không còn phủ `dev` khi đã có bản ghi `*.dev`, nên zone cần một bản ghi `dev` riêng bên cạnh `@`, `*` và `*.dev`. Kiểm tra bằng `dig +short dev.shopnexus.id.vn`.
