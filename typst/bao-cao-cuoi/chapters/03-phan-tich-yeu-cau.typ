@@ -146,7 +146,7 @@ Bảng 3.5 gom #req.br.len() quy tắc nghiệp vụ. Chúng suy ra từ hai rà
 
 == Mô hình hóa quy trình
 
-Hình 3.3 mô tả quy trình giao dịch từ lúc chốt giá đến khi đơn kết thúc, theo bốn làn Người mua, Người bán, Hệ thống và Hãng vận chuyển. Quy trình có bốn điểm quyết định. Thứ nhất, hệ thống đếm số đơn COD đang mở của người mua và từ chối nếu vượt hạn mức theo bậc (BR-DEAL-06); hai yêu cầu gửi cùng lúc cũng không vượt được hạn mức. Món trên 5.000.000 đ chỉ nhận thêm lời gợi ý hẹn gặp xem hàng trước (BR-DEAL-10). Thứ hai, người bán chọn gửi qua hãng đã liên kết, khi đó hệ thống tạo vận đơn trên tài khoản hãng của người bán, hoặc tự gửi qua hãng khác và nhập mã vận đơn. Thứ ba, trước khi hãng lấy hàng, một bên còn hủy được đơn (BR-DEAL-07). Thứ tư, tại cửa người mua xem hàng rồi nhận hoặc từ chối. Việc trả tiền diễn ra giữa người mua và shipper, hệ thống chỉ biết kết quả qua báo cáo của hãng.
+Hình 3.3 mô tả quy trình giao dịch từ lúc chốt giá đến khi đơn kết thúc, theo bốn làn Người mua, Người bán, Hệ thống và Hãng vận chuyển. Quy trình có bốn điểm quyết định. Thứ nhất, hệ thống đếm số đơn COD đang mở của người mua và từ chối nếu vượt hạn mức theo bậc (BR-DEAL-06); hai yêu cầu gửi cùng lúc cũng không vượt được hạn mức. Thứ hai, người bán chọn gửi qua hãng đã liên kết, khi đó hệ thống tạo vận đơn trên tài khoản hãng của người bán, hoặc tự gửi qua hãng khác và nhập mã vận đơn. Thứ ba, trước khi hãng lấy hàng, một bên còn hủy được đơn (BR-DEAL-07). Thứ tư, tại cửa người mua xem hàng rồi nhận hoặc từ chối. Việc trả tiền diễn ra giữa người mua và shipper, hệ thống chỉ biết kết quả qua báo cáo của hãng.
 
 #fig(
   [Sơ đồ hoạt động quy trình giao dịch COD đồng kiểm],

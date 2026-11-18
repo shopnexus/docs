@@ -69,7 +69,6 @@ Bảng 2.2 đặc tả UC-DEAL-03, ca nối khâu thương lượng với khâu 
     5. Người bán thấy yêu cầu trong cuộc trò chuyện và chuyển sang UC-DEAL-04.
   ],
   [Luồng thay thế], [
-    2a. Giá chốt trên 5.000.000 đ: ứng dụng gợi ý hẹn gặp xem hàng trước, vẫn cho chọn COD (BR-DEAL-10). \
     3a. Người mua bấm gửi nhiều lần: hệ thống chỉ tạo một đơn.
   ],
   [Ngoại lệ], [Vượt hạn mức: từ chối và cho biết hạn mức hiện tại. Thông tin sai: báo lỗi ở từng trường. Tin đã gửi cho người khác hoặc bị đóng: yêu cầu bị hủy kèm lý do.],
@@ -100,7 +99,6 @@ Bảng 2.3 tóm tắt 21 quy tắc nghiệp vụ. Các quy tắc được tham c
     [BR-DEAL-07], [Chỉ hủy được đơn trước khi hãng lấy hàng; vận đơn đã tạo được hủy cùng đơn.],
     [BR-DEAL-08], [Từ chối nhận: người mua không mất tiền, phí hai chiều tính vào tài khoản hãng của người bán, tin mở bán lại.],
     [BR-DEAL-09], [Đã trả tiền cho shipper thì không đòi lại qua sàn; ứng dụng cảnh báo trước.],
-    [BR-DEAL-10], [Món trên 5.000.000 đ: gợi ý hẹn gặp xem hàng trước, vẫn cho chọn COD.],
     [BR-TRS-01], [Ghi nhận sự cố không được phân xử; người bán trả lời trong 3 ngày; bị từ chối hoặc quá hạn thì hiện công khai.],
     [BR-TRS-02], [Chế tài tự động theo tỉ lệ từ chối nhận (ngưỡng 20% và 35%, tối thiểu 5 đơn trong 90 ngày); đơn tự gửi không tính.],
     [BR-TRS-03], [Điểm uy tín 0–1000 theo bảng sự kiện; quyền COD và bậc không mua được.],

@@ -229,7 +229,7 @@ uc:
     title: { vi: "Yêu cầu giao COD", en: "Request cash on delivery" }
     actors: [buyer]
     fr: [FR-DEAL-03]
-    br: [BR-DEAL-01, BR-DEAL-04, BR-DEAL-05, BR-DEAL-06, BR-DEAL-10]
+    br: [BR-DEAL-01, BR-DEAL-04, BR-DEAL-05, BR-DEAL-06]
     adr: [ADR-0001]
     api: ["POST /v1/deals/{id}/cod"]
     pre: Thương lượng đã chốt giá, chưa có đơn đang mở.
@@ -500,7 +500,7 @@ br:
   - { id: BR-DEAL-07, was: [BR-10], text: { vi: "Chỉ hủy được đơn trước khi hãng lấy hàng; vận đơn GHTK/GHN được hệ thống hủy luôn trên tài khoản hãng của người bán." } }
   - { id: BR-DEAL-08, was: [BR-11], text: { vi: "Từ chối nhận tại cửa: người mua không mất tiền; phí hai chiều do hãng tính vào tài khoản người bán; tin đăng mở bán lại." } }
   - { id: BR-DEAL-09, was: [BR-12], text: { vi: "Sau khi người mua đã trả tiền cho shipper, sàn không có cơ chế đòi lại; ứng dụng hiển thị cảnh báo này trước thời điểm trả tiền." } }
-  - { id: BR-DEAL-10, was: [BR-13], text: { vi: "Món giá trên 5.000.000 đ: ứng dụng gợi ý hẹn gặp xem hàng trước, vẫn cho chọn COD." } }
+  - { id: BR-DEAL-10, was: [BR-13], status: retired, text: { vi: "Món giá trên 5.000.000 đ: ứng dụng gợi ý hẹn gặp xem hàng trước, vẫn cho chọn COD." } }
   - { id: BR-TRS-01, was: [BR-14], text: { vi: "Ghi nhận sự cố không được phân xử; người bán trả lời trong 3 ngày bằng tự hoàn hoặc từ chối; ghi nhận bị từ chối hoặc quá hạn hiển thị công khai trên hồ sơ người bán." } }
   - { id: BR-TRS-02, was: [BR-15], text: { vi: "Chế tài tự động chỉ xét khi có ≥ 5 đơn COD trong 90 ngày; tỉ lệ từ chối nhận ≥ 20% thì giới hạn còn 1 đơn COD mở, ≥ 35% thì mất quyền COD 30 ngày; mỗi 30 ngày không có lần từ chối nào hồi lại một nấc; đơn tự gửi không tính vào tỉ lệ." } }
   - { id: BR-TRS-03, was: [BR-16], text: { vi: "Điểm uy tín 0–1000 tính theo bảng sự kiện; quyền COD và bậc uy tín không mua được bằng gói trả phí." } }
