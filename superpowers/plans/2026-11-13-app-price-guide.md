@@ -742,7 +742,7 @@ named, then:
   them); keep the cover and grid tests, without the `shots` argument.
 - `FakeSellRepositoryTest`, `Stage4FixturesTest`: drop assertions on
   `market`, `suggestions`, `photoMarket`, `photoSuggestions`.
-- `app/src/test/kotlin/vn/shopnexus/android/SellWalkTest.kt`: where it waits
+- `app/src/test/kotlin/dev/shopnexus/app/SellWalkTest.kt`: where it waits
   for the price step's market, advance 600 ms more for the guide.
 
 Run: `./gradlew --console=plain -q :core:data:testDebugUnitTest :feature:sell:testDebugUnitTest`

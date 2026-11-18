@@ -36,7 +36,7 @@ with the user step by step.
   tokens are checked with public keys, so server needs the project ID and
   number and no service account.
 - The Firebase project is `shopnexus-26aca` (number 5362373878). The app-android
-  client `vn.shopnexus.android` has the debug key's SHA-256 registered; the
+  client `dev.shopnexus.app` has the debug key's SHA-256 registered; the
   SHA-1 was handed to the user to add too.
 
 ## Decisions: app-android

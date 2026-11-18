@@ -6360,8 +6360,8 @@ Then stop the daemons.
 ### Task 9: The debug panel, the walks and the gate
 
 **Files:**
-- Modify: `app/src/debug/kotlin/vn/shopnexus/android/DebugHost.kt`, `app/src/debug/res/values/strings.xml`, `README.md`
-- Test: `app/src/testDebug/kotlin/vn/shopnexus/android/DebugPanelTest.kt`, `app/src/test/kotlin/vn/shopnexus/android/SliceTest.kt`, `DealsWalkTest.kt`, `SellWalkTest.kt`
+- Modify: `app/src/debug/kotlin/dev/shopnexus/app/DebugHost.kt`, `app/src/debug/res/values/strings.xml`, `README.md`
+- Test: `app/src/testDebug/kotlin/dev/shopnexus/app/DebugPanelTest.kt`, `app/src/test/kotlin/dev/shopnexus/app/SliceTest.kt`, `DealsWalkTest.kt`, `SellWalkTest.kt`
 
 **Interfaces:**
 - Consumes: Task 3's `ConsoleTarget`, `ORDER_JUMPS`, `OrderJump`, `DebugControls.jumpOrder(id, jump)`; every screen from Tasks 5–8.

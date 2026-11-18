@@ -46,7 +46,7 @@ Found while implementing:
 - Create `core/data/src/main/kotlin/vn/shopnexus/core/data/net/ApiFailures.kt` + test.
 - Modify `core/data/.../di/DataModule.kt` → `FakeBindings.kt` (include-only modules + shared provides).
 - Modify `app/build.gradle.kts` (flavor dimension `data`: `live` default, `demo`; `buildConfig`; live unit tests off).
-- Create `app/src/demo/kotlin/vn/shopnexus/android/di/DemoDataModule.kt`, `app/src/live/kotlin/vn/shopnexus/android/di/LiveDataModule.kt`, `app/src/debug/res/xml/network_security_config.xml` + debug manifest attribute.
+- Create `app/src/demo/kotlin/dev/shopnexus/app/di/DemoDataModule.kt`, `app/src/live/kotlin/dev/shopnexus/app/di/LiveDataModule.kt`, `app/src/debug/res/xml/network_security_config.xml` + debug manifest attribute.
 - Modify `run.sh` (flavor argument, `adb reverse` for live), `README.md`, `.github/workflows/check.yml` if it names `installDebug`/`testDebugUnitTest`.
 
 ## Tasks

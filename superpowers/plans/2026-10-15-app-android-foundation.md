@@ -15,7 +15,7 @@
 - Android only, native Kotlin. minSdk 31, compileSdk 36, targetSdk 36.
 - Java and Kotlin target 21 everywhere (`JavaVersion.VERSION_21`, JVM toolchain 21).
 - AGP 9 built-in Kotlin: never apply `org.jetbrains.kotlin.android`.
-- Package root `vn.shopnexus`; applicationId `vn.shopnexus.android`; module namespaces `vn.shopnexus.<layer>.<name>` (for example `vn.shopnexus.core.designsystem`).
+- Package root `vn.shopnexus`; applicationId `dev.shopnexus.app`; module namespaces `vn.shopnexus.<layer>.<name>` (for example `vn.shopnexus.core.designsystem`).
 - A feature module never depends on another feature module.
 - `:core:model` and `:core:domain` are JVM modules with no Android dependency.
 - material3 is pinned to `1.5.0-beta01` in the catalog and overrides the BOM; expressive APIs need `@OptIn(ExperimentalMaterial3ExpressiveApi::class)`.
@@ -7470,11 +7470,11 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 - Create: `app/app/build.gradle.kts`, `app/app/src/main/AndroidManifest.xml`
 - Create: `app/app/src/main/res/values/themes.xml`, `app/app/src/main/res/values-night/themes.xml`, `app/app/src/main/res/values/strings.xml`
 - Create: `app/app/src/main/res/drawable/ic_launcher_foreground.xml`, `app/app/src/main/res/mipmap-anydpi/ic_launcher.xml`
-- Create in `app/app/src/main/kotlin/vn/shopnexus/android/`: `ShopNexusApplication.kt`, `MainActivity.kt`, `AppNavigation.kt`, `ThemeSettings.kt`
-- Create: `app/app/src/debug/kotlin/vn/shopnexus/android/DebugHost.kt`, `app/app/src/release/kotlin/vn/shopnexus/android/DebugHost.kt`
+- Create in `app/app/src/main/kotlin/dev/shopnexus/app/`: `ShopNexusApplication.kt`, `MainActivity.kt`, `AppNavigation.kt`, `ThemeSettings.kt`
+- Create: `app/app/src/debug/kotlin/dev/shopnexus/app/DebugHost.kt`, `app/app/src/release/kotlin/dev/shopnexus/app/DebugHost.kt`
 - Create: `app/app/src/test/resources/robolectric.properties` (`sdk=36`)
-- Test: `app/app/src/test/kotlin/vn/shopnexus/android/AppNavigatorTest.kt`
-- Test: `app/app/src/test/kotlin/vn/shopnexus/android/ThemeSettingsTest.kt`
+- Test: `app/app/src/test/kotlin/dev/shopnexus/app/AppNavigatorTest.kt`
+- Test: `app/app/src/test/kotlin/dev/shopnexus/app/ThemeSettingsTest.kt`
 
 **Interfaces:**
 - Consumes: `Navigator`, `EntryInstaller`, routes, `DeepLinks` (Task 17); `ShopNexusTheme`, `ThemeMode`, `ShopNexusNavigationBar`, `NavItem` (Tasks 13, 16).
@@ -7565,9 +7565,9 @@ plugins {
 }
 
 android {
-    namespace = "vn.shopnexus.android"
+    namespace = "dev.shopnexus.app"
     defaultConfig {
-        applicationId = "vn.shopnexus.android"
+        applicationId = "dev.shopnexus.app"
         versionCode = 1
         versionName = "0.1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -7715,7 +7715,7 @@ Add `<color name="launcher_background">#066A61</color>` to a new `res/values/col
 `AppNavigatorTest.kt`:
 
 ```kotlin
-package vn.shopnexus.android
+package dev.shopnexus.app
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.navigation3.runtime.NavBackStack
@@ -7785,7 +7785,7 @@ class AppNavigatorTest {
 `ThemeSettingsTest.kt`:
 
 ```kotlin
-package vn.shopnexus.android
+package dev.shopnexus.app
 
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import com.google.common.truth.Truth.assertThat
@@ -7823,7 +7823,7 @@ Expected: FAIL, unresolved `NavigationState`, `AppNavigator`, `ThemeSettings`.
 `AppNavigation.kt`:
 
 ```kotlin
-package vn.shopnexus.android
+package dev.shopnexus.app
 
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -7971,7 +7971,7 @@ The Tin nhắn badge comes with the inbox in stage 3; stage 1 has no unread coun
 `ThemeSettings.kt`:
 
 ```kotlin
-package vn.shopnexus.android
+package dev.shopnexus.app
 
 import android.content.Context
 import androidx.datastore.core.DataStore
@@ -8019,7 +8019,7 @@ object SettingsModule {
 `ShopNexusApplication.kt`:
 
 ```kotlin
-package vn.shopnexus.android
+package dev.shopnexus.app
 
 import android.app.Application
 import coil3.ImageLoader
@@ -8039,7 +8039,7 @@ class ShopNexusApplication : Application(), SingletonImageLoader.Factory {
 `MainActivity.kt`:
 
 ```kotlin
-package vn.shopnexus.android
+package dev.shopnexus.app
 
 import android.content.Intent
 import android.os.Bundle
@@ -8089,10 +8089,10 @@ class MainActivity : ComponentActivity() {
 }
 ```
 
-`app/app/src/release/kotlin/vn/shopnexus/android/DebugHost.kt`:
+`app/app/src/release/kotlin/dev/shopnexus/app/DebugHost.kt`:
 
 ```kotlin
-package vn.shopnexus.android
+package dev.shopnexus.app
 
 import androidx.compose.runtime.Composable
 
@@ -8101,10 +8101,10 @@ import androidx.compose.runtime.Composable
 fun DebugHost(content: @Composable () -> Unit) = content()
 ```
 
-`app/app/src/debug/kotlin/vn/shopnexus/android/DebugHost.kt`, a pass-through until Task 23 builds the panel:
+`app/app/src/debug/kotlin/dev/shopnexus/app/DebugHost.kt`, a pass-through until Task 23 builds the panel:
 
 ```kotlin
-package vn.shopnexus.android
+package dev.shopnexus.app
 
 import androidx.compose.runtime.Composable
 
@@ -9332,7 +9332,7 @@ source ~/.local/share/shopnexus/android-env.sh
 emulator -avd app-android-api36 -no-snapshot-save &
 adb wait-for-device
 ./gradlew :app:installDebug
-adb shell am start -n vn.shopnexus.android/.MainActivity
+adb shell am start -n dev.shopnexus.app/.MainActivity
 ```
 
 Check by hand: the hint rotates; the hero autoplays and pauses; pulling down at the top shows the loading indicator, then two listings enter "Gần bạn" and the snackbar says "2 tin mới quanh bạn"; a second pull says "Chưa có tin mới quanh bạn"; the heart toggles; removing "Xe đạp" offers "Hoàn tác"; the FAB collapses while scrolling down and its menu dims the whole screen including the navigation bar; tapping the iPhone 13 Pro card shows an empty screen until Task 20 (the route has no entry yet, so do not tap it now); other controls open the placeholder naming their stage. Turn on TalkBack once and check that the search pill, bell, hearts and pause button read their labels.
@@ -12822,9 +12822,9 @@ A sheet in debug builds only, opened by a long press on a pushed screen's title 
 - Create: `app/core/data/src/main/kotlin/vn/shopnexus/core/data/fake/DebugControls.kt`
 - Modify: `app/core/data/src/main/kotlin/vn/shopnexus/core/data/fake/Simulator.kt` (make `cancel` public as `stop`)
 - Test: `app/core/data/src/test/kotlin/vn/shopnexus/core/data/fake/DebugControlsTest.kt`
-- Modify: `app/app/src/debug/kotlin/vn/shopnexus/android/DebugHost.kt`
+- Modify: `app/app/src/debug/kotlin/dev/shopnexus/app/DebugHost.kt`
 - Create: `app/app/src/debug/res/values/strings.xml`
-- Test: `app/app/src/testDebug/kotlin/vn/shopnexus/android/DebugPanelTest.kt`
+- Test: `app/app/src/testDebug/kotlin/dev/shopnexus/app/DebugPanelTest.kt`
 
 **Interfaces:**
 - Consumes: `FakeWorld`, `Simulator`, `FailurePolicy` (Tasks 11–12); `DealConsole` (Task 9); `ThemeSettings` (Task 18); `LocalDebugTrigger` (Task 16).
@@ -13027,10 +13027,10 @@ Expected: PASS, 23 tests.
 </resources>
 ```
 
-`app/app/src/debug/kotlin/vn/shopnexus/android/DebugHost.kt`:
+`app/app/src/debug/kotlin/dev/shopnexus/app/DebugHost.kt`:
 
 ```kotlin
-package vn.shopnexus.android
+package dev.shopnexus.app
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -13138,10 +13138,10 @@ private fun DebugPanel(onDismiss: () -> Unit) {
 
 - [ ] **Step 4: Write the panel test**
 
-`app/app/src/testDebug/kotlin/vn/shopnexus/android/DebugPanelTest.kt`:
+`app/app/src/testDebug/kotlin/dev/shopnexus/app/DebugPanelTest.kt`:
 
 ```kotlin
-package vn.shopnexus.android
+package dev.shopnexus.app
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.Text
@@ -13211,7 +13211,7 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 A Robolectric test walks the whole slice through the real app, a README says how to build and run it, and GitHub Actions runs every check on each pull request. The task ends with the acceptance checks of the spec.
 
 **Files:**
-- Test: `app/app/src/test/kotlin/vn/shopnexus/android/SliceTest.kt`
+- Test: `app/app/src/test/kotlin/dev/shopnexus/app/SliceTest.kt`
 - Create: `app/README.md`
 - Create: `app/.github/workflows/check.yml`
 - Create: `app/tools/review_page.py`
@@ -13225,7 +13225,7 @@ A Robolectric test walks the whole slice through the real app, a README says how
 `SliceTest.kt`:
 
 ```kotlin
-package vn.shopnexus.android
+package dev.shopnexus.app
 
 import android.app.Activity
 import android.content.Intent

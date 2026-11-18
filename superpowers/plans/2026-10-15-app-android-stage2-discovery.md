@@ -71,9 +71,9 @@ feature/notifications/    NotificationsScreen, NotificationsViewModel, Notificat
 
 **Files:**
 - Modify: `core/navigation/src/main/kotlin/vn/shopnexus/core/navigation/Routes.kt`, `DeepLinks.kt`
-- Modify: `app/src/main/kotlin/vn/shopnexus/android/AppNavigation.kt`
+- Modify: `app/src/main/kotlin/dev/shopnexus/app/AppNavigation.kt`
 - Modify: `feature/placeholder/src/main/kotlin/vn/shopnexus/feature/placeholder/PlaceholderScreen.kt`, `PlaceholderInstaller.kt`, `res/values/strings.xml`
-- Test: `app/src/test/kotlin/vn/shopnexus/android/AppNavigatorTest.kt`, `core/navigation/src/test/kotlin/.../DeepLinksTest.kt`, `feature/placeholder/src/test/.../PlaceholderScreenTest.kt`
+- Test: `app/src/test/kotlin/dev/shopnexus/app/AppNavigatorTest.kt`, `core/navigation/src/test/kotlin/.../DeepLinksTest.kt`, `feature/placeholder/src/test/.../PlaceholderScreenTest.kt`
 
 **Interfaces (Produces):**
 
@@ -474,7 +474,7 @@ sealed interface ResultsEvent { ToggleChip(kind), OpenFilter(section), ApplyFilt
 
 ### Task 20: End-to-end walks and the review page
 
-**Files:** `app/src/test/kotlin/vn/shopnexus/android/DiscoveryWalkTest.kt`; `tools/review_page.py` (stage 2 screenshots next to their mockups); README modules table.
+**Files:** `app/src/test/kotlin/dev/shopnexus/app/DiscoveryWalkTest.kt`; `tools/review_page.py` (stage 2 screenshots next to their mockups); README modules table.
 
 - [ ] **Step 1: Walk tests.** `DiscoveryWalkTest.longPressToSimilarToSeller` and `searchFollowAndNotification`, as the spec describes, through the real app on the fakes.
 - [ ] **Step 2: Device walk** on `app-android-api36`: every stage 2 screen, the card menu by touch and with TalkBack actions, the photo picker and the camera, dark theme, font scale 1.3; every control answers. Fix what the walk finds with a failing test first.
