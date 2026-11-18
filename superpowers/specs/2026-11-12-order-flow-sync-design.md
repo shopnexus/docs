@@ -5,7 +5,7 @@ Status: decided in conversation, question by question and section by
 section. Part 1 of 4 (see Scope). When the work lands, the server decisions
 go into `server/ARCHITECTURE.md`.
 
-Changed while planning (plan `2026-11-12-server2-order-flow.md`):
+Changed while planning (plan `2026-11-12-server-order-flow.md`):
 
 - No new event kinds. The spec lists `order.requested`, `order.shipped`, `order.completed`, `order.failed`, `order.cancelled` and `shipment.updated`; the server announces order changes as moves (`cod_requested`, `shipped`, `shipment_updated`, `completed`, `failed`, `order_cancelled`) on the existing `deal.moved`, whose only subscriber, notification, reads moves. New kinds would have no subscriber.
 - `carrier.Client` has a third method, `Cancel(ctx, carrier, code)`, for the pickup timeout of a linked shipment and for a linked shipment whose order's save lost a race. The fake and `None` cancel nothing.

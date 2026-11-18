@@ -8,7 +8,7 @@
 
 **Tech Stack:** Go 1.27 (cgo), onnxruntime 1.28.2 (bundled by sherpa-onnx-go v1.13.8), onnxruntime_go v1.32.1, go-sentencepiece v0.7.0, golang.org/x/image v0.47.0; Python + transformers only for the one-off reference script, run with `uv`.
 
-**Spec:** `~/shopnexus/docs/superpowers/specs/2026-11-09-server2-photo-similar-search-design.md` (sections "Models behind LiteLLM → `ai`", "Measured first" item 3, "Testing → `ai`"). This is plan 1 of 3; plan 2 is `2026-11-09-search-models-infra.md`, plan 3 `2026-11-09-search-server.md`.
+**Spec:** `~/shopnexus/docs/superpowers/specs/2026-11-09-server-photo-similar-search-design.md` (sections "Models behind LiteLLM → `ai`", "Measured first" item 3, "Testing → `ai`"). This is plan 1 of 3; plan 2 is `2026-11-09-search-models-infra.md`, plan 3 `2026-11-09-search-server.md`.
 
 ## Global Constraints
 

@@ -6,7 +6,7 @@
 
 **Architecture:** Module `chat` learns a second kind of conversation, `support`, between a person and the system account ShopNexus, and a quoted reply on any message. Module `support` owns tickets: it opens the chat through chat's service, records who answered, and follows `message.sent` to reopen a ticket. The console handler reaches support's service for `/v1/console/support/*`. `screen` adds the ticket to its chat screen. The app reuses its Chat screen with a ticket key.
 
-**Tech Stack:** Go (server2: net/http, pgx, Restate SDK), Postgres 18; React 19, TanStack Query, react-router 8, Tailwind 4 (console); Kotlin, Compose, Hilt (app2).
+**Tech Stack:** Go (server: net/http, pgx, Restate SDK), Postgres 18; React 19, TanStack Query, react-router 8, Tailwind 4 (console); Kotlin, Compose, Hilt (app-android).
 
 **Spec:** `~/shopnexus/docs/superpowers/specs/2026-11-13-support-tickets-design.md` (part 3 of `2026-11-12-order-flow-sync-design.md`). Mockups: app `app/.superdesign/tools/build_support.py` (drafts `support-list`, `support-chat`, `support-report`, `support-carrier`, `me-support`, `help`, `chat`), console `console/.superdesign/tools/build_support.py` (`support-open`, `support-resolved`), branch `design/support` in both repos.
 

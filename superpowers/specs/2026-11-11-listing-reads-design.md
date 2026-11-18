@@ -7,7 +7,7 @@ Assist, Stream, Erasure, Infrastructure) and `~/shopnexus/checklist.md`
 ticks "AI đọc ảnh (không có video) để tự điền tin đăng" and rewrites the
 video read's line to name `/v1/listing-reads`.
 
-Changed while planning (plan `2026-11-11-server2-listing-reads.md`):
+Changed while planning (plan `2026-11-11-server-listing-reads.md`):
 
 - Migration 0039 copies the rows of `video_reads` and `link_reads` and moves
   their updates to `listing_read`, but drops neither table nor
@@ -27,7 +27,7 @@ Changed while planning (plan `2026-11-11-server2-listing-reads.md`):
 
 The server reads a seller's video (`/v1/video-reads`, spec
 `2026-11-10-video-read-design.md`) and their Chợ Tốt listing
-(`/v1/link-reads`, spec `2026-11-11-server2-link-read-design.md`) into a
+(`/v1/link-reads`, spec `2026-11-11-server-link-read-design.md`) into a
 draft. The app also posts from photos alone, and that path still runs on
 `FakeSellRepository.readPhotos`. A photo read costs far less than a video
 read: one image, no speech to text, no ffmpeg.

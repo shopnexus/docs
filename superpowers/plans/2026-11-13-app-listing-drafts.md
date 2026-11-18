@@ -313,8 +313,8 @@ git add core/model core/domain
 **Files:**
 - Create: `core/data/src/main/kotlin/vn/shopnexus/core/data/fake/DraftServer.kt`
 - Modify: `core/data/src/main/kotlin/vn/shopnexus/core/data/fake/FakeWorld.kt` (`WorldState` after `drafts`, `initial()`), `core/data/src/main/kotlin/vn/shopnexus/core/data/Repositories.kt` (`saveDraft`, new `DraftSave`), `fake/FakeSellRepository.kt` (`newestDraft`, `saveDraft`, `post`), `fake/FakeMyListingsRepository.kt` (`listings`, `panes`, `deleteDraft`), `fake/FakeSettingsRepository.kt:165-167`, `fake/DebugControls.kt`
-- Modify: `app/src/debug/kotlin/vn/shopnexus/app2/DebugHost.kt`, `app/src/debug/res/values/strings.xml`
-- Test: `core/data/src/test/kotlin/vn/shopnexus/core/data/fake/DraftSyncTest.kt` (new), `FakeSellRepositoryTest.kt`, `FakeSettingsRepositoryTest.kt`, `DebugControlsTest.kt`; `app/src/testDebug/kotlin/vn/shopnexus/app2/DebugPanelTest.kt`; `feature/discover/src/test/kotlin/vn/shopnexus/feature/discover/home/HomeViewModelTest.kt`
+- Modify: `app/src/debug/kotlin/vn/shopnexus/android/DebugHost.kt`, `app/src/debug/res/values/strings.xml`
+- Test: `core/data/src/test/kotlin/vn/shopnexus/core/data/fake/DraftSyncTest.kt` (new), `FakeSellRepositoryTest.kt`, `FakeSettingsRepositoryTest.kt`, `DebugControlsTest.kt`; `app/src/testDebug/kotlin/vn/shopnexus/android/DebugPanelTest.kt`; `feature/discover/src/test/kotlin/vn/shopnexus/feature/discover/home/HomeViewModelTest.kt`
 
 **Interfaces:**
 - Consumes: Task 1's model and `DRAFT_LIMIT`, `DRAFT_KEEP`, `DRAFT_WARNING`.

@@ -456,7 +456,7 @@ Keep `aManualShipmentOffersSuaMaAndALinkedOneDoesNot` (its "Sửa mã" now sits 
 ### Task 5: Walks, gate and the checklist
 
 **Files:**
-- Modify (only if they fail): `app/src/test/kotlin/vn/shopnexus/app2/SellWalkTest.kt`, `DealsWalkTest.kt`, `SliceTest.kt`
+- Modify (only if they fail): `app/src/test/kotlin/vn/shopnexus/android/SellWalkTest.kt`, `DealsWalkTest.kt`, `SliceTest.kt`
 - Modify: `~/shopnexus/checklist.md` (the part 4 line and the GHN line)
 
 - [ ] **Step 1: Gate**, in the background:

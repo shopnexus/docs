@@ -3,8 +3,8 @@
 Date: 2026-10-27
 Status: the user chose on 2026-10-27: Firebase Phone Number Verification
 (PNV) with SMS through Firebase Authentication as the fallback, covering the
-mockup, app2 and server2. The Đăng nhập mockup is done (draft `login` v4).
-The server2 decisions below are proposals for the server2 session to settle
+mockup, app-android and server. The Đăng nhập mockup is done (draft `login` v4).
+The server decisions below are proposals for the server session to settle
 with the user step by step.
 
 ## Facts this rests on
@@ -33,13 +33,13 @@ with the user step by step.
 - A Firebase Authentication ID token is an RS256 JWT with `iss`
   `https://securetoken.google.com/shopnexus-26aca`, `aud` `shopnexus-26aca`,
   the number in `phone_number` and `firebase.sign_in_provider` `phone`. Both
-  tokens are checked with public keys, so server2 needs the project ID and
+  tokens are checked with public keys, so server needs the project ID and
   number and no service account.
-- The Firebase project is `shopnexus-26aca` (number 5362373878). The app2
-  client `vn.shopnexus.app2` has the debug key's SHA-256 registered; the
+- The Firebase project is `shopnexus-26aca` (number 5362373878). The app-android
+  client `vn.shopnexus.android` has the debug key's SHA-256 registered; the
   SHA-1 was handed to the user to add too.
 
-## Decisions: app2
+## Decisions: app-android
 
 1. Done on 2026-10-27: `app/google-services.json`, the google-services
    plugin 4.5.0 and Firebase BoM 35.1.0. `:app:assembleDebug` builds.
@@ -68,11 +68,11 @@ with the user step by step.
    codes, so no real SMS is sent.
 7. The 45-second resend countdown stays. "Gửi lại mã" resends with the
    `forceResendingToken` Firebase returned.
-8. Until server2 has the endpoint below, `FakeSessionRepository.signIn`
-   accepts any proof. Wiring the app to server2 over HTTP is a later step,
+8. Until server has the endpoint below, `FakeSessionRepository.signIn`
+   accepts any proof. Wiring the app to server over HTTP is a later step,
    the same as for every other repository.
 
-## Decisions: server2 (proposals)
+## Decisions: server (proposals)
 
 1. One endpoint, `POST /v1/auth/phone {token}` with an `Idempotency-Key`,
    answers like today's OTP verify: `is_new` and the session's tokens.
@@ -84,7 +84,7 @@ with the user step by step.
 3. A token with `test_number: true` is accepted only when the server runs
    with a development flag.
 4. Server2 stops sending SMS codes: the SMS sender, the phone quotas and the
-   phone challenges go. Whether the email OTP stays is for the server2
+   phone challenges go. Whether the email OTP stays is for the server
    session to settle with the user.
 5. A person who signs in by SMS gets a user record in Firebase
    Authentication that holds their phone number. A person who signs in by
@@ -93,9 +93,9 @@ with the user step by step.
 ## Order of work
 
 - Mockup: done.
-- server2: the server2 session designs and builds the endpoint with the
+- server: the server session designs and builds the endpoint with the
   user, from the proposals above.
-- app2: a plan after the sell-wizard session commits, since `feature/auth`
+- app-android: a plan after the sell-wizard session commits, since `feature/auth`
   tests and the Gradle files carry its uncommitted work.
 - Notifications: another session is adding Firebase Cloud Messaging. It
   adds `firebase-messaging` to the BoM already in `libs.versions.toml` and

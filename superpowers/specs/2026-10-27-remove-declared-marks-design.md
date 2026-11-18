@@ -2,10 +2,10 @@
 
 Date: 2026-10-27
 Status: decided in conversation on 2026-10-27. The mockups in
-`app2/.superdesign/` already show every screen without marks, and
-`app2/mohinh.md` item 1 says the same. The user approved bringing the Android
+`app/.superdesign/` already show every screen without marks, and
+`app/mohinh.md` item 1 says the same. The user approved bringing the Android
 app in line, and on 2026-10-27 accepted decisions 4 and 7 as written here. The user
-approved the server2 part the same day: a clean removal with no compatibility
+approved the server part the same day: a clean removal with no compatibility
 layer.
 
 ## Goal
@@ -77,11 +77,11 @@ incident record all stay.
     caller is left. `StringResourcesTest` and lint's UnusedResources catch any
     leftover.
 
-## server2
+## server
 
 The API contract still requires `marks` on `Listing` and accepts them on
 `ListingDraft`; the `listings` table has a `marks jsonb NOT NULL` column. The
-removal is a separate server2 plan, run by the server2 session:
+removal is a separate server plan, run by the server session:
 
 - Drop `marks`, `Mark` and `MarkDraft` from `api/schemas/catalog.yaml`, which
   breaks the contract. The Android app still runs on fakes, so nothing calls
@@ -94,12 +94,12 @@ removal is a separate server2 plan, run by the server2 session:
 - Remove marks from the catalog domain, handler, repository and views, so
   uploads, `allPhotos()`, `PendingUploads()` and `Published()` cover the
   listing photos only.
-- Update the tests and `server2/ARCHITECTURE.md`.
+- Update the tests and `server/ARCHITECTURE.md`.
 
 ## Order of work
 
-The app2 plan starts after the sell-wizard session commits its work in
+The app-android plan starts after the sell-wizard session commits its work in
 `feature/sell`, `feature/deal`, `core/model/Selling.kt`, `sell.json` and the
 Roborazzi removal, because the marks code runs through those files. The line
-numbers in `app2/tmp/marks/inventory.md` date from before that commit and get
+numbers in `app/tmp/marks/inventory.md` date from before that commit and get
 refreshed at the start of the plan.

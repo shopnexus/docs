@@ -4,7 +4,7 @@ Date: 2026-11-17.
 Status: decided in conversation, question by question.
 Supersedes, where they differ: `2026-11-09-ai-stt-gateway-design.md`
 ("Where models run", LiteLLM in `infra/stack`), and the model sections of
-`2026-11-09-server2-photo-similar-search-design.md` ("Models behind
+`2026-11-09-server-photo-similar-search-design.md` ("Models behind
 LiteLLM", TEI, "Configuration"). Those specs get a status line pointing
 here; their other decisions stand.
 

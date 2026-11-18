@@ -12,7 +12,7 @@
 
 ## Global Constraints
 
-- Repos and branches: `~/shopnexus/ai`, `~/shopnexus/server` (Go module `github.com/shopnexus/server2`), the umbrella `~/shopnexus` (infra, compose, checklist) and `~/shopnexus/docs`. Work on branch `feat/video-read` in each repo touched; never commit to `main`.
+- Repos and branches: `~/shopnexus/ai`, `~/shopnexus/server` (Go module `github.com/shopnexus/server`), the umbrella `~/shopnexus` (infra, compose, checklist) and `~/shopnexus/docs`. Work on branch `feat/video-read` in each repo touched; never commit to `main`.
 - Read `server/CLAUDE.md` and `server/ARCHITECTURE.md` before server tasks, and `ai/README.md` before ai tasks.
 - A server feature starts at its OpenAPI spec in `server/api/`; every route in `api/openapi.yaml` has a handler and vice versa (`internal/app/routes_test.go`), and every documented status is exercised by `e2e/` (the status-coverage check in `e2e/main_test.go`).
 - Use cases, Restate handlers and HTTP handlers read top to bottom; no single-use helpers. A helper is fine when several places call it.
@@ -2323,7 +2323,7 @@ func TestVideoIsNoPhoto(t *testing.T) {
 }
 ```
 
-Add `"github.com/shopnexus/server2/internal/media/mediatest"` to that file's imports.
+Add `"github.com/shopnexus/server/internal/media/mediatest"` to that file's imports.
 
 Append to `internal/media/repository/upload_pg_test.go`:
 
@@ -2412,9 +2412,9 @@ package handler
 import (
 	"net/http"
 
-	"github.com/shopnexus/server2/internal/media/domain"
-	"github.com/shopnexus/server2/internal/platform/apperr"
-	"github.com/shopnexus/server2/internal/platform/httpx"
+	"github.com/shopnexus/server/internal/media/domain"
+	"github.com/shopnexus/server/internal/platform/apperr"
+	"github.com/shopnexus/server/internal/platform/httpx"
 )
 
 // errPhotoTooLarge answers a photo over domain.MaxPhotoBytes: the schema's
@@ -2643,11 +2643,11 @@ import (
 	"testing"
 	"uuid"
 
-	"github.com/shopnexus/server2/internal/account/accounttest"
-	"github.com/shopnexus/server2/internal/media/domain"
-	"github.com/shopnexus/server2/internal/media/mediatest"
-	"github.com/shopnexus/server2/internal/media/repository"
-	"github.com/shopnexus/server2/internal/platform/objectstore"
+	"github.com/shopnexus/server/internal/account/accounttest"
+	"github.com/shopnexus/server/internal/media/domain"
+	"github.com/shopnexus/server/internal/media/mediatest"
+	"github.com/shopnexus/server/internal/media/repository"
+	"github.com/shopnexus/server/internal/platform/objectstore"
 )
 
 // A frame the server saves is a waiting photo upload of the seller's: it is
@@ -2855,10 +2855,10 @@ import (
 	restate "github.com/restatedev/sdk-go"
 	"github.com/restatedev/sdk-go/ingress"
 
-	"github.com/shopnexus/server2/internal/media/domain"
-	"github.com/shopnexus/server2/internal/media/repository"
-	"github.com/shopnexus/server2/internal/platform/apperr"
-	"github.com/shopnexus/server2/internal/platform/objectstore"
+	"github.com/shopnexus/server/internal/media/domain"
+	"github.com/shopnexus/server/internal/media/repository"
+	"github.com/shopnexus/server/internal/platform/apperr"
+	"github.com/shopnexus/server/internal/platform/objectstore"
 )
 
 // frameTTL is how long a presigned frame URL reads.
@@ -3097,12 +3097,12 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/shopnexus/server2/internal/account/accounttest"
-	"github.com/shopnexus/server2/internal/catalog/catalogtest"
-	"github.com/shopnexus/server2/internal/catalog/domain"
-	"github.com/shopnexus/server2/internal/catalog/repository"
-	"github.com/shopnexus/server2/internal/platform/postgres/pgtest"
-	"github.com/shopnexus/server2/internal/provider/embed/embedtest"
+	"github.com/shopnexus/server/internal/account/accounttest"
+	"github.com/shopnexus/server/internal/catalog/catalogtest"
+	"github.com/shopnexus/server/internal/catalog/domain"
+	"github.com/shopnexus/server/internal/catalog/repository"
+	"github.com/shopnexus/server/internal/platform/postgres/pgtest"
+	"github.com/shopnexus/server/internal/provider/embed/embedtest"
 )
 
 // priced puts a used bicycle of seller's on sale at price, changed by
@@ -3261,8 +3261,8 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
-	"github.com/shopnexus/server2/internal/catalog/domain"
-	"github.com/shopnexus/server2/internal/platform/pgvec"
+	"github.com/shopnexus/server/internal/catalog/domain"
+	"github.com/shopnexus/server/internal/platform/pgvec"
 )
 
 // PriceSample measures exact distances on the candidates of one category
@@ -3328,11 +3328,11 @@ import (
 	"time"
 	"uuid"
 
-	"github.com/shopnexus/server2/internal/catalog/catalogtest"
-	"github.com/shopnexus/server2/internal/catalog/domain"
-	"github.com/shopnexus/server2/internal/catalog/repository"
-	"github.com/shopnexus/server2/internal/catalog/service"
-	"github.com/shopnexus/server2/internal/provider/embed/embedtest"
+	"github.com/shopnexus/server/internal/catalog/catalogtest"
+	"github.com/shopnexus/server/internal/catalog/domain"
+	"github.com/shopnexus/server/internal/catalog/repository"
+	"github.com/shopnexus/server/internal/catalog/service"
+	"github.com/shopnexus/server/internal/provider/embed/embedtest"
 )
 
 // The service draws the sample under its own text version, with the
@@ -3421,8 +3421,8 @@ import (
 	"time"
 	"uuid"
 
-	"github.com/shopnexus/server2/internal/catalog/domain"
-	"github.com/shopnexus/server2/internal/catalog/repository"
+	"github.com/shopnexus/server/internal/catalog/domain"
+	"github.com/shopnexus/server/internal/catalog/repository"
 )
 
 // PriceQuery is a draft a price sample is drawn for: its subcategory, its
@@ -3653,8 +3653,8 @@ import (
 	"time"
 	"uuid"
 
-	"github.com/shopnexus/server2/internal/assist/domain"
-	catalogdomain "github.com/shopnexus/server2/internal/catalog/domain"
+	"github.com/shopnexus/server/internal/assist/domain"
+	catalogdomain "github.com/shopnexus/server/internal/catalog/domain"
 )
 
 var start = time.Date(2026, 11, 10, 9, 0, 0, 0, time.UTC)
@@ -3790,7 +3790,7 @@ func TestVideoReadJournal(t *testing.T) {
 - [ ] **Step 8: Run it to see it fail**
 
 Run: `go test ./internal/assist/domain/`
-Expected: FAIL: `package github.com/shopnexus/server2/internal/assist/domain is not in std` / no Go files.
+Expected: FAIL: `package github.com/shopnexus/server/internal/assist/domain is not in std` / no Go files.
 
 - [ ] **Step 9: Domain implementation**
 
@@ -3802,7 +3802,7 @@ package domain
 import (
 	"errors"
 
-	"github.com/shopnexus/server2/internal/platform/apperr"
+	"github.com/shopnexus/server/internal/platform/apperr"
 )
 
 var (
@@ -3831,7 +3831,7 @@ import (
 	"time"
 	"uuid"
 
-	catalogdomain "github.com/shopnexus/server2/internal/catalog/domain"
+	catalogdomain "github.com/shopnexus/server/internal/catalog/domain"
 )
 
 const (
@@ -4069,13 +4069,13 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/shopnexus/server2/internal/account/accounttest"
-	accountdomain "github.com/shopnexus/server2/internal/account/domain"
-	"github.com/shopnexus/server2/internal/assist/domain"
-	"github.com/shopnexus/server2/internal/assist/repository"
-	catalogdomain "github.com/shopnexus/server2/internal/catalog/domain"
-	"github.com/shopnexus/server2/internal/platform/postgres/pgtest"
-	"github.com/shopnexus/server2/internal/platform/stream"
+	"github.com/shopnexus/server/internal/account/accounttest"
+	accountdomain "github.com/shopnexus/server/internal/account/domain"
+	"github.com/shopnexus/server/internal/assist/domain"
+	"github.com/shopnexus/server/internal/assist/repository"
+	catalogdomain "github.com/shopnexus/server/internal/catalog/domain"
+	"github.com/shopnexus/server/internal/platform/postgres/pgtest"
+	"github.com/shopnexus/server/internal/platform/stream"
 )
 
 var now = time.Date(2026, 11, 10, 9, 0, 0, 0, time.UTC)
@@ -4306,7 +4306,7 @@ import (
 	"errors"
 	"uuid"
 
-	"github.com/shopnexus/server2/internal/assist/domain"
+	"github.com/shopnexus/server/internal/assist/domain"
 )
 
 // ErrConflict is a save that lost a race: the row changed meanwhile.
@@ -4350,9 +4350,9 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	accountdomain "github.com/shopnexus/server2/internal/account/domain"
-	"github.com/shopnexus/server2/internal/assist/domain"
-	"github.com/shopnexus/server2/internal/platform/stream"
+	accountdomain "github.com/shopnexus/server/internal/account/domain"
+	"github.com/shopnexus/server/internal/assist/domain"
+	"github.com/shopnexus/server/internal/platform/stream"
 )
 
 type pgVideoReads struct{ db *pgxpool.Pool }
@@ -4585,7 +4585,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/shopnexus/server2/internal/provider/frames"
+	"github.com/shopnexus/server/internal/provider/frames"
 )
 
 func TestExtract(t *testing.T) {
@@ -4818,7 +4818,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/shopnexus/server2/internal/provider/stt"
+	"github.com/shopnexus/server/internal/provider/stt"
 )
 
 func TestTranscribe(t *testing.T) {
@@ -5184,8 +5184,8 @@ import (
 	"testing"
 	"uuid"
 
-	"github.com/shopnexus/server2/internal/assist/domain"
-	catalogdomain "github.com/shopnexus/server2/internal/catalog/domain"
+	"github.com/shopnexus/server/internal/assist/domain"
+	catalogdomain "github.com/shopnexus/server/internal/catalog/domain"
 )
 
 var cats = []catalogdomain.Category{
@@ -5535,7 +5535,7 @@ import (
 	"unicode/utf8"
 	"uuid"
 
-	catalogdomain "github.com/shopnexus/server2/internal/catalog/domain"
+	catalogdomain "github.com/shopnexus/server/internal/catalog/domain"
 )
 
 const (
@@ -5740,7 +5740,7 @@ import (
 	"strings"
 	"testing"
 
-	catalogdomain "github.com/shopnexus/server2/internal/catalog/domain"
+	catalogdomain "github.com/shopnexus/server/internal/catalog/domain"
 )
 
 func TestSystemPromptListsSubcategories(t *testing.T) {
@@ -5800,7 +5800,7 @@ import (
 	"fmt"
 	"strings"
 
-	catalogdomain "github.com/shopnexus/server2/internal/catalog/domain"
+	catalogdomain "github.com/shopnexus/server/internal/catalog/domain"
 )
 
 // PromptVersion names the prompt below and domain.AnswerSchema; a change to
@@ -5953,24 +5953,24 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/restatedev/sdk-go/ingress"
 
-	"github.com/shopnexus/server2/internal/account/accounttest"
-	accountsvc "github.com/shopnexus/server2/internal/account/service"
-	"github.com/shopnexus/server2/internal/assist/domain"
-	"github.com/shopnexus/server2/internal/assist/repository"
-	"github.com/shopnexus/server2/internal/assist/service"
-	"github.com/shopnexus/server2/internal/catalog/catalogtest"
-	catalogdomain "github.com/shopnexus/server2/internal/catalog/domain"
-	mediadomain "github.com/shopnexus/server2/internal/media/domain"
-	"github.com/shopnexus/server2/internal/media/mediatest"
-	mediarepo "github.com/shopnexus/server2/internal/media/repository"
-	mediasvc "github.com/shopnexus/server2/internal/media/service"
-	"github.com/shopnexus/server2/internal/platform/objectstore/objectstoretest"
-	"github.com/shopnexus/server2/internal/platform/postgres/pgtest"
-	"github.com/shopnexus/server2/internal/platform/restatex/restatetest"
-	"github.com/shopnexus/server2/internal/platform/testenv"
-	"github.com/shopnexus/server2/internal/provider/embed/embedtest"
-	"github.com/shopnexus/server2/internal/provider/frames"
-	"github.com/shopnexus/server2/internal/provider/llm"
+	"github.com/shopnexus/server/internal/account/accounttest"
+	accountsvc "github.com/shopnexus/server/internal/account/service"
+	"github.com/shopnexus/server/internal/assist/domain"
+	"github.com/shopnexus/server/internal/assist/repository"
+	"github.com/shopnexus/server/internal/assist/service"
+	"github.com/shopnexus/server/internal/catalog/catalogtest"
+	catalogdomain "github.com/shopnexus/server/internal/catalog/domain"
+	mediadomain "github.com/shopnexus/server/internal/media/domain"
+	"github.com/shopnexus/server/internal/media/mediatest"
+	mediarepo "github.com/shopnexus/server/internal/media/repository"
+	mediasvc "github.com/shopnexus/server/internal/media/service"
+	"github.com/shopnexus/server/internal/platform/objectstore/objectstoretest"
+	"github.com/shopnexus/server/internal/platform/postgres/pgtest"
+	"github.com/shopnexus/server/internal/platform/restatex/restatetest"
+	"github.com/shopnexus/server/internal/platform/testenv"
+	"github.com/shopnexus/server/internal/provider/embed/embedtest"
+	"github.com/shopnexus/server/internal/provider/frames"
+	"github.com/shopnexus/server/internal/provider/llm"
 )
 
 // transcript is what the fake STT hears in a seller's video.
@@ -6196,17 +6196,17 @@ import (
 	restate "github.com/restatedev/sdk-go"
 	"github.com/restatedev/sdk-go/ingress"
 
-	"github.com/shopnexus/server2/internal/account/accounttest"
-	"github.com/shopnexus/server2/internal/assist/domain"
-	"github.com/shopnexus/server2/internal/assist/repository"
-	catalogdomain "github.com/shopnexus/server2/internal/catalog/domain"
-	catalogsvc "github.com/shopnexus/server2/internal/catalog/service"
-	mediadomain "github.com/shopnexus/server2/internal/media/domain"
-	"github.com/shopnexus/server2/internal/media/mediatest"
-	"github.com/shopnexus/server2/internal/platform/apperr"
-	"github.com/shopnexus/server2/internal/provider/frames"
-	"github.com/shopnexus/server2/internal/provider/llm"
-	"github.com/shopnexus/server2/internal/provider/stt"
+	"github.com/shopnexus/server/internal/account/accounttest"
+	"github.com/shopnexus/server/internal/assist/domain"
+	"github.com/shopnexus/server/internal/assist/repository"
+	catalogdomain "github.com/shopnexus/server/internal/catalog/domain"
+	catalogsvc "github.com/shopnexus/server/internal/catalog/service"
+	mediadomain "github.com/shopnexus/server/internal/media/domain"
+	"github.com/shopnexus/server/internal/media/mediatest"
+	"github.com/shopnexus/server/internal/platform/apperr"
+	"github.com/shopnexus/server/internal/provider/frames"
+	"github.com/shopnexus/server/internal/provider/llm"
+	"github.com/shopnexus/server/internal/provider/stt"
 )
 
 // A read goes through frames, fill and estimate, notifies after each step,
@@ -6607,14 +6607,14 @@ import (
 	restate "github.com/restatedev/sdk-go"
 	"github.com/restatedev/sdk-go/ingress"
 
-	accountsvc "github.com/shopnexus/server2/internal/account/service"
-	"github.com/shopnexus/server2/internal/assist/repository"
-	catalogsvc "github.com/shopnexus/server2/internal/catalog/service"
-	mediasvc "github.com/shopnexus/server2/internal/media/service"
-	"github.com/shopnexus/server2/internal/platform/restatex"
-	"github.com/shopnexus/server2/internal/provider/embed"
-	"github.com/shopnexus/server2/internal/provider/frames"
-	"github.com/shopnexus/server2/internal/provider/llm"
+	accountsvc "github.com/shopnexus/server/internal/account/service"
+	"github.com/shopnexus/server/internal/assist/repository"
+	catalogsvc "github.com/shopnexus/server/internal/catalog/service"
+	mediasvc "github.com/shopnexus/server/internal/media/service"
+	"github.com/shopnexus/server/internal/platform/restatex"
+	"github.com/shopnexus/server/internal/provider/embed"
+	"github.com/shopnexus/server/internal/provider/frames"
+	"github.com/shopnexus/server/internal/provider/llm"
 )
 
 // Service is module assist's contract.
@@ -6693,7 +6693,7 @@ import (
 	"time"
 	"uuid"
 
-	"github.com/shopnexus/server2/internal/assist/domain"
+	"github.com/shopnexus/server/internal/assist/domain"
 )
 
 // VideoReadView is the VideoRead schema in api/schemas/assist.yaml. A field
@@ -6753,8 +6753,8 @@ import (
 	"fmt"
 	"uuid"
 
-	"github.com/shopnexus/server2/internal/assist/domain"
-	"github.com/shopnexus/server2/internal/assist/repository"
+	"github.com/shopnexus/server/internal/assist/domain"
+	"github.com/shopnexus/server/internal/assist/repository"
 )
 
 // GetRead returns one of account's reads with a fresh URL for each frame.
@@ -6824,18 +6824,18 @@ import (
 
 	restate "github.com/restatedev/sdk-go"
 
-	accountdomain "github.com/shopnexus/server2/internal/account/domain"
-	"github.com/shopnexus/server2/internal/assist/domain"
-	"github.com/shopnexus/server2/internal/assist/repository"
-	catalogdomain "github.com/shopnexus/server2/internal/catalog/domain"
-	catalogsvc "github.com/shopnexus/server2/internal/catalog/service"
-	"github.com/shopnexus/server2/internal/platform/apperr"
-	"github.com/shopnexus/server2/internal/platform/objectstore"
-	"github.com/shopnexus/server2/internal/platform/restatex"
-	"github.com/shopnexus/server2/internal/provider/embed"
-	"github.com/shopnexus/server2/internal/provider/frames"
-	"github.com/shopnexus/server2/internal/provider/llm"
-	"github.com/shopnexus/server2/internal/provider/stt"
+	accountdomain "github.com/shopnexus/server/internal/account/domain"
+	"github.com/shopnexus/server/internal/assist/domain"
+	"github.com/shopnexus/server/internal/assist/repository"
+	catalogdomain "github.com/shopnexus/server/internal/catalog/domain"
+	catalogsvc "github.com/shopnexus/server/internal/catalog/service"
+	"github.com/shopnexus/server/internal/platform/apperr"
+	"github.com/shopnexus/server/internal/platform/objectstore"
+	"github.com/shopnexus/server/internal/platform/restatex"
+	"github.com/shopnexus/server/internal/provider/embed"
+	"github.com/shopnexus/server/internal/provider/frames"
+	"github.com/shopnexus/server/internal/provider/llm"
+	"github.com/shopnexus/server/internal/provider/stt"
 )
 
 // videoRead is the VideoRead service's name without the prefix.
@@ -7270,7 +7270,7 @@ Run:
 make depguard
 go test ./internal/assist/service/ -count=1 2>&1 | tee tmp/assist-service.txt | tail -30
 ```
-Expected: `ok  github.com/shopnexus/server2/internal/assist/service`. `TestReadModelKeepsFailing` takes about 3 s (two seconds of retries).
+Expected: `ok  github.com/shopnexus/server/internal/assist/service`. `TestReadModelKeepsFailing` takes about 3 s (two seconds of retries).
 
 - [ ] **Step 8: Lint**
 
@@ -7595,8 +7595,8 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/shopnexus/server2/internal/assist/service"
-	"github.com/shopnexus/server2/internal/platform/httpx"
+	"github.com/shopnexus/server/internal/assist/service"
+	"github.com/shopnexus/server/internal/platform/httpx"
 )
 
 type Handler struct {
@@ -7622,7 +7622,7 @@ import (
 	"net/http"
 	"uuid"
 
-	"github.com/shopnexus/server2/internal/platform/httpx"
+	"github.com/shopnexus/server/internal/platform/httpx"
 )
 
 type startRequest struct {
@@ -7687,8 +7687,8 @@ import (
 
 	restate "github.com/restatedev/sdk-go"
 
-	"github.com/shopnexus/server2/internal/assist/service"
-	"github.com/shopnexus/server2/internal/platform/events"
+	"github.com/shopnexus/server/internal/assist/service"
+	"github.com/shopnexus/server/internal/platform/events"
 )
 
 // AccountWatch deletes a deleted account's video reads: Mount subscribes
@@ -7727,17 +7727,17 @@ import (
 
 	restate "github.com/restatedev/sdk-go"
 
-	accountsvc "github.com/shopnexus/server2/internal/account/service"
-	"github.com/shopnexus/server2/internal/assist/handler"
-	"github.com/shopnexus/server2/internal/assist/repository"
-	"github.com/shopnexus/server2/internal/assist/service"
-	"github.com/shopnexus/server2/internal/assist/worker"
-	catalogsvc "github.com/shopnexus/server2/internal/catalog/service"
-	mediasvc "github.com/shopnexus/server2/internal/media/service"
-	"github.com/shopnexus/server2/internal/platform/events"
-	"github.com/shopnexus/server2/internal/platform/module"
-	"github.com/shopnexus/server2/internal/provider/embed"
-	"github.com/shopnexus/server2/internal/provider/llm"
+	accountsvc "github.com/shopnexus/server/internal/account/service"
+	"github.com/shopnexus/server/internal/assist/handler"
+	"github.com/shopnexus/server/internal/assist/repository"
+	"github.com/shopnexus/server/internal/assist/service"
+	"github.com/shopnexus/server/internal/assist/worker"
+	catalogsvc "github.com/shopnexus/server/internal/catalog/service"
+	mediasvc "github.com/shopnexus/server/internal/media/service"
+	"github.com/shopnexus/server/internal/platform/events"
+	"github.com/shopnexus/server/internal/platform/module"
+	"github.com/shopnexus/server/internal/provider/embed"
+	"github.com/shopnexus/server/internal/provider/llm"
 )
 
 // Settings is what assist's Mount takes beyond module.Deps: the models a
@@ -7773,9 +7773,9 @@ func Mount(d module.Deps, s Settings, accounts accountsvc.Service, media mediasv
 In `internal/app/app.go`, add the imports:
 
 ```go
-	"github.com/shopnexus/server2/internal/assist"
-	"github.com/shopnexus/server2/internal/provider/frames"
-	"github.com/shopnexus/server2/internal/provider/stt"
+	"github.com/shopnexus/server/internal/assist"
+	"github.com/shopnexus/server/internal/provider/frames"
+	"github.com/shopnexus/server/internal/provider/stt"
 ```
 
 In `mountModules`, after `discoverym := discovery.Mount(...)`:
@@ -8036,7 +8036,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
-	"github.com/shopnexus/server2/internal/platform/testenv"
+	"github.com/shopnexus/server/internal/platform/testenv"
 )
 
 type videoRead struct {
@@ -8269,7 +8269,7 @@ func TestDeletedAccountsReadsGo(t *testing.T) {
 - [ ] **Step 10: Run the e2e tests**
 
 Run: `go test ./e2e/ -run 'VideoRead|CreateUpload|DeletedAccountsReadsGo' -count=1 2>&1 | tee tmp/assist-e2e.txt | tail -40`
-Expected: `ok  github.com/shopnexus/server2/e2e`. A run of the named tests alone ends with the coverage check listing every other operation's statuses as unobserved; that list is expected here and the full run below clears it. If `createVideoRead 403` or `getVideoRead 400` show as unobserved, the matching `check` above did not reach the handler.
+Expected: `ok  github.com/shopnexus/server/e2e`. A run of the named tests alone ends with the coverage check listing every other operation's statuses as unobserved; that list is expected here and the full run below clears it. If `createVideoRead 403` or `getVideoRead 400` show as unobserved, the matching `check` above did not reach the handler.
 
 - [ ] **Step 11: The full suite and lint**
 

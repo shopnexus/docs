@@ -7,7 +7,7 @@ cut down to this one before planning: drafts are one person's notes, and a
 rare lost edit is accepted. When the work lands, the server decisions go
 into `server/ARCHITECTURE.md` (sections Media, Catalog, Erasure).
 
-Changed while planning (plan `2026-11-13-server2-listing-drafts.md`):
+Changed while planning (plan `2026-11-13-server-listing-drafts.md`):
 
 - A repeated ID in `photos` is kept once instead of refused, so a draft's
   content never leaves it unsynced for good.

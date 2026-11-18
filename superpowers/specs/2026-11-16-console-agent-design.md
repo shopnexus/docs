@@ -19,7 +19,7 @@ accounts. The member decides and acts; the agent never changes data.
 The agent loop is `shopnexus/agent` (NestJS, Strands SDK, LiteLLM,
 PostgreSQL), added to the umbrella as the submodule `agent`. Today it is a
 shopping assistant for buyers with mock MCP tools; this design turns it into
-the console's agent. server2 becomes its MCP server, which answers the
+the console's agent. server becomes its MCP server, which answers the
 original question of an MCP server for ShopNexus.
 
 Out of scope: an agent for users in the app (BR-DSC-01's search agent stays
@@ -30,10 +30,10 @@ eKYC, assigning work to members.
 
 | Question | Decision |
 |---|---|
-| Call path | The console calls server2 only (`/v1/console/agent/…`). server2 checks the console session and role and forwards to the agent on the internal network, streams included. The agent has no public host. |
-| Trust | The agent accepts only requests carrying `AGENT_SERVICE_TOKEN`; the member's id and role come from headers server2 sets. server2's MCP accepts only `AGENT_MCP_TOKEN` plus the member's id, re-checks the role on every tool call and records each read of personal data. |
-| Writes | The agent has no write tool. Suspend, hide, send a reply, dismiss and undo are console calls to server2's console endpoints with the member's cookie, `X-Requested-With` and an `Idempotency-Key`, written to `console_actions` as today. The console then reports the outcome to the agent, which marks the block done. A prompt injection through a user's message can at worst produce a wrong proposal. |
-| Background runs | server2's Restate. A worker subscribes to report and ticket events (see `AgentRuns`) and calls the agent's `POST /runs` with the event id as idempotency key; Restate retries. "Chạy nền, báo khi xong" goes the same way. |
+| Call path | The console calls server only (`/v1/console/agent/…`). server checks the console session and role and forwards to the agent on the internal network, streams included. The agent has no public host. |
+| Trust | The agent accepts only requests carrying `AGENT_SERVICE_TOKEN`; the member's id and role come from headers server sets. server's MCP accepts only `AGENT_MCP_TOKEN` plus the member's id, re-checks the role on every tool call and records each read of personal data. |
+| Writes | The agent has no write tool. Suspend, hide, send a reply, dismiss and undo are console calls to server's console endpoints with the member's cookie, `X-Requested-With` and an `Idempotency-Key`, written to `console_actions` as today. The console then reports the outcome to the agent, which marks the block done. A prompt injection through a user's message can at worst produce a wrong proposal. |
+| Background runs | server's Restate. A worker subscribes to report and ticket events (see `AgentRuns`) and calls the agent's `POST /runs` with the event id as idempotency key; Restate retries. "Chạy nền, báo khi xong" goes the same way. |
 | One chat per record | A ticket, a report case or an account has one agent chat, shared by every member who opens it, so the next shift sees what was asked; each question shows who asked. A chat with no record is the member's own. |
 | Undo | A carried-out block keeps "Hoàn tác" for good. It runs the inverse of each item (unsuspend, unhide) through the batch endpoint, with one audit row each and the reason "Hoàn tác <action id>"; an item changed since (already unsuspended, the listing deleted) is skipped and shown as such. Tickets already sent to buyers stay. |
 | Retention | Agent chats are deleted 180 days after their last turn. Erasure of an account calls the agent to delete every block and tool record that quotes it (evidence, quotes, tables, graph nodes); the rest of the chat and the console's audit rows stay. |
@@ -41,7 +41,7 @@ eKYC, assigning work to members.
 | Where chats live | The agent's PostgreSQL (`conversations`, `turns`, `messages`, `message_blocks`, `tool_calls`), with a subject on each conversation. |
 | Answer shape | Typed blocks, not one string: sources, text, evidence, proposal, reply, table, graph, records, notice. |
 | Changing a block | The member ticks rows or writes; a write makes the agent answer with the next version of the same proposal or reply. Every message carries the current tick state of the newest proposal, so the agent edits what the member sees. |
-| Transport to the console | Server-sent events through server2, one stream per turn. |
+| Transport to the console | Server-sent events through server, one stream per turn. |
 | Deadline | 60 s per turn, as the agent has now. A turn past it ends `TIMED_OUT` with "Hỏi lại" and "Chạy nền, báo khi xong". |
 | Look | Geist, as in `console/.superdesign/design-system.md` ("The agent"). |
 | Telling buyers | "Nhắn người mua" opens an `other` ticket from ShopNexus to each buyer with the message as its first line, so it sits in their Hỗ trợ with the usual push and card, and they can answer. The batch endpoint opens these tickets. |
@@ -49,16 +49,16 @@ eKYC, assigning work to members.
 ## Architecture
 
 ```
-console ──cookie──▶ server2 /v1/console/agent/*  ──service token, member id──▶ agent (internal)
+console ──cookie──▶ server /v1/console/agent/*  ──service token, member id──▶ agent (internal)
    │                    │  ▲                                                      │
    │                    │  └──────── MCP (read-only tools, member id) ◀───────────┘
    │                    │
-   └─cookie─▶ server2 /v1/console/{accounts,reports,support}/…  (every write, audited)
+   └─cookie─▶ server /v1/console/{accounts,reports,support}/…  (every write, audited)
 
-server2 events (report.filed, ticket.opened, message.sent) ─▶ Restate worker AgentRuns ─▶ agent POST /runs (idempotent by event id)
+server events (report.filed, ticket.opened, message.sent) ─▶ Restate worker AgentRuns ─▶ agent POST /runs (idempotent by event id)
 ```
 
-## server2
+## server
 
 ### MCP server
 
@@ -109,7 +109,7 @@ token and the member's headers and add nothing else.
 
 Subscribes to two new event kinds, `report.filed` (trust) and
 `ticket.opened` (support), and to `message.sent` filtered to support
-conversations where the person wrote. Today server2 announces only
+conversations where the person wrote. Today server announces only
 `message.sent` among these; trust and support add theirs with
 `events.Insert` in the change's transaction, as Events describes. A handler
 calls the agent's `POST /runs {subject, reason}` with the event id as
@@ -191,11 +191,11 @@ In `registry/requirements.yaml` (2026-11-17), all `planned`:
   proposes; members act, audited; messages go out as ShopNexus).
 - NFR-PERF-02 (60 s or a background run), NFR-PRIV-02 (reads recorded,
   180 days, erasure).
-- ADR-0003 (the agent runs apart and reads through server2's MCP).
+- ADR-0003 (the agent runs apart and reads through server's MCP).
 
 ## Testing
 
-- server2: each MCP tool against the test stack (member checks, the read
+- server: each MCP tool against the test stack (member checks, the read
   record, schemas); the agent endpoints with a fake agent; the worker's
   idempotency with `restatetest`.
 - agent: block schemas, version supersession, tick state reaching the
@@ -206,7 +206,7 @@ In `registry/requirements.yaml` (2026-11-17), all `planned`:
 
 ## Phases
 
-1. server2 MCP with the read tools, the token, the read record; the agent on
+1. server MCP with the read tools, the token, the read record; the agent on
    it as a member's assistant with plain text and source chips; the Agent
    page in the console.
 2. Blocks, versions and the stream; Hỗ trợ with the ticket read and reply

@@ -10,7 +10,7 @@
 
 **Part 2 of 2.** Runs after `2026-11-09-search-server-index.md` (tasks 2–8 and 13: config, migration, `pgvec`, `embed`, catalog domain and vector store, media, `ListingEmbed`, `search-reindex`); the names those tasks produce are listed in their Interfaces blocks there.
 
-**Spec:** `~/shopnexus/docs/superpowers/specs/2026-11-09-server2-photo-similar-search-design.md`. Plans 1 (`ai`: `POST /v1/embeddings` for SigLIP 2) and 2 (`infra`: LiteLLM aliases, keys, TEI) are separate; this plan runs on fakes and needs them only for `make search-eval` (Task 15).
+**Spec:** `~/shopnexus/docs/superpowers/specs/2026-11-09-server-photo-similar-search-design.md`. Plans 1 (`ai`: `POST /v1/embeddings` for SigLIP 2) and 2 (`infra`: LiteLLM aliases, keys, TEI) are separate; this plan runs on fakes and needs them only for `make search-eval` (Task 15).
 
 ## Global Constraints
 
@@ -204,12 +204,12 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/shopnexus/server2/internal/account/accounttest"
-	"github.com/shopnexus/server2/internal/catalog/catalogtest"
-	"github.com/shopnexus/server2/internal/catalog/domain"
-	"github.com/shopnexus/server2/internal/catalog/repository"
-	"github.com/shopnexus/server2/internal/platform/postgres/pgtest"
-	"github.com/shopnexus/server2/internal/provider/embed/embedtest"
+	"github.com/shopnexus/server/internal/account/accounttest"
+	"github.com/shopnexus/server/internal/catalog/catalogtest"
+	"github.com/shopnexus/server/internal/catalog/domain"
+	"github.com/shopnexus/server/internal/catalog/repository"
+	"github.com/shopnexus/server/internal/platform/postgres/pgtest"
+	"github.com/shopnexus/server/internal/provider/embed/embedtest"
 )
 
 // put lists a listing at price with a text vector and one photo vector.
@@ -695,8 +695,8 @@ package domain_test
 import (
 	"testing"
 
-	catalogdomain "github.com/shopnexus/server2/internal/catalog/domain"
-	"github.com/shopnexus/server2/internal/discovery/domain"
+	catalogdomain "github.com/shopnexus/server/internal/catalog/domain"
+	"github.com/shopnexus/server/internal/discovery/domain"
 )
 
 func TestLikeTerms(t *testing.T) {
@@ -755,7 +755,7 @@ Expected: FAIL.
 ```go
 package domain
 
-import catalogdomain "github.com/shopnexus/server2/internal/catalog/domain"
+import catalogdomain "github.com/shopnexus/server/internal/catalog/domain"
 
 // The weights of each list in a hybrid search's RRF, starting values that
 // make search-eval tunes (see ARCHITECTURE.md, Search).
@@ -871,10 +871,10 @@ import (
 	"time"
 	"uuid"
 
-	catalogdomain "github.com/shopnexus/server2/internal/catalog/domain"
-	"github.com/shopnexus/server2/internal/discovery/repository"
-	"github.com/shopnexus/server2/internal/platform/postgres/pgtest"
-	"github.com/shopnexus/server2/internal/provider/embed/embedtest"
+	catalogdomain "github.com/shopnexus/server/internal/catalog/domain"
+	"github.com/shopnexus/server/internal/discovery/repository"
+	"github.com/shopnexus/server/internal/platform/postgres/pgtest"
+	"github.com/shopnexus/server/internal/provider/embed/embedtest"
 )
 
 func TestQueryVectors(t *testing.T) {
@@ -963,7 +963,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/shopnexus/server2/internal/platform/pgvec"
+	"github.com/shopnexus/server/internal/platform/pgvec"
 )
 
 type pgQueryVectors struct{ db *pgxpool.Pool }
@@ -1243,7 +1243,7 @@ func TestSearchLike(t *testing.T) {
 }
 ```
 
-(`catalogrepo` is `github.com/shopnexus/server2/internal/catalog/repository`; add the imports `embed`, `embedtest`, `mediatest`, `authn`, `mediadomain`, `time`.)
+(`catalogrepo` is `github.com/shopnexus/server/internal/catalog/repository`; add the imports `embed`, `embedtest`, `mediatest`, `authn`, `mediadomain`, `time`.)
 
 - [ ] **Step 3: Run them to see them fail**
 
@@ -1593,7 +1593,7 @@ import (
 	"math"
 	"testing"
 
-	"github.com/shopnexus/server2/internal/discovery/eval"
+	"github.com/shopnexus/server/internal/discovery/eval"
 )
 
 func TestRecallAt(t *testing.T) {
@@ -1634,7 +1634,7 @@ package eval_test
 import (
 	"testing"
 
-	"github.com/shopnexus/server2/internal/discovery/eval"
+	"github.com/shopnexus/server/internal/discovery/eval"
 )
 
 // TestSampleSetAgrees keeps the sample set whole: Load checks every key,
@@ -1726,7 +1726,7 @@ import (
 	"path/filepath"
 	"slices"
 
-	catalogdomain "github.com/shopnexus/server2/internal/catalog/domain"
+	catalogdomain "github.com/shopnexus/server/internal/catalog/domain"
 )
 
 // Listing is a sample listing; its photo is photos/<Key>.jpg.
@@ -2032,23 +2032,23 @@ import (
 	"time"
 	"uuid"
 
-	"github.com/shopnexus/server2/internal/account/accounttest"
-	"github.com/shopnexus/server2/internal/catalog/catalogtest"
-	catalogdomain "github.com/shopnexus/server2/internal/catalog/domain"
-	catalogrepo "github.com/shopnexus/server2/internal/catalog/repository"
-	catalogsvc "github.com/shopnexus/server2/internal/catalog/service"
-	discoverydomain "github.com/shopnexus/server2/internal/discovery/domain"
-	"github.com/shopnexus/server2/internal/discovery/eval"
-	"github.com/shopnexus/server2/internal/discovery/repository"
-	"github.com/shopnexus/server2/internal/discovery/service"
-	"github.com/shopnexus/server2/internal/media/mediatest"
-	"github.com/shopnexus/server2/internal/platform/config"
-	"github.com/shopnexus/server2/internal/platform/objectstore/objectstoretest"
-	"github.com/shopnexus/server2/internal/platform/postgres/pgtest"
-	"github.com/shopnexus/server2/internal/platform/restatex/restatetest"
-	"github.com/shopnexus/server2/internal/platform/testenv"
-	"github.com/shopnexus/server2/internal/provider/embed"
-	"github.com/shopnexus/server2/internal/provider/llm"
+	"github.com/shopnexus/server/internal/account/accounttest"
+	"github.com/shopnexus/server/internal/catalog/catalogtest"
+	catalogdomain "github.com/shopnexus/server/internal/catalog/domain"
+	catalogrepo "github.com/shopnexus/server/internal/catalog/repository"
+	catalogsvc "github.com/shopnexus/server/internal/catalog/service"
+	discoverydomain "github.com/shopnexus/server/internal/discovery/domain"
+	"github.com/shopnexus/server/internal/discovery/eval"
+	"github.com/shopnexus/server/internal/discovery/repository"
+	"github.com/shopnexus/server/internal/discovery/service"
+	"github.com/shopnexus/server/internal/media/mediatest"
+	"github.com/shopnexus/server/internal/platform/config"
+	"github.com/shopnexus/server/internal/platform/objectstore/objectstoretest"
+	"github.com/shopnexus/server/internal/platform/postgres/pgtest"
+	"github.com/shopnexus/server/internal/platform/restatex/restatetest"
+	"github.com/shopnexus/server/internal/platform/testenv"
+	"github.com/shopnexus/server/internal/provider/embed"
+	"github.com/shopnexus/server/internal/provider/llm"
 )
 
 // k is the depth the set is scored at.

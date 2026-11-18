@@ -427,9 +427,9 @@ import (
 	"time"
 	"uuid"
 
-	"github.com/shopnexus/server2/internal/catalog/domain"
-	"github.com/shopnexus/server2/internal/platform/page"
-	"github.com/shopnexus/server2/internal/catalog/service"
+	"github.com/shopnexus/server/internal/catalog/domain"
+	"github.com/shopnexus/server/internal/platform/page"
+	"github.com/shopnexus/server/internal/catalog/service"
 )
 
 func TestBoostShowsToTheSellerOnly(t *testing.T) {
@@ -755,7 +755,7 @@ import (
 	"time"
 	"uuid"
 
-	"github.com/shopnexus/server2/internal/billing/domain"
+	"github.com/shopnexus/server/internal/billing/domain"
 )
 
 func TestFeeFor(t *testing.T) {
@@ -847,7 +847,7 @@ Expected: compile error, package does not exist.
 ```go
 package domain
 
-import "github.com/shopnexus/server2/internal/platform/apperr"
+import "github.com/shopnexus/server/internal/platform/apperr"
 
 var (
 	ErrInvalidBoost      = apperr.New(apperr.KindInvalid, "invalid_boost", "days must be one of the offers")
@@ -1072,8 +1072,8 @@ import (
 	"time"
 	"uuid"
 
-	"github.com/shopnexus/server2/internal/platform/postgres/pgtest"
-	"github.com/shopnexus/server2/internal/provider/payment"
+	"github.com/shopnexus/server/internal/platform/postgres/pgtest"
+	"github.com/shopnexus/server/internal/provider/payment"
 )
 
 func TestFake(t *testing.T) {
@@ -1204,7 +1204,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/shopnexus/server2/internal/billing/domain"
+	"github.com/shopnexus/server/internal/billing/domain"
 )
 
 // fakeKey signs the fake's notifications. It is public on purpose: the fake
@@ -1378,9 +1378,9 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/shopnexus/server2/internal/billing/domain"
-	"github.com/shopnexus/server2/internal/billing/repository"
-	"github.com/shopnexus/server2/internal/platform/postgres/pgtest"
+	"github.com/shopnexus/server/internal/billing/domain"
+	"github.com/shopnexus/server/internal/billing/repository"
+	"github.com/shopnexus/server/internal/platform/postgres/pgtest"
 )
 
 // seed inserts an account and a listing row the foreign keys need, and
@@ -2348,8 +2348,8 @@ s = open(p).read()
 # 1. Wherever discovery's repository, handler or worker is denied, deny billing's too.
 for layer in ('repository', 'handler', 'worker'):
     s = re.sub(
-        r'(( *)- pkg: github.com/shopnexus/server2/internal/discovery/%s\n\2  desc: ([^\n]*)\n)' % layer,
-        lambda m: m.group(1) + '%s- pkg: github.com/shopnexus/server2/internal/billing/%s\n%s  desc: %s\n'
+        r'(( *)- pkg: github.com/shopnexus/server/internal/discovery/%s\n\2  desc: ([^\n]*)\n)' % layer,
+        lambda m: m.group(1) + '%s- pkg: github.com/shopnexus/server/internal/billing/%s\n%s  desc: %s\n'
             % (m.group(2), layer, m.group(2), m.group(3)),
         s)
 open(p, 'w').write(s)
@@ -2358,7 +2358,7 @@ EOF
 
 Then by hand:
 - copy the `module discovery:` block to a `module billing:` block (files `**/internal/billing/**`), remove its three `billing/...` entries and add the three `discovery/...` entries with the same `desc`;
-- in every `module X:` block except `notification` and `billing`, add `- pkg: github.com/shopnexus/server2/internal/billing/service` with `desc: only notification reads billing; billing calls catalog.`;
+- in every `module X:` block except `notification` and `billing`, add `- pkg: github.com/shopnexus/server/internal/billing/service` with `desc: only notification reads billing; billing calls catalog.`;
 - check the `domain layer`, `repository layer` and similar blocks got billing entries from the script (they list every module's upper layers).
 
 Verify: `golangci-lint run ./...` passes, and a throwaway import of `internal/billing/repository` from `internal/catalog/service` is reported by depguard (revert it).
@@ -2539,7 +2539,7 @@ func fakeNotification(order uuid.UUID) map[string]any {
 
 Add a test that a listing hidden after the purchase is refunded and the seller gets a `boost_refunded` notice (after Task 11; leave it for Task 11's e2e step), and that Search items carry `boosted` (assert on `/v1/feed/nearby` near the listing's commune: the boosted listing is first with `boosted: true`).
 
-The file imports `encoding/json` and `github.com/shopnexus/server2/internal/provider/payment` for `fakeNotification`.
+The file imports `encoding/json` and `github.com/shopnexus/server/internal/provider/payment` for `fakeNotification`.
 
 - [ ] **Step 2: Run**
 

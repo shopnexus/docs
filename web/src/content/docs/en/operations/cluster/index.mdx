@@ -36,13 +36,13 @@ flowchart TB
     app1["server, website, docs,<br/>console, ai-gateway, ai-models"]
   end
   subgraph a2["agent-2, role=app"]
-    app2["server, website, docs,<br/>console, ai-gateway, ai-models"]
+    app-android["server, website, docs,<br/>console, ai-gateway, ai-models"]
   end
   spread["postgres and restate pods:<br/>one per node where possible"] -.-> a0
   spread -.-> a1
   spread -.-> a2
   traefik --> app1
-  traefik --> app2
+  traefik --> app-android
   traefik --> rustfs
 ```
 

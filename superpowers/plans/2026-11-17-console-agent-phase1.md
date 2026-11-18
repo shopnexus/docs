@@ -11,7 +11,7 @@
 
 A console member opens Agent, starts a chat (alone or attached to a ticket
 or an account), asks, and gets an answer in plain text with the sources the
-agent read as chips. The agent reads only through server2's MCP. Nothing in
+agent read as chips. The agent reads only through server's MCP. Nothing in
 this phase writes, streams or runs in the background: blocks, versions and
 SSE are Phase 2, report cases Phase 3, links and the graph Phase 4.
 
@@ -20,14 +20,14 @@ SSE are Phase 2, report cases Phase 3, links and the graph Phase 4.
 - One branch per repo: server `feat/console-agent-mcp`, agent
   `feat/console-member`, console `feat/agent-page`, infra
   `feat/agent-service`. Merge locally after checks; no push.
-- server2 rules (`server/CLAUDE.md`): OpenAPI first, no config defaults,
+- server rules (`server/CLAUDE.md`): OpenAPI first, no config defaults,
   use cases read top to bottom, newest library releases looked up before
   pinning, scratch output in `tmp/`.
 - Secrets (`AGENT_SERVICE_TOKEN`, `AGENT_MCP_TOKEN`, LiteLLM keys) never in
   logs, journals or committed files; `.env.example` lists them empty.
 - No tool, endpoint or prompt in this phase changes business data.
 
-## 1. server2 (`feat/console-agent-mcp`)
+## 1. server (`feat/console-agent-mcp`)
 
 1. Module `agent` in `internal/agent`: `handler` (the console agent
    endpoints), `mcp` (the MCP server and its tools), `service` (the client

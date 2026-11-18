@@ -2,7 +2,7 @@
 
 Date: 2026-11-10.
 Status: decided in conversation, question by question. It reverses part of
-`2026-10-28-server2-firebase-sign-in-design.md`, which removed email
+`2026-10-28-server-firebase-sign-in-design.md`, which removed email
 identities and the `phone_required` checks because every account had a
 phone. When the work lands, the decisions below go into
 `server/ARCHITECTURE.md`.
@@ -23,8 +23,8 @@ phone. When the work lands, the decisions below go into
 | Identities per account | At least one; at most one of each kind. |
 | One value, many accounts | No: a phone or email is the identity of one account (`UNIQUE (kind, identifier)`, as today). |
 | Sign-up and sign-in | One flow. A proven identity no account holds creates the account (`is_new`). |
-| Email proof | A six-digit code that server2 sends. No magic link: the person stays in the app. |
-| Google proof | A Google ID token from Android Credential Manager, checked by server2. Not through Firebase Authentication. |
+| Email proof | A six-digit code that server sends. No magic link: the person stays in the app. |
+| Google proof | A Google ID token from Android Credential Manager, checked by server. Not through Firebase Authentication. |
 | Google and an email identity | The same address is the same account: both prove the person holds it. Only `email_verified: true` counts. |
 | Email normalisation | `contact.ParseEmail`: trimmed and lower-cased. Gmail dots are kept. |
 | What needs a phone | Posting a listing, opening a deal, opening a chat (the first message). Answer `403 phone_required`. |
@@ -212,7 +212,7 @@ A missing variable stops the process with its name.
 
 ## App
 
-The app runs on fakes and is not wired to server2 over HTTP yet. This work
+The app runs on fakes and is not wired to server over HTTP yet. This work
 covers the screens, the ports and the fakes; the Firebase SMS and Credential
 Manager implementations come with the HTTP wiring.
 

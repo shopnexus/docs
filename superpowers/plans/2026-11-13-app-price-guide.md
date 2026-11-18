@@ -8,7 +8,7 @@
 
 **Tech Stack:** Kotlin, Jetpack Compose, Hilt, kotlinx.serialization, coroutines/Flow, Robolectric + Roborazzi tests, Truth, Turbine.
 
-**Spec:** `~/shopnexus/docs/superpowers/specs/2026-11-13-price-guide-design.md` (section "App"). The server side is `2026-11-13-server2-price-guide.md`; this plan does not wait for it: the app still runs on fakes.
+**Spec:** `~/shopnexus/docs/superpowers/specs/2026-11-13-price-guide-design.md` (section "App"). The server side is `2026-11-13-server-price-guide.md`; this plan does not wait for it: the app still runs on fakes.
 
 Repo: `~/shopnexus/app`. `export JAVA_HOME=$HOME/.local/opt/jdk-21` before any
 `./gradlew` call. Tests: `./gradlew --console=plain -q :<module>:testDebugUnitTest`
@@ -742,7 +742,7 @@ named, then:
   them); keep the cover and grid tests, without the `shots` argument.
 - `FakeSellRepositoryTest`, `Stage4FixturesTest`: drop assertions on
   `market`, `suggestions`, `photoMarket`, `photoSuggestions`.
-- `app/src/test/kotlin/vn/shopnexus/app2/SellWalkTest.kt`: where it waits
+- `app/src/test/kotlin/vn/shopnexus/android/SellWalkTest.kt`: where it waits
   for the price step's market, advance 600 ms more for the guide.
 
 Run: `./gradlew --console=plain -q :core:data:testDebugUnitTest :feature:sell:testDebugUnitTest`

@@ -3,7 +3,7 @@
   "info": {
     "title": "ShopNexus API",
     "version": "0.1.0",
-    "description": "The HTTP contract between the ShopNexus app and its server. The server\nvalidates every request against this document, and the end-to-end suite\nvalidates every response against it. The docs site explains each module:\nhttps://docs.shopnexus.id.vn/en/api.\n\n## Signing in\n\n1. `POST /v1/auth/email-codes` mails a six-digit code to an email address.\n2. `POST /v1/auth/sign-in` with that code returns an access token and a\n   refresh token. The first sign-in of an address creates the account. A\n   phone number Firebase verified or a Google account signs in the same way.\n3. Send the access token as `Authorization: Bearer <token>`. It lasts 15\n   minutes; `POST /v1/auth/refresh` returns a new one and rotates the\n   refresh token.\n\nIn the playground, paste the access token under Authentication. It stays in\nthis browser only.\n\n## Requests and answers\n\n- Bodies are JSON. A field the schema does not list is 400.\n- A write the app may send twice takes an `Idempotency-Key` header: a new\n  UUID per user action, the same one on a retry. A repeated key returns the\n  first answer.\n- Lists page with `cursor` and `limit`; pass the `next_cursor` of one page to\n  get the next.\n- Every error has the body `{\"error\": {\"code\", \"message\", \"fields\",\n  \"details\", \"trace_id\"}}`. `code` is stable and snake_case, and each operation lists the\n  codes it can return. `trace_id` equals the `Trace-Id` header.\n- A resource the caller may not see is 404, the same as one that does not\n  exist.\n\n## Live updates\n\n`GET /v1/ws` is a WebSocket that tells the open app what changed for the\ncaller; the playground cannot open it. `GET /v1/updates` returns the same\nupdates after a `since` seq, for an app with no socket open.\n"
+    "description": "The HTTP contract between the ShopNexus app and its server. The server\nvalidates every request against this document, and the end-to-end suite\nvalidates every response against it. The docs site explains each module:\nhttps://docs.shopnexus.id.vn/en/api.\n\n## Signing in\n\n1. `POST /v1/auth/email-codes` mails a six-digit code to an email address.\n2. `POST /v1/auth/sign-in` with that code returns an access token and a\n   refresh token. The first sign-in of an address creates the account. A\n   phone number Firebase verified or a Google account signs in the same way.\n3. Send the access token as `Authorization: Bearer <token>`. It lasts 15\n   minutes; `POST /v1/auth/refresh` returns a new one and rotates the\n   refresh token.\n4. A call that needs a sign-in within 15 minutes answers 428\n   `reauth_required` after that. `POST /v1/auth/sessions/current/reauthenticate`\n   with a new proof of the same account returns an access token that\n   passes it.\n\nIn the playground, paste the access token under Authentication. It stays in\nthis browser only.\n\n## Requests and answers\n\n- Bodies are JSON. A field the schema does not list is 400.\n- A write the app may send twice takes an `Idempotency-Key` header: a new\n  UUID per user action, the same one on a retry. A repeated key returns the\n  first answer.\n- Lists page with `cursor` and `limit`; pass the `next_cursor` of one page to\n  get the next.\n- Every error has the body `{\"error\": {\"code\", \"message\", \"fields\",\n  \"details\", \"trace_id\"}}`. `code` is stable and snake_case, and each operation lists the\n  codes it can return. `trace_id` equals the `Trace-Id` header.\n- A resource the caller may not see is 404, the same as one that does not\n  exist.\n\n## Live updates\n\n`GET /v1/ws` is a WebSocket that tells the open app what changed for the\ncaller; the playground cannot open it. `GET /v1/updates` returns the same\nupdates after a `since` seq, for an app with no socket open.\n"
   },
   "servers": [
     {
@@ -99,6 +99,14 @@
       "name": "system",
       "x-displayName": "Health",
       "description": "Liveness and readiness checks."
+    },
+    {
+      "name": "internal",
+      "description": "Operations the app does not call. The console and the ops dashboards' sign-in, carrier webhooks, the health checks and the dev routes have it."
+    },
+    {
+      "name": "websocket",
+      "description": "GET /v1/ws, a WebSocket. The app opens it with its socket code, since an HTTP client cannot."
     }
   ],
   "x-tagGroups": [
@@ -160,7 +168,8 @@
         "operationId": "getHealthz",
         "summary": "Liveness: the process is up.",
         "tags": [
-          "system"
+          "system",
+          "internal"
         ],
         "responses": {
           "200": {
@@ -181,7 +190,8 @@
         "operationId": "getReadyz",
         "summary": "Readiness: the process can reach its dependencies.",
         "tags": [
-          "system"
+          "system",
+          "internal"
         ],
         "responses": {
           "200": {
@@ -347,7 +357,7 @@
       "post": {
         "operationId": "refreshSession",
         "summary": "Rotate the refresh token and get a new access token.",
-        "description": "A refresh token works once. Presenting it again, or two refreshes racing with one token, signs the session out.",
+        "description": "A refresh token works once. Presenting it again, or two refreshes\nracing with one token, signs the session out. A refresh for a\nsuspended account signs the session out with account_suspended, and\nthe same token answers account_suspended again while the suspension\nlasts; after it ends, session_revoked.\n",
         "tags": [
           "auth"
         ],
@@ -422,30 +432,6 @@
             "$ref": "#/components/responses/Unauthorized"
           }
         }
-      },
-      "delete": {
-        "operationId": "deleteAllSessions",
-        "summary": "Sign out every session of the account.",
-        "description": "Needs a sign-in within the last 15 minutes.",
-        "tags": [
-          "auth"
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Every session is signed out."
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "428": {
-            "$ref": "#/components/responses/PreconditionRequired"
-          }
-        }
       }
     },
     "/v1/auth/sessions/current": {
@@ -467,6 +453,127 @@
           },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/v1/auth/sessions/current/reauthenticate": {
+      "post": {
+        "operationId": "reauthenticateSession",
+        "summary": "Prove again that the caller holds the account, for the calls that need a sign-in within 15 minutes.",
+        "description": "Takes a proof as signIn does: a phone_token, a google_token or an\nemail_code from sendEmailCode. The proof must name a phone number or\nan email address of the caller's account. A proof of another account,\nor of an address no account holds, is wrong_account, and no account\nis created or changed. The session's sign-in time becomes the time the\nproof was checked. The reply is a new access token that carries it;\nthe refresh token stays as it was, and the tokens it refreshes carry\nthe new time too. A repeated Idempotency-Key with a proof of the same\naddress answers as the first request did and keeps the first\nrequest's sign-in time.\n",
+        "tags": [
+          "auth"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProofRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "A new access token with the new sign-in time.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessToken"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "description": "Not signed in (unauthenticated, invalid_token), or the session was signed out or has expired (session_revoked, session_expired).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The proof names no phone number or email address of the caller's account (wrong_account), or the account is suspended (account_suspended).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Another guess at the same code was counted at the same moment (try_again).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "A token failed a check (invalid_phone_token, invalid_google_token), the verified number is not a Vietnamese mobile number (invalid_phone), or the code is wrong (invalid_code, details.attempts_left), expired or replaced (code_expired) or out of guesses (code_locked).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The keys that sign phone or Google tokens could not be fetched yet (unavailable); try again.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/auth/sessions/others": {
+      "delete": {
+        "operationId": "deleteOtherSessions",
+        "summary": "Sign out every session of the account but the one this request was made with.",
+        "description": "Needs a sign-in within the last 15 minutes. The signed-out devices'\nrefresh tokens answer session_revoked, and their push tokens get no\nmore pushes.\n",
+        "tags": [
+          "auth"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Every other session is signed out."
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "428": {
+            "$ref": "#/components/responses/PreconditionRequired"
           }
         }
       }
@@ -736,7 +843,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/AddIdentityRequest"
+                "$ref": "#/components/schemas/ProofRequest"
               }
             }
           }
@@ -756,7 +863,7 @@
             "$ref": "#/components/responses/BadRequest"
           },
           "401": {
-            "description": "Not signed in, the account was deleted (session_revoked), or a token failed a check (invalid_phone_token, invalid_google_token).",
+            "description": "Not signed in (unauthenticated, invalid_token), or the account was deleted (session_revoked).",
             "content": {
               "application/json": {
                 "schema": {
@@ -779,7 +886,7 @@
             }
           },
           "422": {
-            "description": "invalid_phone, invalid_code (details.attempts_left), code_expired or code_locked.",
+            "description": "A token failed a check (invalid_phone_token, invalid_google_token), the verified number is not a Vietnamese mobile number (invalid_phone), or the code is wrong (invalid_code, details.attempts_left), expired or replaced (code_expired) or out of guesses (code_locked).",
             "content": {
               "application/json": {
                 "schema": {
@@ -1115,7 +1222,7 @@
       "post": {
         "operationId": "createAddress",
         "summary": "Add an address; the first becomes the default.",
-        "description": "A repeated Idempotency-Key returns the address its first request added, and adds nothing.",
+        "description": "With is_default true the address becomes the default in the same\nrequest. A repeated Idempotency-Key returns the address its first\nrequest added, as it is now, and changes nothing, the default\nincluded.\n",
         "tags": [
           "account"
         ],
@@ -1183,7 +1290,7 @@
       "put": {
         "operationId": "updateAddress",
         "summary": "Replace an address of the caller's.",
-        "description": "Orders already requested to the address keep the copy they took.\n",
+        "description": "With is_default true the address also becomes the default; without\nit the default stays where it is. Orders already requested to the\naddress keep the copy they took.\n",
         "tags": [
           "account"
         ],
@@ -2090,7 +2197,7 @@
             }
           },
           "409": {
-            "description": "The listing is not hidden (listing_state_conflict), or changed meanwhile (try_again).",
+            "description": "The listing is not hidden (listing_state_conflict), ShopNexus hid it and only ShopNexus puts it back on sale (listing_held), or it changed meanwhile (try_again).",
             "content": {
               "application/json": {
                 "schema": {
@@ -4011,7 +4118,8 @@
         "summary": "Set the status of every shipment with a tracking code, as its carrier would.",
         "description": "Served only with CARRIER=fake, which the dev and test stacks run, to\nanyone, since the fake carrier's shipments move only through it.\nProduction runs CARRIER=none and does not serve it. It calls the entry point the real\ncarriers' reports will use. A closed order changes nothing.\ndelivered completes the order 3 days later unless the buyer\nconfirms first; failed fails it at once and releases the listing.\n",
         "tags": [
-          "deal"
+          "deal",
+          "internal"
         ],
         "parameters": [
           {
@@ -4436,7 +4544,8 @@
         "summary": "A carrier's status report.",
         "description": "GHTK and GHN call it with the secret ShopNexus gave them in the\npath; GHTK signs nothing. GHTK posts label_id and status_id,\nform-encoded or as JSON; GHN posts JSON with OrderCode and Status.\nThe operation declares no request body, so the request validator\nleaves any body to the handler: once the secret matches it answers\n200, also for a code no order has or a body it cannot read, so the\ncarrier does not resend.\n",
         "tags": [
-          "shipping"
+          "shipping",
+          "internal"
         ],
         "parameters": [
           {
@@ -4772,7 +4881,8 @@
         "summary": "The WebSocket that tells the open app what changed for the caller.",
         "description": "Frames are JSON text messages of at most 4 KB. On connect the server\nsends the caller's updates after `since` (none without it), or\n`{\"type\":\"reset\",\"seq\":N}` when the log no longer holds them, then\n`{\"type\":\"ready\",\"seq\":N}`. After that it sends each update as\n`{\"type\":\"update\",\"seq\":N,\"kind\":…,…ids}`, with the IDs of the Update\nschema, in seq order, with no duplicate and no hole, and\n`{\"type\":\"typing\",\"conversation_id\":…}` when the other member types.\nThe app keeps the last seq and passes it as `since` on its next\nconnect; after `reset` it reloads everything.\n\nThe kinds, the IDs each carries, what logs one and who gets it:\n\n- `message` (conversation_id, message_id): a message is written or\n  its status changes. Every member of the conversation gets it once\n  the message is sent; while it is processing, or after it failed,\n  only the sender does.\n- `read` (conversation_id): a member's read marker moves forward, for\n  the other member; a member marks the conversation unread, or clears\n  that mark by reading, for that member.\n- `deal` (deal_id): each save of a deal: a move (an offer, accept,\n  decline, withdraw, cancel), a COD order, or any change to its order\n  (the shipment, the carrier's status, receipt, completion), for the\n  buyer and the seller. Opening a deal logs no update, so its first\n  one comes with the move after the opening.\n- `notification` (notification_id): a notification is added, or an\n  unread one with the same collapse key is bumped, for its recipient.\n- `scam_warning` (conversation_id): a scam warning in the conversation\n  is raised, grows, or is dismissed, for the warned member.\n- `listing_read` (listing_read_id): a listing read (video, photo or\n  link) starts or one of its steps is saved, for the account reading.\n- `ticket` (conversation_id): a support ticket is created, its first\n  message is attached, or it is resolved or reopened, for the ticket owner.\n\nThe app sends `{\"type\":\"typing\",\"conversation_id\":…}` (at most one in\n3 seconds per conversation reaches the other member) and, before its\naccess token expires, `{\"type\":\"auth\",\"token\":…}` with the new one.\n\nClose codes: 1001 server shutting down (reconnect at once); 4001 token\nexpired, invalid or another account's (refresh, then reconnect); 4003\naccount suspended (do not reconnect); 1008 a frame that is not JSON\ntext or has an unknown type, or more frames than 10 at once and one a\nsecond after that; 1009 a frame over 4 KB. The server pings every 25\nseconds.\n",
         "tags": [
-          "stream"
+          "stream",
+          "websocket"
         ],
         "security": [
           {
@@ -4851,7 +4961,8 @@
         "summary": "Log an update for the caller, so a test can watch it reach the socket.",
         "description": "Served outside APP_ENV=prod, so the dev and test stacks have it and\nproduction does not. It appends the update to the caller's log as a\nreal change would: it takes the next seq and reaches the caller's open\nsockets as an `update` frame. The body carries exactly the IDs of its\nkind (see GET /v1/ws). They need not name anything, since the log has\nno foreign key and nothing is read or changed behind them.\n",
         "tags": [
-          "stream"
+          "stream",
+          "internal"
         ],
         "security": [
           {
@@ -5598,8 +5709,8 @@
     "/v1/screens/home": {
       "get": {
         "operationId": "getHomeScreen",
-        "summary": "The Home view, the category tree with counts and the first page of the nearby feed.",
-        "description": "nearby is the first page of GET /v1/search with sort=nearby and the\nsame position and radius_km; its next_cursor pages on there. Without\nradius_km the feed keeps within 50 km. Without a position nearby has\nno items, and the app asks for a position to fill it.\n",
+        "summary": "The Home view, the category tree with counts, the first page of the nearby feed, Dành cho bạn and Vì bạn đã xem gần đây.",
+        "description": "nearby is the first page of GET /v1/search with sort=nearby and the\nsame position and radius_km; its next_cursor pages on there. Without\nradius_km the feed keeps within 50 km. Without a position nearby has\nno items, and the app asks for a position to fill it. for_you and\nviewed are one page each, with no cursor. Their cards carry\ndistance_km with a position, and saved for a signed-in reader.\n",
         "tags": [
           "screen"
         ],
@@ -7271,7 +7382,8 @@
         "summary": "Sign a console member in.",
         "description": "Every call sends the email and password. The first sign-in takes up to\nthree calls: one that answers password_change_required, one with\nnew_password that answers totp_enrollment_required (the console then\ncalls totp-enrollment), and one with the new password and a code.\nLater sign-ins send the password and a code together.\n\nAn unknown email, a wrong password and a disabled member all get\ninvalid_credentials. Each call counts toward the email's lock until the\npassword proves right; a wrong code counts too. Five failures on one\nemail lock it for 15 minutes, whether or not a member has the email.\nSuccess sets the console_session cookie.\n",
         "tags": [
-          "console"
+          "console",
+          "internal"
         ],
         "requestBody": {
           "required": true,
@@ -7330,7 +7442,8 @@
         "summary": "Start TOTP enrollment during the first sign-in.",
         "description": "Only a member without TOTP may call it; a second call replaces the\nsecret of the first. The password counts toward the email's lock as in\nlogin.\n",
         "tags": [
-          "console"
+          "console",
+          "internal"
         ],
         "requestBody": {
           "required": true,
@@ -7375,7 +7488,8 @@
         "operationId": "consoleLogout",
         "summary": "Sign this session out and clear the cookie.",
         "tags": [
-          "console"
+          "console",
+          "internal"
         ],
         "security": [
           {
@@ -7402,7 +7516,8 @@
         "operationId": "getConsoleMe",
         "summary": "The signed-in console member.",
         "tags": [
-          "console"
+          "console",
+          "internal"
         ],
         "security": [
           {
@@ -7436,7 +7551,8 @@
         "operationId": "changeConsolePassword",
         "summary": "Change the password and end every session of the member, this one included.",
         "tags": [
-          "console"
+          "console",
+          "internal"
         ],
         "security": [
           {
@@ -7476,7 +7592,8 @@
         "operationId": "listConsoleMembers",
         "summary": "Console members, newest first. Admins only.",
         "tags": [
-          "console"
+          "console",
+          "internal"
         ],
         "security": [
           {
@@ -7514,7 +7631,8 @@
         "operationId": "createConsoleMember",
         "summary": "Create a moderator with a temporary password. Admins only.",
         "tags": [
-          "console"
+          "console",
+          "internal"
         ],
         "security": [
           {
@@ -7564,7 +7682,8 @@
         "operationId": "disableConsoleMember",
         "summary": "Disable a moderator and end their sessions. Admins only.",
         "tags": [
-          "console"
+          "console",
+          "internal"
         ],
         "security": [
           {
@@ -7606,7 +7725,8 @@
         "operationId": "enableConsoleMember",
         "summary": "Enable a disabled moderator. Admins only.",
         "tags": [
-          "console"
+          "console",
+          "internal"
         ],
         "security": [
           {
@@ -7648,7 +7768,8 @@
         "operationId": "unlockConsoleMember",
         "summary": "Clear the sign-in lock on a moderator's email. Admins only.",
         "tags": [
-          "console"
+          "console",
+          "internal"
         ],
         "security": [
           {
@@ -7690,7 +7811,8 @@
         "operationId": "resetConsoleMemberPassword",
         "summary": "Give a moderator a temporary password and end their sessions. Admins only.",
         "tags": [
-          "console"
+          "console",
+          "internal"
         ],
         "security": [
           {
@@ -7732,7 +7854,8 @@
         "operationId": "resetConsoleMemberTotp",
         "summary": "Remove a moderator's TOTP and end their sessions. Admins only.",
         "tags": [
-          "console"
+          "console",
+          "internal"
         ],
         "security": [
           {
@@ -7773,9 +7896,10 @@
       "get": {
         "operationId": "listConsoleAccounts",
         "summary": "Customer accounts, newest first, or the one q names.",
-        "description": "q matches an account ID or a phone number in any common form, exactly.",
+        "description": "q matches an account ID or a phone number in any common form, exactly. status=suspended lists only the accounts whose suspension is in force now, the one that ends soonest first and those without an end last, and returns their count as total; with q as well, the account q names only if it is suspended.",
         "tags": [
-          "console"
+          "console",
+          "internal"
         ],
         "security": [
           {
@@ -7790,6 +7914,16 @@
               "type": "string",
               "minLength": 1,
               "maxLength": 64
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "suspended"
+              ]
             }
           },
           {
@@ -7810,6 +7944,9 @@
               }
             }
           },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
           }
@@ -7826,7 +7963,8 @@
         "operationId": "listConsoleTickets",
         "summary": "The ticket queue, newest activity first.",
         "tags": [
-          "console"
+          "console",
+          "internal"
         ],
         "security": [
           {
@@ -7874,7 +8012,8 @@
         "operationId": "getConsoleTicket",
         "summary": "One ticket with its person, order, other tickets and first page of messages.",
         "tags": [
-          "console"
+          "console",
+          "internal"
         ],
         "security": [
           {
@@ -7923,7 +8062,8 @@
         "operationId": "listConsoleTicketMessages",
         "summary": "Older messages of a ticket's chat, newest first.",
         "tags": [
-          "console"
+          "console",
+          "internal"
         ],
         "security": [
           {
@@ -7978,7 +8118,8 @@
         "operationId": "replyConsoleTicket",
         "summary": "Reply in a ticket's chat as ShopNexus.",
         "tags": [
-          "console"
+          "console",
+          "internal"
         ],
         "security": [
           {
@@ -8050,7 +8191,8 @@
         "operationId": "resolveConsoleTicket",
         "summary": "Mark a ticket resolved; a carrier request sends \"Đã ghi nhận hãng <name>.\" in its chat.",
         "tags": [
-          "console"
+          "console",
+          "internal"
         ],
         "security": [
           {
@@ -8109,7 +8251,8 @@
         "operationId": "reopenConsoleTicket",
         "summary": "Open a resolved ticket again.",
         "tags": [
-          "console"
+          "console",
+          "internal"
         ],
         "security": [
           {
@@ -8168,7 +8311,8 @@
         "operationId": "getConsoleSupportSummary",
         "summary": "The open count for the drawer.",
         "tags": [
-          "console"
+          "console",
+          "internal"
         ],
         "security": [
           {
@@ -8192,6 +8336,443 @@
         }
       }
     },
+    "/v1/console/reports": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/ConsoleCSRF"
+        }
+      ],
+      "get": {
+        "operationId": "listConsoleReportCases",
+        "summary": "Report cases, open or resolved, newest first.",
+        "description": "An open case is an account's reports not withdrawn and not resolved, ordered by its latest report, and total counts the open cases. A resolved case is the reports one resolution closed, ordered by the resolution's time; it has no total.",
+        "tags": [
+          "console",
+          "internal"
+        ],
+        "security": [
+          {
+            "consoleAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "open",
+                "resolved"
+              ],
+              "default": "open"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/Cursor"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Done.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportCaseList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A status other than open or resolved, or a bad cursor or limit (invalid_request).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/v1/console/reports/{account_id}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/ConsoleCSRF"
+        }
+      ],
+      "get": {
+        "operationId": "getConsoleReportCase",
+        "summary": "An account's open report case or, without one, its latest resolved case.",
+        "tags": [
+          "console",
+          "internal"
+        ],
+        "security": [
+          {
+            "consoleAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "account_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Done.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportCaseDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A bad account ID (invalid_request).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "description": "Nobody has reported the account, withdrawn reports aside (report_case_not_found).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/console/reports/{account_id}/dismiss": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/ConsoleCSRF"
+        }
+      ],
+      "post": {
+        "operationId": "dismissConsoleReportCase",
+        "summary": "Close the account's open case as dismissed (\"Không vi phạm\").",
+        "description": "Records report.dismiss.",
+        "tags": [
+          "console",
+          "internal"
+        ],
+        "security": [
+          {
+            "consoleAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "account_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Done.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportCaseDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "409": {
+            "description": "The account has no open case (report_case_not_open), or it is the ShopNexus system account (account_is_system).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/console/reports/{account_id}/resolve": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/ConsoleCSRF"
+        }
+      ],
+      "post": {
+        "operationId": "resolveConsoleReportCase",
+        "summary": "Close the account's open case as actioned.",
+        "description": "The console calls it after its hides or suspension succeed. Records report.resolve.",
+        "tags": [
+          "console",
+          "internal"
+        ],
+        "security": [
+          {
+            "consoleAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "account_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Done.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportCaseDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "409": {
+            "description": "The account has no open case (report_case_not_open), or it is the ShopNexus system account (account_is_system).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/console/reports/{account_id}/reopen": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/ConsoleCSRF"
+        }
+      ],
+      "post": {
+        "operationId": "reopenConsoleReportCase",
+        "summary": "Undo the account's latest resolution.",
+        "description": "Its reports join the account's open case, with any newer reports; a report whose reporter has reported the same target again since stays out, the newer one standing for it. Records report.reopen.",
+        "tags": [
+          "console",
+          "internal"
+        ],
+        "security": [
+          {
+            "consoleAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "account_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Done.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportCaseDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "409": {
+            "description": "The account has no resolution to undo (report_case_not_resolved), or it is the ShopNexus system account (account_is_system), or a report arrived meanwhile (try_again).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/console/listings/{id}/hide": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/ConsoleCSRF"
+        }
+      ],
+      "post": {
+        "operationId": "hideConsoleListing",
+        "summary": "Hide a listing as ShopNexus.",
+        "description": "An active listing, or one its seller hid, goes hidden, and its seller cannot put it back on sale until a member unhides it. Records listing.hide.",
+        "tags": [
+          "console",
+          "internal"
+        ],
+        "security": [
+          {
+            "consoleAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Done.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportedListing"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "description": "No such listing, or a deleted one (listing_not_found).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Hidden by ShopNexus already, or in a status that cannot be hidden (listing_state_conflict), or changed meanwhile (try_again).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/console/listings/{id}/unhide": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/ConsoleCSRF"
+        }
+      ],
+      "post": {
+        "operationId": "unhideConsoleListing",
+        "summary": "Lift ShopNexus's hide of a listing.",
+        "description": "The listing goes back on sale when it is still hidden. Records listing.unhide.",
+        "tags": [
+          "console",
+          "internal"
+        ],
+        "security": [
+          {
+            "consoleAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Done.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportedListing"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "description": "No such listing, or a deleted one (listing_not_found).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Not hidden by ShopNexus (listing_state_conflict), or changed meanwhile (try_again).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/console/accounts/{id}": {
       "parameters": [
         {
@@ -8202,7 +8783,8 @@
         "operationId": "getConsoleAccount",
         "summary": "One customer account with its identities and console history.",
         "tags": [
-          "console"
+          "console",
+          "internal"
         ],
         "security": [
           {
@@ -8241,7 +8823,8 @@
         "operationId": "suspendConsoleAccount",
         "summary": "Suspend a customer account.",
         "tags": [
-          "console"
+          "console",
+          "internal"
         ],
         "security": [
           {
@@ -8303,7 +8886,8 @@
         "operationId": "unsuspendConsoleAccount",
         "summary": "Lift a customer account's suspension.",
         "tags": [
-          "console"
+          "console",
+          "internal"
         ],
         "security": [
           {
@@ -8352,7 +8936,8 @@
         "operationId": "listConsoleActions",
         "summary": "The audit log, newest first. Admins only.",
         "tags": [
-          "console"
+          "console",
+          "internal"
         ],
         "security": [
           {
@@ -8400,6 +8985,262 @@
         }
       }
     },
+    "/v1/console/agent/conversations": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/ConsoleCSRF"
+        }
+      ],
+      "get": {
+        "operationId": "listConsoleAgentConversations",
+        "x-uc": [
+          "UC-MOD-08"
+        ],
+        "summary": "The agent conversation of a record, those about records of a kind, or the caller's own.",
+        "description": "With subject_kind and subject_id, the conversation of that ticket or\naccount, which every member shares (at most one). With subject_kind\nalone, the conversations about records of that kind. With neither,\nthe caller's conversations without a record. Newest activity first.\n",
+        "tags": [
+          "console",
+          "internal"
+        ],
+        "security": [
+          {
+            "consoleAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "subject_kind",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/AgentSubjectKind"
+            }
+          },
+          {
+            "name": "subject_id",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Done.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentConversationList"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "422": {
+            "$ref": "#/components/responses/AgentSubjectInvalid"
+          },
+          "503": {
+            "$ref": "#/components/responses/AgentUnavailable"
+          }
+        }
+      },
+      "post": {
+        "operationId": "createConsoleAgentConversation",
+        "x-uc": [
+          "UC-MOD-08"
+        ],
+        "summary": "Open the agent conversation of a record, or start one of the caller's own.",
+        "description": "A record has one conversation, shared by every member: the first call\nfor a subject makes it, and later calls answer the same one. Without a\nsubject the conversation is new and the caller's.\n",
+        "tags": [
+          "console",
+          "internal"
+        ],
+        "security": [
+          {
+            "consoleAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgentConversationNew"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The conversation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentConversation"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "422": {
+            "$ref": "#/components/responses/AgentSubjectInvalid"
+          },
+          "503": {
+            "$ref": "#/components/responses/AgentUnavailable"
+          }
+        }
+      }
+    },
+    "/v1/console/agent/conversations/{id}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/ConsoleCSRF"
+        },
+        {
+          "$ref": "#/components/parameters/AgentConversationID"
+        }
+      ],
+      "get": {
+        "operationId": "getConsoleAgentConversation",
+        "x-uc": [
+          "UC-MOD-08"
+        ],
+        "summary": "One agent conversation with its turns, oldest first.",
+        "description": "Each turn names the member who asked.",
+        "tags": [
+          "console",
+          "internal"
+        ],
+        "security": [
+          {
+            "consoleAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Done.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentConversationDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/AgentConversationNotFound"
+          },
+          "503": {
+            "$ref": "#/components/responses/AgentUnavailable"
+          }
+        }
+      }
+    },
+    "/v1/console/agent/conversations/{id}/turns": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/ConsoleCSRF"
+        },
+        {
+          "$ref": "#/components/parameters/AgentConversationID"
+        }
+      ],
+      "post": {
+        "operationId": "askConsoleAgent",
+        "x-uc": [
+          "UC-MOD-08"
+        ],
+        "summary": "Ask the agent in a conversation and wait for its answer.",
+        "description": "The answer comes in one response once the agent has finished, within\nits 60-second deadline. It is plain text, with a source for each tool\ncall the agent made: the tool, a label and the ids it read.\n",
+        "tags": [
+          "console",
+          "internal"
+        ],
+        "security": [
+          {
+            "consoleAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgentQuestion"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The agent's answer.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentAnswer"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/AgentConversationNotFound"
+          },
+          "409": {
+            "description": "The agent is still answering in this conversation (agent_turn_in_progress) or the conversation is closed (agent_conversation_closed).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The question is longer than 2000 characters (agent_input_rejected).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The agent's budget for today is spent (agent_budget), and the rest of the console works without it; or the member asked too much in a short time (agent_rate_limited).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "$ref": "#/components/responses/AgentUnavailable"
+          },
+          "504": {
+            "description": "The agent did not answer within its deadline (agent_timeout); ask again.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/console/dashboard-tickets": {
       "parameters": [
         {
@@ -8411,7 +9252,8 @@
         "summary": "A one-time ticket that opens an ops dashboard on its own host.",
         "description": "The console asks for a ticket, then sends the browser to callback_url,\nwhere the server turns the ticket into the dashboard's cookie. A\nticket opens the dashboard once, within 60 seconds, and only while\nthis session lives. Grafana takes a moderator; the other dashboards\ntake an admin. A dashboard that DASHBOARD_HOSTS gives no host is\ndashboard_not_configured.\n",
         "tags": [
-          "console"
+          "console",
+          "internal"
         ],
         "security": [
           {
@@ -8460,7 +9302,8 @@
         "summary": "Traefik's forwardAuth check in front of every ops dashboard.",
         "description": "Traefik calls it with the dashboard request's Cookie and its\nX-Forwarded-* headers; no console header. X-Forwarded-Host names the\ndashboard through DASHBOARD_HOSTS, and the console_dashboard cookie\nmust belong to that dashboard and to a console session that still\nlives, of a member whose role opens the dashboard. Without such a\ncookie a GET is sent to the console, which asks for a ticket; any\nother method gets 401. Traefik copies X-Console-Email and X-Console-Role\nonto the request it lets through and drops a client's own.\n",
         "tags": [
-          "console"
+          "console",
+          "internal"
         ],
         "security": [
           {},
@@ -8544,7 +9387,8 @@
         "summary": "Turn a dashboard ticket into the dashboard's cookie.",
         "description": "Served on each dashboard's own host, where the Ingress routes\n/_dashboard to the server without forwardAuth. The request's Host\nnames the dashboard. The ticket must be unused, unexpired, for this\ndashboard and of a console session that still lives; it is spent here.\nThe answer sets console_dashboard (Secure, HttpOnly, SameSite=Lax,\nPath=/, no Domain, so only this host gets it) for as long as the\nconsole session has left, and redirects to rd when rd is a path on\nthis host, to / otherwise.\n",
         "tags": [
-          "console"
+          "console",
+          "internal"
         ],
         "parameters": [
           {
@@ -8642,6 +9486,31 @@
             "type": "integer",
             "format": "int64",
             "description": "The price the person saw: the other side's open price or, for the\nbuyer, the listed price. Another price is 409 price_changed.\n"
+          }
+        }
+      },
+      "AccessToken": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "access_token",
+          "access_token_expires_at",
+          "token_type"
+        ],
+        "description": "A new access token for the caller's session. The refresh token the app holds stays valid and is not replaced.",
+        "properties": {
+          "access_token": {
+            "type": "string"
+          },
+          "access_token_expires_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "token_type": {
+            "type": "string",
+            "enum": [
+              "Bearer"
+            ]
           }
         }
       },
@@ -8771,7 +9640,12 @@
               "member.unlock",
               "ticket.reply",
               "ticket.resolve",
-              "ticket.reopen"
+              "ticket.reopen",
+              "report.dismiss",
+              "report.resolve",
+              "report.reopen",
+              "listing.hide",
+              "listing.unhide"
             ]
           },
           "target": {
@@ -8787,7 +9661,8 @@
                 "enum": [
                   "account",
                   "member",
-                  "ticket"
+                  "ticket",
+                  "listing"
                 ]
               },
               "id": {
@@ -8798,7 +9673,7 @@
           },
           "details": {
             "type": "object",
-            "description": "What the action needs beyond its name, such as a suspension's reason and end. Never a secret."
+            "description": "What the action needs beyond its name, such as a suspension's reason and end. Never a secret. The report actions carry resolution_id; listing.hide and listing.unhide carry account_id, the listing's seller."
           }
         }
       },
@@ -8818,43 +9693,6 @@
           "next_cursor": {
             "type": "string",
             "format": "uuid"
-          }
-        }
-      },
-      "AddIdentityRequest": {
-        "type": "object",
-        "additionalProperties": false,
-        "description": "Exactly one proof, of the kind the account lacks.",
-        "oneOf": [
-          {
-            "required": [
-              "phone_token"
-            ]
-          },
-          {
-            "required": [
-              "google_token"
-            ]
-          },
-          {
-            "required": [
-              "email_code"
-            ]
-          }
-        ],
-        "properties": {
-          "phone_token": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 8192
-          },
-          "google_token": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 8192
-          },
-          "email_code": {
-            "$ref": "#/components/schemas/EmailCodeProof"
           }
         }
       },
@@ -8942,6 +9780,10 @@
           "kind": {
             "type": "string",
             "description": "home, work or other (AddressKind); another value is 422 invalid_address."
+          },
+          "is_default": {
+            "type": "boolean",
+            "description": "true makes the address the default in the same request. false or\nabsent leaves the default where it is: an address stops being the\ndefault only when another one becomes it or it is deleted. The\nfirst address of a book is the default either way.\n"
           }
         }
       },
@@ -8968,6 +9810,228 @@
             "items": {
               "$ref": "#/components/schemas/Address"
             }
+          }
+        }
+      },
+      "AgentAnswer": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "conversation_id",
+          "turn_id",
+          "answer",
+          "sources"
+        ],
+        "properties": {
+          "conversation_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "turn_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "answer": {
+            "type": "string"
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AgentSource"
+            }
+          }
+        }
+      },
+      "AgentConversation": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "updated_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "subject_kind": {
+            "$ref": "#/components/schemas/AgentSubjectKind"
+          },
+          "subject_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "AgentConversationDetail": {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "A conversation with its turns, oldest first.",
+        "required": [
+          "id",
+          "updated_at",
+          "turns"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "subject_kind": {
+            "$ref": "#/components/schemas/AgentSubjectKind"
+          },
+          "subject_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "turns": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AgentTurn"
+            }
+          }
+        }
+      },
+      "AgentConversationList": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AgentConversation"
+            }
+          }
+        }
+      },
+      "AgentConversationNew": {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "A record to talk about, subject_kind and subject_id together, or neither for a conversation of the caller's own.",
+        "properties": {
+          "subject_kind": {
+            "$ref": "#/components/schemas/AgentSubjectKind"
+          },
+          "subject_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "AgentQuestion": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "text"
+        ],
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4000
+          }
+        }
+      },
+      "AgentSource": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "tool",
+          "label",
+          "ids"
+        ],
+        "description": "One tool call of a turn, shown as a chip.",
+        "properties": {
+          "tool": {
+            "type": "string",
+            "description": "The MCP tool, such as ticket_get."
+          },
+          "label": {
+            "type": "string"
+          },
+          "ids": {
+            "type": "array",
+            "description": "The ids of the records the call read.",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "AgentSubjectKind": {
+        "type": "string",
+        "description": "The record a conversation is about.",
+        "enum": [
+          "ticket",
+          "account"
+        ]
+      },
+      "AgentTurn": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "member_id",
+          "text",
+          "sources",
+          "status",
+          "created_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "member_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The member who asked."
+          },
+          "text": {
+            "type": "string",
+            "description": "The question."
+          },
+          "answer": {
+            "type": "string",
+            "description": "The agent's answer, once it has one."
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AgentSource"
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "running",
+              "succeeded",
+              "failed",
+              "cancelled",
+              "timed_out"
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the member asked."
           }
         }
       },
@@ -9133,15 +10197,63 @@
         }
       },
       "CarrierLogin": {
-        "description": "GHTK takes the seller's email and password; GHN takes the seller's API token and ShopId.",
+        "type": "object",
+        "additionalProperties": false,
+        "description": "GHTK takes the seller's email and password; GHN takes the seller's API token and ShopId. A body holds one pair and nothing of the other.",
         "oneOf": [
           {
-            "$ref": "#/components/schemas/GhtkLogin"
+            "required": [
+              "email",
+              "password"
+            ]
           },
           {
-            "$ref": "#/components/schemas/GhnLogin"
+            "required": [
+              "token",
+              "shop_id"
+            ]
           }
-        ]
+        ],
+        "dependentRequired": {
+          "email": [
+            "password"
+          ],
+          "password": [
+            "email"
+          ],
+          "token": [
+            "shop_id"
+          ],
+          "shop_id": [
+            "token"
+          ]
+        },
+        "properties": {
+          "email": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 254,
+            "description": "GHTK's."
+          },
+          "password": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "description": "GHTK's, used once to get the shop's token; never stored."
+          },
+          "token": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "description": "GHN's API token."
+          },
+          "shop_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 50,
+            "description": "GHN's ShopId."
+          }
+        }
       },
       "Category": {
         "type": "object",
@@ -9561,6 +10673,11 @@
           "next_cursor": {
             "type": "string",
             "format": "uuid"
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "With status, how many accounts are in that status now, whatever q and the page."
           }
         }
       },
@@ -9906,7 +11023,8 @@
               "restate",
               "litellm",
               "s3",
-              "argocd"
+              "argocd",
+              "db"
             ],
             "description": "Grafana opens for moderators and admins; the others for admins."
           }
@@ -10365,8 +11483,24 @@
               },
               "details": {
                 "type": "object",
-                "description": "Values a client acts on, such as attempts_left or retry_after.",
-                "additionalProperties": true
+                "additionalProperties": false,
+                "description": "Values a client acts on. An operation's error description names the ones its codes send; an error without one has no details.",
+                "properties": {
+                  "retry_after": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Seconds to wait before trying again, rounded up, sent with otp_too_soon, otp_limit and login_locked."
+                  },
+                  "attempts_left": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Guesses the code still takes, sent with invalid_code. With 1 left, a wrong guess answers code_locked."
+                  },
+                  "reason": {
+                    "type": "string",
+                    "description": "What the carrier answered, in its words and language, sent with carrier_refused."
+                  }
+                }
               },
               "trace_id": {
                 "type": "string",
@@ -10442,47 +11576,6 @@
           }
         }
       },
-      "GhnLogin": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "token",
-          "shop_id"
-        ],
-        "properties": {
-          "token": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 200
-          },
-          "shop_id": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 50
-          }
-        }
-      },
-      "GhtkLogin": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "email",
-          "password"
-        ],
-        "properties": {
-          "email": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 254
-          },
-          "password": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 200,
-            "description": "Used once to get the shop's token; never stored."
-          }
-        }
-      },
       "HomeCategory": {
         "type": "object",
         "additionalProperties": false,
@@ -10518,6 +11611,7 @@
         "required": [
           "categories",
           "nearby",
+          "for_you",
           "notifications_unread"
         ],
         "properties": {
@@ -10534,6 +11628,18 @@
           "nearby": {
             "$ref": "#/components/schemas/SearchView",
             "description": "The first page of the nearby feed; no items without a position."
+          },
+          "for_you": {
+            "type": "array",
+            "maxItems": 20,
+            "description": "Dành cho bạn, active listings nationwide. A signed-in reader's\nlistings come first from the subcategories of their signals of the\nlast 30 days: the newest 100 listings they saved, the newest 100\nthey opened, and those of their last 10 searches that fall in the\nwindow and named a subcategory. The listings are ordered by the\nweight of their subcategory, then newest first. The newest listings\nof any other subcategory follow. A signed-out reader, or one with no\nsignal, gets the newest listings. Each listing appears at most once,\nand the reader's own listings, those they hid and those of the\naccounts on either side of their blocks are left out.\n",
+            "items": {
+              "$ref": "#/components/schemas/SearchItem"
+            }
+          },
+          "viewed": {
+            "$ref": "#/components/schemas/HomeViewed",
+            "description": "Absent when signed out, without a listing opened in the last 30 days, or when the subcategory has no listing to show."
           }
         }
       },
@@ -10556,6 +11662,28 @@
           "count": {
             "type": "integer",
             "description": "Active listings in the subcategory."
+          }
+        }
+      },
+      "HomeViewed": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "category",
+          "items"
+        ],
+        "description": "Vì bạn đã xem gần đây, read from the newest 100 listings the reader\nopened in the last 30 days. Of those opened on the latest day among\nthem, category is the subcategory most of them have; a tie goes to the\nsubcategory of the most recently created one. items are the active\nlistings of category outside those 100, newest first, with the\nexclusions of for_you.\n",
+        "properties": {
+          "category": {
+            "$ref": "#/components/schemas/Category"
+          },
+          "items": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 10,
+            "items": {
+              "$ref": "#/components/schemas/SearchItem"
+            }
           }
         }
       },
@@ -10798,20 +11926,6 @@
           "photo_count": {
             "type": "integer",
             "minimum": 1
-          }
-        }
-      },
-      "LinkReadRequest": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "link"
-        ],
-        "properties": {
-          "link": {
-            "type": "string",
-            "maxLength": 2048,
-            "description": "The link the seller pasted to their own listing on Chợ Tốt."
           }
         }
       },
@@ -11278,18 +12392,53 @@
         }
       },
       "ListingReadRequest": {
-        "description": "What to read, one of a video, a photo or a link.",
+        "type": "object",
+        "additionalProperties": false,
+        "description": "What to read, exactly one of video, photo or link, with transcript only beside video.",
         "oneOf": [
           {
-            "$ref": "#/components/schemas/VideoReadRequest"
+            "required": [
+              "video"
+            ]
           },
           {
-            "$ref": "#/components/schemas/PhotoReadRequest"
+            "required": [
+              "photo"
+            ]
           },
           {
-            "$ref": "#/components/schemas/LinkReadRequest"
+            "required": [
+              "link"
+            ]
           }
-        ]
+        ],
+        "dependentRequired": {
+          "transcript": [
+            "video"
+          ]
+        },
+        "properties": {
+          "video": {
+            "type": "string",
+            "format": "uuid",
+            "description": "A video upload of the caller's (video/mp4 or video/quicktime), uploaded and not read yet."
+          },
+          "transcript": {
+            "type": "string",
+            "maxLength": 1000,
+            "description": "What the phone's speech recognizer heard while the video was filmed,\ntaken as the seller's words. Blank or absent, the server hears the\nvideo's sound. Never stored past the read, logged or returned.\n"
+          },
+          "photo": {
+            "type": "string",
+            "format": "uuid",
+            "description": "A photo upload of the caller's, uploaded and not yet in a listing:\nthe cover. The read does not take it; post it in the listing.\n"
+          },
+          "link": {
+            "type": "string",
+            "maxLength": 2048,
+            "description": "The link the seller pasted to their own listing on Chợ Tốt."
+          }
+        }
       },
       "ListingScreen": {
         "type": "object",
@@ -11326,7 +12475,7 @@
           "sold",
           "deleted"
         ],
-        "description": "processing: the photos are being processed. active: on sale. hidden:\ntaken down by the seller. rejected: a photo was refused; the photo says\nwhy, and an edit tries again. reserved: held while an order's parcel\ntravels; anyone may read it, and the seller cannot change it. sold: sold\noff the app or through an order. deleted: removed by the seller; only a\nsave or a deal that names the listing still shows it. Only active and\nreserved listings are public.\n"
+        "description": "processing: the photos are being processed. active: on sale. hidden:\ntaken down by the seller, or by ShopNexus, and then only ShopNexus puts\nit back on sale (listing_held). rejected: a photo was refused; the photo says\nwhy, and an edit tries again. reserved: held while an order's parcel\ntravels; anyone may read it, and the seller cannot change it. sold: sold\noff the app or through an order. deleted: removed by the seller; only a\nsave or a deal that names the listing still shows it. Only active and\nreserved listings are public.\n"
       },
       "ListingViewer": {
         "type": "object",
@@ -12451,20 +13600,6 @@
           }
         }
       },
-      "PhotoReadRequest": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "photo"
-        ],
-        "properties": {
-          "photo": {
-            "type": "string",
-            "format": "uuid",
-            "description": "A photo upload of the caller's, uploaded and not yet in a listing:\nthe cover. The read does not take it; post it in the listing.\n"
-          }
-        }
-      },
       "PickupPoint": {
         "type": "object",
         "additionalProperties": false,
@@ -12740,6 +13875,45 @@
                 "type": "null"
               }
             ]
+          }
+        }
+      },
+      "ProofRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "Exactly one proof, phone_token, google_token or email_code: the body of\naddMyIdentity and reauthenticateSession. SignInRequest repeats these\nthree properties beside device_name, since kin-openapi's JSON Schema\n2020-12 compiler cannot follow this file's refs under allOf and\nunevaluatedProperties.\n",
+        "oneOf": [
+          {
+            "required": [
+              "phone_token"
+            ]
+          },
+          {
+            "required": [
+              "google_token"
+            ]
+          },
+          {
+            "required": [
+              "email_code"
+            ]
+          }
+        ],
+        "properties": {
+          "phone_token": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 8192,
+            "description": "The token Firebase returned for the verified number."
+          },
+          "google_token": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 8192,
+            "description": "The ID token Credential Manager returned for the Google account; it proves the account's email."
+          },
+          "email_code": {
+            "$ref": "#/components/schemas/EmailCodeProof"
           }
         }
       },
@@ -13089,6 +14263,177 @@
           }
         }
       },
+      "ReportCase": {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "The reports about one account, the seller for a listing report, that share one resolution. Withdrawn reports never count. listing is the case's most reported listing, a tie going to the one reported last, absent when only the account was reported; resolution is on a resolved case only.",
+        "required": [
+          "account",
+          "reports",
+          "reasons",
+          "first_at",
+          "last_at"
+        ],
+        "properties": {
+          "account": {
+            "$ref": "#/components/schemas/ConsoleAccount"
+          },
+          "reports": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "How many reports the case holds."
+          },
+          "reasons": {
+            "$ref": "#/components/schemas/ReportReasons"
+          },
+          "listing": {
+            "$ref": "#/components/schemas/ReportedListing"
+          },
+          "first_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "last_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "resolution": {
+            "$ref": "#/components/schemas/ReportResolution"
+          }
+        }
+      },
+      "ReportCaseDetail": {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "A case as ReportCase says; resolution is on a resolved case only.",
+        "required": [
+          "account",
+          "reasons",
+          "first_at",
+          "last_at",
+          "listings",
+          "reports"
+        ],
+        "properties": {
+          "account": {
+            "$ref": "#/components/schemas/ConsoleAccount"
+          },
+          "reasons": {
+            "$ref": "#/components/schemas/ReportReasons"
+          },
+          "first_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "last_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "resolution": {
+            "$ref": "#/components/schemas/ReportResolution"
+          },
+          "listings": {
+            "type": "array",
+            "description": "Every listing reported in the case, the most reported first.",
+            "items": {
+              "$ref": "#/components/schemas/ReportedListing"
+            }
+          },
+          "reports": {
+            "type": "array",
+            "description": "The case's reports, newest first.",
+            "items": {
+              "$ref": "#/components/schemas/ReportCaseReport"
+            }
+          }
+        }
+      },
+      "ReportCaseList": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReportCase"
+            }
+          },
+          "next_cursor": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "With status=open, how many accounts have an open case, whatever the page."
+          }
+        }
+      },
+      "ReportCaseReport": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "reporter",
+          "reason",
+          "note",
+          "created_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "reporter": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "display_name"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "display_name": {
+                "type": "string",
+                "description": "Empty for a deleted account."
+              }
+            }
+          },
+          "reason": {
+            "type": "string",
+            "enum": [
+              "banned",
+              "fake",
+              "scam",
+              "other"
+            ]
+          },
+          "note": {
+            "type": "string",
+            "description": "May be empty."
+          },
+          "listing_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The listing reported; absent for a report of the account."
+          },
+          "conversation_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The reporter's conversation with the account the report came from; absent when none was named."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "ReportCreate": {
         "type": "object",
         "additionalProperties": false,
@@ -13116,6 +14461,105 @@
           "note": {
             "type": "string",
             "description": "At most 500 characters after trimming; may be empty."
+          }
+        }
+      },
+      "ReportedListing": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "title",
+          "price",
+          "status",
+          "created_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "price": {
+            "type": "integer",
+            "format": "int64",
+            "description": "In đồng."
+          },
+          "status": {
+            "$ref": "#/components/schemas/ListingStatus"
+          },
+          "photo_url": {
+            "type": "string",
+            "description": "The cover photo's thumbnail; absent until the cover is processed."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ReportReasons": {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "How many reports of the case give each reason; a reason no report gives is absent.",
+        "properties": {
+          "banned": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "fake": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "scam": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "other": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      },
+      "ReportResolution": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "outcome",
+          "at",
+          "by"
+        ],
+        "properties": {
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "dismissed",
+              "actioned"
+            ],
+            "description": "dismissed is \"Không vi phạm\"; actioned follows the member's hides or suspension."
+          },
+          "at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "by": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "member_id",
+              "display_name"
+            ],
+            "properties": {
+              "member_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "display_name": {
+                "type": "string"
+              }
+            }
           }
         }
       },
@@ -14066,7 +15510,14 @@
           {
             "$ref": "#/components/schemas/LinkedShipmentDraft"
           }
-        ]
+        ],
+        "discriminator": {
+          "propertyName": "mode",
+          "mapping": {
+            "manual": "#/ManualShipmentDraft",
+            "linked": "#/LinkedShipmentDraft"
+          }
+        }
       },
       "ShipmentPickup": {
         "type": "object",
@@ -14403,7 +15854,7 @@
           "kind",
           "id"
         ],
-        "description": "The screen a notice opens.",
+        "description": "The screen a notice opens. An order notice opens the order it is about,\nwhich may be an earlier order of its deal than the latest; GET\n/v1/screens/order/{order_id} reads it with its deal. An order notice\nfrom before 2026-11-17 whose order the server could not tell opens its\ndeal instead.\n",
         "properties": {
           "kind": {
             "type": "string",
@@ -14418,7 +15869,7 @@
           },
           "id": {
             "type": "string",
-            "description": "The deal, listing, seller or search watch; empty for the account."
+            "description": "The deal, order, listing, seller or search watch; empty for the account."
           }
         }
       },
@@ -14826,25 +16277,6 @@
           }
         }
       },
-      "VideoReadRequest": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "video"
-        ],
-        "properties": {
-          "video": {
-            "type": "string",
-            "format": "uuid",
-            "description": "A video upload of the caller's (video/mp4 or video/quicktime), uploaded and not read yet."
-          },
-          "transcript": {
-            "type": "string",
-            "maxLength": 1000,
-            "description": "What the phone's speech recognizer heard while the video was filmed,\ntaken as the seller's words. Blank or absent, the server hears the\nvideo's sound. Never stored past the read, logged or returned.\n"
-          }
-        }
-      },
       "Watcher": {
         "type": "object",
         "additionalProperties": false,
@@ -14867,6 +16299,36 @@
       }
     },
     "responses": {
+      "AgentConversationNotFound": {
+        "description": "No such agent conversation, or one of another member's (agent_conversation_not_found).",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "AgentSubjectInvalid": {
+        "description": "subject_id without subject_kind, or a new conversation with subject_kind alone (agent_subject_invalid).",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "AgentUnavailable": {
+        "description": "The agent cannot be reached (agent_unavailable); the rest of the console works without it.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
       "BadRequest": {
         "description": "The request does not match the API description (invalid_request, malformed_json).",
         "content": {
@@ -14959,6 +16421,15 @@
       }
     },
     "parameters": {
+      "AgentConversationID": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
       "ConsoleAccountID": {
         "name": "id",
         "in": "path",

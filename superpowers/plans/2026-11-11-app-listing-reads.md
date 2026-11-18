@@ -10,7 +10,7 @@
 
 **Spec:** `~/shopnexus/docs/superpowers/specs/2026-11-11-listing-reads-design.md` (section "App"); the server contract `~/shopnexus/server/api/schemas/assist.yaml` and `api/paths/assist.yaml` on server `main`; the mockups `app/.superdesign/mockups/sell-steps.html`, `sell-video.html`, `sell-review.html` and their builders' docstrings (`.superdesign/tools/build_sell.py`, `build_sell_video.py`, `build_sell_review.py`) at app `743a85fe`.
 
-**Ruling on this plan's form:** as in the app plans since stage 2 (`2026-10-27-app2-remove-declared-marks.md`), the plan fixes the contract (model, repository, fake, events and state) in code, every rule with its test by name and its assertion, and the copy word for word; screen code is written during execution against the mockup. Cost if wrong: screen code is reviewed only at the final review.
+**Ruling on this plan's form:** as in the app plans since stage 2 (`2026-10-27-app-android-remove-declared-marks.md`), the plan fixes the contract (model, repository, fake, events and state) in code, every rule with its test by name and its assertion, and the copy word for word; screen code is written during execution against the mockup. Cost if wrong: screen code is reviewed only at the final review.
 
 ## Global Constraints
 

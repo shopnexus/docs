@@ -1,6 +1,6 @@
 # App wiring, Phase 6: the update stream — Implementation Plan
 
-> Roadmap: `~/.claude/plans/planning-i-btw-gi-quizzical-hare.md`. Gap analysis 2026-11-16. Server: `GET /v1/ws` (`internal/platform/stream/socket.go`), `/v1/updates`, spec `docs/superpowers/specs/2026-11-10-server2-realtime-ws-design.md`. The plan is built on the server-state layer (`2026-11-15-app-server-state.md`).
+> Roadmap: `~/.claude/plans/planning-i-btw-gi-quizzical-hare.md`. Gap analysis 2026-11-16. Server: `GET /v1/ws` (`internal/platform/stream/socket.go`), `/v1/updates`, spec `docs/superpowers/specs/2026-11-10-server-realtime-ws-design.md`. The plan is built on the server-state layer (`2026-11-15-app-server-state.md`).
 > Steps use checkbox (`- [ ]`) syntax.
 
 **Goal:** the live flavor keeps one WebSocket per signed-in account while the app is in the foreground. It stores the last `seq` per account, catches up with `since` after a reconnect, renews the token with `auth` frames, and hands pushes to the repositories as typed `Pushed` events. No screen changes in this phase: the kinds on the stream (message, read, deal, notification, scam_warning, listing_read) belong to Phases 7–10.

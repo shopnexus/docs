@@ -10,7 +10,7 @@
 
 **Part 1 of 2.** Tasks keep the numbers of the whole server plan; tasks 1, 9–12, 14 and 15 are in `2026-11-09-search-server-query.md`, which runs after this file. This part ends with every listing getting vectors through `ListingEmbed`; search does not read them yet.
 
-**Spec:** `~/shopnexus/docs/superpowers/specs/2026-11-09-server2-photo-similar-search-design.md`. Plans 1 (`ai`: `POST /v1/embeddings` for SigLIP 2) and 2 (`infra`: LiteLLM aliases, keys, TEI) are separate; this plan runs on fakes and needs them only for `make search-eval` (Task 15).
+**Spec:** `~/shopnexus/docs/superpowers/specs/2026-11-09-server-photo-similar-search-design.md`. Plans 1 (`ai`: `POST /v1/embeddings` for SigLIP 2) and 2 (`infra`: LiteLLM aliases, keys, TEI) are separate; this plan runs on fakes and needs them only for `make search-eval` (Task 15).
 
 ## Global Constraints
 
@@ -322,8 +322,8 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
-	"github.com/shopnexus/server2/internal/platform/pgvec"
-	"github.com/shopnexus/server2/internal/platform/postgres/pgtest"
+	"github.com/shopnexus/server/internal/platform/pgvec"
+	"github.com/shopnexus/server/internal/platform/postgres/pgtest"
 )
 
 func TestRoundTrip(t *testing.T) {
@@ -535,7 +535,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/shopnexus/server2/internal/provider/embed"
+	"github.com/shopnexus/server/internal/provider/embed"
 )
 
 // server answers every request with reply and keeps the last request body.
@@ -637,7 +637,7 @@ import (
 	"math"
 	"testing"
 
-	"github.com/shopnexus/server2/internal/provider/embed/embedtest"
+	"github.com/shopnexus/server/internal/provider/embed/embedtest"
 )
 
 func cos(a, b []float32) float64 {
@@ -949,7 +949,7 @@ import (
 	"time"
 	"uuid"
 
-	"github.com/shopnexus/server2/internal/catalog/domain"
+	"github.com/shopnexus/server/internal/catalog/domain"
 )
 
 func listing(t *testing.T, change func(*domain.Draft)) domain.Listing {
@@ -1189,12 +1189,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/shopnexus/server2/internal/account/accounttest"
-	"github.com/shopnexus/server2/internal/catalog/catalogtest"
-	"github.com/shopnexus/server2/internal/catalog/domain"
-	"github.com/shopnexus/server2/internal/catalog/repository"
-	"github.com/shopnexus/server2/internal/platform/postgres/pgtest"
-	"github.com/shopnexus/server2/internal/provider/embed/embedtest"
+	"github.com/shopnexus/server/internal/account/accounttest"
+	"github.com/shopnexus/server/internal/catalog/catalogtest"
+	"github.com/shopnexus/server/internal/catalog/domain"
+	"github.com/shopnexus/server/internal/catalog/repository"
+	"github.com/shopnexus/server/internal/platform/postgres/pgtest"
+	"github.com/shopnexus/server/internal/provider/embed/embedtest"
 )
 
 func TestVectorState(t *testing.T) {
@@ -1344,8 +1344,8 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/shopnexus/server2/internal/catalog/domain"
-	"github.com/shopnexus/server2/internal/platform/pgvec"
+	"github.com/shopnexus/server/internal/catalog/domain"
+	"github.com/shopnexus/server/internal/platform/pgvec"
 )
 
 type pgVectors struct{ db *pgxpool.Pool }
@@ -1502,15 +1502,15 @@ import (
 	"time"
 	"uuid"
 
-	"github.com/shopnexus/server2/internal/account/accounttest"
-	"github.com/shopnexus/server2/internal/media/domain"
-	"github.com/shopnexus/server2/internal/media/mediatest"
-	"github.com/shopnexus/server2/internal/media/repository"
-	"github.com/shopnexus/server2/internal/media/service"
-	"github.com/shopnexus/server2/internal/platform/objectstore"
-	"github.com/shopnexus/server2/internal/platform/objectstore/objectstoretest"
-	"github.com/shopnexus/server2/internal/platform/postgres/pgtest"
-	"github.com/shopnexus/server2/internal/platform/restatex/restatetest"
+	"github.com/shopnexus/server/internal/account/accounttest"
+	"github.com/shopnexus/server/internal/media/domain"
+	"github.com/shopnexus/server/internal/media/mediatest"
+	"github.com/shopnexus/server/internal/media/repository"
+	"github.com/shopnexus/server/internal/media/service"
+	"github.com/shopnexus/server/internal/platform/objectstore"
+	"github.com/shopnexus/server/internal/platform/objectstore/objectstoretest"
+	"github.com/shopnexus/server/internal/platform/postgres/pgtest"
+	"github.com/shopnexus/server/internal/platform/restatex/restatetest"
 )
 
 func TestQueryUpload(t *testing.T) {
@@ -1645,9 +1645,9 @@ import (
 	"time"
 	"uuid"
 
-	"github.com/shopnexus/server2/internal/media/domain"
-	"github.com/shopnexus/server2/internal/media/repository"
-	"github.com/shopnexus/server2/internal/platform/objectstore"
+	"github.com/shopnexus/server/internal/media/domain"
+	"github.com/shopnexus/server/internal/media/repository"
+	"github.com/shopnexus/server/internal/platform/objectstore"
 )
 
 // QueryUpload is a photo a person searches with.
@@ -1778,12 +1778,12 @@ import (
 	restate "github.com/restatedev/sdk-go"
 	"github.com/restatedev/sdk-go/ingress"
 
-	"github.com/shopnexus/server2/internal/catalog/domain"
-	"github.com/shopnexus/server2/internal/catalog/repository"
-	"github.com/shopnexus/server2/internal/catalog/service"
-	"github.com/shopnexus/server2/internal/media/mediatest"
-	"github.com/shopnexus/server2/internal/provider/embed/embedtest"
-	"github.com/shopnexus/server2/internal/platform/testenv"
+	"github.com/shopnexus/server/internal/catalog/domain"
+	"github.com/shopnexus/server/internal/catalog/repository"
+	"github.com/shopnexus/server/internal/catalog/service"
+	"github.com/shopnexus/server/internal/media/mediatest"
+	"github.com/shopnexus/server/internal/provider/embed/embedtest"
+	"github.com/shopnexus/server/internal/platform/testenv"
 )
 
 // embedEnv is newEnv with counting embedding fakes.
@@ -1975,12 +1975,12 @@ import (
 
 	restate "github.com/restatedev/sdk-go"
 
-	"github.com/shopnexus/server2/internal/catalog/domain"
-	"github.com/shopnexus/server2/internal/catalog/repository"
-	mediasvc "github.com/shopnexus/server2/internal/media/service"
-	"github.com/shopnexus/server2/internal/platform/objectstore"
-	"github.com/shopnexus/server2/internal/platform/restatex"
-	"github.com/shopnexus/server2/internal/provider/embed"
+	"github.com/shopnexus/server/internal/catalog/domain"
+	"github.com/shopnexus/server/internal/catalog/repository"
+	mediasvc "github.com/shopnexus/server/internal/media/service"
+	"github.com/shopnexus/server/internal/platform/objectstore"
+	"github.com/shopnexus/server/internal/platform/restatex"
+	"github.com/shopnexus/server/internal/provider/embed"
 )
 
 // ListingEmbedName is the ListingEmbed object's name without the prefix;
@@ -2231,8 +2231,8 @@ import (
 	"strings"
 	"testing"
 
-	catalogdomain "github.com/shopnexus/server2/internal/catalog/domain"
-	"github.com/shopnexus/server2/internal/provider/embed/embedtest"
+	catalogdomain "github.com/shopnexus/server/internal/catalog/domain"
+	"github.com/shopnexus/server/internal/provider/embed/embedtest"
 )
 
 // stubEmbed stands in for the embedding aliases: embed-text answers 1024
@@ -2363,10 +2363,10 @@ import (
 	restate "github.com/restatedev/sdk-go"
 	"github.com/restatedev/sdk-go/ingress"
 
-	"github.com/shopnexus/server2/internal/catalog/repository"
-	"github.com/shopnexus/server2/internal/catalog/service"
-	"github.com/shopnexus/server2/internal/platform/config"
-	"github.com/shopnexus/server2/internal/platform/postgres"
+	"github.com/shopnexus/server/internal/catalog/repository"
+	"github.com/shopnexus/server/internal/catalog/service"
+	"github.com/shopnexus/server/internal/platform/config"
+	"github.com/shopnexus/server/internal/platform/postgres"
 )
 
 func main() {

@@ -8,7 +8,7 @@
 
 **Tech Stack:** Helm 3 chart with helm-unittest, kubeconform, yq, hurl, Go 1.27 (the `infra` module), Docker Compose, LiteLLM `ghcr.io/berriai/litellm-database:v1.108.0`, TEI `ghcr.io/huggingface/text-embeddings-inference:cpu-1.9.4`, Astro docs (`docs/web`).
 
-**Spec:** `~/shopnexus/docs/superpowers/specs/2026-11-09-server2-photo-similar-search-design.md` (sections "Models behind LiteLLM", "Measured first", "Configuration"). This is plan 2 of 3: plan 1 adds `POST /v1/embeddings` to `ai`, plan 3 builds the server side.
+**Spec:** `~/shopnexus/docs/superpowers/specs/2026-11-09-server-photo-similar-search-design.md` (sections "Models behind LiteLLM", "Measured first", "Configuration"). This is plan 2 of 3: plan 1 adds `POST /v1/embeddings` to `ai`, plan 3 builds the server side.
 
 ## Global Constraints
 
@@ -424,7 +424,7 @@ services:
 ```bash
 #!/usr/bin/env bash
 # Measures, on the pinned LiteLLM, what photo search relies on
-# (spec 2026-11-09-server2-photo-similar-search-design.md, "Measured first"):
+# (spec 2026-11-09-server-photo-similar-search-design.md, "Measured first"):
 #   1. a data URL and a text in input reach the upstream unchanged;
 #   2. a call is priced from the upstream's usage, not from the input's length;
 #   4. no input lands in LiteLLM_SpendLogs.

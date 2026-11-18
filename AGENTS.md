@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this repository is
 
-This is the **documentation/report repository** for a graduation thesis (đồ án tốt nghiệp; it started as the thực tập tốt nghiệp course, whose weekly reports remain in `bao-cao-tuan/`) at PTIT HCM. The subject system is **ShopNexus**, a C2C marketplace for used goods (COD đồng kiểm through the seller's own GHTK/GHN account, no money held by the platform, no adjudication) built as microservices on Restate, with an AI agent for natural-language search. The actual source code lives in sibling repos (`shopnexus/server2` Go backend, `shopnexus/app2` Android app; product model in `app2/mohinh.md`); this repo only holds writing, diagrams, and the typeset deliverables.
+This is the **documentation/report repository** for a graduation thesis (đồ án tốt nghiệp; it started as the thực tập tốt nghiệp course, whose weekly reports remain in `bao-cao-tuan/`) at PTIT HCM. The subject system is **ShopNexus**, a C2C marketplace for used goods (COD đồng kiểm through the seller's own GHTK/GHN account, no money held by the platform, no adjudication) built as microservices on Restate, with an AI agent for natural-language search. The actual source code lives in sibling repos (`shopnexus/server` Go backend, `shopnexus/app-android` Android app; product model in `app/mohinh.md`); this repo only holds writing, diagrams, and the typeset deliverables.
 
 The thesis produces periodic reports and one final report (formatting per Phụ lục 3, QĐ 449/QĐ-HV, 09/03/2026), all typeset from `typst/`.
 
