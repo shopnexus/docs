@@ -299,8 +299,8 @@ uc:
     post: "Nhận: đơn đã giao, tin và thương lượng đã bán, mở UC-TRS-01, UC-TRS-02. Từ chối: đơn đã hoàn, tin về đang bán, thương lượng về đang thương lượng. Phân hệ uy tín cập nhật điểm và tỉ lệ từ chối nhận."
     main:
       1: Hãng lấy hàng và báo trạng thái về hệ thống; đơn chuyển sang đang giao; ứng dụng cập nhật màn hình đơn ngay và gửi thông báo đẩy.
-      2: Khi shipper tới cửa, ứng dụng hiện tờ "Tin ghi" (tình trạng và các thông tin người bán ghi trong tin) và cảnh báo rằng sau khi trả tiền sàn không có cơ chế đòi lại.
-      3: Người mua xem hàng, đối chiếu với tin ghi, đồng ý nhận và trả tiền hàng cùng phí ship chiều đi cho shipper.
+      2: Shipper mang hàng tới cửa người mua.
+      3: Người mua xem hàng, đồng ý nhận và trả tiền hàng cùng phí ship chiều đi cho shipper.
       4: Hãng báo giao thành công; hệ thống chuyển đơn sang đã giao, đánh dấu tin đã bán và đóng thương lượng.
     alt:
       A1: { at: 4, text: "Hãng báo lặp cùng một trạng thái của cùng một vận đơn: hệ thống chỉ ghi nhận lần đầu, đơn không đổi trạng thái hai lần.", nfr: NFR-IDEM-01 }
@@ -309,7 +309,7 @@ uc:
       A4: { at: 4, text: "Hãng báo đã giao mà người mua không xác nhận: hết thời hạn, hệ thống tự hoàn tất đơn." }
     exc:
       E1: { at: 1, text: "Trước khi hãng lấy hàng, một bên hủy đơn (UC-DEAL-06): đơn chuyển sang đã hủy." }
-      E2: { at: 3, text: "Hàng không khớp tin ghi: người mua từ chối nhận, không trả đồng nào; hãng hoàn hàng, báo đã hoàn, tính phí hai chiều vào tài khoản người bán.", br: BR-DEAL-08 }
+      E2: { at: 3, text: "Người mua không ưng hàng: người mua từ chối nhận, không trả đồng nào; hãng hoàn hàng, báo đã hoàn, tính phí hai chiều vào tài khoản người bán.", br: BR-DEAL-08 }
       E3: { at: 4, text: Đơn không còn ở trạng thái đã gửi, error: move_not_allowed }
     gaps:
       - Người mua báo "không nhận được" với đơn tự gửi chưa có trong code.
@@ -490,7 +490,7 @@ fr:
 br:
   - { id: BR-DEAL-01, was: [BR-01], text: { vi: "Sàn không giữ tiền: không ví, không cọc, không thu hộ, không hoàn tiền qua sàn." } }
   - { id: BR-LST-01, was: [BR-02], text: { vi: "Tin đăng gồm tình trạng hàng theo thang Mới / Như mới / Đã dùng, các thông tin người bán ghi trong tin và ảnh; tin không có phần khai vết, AI không chỉ ra vết nào." } }
-  - { id: BR-DEAL-02, was: [BR-03], text: { vi: "Người mua tự xem tình trạng hàng khi đồng kiểm tại cửa, đối chiếu với tin ghi rồi nhận hoặc từ chối." } }
+  - { id: BR-DEAL-02, was: [BR-03], text: { vi: "Người mua tự xem hàng khi đồng kiểm tại cửa rồi nhận hoặc từ chối; ứng dụng không gợi ý cần kiểm gì." } }
   - { id: BR-LST-02, was: [BR-04], text: { vi: "Chỉ tài khoản đã xác minh danh tính, không bị tạm khóa mới được đăng tin; số tin đang bán tối đa theo bậc là 5/20/20/20." } }
   - { id: BR-LST-03, was: [BR-05], text: { vi: "Tiêu đề 1–70 ký tự; giá nguyên đồng từ 10.000 đến 1.000.000.000; mô tả ≤ 1.500 ký tự; 1–10 ảnh, ảnh đầu là ảnh bìa; ≤ 20 thông số; vị trí lưu theo phường/xã (tọa độ tâm xã), không lưu GPS của người bán." } }
   - { id: BR-DEAL-03, was: [BR-06], text: { vi: "Giá thương lượng là bội số 1.000 đ; giá trả ≥ nửa giá niêm yết (làm tròn lên 1.000) và thấp hơn giá niêm yết hoặc phản giá; phản giá cao hơn giá trả và thấp hơn giá niêm yết; mỗi thời điểm chỉ một giá đang mở, giá mở không hết hạn; chấp nhận phải đúng giá mà người chấp nhận đang thấy, nếu giá vừa bị đổi thì lượt chấp nhận bị từ chối và ứng dụng báo giá đã thay đổi." } }
@@ -499,7 +499,7 @@ br:
   - { id: BR-DEAL-06, was: [BR-09], text: { vi: "Số đơn COD đang mở của một người mua không vượt hạn mức theo bậc 2/5/10/20." } }
   - { id: BR-DEAL-07, was: [BR-10], text: { vi: "Chỉ hủy được đơn trước khi hãng lấy hàng; vận đơn GHTK/GHN được hệ thống hủy luôn trên tài khoản hãng của người bán." } }
   - { id: BR-DEAL-08, was: [BR-11], text: { vi: "Từ chối nhận tại cửa: người mua không mất tiền; phí hai chiều do hãng tính vào tài khoản người bán; tin đăng mở bán lại." } }
-  - { id: BR-DEAL-09, was: [BR-12], text: { vi: "Sau khi người mua đã trả tiền cho shipper, sàn không có cơ chế đòi lại; ứng dụng hiển thị cảnh báo này trước thời điểm trả tiền." } }
+  - { id: BR-DEAL-09, was: [BR-12], text: { vi: "Sau khi người mua đã trả tiền cho shipper, sàn không có cơ chế đòi lại; Trợ giúp ghi điều này, màn nhận hàng không nhắc." } }
   - { id: BR-DEAL-10, was: [BR-13], status: retired, text: { vi: "Món giá trên 5.000.000 đ: ứng dụng gợi ý hẹn gặp xem hàng trước, vẫn cho chọn COD." } }
   - { id: BR-TRS-01, was: [BR-14], text: { vi: "Ghi nhận sự cố không được phân xử; người bán trả lời trong 3 ngày bằng tự hoàn hoặc từ chối; ghi nhận bị từ chối hoặc quá hạn hiển thị công khai trên hồ sơ người bán." } }
   - { id: BR-TRS-02, was: [BR-15], text: { vi: "Chế tài tự động chỉ xét khi có ≥ 5 đơn COD trong 90 ngày; tỉ lệ từ chối nhận ≥ 20% thì giới hạn còn 1 đơn COD mở, ≥ 35% thì mất quyền COD 30 ngày; mỗi 30 ngày không có lần từ chối nào hồi lại một nấc; đơn tự gửi không tính vào tỉ lệ." } }
