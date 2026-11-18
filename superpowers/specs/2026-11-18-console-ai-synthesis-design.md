@@ -107,6 +107,9 @@ Every event is `{seq, type, at, …}`. Types:
 | `turn.pausing` / `turn.paused` | `steps_done`, `reason` (`member`, `stop_now`) |
 | `turn.resumed` | `by` (`continue`, `steer`) |
 | `rate.waiting` | `until` (a per-minute ceiling; the run calls again by itself) |
+| `context.compacting` / `context.compacted` | `summary`, `before_tokens`, `after_tokens` |
+| `context.meter` | `used_tokens`, `window_tokens` (after each model call) |
+| `guardrail` | `rule` (`pii_masked`, `off_topic`, `loop_stopped`, `rate_limited`), `detail` |
 | `turn.finished` | `status` (`SUCCEEDED`, `FAILED`, `CANCELLED`, `TIMED_OUT`, `BUDGET`), `outcome` (`stopped`, `out_of_room`, `broken`, `unavailable`, `blocked`), `failure?`, `resets_at?`, `continuable` |
 
 Tool input and result bodies are stored in `tool_calls` (as now) and served
@@ -181,6 +184,8 @@ to one agent service and Redis.
 
 ## More from AI Portal (A, B)
 
+In this batch (decided 2026-11-18):
+
 - **Waiting out a rate limit**: on LiteLLM's per-minute ceiling the runner
   waits for the window and calls again (`rate.waiting`, a countdown in the
   run card) instead of failing.
@@ -188,21 +193,17 @@ to one agent service and Redis.
   (Continue), out of room (Continue, or a shorter question), broken on the
   way (Continue), unavailable (another agent or later); budget and
   guardrail blocks say why and offer nothing that cannot work.
-- **Try again ▾**: the same question with the same agent, or with another
-  agent the member may pick. It adds a sibling turn; the turn shows "‹ 2 of
-  2 ›" to move between answers (`turns.parent_turn_id`).
-- **Edit a question**: the same sibling mechanism from the member's bubble.
 - **Context meter and compaction**: the ask box shows how full the agent's
   context is; past 80 % the run summarises older turns before its next call
-  and the thread shows a divider that opens to the summary.
-- **Vision guard**: attaching a picture to an agent whose model lacks the
-  Vision tag says so and offers the agents that have it (from the tags).
-- **Task list**: an output tool `update_tasks(items)` lets the model keep a
-  checklist for long syntheses; the run card shows it above the steps.
-- **Feedback with a reason**: thumbs down asks why (wrong facts, missing
-  source, too long, other); Settings › Feedback lists them with the turn.
+  (`context.compacting`, `context.compacted {summary}` events) and the
+  thread shows a divider that opens to the summary.
 - **Guardrail notices** inline in the run (masked a phone number, refused
-  off-topic), the same events Settings › Guardrails counts.
+  off-topic) as `guardrail {rule, detail}` events, the same events Settings ›
+  Guardrails counts.
+
+Later batches: a task list (`update_tasks`), Try again ▾ and editing a
+question as sibling turns ("‹ 2 of 2 ›"), the vision guard, feedback with a
+reason and Settings › Feedback.
 
 ## Agents and LiteLLM (C)
 
