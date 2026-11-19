@@ -1,0 +1,28 @@
+---
+import { Icon } from "astro-icon/components";
+import { inline } from "../../lib/inline";
+
+interface Props {
+  doTitle: string;
+  dontTitle: string;
+  do: string[];
+  dont: string[];
+}
+
+const { doTitle, dontTitle, do: yes, dont } = Astro.props;
+---
+
+<div class="dodont">
+  <section class="dodont-col dodont-yes">
+    <p class="dodont-title"><Icon name="ri:check-double-line" width="16" height="16" aria-hidden="true" />{doTitle}</p>
+    <ul>
+      {yes.map((item) => <li><Icon name="ri:check-line" width="14" height="14" aria-hidden="true" /><span set:html={inline(item)} /></li>)}
+    </ul>
+  </section>
+  <section class="dodont-col dodont-no">
+    <p class="dodont-title"><Icon name="ri:forbid-line" width="16" height="16" aria-hidden="true" />{dontTitle}</p>
+    <ul>
+      {dont.map((item) => <li><Icon name="ri:close-line" width="14" height="14" aria-hidden="true" /><span set:html={inline(item)} /></li>)}
+    </ul>
+  </section>
+</div>

@@ -1,0 +1,61 @@
+---
+title: Tool và quyền đọc
+description: Mười sáu tool chỉ đọc của MCP server, cách server kiểm moderator ở mỗi lần gọi, và lần đọc dữ liệu cá nhân nào được ghi lại.
+group: Bên trong
+groupOrder: 4
+order: 1
+audience: [developers]
+type: reference
+readingTime: 4
+updated: 2026-11-19
+related: ["/vi/agent/answers", "/vi/architecture/console"]
+---
+
+Agent chỉ đọc dữ liệu qua MCP server của server. MCP server chạy Streamable HTTP ở `/mcp`, trên một cổng riêng (`AGENT_MCP_ADDR`), không nằm trên cổng `:8080` và không đi qua ingress. Nó không giữ session: mỗi POST là một request riêng với lần kiểm quyền riêng.
+
+## Quyền ở mỗi lần gọi
+
+<Steps>
+<Step title="Kiểm token">
+Mỗi lần gọi mang `Authorization: Bearer <AGENT_MCP_TOKEN>`, so trong thời gian hằng. Sai token là 401 trước khi MCP xử lý gì, và server ghi log `security: agent MCP call refused` không kèm token.
+</Step>
+<Step title="Kiểm moderator">
+Header `X-Console-Member` mang id của moderator đã hỏi. Server đọc lại moderator qua `ActiveMember` ở mỗi lần gọi, nên moderator bị vô hiệu giữa hai lần gọi tool thì lần sau không nhận được gì.
+</Step>
+<Step title="Chạy tool">
+Tool là một lớp mỏng trên `Service` của một module; không tool nào đọc bảng trực tiếp. Lỗi từ chối tới agent thành lỗi tool kèm mã; lỗi khác tới agent là `internal error` và được ghi log.
+</Step>
+</Steps>
+
+Phía agent, chỉ tool có `readOnlyHint` và nằm trong danh sách `tools` của agent mới được đưa cho model. Mỗi lần gọi có giới hạn thời gian (`AGENT_TOOL_TIMEOUT_MS`, mặc định 20 giây) và được thử lại tối đa `AGENT_TOOL_ATTEMPTS` lần khi hết giờ hoặc đứt kết nối.
+
+## Danh sách tool
+
+Tool đọc danh sách nhận `cursor` và `limit` (1 tới 50, mặc định 20) và trả `{items, next_cursor}`.
+
+| Tool | Đọc gì | Ghi lần đọc |
+|---|---|---|
+| `count` | Số đếm theo trạng thái của tài khoản, tin, đơn, ticket hoặc ca báo cáo, từ một ngày hoặc từ trước tới nay | không |
+| `lookup` | Một id là bản ghi nào: tài khoản, ca báo cáo, đơn, tin hay ticket, kèm tool để đọc nó | không |
+| `ticket_get` | Ticket, người mở, đơn liên quan, trang đầu của chat và các ticket khác của người đó | ticket, người mở |
+| `ticket_messages` | Một trang chat của ticket, mới nhất trước | ticket |
+| `tickets_list` | Hàng đợi hỗ trợ: ticket mở hoặc đã xử lý, kèm dòng chat cuối | ticket và người mở |
+| `tickets_of_account` | 50 ticket mới nhất tài khoản mở, hoặc trên đơn nó bán | tài khoản và ticket |
+| `account_get` | Trạng thái, tuổi tài khoản, có số điện thoại và email hay không, tin đăng, đơn mua, số lần bị khoá | không |
+| `accounts_list` | Tài khoản mới nhất, tài khoản đang bị khoá, hoặc tài khoản theo id hay số điện thoại | không |
+| `orders_of_account` | Đơn của tài khoản với vai người mua hoặc người bán | không |
+| `listings_of_account` | Tin đang bán hoặc đã bán của người bán | không |
+| `console_actions` | Nhật ký console theo bản ghi, theo moderator hoặc tất cả, không kèm IP | không |
+| `order_get` | Đơn, hai bên, tin, giá, trạng thái và trạng thái vận đơn hiện tại ở hãng | không |
+| `listing_get` | Tin ở mọi trạng thái trừ đã xoá, như người bán thấy | không |
+| `price_guide` | Giá của tin so với giá giữa của các tin cùng danh mục và tình trạng | không |
+| `report_cases_list` | Hàng đợi báo cáo: ca đang mở hoặc đã xử lý | không |
+| `report_case_get` | Ca báo cáo của tài khoản: lý do, tin bị báo cáo, từng báo cáo với ghi chú, kết quả xử lý | tài khoản, báo cáo, người báo cáo |
+
+## Nhật ký đọc dữ liệu cá nhân
+
+Mỗi lần tool đọc dữ liệu cá nhân (tin nhắn, ghi chú, người mở ticket, người báo cáo), server ghi một dòng vào `console_agent_reads`: moderator, tool, các id và thời điểm. Dòng được giữ 90 ngày và admin xem được cạnh nhật ký console. Yêu cầu tương ứng là <Req id="NFR-PRIV-02" />.
+
+## Chữ của người dùng
+
+Hướng dẫn của MCP server và system prompt của agent đều ghi rằng chữ người dùng viết (tin nhắn, ghi chú, mô tả tin) chỉ được trích làm dữ liệu. Agent không có tool ghi, nên lệnh giấu trong chữ đó không làm thay đổi dữ liệu nào.

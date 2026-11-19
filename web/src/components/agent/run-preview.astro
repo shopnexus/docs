@@ -1,0 +1,112 @@
+---
+import { Icon } from "astro-icon/components";
+import { pageLang } from "../../lib/page-lang";
+
+interface Props {
+  caption?: string;
+}
+
+const { caption } = Astro.props;
+
+// A finished run on a report case, with made-up data. The console's own labels are English;
+// the question and the answer follow the page's language.
+const S = {
+  en: {
+    subject: "Report case · Minh Tuấn",
+    question: "Does this account look like a scam?",
+    who: "Lan · 09:50",
+    steps: [
+      { title: "Read the report case", sum: "3 reports, all for scam", tools: [["report_case_get", "412 ms"], ["account_get", "180 ms"]] },
+      { title: "Compare the listing's price", sum: "far below the usual price", tools: [["listing_get", "96 ms"], ["price_guide", "240 ms"]] },
+    ],
+    figs: [["3", "open reports"], ["−58%", "against the median"], ["0", "orders delivered"]],
+    answer: [
+      "Yes, there are signs. Three people reported it for scam within two days ",
+      ", and its iPhone 13 Pro is listed at 7.2 million ",
+      ", 58% below the median of similar listings ",
+      ". The account is 4 days old and has delivered no order.",
+    ],
+    src: [["Report case: Minh Tuấn", "3 reports · scam · open"], ["iPhone 13 Pro 128GB", "Listing · active"], ["Price guide, iPhone 13 Pro", "price_guide · 41 listings"]],
+    followUps: ["Show the seller's orders", "Draft a note to the reporters"],
+  },
+  vi: {
+    subject: "Report case · Minh Tuấn",
+    question: "Tài khoản này có dấu hiệu lừa đảo không?",
+    who: "Lan · 09:50",
+    steps: [
+      { title: "Đọc ca báo cáo", sum: "3 báo cáo, cùng lý do lừa đảo", tools: [["report_case_get", "412 ms"], ["account_get", "180 ms"]] },
+      { title: "So giá tin đăng", sum: "thấp hơn nhiều so với giá thường", tools: [["listing_get", "96 ms"], ["price_guide", "240 ms"]] },
+    ],
+    figs: [["3", "báo cáo đang mở"], ["−58%", "so với giá giữa"], ["0", "đơn đã giao"]],
+    answer: [
+      "Có dấu hiệu. Ba người báo cáo cùng lý do lừa đảo trong hai ngày ",
+      ", tin iPhone 13 Pro đặt giá 7,2 triệu ",
+      ", thấp hơn 58% so với giá giữa của các tin cùng loại ",
+      ". Tài khoản mới 4 ngày và chưa giao đơn nào.",
+    ],
+    src: [["Ca báo cáo: Minh Tuấn", "3 báo cáo · lừa đảo · đang mở"], ["iPhone 13 Pro 128GB", "Tin đăng · đang bán"], ["Giá tham khảo, iPhone 13 Pro", "price_guide · 41 tin"]],
+    followUps: ["Xem các đơn của người bán", "Soạn lời nhắn cho người báo cáo"],
+  },
+}[pageLang(Astro)];
+---
+
+<figure class="run-wrap" style="margin:0">
+  <div class="run" aria-hidden="true">
+    <div class="run-bar">
+      <span class="run-ava"><Icon name="ri:robot-2-line" width="14" height="14" /></span>
+      <b>Console assistant</b>
+      <span class="run-tag">console-agent</span>
+      <span class="run-subject">{S.subject}</span>
+    </div>
+    <div class="run-body">
+      <div class="run-q">{S.question}</div>
+      <div class="run-who">{S.who}</div>
+      <div class="run-steps">
+        {
+          S.steps.map((st) => (
+            <div class="run-step">
+              <span class="run-check"><Icon name="ri:check-line" width="13" height="13" /></span>
+              <div>
+                <b>{st.title}</b> <span class="run-sum">· {st.sum}</span>
+                <div class="run-tools">
+                  {st.tools.map(([name, ms]) => (
+                    <span class="run-tool">
+                      <Icon name="ri:checkbox-circle-line" width="12" height="12" />
+                      {name}
+                      <span>{ms}</span>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ))
+        }
+      </div>
+      <div class="run-figs">
+        {S.figs.map(([v, l]) => <div class="run-fig"><b>{v}</b><span>{l}</span></div>)}
+      </div>
+      <p class="run-ans">
+        {S.answer.map((part, i) => (i < 3 ? <>{part}<span class="run-cite">{i + 1}</span></> : part))}
+      </p>
+      <div class="run-src">
+        <div class="run-src-h">Sources</div>
+        {
+          S.src.map(([label, meta], i) => (
+            <div class="run-src-i">
+              <span class="run-cite">{i + 1}</span>
+              <b>{label}</b>
+              <span>{meta}</span>
+            </div>
+          ))
+        }
+      </div>
+      <div class="run-fu">{S.followUps.map((f) => <span>{f}</span>)}</div>
+    </div>
+    <div class="run-foot">
+      <span class="run-input">Ask the agent or change the reply…</span>
+      <span class="run-meter"><i></i>34%</span>
+      <span class="run-send"><Icon name="ri:arrow-up-line" width="16" height="16" /></span>
+    </div>
+  </div>
+  {caption && <figcaption class="run-cap">{caption}</figcaption>}
+</figure>

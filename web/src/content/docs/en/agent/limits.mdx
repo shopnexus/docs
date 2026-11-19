@@ -1,0 +1,69 @@
+---
+title: Limits and failures
+description: Deadline, model calls, budgets, rate limits, context and the tool loop guard, with the error codes and which turns can continue.
+group: Inside
+groupOrder: 4
+order: 2
+audience: [developers, admins]
+type: reference
+readingTime: 4
+updated: 2026-11-19
+related: ["/en/agent/control", "/en/agent/setup", "/en/operations/cluster/llm-gateway"]
+---
+
+The server stops a question before the turn opens; the agent stops a segment while it runs. A refusal of the first kind comes back at once as HTTP; one of the second kind reaches the console as a `turn.finished` event.
+
+## Before the turn opens
+
+| Check | Where | Result |
+|---|---|---|
+| The agent's monthly budget is spent | server | 429 `agent_budget` |
+| Over 30 questions and updates a minute from one moderator | server, in each replica's memory | 429 `agent_rate_limited` |
+| The question is empty once cleaned | server | 400 `invalid_request` |
+| The question is over 2000 characters | server | 422 `agent_input_rejected` |
+| The chat has an unfinished turn | server | 409 `agent_turn_in_progress` |
+| `FEATURE_ALL_AGENT` or `FEATURE_LLM` is `false` | agent | 503, which the server answers as `agent_unavailable` |
+
+## While running
+
+| Limit | Default | When passed |
+|---|---|---|
+| A segment's deadline (`limits.deadline_s`, 10 to 300) | 60 seconds | `TIMED_OUT`; the steps and tool calls so far stay |
+| Model calls per segment (`max_model_calls`) | 40 | `FAILED`, `agent_limit` |
+| Output tokens per model call (`max_tokens`) | 4096 | that call's reply is cut |
+| Tool output kept in context (`AGENT_TOOL_OUTPUT_CAP`) | 20 000 characters | the rest pages through the `read_output` tool |
+| The same tool with the same input | 2 calls | the third is cancelled, a `guardrail` event `loop_stopped` is written, and the model is told to answer with what it has |
+
+## Budgets
+
+Every model call carries `user=<moderator id>`, so LiteLLM applies each moderator's daily budget; a console agent also has a monthly budget on its alias. A budget spent midway ends the segment `FAILED` with `agent_budget`, and the console's ask box says asking is paused until midnight or until an admin adds budget. Each call's cost comes from the `x-litellm-response-cost` header and adds up in the turn's `usage`.
+
+## Provider rate limits
+
+On a 429 from LiteLLM that is not a spent budget, the agent waits and sends the same request again. The wait comes from `reset_at`, `retry-after-ms` or `retry-after`, 60 seconds when none is given. A segment waits at most three times, at most 90 seconds each, and writes `rate.waiting {until}` for the console's countdown. Stop now and the segment's deadline end a wait.
+
+## Context
+
+After each model call, a `context.meter` event reports the tokens used against the context window (`limits.context_window`, 128 000 by default). Past 80 %, the agent summarises every message before the model's last reply with the same model, replaces them with one message holding the summary and the moderator's question, and writes `context.compacting` and `context.compacted`. A context still full after that ends the segment with `agent_context`.
+
+## Error codes
+
+| Code | Outcome | Can continue | Text the console shows |
+|---|---|---|---|
+| `agent_timeout` | `out_of_room` | yes | Quá thời gian trả lời. Hãy hỏi lại. |
+| `agent_limit` | `out_of_room` | yes | Lượt hỏi đã dùng hết số bước cho phép. |
+| `agent_context` | `out_of_room` | yes | Ngữ cảnh của lượt hỏi đã đầy. |
+| `agent_failed` | `broken` | yes | Agent gặp lỗi giữa chừng. Có thể tiếp tục lượt này. |
+| `agent_stuck` | `broken` | yes | Lượt hỏi bị gián đoạn. Hãy hỏi lại. |
+| `agent_unavailable` | `unavailable` | no | Agent đang không trả lời được. Hãy thử lại sau. |
+| `agent_budget` | `blocked` | no | Hết hạn mức hôm nay. |
+| `agent_blocked` | `blocked` | no | Lượt hỏi bị chặn. |
+
+A `FAILED` or `TIMED_OUT` turn can continue when it is the chat's latest turn, it wrote at least a step, a tool call or some text, and its code is one of the five marked "yes". A turn cancelled with **End** has the outcome `stopped`.
+
+## Known limits
+
+- Stop now, a tool's time limit and the segment's deadline cannot stop an MCP call already running on the server.
+- Pause, Stop now and updates reach the agent within about a second, the control poll interval.
+- The kill switches apply per process.
+- The agent masks personal data in its own audit log. Answers may quote personal data the moderator is allowed to read, and the server records those reads.

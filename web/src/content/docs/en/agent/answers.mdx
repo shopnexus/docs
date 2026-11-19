@@ -1,0 +1,59 @@
+---
+title: Answers and sources
+description: Answers are built from schema-checked blocks, each claim cites a record a tool returned, with versioned documents and shared skills.
+group: Results
+groupOrder: 3
+order: 1
+audience: [developers]
+type: reference
+readingTime: 4
+updated: 2026-11-19
+related: ["/en/agent/tools", "/en/agent/a-question"]
+---
+
+The model builds its answer through output tools, and the agent checks each tool's arguments against a schema. Invalid arguments go back to the model as a tool error for it to fix.
+
+| Output tool | Used for |
+|---|---|
+| `begin_step(title)`, `end_step(summary)` | Opening and closing a step. Tool calls between the two belong to the step. In a turn without steps the console shows tool calls as a flat list. |
+| `answer(blocks)` | The final answer, made of the blocks below. Text the model writes outside `answer` becomes one `text` block. |
+| `write_document {title, sections, document_id?}` | A new document, or a new version of a document already in the same chat. |
+| `ask_user {questions}` | Questions back to the moderator; see [Controlling a run](/en/agent/control). |
+
+## Answer blocks
+
+| Block | Content | Limits |
+|---|---|---|
+| `text` | Markdown, with source numbers `[n]` | |
+| `figures` | Key figures, each with a label | 2 to 4 |
+| `table` | `columns` and `rows` | 20 rows, each as wide as the columns |
+| `chart` | `bar`, `stacked_bar` or `line`, with `labels` and `series` | each series as long as `labels` |
+| `document_ref` | A document and version in the same chat | |
+| `follow_ups` | Suggested next questions | at most 3 |
+
+## Source numbers
+
+Every record a successful MCP call returns becomes a numbered source, in the order results arrive. The agent recognises a record by its shape in the result:
+
+| Kind | Recognised by | Example label |
+|---|---|---|
+| `account` | has `display_name` | "Minh Tuấn", meta "Seller · 7d22e9 · active" |
+| `ticket` | has `kind` and `opened_at` | "Lan's ticket" |
+| `report` | a report case, or each report in it | "Report case: Minh Tuấn" |
+| `order` | has `code` or `listing_title` | "Order: iPhone 13 Pro" |
+| `listing` | has `title` | the listing's title |
+| `log` | a console action, with `action` and `target_kind` | "suspend by Lan" |
+| `member` | a moderator named in an action | the moderator's name |
+| `data` | a result with no record: a count, a price guide, an empty list | "Reports, last 7 days" |
+
+Each source keeps up to four facts (status, price, dates, counts) and a quote of up to 200 characters from what users wrote. A label is never an id; a bare `*_id` is no source, since it has no name.
+
+At the top of each tool result the agent lists the numbers and labels for the model to cite. A record seen again keeps its number; a fuller reading of it (from a `*_get` tool, say) replaces its label and facts. An `[n]` that names no source is dropped from the answer. The source list at the end holds the sources the answer cites, or all of them when it cites none.
+
+## Documents
+
+`write_document` creates version 1 of a document, or the next version of a document in the same chat. A document's sections are `markdown`, `table` and `chart`. The console opens documents in a panel of their own with every version; **Copy as Markdown** copies the content, and the browser prints it. Deleting a chat deletes its turns, events and documents.
+
+## Skills
+
+A skill is a saved question with a name and variables, stored in `agent_skills` and shared with every moderator. Typing `/` in the ask box lists them; the skill's prompt is added to that turn's system prompt. A moderator can change only their own skills; an admin can change any.

@@ -1,0 +1,82 @@
+---
+title: Agent làm gì
+description: Trợ lý AI của console đọc ticket, ca báo cáo và tài khoản qua tool, làm qua nhiều bước rồi trả lời có dẫn nguồn. Moderator xem, quyết định và tự bấm.
+group: Tổng quan
+groupOrder: 1
+order: 1
+audience: [developers, admins]
+type: overview
+readingTime: 4
+updated: 2026-11-19
+related: ["/vi/agent/a-question", "/vi/architecture/console", "/vi/marketplace/moderation"]
+---
+
+Moderator mở một ticket, một ca báo cáo hay một tài khoản trong console rồi hỏi agent bằng lời thường. Agent tự chọn tool để đọc dữ liệu, chia việc thành các bước có tên, rồi trả lời bằng chữ, số liệu, bảng hoặc biểu đồ. Mỗi ý trong câu trả lời gắn một số như <span class="run-cite">1</span>, trỏ về bản ghi mà ý đó lấy ra.
+
+<DoDont
+  doTitle="Agent làm được"
+  dontTitle="Ngoài phạm vi của agent"
+  do={[
+    "Đọc ticket, ca báo cáo, tài khoản, đơn, tin đăng và nhật ký console",
+    "Đếm, tóm tắt, so giá với các tin cùng loại",
+    "Viết tài liệu có phiên bản ngay trong cuộc chat",
+    "Hỏi lại moderator khi câu hỏi chưa rõ",
+  ]}
+  dont={[
+    "Khoá tài khoản, ẩn tin, gửi tin nhắn: moderator tự bấm trong console",
+    "Làm theo chữ người dùng viết trong tin nhắn, ghi chú hay mô tả tin",
+    "Nhận request từ ngoài: chỉ server gọi được agent, qua mạng nội bộ",
+    "Lưu dữ liệu: server lưu mọi cuộc chat, lượt chạy và lần gọi tool",
+  ]}
+/>
+
+Quy tắc chỉ đọc là <Req id="BR-MOD-03" />. Agent không có tool nào sửa dữ liệu, nên một prompt injection giấu trong tin nhắn của người dùng nhiều nhất chỉ làm ra một đề xuất sai, và moderator là người duyệt đề xuất đó.
+
+## Bốn phần của hệ thống
+
+Console chỉ gọi server. Server mở từng đoạn chạy trên agent. Agent gọi model qua LiteLLM và đọc dữ liệu qua MCP server mà server mở trên một cổng riêng. Mọi việc agent làm chảy về server thành từng dòng; server lưu lại rồi phát cho console.
+
+<Sequence
+  caption="Một câu hỏi đi qua bốn phần. Mũi tên nét đứt là dữ liệu chảy về."
+  actors={[
+    { id: "console", label: "Console", icon: "ri:computer-line", note: "Moderator hỏi và xem từng bước" },
+    { id: "server", label: "Server", icon: "ri:server-line", note: "Kiểm phiên, lưu lượt, phát event" },
+    { id: "agent", label: "Agent", icon: "ri:robot-2-line", note: "Vòng lặp model, không có database" },
+    { id: "llm", label: "LiteLLM", icon: "ri:sparkling-2-line", note: "Chọn model, tính ngân sách" },
+  ]}
+  steps={[
+    { from: "console", to: "server", label: "Gửi câu hỏi", detail: "`POST …/turns` trả 202 ngay" },
+    { from: "server", to: "agent", label: "Mở một đoạn chạy", detail: "`POST /runs` kèm cấu hình agent" },
+    { from: "agent", to: "llm", label: "Gọi model", detail: "`user` là id của moderator" },
+    { from: "agent", to: "server", label: "Đọc dữ liệu qua MCP", detail: "chỉ tool đọc, kiểm moderator mỗi lần gọi" },
+    { from: "agent", to: "server", label: "Trả từng dòng NDJSON", detail: "event, tool call, checkpoint, dòng `end`", back: true },
+    { from: "server", to: "console", label: "Phát event qua SSE", detail: "đóng tab không dừng lượt chạy", back: true },
+  ]}
+/>
+
+Agent là service NestJS riêng trong repo `shopnexus/agent`, chạy vòng lặp Strands trên model mà LiteLLM chọn. Quyết định tách agent ra và cho nó đọc qua MCP của server là <Req id="ADR-0003" />.
+
+## Màn hình của moderator
+
+Lượt chạy hiện ra trong lúc nó diễn ra: từng bước kèm một dòng tóm tắt, từng tool kèm thời gian, rồi câu trả lời và danh sách nguồn. Trong lúc chạy, moderator bấm **Pause** (hoặc phím Esc), hoặc gõ thêm một dòng để chỉnh hướng agent.
+
+<RunPreview caption="Một lượt chạy đã xong trên ca báo cáo. Dữ liệu là ví dụ." />
+
+<Callout type="note">
+Khi agent đề xuất khoá một tài khoản, moderator bấm nút khoá của console như mọi lần. Thao tác đi qua endpoint của console, ghi vào nhật ký với tên moderator.
+</Callout>
+
+## Cuộc chat theo bản ghi
+
+Mỗi ticket, ca báo cáo hay tài khoản có một cuộc chat chung cho mọi moderator mở nó, nên ca sau thấy ca trước đã hỏi gì, và mỗi câu hỏi ghi tên người hỏi. Cuộc chat không gắn bản ghi nào là của riêng moderator mở nó. Ca sử dụng: <Req id="UC-MOD-06" />, <Req id="UC-MOD-07" />, <Req id="UC-MOD-08" />.
+
+## Các trang trong mục
+
+<Cards cols={2}>
+  <Card title="Một câu hỏi chạy thế nào" href="/vi/agent/a-question" icon="ri:route-line">Từ lúc bấm gửi tới dòng cuối, từng bước.</Card>
+  <Card title="Điều khiển một lượt chạy" href="/vi/agent/control" icon="ri:pause-circle-line">Tạm dừng, chỉnh hướng, trả lời câu hỏi, chạy tiếp.</Card>
+  <Card title="Câu trả lời và nguồn" href="/vi/agent/answers" icon="ri:double-quotes-l">Các khối trả lời, số dẫn nguồn, tài liệu và skill.</Card>
+  <Card title="Tool và quyền đọc" href="/vi/agent/tools" icon="ri:tools-line">16 tool chỉ đọc, ai được đọc gì, lần đọc nào được ghi lại.</Card>
+  <Card title="Giới hạn và lỗi" href="/vi/agent/limits" icon="ri:timer-line">Thời hạn, ngân sách, ngữ cảnh và khi nào chạy tiếp được.</Card>
+  <Card title="Agent và cấu hình" href="/vi/agent/setup" icon="ri:settings-3-line">Agent của console, biến môi trường, chạy thử ở máy.</Card>
+</Cards>

@@ -17,8 +17,8 @@ Source of truth for values: `src/styles/tokens.css` and `src/styles/global.css`;
 
 ## Pages
 
-Top-bar tabs: Get started, Marketplace, Requirements, Architecture, API,
-Operations. API holds API design, Authentication, Errors, Pagination,
+Top-bar tabs: Get started, Marketplace, Requirements, Architecture, AI agent,
+API, Operations. API holds API design, Authentication, Errors, Pagination,
 Idempotency, Live updates and Playground. Playground is a wide page that embeds
 Scalar's API reference over `/openapi.json` (130 paths, 16 tags in 7 groups:
 Accounts, Listings and search, Deals, After the sale, App screens, Staff
@@ -54,6 +54,13 @@ brand #85d5c9. Status: info #2563eb, warning #c2410c, danger #dc2626, feature
 #6d4aff, each with a soft background and a line colour. HTTP methods: GET info
 blue, POST brand teal, PUT warning orange, PATCH feature violet, DELETE
 danger red. No gradients except a faint brand glow on the home hero.
+
+## Illustrations
+
+Section and empty-state illustrations (`public/img/`) are flat 2D vector art: flat fills only, no
+shading, gradients, highlights or 3D. Palette teal #066a61, mint #85d5c9, cream #f3ead8, greys
+#d9d4c8 / #a8a39a, charcoal #2b2b29; no red, brown or orange. The mascot is a cream shopping bag
+with a teal handle, a grey price tag and a charcoal screen face with mint eyes.
 
 ## Shape and depth
 

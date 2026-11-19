@@ -1,0 +1,61 @@
+---
+title: Tools and data access
+description: The MCP server's sixteen read-only tools, how the server checks the moderator on every call, and which reads of personal data are recorded.
+group: Inside
+groupOrder: 4
+order: 1
+audience: [developers]
+type: reference
+readingTime: 4
+updated: 2026-11-19
+related: ["/en/agent/answers", "/en/architecture/console"]
+---
+
+The agent reads data only through the server's MCP server. It serves Streamable HTTP at `/mcp` on a port of its own (`AGENT_MCP_ADDR`), off the `:8080` port and outside the ingress. It keeps no session: every POST is one request with its own checks.
+
+## Checks on every call
+
+<Steps>
+<Step title="Token">
+Each call carries `Authorization: Bearer <AGENT_MCP_TOKEN>`, compared in constant time. A wrong token is 401 before any MCP handling, and the server logs `security: agent MCP call refused` without the token.
+</Step>
+<Step title="Moderator">
+The `X-Console-Member` header carries the id of the moderator who asked. The server reads the moderator again through `ActiveMember` on every call, so a moderator disabled between two tool calls gets nothing from the second.
+</Step>
+<Step title="Tool">
+A tool is a thin adapter over a module's `Service`; no tool reads a table. A refusal reaches the agent as a tool error with its code; any other failure reaches it as `internal error` and is logged.
+</Step>
+</Steps>
+
+On the agent's side, only tools with `readOnlyHint` that are on the agent's `tools` list reach the model. Each call has a time limit (`AGENT_TOOL_TIMEOUT_MS`, 20 seconds by default) and is retried up to `AGENT_TOOL_ATTEMPTS` times on a timeout or a dropped connection.
+
+## Tool list
+
+List tools take `cursor` and `limit` (1 to 50, 20 by default) and answer `{items, next_cursor}`.
+
+| Tool | Reads | Recorded read |
+|---|---|---|
+| `count` | Counts by status of accounts, listings, orders, tickets or report cases, since a date or for all time | no |
+| `lookup` | Which record an id names: an account, a report case, an order, a listing or a ticket, with the tool that reads it | no |
+| `ticket_get` | A ticket, its person, its order, the first page of its chat and the person's other tickets | the ticket, its person |
+| `ticket_messages` | A page of a ticket's chat, newest first | the ticket |
+| `tickets_list` | The support queue: open or resolved tickets, with each chat's last line | the tickets and their persons |
+| `tickets_of_account` | The newest 50 tickets an account opened, or on orders it sold | the account and the tickets |
+| `account_get` | Status, age, whether it has a phone and an email, listings, orders as buyer, how often it was suspended | no |
+| `accounts_list` | The newest accounts, those suspended now, or the account an id or a phone number names | no |
+| `orders_of_account` | An account's orders as buyer or as seller | no |
+| `listings_of_account` | A seller's listings on sale or sold | no |
+| `console_actions` | The console's audit log by record, by moderator or all, without IPs | no |
+| `order_get` | An order, its parties, listing, price, status and the carrier's status now | no |
+| `listing_get` | A listing in any status but deleted, as its seller sees it | no |
+| `price_guide` | A listing's price against the median of listings in the same category and condition | no |
+| `report_cases_list` | The report queue: open or resolved cases | no |
+| `report_case_get` | An account's report case: reasons, listings reported, every report with its note, the resolution | the account, the reports, the reporters |
+
+## Personal data reads
+
+Each time a tool reads personal data (messages, notes, a ticket's person, reporters), the server writes a row to `console_agent_reads`: moderator, tool, the ids and the time. Rows are kept 90 days, and admins see them beside the console's audit log. The requirement is <Req id="NFR-PRIV-02" />.
+
+## Text from users
+
+The MCP server's instructions and the agent's system prompt both state that text users wrote (messages, notes, listing descriptions) is quoted as data only. The agent has no write tool, so an instruction hidden in that text changes no data.

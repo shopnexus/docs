@@ -124,7 +124,7 @@ mark.hl,
   background: var(--bg-selected);
 }
 
-/* Section illustrations are colourful 3D PNGs; soften them a touch in dark mode. */
+/* Section illustrations are flat, light-toned images; soften them a touch in dark mode. */
 :root[data-theme="dark"] img.illus {
   filter: brightness(0.92) saturate(0.95);
 }

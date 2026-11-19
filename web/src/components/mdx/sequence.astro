@@ -1,0 +1,82 @@
+---
+import { Icon } from "astro-icon/components";
+import { inline } from "../../lib/inline";
+
+interface Actor {
+  id: string;
+  label: string;
+  /** Remix icon, e.g. "ri:server-line". */
+  icon: string;
+  note?: string;
+}
+
+interface Message {
+  from: string;
+  to: string;
+  label: string;
+  /** One short line under the arrow; `code` is allowed. */
+  detail?: string;
+  /** A reply or data flowing back: drawn dashed and grey. */
+  back?: boolean;
+}
+
+interface Props {
+  actors: Actor[];
+  steps: Message[];
+  caption?: string;
+}
+
+const { actors, steps, caption } = Astro.props;
+const n = actors.length;
+const actor = (id: string) => {
+  const found = actors.find((a) => a.id === id);
+  if (!found) throw new Error(`<Sequence>: unknown actor "${id}"`);
+  return found;
+};
+const col = (id: string) => actors.indexOf(actor(id)) + 1;
+const label = (id: string) => actor(id).label;
+---
+
+<figure class="diagram seq-fig" style={`--n:${n}`}>
+  <div class="seq-actors">
+    {
+      actors.map((a) => (
+        <div class="seq-actor">
+          <span class="seq-ico">
+            <Icon name={a.icon} width="20" height="20" aria-hidden="true" />
+          </span>
+          <span class="seq-name">{a.label}</span>
+          {a.note && <span class="seq-note">{a.note}</span>}
+        </div>
+      ))
+    }
+  </div>
+  <ol class="seq-body">
+    {actors.map((_, i) => <span class="seq-life" aria-hidden="true" style={`left:${((2 * i + 1) / (2 * n)) * 100}%`} />)}
+    {
+      steps.map((s, k) => {
+        const a = col(s.from);
+        const b = col(s.to);
+        return (
+          <li class="seq-row">
+            <div
+              class:list={["seq-arrow", b < a && "seq-rtl", s.back && "seq-back"]}
+              style={`grid-column:${2 * Math.min(a, b)} / ${2 * Math.max(a, b)}`}
+            >
+              <div class="seq-label">
+                <span class="seq-num">{k + 1}</span>
+                {s.label}
+              </div>
+              <div class="seq-route">
+                {label(s.from)} → {label(s.to)}
+              </div>
+              <div class="seq-line" aria-hidden="true" />
+              {s.detail && <div class="seq-detail" set:html={inline(s.detail)} />}
+            </div>
+          </li>
+        );
+      })
+    }
+  </ol>
+  {caption && <figcaption>{caption}</figcaption>}
+</figure>

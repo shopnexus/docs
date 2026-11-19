@@ -1,0 +1,29 @@
+---
+import { inline } from "../../lib/inline";
+
+type Tone = "brand" | "info" | "feature" | "warning" | "neutral";
+
+interface Props {
+  items: { name: string; desc: string; tone?: Tone }[];
+}
+
+const DOT: Record<Tone, string> = {
+  brand: "var(--brand)",
+  info: "var(--info)",
+  feature: "var(--feature)",
+  warning: "var(--warning)",
+  neutral: "var(--text-soft)",
+};
+const { items } = Astro.props;
+---
+
+<div class="statuses">
+  {
+    items.map((s) => (
+      <div class="status" style={`--dot:${DOT[s.tone ?? "neutral"]}`}>
+        <span class="status-name">{s.name}</span>
+        <p class="status-desc" set:html={inline(s.desc)} />
+      </div>
+    ))
+  }
+</div>

@@ -6,6 +6,7 @@ export type TabId =
   | "marketplace"
   | "requirements"
   | "architecture"
+  | "agent"
   | "api"
   | "operations"
   | "developers";
@@ -67,6 +68,17 @@ const ALL_TABS: Tab[] = [
     blurb: {
       en: "The backend's modules, durable flows and the features built on them.",
       vi: "Các module của backend, luồng bền vững và các tính năng xây trên đó.",
+    },
+  },
+  {
+    id: "agent",
+    img: "/img/sec-agent.webp",
+    icon: "ri:robot-2-line",
+    internal: false,
+    label: { en: "AI agent", vi: "AI agent" },
+    blurb: {
+      en: "The console's assistant: what it reads, how a run goes and where it stops.",
+      vi: "Trợ lý của console: đọc gì, một lượt chạy diễn ra sao và dừng ở đâu.",
     },
   },
   {

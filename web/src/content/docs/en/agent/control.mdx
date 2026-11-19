@@ -1,0 +1,54 @@
+---
+title: Controlling a run
+description: Pause, Stop now, updates sent while a run goes, answers to the agent's questions and continuing a stopped turn.
+group: A run
+groupOrder: 2
+order: 2
+audience: [developers]
+type: concept
+readingTime: 4
+updated: 2026-11-19
+related: ["/en/agent/a-question", "/en/agent/limits"]
+---
+
+While a turn runs, the ask box's send button becomes **Pause** (Esc pauses too); once pressed, it becomes **Stop now** until the run has stopped. A paused turn shows "Paused after 3 steps" with **End** and **Continue**. Typing in the ask box while the turn runs sends an update. Each control is a request to the server, which writes it to `agent_turn_inputs` with a rising sequence number; the agent reads them through `GET /agent/turns/{id}/control?after=<seq>` about once a second.
+
+```mermaid title="The states of a turn"
+stateDiagram-v2
+  [*] --> running: question sent
+  running --> succeeded: answered
+  running --> paused: Pause, Stop now
+  running --> awaiting_input: agent asks back
+  running --> failed: error, budget spent
+  running --> timed_out: deadline passed
+  paused --> running: Continue, an update
+  awaiting_input --> running: moderator answers
+  paused --> cancelled: End
+  awaiting_input --> cancelled: End
+  failed --> running: Continue
+  timed_out --> running: Continue
+```
+
+## Controls
+
+| Control | Endpoint | Effect |
+|---|---|---|
+| **Pause** | `POST …/turns/{id}/pause` | Takes effect before the next model call. The call in flight and the tools it asked for finish, so every tool call keeps its result. |
+| **Stop now** | `POST …/turns/{id}/stop` | Aborts the model call in flight at once; the segment ends `PAUSED` with reason `stop_now`. An MCP call already running on the server runs to its end. |
+| Typing in the ask box | `POST …/turns/{id}/steer {text}` | Adds a message "Update from the member: …" before the next model call. A paused turn continues at once. |
+| **Continue** | `POST …/turns/{id}/continue` | Resumes a paused turn, or a failed turn that can continue, under the same id and with no new message. |
+| **End** | `POST …/turns/{id}/end` | Cancels a paused turn or one waiting for answers; the turn becomes `cancelled`. |
+
+Pause and Stop now need a `running` turn. A control sent before a segment started has a sequence number at or below `control_after`, so that segment does not receive it.
+
+## Updates while running
+
+Each update shows as waiting until the agent reads it. On reading it, the agent writes a `steer.read` event naming the open step, and the console shows before which step the update was read. An update received but not yet given to the model stays in the checkpoint's `pending_steers`, so the next segment still reads it, each `steer_id` exactly once. An update the turn finished without reading can be sent again as a new question.
+
+## Questions from the agent
+
+When a question is unclear, the model calls `ask_user` with questions, each with options to pick one or several of. The segment ends `AWAITING_INPUT`, and the `clarify` event carries the questions. The moderator answers through `POST …/turns/{id}/input {answers}`; the server checks the answers against `pending_ask` in the checkpoint and starts a `resume` segment with the answers written out as text.
+
+## Continuing
+
+A `resume` segment starts from the checkpoint: the Strands messages as they stood, plus an "interrupted" result for any tool call left without one. The server sets the turn `running` under its row lock and writes `turn.resumed {by}`, where `by` is `continue`, `steer` or `input`. The console reopens the stream from the last sequence number it saw.

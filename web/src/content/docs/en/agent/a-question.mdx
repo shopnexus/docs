@@ -1,0 +1,82 @@
+---
+title: How a question runs
+description: From the moderator pressing send to the agent's last line, who calls whom, what is stored and the ways a segment ends.
+group: A run
+groupOrder: 2
+order: 1
+audience: [developers]
+type: concept
+readingTime: 5
+updated: 2026-11-19
+related: ["/en/agent/control", "/en/agent/limits", "/en/api/live-updates"]
+---
+
+A question is a turn. A turn runs as one or more segments: each time it is paused and continued, or asks the moderator and goes on, the server starts a new segment on the agent from the previous segment's checkpoint. The agent has no database; the checkpoint lives on the server, in the turn's `state` column.
+
+<Sequence
+  caption="Every step of a segment, control included."
+  actors={[
+    { id: "console", label: "Console", icon: "ri:computer-line", note: "The moderator's browser" },
+    { id: "server", label: "Server", icon: "ri:server-line", note: "Module agent, the API port and the MCP port" },
+    { id: "agent", label: "Agent", icon: "ri:robot-2-line", note: "Internal NestJS service" },
+    { id: "llm", label: "LiteLLM", icon: "ri:sparkling-2-line", note: "The stack's model gateway" },
+  ]}
+  steps={[
+    { from: "console", to: "server", label: "Send the question", detail: "`POST …/turns`" },
+    { from: "server", to: "agent", label: "Start a segment", detail: "`POST /runs`, mode `new`" },
+    { from: "agent", to: "llm", label: "Call the model", detail: "the agent's alias, `user` = moderator" },
+    { from: "llm", to: "agent", label: "Answer, maybe asking for tools", back: true },
+    { from: "agent", to: "server", label: "Call a tool through MCP", detail: "`/mcp`, with the moderator's id" },
+    { from: "agent", to: "server", label: "Stream NDJSON lines", detail: "events, tool calls, checkpoints, documents", back: true },
+    { from: "server", to: "console", label: "Send events over SSE", detail: "`GET …/events`", back: true },
+    { from: "console", to: "server", label: "Pause or steer", detail: "`POST …/pause`, `…/steer`" },
+    { from: "agent", to: "server", label: "Poll control every second", detail: "`GET …/control`" },
+    { from: "agent", to: "server", label: "The end line closes the segment", detail: "status, answer, sources, cost", back: true },
+  ]}
+/>
+
+## Steps
+
+<Steps>
+<Step title="The server takes the question">
+The server checks the console session, reads the chosen agent from `ai_agents` (the Console assistant by default), checks the month's budget and the limit of 30 questions and updates a minute per moderator, then cleans the question of control characters, zero-width characters and HTML tags. A question over 2000 characters is refused with `agent_input_rejected`. The turn opens `running` under the conversation's row lock, and the console gets `202 {conversation_id, turn_id}`.
+</Step>
+
+<Step title="The server starts a segment">
+The server sends `POST /runs` to the agent with `AGENT_SERVICE_TOKEN`: the question, the moderator and their role, the open record, the last 20 finished turns as history, and `agent_config` (model alias, instructions, tool list, limits). It waits at most 10 seconds for the status; anything but 200 drops the new turn and the console gets `503 agent_unavailable`.
+</Step>
+
+<Step title="The agent opens MCP and runs the loop">
+The agent opens a new MCP client for the segment and keeps only tools that carry `readOnlyHint` and are on the agent's list. The model opens a step with `begin_step`, calls tools, closes the step with `end_step` and a one-line summary, and answers with `answer`. Before each model call the agent writes a checkpoint and reads the control messages waiting for it.
+</Step>
+
+<Step title="Lines flow back to the server">
+The agent writes each thing it does as one JSON line and flushes it. The server reads the stream in the background: an `event` line is stored with the turn's next sequence number and rung to open streams through `pg_notify`; `checkpoint` stores the state to resume from; `tool_call` updates the tool call's row; `document` stores a new version of a document.
+</Step>
+
+<Step title="The console draws the run">
+The console opens `GET /v1/console/agent/turns/{id}/events`. The server replays the stored events, then sends new ones, each with its sequence number as `id`. A reloaded page asks from the last number it saw through `Last-Event-ID`. When the moderator closes the tab, the server closes the stream and the turn goes on running on the agent.
+</Step>
+
+<Step title="The end line closes the segment">
+The last line carries the status, the answer, its blocks, sources, cost, the checkpoint and the closing event. The server writes them all in one transaction. A stream that ends without an `end` line closes the turn `failed` with `agent_stuck`.
+</Step>
+</Steps>
+
+## How a segment ends
+
+<Statuses
+  items={[
+    { name: "SUCCEEDED", tone: "brand", desc: "The model answered, through `answer` or as plain text." },
+    { name: "PAUSED", tone: "info", desc: "Pause, Stop now, the turn was deleted, or the server closed the request." },
+    { name: "AWAITING_INPUT", tone: "feature", desc: "The model called `ask_user` and waits for the moderator." },
+    { name: "FAILED", tone: "neutral", desc: "The model or MCP failed, model calls ran out, or the budget is spent." },
+    { name: "TIMED_OUT", tone: "neutral", desc: "The segment's deadline passed, 60 seconds by default." },
+  ]}
+/>
+
+`PAUSED` and `AWAITING_INPUT` leave the turn open: the moderator continues, answers or ends it. A `FAILED` or `TIMED_OUT` turn can be continued in some cases, listed in [Limits and failures](/en/agent/limits).
+
+## Stuck turns
+
+Each server replica holds one `LISTEN agent_turn` that rings the turn's open streams. At start and every minute, the server closes turns still `running` 30 seconds past their deadline with `agent_stuck`, including turns of a replica that died midway.

@@ -1,0 +1,87 @@
+---
+title: Agent và cấu hình
+description: Agent của console trong bảng ai_agents, cấu hình server gửi theo mỗi đoạn chạy, biến môi trường hai phía và cách chạy thử agent ở máy.
+group: Bên trong
+groupOrder: 4
+order: 3
+audience: [developers, admins]
+type: how-to
+readingTime: 4
+updated: 2026-11-19
+related: ["/vi/agent/limits", "/vi/operations/cluster/llm-gateway", "/vi/operations/local-stack"]
+---
+
+Server là nơi duy nhất giữ cấu hình của một agent. Agent không có bản sao: mỗi đoạn chạy nhận cấu hình trong trường `agent_config` của `POST /runs`.
+
+## Agent trong `ai_agents`
+
+Bảng `ai_agents` của server có hai loại agent. Migration 0056 tạo sẵn các dòng đầu.
+
+| Loại | Agent tạo sẵn | Ai dùng | Admin làm được |
+|---|---|---|---|
+| `console` | Console assistant (`console-agent`) | moderator chọn trong ô hỏi | tạo, sửa, bật, tắt |
+| `app` | Scam check, Listing photo reader, Search, Search embeddings | code của server gọi | đổi model, giới hạn, ngân sách |
+
+Một agent có tên hiển thị ("Console assistant") và một alias (`console-agent`) chỉ dùng khi gọi LiteLLM. Mỗi lần lưu hướng dẫn mới, server thêm một phiên bản vào `ai_agent_versions` với người sửa và thời điểm. Câu hỏi không chọn agent dùng Console assistant; agent không tồn tại hay là agent `app` thì trả 404 `ai_agent_not_found`, agent đã tắt thì 409 `ai_agent_disabled`.
+
+Admin quản lý agent, model, nhà cung cấp và ngân sách trong **Settings** của console. Server ghi các thay đổi này xuống LiteLLM qua admin API của nó.
+
+## Cấu hình theo đoạn chạy
+
+```jsonc
+"agent_config": {
+  "id": "uuid", "name": "Console assistant",
+  "alias": "console-agent",               // model alias trong LiteLLM
+  "instructions": "…", "instructions_version": 3,
+  "tools": ["ticket_get", "account_get"],  // tool MCP agent được dùng
+  "limits": { "deadline_s": 60, "max_model_calls": 40, "context_window": 128000,
+              "tool_timeout_s": 20, "tool_attempts": 3, "max_tokens": 4096 }
+}
+```
+
+Agent bỏ khoá lạ; giá trị ngoài khoảng cho phép thì cả request bị từ chối 400. System prompt của đoạn gồm prompt có sẵn (vai trò, bản ghi đang mở, quy tắc kiểm duyệt và hỗ trợ), quy tắc của output tool, `instructions` của agent và prompt của skill nếu câu hỏi dùng skill.
+
+## Biến môi trường
+
+Các giá trị giống nhau ở compose và mọi stack nằm trong `infra/stack/env/agent.env`; chart đọc file này, compose đọc nó qua `env_file`. Hai token và key của LiteLLM nằm trong file `.env` của volume keys.
+
+| Biến | Phía | Ý nghĩa |
+|---|---|---|
+| `AGENT_BASE_URL` | server | Địa chỉ nội bộ của agent, như `http://agent-dev:3000` |
+| `AGENT_SERVICE_TOKEN` | cả hai | Token server gửi kèm `POST /runs`; rỗng thì agent từ chối mọi request |
+| `AGENT_MCP_ADDR` | server | Cổng của MCP server, `0.0.0.0:9090` |
+| `AGENT_MCP_TOKEN` | cả hai | Token agent gửi tới MCP và endpoint điều khiển |
+| `MCP_SERVER_URL` | agent | `/mcp` của server, như `http://server-dev:9090/mcp`; origin của nó cũng phục vụ endpoint điều khiển |
+| `AGENT_MODEL_ID` | agent | Alias dùng khi `agent_config` không có, `console-agent` |
+| `LITELLM_BASE_URL`, `LITELLM_API_KEY` | agent | Endpoint tương thích OpenAI của LiteLLM và key |
+| `LITELLM_URL`, `LITELLM_MASTER_KEY` | server | Admin API của LiteLLM cho trang Settings |
+| `AGENT_TURN_DEADLINE_MS` | agent | Thời hạn mặc định của một đoạn, 60 000 |
+| `FEATURE_ALL_AGENT`, `FEATURE_LLM` | agent | `false` thì mọi đoạn chạy bị từ chối 503 |
+
+Mỗi token dài ít nhất 32 ký tự; `cmd/envgen` của server sinh cả hai. Không dòng log nào ghi token hay master key. Danh sách đầy đủ của agent ở `agent/.env.example` và `agent/src/config.ts`.
+
+## Chạy thử ở máy
+
+Agent không có file compose riêng. Nó chạy trên LiteLLM và MCP của stack, từ `docker-compose.yml` của repo umbrella hoặc từ cluster.
+
+```bash
+cd agent
+npm install
+cp .env.example .env
+# Điền AGENT_SERVICE_TOKEN, AGENT_MCP_TOKEN, MCP_SERVER_URL và LiteLLM theo stack.
+npm run start:dev
+npm run chat -- "Có bao nhiêu ticket đang mở?"
+```
+
+`npm run chat` gửi một đoạn `new` tới agent trên `PORT` với tư cách `CLI_MEMBER_ID`, rồi in các event và dòng `end`. Lệnh gọi model và MCP thật, nên có thể tốn tiền. Không có endpoint điều khiển của server thì các lần hỏi lệnh lỗi và đoạn chạy tiếp tục mà không có Pause, Stop now hay cập nhật.
+
+## Kiểm thử
+
+```bash
+npm run build
+npm run typecheck
+npm test                  # chạy offline
+npm run test:live-cache   # gọi LiteLLM thật, bỏ qua khi thiếu LIVE_LITELLM_URL và LIVE_LITELLM_KEY
+```
+
+`npm test` dùng một model có kịch bản, một server giả trên 127.0.0.1 (MCP server có cả tool đọc lẫn tool ghi, và endpoint điều khiển) và một bộ gom dòng trong bộ nhớ. Bộ test phủ token, các lỗi 400 và 503, định dạng NDJSON, bước, số dẫn nguồn, tài liệu, thử lại tool, `ask_user`, tạm dừng và chạy tiếp, cập nhật giữa chừng, Stop now, ngân sách, thời hạn và tóm tắt ngữ cảnh.

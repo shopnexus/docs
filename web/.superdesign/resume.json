@@ -42,6 +42,36 @@
     }
    },
    "updatedAt": "2026-11-16T10:32:20.381518+00:00"
+  },
+  "/vi/agent": {
+   "targetKind": "new-ui",
+   "authoringMode": "direct-import",
+   "projectId": "8d739981-a7e4-4382-93ab-20f3edd7705c",
+   "activeDraftId": "d26f1675-7207-4581-8b86-afdecca1ebc0",
+   "designSystemPath": ".superdesign/design-system.md",
+   "contextFiles": [
+    ".superdesign/design-system.md",
+    ".superdesign/tools/common.py",
+    ".superdesign/tools/build_agent.py"
+   ],
+   "fingerprints": {
+    ".superdesign/design-system.md": "02ff5083d4a968cb15a542be1f309cd64fce967b33eb28c376a125718d9edf78",
+    ".superdesign/tools/common.py": "ea79c5c48c78582fd9fe63bef61ad30c3f50ac518714f0cee91a8596bf16bfc9",
+    ".superdesign/tools/build_agent.py": "3b70762d7fa846e1c40c8301b32f79b44ddd23b2aba08abd3307879533f2a0b0"
+   },
+   "drafts": {
+    "d26f1675-7207-4581-8b86-afdecca1ebc0": {
+     "title": "Agent · Tổng quan",
+     "currentVersion": 2,
+     "visualDirection": "Agent tab overview: do/never cards, HTML sequence map of 4 parts, run preview card, next cards"
+    },
+    "8b175ea6-0a6e-4a5a-a6d3-43b65e121fd6": {
+     "title": "Agent · Một câu hỏi chạy thế nào",
+     "currentVersion": 2,
+     "visualDirection": "Full sequence with control, numbered steps, five end statuses"
+    }
+   },
+   "updatedAt": "2026-11-19T16:29:02.333136+00:00"
   }
  }
 }

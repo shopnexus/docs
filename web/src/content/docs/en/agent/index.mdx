@@ -1,0 +1,82 @@
+---
+title: What the agent does
+description: The console's AI assistant reads tickets, report cases and accounts through tools, works in steps and answers with numbered sources. Moderators read the answer, decide and act themselves.
+group: Overview
+groupOrder: 1
+order: 1
+audience: [developers, admins]
+type: overview
+readingTime: 4
+updated: 2026-11-19
+related: ["/en/agent/a-question", "/en/architecture/console", "/en/marketplace/moderation"]
+---
+
+A moderator opens a ticket, a report case or an account in the console and asks the agent a question in plain words. The agent picks tools to read the data, splits the work into named steps and answers with text, key figures, tables or charts. Each claim in the answer carries a number such as <span class="run-cite">1</span> that points to the record it came from.
+
+<DoDont
+  doTitle="The agent can"
+  dontTitle="Outside the agent's reach"
+  do={[
+    "Read tickets, report cases, accounts, orders, listings and the console's audit log",
+    "Count, summarise and compare a listing's price with similar listings",
+    "Write documents with versions inside the chat",
+    "Ask the moderator back when a question is unclear",
+  ]}
+  dont={[
+    "Suspending, hiding or messaging: the moderator does these in the console",
+    "Following text users wrote in messages, notes or listing descriptions",
+    "Requests from outside: only the server can call it, on the internal network",
+    "Storage: the server keeps every chat, run and tool call",
+  ]}
+/>
+
+The read-only rule is <Req id="BR-MOD-03" />. The agent has no tool that changes data, so a prompt injection hidden in a user's message can at worst produce a wrong proposal, which a moderator then reviews.
+
+## The four parts
+
+The console calls only the server. The server starts each run segment on the agent. The agent calls the model through LiteLLM and reads data through the MCP server that the server opens on a port of its own. Everything the agent does flows back to the server as lines; the server stores them and sends them on to the console.
+
+<Sequence
+  caption="One question through the four parts. Dashed arrows are data flowing back."
+  actors={[
+    { id: "console", label: "Console", icon: "ri:computer-line", note: "The moderator asks and watches each step" },
+    { id: "server", label: "Server", icon: "ri:server-line", note: "Checks the session, stores the turn, sends events" },
+    { id: "agent", label: "Agent", icon: "ri:robot-2-line", note: "The model loop, with no database" },
+    { id: "llm", label: "LiteLLM", icon: "ri:sparkling-2-line", note: "Picks the model, counts the budget" },
+  ]}
+  steps={[
+    { from: "console", to: "server", label: "Send the question", detail: "`POST …/turns` answers 202 at once" },
+    { from: "server", to: "agent", label: "Start a segment", detail: "`POST /runs` with the agent's config" },
+    { from: "agent", to: "llm", label: "Call the model", detail: "`user` is the moderator's id" },
+    { from: "agent", to: "server", label: "Read data through MCP", detail: "read-only tools, the member checked on each call" },
+    { from: "agent", to: "server", label: "Stream NDJSON lines", detail: "events, tool calls, checkpoints, `end`", back: true },
+    { from: "server", to: "console", label: "Send events over SSE", detail: "closing the tab leaves the run going", back: true },
+  ]}
+/>
+
+The agent is a NestJS service of its own in the `shopnexus/agent` repo, running a Strands loop on the model LiteLLM picks. The decision to run it apart and have it read through the server's MCP is <Req id="ADR-0003" />.
+
+## The moderator's screen
+
+A run shows up as it happens: each step with a one-line summary, each tool call with its timing, then the answer and its sources. While it runs, the moderator presses **Pause** (or Esc), or types a line to steer the agent.
+
+<RunPreview caption="A finished run on a report case. The data is an example." />
+
+<Callout type="note">
+When the agent proposes suspending an account, the moderator presses the console's suspend button as always. The action goes through the console's endpoint and into the audit log under the moderator's name.
+</Callout>
+
+## One chat per record
+
+A ticket, a report case or an account has one chat, shared by every moderator who opens it, so the next shift sees what was asked, and each question shows who asked it. A chat with no record belongs to the moderator who opened it. Use cases: <Req id="UC-MOD-06" />, <Req id="UC-MOD-07" />, <Req id="UC-MOD-08" />.
+
+## Pages in this tab
+
+<Cards cols={2}>
+  <Card title="How a question runs" href="/en/agent/a-question" icon="ri:route-line">From pressing send to the last line, step by step.</Card>
+  <Card title="Controlling a run" href="/en/agent/control" icon="ri:pause-circle-line">Pause, steer, answer the agent's questions, continue.</Card>
+  <Card title="Answers and sources" href="/en/agent/answers" icon="ri:double-quotes-l">Answer blocks, source numbers, documents and skills.</Card>
+  <Card title="Tools and data access" href="/en/agent/tools" icon="ri:tools-line">16 read-only tools, who reads what, which reads are recorded.</Card>
+  <Card title="Limits and failures" href="/en/agent/limits" icon="ri:timer-line">Deadline, budget, context and which runs can continue.</Card>
+  <Card title="Agents and configuration" href="/en/agent/setup" icon="ri:settings-3-line">Console agents, environment variables, a local run.</Card>
+</Cards>

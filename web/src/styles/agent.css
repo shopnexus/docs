@@ -1,0 +1,548 @@
+/* <Sequence> (src/components/mdx/sequence.astro) and <RunPreview> (src/components/agent/run-preview.astro). */
+
+/* Sequence: actors in columns, numbered messages as arrows between their lifelines. */
+.seq-fig {
+  padding: 20px 16px 16px;
+}
+.seq-actors,
+.seq-row {
+  display: grid;
+  grid-template-columns: repeat(calc(var(--n) * 2), minmax(0, 1fr));
+}
+.seq-actor {
+  grid-column: span 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+.seq-ico {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-page);
+  border: 1px solid var(--stroke-sub);
+  color: var(--brand-text);
+  box-shadow: var(--shadow-chip);
+}
+.seq-name {
+  font-size: 14px;
+  line-height: 18px;
+  font-weight: 600;
+  color: var(--text-strong);
+}
+.seq-note {
+  max-width: 150px;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--text-soft);
+}
+.seq-body {
+  position: relative;
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.seq-life {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  border-left: 1.5px dashed var(--stroke-sub);
+}
+.seq-row {
+  position: relative;
+  min-height: 58px;
+  align-items: center;
+}
+.seq-arrow {
+  padding: 8px 0;
+}
+.seq-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 10px;
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 500;
+  text-align: center;
+  color: var(--text-strong);
+}
+.seq-num {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--brand);
+  color: var(--on-brand);
+  font-size: 11px;
+  font-weight: 600;
+}
+.seq-line {
+  position: relative;
+  height: 2px;
+  margin: 6px 0 5px;
+  background: var(--brand);
+}
+.seq-line::after {
+  content: "";
+  position: absolute;
+  top: -4px;
+  right: -1px;
+  border: 5px solid transparent;
+  border-left: 8px solid var(--brand);
+  border-right: 0;
+}
+.seq-back .seq-line {
+  background: repeating-linear-gradient(90deg, var(--text-soft) 0 6px, transparent 6px 10px);
+}
+.seq-back .seq-line::after {
+  border-left-color: var(--text-soft);
+}
+.seq-rtl .seq-line::after {
+  right: auto;
+  left: -1px;
+  border-left: 0;
+  border-right: 8px solid var(--brand);
+}
+.seq-rtl.seq-back .seq-line::after {
+  border-right-color: var(--text-soft);
+}
+.seq-detail {
+  padding: 0 10px;
+  font-size: 12px;
+  line-height: 16px;
+  text-align: center;
+  color: var(--text-sub);
+}
+.seq-detail code {
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: "JetBrains Mono Variable", ui-monospace, monospace;
+  font-size: 11.5px;
+  color: var(--text-body);
+  white-space: nowrap;
+}
+.seq-route {
+  display: none;
+}
+
+/* On a phone the columns are too narrow: the same steps as a numbered list. */
+@media (max-width: 640px) {
+  .seq-actors {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px 18px;
+  }
+  .seq-note,
+  .seq-life,
+  .seq-line {
+    display: none;
+  }
+  .seq-row {
+    display: block;
+    min-height: 0;
+    padding: 10px 0;
+    border-top: 1px solid var(--stroke-soft);
+  }
+  .seq-arrow {
+    padding: 0;
+  }
+  .seq-label,
+  .seq-detail {
+    justify-content: flex-start;
+    text-align: left;
+    padding: 0;
+  }
+  .seq-detail {
+    margin: 2px 0 0 24px;
+  }
+  .seq-route {
+    display: block;
+    margin: 0 0 2px 24px;
+    font-size: 12px;
+    color: var(--text-soft);
+  }
+}
+
+/* Run preview: a finished run as a console member sees it. */
+.run {
+  margin: 24px 0 0;
+  border: 1px solid var(--stroke-soft);
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--bg-page);
+  box-shadow: var(--shadow-card);
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--text-body);
+}
+.run-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--stroke-soft);
+  background: var(--bg-nav);
+  font-size: 13px;
+}
+.run-ava {
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--brand);
+  color: var(--on-brand);
+}
+.run-bar b {
+  font-weight: 600;
+  color: var(--text-strong);
+}
+.run-tag {
+  padding: 0 6px;
+  border: 1px solid var(--stroke-sub);
+  border-radius: 6px;
+  font:
+    500 11.5px "JetBrains Mono Variable",
+    ui-monospace,
+    monospace;
+  color: var(--text-sub);
+}
+.run-subject {
+  margin-left: auto;
+  color: var(--text-soft);
+}
+.run-body {
+  padding: 18px 20px 6px;
+}
+.run-q {
+  margin-left: auto;
+  max-width: 78%;
+  width: fit-content;
+  padding: 10px 14px;
+  border-radius: 14px 14px 4px 14px;
+  background: var(--bg-subtle);
+  color: var(--text-strong);
+}
+.run-who {
+  margin: 4px 0 14px;
+  text-align: right;
+  font-size: 12px;
+  color: var(--text-soft);
+}
+.run-steps {
+  padding: 6px 14px;
+  border: 1px solid var(--stroke-soft);
+  border-radius: 12px;
+}
+.run-step {
+  display: flex;
+  gap: 10px;
+  padding: 10px 0;
+}
+.run-step + .run-step {
+  border-top: 1px solid var(--stroke-soft);
+}
+.run-check {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--brand-soft);
+  color: var(--brand-text);
+}
+.run-step b {
+  font-weight: 600;
+  color: var(--text-strong);
+}
+.run-sum {
+  font-size: 13px;
+  color: var(--text-sub);
+}
+.run-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+.run-tool {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 24px;
+  padding: 0 8px;
+  border: 1px solid var(--stroke-soft);
+  border-radius: 7px;
+  background: var(--bg-nav);
+  font:
+    500 12px "JetBrains Mono Variable",
+    ui-monospace,
+    monospace;
+  color: var(--text-body);
+}
+.run-tool span {
+  color: var(--text-soft);
+}
+.run-figs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 16px 0 12px;
+}
+.run-fig {
+  padding: 10px 12px;
+  border: 1px solid var(--stroke-soft);
+  border-radius: 12px;
+}
+.run-fig b {
+  display: block;
+  font-size: 20px;
+  line-height: 26px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  color: var(--text-strong);
+}
+.run-fig span {
+  font-size: 12px;
+  color: var(--text-sub);
+}
+.run-ans {
+  margin: 0 0 10px;
+}
+.run-cite {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 17px;
+  height: 17px;
+  margin: 0 1px;
+  padding: 0 4px;
+  border-radius: 5px;
+  vertical-align: 1px;
+  background: var(--brand-soft);
+  color: var(--brand-text);
+  font-size: 11px;
+  font-weight: 600;
+}
+.run-src {
+  margin: 4px 0 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--stroke-soft);
+}
+.run-src-h {
+  margin-bottom: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-soft);
+}
+.run-src-i {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+  padding: 3px 0;
+  font-size: 13px;
+}
+.run-src-i b {
+  font-weight: 500;
+  color: var(--text-strong);
+}
+.run-src-i span:last-child {
+  font-size: 12px;
+  color: var(--text-soft);
+}
+.run-fu {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.run-fu span {
+  padding: 2px 10px;
+  border: 1px solid var(--stroke-sub);
+  border-radius: 999px;
+  font-size: 12.5px;
+}
+.run-foot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-top: 1px solid var(--stroke-soft);
+  background: var(--bg-nav);
+}
+.run-send {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--brand);
+  color: var(--on-brand);
+}
+.run-input {
+  flex: 1;
+  min-width: 0;
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--stroke-sub);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  background: var(--bg-page);
+  font-size: 13px;
+  color: var(--text-soft);
+  white-space: nowrap;
+  overflow: hidden;
+}
+.run-meter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-soft);
+}
+.run-meter i {
+  display: block;
+  width: 44px;
+  height: 4px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--stroke-soft);
+}
+.run-meter i::after {
+  content: "";
+  display: block;
+  width: 34%;
+  height: 100%;
+  background: var(--brand);
+}
+.run + figcaption,
+.run-cap {
+  margin-top: 12px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-sub);
+}
+@media (max-width: 640px) {
+  .run-body {
+    padding: 14px 14px 4px;
+  }
+  .run-subject,
+  .run-meter {
+    display: none;
+  }
+  .run-q {
+    max-width: 92%;
+  }
+}
+
+/* Do / never: two lists side by side. */
+.dodont {
+  display: grid;
+  gap: 12px;
+  margin: 24px 0 0;
+}
+@media (min-width: 640px) {
+  .dodont {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.dodont-col {
+  padding: 18px 20px;
+  border: 1px solid var(--stroke-soft);
+  border-radius: 16px;
+}
+.dodont-no {
+  background: var(--bg-nav);
+}
+.dodont-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-strong);
+}
+.dodont-yes .dodont-title svg,
+.dodont-yes li svg {
+  color: var(--brand);
+}
+.dodont-no li svg,
+.dodont-no .dodont-title svg {
+  color: var(--text-soft);
+}
+.dodont ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.dodont li {
+  display: flex;
+  gap: 8px;
+  padding: 4px 0;
+  font-size: 14.5px;
+  line-height: 24px;
+}
+.dodont li svg {
+  flex: none;
+  margin-top: 5px;
+}
+
+/* Status grid: the ways a run segment ends. */
+.statuses {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+  gap: 8px;
+  margin: 20px 0 0;
+}
+.status {
+  padding: 12px;
+  border: 1px solid var(--stroke-soft);
+  border-radius: 12px;
+}
+.status-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font:
+    600 12.5px "JetBrains Mono Variable",
+    ui-monospace,
+    monospace;
+  color: var(--text-strong);
+}
+.status-name::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--dot, var(--text-soft));
+}
+.status-desc {
+  margin: 6px 0 0;
+  font-size: 13px;
+  line-height: 19px;
+  color: var(--text-sub);
+}

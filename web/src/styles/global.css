@@ -6,6 +6,7 @@
 @import "./diagram.css" layer(components);
 @import "./components.css" layer(components);
 @import "./motion.css" layer(components);
+@import "./agent.css" layer(components);
 
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
