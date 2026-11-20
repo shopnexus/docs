@@ -8,7 +8,7 @@ Mỗi kịch bản kiểm thử là một tình huống người mua, người b
 
 - kiểm thử tự động của từng phân hệ và kiểm thử trọn quy trình trên cơ sở dữ liệu thật, chạy lại ở mỗi lần cập nhật;
 - kiểm thử trực tiếp trên môi trường chạy thử bằng hai tài khoản thật, một người bán và một người mua, đi qua nhắn tin, trả giá, đơn COD, đăng tin và tài khoản;
-- kiểm thử với môi trường thử của GHTK và GHN, cạnh một hãng giả lập dựng được các tình huống khó gặp như hãng báo trùng, báo sai thứ tự hay không đến lấy hàng.
+- kiểm thử phần vận chuyển với một hãng giả lập trả lời đúng định dạng tài liệu API của GHTK và GHN, dựng được các tình huống khó gặp như hãng báo trùng, báo sai thứ tự hay không đến lấy hàng.
 
 Các thời hạn 3 ngày và 7 ngày được kiểm bằng cách cho đồng hồ của bài kiểm thử chạy nhanh. Bảng 3.1 liệt kê các kịch bản chính của giai đoạn 2.
 

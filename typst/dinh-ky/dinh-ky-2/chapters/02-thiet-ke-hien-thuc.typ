@@ -124,7 +124,7 @@ Trạng thái vận đơn do hãng báo về ngay khi có thay đổi; ngoài ra
 
 Hãng có thể báo trùng hoặc báo sai thứ tự. Mỗi tin báo chỉ được tính một lần và đơn không lùi trạng thái, nên một lần giao không bị tính hai lần. Nếu người mua chưa nhận được hàng mà đơn đã báo giao, người mua gửi phiếu "Báo chưa nhận hàng" từ màn hình đơn (mục 2.5). Người bán gỡ liên kết hãng được khi không còn vận đơn đang mở ở hãng đó.
 
-Phần vận chuyển chạy trên môi trường thử của GHTK và GHN. Ký hợp đồng đối tác với hãng vận chuyển để chạy trên môi trường chính thức của hãng nằm ngoài phạm vi đồ án. Trên môi trường chạy thử của nhóm, một hãng giả lập trả trạng thái theo đúng cách hãng thật báo về để kiểm thử trọn luồng.
+Phần kết nối hãng được viết theo tài liệu API của GHTK [9] và GHN [8], gồm liên kết tài khoản, báo phí, tạo, đọc, hủy vận đơn và nhận trạng thái. Phần này được kiểm thử với một hãng giả lập trả lời đúng định dạng tài liệu đó, chưa chạy với hệ thống thật của hãng: ký hợp đồng đối tác và kết nối với hệ thống thật của hãng nằm ngoài phạm vi đồ án.
 
 == Sau giao dịch: đánh giá, uy tín và hỗ trợ
 

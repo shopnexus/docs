@@ -5,7 +5,7 @@
 
 == Kết quả giai đoạn 2
 
-Luồng mua bán chạy trọn trên dữ liệu thật, từ lúc người bán quay video món đồ tới lúc hai bên đánh giá nhau. Người bán đăng tin với AI điền giúp và gợi ý giá, liên kết tài khoản GHTK hoặc GHN của mình và tạo vận đơn ngay trong ứng dụng. Người mua tìm hàng bằng câu nói tự nhiên hoặc bằng ảnh, theo dõi tìm kiếm và giá, trò chuyện có cảnh báo lừa đảo, và xem hàng tại cửa trước khi trả tiền. Đơn COD đi theo trạng thái do hãng báo về, có thời hạn tự động ở từng bước.
+Luồng mua bán chạy trọn trên dữ liệu thật, từ lúc người bán quay video món đồ tới lúc hai bên đánh giá nhau. Người bán đăng tin với AI điền giúp và gợi ý giá, liên kết tài khoản GHTK hoặc GHN của mình và tạo vận đơn ngay trong ứng dụng. Người mua tìm hàng bằng câu nói tự nhiên hoặc bằng ảnh, theo dõi tìm kiếm và giá, trò chuyện có cảnh báo lừa đảo, và xem hàng tại cửa trước khi trả tiền. Đơn COD đi theo trạng thái do hãng báo về, có thời hạn tự động ở từng bước; phần hãng vận chuyển chạy với hãng giả lập theo tài liệu API của GHTK và GHN.
 
 Ứng dụng Android đã bỏ hẳn dữ liệu giả lập. Website có đủ các chức năng chính cho người mua và người bán. Nhân viên có trang điều hành để trả lời phiếu hỗ trợ, với trợ lý AI tra cứu và soạn đề xuất. Mô hình nghiệp vụ gọn hơn định kỳ 1: bỏ điểm và bậc uy tín, xác minh danh tính, ghi nhận sự cố và bước khai vết, trong khi hai ràng buộc gốc giữ nguyên.
 

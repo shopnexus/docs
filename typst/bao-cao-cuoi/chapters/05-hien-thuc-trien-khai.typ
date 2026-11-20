@@ -112,7 +112,7 @@ Sau khi gửi, mọi diễn biến do hãng báo về (UC-DEAL-05); không bên 
 
 Trạng thái của GHN được quy về cùng ba nhóm đang giao, đã giao và giao không thành. Lúc shipper đến, người mua mở hàng xem trước rồi mới trả tiền (BR-DEAL-05). Sau khi trả tiền, sàn không có cơ chế đòi lại; mục Trợ giúp ghi rõ điều này (BR-DEAL-09). Nếu hàng không đúng, người mua từ chối nhận: hàng quay về người bán, người mua không mất đồng nào và tin trở về đang bán (BR-DEAL-08). Người mua hoặc người bán hủy được đơn khi người bán chưa gửi (UC-DEAL-06, BR-DEAL-07).
 
-Phần vận chuyển chạy trên môi trường thử của GHTK và GHN. Ký hợp đồng đối tác với hãng vận chuyển để chạy trên môi trường chính thức của hãng nằm ngoài phạm vi đồ án. Trên môi trường thử của nhóm, một hãng giả lập trả trạng thái theo đúng cách hãng thật báo về để kiểm thử trọn luồng.
+Phần kết nối hãng được viết theo tài liệu API của GHTK [17] và GHN [16], gồm liên kết tài khoản, báo phí, tạo, đọc, hủy vận đơn và nhận trạng thái. Phần này được kiểm thử với một hãng giả lập trả lời đúng định dạng tài liệu đó, chưa chạy với hệ thống thật của hãng: ký hợp đồng đối tác và kết nối với hệ thống thật của hãng nằm ngoài phạm vi đồ án.
 
 == Phân hệ đánh giá, uy tín, hỗ trợ và thông báo
 

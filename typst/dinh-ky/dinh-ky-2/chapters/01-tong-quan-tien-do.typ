@@ -17,7 +17,7 @@ Kế hoạch giai đoạn 2 trong báo cáo định kỳ 1 gồm bốn việc. B
     columns: (1.3fr, 2fr, 2.2fr),
     align: (left + top, left + top, left + top),
     table.header([*Việc*], [*Kế hoạch*], [*Kết quả*]),
-    [Vận chuyển], [Liên kết tài khoản GHTK, GHN của người bán; báo phí, tạo và hủy vận đơn; nhận trạng thái từ hãng], [Đã làm đủ, chạy trên môi trường thử của GHTK và GHN],
+    [Vận chuyển], [Liên kết tài khoản GHTK, GHN của người bán; báo phí, tạo và hủy vận đơn; nhận trạng thái từ hãng], [Đã làm đủ theo tài liệu API của hai hãng, kiểm thử với hãng giả lập],
     [Khám phá], [Tìm kiếm, AI agent tìm hàng, lưu tin], [Tìm bằng câu tự nhiên, bằng ảnh, tin tương tự, lưu tin, báo giảm giá, theo dõi tìm kiếm, theo dõi người bán],
     [Uy tín], [Đánh giá, ghi nhận sự cố, điểm uy tín, quyền và chế tài], [Đánh giá hai chiều, trang Uy tín bằng số liệu thật, cảnh báo lừa đảo, báo cáo vi phạm, phiếu hỗ trợ. Điểm, bậc và ghi nhận sự cố được bỏ (mục 1.2)],
     [Nối ứng dụng], [Ứng dụng Android dùng dữ liệu thật], [Hoàn thành ngày 17/11/2026, bản phát hành không còn dữ liệu giả lập],
