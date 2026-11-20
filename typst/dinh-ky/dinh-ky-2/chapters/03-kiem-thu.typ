@@ -1,26 +1,38 @@
 #import "../../../common/tokens.typ": *
 
+#show table.cell: set text(size: 10pt)
+
 = KIỂM THỬ BƯỚC ĐẦU
 
-Mỗi ca kiểm thử mô tả một tình huống người mua hoặc người bán có thể gặp và được truy về ca sử dụng, quy tắc nghiệp vụ mà tình huống đó phải tuân theo. Các ca chạy trên cơ sở dữ liệu thật, mỗi ca có dữ liệu riêng. GHTK và GHN được thay bằng máy chủ giả trả phản hồi đúng định dạng tài liệu của hãng [9][10], nhờ đó dựng được các tình huống khó gặp như hãng báo trùng, báo sai thứ tự hay hủy khi hàng đã được lấy. Mô hình ngôn ngữ được thay bằng bản giả có thể trả lời chậm hoặc lỗi, và hạn 3 ngày của ghi nhận sự cố được kiểm bằng cách cho đồng hồ chạy nhanh. Bảng 3.1 liệt kê các kịch bản chính.
+Mỗi kịch bản kiểm thử là một tình huống người mua, người bán hoặc hãng vận chuyển có thể gây ra, được truy về ca sử dụng tương ứng. Nhóm kiểm thử ở ba mức:
+
+- kiểm thử tự động của từng phân hệ và kiểm thử trọn quy trình trên cơ sở dữ liệu thật, chạy lại ở mỗi lần cập nhật;
+- kiểm thử trực tiếp trên môi trường chạy thử bằng hai tài khoản thật, một người bán và một người mua, đi qua nhắn tin, trả giá, đơn COD, đăng tin và tài khoản;
+- kiểm thử với môi trường thử của GHTK và GHN, cạnh một hãng giả lập dựng được các tình huống khó gặp như hãng báo trùng, báo sai thứ tự hay không đến lấy hàng.
+
+Các thời hạn 3 ngày và 7 ngày được kiểm bằng cách cho đồng hồ của bài kiểm thử chạy nhanh. Bảng 3.1 liệt kê các kịch bản chính của giai đoạn 2.
 
 #figure(
   kind: table,
   caption: [Các kịch bản kiểm thử chính của giai đoạn 2],
   table(
-    columns: (0.6fr, 3.4fr, 1.1fr),
+    columns: (0.6fr, 3.4fr, 1fr),
     align: (left + top, left + top, left + top),
-    table.header([*Mã*], [*Kịch bản nghiệp vụ*], [*Truy vết*]),
-    [TC-01], [Hãng báo giao thành công nhiều lần; đơn chỉ hoàn tất một lần và người bán chỉ được cộng 10 điểm một lần], [NFR-IDEM-01, UC-DEAL-05],
-    [TC-02], [Máy chủ gặp sự cố ngay sau khi hãng đã tạo vận đơn; lần chạy lại không tạo vận đơn thứ hai], [NFR-DUR-01, UC-DEAL-04],
-    [TC-03], [Người bán tạo đơn đúng lúc tin vừa bị đóng; vận đơn vừa tạo được hủy, đơn chuyển sang đã hủy], [FR-DEAL-03, BR-DEAL-04],
-    [TC-04], [Hủy đơn khi hãng chưa lấy hàng thì vận đơn bị hủy theo; hủy sau khi hãng đã lấy hàng bị từ chối], [UC-DEAL-06, BR-DEAL-07],
-    [TC-05], [Hãng báo đã lấy hàng sau khi đã báo giao thành công; đơn không lùi trạng thái], [FR-DEAL-04, UC-DEAL-05],
-    [TC-06], [Người mua từ chối nhận tại cửa; người mua không mất tiền, tin đăng mở bán lại], [BR-DEAL-08, UC-DEAL-05],
-    [TC-07], [Ghi nhận sự cố quá 3 ngày không trả lời tự chuyển sang bị từ chối và hiện công khai], [BR-TRS-01, UC-TRS-03],
-    [TC-08], [Người mua bậc Mới mở đơn COD thứ ba cùng lúc bị từ chối; tỉ lệ từ chối nhận 35% trên ít nhất 5 đơn làm mất quyền COD 30 ngày], [BR-DEAL-06, BR-TRS-02],
-    [TC-09], [Agent quá 8 giây hoặc gặp lỗi; người dùng vẫn nhận kết quả tìm kiếm lai theo câu gốc], [NFR-PERF-01, BR-DSC-01, UC-DSC-01],
+    table.header([*Mã*], [*Kịch bản*], [*Ca sử dụng*]),
+    [TC-01], [Hãng báo đã giao hai lần; đơn chỉ hoàn tất một lần], [UC-DEAL-05],
+    [TC-02], [Hãng báo đã lấy hàng sau khi đã báo giao; đơn không lùi trạng thái], [UC-DEAL-05],
+    [TC-03], [Người bán không tạo đơn trong 3 ngày; đơn tự hủy, tin tiếp tục bán], [UC-DEAL-04],
+    [TC-04], [Hãng chưa lấy hàng sau 3 ngày; đơn hủy, vận đơn trên tài khoản hãng hủy theo, tin mở bán lại], [UC-DEAL-06],
+    [TC-05], [Người mua không bấm đã nhận; 3 ngày sau khi hãng báo giao, đơn tự hoàn tất và tin thành đã bán], [UC-DEAL-05],
+    [TC-06], [Người mua từ chối nhận; đơn giao không thành, tin mở bán lại, số đơn giao không thành của người mua tăng], [UC-DEAL-05, UC-TRS-04],
+    [TC-07], [Người bán nhập mã vận đơn không thuộc tài khoản hãng của mình; mã bị từ chối], [UC-DEAL-04],
+    [TC-08], [Người mua đang có 3 đơn COD mở gửi yêu cầu thứ tư; yêu cầu bị từ chối], [UC-DEAL-03],
+    [TC-09], [Người bán gỡ liên kết GHTK khi còn vận đơn GHTK đang mở; bị từ chối], [UC-ACC-04],
+    [TC-10], [Tin nhắn đòi đặt cọc và rủ sang Zalo; cảnh báo hiện. Người dùng tắt cảnh báo, sau đó có tin xin mã OTP; cảnh báo hiện lại], [UC-DEAL-01],
+    [TC-11], [Người bán đánh giá người mua trước; đánh giá ẩn với người mua cho đến khi người mua đánh giá lại hoặc qua 7 ngày. Sau câu trả lời, đánh giá không sửa được], [UC-TRS-01],
+    [TC-12], [Người dùng chặn một người bán; tin của người bán đó không còn trong tìm kiếm, trang chủ và Gần bạn của cả hai bên], [UC-DSC-01, UC-ACC-05],
+    [TC-13], [Người dùng xóa tài khoản khi còn đơn đang giao; bị từ chối cho đến khi đơn đóng], [Tài khoản],
   ),
 )
 
-Chất lượng kết quả của AI agent cần đánh giá riêng. Nhóm đang xây dựng một bộ câu nhu cầu tiếng Việt có gán nhãn tin liên quan, tập trung vào câu nhiều ràng buộc, câu có phủ định và câu cần thông tin vị trí. Ba cấu hình được so sánh: chỉ tìm kiếm lai, tìm kiếm lai cộng một lần gọi LLM phân tích ý định, và agent đầy đủ. Độ đo gồm nDCG\@10, MRR\@10 và tỉ lệ truy vấn không có kết quả. Số đo sẽ được trình bày trong báo cáo cuối, sau khi hoàn tất gán nhãn ở giai đoạn 3.
+Chất lượng tìm kiếm cần một phép đo riêng. Nhóm đang soạn bộ câu tìm tiếng Việt có gán sẵn các tin liên quan, tập trung vào câu nhiều điều kiện, câu có phủ định và câu cần vị trí. Bộ câu dùng để so sánh ba cách: chỉ khớp từ khóa, ghép ba cách tìm, và ghép ba cách tìm có AI đọc câu. Số đo sẽ trình bày trong báo cáo cuối.

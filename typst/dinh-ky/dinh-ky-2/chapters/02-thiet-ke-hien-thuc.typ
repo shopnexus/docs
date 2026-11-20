@@ -1,84 +1,47 @@
 #import "../../../common/tokens.typ": *
 
-// Nhãn sơ đồ trình tự xoay ngang: phóng nhãn 7pt mặc định cho dễ đọc khi in
-#let nl(b) = text(size: 10.5pt, b)
+#show table.cell: set text(size: 10pt)
 
-= THIẾT KẾ VÀ HIỆN THỰC
-
-Chương này trình bày bốn nhóm chức năng của giai đoạn 2 theo góc nhìn người dùng: vận chuyển qua hãng, tìm kiếm bằng AI agent, uy tín và chế tài, và ứng dụng di động chạy trên dữ liệu thật. Mỗi phân hệ tự quản lý dữ liệu của mình và chỉ trao đổi với phân hệ khác qua các chức năng đã công bố, như đã thống nhất ở định kỳ 1.
-
-== Vận chuyển qua GHTK và GHN
-
-Người bán liên kết tài khoản GHTK hoặc GHN đứng tên mình một lần trong màn hình "Thiết lập giao COD" (UC-ACC-04): khai địa chỉ lấy hàng, chọn hãng và nhập khóa kết nối do hãng cấp. Trước khi lưu, hệ thống thử hỏi phí với hãng nên khóa sai bị báo ngay. Khóa được mã hóa khi lưu; hệ thống không bao giờ giữ mật khẩu tài khoản hãng (NFR-PRIV-01).
-
-Khi có yêu cầu COD, người mua đã thấy phí ship ước tính (UC-DEAL-03). Người bán chỉ cần chọn dịch vụ nhanh hoặc tiết kiệm và nhập khối lượng (UC-DEAL-04); hệ thống tạo vận đơn trên tài khoản hãng của người bán và hiện phí thật. Vận đơn luôn đặt chế độ người nhận trả phí ship và cho xem hàng [9][10], nên shipper thu tiền hàng cùng phí ship tại cửa sau khi người mua đã xem hàng (BR-DEAL-05). Nếu người mua từ chối nhận, hàng quay về, hãng tính phí hai chiều vào tài khoản người bán và người mua không mất tiền (BR-DEAL-08). Người bán vẫn có thể tự gửi qua hãng khác bằng cách nhập mã vận đơn, nhưng đơn tự gửi không được tính vào tỉ lệ dùng cho chế tài.
-
-Hình 2.1 là trình tự tạo đơn gửi hàng. Quy trình gồm nhiều bước nối tiếp: kiểm tra đơn, tạo vận đơn, giữ tin cho người mua này và hủy các yêu cầu COD khác trên cùng tin. Kết quả mỗi bước được ghi lại [12], nên nếu máy chủ gặp sự cố giữa chừng, quy trình chạy tiếp từ bước đã xong và không tạo vận đơn thứ hai (NFR-DUR-01) [3]. Nếu tin đã đóng trước khi kịp giữ, vận đơn vừa tạo bị hủy ngay.
-
-#fig-xoay(
-  [Sơ đồ trình tự tạo đơn gửi hàng qua hãng vận chuyển],
-  spacing: (44mm, 13mm),
-  np((0, 0), [:Người bán\ (ứng dụng)]),
-  ncore((1, 0), [Phân hệ\ giao dịch]),
-  np((2, 0), [Phân hệ\ vận chuyển]),
-  np((3, 0), [Hãng\ vận chuyển]),
-  np((4, 0), [Phân hệ\ tin đăng], shape: rect),
-  ..lifelines(5, y1: 13.9),
-  msg(0, 1, 1, nl[1\. Xác nhận gửi hàng:\ dịch vụ, khối lượng]),
-  step(1, 2, nl[2\. Kiểm tra đơn đang ở đã yêu cầu,\ đúng người bán, đã liên kết hãng]),
-  msg(1, 2, 3, nl[3\. Tạo vận đơn\ (dịch vụ, khối lượng)]),
-  msg(2, 3, 4, nl[4\. Tạo vận đơn người nhận trả phí,\ thu hộ tiền hàng]),
-  rmsg(3, 2, 5, nl[5\. Mã vận đơn, phí thật]),
-  rmsg(2, 1, 6, nl[6\. Lưu vận đơn, trả mã và phí]),
-  msg(1, 4, 7, nl[7\. Giữ tin cho người mua này]),
-  ..khung(nl[*alt*], 0.6, 4.35, 7.7, 12.4),
-  dkien(1.5, 7.75, nl[tin còn đang bán]),
-  rmsg(4, 1, 8.4, nl[8a. Tin chuyển đang giữ chỗ]),
-  step(1, 9.4, nl[9a. Đơn sang đã tạo vận đơn; hủy các yêu cầu COD\ khác với lý do đã gửi cho người khác]),
-  ngan(0.6, 4.35, 10.3),
-  dkien(1.5, 10.35, nl[tin đã đóng]),
-  rmsg(4, 1, 11.0, nl[8b. Từ chối giữ tin]),
-  msg(1, 2, 12.0, nl[9b. Hủy vận đơn vừa tạo;\ đơn sang đã hủy]),
-  rmsg(1, 0, 13.6, nl[10. Báo kết quả: mã vận đơn, phí thật]),
+// Ảnh chụp website, cùng kiểu chú thích với anh-mobile
+#let anh-web(cap, tep, rong: 100%) = figure(
+  box(stroke: 0.6pt + hairline, image("../../../common/assets/web/" + tep, width: rong)),
+  caption: cap,
+  kind: image,
 )
 
-Trước khi hãng lấy hàng, cả hai bên đều hủy được đơn và vận đơn trên tài khoản hãng bị hủy theo; khi hãng đã lấy hàng, lệnh hủy bị từ chối (UC-DEAL-06, BR-DEAL-07). Sau đó người mua theo dõi đơn theo trạng thái hãng báo về (UC-DEAL-05) mà không phải tự xác nhận. Hai hãng gọi trạng thái khác nhau nên được quy về trạng thái chung của đơn như ở Bảng 2.1. Hãng có thể báo trùng hoặc sai thứ tự; mỗi tin báo chỉ được ghi nhận một lần và chỉ áp vào đơn khi đơn đang ở đúng bước liền trước, nên đơn không lùi trạng thái và một lần giao không bị tính hai lần (NFR-IDEM-01) [6].
+= KẾT QUẢ HIỆN THỰC
 
-#figure(
-  kind: table,
-  caption: [Ánh xạ trạng thái vận đơn GHTK, GHN sang trạng thái đơn],
-  table(
-    columns: (1.5fr, 1.5fr, 1fr, 1.9fr),
-    align: (left + top, left + top, left + top, left + top),
-    table.header([*GHTK (mã số)*], [*GHN*], [*Trạng thái đơn*], [*Hệ quả*]),
-    [1 chưa tiếp nhận, 2 đã tiếp nhận], [Chờ lấy hàng, đang lấy hàng], [Đã tạo vận đơn], [Giữ nguyên, còn hủy được],
-    [3 đã lấy hàng], [Đã lấy hàng, đang lưu kho], [Đang giao], [Từ đây không hủy được],
-    [4 đang giao, 9 không giao được], [Đang giao, giao không thành công], [Đang giao], [Chỉ ghi vào lịch sử vận đơn],
-    [5 đã giao, 6 đã đối soát], [Đã giao], [Đã giao], [Tin được tính là đã bán],
-    [20 đang hoàn, 21 đã hoàn], [Chờ hoàn, đang hoàn, đã hoàn], [Đã hoàn], [Tin trở về đang bán],
-    [−1 hủy], [Hủy], [Đã hủy], [Tin trở về đang bán],
-  ),
-)
+Chương này đi theo thứ tự một giao dịch: người bán đăng tin, người mua tìm hàng, hai bên trò chuyện và chốt giá, đơn COD đi qua hãng vận chuyển, rồi hai bên đánh giá nhau. Phần cuối trình bày trang điều hành của nhân viên và các kênh người dùng truy cập. Mọi chức năng dưới đây chạy trên cùng một dịch vụ nền cho cả ứng dụng Android và website.
 
-== Tìm kiếm bằng AI agent
+== Đăng tin với AI điền giúp
 
-Lớp dưới là tìm kiếm lai trên các tin đang bán. Mỗi tin được lập chỉ mục theo nghĩa bằng một mô hình nhúng văn bản đa ngôn ngữ [4][11] và theo từ khóa tiếng Việt không phân biệt dấu. Hình 2.2 tóm tắt một lần tìm: ba phép tìm chạy trên cùng tập tin đã qua bộ lọc, ba danh sách được hợp nhất theo thứ hạng [5], rồi kết quả được xếp lại nhẹ theo khoảng cách và bậc uy tín người bán. Tin đang giữ chỗ, đã bán hoặc đang ẩn không xuất hiện trong kết quả.
+Người bán có ba cách bắt đầu một tin đăng (UC-LST-01). Cách thứ nhất là quay video món đồ, xoay các mặt và nói giá muốn bán; AI nghe tiếng Việt trong video, xem các khung hình rồi điền tên, danh mục, tình trạng, thông số, mô tả và giá người bán vừa nói. Cách thứ hai là chụp ảnh, AI điền theo những gì ảnh cho thấy. Cách thứ ba dành cho người đã bán trên Chợ Tốt: dán link tin cũ, AI lấy ảnh và nội dung, đồng thời bỏ số điện thoại, Zalo trong mô tả. Người bán sửa lại mọi ô trước khi đăng.
+
+Bước "Giá" cho người bán thấy thị trường của món đồ: các tin tương tự đang bán và đã bán, số người mua đang theo dõi tìm kiếm khớp với món này, và hai mức gợi ý. "Giá thị trường" là giá giữa của các tin tương tự, kèm số ngày bán thường gặp. "Bán nhanh" là giá giữa của nhóm tin bán nhanh hơn mức thường, chỉ hiện khi thấp hơn giá thị trường.
+
+Nháp tin đăng được lưu trên máy chủ nên người bán bắt đầu trên điện thoại và đăng tiếp trên website được, tối đa 20 nháp, nháp không sửa trong 30 ngày thì bị xóa. Mỗi người có tối đa 20 tin đang bán. Trang "Tin của bạn" hiện lượt xem, lượt hỏi và lượt lưu của từng tin (UC-LST-02).
+
+== Tìm kiếm và khám phá
+
+Người mua gõ một câu như "xe đạp cũ dưới 3 triệu" (UC-DSC-01). AI đọc câu một lần và đổi thành điều kiện tìm: danh mục, khoảng giá, tình trạng, nơi bán, độ gần. Kết quả hiện kèm các chip điều kiện người mua tắt được, cùng một câu ngắn cho biết hệ thống đã hiểu câu tìm thế nào. AI chỉ đọc câu tìm, không đặt hàng hay nhắn tin thay người dùng.
+
+Kết quả được ghép từ ba cách tìm trên các tin đang bán: khớp từ khóa tiếng Việt, tìm theo nghĩa bằng mô hình nhúng văn bản đa ngôn ngữ [3], và so ảnh bằng mô hình hiểu ảnh [5]. Ba danh sách được hợp nhất theo thứ hạng [4] (Hình 2.1). Nhờ phần so ảnh, người mua còn tìm được bằng một tấm ảnh chụp món đồ, và trang chi tiết tin có mục tin tương tự. Tin đã bán, đang giữ cho người khác, đang ẩn, hay của người đã chặn mình (theo cả hai chiều) không hiện trong kết quả.
 
 #fig(
-  [Các bước của truy vấn tìm kiếm lai],
+  [Các bước của một lần tìm kiếm],
   spacing: (14mm, 8mm),
-  nt((0, 1), [Câu tìm\ và bộ lọc]),
-  np((1, 1), [Chuyển câu\ thành vector]),
+  nt((0, 1), [Câu tìm\ hoặc ảnh]),
+  np((1, 1), [AI đọc câu\ thành điều kiện]),
   np((2, 0), [Tìm theo nghĩa]),
-  np((2, 1), [Tìm theo\ trọng số từ]),
-  np((2, 2), [Khớp đúng\ từ khóa]),
+  np((2, 1), [So ảnh]),
+  np((2, 2), [Khớp từ khóa]),
   ncore((3, 1), [Hợp nhất\ thứ hạng]),
-  np((4, 1), [Xếp lại theo\ khoảng cách, uy tín]),
-  nt((5, 1), [Kết quả]),
+  np((4, 1), [Lọc theo điều kiện\ và người đã chặn]),
+  nt((5, 1), [Kết quả\ và chip]),
   edge((0, 1), (1, 1), "-|>"),
   edge((1, 1), (2, 0), "-|>"),
   edge((1, 1), (2, 1), "-|>"),
-  edge((0, 1), (0, 2), (2, 2), "-|>"),
+  edge((1, 1), (2, 2), "-|>"),
   edge((2, 0), (3, 1), "-|>"),
   edge((2, 1), (3, 1), "-|>"),
   edge((2, 2), (3, 1), "-|>"),
@@ -86,48 +49,109 @@ Lớp dưới là tìm kiếm lai trên các tin đang bán. Mỗi tin được 
   edge((4, 1), (5, 1), "-|>"),
 )
 
-Lớp trên là AI agent (UC-DSC-01). Người dùng gõ một câu như "kiếm xe đạp cũ dưới 3 triệu, gần đây"; agent dùng một mô hình ngôn ngữ lớn có sẵn, tự chọn công cụ cần tra cứu như tìm tin, xem danh mục, xem khu vực hay sở thích của người dùng, rồi đặt bộ lọc phù hợp [7]. Kết quả gồm danh sách tin, các chip điều kiện sửa được và một câu diễn giải ngắn. Lượt sau trong cùng phiên kế thừa các điều kiện đã chốt. Agent chỉ đọc (BR-DSC-01): không đặt hàng, không thương lượng, không thanh toán. Mỗi lượt gọi công cụ tối đa 4 lần; quá 8 giây hoặc gặp lỗi thì hệ thống trả kết quả tìm kiếm lai với câu gốc (NFR-PERF-01). Người dùng cũng lưu được tin để theo dõi giá (FR-DSC-03).
+Hình 2.2 là luồng tìm trên ứng dụng: người mua gõ câu (a) và nhận kết quả kèm chip "Xe đạp", "Dưới 3 tr" (b). Hình 2.3 là cùng câu tìm trên website, có thêm bộ lọc giá, tình trạng, khoảng cách ở cột trái và nút "Báo khi có tin mới".
 
-== Uy tín và chế tài
+#anh-mobile(
+  [Tìm kiếm bằng câu tự nhiên trên ứng dụng],
+  ("search-typing.png", "results.png"),
+  nhan: ("Gõ câu tìm kiếm", "Kết quả và chip"),
+  cao: 9cm,
+)
 
-Sau khi đơn đã gửi, người mua đánh giá người bán một lần từ 1 đến 5 sao (UC-TRS-01, BR-TRS-04). Nếu phát hiện vấn đề sau khi nhận hàng, người mua mở ghi nhận sự cố kèm ảnh (UC-TRS-02); AI viết một nhận xét trung lập đối chiếu mô tả với cam kết của tin đăng, không kết luận ai đúng. Người bán có 3 ngày để tự hoàn hoặc từ chối (UC-TRS-03); từ chối hoặc quá hạn thì ghi nhận hiện công khai trên hồ sơ người bán (BR-TRS-01).
+#anh-web([Kết quả tìm kiếm trên website], "search.png")
 
-Điểm uy tín từ 0 đến 1000 được tính lại sau mỗi sự kiện: giao dịch thành công cộng 10, được đánh giá 5 sao cộng 5, tự hoàn cho một ghi nhận cộng 15, xác minh danh tính cộng 100, bị đánh giá 1–2 sao trừ 15; sự kiện cũ hơn 365 ngày chỉ tính một nửa. Điểm quyết định bậc và quyền như ở Bảng 2.2. Quyền COD và bậc uy tín không mua được bằng gói trả phí (BR-TRS-03).
+Người mua không phải tìm lại mỗi ngày (UC-DSC-03). Một câu tìm được theo dõi thì hệ thống quét tin mới mỗi 30 phút và báo số tin mới khớp. Tin đã lưu có thể đặt mức giá, khi người bán hạ giá xuống dưới mức đó thì người mua nhận thông báo. Người mua cũng theo dõi được một người bán để biết khi người đó đăng tin mới, và ẩn những tin không muốn thấy lại. Trang chủ có ba tab: "Gợi ý" xếp theo danh mục người mua đã lưu, đã tìm, đã xem trong 30 ngày; "Gần bạn" xếp theo khoảng cách và độ mới; "Mới nhất" xếp theo thời gian đăng. Khách chưa đăng nhập vẫn xem và tìm được.
+
+== Trò chuyện, thương lượng và cảnh báo lừa đảo
+
+Người mua nhắn tin cho người bán ngay từ tin đăng (UC-DEAL-01). Tin nhắn đến tức thời, hai bên thấy "đang nhập…" và mốc đã đọc, gửi được ảnh, trả lời một tin cụ thể bằng cách vuốt tin đó, và link tin đăng hiện thành thẻ có ảnh và giá. Trong cùng cuộc trò chuyện, hai bên trả giá, đồng ý hoặc rút giá (UC-DEAL-02). Khi đã chốt, người mua chọn giao COD (Hình 2.4).
+
+Sau mỗi tin nhắn có chữ, AI đọc 20 tin gần nhất của cuộc trò chuyện để tìm dấu hiệu lừa đảo. Số điện thoại, số tài khoản ngân hàng, số thẻ, email và link được che trước khi AI đọc. Cảnh báo chỉ hiện khi có ít nhất một dấu hiệu trong tin nhắn; các dữ kiện về tài khoản và giá chỉ đi kèm làm bằng chứng thêm (Bảng 2.1). Người dùng tắt được cảnh báo; cảnh báo hiện lại khi xuất hiện dấu hiệu mới chưa có lúc tắt. Từ cảnh báo, người dùng chặn và báo cáo người kia trong một lần bấm.
 
 #figure(
   kind: table,
-  caption: [Bậc uy tín và quyền tương ứng],
+  caption: [Các dấu hiệu lừa đảo trong trò chuyện],
   table(
-    columns: (1fr, 0.8fr, 1.1fr, 1.1fr, 2fr),
-    align: (left, center, center, center, left),
-    table.header([*Bậc*], [*Điểm từ*], [*Đơn COD mở tối đa*], [*Tin đang bán tối đa*], [*Quyền lợi thêm*]),
-    [Mới], [0], [2], [5], [],
-    [Tin cậy], [200], [5], [20], [],
-    [Uy tín], [500], [10], [20], [Ưu tiên hiển thị],
-    [Xuất sắc], [800], [20], [20], [Huy hiệu, giảm 20% phí đẩy tin],
+    columns: (1fr, 2.6fr),
+    align: (left + top, left + top),
+    table.header([*Nguồn*], [*Dấu hiệu hiện cho người dùng*]),
+    [Tin nhắn], [Đòi chuyển tiền hoặc đặt cọc trước],
+    [Tin nhắn], [Rủ chuyển sang Zalo, Telegram, Facebook],
+    [Tin nhắn], [Gửi link lạ, giả trang thanh toán hoặc giao hàng],
+    [Tin nhắn], [Xin mã OTP, mật khẩu hoặc thông tin thẻ],
+    [Tin nhắn], [Mạo danh ShopNexus, ngân hàng hoặc hãng vận chuyển],
+    [Tin nhắn], [Gửi biên lai giả hoặc bảo "chuyển dư, hoàn lại giúp"],
+    [Tin nhắn], [Hối thúc, ép quyết định ngay],
+    [Dữ kiện], [Tài khoản mới tạo dưới 7 ngày],
+    [Dữ kiện], [Giá thấp hơn tin tương tự từ 30% trở lên],
   ),
 )
 
-Chế tài chạy tự động theo BR-TRS-02 khi người mua có ít nhất 5 đơn COD qua hãng trong 90 ngày: tỉ lệ từ chối nhận từ 20% thì chỉ còn 1 đơn COD mở, từ 35% thì mất quyền COD trong 30 ngày, và 30 ngày không từ chối lần nào thì hồi lại một nấc. Hạn mức được kiểm tra ngay khi gửi yêu cầu COD; hai yêu cầu cùng lúc được xét lần lượt nên không vượt hạn mức được (BR-DEAL-06, NFR-CONC-01).
-
-== Ứng dụng di động
-
-Các màn hình làm ở giai đoạn 1 nay lấy và ghi dữ liệu thật mà giao diện giữ nguyên [8]. Ứng dụng nhận cập nhật tức thời khi có tin nhắn, nước đi thương lượng hay đơn đổi trạng thái, tự giữ phiên đăng nhập, và bấm lại nút khi mạng chập chờn không tạo hai yêu cầu COD.
-
-Hình 2.3 là luồng tìm kiếm: người dùng gõ câu tự nhiên (a), nhận kết quả kèm chip "Xe đạp", "Dưới 3 tr" (b), rồi mở chi tiết tin để trả giá (c).
-
 #anh-mobile(
-  [Tìm kiếm bằng câu tự nhiên và chi tiết tin],
-  ("search-typing.png", "results.png", "detail.png"),
-  nhan: ("Gõ câu tìm kiếm", "Kết quả và chip", "Chi tiết tin"),
+  [Trả giá, chốt giá và cảnh báo lừa đảo trong hộp thư],
+  ("chat-offering.png", "chat-agreed-cod.png", "inbox-scam.png"),
+  nhan: ("Trả giá", "Chốt giá, chọn COD", "Cảnh báo lừa đảo"),
   cao: 8cm,
 )
 
-Hình 2.4 là luồng đơn COD: người bán chọn hãng, khối lượng, dịch vụ và xem phí trước khi tạo đơn (a); khi shipper đến, người mua được nhắc xem hàng trước vì sau khi trả tiền sàn không đòi lại được (b, BR-DEAL-09); màn hình (c) hiện điểm uy tín 386/1000 ở bậc Tin cậy với hạn mức 5 đơn COD mở và 20 tin đang bán.
+== Đơn COD qua GHTK và GHN
 
-#anh-mobile(
-  [Tạo đơn gửi hàng, nhận hàng đồng kiểm và điểm uy tín],
-  ("order-ship-to-create.png", "order-cod-door.png", "rep.png"),
-  nhan: ("Người bán tạo đơn", "Shipper ở cửa", "Điểm uy tín"),
-  cao: 8cm,
+Người bán vào "Thiết lập giao COD" một lần (UC-ACC-04, Hình 2.5): khai địa chỉ lấy hàng và liên kết tài khoản GHTK hoặc GHN đứng tên mình. Với GHTK, người bán nhập email và mật khẩu, hệ thống đổi ngay thành mã kết nối của cửa hàng và không lưu mật khẩu [9]. Với GHN, người bán nhập mã kết nối và mã cửa hàng do GHN cấp, hệ thống kiểm tra với GHN trước khi lưu [8]. Mã kết nối được mã hóa và không bao giờ hiện ra ngoài, kể cả với nhân viên. Tiền thu hộ do hãng chuyển về tài khoản ngân hàng người bán đã khai với hãng, nên ShopNexus không hỏi tài khoản ngân hàng.
+
+#anh-web([Thiết lập giao COD trên website], "cod.png")
+
+Khi có yêu cầu COD, người bán tạo đơn theo một trong hai cách (UC-DEAL-04). Cách thứ nhất, ShopNexus tạo vận đơn trên tài khoản hãng của người bán: người bán chọn điểm lấy hàng, dịch vụ và khối lượng, rồi thấy phí thật do hãng báo. Cách thứ hai, người bán đã tạo vận đơn trên ứng dụng của hãng thì nhập mã; hệ thống đọc mã đó bằng tài khoản hãng của người bán, mã không thuộc tài khoản này bị từ chối ngay. Vận đơn luôn đặt chế độ thu hộ tiền hàng và cho người nhận xem hàng.
+
+Trạng thái vận đơn do hãng báo về ngay khi có thay đổi; ngoài ra hệ thống hỏi lại hãng mỗi 2 giờ cho mọi vận đơn đang mở, phòng khi hãng báo sót (UC-DEAL-05). Bảng 2.2 là hệ quả của từng sự kiện với người mua, người bán và tin đăng.
+
+#figure(
+  kind: table,
+  caption: [Sự kiện của đơn COD và hệ quả],
+  table(
+    columns: (1.6fr, 1fr, 2.2fr),
+    align: (left + top, left + top, left + top),
+    table.header([*Sự kiện*], [*Trạng thái đơn*], [*Hệ quả*]),
+    [Người mua gửi yêu cầu COD], [Chờ tạo đơn], [Người mua có tối đa 3 đơn COD đang mở; tin vẫn đang bán],
+    [Người bán tạo vận đơn hoặc nhập mã], [Đã gửi], [Tin được giữ cho người mua này, các yêu cầu COD khác trên tin tự hủy],
+    [Một bên hủy trước khi gửi], [Đã hủy], [Tin tiếp tục bán],
+    [Người bán không tạo đơn trong 3 ngày], [Đã hủy], [Tin tiếp tục bán],
+    [Hãng chưa lấy hàng sau 3 ngày], [Đã hủy], [Vận đơn trên tài khoản hãng bị hủy theo, tin mở bán lại],
+    [Người mua bấm đã nhận hàng], [Hoàn tất], [Tin thành đã bán, hai bên được mời đánh giá nhau],
+    [Hãng báo đã giao, người mua không bấm], [Hoàn tất sau 3 ngày], [Như trên],
+    [Người mua từ chối nhận, hoặc hãng báo không giao được], [Giao không thành], [Tin mở bán lại; người mua không mất tiền, hãng tính phí hai chiều vào tài khoản người bán],
+  ),
 )
+
+Hãng có thể báo trùng hoặc báo sai thứ tự. Mỗi tin báo chỉ được tính một lần và đơn không lùi trạng thái, nên một lần giao không bị tính hai lần. Nếu người mua chưa nhận được hàng mà đơn đã báo giao, người mua gửi phiếu "Báo chưa nhận hàng" từ màn hình đơn (mục 2.5). Người bán gỡ liên kết hãng được khi không còn vận đơn đang mở ở hãng đó.
+
+Phần vận chuyển đang chạy trên môi trường thử của GHTK và GHN. Bản chính thức sẽ bật khi ShopNexus ký hợp đồng đối tác với GHTK. Trên môi trường chạy thử của nhóm, một hãng giả lập trả trạng thái theo đúng cách hãng thật báo về để kiểm thử trọn luồng.
+
+== Sau giao dịch: đánh giá, uy tín và hỗ trợ
+
+Sau khi đơn hoàn tất, người mua đánh giá người bán và người bán đánh giá người mua, từ 1 đến 5 sao, kèm tối đa 500 chữ (UC-TRS-01). Đánh giá được ẩn cho đến khi bên kia cũng đánh giá, hoặc sau 7 ngày, để không ai viết theo số sao của người kia. Người được đánh giá trả lời được một lần; sau câu trả lời, đánh giá khóa lại, không sửa hay xóa được. Hồ sơ mỗi người hiện hai điểm riêng: khi bán và khi mua.
+
+Trang "Uy tín của bạn" (UC-TRS-04, Hình 2.6) hiện các số liệu hệ thống đang giữ: số sao trung bình và số lượt đánh giá, số món đã bán, ngày tham gia, số người theo dõi, tỉ lệ trả lời tin nhắn trong 24 giờ (tính khi có từ 5 cuộc trò chuyện trong 90 ngày), số đơn COD và số đơn giao không thành trong 90 ngày, cùng hạn mức đang dùng.
+
+#anh-web([Trang Uy tín của bạn trên website], "rep.png")
+
+Người dùng liên hệ ShopNexus qua phiếu hỗ trợ, gồm ba loại: "Báo chưa nhận hàng" gắn với một đơn, "Xin thêm hãng" khi người bán dùng hãng vận chuyển ShopNexus chưa đọc được, và "Yêu cầu khác" (Hình 2.7). Mỗi phiếu là một cuộc trò chuyện riêng giữa người dùng và ShopNexus, có ảnh, mốc đã đọc và thông báo như trò chuyện thường. Người dùng còn báo cáo được một tin đăng hoặc một người bán vi phạm (UC-MOD-01) và rút lại báo cáo.
+
+#anh-web([Gửi phiếu hỗ trợ trên website], "support.png")
+
+Thông báo đẩy về điện thoại có sáu công tắc riêng: tin nhắn, trả giá, đơn hàng, giảm giá, người đang theo dõi, đánh giá, cùng giờ yên lặng mặc định từ 22:00 đến 07:00. Ở phần tài khoản, người dùng xem các thiết bị đang đăng nhập và đăng xuất từng máy, quản lý tối đa 10 địa chỉ theo danh mục hành chính sau sáp nhập năm 2025, và xóa tài khoản khi không còn đơn đang chờ hoặc đang giao.
+
+== Trang điều hành cho nhân viên
+
+Theo nguyên tắc ở định kỳ 1, người thật ở ShopNexus chỉ xử lý những việc thống kê không tự giải quyết được. Trang điều hành là website riêng cho nhân viên, tách khỏi tài khoản khách hàng. Ở hàng đợi Hỗ trợ, nhân viên mở phiếu ngay trên cuộc trò chuyện của khách và trả lời với tên "ShopNexus"; hệ thống ghi lại nhân viên nào đã trả lời. Nhân viên có quyền tạm khóa một tài khoản, và mọi thao tác được ghi vào nhật ký.
+
+Mỗi phiếu, báo cáo hoặc tài khoản có một trợ lý AI đi kèm. Trợ lý tự tra cứu qua nhiều bước [6]: đọc phiếu, đơn liên quan, lịch sử tin nhắn và các tài khoản có liên hệ, rồi trả lời nhân viên bằng bằng chứng, một đề xuất để nhân viên đánh dấu từng mục và một câu trả lời soạn sẵn cho khách. Trợ lý chỉ đọc: tạm khóa, ẩn tin hay gửi câu trả lời đều do nhân viên bấm, và mỗi thao tác có nút hoàn tác. Chi phí AI của trang điều hành có hạn mức 20 USD mỗi ngày. Phần trợ lý đã chạy ở mức trả lời câu hỏi kèm nguồn; phần tổng hợp nhiều phiếu một lúc đang làm.
+
+== Ứng dụng, website và môi trường chạy
+
+Ứng dụng Android dùng dữ liệu thật từ ngày 17/11/2026, giao diện giữ theo nguyên mẫu ở giai đoạn 1 [7]. Đăng nhập có ba cách: số điện thoại, email nhận mã, hoặc tài khoản Google; người chưa có số điện thoại được yêu cầu thêm số khi bắt đầu giao dịch. Ứng dụng tự nối lại khi mất mạng và nhận đủ các tin nhắn, thay đổi đơn đã lỡ.
+
+Website (Hình 2.8) có các chức năng chính như ứng dụng: xem và tìm tin, lưu tin, trò chuyện tức thời, đăng tin, đơn COD, phiếu hỗ trợ và tài khoản. Để kiểm thử trên khối lượng giống thật, nhóm nạp một bộ dữ liệu thử gồm khoảng 7.000 tài khoản và hàng chục nghìn tin đăng có ảnh, trải đều 14 danh mục.
+
+#anh-web([Trang chủ website với ba tab Gợi ý, Gần bạn, Mới nhất], "home.png")
+
+Hệ thống chạy hai môi trường trên cụm máy chủ của nhóm: môi trường chạy thử để nhóm thử mỗi thay đổi, và môi trường chính thức chỉ nhận các bản đã thử xong. Nhân viên xem tình trạng hoạt động của hệ thống trên các bảng theo dõi, đăng nhập bằng tài khoản trang điều hành. Mô hình nghe tiếng Việt và mô hình hiểu ảnh chạy trên máy chủ của nhóm; các mô hình ngôn ngữ lớn đi qua một cổng chung có hạn mức chi phí mỗi ngày cho từng chức năng.

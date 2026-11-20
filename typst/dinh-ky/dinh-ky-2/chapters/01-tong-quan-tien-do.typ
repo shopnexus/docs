@@ -1,53 +1,77 @@
 #import "../../../common/tokens.typ": *
 
+#show table.cell: set text(size: 10pt)
+
 = TỔNG QUAN TIẾN ĐỘ
 
 == Mục tiêu giai đoạn 2
 
-ShopNexus là sàn giao dịch hàng đã qua sử dụng giữa các cá nhân, dựa trên hai ràng buộc gốc: sàn không giữ tiền của ai (BR-DEAL-01) và sàn không phân xử từng vụ việc. Đường giao dịch duy nhất là COD đồng kiểm (BR-DEAL-05): người mua xem hàng tại cửa rồi mới trả tiền cho shipper, tiền thu hộ về thẳng tài khoản của người bán. Người dùng có vấn đề bị chế tài bằng cách mất quyền, không phải mất tiền (BR-TRS-02).
+ShopNexus là sàn mua bán đồ đã qua sử dụng giữa các cá nhân. Hai ràng buộc gốc từ định kỳ 1 giữ nguyên: sàn không giữ tiền của ai và sàn không phân xử từng vụ việc. Đường giao dịch trong ứng dụng vẫn là COD đồng kiểm: người mua xem hàng khi shipper giao tới rồi mới trả tiền, tiền thu hộ đi thẳng từ hãng vận chuyển về tài khoản của người bán.
 
-Giai đoạn 2 (tuần 5–8) đưa các phần còn ở mức thiết kế trong định kỳ 1 thành chức năng chạy được: kết nối GHTK và GHN để tạo vận đơn và nhận trạng thái do hãng báo về (FR-DEAL-03, FR-DEAL-04), tìm hàng bằng câu nói tự nhiên với AI agent (FR-DSC-01), đánh giá, ghi nhận sự cố, điểm uy tín và chế tài tự động (FR-TRS-01 đến FR-TRS-03), và nối ứng dụng di động với dữ liệu thật. Xác minh danh tính, thông báo, gói người bán và đánh giá định lượng AI agent để lại cho giai đoạn 3.
-
-== Điều chỉnh so với định kỳ 1
-
-Bảng 1.1 liệt kê các điều chỉnh chính so với thiết kế đã trình bày ở định kỳ 1.
+Kế hoạch giai đoạn 2 trong báo cáo định kỳ 1 gồm bốn việc. Bảng 1.1 đối chiếu từng việc với kết quả cuối tuần 8.
 
 #figure(
   kind: table,
-  caption: [Các điều chỉnh thiết kế so với báo cáo định kỳ 1],
+  caption: [Kết quả giai đoạn 2 so với kế hoạch ở định kỳ 1],
   table(
-    columns: (1.1fr, 1.5fr, 1.9fr, 1.8fr),
-    align: (left + top, left + top, left + top, left + top),
-    table.header([*Hạng mục*], [*Định kỳ 1*], [*Định kỳ 2*], [*Lý do*]),
-    [Tạo đơn COD], [Người bán tự gửi rồi nhập mã vận đơn, phí bằng tay], [Hệ thống tạo vận đơn trên tài khoản hãng của người bán; tự gửi vẫn giữ cho hãng khác], [Đơn ghi tay không có dữ kiện khách quan để tính chế tài],
-    [Các bước của đơn], [Đã yêu cầu → đang giao → đã giao hoặc đã hoàn], [Thêm bước đã tạo vận đơn; hủy được ở hai bước đầu], [Vận đơn đã tạo nhưng hãng chưa lấy hàng vẫn hủy được (BR-DEAL-07)],
-    [Vận chuyển], [Mã vận đơn ghi kèm đơn hàng], [Phân hệ vận chuyển riêng quản lý liên kết hãng, vận đơn và lịch sử trạng thái], [Phần giao dịch không phụ thuộc cách làm việc của từng hãng],
-    [Hạn mức đơn COD mở], [Cố định 3 đơn], [Theo bậc uy tín: 2 / 5 / 10 / 20 (BR-DEAL-06)], [Người mua mới chịu hạn mức thấp, người mua tốt không bị giới hạn vô lý],
-    [Ứng dụng di động], [Dữ liệu giả lập], [Dữ liệu thật, cập nhật trạng thái tức thời], [Kiểm thử luồng thật tới hãng vận chuyển],
+    columns: (1.3fr, 2fr, 2.2fr),
+    align: (left + top, left + top, left + top),
+    table.header([*Việc*], [*Kế hoạch*], [*Kết quả*]),
+    [Vận chuyển], [Liên kết tài khoản GHTK, GHN của người bán; báo phí, tạo và hủy vận đơn; nhận trạng thái từ hãng], [Đã làm đủ, chạy trên môi trường thử của GHTK và GHN. Bản chính thức chờ hợp đồng đối tác với GHTK],
+    [Khám phá], [Tìm kiếm, AI agent tìm hàng, lưu tin], [Tìm bằng câu tự nhiên, bằng ảnh, tin tương tự, lưu tin, báo giảm giá, theo dõi tìm kiếm, theo dõi người bán],
+    [Uy tín], [Đánh giá, ghi nhận sự cố, điểm uy tín, quyền và chế tài], [Đánh giá hai chiều, trang Uy tín bằng số liệu thật, cảnh báo lừa đảo, báo cáo vi phạm, phiếu hỗ trợ. Điểm, bậc và ghi nhận sự cố được bỏ (mục 1.2)],
+    [Nối ứng dụng], [Ứng dụng Android dùng dữ liệu thật], [Hoàn thành ngày 17/11/2026, bản phát hành không còn dữ liệu giả lập],
+    [Làm thêm], [], [Website cho người mua và người bán; trang điều hành cho nhân viên có trợ lý AI; AI điền tin đăng và gợi ý giá; thông báo đẩy],
   ),
 )
 
-Điều chỉnh lớn nhất là cách tạo đơn COD. Khi vận đơn được tạo trên tài khoản hãng của chính người bán, các mốc lấy hàng, giao thành công và hoàn hàng đều do hãng báo về, nên chế tài ở BR-TRS-02 có dữ liệu khách quan để tính. Đơn tự gửi không có dữ kiện này nên không tính vào tỉ lệ từ chối nhận.
+== Điều chỉnh mô hình nghiệp vụ
 
-Hình 1.1 là các trạng thái của đơn COD sau điều chỉnh. Khi đơn sang đã tạo vận đơn, tin đăng chuyển sang đang giữ chỗ và các yêu cầu COD khác trên cùng tin tự hủy (BR-DEAL-04). Từ lúc đang giao, đơn không hủy được. Khi đơn đã giao, tin chuyển sang đã bán; khi đơn đã hoàn hoặc đã hủy, tin trở về đang bán. Trạng thái không nhận được chỉ dùng cho đơn tự gửi.
+Khi nối ứng dụng với dịch vụ nền, nhóm đi lại từng luồng trên dữ liệu thật và thấy một số phần của mô hình ở định kỳ 1 đòi người dùng làm thêm bước mà không giảm được rủi ro. Bảng 1.2 liệt kê các điều chỉnh.
+
+#figure(
+  kind: table,
+  caption: [Các điều chỉnh mô hình nghiệp vụ so với định kỳ 1],
+  table(
+    columns: (1.05fr, 1.5fr, 1.9fr, 1.9fr),
+    align: (left + top, left + top, left + top, left + top),
+    table.header([*Hạng mục*], [*Định kỳ 1*], [*Định kỳ 2*], [*Lý do*]),
+    [Uy tín], [Điểm 0–1000, bốn bậc, quyền lợi theo bậc], [Trang "Uy tín của bạn" hiện số liệu: số sao trung bình, số món đã bán, tỉ lệ trả lời trong 24 giờ, số đơn giao không thành trong 90 ngày], [Người dùng đọc và kiểm chứng được con số thật; luật cộng trừ điểm khó giải thích cho người dùng],
+    [Hạn mức], [Theo bậc: 2/5/10/20 đơn COD mở, 5/20 tin đang bán], [Mọi tài khoản: 3 đơn COD mở khi mua, 20 tin đang bán], [Hết bậc nên hạn mức chung một mức],
+    [Xác minh danh tính], [CCCD gắn chip và khuôn mặt], [Bỏ. Giao dịch COD cần số điện thoại đã xác minh], [Đối sánh khuôn mặt cần dịch vụ trả phí và thêm một bước trước khi đăng tin. Với COD đồng kiểm, người mua xem hàng trước khi trả tiền, và số điện thoại đã xác minh gắn mỗi tài khoản với một người],
+    [Sự cố sau khi nhận], [Ghi nhận sự cố, người bán có 3 ngày để tự hoàn tiền hoặc từ chối], [Hai bên trao đổi trong trò chuyện. Người mua chưa nhận được hàng gửi phiếu "Báo chưa nhận hàng" cho ShopNexus], [Sàn không giữ tiền nên không có khoản hoàn nào để theo dõi],
+    [Khai vết], [Mỗi vết khai kèm ảnh cận, AI chặn đăng nếu thấy vết chưa khai], [Bỏ. Tin mô tả bằng ảnh và thang tình trạng ba mức], [Mỗi người đánh giá độ mòn khác nhau nên vết đã khai không phải dữ kiện chắc chắn, còn vết do AI chỉ ra dễ thành cớ tranh chấp. Người mua đã xem hàng tại cửa trước khi trả tiền],
+    [Hãng vận chuyển], [GHTK, GHN, hoặc tự gửi qua hãng bất kỳ rồi nhập mã], [Chỉ GHTK, GHN. Mã tự nhập được đọc bằng tài khoản hãng của người bán. Hãng khác xin qua phiếu "Xin thêm hãng"], [Đơn nào cũng có trạng thái do hãng báo, không còn đơn phải tin lời một bên],
+    [Chế tài], [Tự động hạ quyền theo tỉ lệ từ chối nhận], [Chưa áp dụng. Số đơn giao không thành hiện công khai trên trang Uy tín], [Cần dữ liệu giao dịch thật để đặt ngưỡng],
+    [Tìm kiếm], [AI agent tra cứu nhiều bước], [AI đọc câu tìm một lần, đổi thành điều kiện và chip. Agent nhiều bước chuyển sang hỗ trợ nhân viên], [Người mua cần kết quả nhanh; việc điều tra của nhân viên chờ được lâu hơn],
+    [Đánh giá], [Người mua đánh giá người bán], [Hai bên đánh giá nhau, người được đánh giá trả lời một lần], [Người bán cũng chịu rủi ro với COD: người mua bỏ đơn, im lặng],
+    [Đăng nhập], [Chỉ OTP số điện thoại], [Thêm email và Google. Số điện thoại chỉ bắt buộc khi giao dịch], [Người chỉ xem và tìm không phải khai số điện thoại],
+    [Kênh], [Ứng dụng Android], [Thêm website cho người mua và người bán, trang điều hành cho nhân viên], [Nhiều người mua đồ cũ tìm trên máy tính; nhân viên cần nơi xử lý phiếu hỗ trợ],
+    [Trang chủ], [Mở vào "Gần bạn"], [Ba tab: Gợi ý, Gần bạn, Mới nhất], [COD giao toàn quốc nên người bán bán được cho người ở tỉnh khác],
+  ),
+)
+
+Với các điều chỉnh này, việc của sàn sau khi chốt giá chỉ còn ba thứ: tạo vận đơn trên tài khoản hãng của người bán, theo trạng thái hãng báo về, và cho cả hai bên thấy số liệu thật của nhau. Người thật ở ShopNexus nhận phiếu hỗ trợ và báo cáo vi phạm; không có quy trình phân xử khiếu nại.
+
+== Luồng đơn COD sau điều chỉnh
+
+Đơn COD còn bốn trạng thái chính (Hình 1.1). Người mua gửi yêu cầu COD sau khi hai bên chốt giá, đơn ở trạng thái chờ tạo đơn. Người bán có 3 ngày để tạo vận đơn, quá hạn thì đơn tự hủy. Khi người bán tạo vận đơn, đơn chuyển sang đã gửi và tin đăng được giữ cho người mua này. Nếu hãng chưa lấy hàng sau 3 ngày, đơn bị hủy và vận đơn trên tài khoản hãng bị hủy theo.
+
+Đơn hoàn tất khi người mua bấm đã nhận hàng, hoặc 3 ngày sau khi hãng báo đã giao. Tin đăng khi đó chuyển sang đã bán. Nếu người mua từ chối nhận tại cửa hoặc hãng báo không giao được, đơn thành giao không thành, tin đăng mở bán lại, và người mua không mất tiền vì chưa trả gì.
 
 #fig(
-  [Sơ đồ trạng thái đơn COD sau điều chỉnh ở giai đoạn 2],
-  spacing: (34mm, 13mm),
+  [Sơ đồ trạng thái đơn COD ở giai đoạn 2],
+  spacing: (34mm, 14mm),
   nt((0, 0), [Bắt đầu]),
-  np((0, 1), [Đã yêu cầu]),
-  np((0, 2), [Đã tạo vận đơn]),
-  np((0, 3), [Đang giao]),
-  ng((-1, 4), [Đã giao]),
-  ng((0, 4), [Đã hoàn]),
-  ng((1, 4), [Không nhận được]),
-  ng((1.4, 1.5), [Đã hủy]),
+  np((0, 1), [Chờ tạo đơn]),
+  np((0, 2), [Đã gửi]),
+  ng((-0.9, 3), [Hoàn tất]),
+  ng((0.9, 3), [Giao không thành]),
+  ng((1.6, 1.5), [Đã hủy]),
   edge((0, 0), (0, 1), "-|>", label-side: left, text(size: 7.5pt)[người mua gửi yêu cầu COD]),
-  edge((0, 1), (0, 2), "-|>", label-side: left, text(size: 7.5pt)[người bán tạo vận đơn\ (qua hãng hoặc tự gửi)]),
-  edge((0, 2), (0, 3), "-|>", label-side: left, text(size: 7.5pt)[hãng báo đã lấy hàng\ (tự gửi: người bán báo đã gửi)]),
-  edge((0, 3), (-1, 4), "-|>", label-side: right, text(size: 7.5pt)[giao thành công]),
-  edge((0, 3), (0, 4), "-|>", label-side: left, label-pos: 0.45, text(size: 7.5pt)[từ chối nhận]),
-  edge((0, 3), (1, 4), "-|>", label-side: left, text(size: 7.5pt)[chỉ đơn tự gửi]),
-  edge((0, 1), (1.4, 1.5), "-|>", label-side: left, text(size: 7.5pt)[hủy]),
-  edge((0, 2), (1.4, 1.5), "-|>", label-side: right, text(size: 7.5pt)[hủy trước khi lấy hàng]),
+  edge((0, 1), (0, 2), "-|>", label-side: left, text(size: 7.5pt)[người bán tạo vận đơn\ hoặc nhập mã]),
+  edge((0, 2), (-0.9, 3), "-|>", label-side: right, text(size: 7.5pt)[người mua xác nhận,\ hoặc 3 ngày sau khi giao]),
+  edge((0, 2), (0.9, 3), "-|>", label-side: right, text(size: 7.5pt)[từ chối nhận,\ không giao được]),
+  edge((0, 1), (1.6, 1.5), "-|>", label-side: left, text(size: 7.5pt)[một bên hủy, hoặc\ người bán quá 3 ngày]),
+  edge((0, 2), (1.6, 1.5), "-|>", label-side: right, text(size: 7.5pt)[hãng chưa lấy hàng\ sau 3 ngày]),
 )

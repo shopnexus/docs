@@ -42,24 +42,21 @@ Báo cáo khó tránh khỏi thiếu sót, chúng em mong nhận được ý ki�
   align: (left, left, left),
   table.header([*Viết tắt*], [*Cụm từ đầy đủ*], [*Ý nghĩa*]),
   [AI], [Artificial Intelligence], [Trí tuệ nhân tạo],
-  [BR], [Business Rule], [Quy tắc nghiệp vụ (mã BR-xx)],
   [C2C], [Consumer to Consumer], [Giao dịch giữa các cá nhân],
   [CCCD], [], [Căn cước công dân],
-  [COD], [Cash on Delivery], [Thanh toán khi nhận hàng],
+  [COD], [Cash on Delivery], [Giao hàng thu tiền hộ],
+  [eKYC], [Electronic Know Your Customer], [Xác minh danh tính điện tử],
   [GHN], [], [Công ty Giao Hàng Nhanh],
   [GHTK], [], [Công ty Giao Hàng Tiết Kiệm],
-  [LLM], [Large Language Model], [Mô hình ngôn ngữ lớn],
-  [MRR], [Mean Reciprocal Rank], [Trung bình nghịch đảo thứ hạng],
-  [nDCG], [Normalized Discounted Cumulative Gain], [Độ đo chất lượng xếp hạng có chuẩn hóa],
-  [NFR], [Non-Functional Requirement], [Yêu cầu phi chức năng (mã NFR-xx)],
-  [REQ], [Requirement], [Yêu cầu chức năng (mã REQ-xx)],
-  [TC], [Test Case], [Ca kiểm thử (mã TC-xx)],
+  [OTP], [One-Time Password], [Mã dùng một lần],
+  [TC], [Test Case], [Kịch bản kiểm thử (mã TC-xx)],
   [UC], [Use Case], [Ca sử dụng (mã UC-xx)],
 )
 
 #pagebreak()
 
 #danh-muc-bang()
+#v(1em)
 #danh-muc-hinh()
 #pagebreak()
 
@@ -71,16 +68,18 @@ Báo cáo khó tránh khỏi thiếu sót, chúng em mong nhận được ý ki�
   inset: 7pt,
   align: (center, left, left, center, center),
   table.header([*STT*], [*Nội dung công việc*], [*Người thực hiện*], [*Thời gian*], [*Mức độ hoàn thành*]),
-  [1], [Rà soát góp ý định kỳ 1, điều chỉnh đơn COD và hạn mức theo bậc], [Cả nhóm], [Tuần 5], [Hoàn thành],
-  [2], [Liên kết tài khoản GHTK/GHN, báo phí, tạo và hủy vận đơn], [Đậu Văn Đăng Khoa], [Tuần 5–6], [Hoàn thành],
-  [3], [Nhận trạng thái vận đơn do hãng báo về, quy đổi trạng thái], [Đậu Văn Đăng Khoa], [Tuần 6–7], [Hoàn thành],
-  [4], [Chỉ mục và tìm kiếm lai cho tin đăng], [Hồ Công Toản], [Tuần 5–6], [Hoàn thành],
-  [5], [AI agent tìm kiếm bằng câu tự nhiên], [Hồ Công Toản], [Tuần 6–8], [Hoàn thành],
-  [6], [Đánh giá, ghi nhận sự cố, điểm uy tín và chế tài tự động], [Hồ Công Toản], [Tuần 7–8], [Hoàn thành],
-  [7], [Nối ứng dụng di động với dịch vụ nền], [Nguyễn Tấn Khoa], [Tuần 5–7], [Hoàn thành],
-  [8], [Màn hình tạo đơn, chọn hãng, hồ sơ uy tín], [Nguyễn Tấn Khoa], [Tuần 7–8], [Hoàn thành],
-  [9], [Kiểm thử các kịch bản nghiệp vụ], [Cả nhóm], [Tuần 8], [Đang thực hiện],
-  [10], [Viết báo cáo định kỳ 2], [Cả nhóm], [Tuần 8], [Hoàn thành],
+  [1], [Rà soát mô hình nghiệp vụ sau định kỳ 1, rút gọn luồng đơn COD và phần uy tín], [Cả nhóm], [Tuần 5], [Hoàn thành],
+  [2], [Môi trường chạy thử và môi trường chính thức trên cụm máy chủ của nhóm], [Đậu Văn Đăng Khoa], [Tuần 5–6], [Hoàn thành],
+  [3], [Đăng nhập bằng số điện thoại, email, Google; quản lý thiết bị, xóa tài khoản], [Đậu Văn Đăng Khoa], [Tuần 5–6], [Hoàn thành],
+  [4], [Đơn COD qua GHTK, GHN: liên kết tài khoản hãng, tạo vận đơn, nhận trạng thái], [Đậu Văn Đăng Khoa], [Tuần 6–7], [Hoàn thành trên môi trường thử của hãng],
+  [5], [Tìm kiếm bằng câu tự nhiên, tìm bằng ảnh, tin tương tự, theo dõi tìm kiếm, báo giảm giá], [Hồ Công Toản], [Tuần 5–7], [Hoàn thành],
+  [6], [AI điền tin từ video, ảnh, link Chợ Tốt; gợi ý giá khi đăng tin], [Hồ Công Toản], [Tuần 6–7], [Hoàn thành],
+  [7], [Cảnh báo lừa đảo trong trò chuyện, báo cáo vi phạm, đánh giá hai chiều, thông báo], [Hồ Công Toản], [Tuần 6–8], [Hoàn thành],
+  [8], [Nối ứng dụng Android với dịch vụ nền, bỏ dữ liệu giả lập], [Nguyễn Tấn Khoa], [Tuần 6–8], [Hoàn thành],
+  [9], [Website cho người mua và người bán], [Nguyễn Tấn Khoa], [Tuần 7–8], [Hoàn thành],
+  [10], [Phiếu hỗ trợ và trang điều hành cho nhân viên, có trợ lý AI], [Đậu Văn Đăng Khoa, Hồ Công Toản], [Tuần 7–8], [Đang thực hiện],
+  [11], [Kiểm thử các kịch bản nghiệp vụ], [Cả nhóm], [Tuần 8], [Đang thực hiện],
+  [12], [Viết báo cáo định kỳ 2], [Cả nhóm], [Tuần 8], [Hoàn thành],
 )
 
 // ============================================================
@@ -92,9 +91,11 @@ Báo cáo khó tránh khỏi thiếu sót, chúng em mong nhận được ý ki�
 #pagebreak()
 #sechead([MỞ ĐẦU])
 
-Giai đoạn 1 của đồ án "#info.de-tai" đã xây dựng mô hình nghiệp vụ, các chức năng đăng tin, thương lượng, đơn COD tự gửi và nguyên mẫu ứng dụng di động. Giai đoạn 2 (tuần 5–8) kết nối GHTK và GHN, thêm tìm kiếm bằng AI agent, phần uy tín và chế tài, và đưa ứng dụng chạy trên dữ liệu thật.
+Giai đoạn 1 của đồ án "#info.de-tai" đã xây dựng mô hình nghiệp vụ, đặc tả yêu cầu, nguyên mẫu ứng dụng Android trên dữ liệu giả lập và bảy phân hệ nền đầu tiên. Đơn COD khi đó do người bán tự gửi rồi nhập mã vận đơn bằng tay.
 
-Chương 1 tóm tắt mục tiêu và các điều chỉnh so với định kỳ 1. Chương 2 trình bày thiết kế và các chức năng đã hiện thực. Chương 3 nêu các kịch bản kiểm thử. Phần kết luận nêu kết quả, khó khăn và kế hoạch giai đoạn 3.
+Giai đoạn 2 (tuần 5–8) đưa sản phẩm sang chạy trên dữ liệu thật. Người bán tạo vận đơn GHTK, GHN ngay trong ứng dụng, người mua tìm hàng bằng câu nói tự nhiên, AI điền giúp tin đăng và cảnh báo lừa đảo trong trò chuyện. Ngoài ứng dụng Android, nhóm làm thêm website cho người mua và người bán, và trang điều hành cho nhân viên ShopNexus. Trong giai đoạn này nhóm cũng rút gọn một số phần của mô hình nghiệp vụ sau khi thử với luồng thật.
+
+Chương 1 so sánh kết quả với kế hoạch và nêu các điều chỉnh mô hình. Chương 2 trình bày các chức năng đã làm theo thứ tự một giao dịch, từ đăng tin tới đánh giá, rồi tới phần của nhân viên. Chương 3 nêu cách kiểm thử và các kịch bản chính. Phần kết luận nêu kết quả, khó khăn và kế hoạch giai đoạn 3.
 
 #include "chapters/01-tong-quan-tien-do.typ"
 #include "chapters/02-thiet-ke-hien-thuc.typ"
@@ -118,20 +119,17 @@ Chương 1 tóm tắt mục tiêu và các điều chỉnh so với định kỳ
 #enum(
   numbering: n => "[" + str(n) + "]",
   start: 3,
-  [Burckhardt S., Gillum C., Justo D., Kallas K., McMahon C., Meiklejohn C. S., Durable Functions: Semantics for Stateful Serverless, Proceedings of the ACM on Programming Languages, vol. 5, OOPSLA, article 133, pp. 1–27 (2021).],
   [Chen J., Xiao S., Zhang P., Luo K., Lian D., Liu Z., M3-Embedding: Multi-Linguality, Multi-Functionality, Multi-Granularity Text Embeddings Through Self-Knowledge Distillation, Findings of the Association for Computational Linguistics: ACL 2024, pp. 2318–2335, Bangkok, Thailand (2024).],
   [Cormack G. V., Clarke C. L. A., Büttcher S., Reciprocal Rank Fusion Outperforms Condorcet and Individual Rank Learning Methods, Proceedings of the 32nd International ACM SIGIR Conference, pp. 758–759, Boston, USA (2009).],
-  [Helland P., Idempotence Is Not a Medical Condition, ACM Queue, vol. 10, no. 4, pp. 30–46 (2012).],
+  [Tschannen M., Gritsenko A., Wang X., et al., SigLIP 2: Multilingual Vision-Language Encoders with Improved Semantic Understanding, Localization, and Dense Features, arXiv:2502.14786 (2025).],
   [Yao S., Zhao J., Yu D., Du N., Shafran I., Narasimhan K., Cao Y., ReAct: Synergizing Reasoning and Acting in Language Models, International Conference on Learning Representations (ICLR), Kigali, Rwanda (2023).],
 )
 
 #nhom-tltk[Website]
 #enum(
   numbering: n => "[" + str(n) + "]",
-  start: 8,
+  start: 7,
   [Android Developers, Guide to app architecture, https:\/\/developer.android.com/topic/architecture.],
   [Giao Hàng Nhanh, GHN Developer API Documentation, https:\/\/api.ghn.vn.],
   [Giao Hàng Tiết Kiệm, GHTK OpenAPI Documentation, https:\/\/docs.giaohangtietkiem.vn.],
-  [pgvector: Open-Source Vector Similarity Search for PostgreSQL, https:\/\/github.com/pgvector/pgvector.],
-  [Restate Documentation: Durable Execution Engine, https:\/\/docs.restate.dev.],
 )
