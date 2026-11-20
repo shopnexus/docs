@@ -93,7 +93,7 @@ Chúng em xin cảm ơn thầy ThS. Nguyễn Đức Thịnh đã tận tình hư
 
 Mua bán đồ cũ giữa các cá nhân ở Việt Nam chủ yếu diễn ra qua tin rao vặt và hội nhóm mạng xã hội. Hai người lạ phải chọn giữa chuyển khoản trước, rủi ro cho người mua, và giao hàng thu tiền hộ, rủi ro cho người bán. Các sàn lớn xử lý bằng cách giữ tiền và phân xử khiếu nại, cách làm tốn kém và nặng nề với người chỉ bán một món đồ.
 
-Đề tài xây dựng ShopNexus, sàn C2C cho hàng đã qua sử dụng với hai ràng buộc: sàn không giữ tiền và không phân xử từng vụ việc. Giao dịch duy nhất là COD đồng kiểm, rủi ro được kiểm soát bằng quyền dựa trên thống kê hành vi. Báo cáo định kỳ 1 trình bày kết quả tuần 1 đến tuần 4: mô hình nghiệp vụ, phân tích yêu cầu, thiết kế hệ thống, nguyên mẫu ứng dụng Android và bảy phân hệ nền đầu tiên. Kết nối với hãng vận chuyển, tìm kiếm, AI agent và uy tín thuộc giai đoạn 2.
+Đề tài xây dựng một sàn C2C cho hàng đã qua sử dụng với hai ràng buộc: sàn không giữ tiền và không phân xử từng vụ việc. Giao dịch duy nhất là COD đồng kiểm, rủi ro được kiểm soát bằng quyền dựa trên thống kê hành vi. Báo cáo định kỳ 1 trình bày kết quả tuần 1 đến tuần 4: mô hình nghiệp vụ, phân tích yêu cầu, thiết kế hệ thống, nguyên mẫu ứng dụng Android và bảy phân hệ nền đầu tiên. Kết nối với hãng vận chuyển, tìm kiếm, AI agent và uy tín thuộc giai đoạn 2.
 
 // ---- Các chương (template tự ngắt trang trước mỗi chương) --
 #include "chapters/01-tong-quan.typ"

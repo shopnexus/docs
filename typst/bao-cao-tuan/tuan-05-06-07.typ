@@ -414,7 +414,7 @@ Kế thừa bố cục từ wireframe Tuần 3, bổ sung màu sắc, typography
 Ba màn hình quan trọng nhất (Chi tiết sản phẩm C2C, Khung Chat & Offer Card, Thanh toán Escrow) được thiết kế độ trung thực cao dựa trên wireframe Tuần 3, áp dụng palette và typography ở trên; mỗi màn hình kèm chú thích khoảng cách (8px scale) và ghi chú cho lập trình viên. Bản mockup chi tiết được trình bày ngay dưới đây.
 
 === Mockup độ trung thực cao (Hi-fidelity Mockups)
-Từ hệ thống thiết kế và thư viện thành phần ở trên, nhóm dựng bản mockup độ trung thực cao cho các màn hình chính của sàn ShopNexus, thống nhất màu chủ đạo xanh mòng két (`#004E47`) và bộ chữ Manrope/Inter. Ba màn hình cốt lõi của luồng giao dịch C2C được trình bày trước, tiếp theo là các màn hình bổ sung trong hành trình người dùng.
+Từ hệ thống thiết kế và thư viện thành phần ở trên, nhóm dựng bản mockup độ trung thực cao cho các màn hình chính của sàn, thống nhất màu chủ đạo xanh mòng két (`#004E47`) và bộ chữ Manrope/Inter. Ba màn hình cốt lõi của luồng giao dịch C2C được trình bày trước, tiếp theo là các màn hình bổ sung trong hành trình người dùng.
 
 #figure(
   assets("mockups/product-detail.png", height: 14cm),
@@ -712,4 +712,4 @@ Kỳ vọng: ném lỗi 422, kho được release, order giữ trạng thái PEN
   [RR-6], [Mở rộng phạm vi (scope creep).], [Trung bình], [Trung bình], [Khóa phạm vi theo 13 use case + 38 REQ đã chốt.],
 )
 
-Kết thúc Tuần 7, toàn bộ tài liệu thiết kế cấp cao (thành phần, API, CSDL vật lý, bảo mật) và cấp thấp (lớp, trình tự, UI, DDL) cùng kế hoạch triển khai đã hoàn tất, sẵn sàng cho giai đoạn hiện thực hóa hệ thống ShopNexus C2C.
+Kết thúc Tuần 7, toàn bộ tài liệu thiết kế cấp cao (thành phần, API, CSDL vật lý, bảo mật) và cấp thấp (lớp, trình tự, UI, DDL) cùng kế hoạch triển khai đã hoàn tất, sẵn sàng cho giai đoạn hiện thực hóa hệ thống.

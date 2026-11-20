@@ -1,8 +1,6 @@
 // ============================================================
 //  de-xuat-noi-dung.typ — thân nội dung đề xuất đề tài
-//  Không áp template. Hai bản dùng chung tệp này:
-//    de-xuat-de-tai.typ  bản nộp A4 (bìa + mục lục + header)
-//    idea.typ            bản gọn để đọc/chia sẻ nhanh
+//  Không áp template; de-xuat-de-tai.typ bọc nó thành bản nộp A4.
 // ============================================================
 #import "common/tokens.typ": *
 

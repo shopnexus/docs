@@ -38,7 +38,7 @@ Phần lớn yêu cầu chức năng ở Chương 3 chỉ thêm một chức nă
 Hình 4.1 trình bày kiến trúc theo năm tầng. Tầng khách gồm ứng dụng di động cho người mua, người bán và bảng điều khiển cho nhân viên. Tầng giao tiếp là nơi duy nhất nhận yêu cầu từ bên ngoài: giao diện lập trình được đặc tả trước [16], kênh cập nhật thời gian thực cho màn hình đang mở, và cổng nhận trạng thái vận đơn do hãng vận chuyển báo về. Mọi yêu cầu được kiểm theo đặc tả và xác thực người gọi trước khi tới phân hệ nghiệp vụ. Tầng nền tảng cung cấp những thứ mọi phân hệ dùng chung: điều phối quy trình nhiều bước, kênh tin báo giữa các phân hệ, cơ sở dữ liệu có tìm kiếm theo nghĩa, kho ảnh và giám sát vận hành.
 
 #fig(
-  [Kiến trúc tổng thể của ShopNexus],
+  [Kiến trúc tổng thể của hệ thống],
   spacing: (0mm, 5mm),
   band((0, 0), "KHÁCH", (
     [Ứng dụng di động], [Bảng điều khiển nhân viên],

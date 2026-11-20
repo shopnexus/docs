@@ -18,18 +18,18 @@
 
 == Tác nhân và ngữ cảnh hệ thống
 
-ShopNexus có bốn loại tác nhân người. Khách là người chưa đăng nhập, chỉ xem và tìm kiếm; mọi thao tác thay đổi dữ liệu đều đòi đăng nhập. Người dùng sở hữu một tài khoản vừa mua vừa bán, hệ thống không có vai trò người bán riêng; tùy ngữ cảnh, người dùng được gọi là Người mua hoặc Người bán. Điều phối viên và Quản trị viên là tài khoản nhân viên, tách khỏi tài khoản khách hàng, đăng nhập bằng email, mật khẩu và mã xác thực hai lớp bắt buộc. Quản trị viên làm được mọi việc của điều phối viên; quản trị viên đầu tiên do người vận hành hệ thống tạo trực tiếp trên máy chủ, không tạo được qua ứng dụng.
+Hệ thống có bốn loại tác nhân người. Khách là người chưa đăng nhập, chỉ xem và tìm kiếm; mọi thao tác thay đổi dữ liệu đều đòi đăng nhập. Người dùng sở hữu một tài khoản vừa mua vừa bán, hệ thống không có vai trò người bán riêng; tùy ngữ cảnh, người dùng được gọi là Người mua hoặc Người bán. Điều phối viên và Quản trị viên là tài khoản nhân viên, tách khỏi tài khoản khách hàng, đăng nhập bằng email, mật khẩu và mã xác thực hai lớp bắt buộc. Quản trị viên làm được mọi việc của điều phối viên; quản trị viên đầu tiên do người vận hành hệ thống tạo trực tiếp trên máy chủ, không tạo được qua ứng dụng.
 
 Phía hệ thống ngoài có năm nhóm: GHTK và GHN tạo, hủy vận đơn, báo phí và báo trạng thái giao hàng [14], [15]; nhà cung cấp SMS và email gửi mã OTP; dịch vụ AI gồm mô hình ngôn ngữ lớn (LLM) và mô hình hiểu nghĩa văn bản dùng cho tìm kiếm; dịch vụ đẩy thông báo tới điện thoại; dịch vụ đối sánh khuôn mặt eKYC. Ngoài ra còn hai tác nhân thời gian bên trong hệ thống: bộ chế tài tự động và hạn 3 ngày của ghi nhận sự cố.
 
-Hình 3.1 đặt ShopNexus ở giữa và chỉ vẽ những gì đi qua đường biên của nó. Ở mức ngữ cảnh, không có đường tiền nào đi qua hệ thống: tiền hàng và phí ship đi từ người mua sang shipper tại cửa, từ shipper về hãng, rồi từ hãng vào tài khoản ngân hàng người bán đã khai với hãng; ShopNexus chỉ nhận về trạng thái vận đơn. Đây là ràng buộc BR-DEAL-01 nhìn từ ngoài vào: hệ thống không có ví, không có số dư và không nối tới cổng thanh toán nào.
+Hình 3.1 đặt hệ thống ở giữa và chỉ vẽ những gì đi qua đường biên của nó. Ở mức ngữ cảnh, không có đường tiền nào đi qua hệ thống: tiền hàng và phí ship đi từ người mua sang shipper tại cửa, từ shipper về hãng, rồi từ hãng vào tài khoản ngân hàng người bán đã khai với hãng; hệ thống chỉ nhận về trạng thái vận đơn. Đây là ràng buộc BR-DEAL-01 nhìn từ ngoài vào: hệ thống không có ví, không có số dư và không nối tới cổng thanh toán nào.
 
 #fig(
-  [Sơ đồ ngữ cảnh hệ thống ShopNexus],
+  [Sơ đồ ngữ cảnh hệ thống],
   spacing: (30mm, 7.5mm),
 
   node(enclose: ((1, 0), (1, 4)), align(center + horizon, stack(spacing: 6pt,
-      text(size: 13pt, weight: 700)[ShopNexus],
+      text(size: 13pt, weight: 700)[Hệ thống],
       text(size: 8pt)[ứng dụng di động\ cho người dùng;\ trang quản lý\ cho nhân viên])),
     fill: rgb("#E4E4E4"), stroke: 1pt + ink, corner-radius: 5pt, width: 40mm, name: <sys>),
 
@@ -69,7 +69,7 @@ Hình 3.1 đặt ShopNexus ở giữa và chỉ vẽ những gì đi qua đườ
   edge((0, 5.4), (0.67, 5.4), "-|>", stroke: (dash: "dashed")),
   edge((0.67, 5.4), (1.33, 5.4), "-|>", stroke: (dash: "dashed")),
   edge((1.33, 5.4), (2, 5.4), "-|>", stroke: (dash: "dashed")),
-  node((1, 6.1), text(size: 8pt)[Đường tiền hàng và phí ship (COD): đi ngoài hệ thống, không qua ShopNexus],
+  node((1, 6.1), text(size: 8pt)[Đường tiền hàng và phí ship (COD): đi ngoài hệ thống],
     stroke: none, fill: none),
 )
 
@@ -87,7 +87,7 @@ Hình 3.2 chỉ vẽ lõi giao dịch, gồm nhóm D và E (UC-DEAL-01 đến UC
   node(enclose: (<u13>, <u14>, <u15>, <u16>, <u17>, <u18>, <u19>, <u20>, <u21>, <u22>, <us1>),
     inset: 10pt, stroke: (paint: ink, dash: "dashed", thickness: 0.9pt),
     fill: none, corner-radius: 8pt, name: <bien>),
-  node((1, -1.6), text(size: 9pt, weight: 700)[ShopNexus: trao đổi, giao dịch, hậu giao dịch],
+  node((1, -1.6), text(size: 9pt, weight: 700)[Hệ thống: trao đổi, giao dịch, hậu giao dịch],
     fill: soft, stroke: none, inset: 3pt),
 
   // Mọi ca cùng một bề rộng; đường nối tác nhân dừng ở đầu mút trái hoặc phải

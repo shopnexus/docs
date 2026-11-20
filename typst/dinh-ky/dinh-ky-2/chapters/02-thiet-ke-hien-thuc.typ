@@ -79,7 +79,7 @@ Sau mỗi tin nhắn có chữ, AI đọc 20 tin gần nhất của cuộc trò 
     [Tin nhắn], [Rủ chuyển sang Zalo, Telegram, Facebook],
     [Tin nhắn], [Gửi link lạ, giả trang thanh toán hoặc giao hàng],
     [Tin nhắn], [Xin mã OTP, mật khẩu hoặc thông tin thẻ],
-    [Tin nhắn], [Mạo danh ShopNexus, ngân hàng hoặc hãng vận chuyển],
+    [Tin nhắn], [Mạo danh sàn, ngân hàng hoặc hãng vận chuyển],
     [Tin nhắn], [Gửi biên lai giả hoặc bảo "chuyển dư, hoàn lại giúp"],
     [Tin nhắn], [Hối thúc, ép quyết định ngay],
     [Dữ kiện], [Tài khoản mới tạo dưới 7 ngày],
@@ -96,11 +96,11 @@ Sau mỗi tin nhắn có chữ, AI đọc 20 tin gần nhất của cuộc trò 
 
 == Đơn COD qua GHTK và GHN
 
-Người bán vào "Thiết lập giao COD" một lần (UC-ACC-04, Hình 2.5): khai địa chỉ lấy hàng và liên kết tài khoản GHTK hoặc GHN đứng tên mình. Với GHTK, người bán nhập email và mật khẩu, hệ thống đổi ngay thành mã kết nối của cửa hàng và không lưu mật khẩu [9]. Với GHN, người bán nhập mã kết nối và mã cửa hàng do GHN cấp, hệ thống kiểm tra với GHN trước khi lưu [8]. Mã kết nối được mã hóa và không bao giờ hiện ra ngoài, kể cả với nhân viên. Tiền thu hộ do hãng chuyển về tài khoản ngân hàng người bán đã khai với hãng, nên ShopNexus không hỏi tài khoản ngân hàng.
+Người bán vào "Thiết lập giao COD" một lần (UC-ACC-04, Hình 2.5): khai địa chỉ lấy hàng và liên kết tài khoản GHTK hoặc GHN đứng tên mình. Với GHTK, người bán nhập email và mật khẩu, hệ thống đổi ngay thành mã kết nối của cửa hàng và không lưu mật khẩu [9]. Với GHN, người bán nhập mã kết nối và mã cửa hàng do GHN cấp, hệ thống kiểm tra với GHN trước khi lưu [8]. Mã kết nối được mã hóa và không bao giờ hiện ra ngoài, kể cả với nhân viên. Tiền thu hộ do hãng chuyển về tài khoản ngân hàng người bán đã khai với hãng, nên hệ thống không hỏi tài khoản ngân hàng.
 
 #anh-web([Thiết lập giao COD trên website], "cod.png")
 
-Khi có yêu cầu COD, người bán tạo đơn theo một trong hai cách (UC-DEAL-04). Cách thứ nhất, ShopNexus tạo vận đơn trên tài khoản hãng của người bán: người bán chọn điểm lấy hàng, dịch vụ và khối lượng, rồi thấy phí thật do hãng báo. Cách thứ hai, người bán đã tạo vận đơn trên ứng dụng của hãng thì nhập mã; hệ thống đọc mã đó bằng tài khoản hãng của người bán, mã không thuộc tài khoản này bị từ chối ngay. Vận đơn luôn đặt chế độ thu hộ tiền hàng và cho người nhận xem hàng.
+Khi có yêu cầu COD, người bán tạo đơn theo một trong hai cách (UC-DEAL-04). Cách thứ nhất, hệ thống tạo vận đơn trên tài khoản hãng của người bán: người bán chọn điểm lấy hàng, dịch vụ và khối lượng, rồi thấy phí thật do hãng báo. Cách thứ hai, người bán đã tạo vận đơn trên ứng dụng của hãng thì nhập mã; hệ thống đọc mã đó bằng tài khoản hãng của người bán, mã không thuộc tài khoản này bị từ chối ngay. Vận đơn luôn đặt chế độ thu hộ tiền hàng và cho người nhận xem hàng.
 
 Trạng thái vận đơn do hãng báo về ngay khi có thay đổi; ngoài ra hệ thống hỏi lại hãng mỗi 2 giờ cho mọi vận đơn đang mở, phòng khi hãng báo sót (UC-DEAL-05). Bảng 2.2 là hệ quả của từng sự kiện với người mua, người bán và tin đăng.
 
@@ -124,7 +124,7 @@ Trạng thái vận đơn do hãng báo về ngay khi có thay đổi; ngoài ra
 
 Hãng có thể báo trùng hoặc báo sai thứ tự. Mỗi tin báo chỉ được tính một lần và đơn không lùi trạng thái, nên một lần giao không bị tính hai lần. Nếu người mua chưa nhận được hàng mà đơn đã báo giao, người mua gửi phiếu "Báo chưa nhận hàng" từ màn hình đơn (mục 2.5). Người bán gỡ liên kết hãng được khi không còn vận đơn đang mở ở hãng đó.
 
-Phần vận chuyển đang chạy trên môi trường thử của GHTK và GHN. Bản chính thức sẽ bật khi ShopNexus ký hợp đồng đối tác với GHTK. Trên môi trường chạy thử của nhóm, một hãng giả lập trả trạng thái theo đúng cách hãng thật báo về để kiểm thử trọn luồng.
+Phần vận chuyển đang chạy trên môi trường thử của GHTK và GHN. Bản chính thức sẽ bật khi nhóm ký hợp đồng đối tác với GHTK. Trên môi trường chạy thử của nhóm, một hãng giả lập trả trạng thái theo đúng cách hãng thật báo về để kiểm thử trọn luồng.
 
 == Sau giao dịch: đánh giá, uy tín và hỗ trợ
 
@@ -134,7 +134,7 @@ Trang "Uy tín của bạn" (UC-TRS-04, Hình 2.6) hiện các số liệu hệ 
 
 #anh-web([Trang Uy tín của bạn trên website], "rep.png")
 
-Người dùng liên hệ ShopNexus qua phiếu hỗ trợ, gồm ba loại: "Báo chưa nhận hàng" gắn với một đơn, "Xin thêm hãng" khi người bán dùng hãng vận chuyển ShopNexus chưa đọc được, và "Yêu cầu khác" (Hình 2.7). Mỗi phiếu là một cuộc trò chuyện riêng giữa người dùng và ShopNexus, có ảnh, mốc đã đọc và thông báo như trò chuyện thường. Người dùng còn báo cáo được một tin đăng hoặc một người bán vi phạm (UC-MOD-01) và rút lại báo cáo.
+Người dùng liên hệ bộ phận hỗ trợ qua phiếu hỗ trợ, gồm ba loại: "Báo chưa nhận hàng" gắn với một đơn, "Xin thêm hãng" khi người bán dùng hãng vận chuyển hệ thống chưa đọc được, và "Yêu cầu khác" (Hình 2.7). Mỗi phiếu là một cuộc trò chuyện riêng giữa người dùng và bộ phận hỗ trợ, có ảnh, mốc đã đọc và thông báo như trò chuyện thường. Người dùng còn báo cáo được một tin đăng hoặc một người bán vi phạm (UC-MOD-01) và rút lại báo cáo.
 
 #anh-web([Gửi phiếu hỗ trợ trên website], "support.png")
 
@@ -142,7 +142,7 @@ Thông báo đẩy về điện thoại có sáu công tắc riêng: tin nhắn,
 
 == Trang điều hành cho nhân viên
 
-Theo nguyên tắc ở định kỳ 1, người thật ở ShopNexus chỉ xử lý những việc thống kê không tự giải quyết được. Trang điều hành là website riêng cho nhân viên, tách khỏi tài khoản khách hàng. Ở hàng đợi Hỗ trợ, nhân viên mở phiếu ngay trên cuộc trò chuyện của khách và trả lời với tên "ShopNexus"; hệ thống ghi lại nhân viên nào đã trả lời. Nhân viên có quyền tạm khóa một tài khoản, và mọi thao tác được ghi vào nhật ký.
+Theo nguyên tắc ở định kỳ 1, nhân viên vận hành chỉ xử lý những việc thống kê không tự giải quyết được. Trang điều hành là website riêng cho nhân viên, tách khỏi tài khoản khách hàng. Ở hàng đợi Hỗ trợ, nhân viên mở phiếu ngay trên cuộc trò chuyện của khách và trả lời dưới tên chung của sàn; hệ thống ghi lại nhân viên nào đã trả lời. Nhân viên có quyền tạm khóa một tài khoản, và mọi thao tác được ghi vào nhật ký.
 
 Mỗi phiếu, báo cáo hoặc tài khoản có một trợ lý AI đi kèm. Trợ lý tự tra cứu qua nhiều bước [6]: đọc phiếu, đơn liên quan, lịch sử tin nhắn và các tài khoản có liên hệ, rồi trả lời nhân viên bằng bằng chứng, một đề xuất để nhân viên đánh dấu từng mục và một câu trả lời soạn sẵn cho khách. Trợ lý chỉ đọc: tạm khóa, ẩn tin hay gửi câu trả lời đều do nhân viên bấm, và mỗi thao tác có nút hoàn tác. Chi phí AI của trang điều hành có hạn mức 20 USD mỗi ngày. Phần trợ lý đã chạy ở mức trả lời câu hỏi kèm nguồn; phần tổng hợp nhiều phiếu một lúc đang làm.
 

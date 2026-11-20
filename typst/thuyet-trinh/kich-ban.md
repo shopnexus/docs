@@ -1,4 +1,4 @@
-# Kịch bản thuyết trình 20 phút + demo — ShopNexus
+# Kịch bản thuyết trình 20 phút + demo
 
 ---
 

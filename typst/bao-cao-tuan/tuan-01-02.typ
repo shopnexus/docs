@@ -10,7 +10,7 @@
 == Tầm Nhìn Dự Án (DOC 1.1-A)
 
 === Phát biểu vấn đề
-Thị trường giao dịch trực tuyến giữa các cá nhân (C2C) tại Việt Nam như mua bán đồ cũ, thanh lý, hàng handmade đang phát triển mạnh mẽ. Tuy nhiên, rào cản lớn nhất ngăn cản sự bùng nổ của mô hình này chính là *thiếu lòng tin*. Người mua lo ngại rủi ro thanh toán trước nhưng không nhận được hàng, nhận hàng không đúng mô tả hoặc hàng giả/hỏng nhưng người bán cá nhân từ chối hoàn tiền. Ngược lại, người bán cá nhân e ngại bị người mua lừa đảo hoặc "boom hàng" (giao hàng COD thất bại gây tốn phí). Bên cạnh đó, việc trao đổi qua lại giữa hai bên thường phân mảnh trên nhiều ứng dụng chat ngoài, dẫn đến khó kiểm soát và không có bằng chứng pháp lý rõ ràng khi phát sinh mâu thuẫn. ShopNexus ra đời nhằm giải quyết vấn đề này bằng cách tích hợp trực tiếp nhắn tin (Chat) trao đổi, cơ chế thanh toán tạm giữ (Escrow) an toàn, cùng quy trình xử lý tranh chấp (Dispute) công bằng. Hệ thống được thiết kế với phân quyền chặt chẽ: tài khoản Người dùng (User) tự do đăng ký để thực hiện cả mua và bán; tài khoản Điều phối viên (Moderator) do Quản trị viên (Admin) cấp phát trực tiếp nhằm xử lý tranh chấp và chăm sóc khách hàng; và duy nhất một tài khoản Quản trị viên tối cao (Admin) được cấu hình sẵn để quản trị toàn sàn.
+Thị trường giao dịch trực tuyến giữa các cá nhân (C2C) tại Việt Nam như mua bán đồ cũ, thanh lý, hàng handmade đang phát triển mạnh mẽ. Tuy nhiên, rào cản lớn nhất ngăn cản sự bùng nổ của mô hình này chính là *thiếu lòng tin*. Người mua lo ngại rủi ro thanh toán trước nhưng không nhận được hàng, nhận hàng không đúng mô tả hoặc hàng giả/hỏng nhưng người bán cá nhân từ chối hoàn tiền. Ngược lại, người bán cá nhân e ngại bị người mua lừa đảo hoặc "boom hàng" (giao hàng COD thất bại gây tốn phí). Bên cạnh đó, việc trao đổi qua lại giữa hai bên thường phân mảnh trên nhiều ứng dụng chat ngoài, dẫn đến khó kiểm soát và không có bằng chứng pháp lý rõ ràng khi phát sinh mâu thuẫn. Đề tài ra đời nhằm giải quyết vấn đề này bằng cách tích hợp trực tiếp nhắn tin (Chat) trao đổi, cơ chế thanh toán tạm giữ (Escrow) an toàn, cùng quy trình xử lý tranh chấp (Dispute) công bằng. Hệ thống được thiết kế với phân quyền chặt chẽ: tài khoản Người dùng (User) tự do đăng ký để thực hiện cả mua và bán; tài khoản Điều phối viên (Moderator) do Quản trị viên (Admin) cấp phát trực tiếp nhằm xử lý tranh chấp và chăm sóc khách hàng; và duy nhất một tài khoản Quản trị viên tối cao (Admin) được cấu hình sẵn để quản trị toàn sàn.
 
 === Mục tiêu dự án
 - Xây dựng nền tảng thương mại điện tử chuyên biệt cho mô hình giao dịch C2C an toàn.
@@ -100,14 +100,14 @@ Thị trường giao dịch trực tuyến giữa các cá nhân (C2C) tại Vi�
 
 == Bối Cảnh Hệ Thống (DOC 1.3-A)
 
-ShopNexus đóng vai trò là trung tâm trung gian kết nối mọi giao dịch C2C trực tiếp giữa các User, 
+Hệ thống đóng vai trò là trung tâm trung gian kết nối mọi giao dịch C2C trực tiếp giữa các User, 
 được hỗ trợ bởi đội ngũ Moderator đảm nhiệm hai nhiệm vụ chính — phân xử tranh chấp và chăm sóc 
 khách hàng (CSKH) — dưới sự quản lý của Admin tối cao.
 
 #fig(
-  [Sơ đồ ngữ cảnh hệ thống ShopNexus C2C (Context Diagram)],
+  [Sơ đồ ngữ cảnh hệ thống (Context Diagram)],
   spacing: (100mm, 15mm),
-  ncore((1, 1), [ShopNexus\ C2C Core]),
+  ncore((1, 1), [Hệ thống\ C2C]),
   np((0, 0), [Người dùng\ (User)]),
   np((0, 1), [Điều phối viên\ (Moderator)]),
   np((0, 2), [Quản trị viên\ (Admin)]),
@@ -142,11 +142,11 @@ edge((1, 1), (2, 1.5), "<->", text(size: 8pt)[Vận đơn · Hành trình],
 === Sơ đồ Use Case tổng quan
 
 #fig(
-  [Sơ đồ Use Case tổng quan hệ thống ShopNexus C2C],
+  [Sơ đồ Use Case tổng quan hệ thống],
   spacing: (28mm, 12mm),
   node(enclose: (<u1>, <u1b>, <u2>, <u3>, <u4>, <u5>, <u6>, <u7>, <u8>, <u9>), inset: 15pt,
     stroke: (paint: blue, dash: "dashed", thickness: 1pt), fill: none, corner-radius: 8pt),
-  node((2, -0.9), text(size: 9pt, fill: blue, weight: 700)[Ranh giới hệ thống ShopNexus C2C],
+  node((2, -0.9), text(size: 9pt, fill: blue, weight: 700)[Ranh giới hệ thống],
     fill: white, stroke: none),
   np((2, -0.15), [UC-001 · Đăng ký tài khoản], name: <u1>),
   np((2, 0.65), [UC-002 · Đăng nhập], name: <u1b>),
@@ -316,7 +316,7 @@ edge((1, 1), (2, 1.5), "<->", text(size: 8pt)[Vận đơn · Hành trình],
 
 == Mô Hình Hóa Quy Trình (DOC 2.2-A)
 
-Các quy trình nghiệp vụ phức tạp của ShopNexus được tối ưu hóa trực quan thông qua các sơ đồ hoạt động dưới đây.
+Các quy trình nghiệp vụ phức tạp của hệ thống được tối ưu hóa trực quan thông qua các sơ đồ hoạt động dưới đây.
 
 === Quy trình thanh toán tạm giữ (Escrow Payment Flow)
 
@@ -369,7 +369,7 @@ Các quy trình nghiệp vụ phức tạp của ShopNexus được tối ưu h�
 
 === Quy trình xử lý trả hàng, hoàn tiền và tranh chấp (Refund & Dispute Flow)
 
-#note[Quy trình thể hiện điểm cốt lõi của ShopNexus: Nếu xảy ra lỗi sản phẩm, tiền tạm giữ sẽ bị khóa lập tức. Khi hai bên không tự thống nhất được, Điều phối viên (Moderator) được cấp quyền bởi Admin sẽ can thiệp phân xử.]
+#note[Quy trình thể hiện điểm cốt lõi của hệ thống: Nếu xảy ra lỗi sản phẩm, tiền tạm giữ sẽ bị khóa lập tức. Khi hai bên không tự thống nhất được, Điều phối viên (Moderator) được cấp quyền bởi Admin sẽ can thiệp phân xử.]
 
 #fig(
   [Quy trình xử lý trả hàng, hoàn tiền và tranh chấp (Refund & Dispute Flow)],

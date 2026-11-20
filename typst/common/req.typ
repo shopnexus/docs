@@ -36,7 +36,7 @@
 #let _band(n, body) = table.cell(colspan: n, fill: rgb("#F7F7F7"))[*#body*]
 
 // Bảng danh mục ca sử dụng, chia theo nhóm.
-#let uc-table(caption: [Danh mục ca sử dụng của hệ thống ShopNexus]) = {
+#let uc-table(caption: [Danh mục ca sử dụng của hệ thống]) = {
   let rows = ()
   let letters = "ABCDEFGHIJ"
   let i = 0

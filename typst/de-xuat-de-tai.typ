@@ -1,6 +1,6 @@
 // ============================================================
 //  de-xuat-de-tai.typ — bản nộp A4: bìa + mục lục + header/footer.
-//  Nội dung nằm ở de-xuat-noi-dung.typ, dùng chung với idea.typ.
+//  Nội dung nằm ở de-xuat-noi-dung.typ.
 // ============================================================
 #import "common/style-a4.typ": *
 #show: a4.with(

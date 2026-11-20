@@ -75,7 +75,7 @@ Hình 3.2 cho thấy tiền và hàng đi giữa ba bên của một đơn COD �
   nt((0, 0), [Người bán]),
   ng((1, 0), [Hãng vận chuyển\ (shipper)]),
   nt((2, 0), [Người mua]),
-  nr((1, 1.25), text(size: 9pt)[ShopNexus: cập nhật đơn, tin đăng\ và uy tín; không giữ, không hoàn tiền]),
+  nr((1, 1.25), text(size: 9pt)[Hệ thống: cập nhật đơn, tin đăng\ và uy tín; không giữ, không hoàn tiền]),
   edge((0, 0), (1, 0), "-|>", bend: 28deg, elabel[1\. gửi hàng]),
   edge((1, 0), (2, 0), "-|>", bend: 28deg, elabel[2\. mang hàng tới,\ cho xem trước]),
   edge((2, 0), (1, 0), "-|>", bend: 28deg, stroke: (dash: "dashed"), elabel[3\. nhận: trả tiền hàng,\ phí ship; từ chối: không trả]),

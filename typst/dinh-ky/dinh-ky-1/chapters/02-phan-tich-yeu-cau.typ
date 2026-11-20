@@ -7,7 +7,7 @@
 
 == Tác nhân và ngữ cảnh hệ thống
 
-Hệ thống có bốn nhóm tác nhân người. Khách chỉ xem tin và tìm kiếm. Người dùng là một tài khoản vừa mua vừa bán. Điều phối viên và quản trị viên là tài khoản nhân viên, tách khỏi tài khoản khách hàng. Hệ thống ngoài gồm GHTK và GHN, nhà cung cấp SMS và email, mô hình ngôn ngữ lớn, dịch vụ đẩy thông báo và dịch vụ đối sánh khuôn mặt cho eKYC. Hình 2.1 không có cổng thanh toán nào: tiền hàng đi từ người mua qua shipper về tài khoản người bán, không qua ShopNexus.
+Hệ thống có bốn nhóm tác nhân người. Khách chỉ xem tin và tìm kiếm. Người dùng là một tài khoản vừa mua vừa bán. Điều phối viên và quản trị viên là tài khoản nhân viên, tách khỏi tài khoản khách hàng. Hệ thống ngoài gồm GHTK và GHN, nhà cung cấp SMS và email, mô hình ngôn ngữ lớn, dịch vụ đẩy thông báo và dịch vụ đối sánh khuôn mặt cho eKYC. Hình 2.1 không có cổng thanh toán nào: tiền hàng đi từ người mua qua shipper về tài khoản người bán, không qua hệ thống.
 
 #fig(
   [Sơ đồ ngữ cảnh hệ thống],
@@ -16,7 +16,7 @@ Hệ thống có bốn nhóm tác nhân người. Khách chỉ xem tin và tìm 
   nt((0, 1), [Người dùng\ (mua và bán)]),
   nt((0, 2), [Điều phối viên]),
   nt((0, 3), [Quản trị viên]),
-  ncore((1, 1.5), [ShopNexus]),
+  ncore((1, 1.5), [Hệ thống]),
   ng((2, 0), [GHTK, GHN]),
   ng((2, 0.75), [SMS, email]),
   ng((2, 1.5), [Mô hình\ ngôn ngữ lớn]),

@@ -10,7 +10,7 @@
 == Yêu Cầu Chức Năng (DOC 3.1-A)
 
 === Trích xuất yêu cầu từ trường hợp sử dụng
-Mỗi yêu cầu chức năng (Functional Requirement) được thiết kế theo cấu trúc nguyên tử: *“Hệ thống phải [hành động] [đối tượng] [điều kiện]”*, đảm bảo tính rõ ràng và có thể kiểm chứng. Dưới đây là danh sách các yêu cầu được trích xuất từ 13 trường hợp sử dụng cốt lõi của hệ thống ShopNexus C2C:
+Mỗi yêu cầu chức năng (Functional Requirement) được thiết kế theo cấu trúc nguyên tử: *“Hệ thống phải [hành động] [đối tượng] [điều kiện]”*, đảm bảo tính rõ ràng và có thể kiểm chứng. Dưới đây là danh sách các yêu cầu được trích xuất từ 13 trường hợp sử dụng cốt lõi của hệ thống:
 
 *UC-001: Đăng ký tài khoản*
 - *REQ-001:* Hệ thống phải hiển thị biểu mẫu đăng ký dành riêng cho khách hàng (User) khi được yêu cầu.
@@ -75,7 +75,7 @@ Mỗi yêu cầu chức năng (Functional Requirement) được thiết kế the
 - *REQ-038:* Hệ thống phải ghi log bất biến (append-only) mọi yêu cầu rút tiền và chỉ trừ số dư khả dụng *sau khi* lệnh chi được xác nhận thành công.
 
 === Ma trận CRUD
-Ma trận dưới đây xác định các yêu cầu chức năng bao phủ toàn bộ các thao tác Create, Read, Update, Delete đối với các thực thể cốt lõi trong hệ thống ShopNexus C2C:
+Ma trận dưới đây xác định các yêu cầu chức năng bao phủ toàn bộ các thao tác Create, Read, Update, Delete đối với các thực thể cốt lõi trong hệ thống:
 
 #table(
   columns: (1.6fr, 1.15fr, 1fr, 1.35fr, 0.9fr),
@@ -116,7 +116,7 @@ Ma trận truy xuất nguồn gốc giúp theo dõi mối quan hệ giữa Yêu 
 
 == Yêu Cầu Phi Chức Năng (DOC 3.2-A)
 
-Các thuộc tính chất lượng và ràng buộc kỹ thuật của hệ thống ShopNexus C2C được mô tả bằng các yêu cầu phi chức năng (Non-Functional Requirements, NFR) đo lường được dưới đây:
+Các thuộc tính chất lượng và ràng buộc kỹ thuật của hệ thống được mô tả bằng các yêu cầu phi chức năng (Non-Functional Requirements, NFR) đo lường được dưới đây:
 
 === Hiệu năng (Performance)
 - *NFR-001:* API gọi dịch vụ bên thứ ba (cổng thanh toán, đối tác vận chuyển) phải có timeout và cơ chế retry trước khi báo lỗi cho người dùng.
@@ -153,7 +153,7 @@ Các thuộc tính chất lượng và ràng buộc kỹ thuật của hệ th�
 == Mô Phỏng UI (DOC 3.3-A & DOC 3.3-B)
 
 === Danh sách màn hình chính
-Để hỗ trợ toàn bộ các luồng nghiệp vụ C2C an toàn, hệ thống ShopNexus thiết kế 10 giao diện màn hình chính:
+Để hỗ trợ toàn bộ các luồng nghiệp vụ C2C an toàn, hệ thống thiết kế 10 giao diện màn hình chính:
 1. *Screen-01: Giao diện Đăng nhập & Đăng ký* (Xác thực người dùng).
 2. *Screen-02: Trang chi tiết sản phẩm C2C* (Hỗ trợ nút phân luồng "Mua ngay" hoặc "Mua ngay / Thương lượng").
 3. *Screen-03: Khung Chat & Đàm phán giá* (Tích hợp Offer Card trực quan và lý do giảm giá).
@@ -176,7 +176,7 @@ Các thuộc tính chất lượng và ràng buộc kỹ thuật của hệ th�
     #v(5pt)
     #align(center)[
       #block(width: 85%)[
-        [ LOGO SHOPNEXUS ] \
+        [ LOGO ] \
         #v(10pt)
         #rect(width: 100%, height: 16pt, stroke: 0.5pt + ink, radius: 2pt, align(center + horizon, text(size: 8pt)[Tab: Đăng nhập | Tab: Đăng ký (User)]))
         #v(8pt)
@@ -403,7 +403,7 @@ Các thuộc tính chất lượng và ràng buộc kỹ thuật của hệ th�
 Sơ đồ dưới đây biểu diễn luồng di chuyển của người dùng qua các giao diện màn hình chính từ bước đăng nhập, phân luồng mua sản phẩm cố định hay thương lượng, cho đến thanh toán Escrow, hoàn tiền và phân xử tranh chấp:
 
 #fig(
-  [Sơ đồ luồng điều hướng màn hình hệ thống ShopNexus C2C (Navigation Flow Diagram)],
+  [Sơ đồ luồng điều hướng màn hình hệ thống (Navigation Flow Diagram)],
   spacing: (40mm, 9mm),
   // main spine đi dọc trên cột x = 0; các nhánh rẽ sang phải (x = 2)
   nt((0, 0), [Login / Register\ (Screen-01)]),
@@ -452,7 +452,7 @@ Sơ đồ dưới đây biểu diễn luồng di chuyển của người dùng q
 
 == Trích Xuất Các Yếu Tố Kiến Trúc (DOC 4.1-A)
 
-Kiến trúc của hệ thống ShopNexus C2C được định hình trực tiếp bởi các thuộc tính chất lượng (Quality Attributes) trọng yếu và các ràng buộc (Constraints) được trích xuất dưới đây:
+Kiến trúc của hệ thống được định hình trực tiếp bởi các thuộc tính chất lượng (Quality Attributes) trọng yếu và các ràng buộc (Constraints) được trích xuất dưới đây:
 
 === Các thuộc tính chất lượng quan trọng (Quality Attributes)
 
@@ -510,7 +510,7 @@ Kiến trúc của hệ thống ShopNexus C2C được định hình trực ti�
 
 == Chọn Stack Công Nghệ (DOC 4.2-A)
 
-Dựa trên các yếu tố kiến trúc và ràng buộc đã trích xuất ở DOC 4.1-A, nhóm chốt stack công nghệ chi tiết cho hệ thống ShopNexus C2C như sau:
+Dựa trên các yếu tố kiến trúc và ràng buộc đã trích xuất ở DOC 4.1-A, nhóm chốt stack công nghệ chi tiết cho hệ thống như sau:
 
 === Tổng quan công nghệ
 #table(
@@ -574,10 +574,10 @@ Bảng dưới đây liệt kê các rủi ro kỹ thuật đã được nhận 
 == Xác Định Kiến Trúc Hệ Thống (DOC 4.3-A & DOC 4.3-B)
 
 === Sơ đồ kiến trúc hệ thống
-Sơ đồ dưới đây thể hiện kiến trúc Durable Microservices trên nền Restate của hệ thống ShopNexus C2C. Các yêu cầu *mutation* (đặt hàng, gửi Offer, thanh toán, phán quyết tranh chấp) đi qua Restate Ingress (Proxy) để được journal hóa, idempotent và phục hồi được sau lỗi. Ngược lại, các yêu cầu *query* (xem sản phẩm, tìm kiếm, lịch sử đơn) gọi thẳng service qua HTTP/2 RPC, bỏ qua Ingress, vì mỗi hop qua Ingress tốn thêm ~50ms (kể cả trên localhost), không đáng cho luồng đọc nhiều:
+Sơ đồ dưới đây thể hiện kiến trúc Durable Microservices trên nền Restate của hệ thống. Các yêu cầu *mutation* (đặt hàng, gửi Offer, thanh toán, phán quyết tranh chấp) đi qua Restate Ingress (Proxy) để được journal hóa, idempotent và phục hồi được sau lỗi. Ngược lại, các yêu cầu *query* (xem sản phẩm, tìm kiếm, lịch sử đơn) gọi thẳng service qua HTTP/2 RPC, bỏ qua Ingress, vì mỗi hop qua Ingress tốn thêm ~50ms (kể cả trên localhost), không đáng cho luồng đọc nhiều:
 
 #fig(
-  [Sơ đồ Kiến trúc Durable Microservices hệ thống ShopNexus C2C (System Architecture Diagram)],
+  [Sơ đồ Kiến trúc Durable Microservices hệ thống (System Architecture Diagram)],
   spacing: (24mm, 15mm),
   np((0, 3), [Client\ (Next.js Web / Flutter Mobile)]),
   edge((0, 3), (2, 3), "-|>", text(size: 8pt)[HTTPS]),
@@ -767,7 +767,7 @@ Hai luồng tài chính dài hạn quan trọng nhất được triển khai nh�
 )
 
 === Bản Ghi Quyết Định Kiến Trúc (Architectural Decision Records - ADR)
-Nhóm đã thông qua 4 quyết định kiến trúc cốt lõi dưới đây cho dự án ShopNexus C2C:
+Nhóm đã thông qua 4 quyết định kiến trúc cốt lõi dưới đây cho dự án:
 
 ==== ADR-01: Lựa chọn Durable Microservices trên Restate thay vì Microservices truyền thống
 - *Bối cảnh:* Các luồng liên quan đến tiền (giữ tiền Escrow, hoàn tiền, tranh chấp) diễn ra qua nhiều bước và kéo dài nhiều ngày. Nếu một service bị lỗi hoặc khởi động lại giữa chừng, hệ thống dễ rơi vào trạng thái nửa vời: tiền đã trừ nhưng đơn hàng chưa cập nhật, hoặc một bước bị chạy lại hai lần. Với microservices truyền thống, nhóm phải tự viết thêm nhiều cơ chế phức tạp để chống các lỗi này, rất dễ sai với đội ngũ nhỏ.

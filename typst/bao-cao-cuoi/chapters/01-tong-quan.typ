@@ -14,7 +14,7 @@ Về pháp lý, Luật Bảo vệ quyền lợi người tiêu dùng [1] và Lu�
 
 == Khảo sát các giải pháp hiện có
 
-Nhóm khảo sát ba nền tảng có lượng người dùng lớn tại Việt Nam: Chợ Tốt, Facebook Marketplace và Shopee. Bảng 1.1 so sánh chúng với ShopNexus theo năm tiêu chí gắn trực tiếp với các vấn đề nêu trên.
+Nhóm khảo sát ba nền tảng có lượng người dùng lớn tại Việt Nam: Chợ Tốt, Facebook Marketplace và Shopee. Bảng 1.1 so sánh chúng với hệ thống của đề tài theo năm tiêu chí gắn trực tiếp với các vấn đề nêu trên.
 
 #figure(
   kind: table,
@@ -22,7 +22,7 @@ Nhóm khảo sát ba nền tảng có lượng người dùng lớn tại Việt
   table(
     columns: (1fr, 2cm, 2.3cm, 1.8cm, 2.6cm),
     align: (left, center, center, center, center),
-    table.header([Tiêu chí], [Chợ Tốt], [Facebook Marketplace], [Shopee], [ShopNexus]),
+    table.header([Tiêu chí], [Chợ Tốt], [Facebook Marketplace], [Shopee], [Đề tài]),
     [Sàn giữ tiền người mua], [Không], [Không], [Có], [Không],
     [Sàn phân xử khiếu nại], [Không], [Không], [Có], [Không],
     [Thương lượng giá trong ứng dụng], [Qua chat], [Qua Messenger], [Hạn chế], [Có, theo luật giá],
@@ -35,7 +35,7 @@ Chợ Tốt và Facebook Marketplace chỉ làm nơi gặp nhau: việc trả ti
 
 == Mô hình nghiệp vụ đề xuất
 
-Mô hình của ShopNexus bắt đầu từ hai ràng buộc gốc. Thứ nhất, sàn không giữ tiền của ai: không ví, không cọc, không thu hộ, không hoàn tiền qua sàn. Thứ hai, sàn không phán xử từng vụ việc. Hai ràng buộc này loại bỏ yêu cầu giấy phép thanh toán và bộ phận xử lý khiếu nại, đồng thời buộc mọi quy tắc còn lại phải dựa trên dữ kiện quan sát được thay vì lời khai của hai bên. Chín nguyên tắc dưới đây được suy ra từ đó.
+Mô hình của hệ thống bắt đầu từ hai ràng buộc gốc. Thứ nhất, sàn không giữ tiền của ai: không ví, không cọc, không thu hộ, không hoàn tiền qua sàn. Thứ hai, sàn không phán xử từng vụ việc. Hai ràng buộc này loại bỏ yêu cầu giấy phép thanh toán và bộ phận xử lý khiếu nại, đồng thời buộc mọi quy tắc còn lại phải dựa trên dữ kiện quan sát được thay vì lời khai của hai bên. Chín nguyên tắc dưới đây được suy ra từ đó.
 
 + Tin đăng là một tập cam kết gồm mức tình trạng trên thang ba mức Mới, Như mới, Đã dùng, các thông tin người bán ghi trong tin ("Tin ghi") và ảnh. AI đọc ảnh hoặc video để điền giúp tin đăng. Tin không có phần khai vết và AI không chỉ ra vết nào trên hàng, vì mỗi người đánh giá vết trên đồ cũ một khác, còn vết do mô hình nêu ra dễ thành cớ để người mua khiếu nại và khiến người bán rời sàn. Người mua tự xem tình trạng hàng khi đồng kiểm tại cửa.
 

@@ -6,7 +6,7 @@
 
 == Mục tiêu giai đoạn 2
 
-ShopNexus là sàn mua bán đồ đã qua sử dụng giữa các cá nhân. Hai ràng buộc gốc từ định kỳ 1 giữ nguyên: sàn không giữ tiền của ai và sàn không phân xử từng vụ việc. Đường giao dịch trong ứng dụng vẫn là COD đồng kiểm: người mua xem hàng khi shipper giao tới rồi mới trả tiền, tiền thu hộ đi thẳng từ hãng vận chuyển về tài khoản của người bán.
+Hệ thống là sàn mua bán đồ đã qua sử dụng giữa các cá nhân. Hai ràng buộc gốc từ định kỳ 1 giữ nguyên: sàn không giữ tiền của ai và sàn không phân xử từng vụ việc. Đường giao dịch trong ứng dụng vẫn là COD đồng kiểm: người mua xem hàng khi shipper giao tới rồi mới trả tiền, tiền thu hộ đi thẳng từ hãng vận chuyển về tài khoản của người bán.
 
 Kế hoạch giai đoạn 2 trong báo cáo định kỳ 1 gồm bốn việc. Bảng 1.1 đối chiếu từng việc với kết quả cuối tuần 8.
 
@@ -39,7 +39,7 @@ Khi nối ứng dụng với dịch vụ nền, nhóm đi lại từng luồng t
     [Uy tín], [Điểm 0–1000, bốn bậc, quyền lợi theo bậc], [Trang "Uy tín của bạn" hiện số liệu: số sao trung bình, số món đã bán, tỉ lệ trả lời trong 24 giờ, số đơn giao không thành trong 90 ngày], [Người dùng đọc và kiểm chứng được con số thật; luật cộng trừ điểm khó giải thích cho người dùng],
     [Hạn mức], [Theo bậc: 2/5/10/20 đơn COD mở, 5/20 tin đang bán], [Mọi tài khoản: 3 đơn COD mở khi mua, 20 tin đang bán], [Hết bậc nên hạn mức chung một mức],
     [Xác minh danh tính], [CCCD gắn chip và khuôn mặt], [Bỏ. Giao dịch COD cần số điện thoại đã xác minh], [Đối sánh khuôn mặt cần dịch vụ trả phí và thêm một bước trước khi đăng tin. Với COD đồng kiểm, người mua xem hàng trước khi trả tiền, và số điện thoại đã xác minh gắn mỗi tài khoản với một người],
-    [Sự cố sau khi nhận], [Ghi nhận sự cố, người bán có 3 ngày để tự hoàn tiền hoặc từ chối], [Hai bên trao đổi trong trò chuyện. Người mua chưa nhận được hàng gửi phiếu "Báo chưa nhận hàng" cho ShopNexus], [Sàn không giữ tiền nên không có khoản hoàn nào để theo dõi],
+    [Sự cố sau khi nhận], [Ghi nhận sự cố, người bán có 3 ngày để tự hoàn tiền hoặc từ chối], [Hai bên trao đổi trong trò chuyện. Người mua chưa nhận được hàng gửi phiếu "Báo chưa nhận hàng" cho bộ phận hỗ trợ], [Sàn không giữ tiền nên không có khoản hoàn nào để theo dõi],
     [Khai vết], [Mỗi vết khai kèm ảnh cận, AI chặn đăng nếu thấy vết chưa khai], [Bỏ. Tin mô tả bằng ảnh và thang tình trạng ba mức], [Mỗi người đánh giá độ mòn khác nhau nên vết đã khai không phải dữ kiện chắc chắn, còn vết do AI chỉ ra dễ thành cớ tranh chấp. Người mua đã xem hàng tại cửa trước khi trả tiền],
     [Hãng vận chuyển], [GHTK, GHN, hoặc tự gửi qua hãng bất kỳ rồi nhập mã], [Chỉ GHTK, GHN. Mã tự nhập được đọc bằng tài khoản hãng của người bán. Hãng khác xin qua phiếu "Xin thêm hãng"], [Đơn nào cũng có trạng thái do hãng báo, không còn đơn phải tin lời một bên],
     [Chế tài], [Tự động hạ quyền theo tỉ lệ từ chối nhận], [Chưa áp dụng. Số đơn giao không thành hiện công khai trên trang Uy tín], [Cần dữ liệu giao dịch thật để đặt ngưỡng],
@@ -51,7 +51,7 @@ Khi nối ứng dụng với dịch vụ nền, nhóm đi lại từng luồng t
   ),
 )
 
-Với các điều chỉnh này, việc của sàn sau khi chốt giá chỉ còn ba thứ: tạo vận đơn trên tài khoản hãng của người bán, theo trạng thái hãng báo về, và cho cả hai bên thấy số liệu thật của nhau. Người thật ở ShopNexus nhận phiếu hỗ trợ và báo cáo vi phạm; không có quy trình phân xử khiếu nại.
+Với các điều chỉnh này, việc của sàn sau khi chốt giá chỉ còn ba thứ: tạo vận đơn trên tài khoản hãng của người bán, theo trạng thái hãng báo về, và cho cả hai bên thấy số liệu thật của nhau. Nhân viên vận hành nhận phiếu hỗ trợ và báo cáo vi phạm; không có quy trình phân xử khiếu nại.
 
 == Luồng đơn COD sau điều chỉnh
 

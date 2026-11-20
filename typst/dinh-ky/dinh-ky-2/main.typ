@@ -93,7 +93,7 @@ Báo cáo khó tránh khỏi thiếu sót, chúng em mong nhận được ý ki�
 
 Giai đoạn 1 của đồ án "#info.de-tai" đã xây dựng mô hình nghiệp vụ, đặc tả yêu cầu, nguyên mẫu ứng dụng Android trên dữ liệu giả lập và bảy phân hệ nền đầu tiên. Đơn COD khi đó do người bán tự gửi rồi nhập mã vận đơn bằng tay.
 
-Giai đoạn 2 (tuần 5–8) đưa sản phẩm sang chạy trên dữ liệu thật. Người bán tạo vận đơn GHTK, GHN ngay trong ứng dụng, người mua tìm hàng bằng câu nói tự nhiên, AI điền giúp tin đăng và cảnh báo lừa đảo trong trò chuyện. Ngoài ứng dụng Android, nhóm làm thêm website cho người mua và người bán, và trang điều hành cho nhân viên ShopNexus. Trong giai đoạn này nhóm cũng rút gọn một số phần của mô hình nghiệp vụ sau khi thử với luồng thật.
+Giai đoạn 2 (tuần 5–8) đưa sản phẩm sang chạy trên dữ liệu thật. Người bán tạo vận đơn GHTK, GHN ngay trong ứng dụng, người mua tìm hàng bằng câu nói tự nhiên, AI điền giúp tin đăng và cảnh báo lừa đảo trong trò chuyện. Ngoài ứng dụng Android, nhóm làm thêm website cho người mua và người bán, và trang điều hành cho nhân viên vận hành. Trong giai đoạn này nhóm cũng rút gọn một số phần của mô hình nghiệp vụ sau khi thử với luồng thật.
 
 Chương 1 so sánh kết quả với kế hoạch và nêu các điều chỉnh mô hình. Chương 2 trình bày các chức năng đã làm theo thứ tự một giao dịch, từ đăng tin tới đánh giá, rồi tới phần của nhân viên. Chương 3 nêu cách kiểm thử và các kịch bản chính. Phần kết luận nêu kết quả, khó khăn và kế hoạch giai đoạn 3.
 
