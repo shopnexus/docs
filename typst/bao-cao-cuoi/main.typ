@@ -168,7 +168,7 @@ Mục đích của đồ án là xây dựng một sàn C2C cho hàng đã qua s
 
 Về tình hình nghiên cứu, các sàn lớn trong nước giải quyết niềm tin bằng cách giữ tiền của người mua, điều đòi hỏi giấy phép trung gian thanh toán và một bộ phận xử lý khiếu nại có quy mô tăng theo số đơn; các nền tảng rao vặt thì chỉ kết nối thông tin và để hai bên tự lo phần còn lại. Hướng dựa vào dữ kiện do hãng vận chuyển báo về và thống kê hành vi để thay cho phân xử từng vụ chưa được các nền tảng phổ biến trong nước áp dụng cho hàng đã qua sử dụng. Ở phía tìm kiếm, việc kết hợp tìm theo ngữ nghĩa với tìm theo từ khóa [4][5] cho phép hiểu câu hỏi tự nhiên của người mua thay vì chỉ khớp chữ.
 
-Đối tượng nghiên cứu là quy trình mua bán hàng đã qua sử dụng giữa các cá nhân, các tác nhân tham gia (người mua, người bán, hãng vận chuyển, điều phối viên, quản trị viên) và các quy tắc nghiệp vụ giúp hai bên tin nhau khi sàn không giữ tiền. Phạm vi gồm hệ thống dịch vụ nền, ứng dụng Android và website cho người dùng, và trang điều hành cho nhân viên; không gồm thanh toán tạm giữ, ứng dụng iOS, giao hàng quốc tế và gian hàng doanh nghiệp.
+Đối tượng nghiên cứu là quy trình mua bán hàng đã qua sử dụng giữa các cá nhân, các tác nhân tham gia (người mua, người bán, hãng vận chuyển, điều phối viên, quản trị viên) và các quy tắc nghiệp vụ giúp hai bên tin nhau khi sàn không giữ tiền. Phạm vi gồm hệ thống dịch vụ nền, ứng dụng Android và website cho người dùng, và trang điều hành cho nhân viên; không gồm thanh toán tạm giữ, ứng dụng iOS, giao hàng quốc tế, gian hàng doanh nghiệp, và việc ký hợp đồng đối tác với hãng vận chuyển để chạy trên môi trường chính thức của hãng.
 
 Phương pháp thực hiện gồm các bước sau. Nhóm khảo sát thói quen mua bán đồ cũ và các nền tảng đang có để rút ra những rủi ro chính của người mua và người bán. Từ đó nhóm mô hình hóa nghiệp vụ bằng UML với sơ đồ ca sử dụng, sơ đồ hoạt động và sơ đồ trạng thái, và ghi các quy tắc nghiệp vụ thành danh mục có mã. Hệ thống được chia theo phân hệ nghiệp vụ để mỗi nhóm quy tắc có một nơi chịu trách nhiệm. Công việc chia thành ba giai đoạn bốn tuần, mỗi giai đoạn kết thúc bằng một phiên bản chạy được. Ở giai đoạn 2, khi nối ứng dụng với dữ liệu thật, nhóm rút gọn một số phần của mô hình nghiệp vụ (mục 1.3). Cuối cùng, hệ thống được kiểm thử theo kịch bản nghiệp vụ, đi từ đăng tin đến giao nhận và đánh giá.
 
@@ -189,7 +189,7 @@ Ngoài phần mở đầu và kết luận, đồ án gồm sáu chương. Chư�
   [5], [Phân hệ tài khoản, đăng nhập và tài khoản nhân viên], [Đậu Văn Đăng Khoa], [2–6], [Hoàn thành],
   [6], [Phân hệ tin đăng, ảnh; AI điền tin và gợi ý giá], [Hồ Công Toản], [2–7], [Hoàn thành],
   [7], [Phân hệ trò chuyện, thương lượng giá và đơn COD], [Đậu Văn Đăng Khoa, Nguyễn Tấn Khoa], [3–8], [Hoàn thành],
-  [8], [Phân hệ vận chuyển, kết nối GHTK, GHN], [Đậu Văn Đăng Khoa], [6–7], [Hoàn thành trên môi trường thử của hãng],
+  [8], [Phân hệ vận chuyển, kết nối GHTK, GHN], [Đậu Văn Đăng Khoa], [6–7], [Hoàn thành],
   [9], [Phân hệ tìm kiếm và khám phá], [Hồ Công Toản], [5–7], [Hoàn thành],
   [10], [Đánh giá hai chiều, uy tín, cảnh báo lừa đảo, báo cáo vi phạm, thông báo], [Hồ Công Toản], [6–8], [Hoàn thành],
   [11], [Nối ứng dụng Android với hệ thống], [Nguyễn Tấn Khoa], [6–8], [Hoàn thành],

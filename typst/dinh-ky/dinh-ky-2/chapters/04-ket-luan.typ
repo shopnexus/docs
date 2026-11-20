@@ -11,7 +11,7 @@ Luồng mua bán chạy trọn trên dữ liệu thật, từ lúc người bán
 
 == Khó khăn
 
-Mỗi lần rút gọn mô hình nghiệp vụ, nhóm phải sửa cùng lúc ứng dụng, dịch vụ nền và tài liệu đặc tả, nên tuần 6 và tuần 7 dành nhiều thời gian cho việc đồng bộ. GHTK chỉ cho tạo vận đơn trên tài khoản của người bán khi sàn có hợp đồng đối tác, nên bản chính thức chưa bật vận chuyển. Tài liệu GHN không nêu cách đăng ký nhận trạng thái tự động, nên đơn GHN dựa vào lượt hỏi lại mỗi 2 giờ. Thời gian trả lời và chi phí của mô hình ngôn ngữ lớn dao động, nhóm phải đặt hạn mức theo ngày cho từng chức năng dùng AI.
+Mỗi lần rút gọn mô hình nghiệp vụ, nhóm phải sửa cùng lúc ứng dụng, dịch vụ nền và tài liệu đặc tả, nên tuần 6 và tuần 7 dành nhiều thời gian cho việc đồng bộ. Tài liệu GHN không nêu cách đăng ký nhận trạng thái tự động, nên đơn GHN dựa vào lượt hỏi lại mỗi 2 giờ. Thời gian trả lời và chi phí của mô hình ngôn ngữ lớn dao động, nhóm phải đặt hạn mức theo ngày cho từng chức năng dùng AI.
 
 == Kế hoạch giai đoạn 3
 
@@ -19,7 +19,6 @@ Giai đoạn 3 (tuần 9–12) gồm các việc sau:
 
 - đẩy tin và gói người bán, nguồn doanh thu của sàn (đã có thiết kế, đang ẩn trong ứng dụng);
 - xử lý báo cáo vi phạm và kiểm duyệt tin đăng trên trang điều hành, hoàn thiện phần tổng hợp của trợ lý AI;
-- ký hợp đồng đối tác với GHTK và bật vận chuyển trên bản chính thức;
 - đo chất lượng tìm kiếm trên bộ câu tìm đã gán nhãn;
 - xét ngưỡng chế tài từ số đơn giao không thành khi có dữ liệu giao dịch thật;
 - kiểm thử toàn hệ thống, triển khai và viết báo cáo cuối.

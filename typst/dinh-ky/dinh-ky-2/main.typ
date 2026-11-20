@@ -71,7 +71,7 @@ Báo cáo khó tránh khỏi thiếu sót, chúng em mong nhận được ý ki�
   [1], [Rà soát mô hình nghiệp vụ sau định kỳ 1, rút gọn luồng đơn COD và phần uy tín], [Cả nhóm], [Tuần 5], [Hoàn thành],
   [2], [Môi trường chạy thử và môi trường chính thức trên cụm máy chủ của nhóm], [Đậu Văn Đăng Khoa], [Tuần 5–6], [Hoàn thành],
   [3], [Đăng nhập bằng số điện thoại, email, Google; quản lý thiết bị, xóa tài khoản], [Đậu Văn Đăng Khoa], [Tuần 5–6], [Hoàn thành],
-  [4], [Đơn COD qua GHTK, GHN: liên kết tài khoản hãng, tạo vận đơn, nhận trạng thái], [Đậu Văn Đăng Khoa], [Tuần 6–7], [Hoàn thành trên môi trường thử của hãng],
+  [4], [Đơn COD qua GHTK, GHN: liên kết tài khoản hãng, tạo vận đơn, nhận trạng thái], [Đậu Văn Đăng Khoa], [Tuần 6–7], [Hoàn thành],
   [5], [Tìm kiếm bằng câu tự nhiên, tìm bằng ảnh, tin tương tự, theo dõi tìm kiếm, báo giảm giá], [Hồ Công Toản], [Tuần 5–7], [Hoàn thành],
   [6], [AI điền tin từ video, ảnh, link Chợ Tốt; gợi ý giá khi đăng tin], [Hồ Công Toản], [Tuần 6–7], [Hoàn thành],
   [7], [Cảnh báo lừa đảo trong trò chuyện, báo cáo vi phạm, đánh giá hai chiều, thông báo], [Hồ Công Toản], [Tuần 6–8], [Hoàn thành],
