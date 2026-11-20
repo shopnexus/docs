@@ -68,11 +68,11 @@ Nhận xét của giáo viên hướng dẫn:
     #set enum(indent: 0pt)
     1. Khảo sát giao dịch C2C hàng đã qua sử dụng tại Việt Nam, đề xuất mô hình nghiệp vụ trong đó sàn không giữ tiền và không phán xử.
     2. Phân tích, đặc tả yêu cầu bằng UML: ca sử dụng, quy tắc nghiệp vụ, yêu cầu chức năng và phi chức năng.
-    3. Thiết kế hệ thống theo các phân hệ nghiệp vụ: tài khoản và xác minh danh tính, tin đăng, tìm kiếm, thương lượng và đơn COD, vận chuyển, uy tín và chế tài, thông báo.
-    4. Hiện thực dịch vụ nền và ứng dụng Android cho người mua, người bán; tích hợp hãng vận chuyển GHTK, GHN cho đơn COD đồng kiểm và AI agent hỗ trợ tìm hàng bằng câu tự nhiên.
+    3. Thiết kế hệ thống theo các phân hệ nghiệp vụ: tài khoản, tin đăng, tìm kiếm, trò chuyện, thương lượng và đơn COD, vận chuyển, đánh giá và uy tín, hỗ trợ, thông báo.
+    4. Hiện thực dịch vụ nền, ứng dụng Android và website cho người mua, người bán, trang điều hành cho nhân viên; tích hợp GHTK, GHN cho đơn COD đồng kiểm; dùng AI để điền tin đăng, hiểu câu tìm kiếm, cảnh báo lừa đảo và hỗ trợ nhân viên.
     5. Kiểm thử trên hạ tầng thật, đánh giá kết quả và viết báo cáo.
   ],
-  [*Sản phẩm*], [Hệ thống dịch vụ nền, ứng dụng Android, bộ kịch bản kiểm thử và quyển báo cáo đồ án.],
+  [*Sản phẩm*], [Hệ thống dịch vụ nền, ứng dụng Android, website, trang điều hành cho nhân viên, bộ kịch bản kiểm thử và quyển báo cáo đồ án.],
   [*Thời gian thực hiện*], [12 tuần, từ tháng 9/2026 đến tháng 12/2026.],
 )
 
@@ -125,26 +125,23 @@ Nếu phát hiện có bất kỳ sự gian lận nào, nhóm xin hoàn toàn ch
   [AI], [Artificial Intelligence], [Trí tuệ nhân tạo],
   [API], [Application Programming Interface], [Giao diện lập trình ứng dụng],
   [B2C], [Business to Consumer], [Giao dịch giữa doanh nghiệp và người tiêu dùng],
+  [BM25], [Best Matching 25], [Hàm xếp hạng theo từ khóa],
   [BR], [Business Rule], [Quy tắc nghiệp vụ (mã BR-xx)],
   [C2C], [Consumer to Consumer], [Giao dịch giữa các cá nhân],
-  [CCCD], [], [Căn cước công dân],
   [COD], [Cash on Delivery], [Thanh toán khi nhận hàng],
   [CSDL], [], [Cơ sở dữ liệu],
-  [eKYC], [electronic Know Your Customer], [Xác minh danh tính điện tử],
   [GHN], [Giao Hàng Nhanh], [Hãng vận chuyển],
   [GHTK], [Giao Hàng Tiết Kiệm], [Hãng vận chuyển],
   [GPS], [Global Positioning System], [Hệ thống định vị toàn cầu],
   [HNSW], [Hierarchical Navigable Small World], [Đồ thị phân tầng cho tìm lân cận gần đúng],
   [LLM], [Large Language Model], [Mô hình ngôn ngữ lớn],
-  [MRR], [Mean Reciprocal Rank], [Độ đo thứ hạng trung bình của kết quả đúng đầu tiên],
-  [NFC], [Near Field Communication], [Giao tiếp tầm gần, dùng đọc chip CCCD],
+  [nDCG], [Normalized Discounted Cumulative Gain], [Độ đo chất lượng xếp hạng có chuẩn hóa],
   [NFR], [Non-Functional Requirement], [Yêu cầu phi chức năng (mã NFR-xx)],
   [OTP], [One-Time Password], [Mã dùng một lần],
   [REQ], [Requirement], [Yêu cầu chức năng (mã REQ-xx)],
   [RRF], [Reciprocal Rank Fusion], [Hợp nhất xếp hạng theo nghịch đảo thứ hạng],
   [SDK], [Software Development Kit], [Bộ công cụ phát triển phần mềm],
   [SMS], [Short Message Service], [Tin nhắn văn bản],
-  [SPX], [Shopee Express], [Hãng vận chuyển],
   [TC], [Test Case], [Ca kiểm thử (mã TC-xx)],
   [TMĐT], [], [Thương mại điện tử],
   [UC], [Use Case], [Ca sử dụng (mã UC-xx)],
@@ -165,15 +162,15 @@ Nếu phát hiện có bất kỳ sự gian lận nào, nhóm xin hoàn toàn ch
 
 #sechead([MỞ ĐẦU])
 
-Mua bán đồ cũ giữa các cá nhân đã thành thói quen của nhiều người dùng Việt Nam, nhưng giao dịch vẫn diễn ra theo cách thủ công: người mua chuyển khoản trước cho người lạ hoặc hai bên tự thỏa thuận giao nhận tiền mặt, thương lượng qua nhiều ứng dụng nhắn tin, và khi có sự cố thì không có quy tắc chung nào để dựa vào. Phần lớn rủi ro ở đây không đến từ công nghệ mà từ việc không ai biết trước hàng có đúng như mô tả và tiền có đến tay hay không. Đó là lý do nhóm chọn đề tài "#info.de-tai".
+Mua bán đồ cũ giữa các cá nhân đã thành thói quen của nhiều người dùng Việt Nam, nhưng giao dịch vẫn diễn ra theo cách thủ công: người mua chuyển khoản trước cho người lạ hoặc hai bên tự thỏa thuận giao nhận tiền mặt, thương lượng qua nhiều ứng dụng nhắn tin, và khi có sự cố thì không có quy tắc chung nào để dựa vào. Rủi ro nằm ở chỗ không ai biết trước hàng có đúng như mô tả và tiền có đến tay hay không. Đó là lý do nhóm chọn đề tài "#info.de-tai".
 
-Mục đích của đồ án là xây dựng một sàn C2C cho hàng đã qua sử dụng, trong đó giao dịch duy nhất trong ứng dụng là giao COD có đồng kiểm qua tài khoản GHTK hoặc GHN của chính người bán. Sàn không giữ tiền và không phán xử từng vụ việc; thay vào đó tin đăng là một tập cam kết gồm tình trạng, thông tin người bán ghi và ảnh, mọi dữ kiện giao nhận do hãng vận chuyển báo về, và uy tín cùng chế tài được tính tự động từ thống kê. Bên cạnh đó, đồ án đưa vào một AI agent giúp người mua tìm hàng bằng câu tự nhiên thay vì tự chọn hơn mười bộ lọc.
+Mục đích của đồ án là xây dựng một sàn C2C cho hàng đã qua sử dụng, trong đó giao dịch duy nhất trong ứng dụng là giao COD có đồng kiểm qua tài khoản GHTK hoặc GHN của chính người bán. Sàn không giữ tiền và không phán xử từng vụ việc. Tin đăng gồm tình trạng, thông tin người bán ghi và ảnh; mọi dữ kiện giao nhận do hãng vận chuyển báo về; uy tín của mỗi người là các số liệu quan sát được, công khai cho người khác xem. AI được dùng ở bốn chỗ: điền tin đăng từ video, ảnh hoặc link, hiểu câu tìm kiếm tự nhiên, cảnh báo dấu hiệu lừa đảo trong trò chuyện, và hỗ trợ nhân viên đọc hồ sơ.
 
 Về tình hình nghiên cứu, các sàn lớn trong nước giải quyết niềm tin bằng cách giữ tiền của người mua, điều đòi hỏi giấy phép trung gian thanh toán và một bộ phận xử lý khiếu nại có quy mô tăng theo số đơn; các nền tảng rao vặt thì chỉ kết nối thông tin và để hai bên tự lo phần còn lại. Hướng dựa vào dữ kiện do hãng vận chuyển báo về và thống kê hành vi để thay cho phân xử từng vụ chưa được các nền tảng phổ biến trong nước áp dụng cho hàng đã qua sử dụng. Ở phía tìm kiếm, việc kết hợp tìm theo ngữ nghĩa với tìm theo từ khóa [4][5] cho phép hiểu câu hỏi tự nhiên của người mua thay vì chỉ khớp chữ.
 
-Đối tượng nghiên cứu là quy trình mua bán hàng đã qua sử dụng giữa các cá nhân, các tác nhân tham gia (người mua, người bán, hãng vận chuyển, điều phối viên, quản trị viên) và các quy tắc nghiệp vụ giúp hai bên tin nhau khi sàn không giữ tiền. Phạm vi gồm hệ thống dịch vụ nền, ứng dụng Android cho người dùng và chức năng quản lý cho điều phối viên; không gồm thanh toán tạm giữ, ứng dụng iOS hay web cho khách hàng, giao hàng quốc tế và gian hàng doanh nghiệp.
+Đối tượng nghiên cứu là quy trình mua bán hàng đã qua sử dụng giữa các cá nhân, các tác nhân tham gia (người mua, người bán, hãng vận chuyển, điều phối viên, quản trị viên) và các quy tắc nghiệp vụ giúp hai bên tin nhau khi sàn không giữ tiền. Phạm vi gồm hệ thống dịch vụ nền, ứng dụng Android và website cho người dùng, và trang điều hành cho nhân viên; không gồm thanh toán tạm giữ, ứng dụng iOS, giao hàng quốc tế và gian hàng doanh nghiệp.
 
-Phương pháp thực hiện gồm các bước sau. Nhóm khảo sát thói quen mua bán đồ cũ và các nền tảng đang có để rút ra những rủi ro chính của người mua và người bán. Từ đó nhóm mô hình hóa nghiệp vụ bằng UML với sơ đồ ca sử dụng, sơ đồ hoạt động và sơ đồ trạng thái, và ghi các quy tắc nghiệp vụ thành danh mục có mã. Hệ thống được chia theo phân hệ nghiệp vụ để mỗi nhóm quy tắc có một nơi chịu trách nhiệm. Công việc chia thành ba giai đoạn bốn tuần, mỗi giai đoạn kết thúc bằng một phiên bản chạy được. Cuối cùng, hệ thống được kiểm thử theo kịch bản nghiệp vụ, đi từ đăng tin đến giao nhận và đánh giá.
+Phương pháp thực hiện gồm các bước sau. Nhóm khảo sát thói quen mua bán đồ cũ và các nền tảng đang có để rút ra những rủi ro chính của người mua và người bán. Từ đó nhóm mô hình hóa nghiệp vụ bằng UML với sơ đồ ca sử dụng, sơ đồ hoạt động và sơ đồ trạng thái, và ghi các quy tắc nghiệp vụ thành danh mục có mã. Hệ thống được chia theo phân hệ nghiệp vụ để mỗi nhóm quy tắc có một nơi chịu trách nhiệm. Công việc chia thành ba giai đoạn bốn tuần, mỗi giai đoạn kết thúc bằng một phiên bản chạy được. Ở giai đoạn 2, khi nối ứng dụng với dữ liệu thật, nhóm rút gọn một số phần của mô hình nghiệp vụ (mục 1.3). Cuối cùng, hệ thống được kiểm thử theo kịch bản nghiệp vụ, đi từ đăng tin đến giao nhận và đánh giá.
 
 Ngoài phần mở đầu và kết luận, đồ án gồm sáu chương. Chương 1 trình bày bối cảnh, khảo sát và mô hình nghiệp vụ đề xuất. Chương 2 trình bày cơ sở lý thuyết và công nghệ. Chương 3 phân tích và đặc tả yêu cầu. Chương 4 trình bày thiết kế kiến trúc, dữ liệu và luồng xử lý. Chương 5 mô tả việc hiện thực và triển khai. Chương 6 trình bày kiểm thử và đánh giá.
 
@@ -188,18 +185,20 @@ Ngoài phần mở đầu và kết luận, đồ án gồm sáu chương. Chư�
   [1], [Khảo sát giao dịch C2C hàng cũ, xây dựng mô hình nghiệp vụ], [Cả nhóm], [1], [Hoàn thành],
   [2], [Phân tích, đặc tả ca sử dụng, quy tắc nghiệp vụ, yêu cầu], [Cả nhóm], [1–2], [Hoàn thành],
   [3], [Thiết kế tổng thể hệ thống và chia phân hệ nghiệp vụ], [Đậu Văn Đăng Khoa], [2–3], [Hoàn thành],
-  [4], [Nguyên mẫu toàn bộ màn hình ứng dụng Android, design system], [Nguyễn Tấn Khoa], [2–4], [Hoàn thành],
-  [5], [Phân hệ tài khoản, đăng nhập và quản lý nhân sự điều phối], [Đậu Văn Đăng Khoa], [3–4], [Hoàn thành],
-  [6], [Phân hệ tin đăng và ảnh hàng hóa], [Hồ Công Toản], [3–4], [Hoàn thành],
-  [7], [Phân hệ thương lượng giá, đặt đơn COD và trò chuyện], [Đậu Văn Đăng Khoa, Nguyễn Tấn Khoa], [4–5], [Hoàn thành],
-  [8], [Phân hệ thanh toán COD và kết nối hãng vận chuyển GHTK, GHN], [Đậu Văn Đăng Khoa], [5–6], [Hoàn thành],
-  [9], [Phân hệ tìm kiếm, AI agent hỗ trợ tìm hàng và lưu tin], [Hồ Công Toản], [5–7], [Hoàn thành],
-  [10], [Phân hệ đánh giá, ghi nhận sự cố, uy tín và chế tài], [Hồ Công Toản], [6–8], [Hoàn thành],
-  [11], [Kết nối các màn hình ứng dụng Android với hệ thống], [Nguyễn Tấn Khoa], [6–8], [Hoàn thành],
-  [12], [Phân hệ xác minh danh tính, thông báo và gói người bán], [Hồ Công Toản, Nguyễn Tấn Khoa], [9–10], [Hoàn thành],
-  [13], [Đánh giá AI agent, kiểm thử theo kịch bản nghiệp vụ và kiểm thử giao diện], [Cả nhóm], [10–11], [Hoàn thành],
-  [14], [Triển khai hệ thống], [Đậu Văn Đăng Khoa], [11–12], [Hoàn thành],
-  [15], [Viết báo cáo đồ án], [Cả nhóm], [11–12], [Hoàn thành],
+  [4], [Nguyên mẫu toàn bộ màn hình ứng dụng Android, design system], [Nguyễn Tấn Khoa], [1–4], [Hoàn thành],
+  [5], [Phân hệ tài khoản, đăng nhập và tài khoản nhân viên], [Đậu Văn Đăng Khoa], [2–6], [Hoàn thành],
+  [6], [Phân hệ tin đăng, ảnh; AI điền tin và gợi ý giá], [Hồ Công Toản], [2–7], [Hoàn thành],
+  [7], [Phân hệ trò chuyện, thương lượng giá và đơn COD], [Đậu Văn Đăng Khoa, Nguyễn Tấn Khoa], [3–8], [Hoàn thành],
+  [8], [Phân hệ vận chuyển, kết nối GHTK, GHN], [Đậu Văn Đăng Khoa], [6–7], [Hoàn thành trên môi trường thử của hãng],
+  [9], [Phân hệ tìm kiếm và khám phá], [Hồ Công Toản], [5–7], [Hoàn thành],
+  [10], [Đánh giá hai chiều, uy tín, cảnh báo lừa đảo, báo cáo vi phạm, thông báo], [Hồ Công Toản], [6–8], [Hoàn thành],
+  [11], [Nối ứng dụng Android với hệ thống], [Nguyễn Tấn Khoa], [6–8], [Hoàn thành],
+  [12], [Website cho người mua và người bán], [Nguyễn Tấn Khoa], [7–9], [Hoàn thành],
+  [13], [Phiếu hỗ trợ, trang điều hành và trợ lý AI cho nhân viên], [Đậu Văn Đăng Khoa, Hồ Công Toản], [7–10], [Hoàn thành],
+  [14], [Đẩy tin và gói người bán], [Hồ Công Toản], [9–11], [Đã thiết kế, chưa phát hành],
+  [15], [Kiểm thử theo kịch bản nghiệp vụ, đo chất lượng tìm kiếm], [Cả nhóm], [8–11], [Hoàn thành],
+  [16], [Triển khai hệ thống trên cụm máy chủ], [Đậu Văn Đăng Khoa], [5–12], [Hoàn thành],
+  [17], [Viết báo cáo đồ án], [Cả nhóm], [11–12], [Hoàn thành],
 )
 
 // ---- Các chương (template tự ngắt trang trước mỗi chương) --
@@ -241,17 +240,20 @@ Ngoài phần mở đầu và kết luận, đồ án gồm sáu chương. Chư�
   [Malkov Y. A., Yashunin D. A., Efficient and Robust Approximate Nearest Neighbor Search Using Hierarchical Navigable Small World Graphs, IEEE Transactions on Pattern Analysis and Machine Intelligence, vol. 42, no. 4, pp. 824–836 (2020).],
   [Newman S., Building Microservices: Designing Fine-Grained Systems, 2nd ed., O'Reilly Media, Sebastopol, CA, USA (2021).],
   [Richardson C., Microservices Patterns: With Examples in Java, Manning Publications, Shelter Island, NY, USA (2018).],
+  [Robertson S., Zaragoza H., The Probabilistic Relevance Framework: BM25 and Beyond, Foundations and Trends in Information Retrieval, vol. 3, no. 4, pp. 333–389 (2009).],
+  [Tschannen M., Gritsenko A., Wang X., et al., SigLIP 2: Multilingual Vision-Language Encoders with Improved Semantic Understanding, Localization, and Dense Features, arXiv:2502.14786 (2025).],
   [Yao S., Zhao J., Yu D., Du N., Shafran I., Narasimhan K., Cao Y., ReAct: Synergizing Reasoning and Acting in Language Models, International Conference on Learning Representations (ICLR), Kigali, Rwanda (2023).],
 )
 
 #nhom-tltk[Website]
 #enum(
   numbering: n => "[" + str(n) + "]",
-  start: 13,
+  start: 15,
   [Android Developers, Guide to app architecture, https:\/\/developer.android.com/topic/architecture.],
   [Giao Hàng Nhanh, GHN Developer API Documentation, https:\/\/api.ghn.vn.],
   [Giao Hàng Tiết Kiệm, GHTK OpenAPI Documentation, https:\/\/docs.giaohangtietkiem.vn.],
   [OpenAPI Initiative, OpenAPI Specification v3.2.0, https:\/\/spec.openapis.org/oas/v3.2.0.],
+  [ParadeDB Documentation: Full-Text Search in PostgreSQL, https:\/\/docs.paradedb.com.],
   [pgvector: Open-Source Vector Similarity Search for PostgreSQL, https:\/\/github.com/pgvector/pgvector.],
   [Restate Documentation: Durable Execution Engine, https:\/\/docs.restate.dev.],
 )

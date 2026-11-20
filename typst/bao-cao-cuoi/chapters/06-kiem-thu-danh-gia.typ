@@ -2,13 +2,15 @@
 
 = KIỂM THỬ VÀ ĐÁNH GIÁ
 
-Chương này trình bày cách nhóm kiểm chứng hệ thống theo các kịch bản nghiệp vụ. Mỗi kịch bản xuất phát từ một ca sử dụng hoặc một quy tắc nghiệp vụ ở Chương 3 và trả lời một câu hỏi cụ thể: khi người dùng, hãng vận chuyển hay chính máy chủ gặp tình huống xấu, bên nào có thể bị thiệt và hệ thống có giữ đúng cam kết với bên đó không. Phần cuối chương trình bày phương pháp đánh giá AI agent tìm kiếm.
+Chương này trình bày cách nhóm kiểm chứng hệ thống theo các kịch bản nghiệp vụ. Mỗi kịch bản xuất phát từ một ca sử dụng hoặc một quy tắc nghiệp vụ ở Chương 3 và trả lời một câu hỏi cụ thể: khi người dùng, hãng vận chuyển hay chính máy chủ gặp tình huống xấu, bên nào có thể bị thiệt và hệ thống có giữ đúng cam kết với bên đó không. Phần cuối chương trình bày kết quả đo chất lượng tìm kiếm.
 
 == Phương pháp kiểm thử
 
-Kịch bản kiểm thử được chọn theo rủi ro nghiệp vụ. Nhóm ưu tiên bốn loại tình huống: một thao tác của người dùng bị thực hiện hai lần và sinh ra hai đơn hay hai vận đơn; máy chủ dừng giữa một quy trình nhiều bước và để tin, đơn, thương lượng lệch nhau; nhiều thao tác cùng lúc vượt qua một hạn mức như số đơn COD đang mở hay số lần nhập sai mã; và một hạn chờ như 3 ngày của ghi nhận sự cố không được thực thi.
+Kịch bản kiểm thử được chọn theo rủi ro nghiệp vụ. Nhóm ưu tiên bốn loại tình huống: một thao tác của người dùng bị thực hiện hai lần và sinh ra hai đơn hay hai vận đơn; máy chủ dừng giữa một quy trình nhiều bước và để tin, đơn, thương lượng lệch nhau; nhiều thao tác cùng lúc vượt qua một hạn mức như số đơn COD đang mở hay số lần nhập sai mã; và một thời hạn như 3 ngày của đơn không được thực thi.
 
-Các kịch bản chạy trên cơ sở dữ liệu thật, mỗi kịch bản có một bản dữ liệu riêng nên không ảnh hưởng lẫn nhau. Đồng hồ trong môi trường kiểm thử chỉnh tay được, nhờ đó hạn 3 ngày của ghi nhận sự cố hay hạn 24 giờ của ảnh được kiểm mà không phải chờ. Một bộ tiêm lỗi cho phép làm máy chủ dừng ngay sau khi một bước đã ghi xong, để kiểm rằng lần chạy lại không lặp hành động. Kiểm thử đầu-cuối chạy toàn bộ hệ thống với một hộp thư giả thu mã gửi qua SMS và email; hai hãng vận chuyển và mô hình ngôn ngữ được thay bằng máy chủ giả trả lời đúng như bên thật, và mọi phản hồi được đối chiếu với đặc tả. Mỗi phân hệ của dịch vụ nền đều có kiểm thử tự động cho các quy tắc nghiệp vụ của mình. Ở ứng dụng di động, luật nghiệp vụ và từng màn hình đều có kiểm thử; giao diện được so ảnh chụp ở chế độ sáng, tối và cỡ chữ lớn, và có các kịch bản đi trọn luồng đăng tin, thương lượng, tài khoản và khám phá.
+Ở dịch vụ nền, mọi kiểm thử chạm tới dữ liệu đều chạy trên PostgreSQL thật; mỗi kiểm thử nhận một bản sao riêng của cơ sở dữ liệu nên không ảnh hưởng lẫn nhau. Đồng hồ trong môi trường kiểm thử chỉnh tay được, nhờ đó các thời hạn 3 ngày của đơn, 7 ngày của đánh giá hay 24 giờ của ảnh được kiểm mà không phải chờ. Một bộ tiêm lỗi làm một bước ghi xong dữ liệu rồi báo lỗi một lần, để kiểm rằng lần chạy lại không lặp hành động. Kiểm thử đầu-cuối chạy toàn bộ hệ thống với một hộp thư giả thu mã gửi qua email và một bộ ký giả cho mã xác minh số điện thoại và Google; hãng vận chuyển được thay bằng hãng giả lập trả lời đúng định dạng tài liệu của hãng [16], [17], và mọi phản hồi được đối chiếu với đặc tả.
+
+Ở ứng dụng Android, luật nghiệp vụ và tầng xử lý của từng màn hình có kiểm thử tự động. Sau mỗi phần nối ứng dụng với dịch vụ nền, nhóm chạy kiểm thử trực tiếp trên môi trường thử bằng hai tài khoản thật, một người bán và một người mua, đi qua nhắn tin, trả giá, đơn COD, đăng tin, tài khoản và thông báo; các tài khoản tạm dùng cho thao tác xóa được xóa ngay sau mỗi lượt chạy. Ở website, mỗi trang được mở ở bề rộng máy tính và điện thoại, cả khi chưa và đã đăng nhập, để tìm lỗi hiển thị và lỗi gọi dịch vụ.
 
 == Các kịch bản nghiệp vụ trọng tâm
 
@@ -18,54 +20,56 @@ Bảng 6.1 và Bảng 6.2 đặc tả hai kịch bản khó nhất: máy chủ g
   "TC-01", "Máy chủ gặp sự cố giữa lúc tạo đơn gửi hàng",
   [Mục tiêu], [Xác nhận sự cố máy chủ trong lúc tạo đơn không sinh ra vận đơn trùng và không để tin, đơn, thương lượng lệch nhau],
   [Truy vết], [UC-DEAL-04, BR-DEAL-04; FR-DEAL-03; NFR-DUR-01, NFR-IDEM-01],
-  [Tiền điều kiện], [Người mua A đã chốt giá và gửi yêu cầu COD; người mua B cũng gửi yêu cầu COD trên cùng tin; tin đang bán; người bán đã liên kết hãng vận chuyển, máy chủ giả của hãng đếm số vận đơn được tạo],
+  [Tiền điều kiện], [Người mua A đã chốt giá và gửi yêu cầu COD; người mua B cũng gửi yêu cầu COD trên cùng tin; tin đang bán; người bán đã liên kết hãng giả lập, hãng giả lập đếm số vận đơn được tạo],
   [Các bước], [
-    1. Đặt máy chủ dừng ngay sau khi bước lưu đơn ghi xong.
+    1. Đặt máy chủ báo lỗi một lần ngay sau khi bước lưu đơn ghi xong.
     2. Người bán bấm Tạo đơn cho người mua A.
-    3. Máy chủ chạy lại và quy trình tạo đơn tiếp tục; ứng dụng của người bán gửi lại thao tác vừa rồi.
+    3. Quy trình tạo đơn chạy lại; ứng dụng của người bán gửi lại thao tác vừa rồi.
     4. Kiểm tra số vận đơn bên hãng, trạng thái đơn, tin, thương lượng và yêu cầu của người mua B.
   ],
-  [Kết quả mong đợi], [Hãng chỉ nhận đúng một lệnh tạo vận đơn; đơn của A ở trạng thái đã tạo vận đơn với phí thật do hãng báo; tin chuyển sang đang giữ chỗ; yêu cầu của B bị hủy với lý do "đã gửi cho người khác"; lần gửi lại nhận đúng kết quả của lần đầu; mỗi bên chỉ nhận một thông báo đơn đã tạo],
+  [Kết quả mong đợi], [Hãng chỉ nhận đúng một lệnh tạo vận đơn; đơn của A ở trạng thái đã gửi với phí thật do hãng báo; tin chuyển sang đang giữ chỗ; yêu cầu của B bị hủy với lý do "đã gửi cho người khác"; lần gửi lại nhận đúng kết quả của lần đầu; mỗi bên chỉ nhận một thông báo],
 )
 
 #tcspec(
   "TC-02", "Năm mươi lượt đoán mã đăng nhập cùng lúc",
-  [Mục tiêu], [Xác nhận kẻ gian gửi đồng thời nhiều lượt đoán vẫn không vượt được giới hạn 5 lần nhập sai, và phản hồi không cho biết lượt nào đã đoán đúng],
+  [Mục tiêu], [Xác nhận kẻ gian gửi đồng thời nhiều lượt đoán vẫn không vượt được giới hạn số lần nhập sai, và phản hồi không cho biết lượt nào đã đoán đúng],
   [Truy vết], [UC-ACC-01, BR-ACC-02; FR-ACC-01; NFR-CONC-01, NFR-SEC-01],
-  [Tiền điều kiện], [Một mã đăng nhập đang còn hiệu lực cho một số di động; mã đúng đọc được từ hộp thư giả],
+  [Tiền điều kiện], [Một mã đăng nhập gửi qua email đang còn hiệu lực; mã đúng đọc được từ hộp thư giả],
   [Các bước], [
     1. Gửi cùng lúc 50 lượt nhập mã, trong đó chỉ một lượt mang mã đúng.
     2. Ghi lại phản hồi của từng lượt.
     3. Đọc lại trạng thái của mã sau cùng.
   ],
-  [Kết quả mong đợi], [Số lần thử được ghi nhận không vượt quá 5; mã kết thúc ở một trong hai trạng thái bị khóa hoặc đã dùng, không bao giờ cả hai; nếu mã đã bị khóa trước khi lượt mang mã đúng được xét thì lượt đó cũng bị từ chối như các lượt khác; các lượt bị xử lý chen nhau nhận cùng một lời nhắn "thử lại", không lộ mã vừa thử là đúng hay sai],
+  [Kết quả mong đợi], [Số lần thử được ghi nhận không vượt quá giới hạn; mã kết thúc ở một trong hai trạng thái hết lượt hoặc đã dùng, không bao giờ cả hai; nếu mã đã hết lượt trước khi lượt mang mã đúng được xét thì lượt đó cũng bị từ chối như các lượt khác; các lượt bị xử lý chen nhau nhận cùng một lời nhắn "thử lại", không lộ mã vừa thử là đúng hay sai],
 )
 
 #figure(
   kind: table,
-  caption: [Tóm tắt các kịch bản TC-03 đến TC-14],
+  caption: [Tóm tắt các kịch bản TC-03 đến TC-16],
   table(
     columns: (auto, 1fr, auto),
     align: (left + top, left + top, left + top),
     table.header([*Mã*], [*Kịch bản và kết quả mong đợi*], [*Truy vết*]),
     [TC-03], [Mạng chập chờn khiến ứng dụng gửi lại yêu cầu COD; người mua nhận đúng phản hồi lần đầu, chỉ có một đơn], [UC-DEAL-03, NFR-IDEM-01],
-    [TC-04], [Hãng vận chuyển báo "đã giao" hai lần cho cùng một đơn; đơn chỉ chuyển sang đã giao một lần, tin chỉ bán một lần], [UC-DEAL-05, FR-DEAL-04, NFR-IDEM-01],
-    [TC-05], [Người mua chấp nhận giá đúng lúc người bán gửi phản giá; một thao tác được nhận, thao tác kia được báo thương lượng vừa thay đổi và hiện lại trạng thái mới], [UC-DEAL-02, NFR-CONC-01],
-    [TC-06], [Người mua bậc Mới gửi cùng lúc 5 yêu cầu COD trên 5 tin; đúng 2 yêu cầu được nhận, 3 yêu cầu bị từ chối vì vượt hạn mức], [BR-DEAL-06, NFR-CONC-01],
-    [TC-07], [Kẻ gian dùng lại một phiên đã bị lấy cắp sau khi thiết bị thật đã làm mới; cả phiên bị thu hồi, hai bên đều phải đăng nhập lại], [UC-ACC-02, NFR-SEC-01],
-    [TC-08], [Xin mã cho một số đã có tài khoản và một số chưa có; hai phản hồi giống hệt nhau], [UC-ACC-01, BR-ACC-02, NFR-SEC-01],
-    [TC-09], [Báo "đã giao" cho đơn còn ở trạng thái đã yêu cầu, và hủy một đơn đang giao; cả hai thao tác bị từ chối, đơn không đổi], [UC-DEAL-05, UC-DEAL-06, BR-DEAL-07],
-    [TC-10], [Trả giá thấp hơn nửa giá niêm yết; lời trả giá bị từ chối kèm khoảng giá hợp lệ], [UC-DEAL-02, BR-DEAL-03, FR-DEAL-02],
-    [TC-11], [Người mua có 5 đơn COD trong 90 ngày, trong đó 1 lần từ chối nhận (20%); hạn mức còn 1 đơn COD đang mở], [UC-TRS-04, BR-TRS-02, FR-TRS-03],
-    [TC-12], [Người bán không trả lời ghi nhận sự cố; sau 3 ngày ghi nhận tự chuyển sang bị từ chối và hiện trên hồ sơ người bán], [UC-TRS-03, BR-TRS-01, FR-TRS-02],
-    [TC-13], [Mô hình ngôn ngữ trả lời chậm hơn 8 giây; người mua vẫn nhận kết quả tìm kiếm lai theo câu gốc], [UC-DSC-01, FR-DSC-01, NFR-PERF-01],
-    [TC-14], [Người bán tải ảnh có ghi tọa độ vị trí và thông tin máy chụp; ảnh trên tin không còn thông tin nào trong số đó], [UC-LST-01, FR-SHR-01, NFR-PRIV-01],
+    [TC-04], [Hãng báo "đã giao" hai lần, rồi báo "đã lấy hàng" đến trễ; đơn không đổi trạng thái hai lần và không lùi trạng thái], [UC-DEAL-05, FR-DEAL-04, NFR-IDEM-01],
+    [TC-05], [Người mua chấp nhận giá đúng lúc người bán gửi phản giá; một thao tác được nhận, thao tác kia được báo thương lượng vừa thay đổi], [UC-DEAL-02, NFR-CONC-01],
+    [TC-06], [Người mua gửi cùng lúc 5 yêu cầu COD trên 5 tin; đúng 3 yêu cầu được nhận, 2 yêu cầu bị từ chối vì vượt hạn mức], [BR-DEAL-06, NFR-CONC-01],
+    [TC-07], [Người bán không tạo đơn trong 3 ngày; đơn tự hủy, tin tiếp tục bán], [UC-DEAL-06, BR-DEAL-07],
+    [TC-08], [Hãng chưa lấy hàng 3 ngày sau khi gửi; đơn bị hủy, vận đơn trên tài khoản hãng bị hủy theo, tin mở bán lại], [UC-DEAL-06, BR-DEAL-07],
+    [TC-09], [Hãng báo đã giao mà người mua không bấm đã nhận; sau 3 ngày đơn tự hoàn tất, tin chuyển sang đã bán], [UC-DEAL-05, BR-DEAL-11],
+    [TC-10], [Người mua từ chối nhận tại cửa; đơn giao không thành, tin về đang bán, số đơn giao không thành trên trang Uy tín của người mua tăng một], [UC-DEAL-05, UC-TRS-04, BR-DEAL-08],
+    [TC-11], [Người bán nhập mã vận đơn không thuộc tài khoản hãng của mình; mã bị từ chối, đơn không đổi], [UC-DEAL-04, BR-DEAL-12],
+    [TC-12], [Tin nhắn đòi đặt cọc và rủ sang Zalo; cảnh báo hiện. Người dùng tắt cảnh báo, sau đó có tin xin mã OTP; cảnh báo hiện lại], [UC-DEAL-01, FR-TRS-04, BR-TRS-06],
+    [TC-13], [Người bán đánh giá người mua trước; đánh giá ẩn với người mua cho đến khi người mua đánh giá lại hoặc qua 7 ngày; sau câu trả lời, đánh giá không sửa được], [UC-TRS-01, BR-TRS-04],
+    [TC-14], [Mô hình ngôn ngữ trả lời chậm hơn 4 giây khi đọc câu tìm; người mua vẫn nhận kết quả theo câu gốc, không có chip], [UC-DSC-01, FR-DSC-01, NFR-PERF-01],
+    [TC-15], [Người dùng chặn một người bán; tin của người bán đó không còn trong tìm kiếm, trang chủ và Gần bạn của cả hai bên], [UC-DSC-01, UC-ACC-05, BR-ACC-01],
+    [TC-16], [Người bán tải ảnh có ghi tọa độ vị trí và thông tin máy chụp; ảnh trên tin không còn thông tin nào trong số đó], [UC-LST-01, FR-SHR-01, NFR-PRIV-01],
   ),
 )
 
 == Đối chiếu yêu cầu phi chức năng
 
-Bảng 6.4 đối chiếu từng yêu cầu phi chức năng ở Chương 3 với cách kiểm chứng. Riêng NFR-PERF-01 được kiểm bằng kiểm thử tải trên bộ dữ liệu trình diễn: thời gian phản hồi mà 95% số yêu cầu đạt được so với các ngưỡng 300 ms cho thao tác xem, 800 ms cho tìm kiếm lai và 8 giây cho AI agent.
+Bảng 6.4 đối chiếu từng yêu cầu phi chức năng ở Chương 3 với cách kiểm chứng.
 
 #figure(
   kind: table,
@@ -74,22 +78,42 @@ Bảng 6.4 đối chiếu từng yêu cầu phi chức năng ở Chương 3 vớ
     columns: (auto, 1fr),
     align: (left + top, left + top),
     table.header([*Mã*], [*Cách kiểm chứng*]),
-    [NFR-DUR-01], [Làm máy chủ dừng giữa các quy trình gửi mã, đăng nhập lần đầu, đăng tin, tạo đơn và kết thúc đơn; quy trình phải chạy tiếp, không gửi hai tin nhắn, không tạo hai vận đơn (TC-01)],
-    [NFR-IDEM-01], [Gửi lại mọi thao tác ghi quan trọng; hãng vận chuyển gửi trùng thông báo (TC-03, TC-04)],
+    [NFR-DUR-01], [Làm một bước báo lỗi sau khi đã ghi, trong các quy trình đăng nhập, gửi mã, đăng tin, gửi hàng và thời hạn của đơn; quy trình phải chạy tiếp, không gửi hai email, không tạo hai vận đơn (TC-01)],
+    [NFR-IDEM-01], [Gửi lại mọi thao tác ghi quan trọng; hãng giả lập gửi trùng và gửi sai thứ tự thông báo (TC-03, TC-04)],
     [NFR-CONC-01], [Cho nhiều thao tác chạy cùng lúc trên một thương lượng, trên hạn mức đơn COD và trên số tin đang bán (TC-02, TC-05, TC-06)],
-    [NFR-MSG-01], [Tạm dừng nền tảng điều phối quy trình khi đang có thay đổi: thay đổi vẫn phải được lưu, thông báo cho các phân hệ chờ lại và được gửi khi nền tảng chạy lại; người dùng vẫn xem được và giữ được phiên đăng nhập],
-    [NFR-PERF-01], [Kiểm thử tải trên bộ dữ liệu trình diễn với các ngưỡng đã đặt; AI agent quá giờ (TC-13)],
-    [NFR-SEC-01], [Dùng lại phiên cũ, vượt hạn mức gửi mã, so phản hồi cho số có và chưa có tài khoản (TC-02, TC-07, TC-08)],
-    [NFR-PRIV-01], [Ảnh không còn tọa độ (TC-14); tin chỉ lưu phường xã; nhật ký không chứa số điện thoại, email; thông tin kết nối hãng vận chuyển được giữ kín],
+    [NFR-MSG-01], [Tạm dừng nền tảng điều phối quy trình khi đang có thay đổi: thay đổi vẫn phải được lưu, tin báo cho các phân hệ chờ lại và được gửi khi nền tảng chạy lại; người dùng vẫn xem được và giữ được phiên đăng nhập],
+    [NFR-PERF-01], [Đo thời gian phản hồi trên bộ dữ liệu thử; mô hình đọc câu quá giờ (TC-14)],
+    [NFR-SEC-01], [Dùng lại mã làm mới phiên cũ, vượt hạn mức gửi mã, so phản hồi cho email có và chưa có tài khoản (TC-02)],
+    [NFR-PRIV-01], [Ảnh không còn tọa độ (TC-16); tin chỉ lưu phường xã hoặc điểm đã làm mờ; nhật ký không chứa số điện thoại, email; mã kết nối hãng vận chuyển không có trong phản hồi và nhật ký],
     [NFR-OBS-01], [Mỗi lỗi người dùng gặp phải tra lại được đúng yêu cầu gây lỗi trên màn hình quan trắc],
+    [NFR-PERF-02], [Lượt hỏi trợ lý AI quá 60 giây dừng lại và cho chạy nền],
+    [NFR-PRIV-02], [Mỗi lần trợ lý AI đọc dữ liệu cá nhân có một dòng ghi nhân viên đã hỏi; xóa tài khoản thì các phần trích của tài khoản đó trong cuộc chat với trợ lý bị xóa],
     [NFR-API-01], [Mọi phản hồi trong kiểm thử đầu-cuối được đối chiếu với đặc tả; mọi trường hợp đã khai trong đặc tả phải xuất hiện ít nhất một lần],
     [NFR-ARCH-01], [Kiểm tra tự động chặn mọi lời gọi từ một phân hệ vào phần bên trong của phân hệ khác],
-    [NFR-UX-01], [Chạy trên điện thoại có phiên bản hệ điều hành thấp nhất mà yêu cầu đặt ra; so ảnh chụp giao diện tối và cỡ chữ lớn; kiểm vùng chạm tối thiểu trên từng màn hình],
+    [NFR-UX-01], [Chạy trên điện thoại có phiên bản hệ điều hành thấp nhất mà yêu cầu đặt ra, ở giao diện tối và cỡ chữ lớn; mở mọi trang website ở bề rộng điện thoại],
   ),
 )
 
-== Đánh giá AI agent tìm kiếm
+== Đánh giá chất lượng tìm kiếm
 
-Phương pháp đánh giá dùng một bộ 200 câu nhu cầu tiếng Việt, mỗi câu được gán nhãn các tin liên quan trong bộ dữ liệu trình diễn. Ba cấu hình được so sánh: A chỉ dùng tìm kiếm lai; B thêm một lần gọi mô hình ngôn ngữ để phân tích ý định rồi điền bộ lọc; C là B cộng vòng lặp agent có công cụ và trí nhớ hội thoại. Độ đo gồm nDCG\@10, MRR\@10, Recall\@50 và tỉ lệ kết quả rỗng. Bên cạnh đánh giá ngoại tuyến, một nghiên cứu tác vụ với khoảng 20 người dùng ghi lại thời gian hoàn thành, số thao tác và tỉ lệ chip bị sửa.
+Nhóm đo chất lượng tìm kiếm trên một bộ mẫu gồm 42 tin đăng có ảnh và 46 câu tìm có gán sẵn các tin liên quan: 30 câu chữ, 10 lượt tìm bằng ảnh và 6 lượt tìm tin tương tự. Lượt chạy dùng đúng các mô hình của hệ thống: mô hình đọc câu, BGE-M3 cho văn bản và SigLIP 2 cho ảnh. Độ đo là tỉ lệ tin liên quan có trong 10 kết quả đầu (recall\@10) và nDCG\@10, độ đo thưởng cho việc đặt tin liên quan ở thứ hạng cao. Bảng 6.5 là kết quả với các trọng số ban đầu.
 
-Kết quả được báo cáo ở mức định tính và qua các bảo đảm do thiết kế. Cấu hình C không kém A: câu gốc luôn được giữ với trọng số dương trong mọi lần tìm mà agent thực hiện, agent chỉ điền bộ lọc, và khi quá 8 giây hay công cụ lỗi thì kết quả chính là kết quả của A. Agent giúp nhiều nhất ở các câu có ràng buộc giá, vị trí hoặc phủ định, loại câu mà tìm kiếm lai dùng nguyên văn không tách được, ví dụ "đừng ồn" lại kéo kết quả về phía các tin có chữ "ồn". Câu chỉ gồm tên món hàng không cho agent ràng buộc nào để thêm, nên ở loại câu này C chạy gần như A. Khi agent đọc sai một ràng buộc, người dùng thấy ngay trên chip và sửa được mà không phải gõ lại câu, lượt chạy lại cũng không qua mô hình ngôn ngữ; tỉ lệ chip bị sửa trong nghiên cứu tác vụ vì vậy là thước đo trực tiếp cho những lần agent hiểu sai.
+#figure(
+  kind: table,
+  caption: [Chất lượng tìm kiếm trên bộ mẫu 46 câu],
+  table(
+    columns: (1.6fr, 0.8fr, 0.9fr, 0.9fr),
+    align: (left, center, center, center),
+    table.header([*Loại tìm*], [*Số câu*], [*recall\@10*], [*nDCG\@10*]),
+    [Câu chữ], [30], [1,000], [0,946],
+    [Bằng ảnh], [10], [1,000], [1,000],
+    [Tin tương tự], [6], [1,000], [1,000],
+    [Tất cả], [46], [1,000], [0,965],
+  ),
+)
+
+Bộ mẫu nhỏ nên recall\@10 dễ đạt tối đa; con số đáng chú ý hơn là nDCG\@10 của câu chữ, cho thấy có câu mà tin đúng không đứng đầu. Hai độ đo này cũng không phạt tin không liên quan xếp sau tin đúng: tìm bằng ảnh một đôi giày trắng vẫn kéo theo tai nghe và máy giặt ở cuối trang. Bước tiếp theo là thêm một độ đo độ chính xác, nâng ngưỡng tương đồng tối thiểu của danh sách theo nghĩa và theo ảnh, và mở rộng bộ câu sang câu nhiều điều kiện, câu có phủ định và câu cần vị trí.
+
+Gợi ý danh mục khi đăng tin được đo trên 86 tin của bộ mẫu và bộ dữ liệu trình diễn. Trong 77 tin không thuộc nhóm Khác, hệ thống đoán đúng danh mục con của 71 tin khi dùng cả tiêu đề và mô tả, và 69 tin khi chỉ dùng tiêu đề.
+
+Với phần AI đọc câu tìm, thiết kế bảo đảm kết quả không kém tìm theo câu gốc: câu gốc luôn được giữ làm một cụm từ tìm, mô hình chỉ thêm điều kiện ưu tiên, và khi mô hình lỗi hay quá 4 giây thì kết quả chính là kết quả tìm theo câu gốc. Khi mô hình đọc sai một điều kiện, người dùng thấy ngay trên chip và tắt được mà không phải gõ lại câu, lượt tìm lại cũng không qua mô hình.

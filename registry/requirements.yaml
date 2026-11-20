@@ -42,7 +42,7 @@ uc:
   - id: UC-ACC-01
     was: [UC-01]
     status: untraced
-    title: { vi: "Đăng nhập bằng mã OTP (lần đầu tự tạo tài khoản)", en: "Sign in with a one-time code" }
+    title: { vi: "Đăng nhập bằng số điện thoại, email hoặc Google (lần đầu tự tạo tài khoản)", en: "Sign in by phone, email or Google" }
     actors: [user]
   - id: UC-ACC-02
     was: [UC-02]
@@ -51,13 +51,13 @@ uc:
     actors: [user]
   - id: UC-ACC-03
     was: [UC-03]
-    status: untraced
+    status: retired
     title: { vi: "Xác minh danh tính điện tử (CCCD gắn chip và khuôn mặt)", en: "Verify identity (chip ID card and face)" }
     actors: [user]
   - id: UC-ACC-04
     was: [UC-04]
     status: untraced
-    title: { vi: "Thiết lập giao COD (địa chỉ lấy hàng, liên kết GHTK/GHN, khai tài khoản nhận tiền)", en: "Set up COD (pickup address, GHTK/GHN link, payout account)" }
+    title: { vi: "Thiết lập giao COD (địa chỉ lấy hàng, liên kết tài khoản GHTK/GHN)", en: "Set up COD (pickup address, GHTK/GHN link)" }
     actors: [seller]
   - id: UC-ACC-05
     was: [UC-05]
@@ -69,40 +69,38 @@ uc:
   - id: UC-LST-01
     was: [UC-06]
     status: done
-    title: { vi: Đăng tin với AI điền giúp (từ ảnh hoặc video), en: Post a listing with AI filling it in }
+    title: { vi: "Đăng tin với AI điền giúp (từ video, ảnh hoặc link Chợ Tốt)", en: Post a listing with AI filling it in }
     actors: [seller]
     secondary: [llm]
     fr: [FR-LST-01]
     br: [BR-LST-01, BR-LST-02, BR-LST-03]
     nfr: [NFR-IDEM-01, NFR-DUR-01]
     adr: [ADR-0002]
-    api: ["POST /v1/listing-reads", "GET /v1/listing-reads/{id}", "POST /v1/link-previews", "POST /v1/price-guides", "GET /v1/listing-drafts", "PUT /v1/listing-drafts/{id}", "DELETE /v1/listing-drafts/{id}", "POST /v1/listings", "POST /v1/listings/{id}/photo-copies"]
+    api: ["POST /v1/listing-reads", "GET /v1/listing-reads/{id}", "GET /v1/listing-reads/{id}/events", "POST /v1/link-previews", "POST /v1/category-guesses", "POST /v1/price-guides", "GET /v1/listing-drafts", "GET /v1/listing-drafts/{id}", "PUT /v1/listing-drafts/{id}", "DELETE /v1/listing-drafts/{id}", "POST /v1/listings", "POST /v1/listings/{id}/photo-copies"]
     pre: Đã đăng nhập.
     post: Tin được lưu ở trạng thái đang xử lý; khi mọi ảnh xử lý xong, tin chuyển sang đang bán và bắt đầu xuất hiện trong kết quả tìm kiếm.
     main:
       1: Người bán chụp hoặc chọn từ thư viện 1–10 ảnh, hoặc quay video; ảnh được tải lên qua UC-SHR-01.
-      2: Hệ thống gửi ảnh cho LLM; mô hình trả về tiêu đề, danh mục, tình trạng theo thang Mới/Như mới/Đã dùng và thông số.
+      2: "AI đọc ảnh, hoặc khung hình và lời nói tiếng Việt trong video, rồi điền tiêu đề, danh mục, tình trạng theo thang Mới/Như mới/Đã dùng, thông số, mô tả và khoảng giá tham khảo."
       3: Người bán sửa biểu mẫu, nhập giá, xác nhận phường/xã rồi bấm Đăng.
       4: Hệ thống kiểm quyền đăng và trần số tin của người bán (BR-LST-02), kể cả khi người bán gửi nhiều tin cùng lúc; kiểm giới hạn từng mục (BR-LST-03).
       5: Hệ thống lưu tin ở trạng thái đang xử lý, chuẩn hóa ảnh và xóa thông tin vị trí chụp trong ảnh; xong thì tin chuyển sang đang bán, ứng dụng báo "Đã đăng tin".
     alt:
       A1: { at: 2, text: "Mô hình không trả kết quả: người bán tự điền biểu mẫu, tiếp tục bước 3." }
-      A2: { at: 1, text: "Người bán dán link tin của mình trên Chợ Tốt: hệ thống hiện thẻ xem trước rồi đọc tin đó thành biểu mẫu." }
-      A3: { at: 3, text: "Hệ thống gợi ý giá từ các tin tương tự và số người mua đang theo dõi loại hàng này." }
+      A2: { at: 1, text: "Người bán dán link tin của mình trên Chợ Tốt: hệ thống hiện thẻ xem trước rồi đọc tin đó thành biểu mẫu, bỏ số điện thoại và Zalo trong mô tả." }
+      A3: { at: 3, text: "Hệ thống hiện các tin tương tự, số người mua đang theo dõi loại hàng này và hai mức gợi ý: giá thị trường và giá bán nhanh, kèm số ngày bán." }
       A4: { at: 3, text: "Người bán lưu nháp và quay lại sau; nháp giữ ảnh đã tải." }
       A5: { at: 1, text: "Người bán đăng lại từ một tin cũ của mình: ảnh của tin đó được chép thành ảnh tải lên mới." }
       A6: { at: 4, text: "Ứng dụng gửi lại cùng một lần đăng: trả đúng tin của lần đầu, không tạo tin thứ hai.", nfr: NFR-IDEM-01 }
     exc:
-      E1: { at: 4, text: "Chưa xác minh danh tính hoặc đang bị tạm khóa: từ chối đăng, ứng dụng dẫn sang UC-ACC-03.", br: BR-LST-02, error: account_suspended }
-      E2: { at: 4, text: "Đã đạt trần số tin theo bậc (5/20/20/20): từ chối, báo số tin tối đa.", br: BR-LST-02, error: listing_cap_reached }
+      E1: { at: 4, text: "Tài khoản đang bị tạm khóa: từ chối đăng.", br: BR-LST-02, error: account_suspended }
+      E2: { at: 4, text: "Đã có 20 tin đang bán: từ chối, báo số tin tối đa.", br: BR-LST-02, error: listing_cap_reached }
       E3: { at: 5, text: "Có ảnh lỗi: tin chuyển sang bị từ chối kèm lý do; sửa tin hoặc thêm ảnh đưa tin về đang xử lý." }
       E4: { at: 4, text: Người bán chưa có số điện thoại, br: BR-ACC-03, error: phone_required }
       E5: { at: 4, text: Nội dung tin sai giới hạn, br: BR-LST-03, error: invalid_listing }
       E6: { at: 2, text: "Người bán đã dùng hết lượt đọc bằng AI trong 24 giờ (30 video, 60 ảnh, 30 link)", error: read_limit_reached }
       E7: { at: 1, text: Link không phải tin trên Chợ Tốt, error: unsupported_source }
       E8: { at: 4, text: "Ảnh không thuộc người bán hoặc chưa tải xong", error: invalid_upload }
-    gaps:
-      - "BR-LST-02 đòi xác minh danh tính và trần theo bậc 5/20/20/20; code chỉ kiểm tài khoản bị khóa, số điện thoại và trần cố định 20 tin (domain.MaxOnSale)."
   - id: UC-LST-02
     was: [UC-07]
     status: done
@@ -137,24 +135,23 @@ uc:
   - id: UC-DSC-01
     was: [UC-09]
     status: untraced
-    title: { vi: "Tìm kiếm bằng ngôn ngữ tự nhiên với AI agent", en: "Natural-language search with the AI agent" }
+    title: { vi: "Tìm kiếm bằng câu tự nhiên với AI", en: "Natural-language search with AI" }
     actors: [buyer, guest]
     secondary: [llm]
     br: [BR-DSC-01]
-    pre: Không bắt buộc đăng nhập; nếu đã đăng nhập, agent đọc thêm sở thích, đơn gần đây và phường/xã của người dùng.
-    post: Người dùng nhận danh sách tin, chip ràng buộc sửa được và một câu diễn giải; các ràng buộc đã chốt được nhớ trong phiên tìm kiếm. Không dữ liệu nghiệp vụ nào bị thay đổi.
+    pre: Không bắt buộc đăng nhập.
+    post: Người dùng nhận danh sách tin, chip điều kiện tắt được và một câu diễn giải. Không dữ liệu nghiệp vụ nào bị thay đổi.
     main:
-      1: Người dùng gõ hoặc nói một câu nhu cầu; nếu đang trong một phiên tìm kiếm, câu mới được nối vào phiên đó.
-      2: Hệ thống bắt đầu lượt tìm, nạp các ràng buộc đã chốt của phiên.
-      3: "Agent lập kế hoạch và dùng các công cụ chỉ đọc: tra danh mục, xác định vị trí, đọc sở thích, tìm tin; tối đa 4 vòng. Nếu máy chủ gặp sự cố giữa chừng, lượt tìm chạy tiếp từ bước đã xong."
-      4: Lệnh tìm tin luôn giữ câu gốc của người dùng cùng bộ lọc agent điền; tìm kiếm lai hợp nhất ba danh sách xếp hạng (mục 2.4) rồi xếp lại theo khoảng cách và bậc người bán.
-      5: Hệ thống trả tin, chip và câu diễn giải, lưu ràng buộc vào phiên.
-      6: Người dùng sửa hoặc xóa chip; hệ thống chạy lại tìm kiếm lai mà không gọi LLM.
+      1: Người dùng gõ một câu nhu cầu, hoặc chọn một ảnh để tìm món giống.
+      2: "Hệ thống gửi câu cho mô hình ngôn ngữ một lần; mô hình đổi câu thành các điều kiện ưu tiên: cụm từ, danh mục, giá, tình trạng, nơi bán, độ gần, độ mới. Điều kiện không khớp dữ liệu thật (danh mục, tỉnh, xã) bị bỏ."
+      3: Hệ thống tìm trên các tin đang bán theo ba cách (khớp từ khóa, theo nghĩa của câu, theo ảnh) rồi hợp nhất thứ hạng; câu gốc luôn được giữ làm một cụm từ tìm.
+      4: Hệ thống trả tin, chip và câu diễn giải; cách đọc câu được lưu 7 ngày cho lần tìm sau.
+      5: Người dùng tắt một chip; hệ thống tìm lại bằng cách đọc đã lưu, không hỏi lại mô hình.
     alt:
-      A1: { at: 3, text: "Quá 8 giây hoặc một công cụ lỗi: rơi về tìm kiếm lai thuần với truy vấn gốc." }
-      A2: { at: 5, text: "Không có tin phù hợp: trả kết quả rỗng kèm chip để người dùng nới ràng buộc." }
-      A3: { at: 6, text: "Người dùng gửi câu tiếp theo: lặp lại từ bước 1, ràng buộc cũ được kế thừa." }
-    notes: Tin đang giữ chỗ, đã bán, đang ẩn hoặc đã xóa không có trong kết quả.
+      A1: { at: 2, text: "Mô hình lỗi hoặc quá 4 giây: hệ thống tìm bằng nguyên câu gốc, không có chip." }
+      A2: { at: 4, text: "Không có tin phù hợp: trả kết quả rỗng kèm chip để người dùng nới điều kiện." }
+      A3: { at: 4, text: "Người dùng theo dõi câu tìm: hệ thống quét tin mới mỗi 30 phút và báo số tin mới khớp (UC-DSC-03)." }
+    notes: Tin đang giữ chỗ, đã bán, đang ẩn, đã xóa hoặc của người đã chặn mình (theo cả hai chiều) không có trong kết quả.
   - id: UC-DSC-02
     was: [UC-10]
     status: untraced
@@ -168,7 +165,7 @@ uc:
   - id: UC-DSC-04
     was: [UC-12]
     status: untraced
-    title: { vi: "Xem hồ sơ người bán (bậc, đánh giá, ghi nhận công khai)", en: "View a seller's profile" }
+    title: { vi: "Xem hồ sơ người bán (đánh giá khi bán và khi mua, số liệu, tin đang bán)", en: "View a seller's profile" }
     actors: [buyer]
 
   # ---- DEAL ----
@@ -246,35 +243,33 @@ uc:
       E3: { at: 2, text: Người mua đã đủ số đơn COD đang mở, br: BR-DEAL-06, error: cod_limit_reached }
       E4: { at: 2, text: Tin không còn đang bán, error: listing_unavailable }
       E5: { at: 2, text: Thương lượng chưa chốt giá hoặc đã có đơn đang mở, error: move_not_allowed }
-    gaps:
-      - "BR-DEAL-06 ghi hạn mức theo bậc 2/5/10/20; code cố định 3 đơn (domain.MaxOpenOrders)."
 
   - id: UC-DEAL-04
     was: [UC-16]
     status: done
-    title: { vi: "Tạo đơn gửi hàng (vận đơn GHTK/GHN hoặc tự gửi)", en: "Ship an order (GHTK/GHN waybill or manual)" }
+    title: { vi: "Tạo đơn gửi hàng (vận đơn GHTK/GHN hoặc nhập mã)", en: "Ship an order (GHTK/GHN waybill or a typed code)" }
     short: { vi: "Tạo đơn gửi hàng" }
     actors: [seller]
     secondary: [carrier]
     fr: [FR-DEAL-03]
-    br: [BR-DEAL-04, BR-DEAL-05]
+    br: [BR-DEAL-04, BR-DEAL-05, BR-DEAL-12]
     nfr: [NFR-DUR-01, NFR-IDEM-01, NFR-CONC-01]
     adr: [ADR-0001, ADR-0002]
     api: ["POST /v1/orders/{order_id}/shipment", "PUT /v1/orders/{order_id}/shipment", "GET /v1/shipments/lookup"]
-    pre: Có đơn đang chờ gửi; muốn tạo vận đơn qua hãng thì người bán đã liên kết hãng (UC-ACC-04).
+    pre: Có đơn đang chờ gửi; người bán đã liên kết tài khoản GHTK hoặc GHN (UC-ACC-04).
     post: Đơn ở trạng thái đã gửi, tin đăng được giữ cho đơn này; các đơn chờ khác trên tin bị hủy.
     main:
-      1: Người bán chọn tạo vận đơn qua hãng đã liên kết, hoặc tự gửi và nhập hãng cùng mã vận đơn.
+      1: Người bán chọn tạo vận đơn qua hãng đã liên kết (điểm lấy hàng, dịch vụ, khối lượng), hoặc nhập mã vận đơn đã tạo trên ứng dụng của hãng đó.
       2: Hệ thống giữ tin đăng cho đơn.
-      3: Hệ thống tạo vận đơn trên tài khoản hãng của người bán, người nhận trả phí ship; với đơn tự gửi, hệ thống đọc vận đơn từ hãng.
+      3: Hệ thống tạo vận đơn trên tài khoản hãng của người bán, thu hộ tiền hàng, người nhận trả phí ship; với mã nhập tay, hệ thống đọc vận đơn bằng tài khoản hãng của người bán.
       4: Đơn chuyển sang đã gửi; các đơn chờ khác trên tin tự hủy với lý do "đã gửi cho người khác".
       5: Hệ thống bắt đầu đếm thời hạn hãng lấy hàng và theo dõi trạng thái vận đơn.
     alt:
       A1: { at: 1, text: "Ứng dụng gửi lại cùng một yêu cầu: trả đúng kết quả lần đầu, không tạo thêm vận đơn." }
-      A2: { at: 4, text: "Hãng báo vận đơn tự gửi đã giao: hệ thống hẹn giờ tự hoàn tất đơn." }
-      A3: { at: 5, text: "Người bán sửa hãng hoặc mã vận đơn của đơn tự gửi khi hàng chưa giao." }
+      A2: { at: 4, text: "Hãng báo vận đơn nhập tay đã giao: hệ thống hẹn giờ tự hoàn tất đơn." }
+      A3: { at: 5, text: "Người bán sửa mã vận đơn nhập tay khi hàng chưa giao." }
     exc:
-      E1: { at: 3, text: Hãng không biết mã vận đơn, error: shipment_not_found }
+      E1: { at: 3, text: Mã vận đơn không thuộc tài khoản hãng của người bán, br: BR-DEAL-12, error: shipment_not_found }
       E2: { at: 1, text: Hệ thống không bật hãng vận chuyển nào, error: carrier_unavailable }
       E3: { at: 1, text: Người bán chưa liên kết hãng, error: carrier_not_linked }
       E4: { at: 3, text: Hãng không giao tới địa chỉ; tin đăng được trả lại, error: carrier_address_unknown }
@@ -292,73 +287,73 @@ uc:
     actorsNote: hãng vận chuyển báo trạng thái
     secondary: [carrier]
     fr: [FR-DEAL-04]
-    br: [BR-DEAL-02, BR-DEAL-05, BR-DEAL-07, BR-DEAL-08, BR-DEAL-09, BR-TRS-02]
+    br: [BR-DEAL-02, BR-DEAL-05, BR-DEAL-08, BR-DEAL-09, BR-DEAL-11]
     nfr: [NFR-IDEM-01, NFR-DUR-01]
     api: ["POST /v1/orders/{order_id}/confirm", "POST /v1/carriers/{carrier}/webhook/{secret}"]
-    pre: "UC-DEAL-04 đã hoàn tất: đơn ở trạng thái đã tạo vận đơn, vận đơn GHTK/GHN nằm trên tài khoản người bán (đơn tự gửi xem A2); người mua đã thấy phí ship thật."
-    post: "Nhận: đơn đã giao, tin và thương lượng đã bán, mở UC-TRS-01, UC-TRS-02. Từ chối: đơn đã hoàn, tin về đang bán, thương lượng về đang thương lượng. Phân hệ uy tín cập nhật điểm và tỉ lệ từ chối nhận."
+    pre: "UC-DEAL-04 đã hoàn tất: đơn ở trạng thái đã gửi, vận đơn nằm trên tài khoản GHTK/GHN của người bán."
+    post: "Nhận: đơn hoàn tất, tin và thương lượng đã bán, hai bên được mời đánh giá nhau (UC-TRS-01). Từ chối: đơn giao không thành, tin về đang bán, thương lượng về đang thương lượng, số đơn giao không thành của người mua tăng (UC-TRS-04)."
     main:
-      1: Hãng lấy hàng và báo trạng thái về hệ thống; đơn chuyển sang đang giao; ứng dụng cập nhật màn hình đơn ngay và gửi thông báo đẩy.
+      1: Hãng lấy hàng và báo trạng thái về hệ thống; ứng dụng cập nhật màn hình đơn và gửi thông báo đẩy. Hãng không báo thì hệ thống hỏi lại mỗi 2 giờ.
       2: Shipper mang hàng tới cửa người mua.
       3: Người mua xem hàng, đồng ý nhận và trả tiền hàng cùng phí ship chiều đi cho shipper.
-      4: Hãng báo giao thành công; hệ thống chuyển đơn sang đã giao, đánh dấu tin đã bán và đóng thương lượng.
+      4: Hãng báo đã giao; người mua bấm đã nhận hàng; hệ thống chuyển đơn sang hoàn tất, đánh dấu tin đã bán và đóng thương lượng.
     alt:
       A1: { at: 4, text: "Hãng báo lặp cùng một trạng thái của cùng một vận đơn: hệ thống chỉ ghi nhận lần đầu, đơn không đổi trạng thái hai lần.", nfr: NFR-IDEM-01 }
-      A2: { at: 4, text: "Đơn tự gửi, hoặc người mua xác nhận trước khi hãng báo: người mua báo đã nhận, đơn đã giao; đơn tự gửi không tính vào tỉ lệ chế tài." }
-      A3: { at: 4, text: "Sau khi nhận, người mua phát hiện sự cố mà lúc xem tại cửa không thấy: người mua mở UC-TRS-02." }
-      A4: { at: 4, text: "Hãng báo đã giao mà người mua không xác nhận: hết thời hạn, hệ thống tự hoàn tất đơn." }
+      A2: { at: 4, text: "Người mua bấm đã nhận hàng trước khi hãng báo: đơn hoàn tất ngay." }
+      A3: { at: 4, text: "Đơn đã báo giao mà người mua chưa nhận được hàng: người mua gửi phiếu Báo chưa nhận hàng (UC-MOD-09)." }
+      A4: { at: 4, text: "Hãng báo đã giao mà người mua không bấm: 3 ngày sau hệ thống tự hoàn tất đơn.", br: BR-DEAL-11 }
     exc:
-      E1: { at: 1, text: "Trước khi hãng lấy hàng, một bên hủy đơn (UC-DEAL-06): đơn chuyển sang đã hủy." }
-      E2: { at: 3, text: "Người mua không ưng hàng: người mua từ chối nhận, không trả đồng nào; hãng hoàn hàng, báo đã hoàn, tính phí hai chiều vào tài khoản người bán.", br: BR-DEAL-08 }
+      E1: { at: 1, text: "Hãng chưa lấy hàng sau 3 ngày: đơn bị hủy, vận đơn trên tài khoản hãng bị hủy theo (UC-DEAL-06 A2)." }
+      E2: { at: 3, text: "Người mua không ưng hàng: người mua từ chối nhận, không trả đồng nào; hãng hoàn hàng, đơn giao không thành, hãng tính phí hai chiều vào tài khoản người bán.", br: BR-DEAL-08 }
       E3: { at: 4, text: Đơn không còn ở trạng thái đã gửi, error: move_not_allowed }
-    gaps:
-      - Người mua báo "không nhận được" với đơn tự gửi chưa có trong code.
 
   - id: UC-DEAL-06
     was: [UC-18]
     status: done
-    title: { vi: "Hủy đơn trước khi lấy hàng", en: "Cancel an order before pickup" }
+    title: { vi: "Hủy đơn trước khi gửi hàng", en: "Cancel an order before it ships" }
     actors: [buyer, seller]
     secondary: [carrier]
     fr: [FR-DEAL-03]
     br: [BR-DEAL-07]
     api: ["POST /v1/deals/{id}/cancel", "POST /v1/orders/{order_id}/cancel"]
-    pre: Có đơn chưa được hãng lấy hàng.
+    pre: Có đơn đang chờ người bán gửi.
     post: Đơn đã hủy; chốt giá bị bỏ, thương lượng quay lại đang thương lượng; tin đăng về đang bán.
     main:
       1: Một bên chọn hủy đơn.
       2: Hệ thống hủy đơn, ghi bên hủy và lý do.
       3: Chốt giá bị bỏ, thương lượng quay lại đang thương lượng.
     alt:
-      A1: { at: 1, text: "Người bán không gửi hàng trong thời hạn: hệ thống tự hủy đơn." }
-      A2: { at: 1, text: "Hãng không lấy hàng trong thời hạn: hệ thống tự hủy đơn." }
+      A1: { at: 1, text: "Người bán không gửi hàng trong 3 ngày: hệ thống tự hủy đơn." }
+      A2: { at: 1, text: "Hãng chưa lấy hàng 3 ngày sau khi người bán gửi: hệ thống tự hủy đơn và hủy vận đơn trên tài khoản hãng." }
       A3: { at: 1, text: "Người bán gửi tin cho người mua khác, hoặc ẩn, xóa tin: các đơn chờ gửi trên tin tự hủy.", br: BR-DEAL-04 }
     exc:
       E1: { at: 1, text: Đơn đã gửi hàng, error: move_not_allowed }
-    gaps:
-      - "BR-DEAL-07 cho hủy cả đơn đã tạo vận đơn khi hãng chưa lấy hàng (kèm hủy vận đơn trên hãng); code chỉ cho người dùng hủy đơn chưa gửi, đơn đã gửi chỉ bị hủy khi hết hạn chờ lấy hàng (A2)."
 
   # ---- TRS ----
   - id: UC-TRS-01
     was: [UC-19]
     status: untraced
-    title: { vi: "Đánh giá người bán", en: "Rate the seller" }
-    actors: [buyer]
+    title: { vi: "Đánh giá người cùng giao dịch và trả lời đánh giá", en: "Review the other side and reply to a review" }
+    short: { vi: "Đánh giá hai chiều" }
+    actors: [buyer, seller]
+    fr: [FR-TRS-01]
+    br: [BR-TRS-04]
   - id: UC-TRS-02
     was: [UC-20]
-    status: untraced
+    status: retired
     title: { vi: "Mở ghi nhận sự cố", en: "Open an issue record" }
     actors: [buyer]
   - id: UC-TRS-03
     was: [UC-21]
-    status: untraced
+    status: retired
     title: { vi: "Trả lời ghi nhận sự cố (tự hoàn hoặc từ chối)", en: "Answer an issue record" }
     actors: [seller]
   - id: UC-TRS-04
     was: [UC-22]
     status: untraced
-    title: { vi: "Xem điểm uy tín và quyền hiện có", en: "View trust score and permissions" }
-    short: { vi: "Xem điểm uy tín và quyền" }
+    title: { vi: "Xem số liệu uy tín và hạn mức", en: "View trust figures and limits" }
+    fr: [FR-TRS-03]
+    br: [BR-TRS-05]
     actors: [user]
 
   # ---- MOD ----
@@ -374,7 +369,7 @@ uc:
     actors: [moderator]
   - id: UC-MOD-03
     was: [UC-25]
-    status: untraced
+    status: retired
     title: { vi: "Duyệt thủ công hồ sơ eKYC", en: "Review eKYC cases by hand" }
     actors: [moderator]
   - id: UC-MOD-04
@@ -419,24 +414,24 @@ uc:
     br: [BR-MOD-03]
     nfr: [NFR-PRIV-02, NFR-PERF-02]
     pre: "Có ticket đang mở; điều phối viên đã đăng nhập console."
-    post: "Người gửi nhận câu trả lời dưới tên ShopNexus; câu trả lời và người gửi được ghi nhật ký."
+    post: "Người gửi nhận câu trả lời dưới tên chung của sàn; câu trả lời và người gửi được ghi nhật ký."
     main:
       1: "Ticket mới hoặc tin nhắn mới của người gửi tới; agent đọc ticket, đơn, vận đơn và soạn câu trả lời ở nền."
       2: "Điều phối viên mở ticket, xem phần agent đọc và câu trả lời soạn sẵn."
-      3: "Điều phối viên bấm gửi; câu trả lời vào cuộc chat của ticket dưới tên ShopNexus."
+      3: "Điều phối viên bấm gửi; câu trả lời vào cuộc chat của ticket dưới tên chung của sàn."
     alt:
       A1: { at: 2, text: "Điều phối viên nhắn để agent viết lại; agent trả lời bằng bản kế tiếp." }
       A2: { at: 2, text: "Điều phối viên sửa trực tiếp câu trả lời rồi gửi." }
       A3: { at: 2, text: "Điều phối viên tự viết trong cuộc chat với khách, không dùng câu trả lời soạn sẵn." }
   - id: UC-MOD-08
-    status: planned
+    status: doing
     title: { vi: "Hỏi agent về một ticket, ca báo cáo hoặc tài khoản", en: "Ask the agent about a ticket, a report case or an account" }
     actors: [moderator, admin]
     secondary: [llm]
     fr: [FR-MOD-03]
     br: [BR-MOD-03]
     nfr: [NFR-PRIV-02, NFR-PERF-02]
-    api: ["GET /v1/console/agent/conversations", "POST /v1/console/agent/conversations", "GET /v1/console/agent/conversations/{id}", "POST /v1/console/agent/conversations/{id}/turns"]
+    api: ["GET /v1/console/agent/conversations", "POST /v1/console/agent/conversations", "GET /v1/console/agent/conversations/{id}", "PATCH /v1/console/agent/conversations/{id}", "DELETE /v1/console/agent/conversations/{id}", "POST /v1/console/agent/conversations/{id}/turns"]
     pre: "Thành viên console đã đăng nhập."
     post: "Thành viên nhận câu trả lời kèm nguồn; không dữ liệu nghiệp vụ nào bị thay đổi."
     main:
@@ -448,6 +443,13 @@ uc:
       A2: { at: 3, text: "Thành viên bấm Dừng; lượt bị hủy, phần đã đọc giữ lại." }
     exc:
       E1: { at: 3, text: "Hết hạn mức chi phí trong ngày: agent không trả lời, console vẫn dùng được." }
+  - id: UC-MOD-09
+    status: untraced
+    title: { vi: "Gửi phiếu hỗ trợ (báo chưa nhận hàng, xin thêm hãng, yêu cầu khác)", en: "Open a support ticket" }
+    short: { vi: "Gửi phiếu hỗ trợ" }
+    actors: [user]
+    fr: [FR-MOD-04]
+    br: [BR-MOD-01]
 
   # ---- SHR ----
   - id: UC-SHR-01
@@ -463,62 +465,68 @@ uc:
     actors: [sub]
 
 fr:
-  - { id: FR-ACC-01, was: [REQ-01], module: Xác thực, uc: [UC-ACC-01], text: { vi: "Đăng nhập bằng OTP qua SMS/email, tự tạo tài khoản ở lần đầu" } }
+  - { id: FR-ACC-01, was: [REQ-01], module: Xác thực, uc: [UC-ACC-01], text: { vi: "Đăng nhập bằng số điện thoại, mã gửi qua email hoặc tài khoản Google; tự tạo tài khoản ở lần đầu" } }
   - { id: FR-ACC-02, was: [REQ-02], module: Xác thực, uc: [UC-ACC-02], text: { vi: "Liệt kê phiên, đăng xuất một thiết bị hoặc mọi thiết bị" } }
   - { id: FR-ACC-03, was: [REQ-03], module: Tài khoản, uc: [UC-ACC-05], text: { vi: "Sửa tên hiển thị; chặn và bỏ chặn người dùng" } }
-  - { id: FR-ACC-04, was: [REQ-04], module: Định danh, uc: [UC-ACC-03, UC-MOD-03], text: { vi: "eKYC: chụp hai mặt CCCD, đọc chip NFC, quét khuôn mặt; chuyển duyệt tay khi không đọc được chip" } }
-  - { id: FR-ACC-05, was: [REQ-05], module: Vận chuyển, uc: [UC-ACC-04], text: { vi: "Thiết lập giao COD: địa chỉ lấy hàng, liên kết GHTK/GHN, khai đã có tài khoản nhận tiền tại hãng" } }
+  - { id: FR-ACC-04, was: [REQ-04], status: retired, module: Định danh, uc: [UC-ACC-03, UC-MOD-03], text: { vi: "eKYC: chụp hai mặt CCCD, đọc chip NFC, quét khuôn mặt; chuyển duyệt tay khi không đọc được chip" } }
+  - { id: FR-ACC-05, was: [REQ-05], module: Vận chuyển, uc: [UC-ACC-04], text: { vi: "Thiết lập giao COD: địa chỉ lấy hàng, liên kết tài khoản GHTK/GHN của người bán" } }
   - { id: FR-SHR-01, was: [REQ-06], module: Hình ảnh, uc: [UC-SHR-01], text: { vi: "Tải ảnh lên, chuẩn hóa ảnh, xóa thông tin vị trí chụp" } }
-  - { id: FR-LST-01, was: [REQ-07], module: Tin đăng, uc: [UC-LST-01], text: { vi: "Đăng tin từ ảnh hoặc video với AI điền giúp" } }
+  - { id: FR-LST-01, was: [REQ-07], module: Tin đăng, uc: [UC-LST-01], text: { vi: "Đăng tin từ video, ảnh hoặc link Chợ Tốt với AI điền giúp; gợi ý giá từ tin tương tự; lưu nháp" } }
   - { id: FR-LST-02, was: [REQ-08], module: Tin đăng, uc: [UC-LST-02], text: { vi: "Quản lý tin: sửa, đổi giá, ẩn/hiện, đánh dấu đã bán, xóa" } }
   - { id: FR-LST-03, was: [REQ-09], module: Tin đăng, uc: [UC-LST-03], text: { vi: "Đẩy tin và gói người bán" } }
-  - { id: FR-DSC-01, was: [REQ-10], module: Khám phá, uc: [UC-DSC-01], text: { vi: "Tìm kiếm bằng câu tự nhiên qua AI agent, trả chip ràng buộc sửa được và câu diễn giải" } }
+  - { id: FR-DSC-01, was: [REQ-10], module: Khám phá, uc: [UC-DSC-01], text: { vi: "Tìm kiếm bằng câu tự nhiên: AI đọc câu thành điều kiện, trả chip tắt được và câu diễn giải; tìm bằng ảnh" } }
   - { id: FR-DSC-02, was: [REQ-11], module: Khám phá, uc: [UC-DSC-02], text: { vi: "Tìm theo bộ lọc, duyệt danh mục, xem tin tương tự" } }
-  - { id: FR-DSC-03, was: [REQ-12], module: Khám phá, uc: [UC-DSC-03], text: { vi: "Lưu tin, so sánh tin đã lưu, theo dõi tìm kiếm, cảnh báo giảm giá" } }
-  - { id: FR-DEAL-01, was: [REQ-13], module: Trò chuyện, uc: [UC-DEAL-01], text: { vi: "Nhắn tin văn bản và ảnh, đánh dấu đã đọc, lưu trữ hội thoại, cập nhật thời gian thực" } }
+  - { id: FR-DSC-03, was: [REQ-12], module: Khám phá, uc: [UC-DSC-03], text: { vi: "Lưu tin, báo giảm giá dưới mức đặt, theo dõi tìm kiếm, theo dõi người bán, ẩn tin" } }
+  - { id: FR-DEAL-01, was: [REQ-13], module: Trò chuyện, uc: [UC-DEAL-01], text: { vi: "Nhắn tin văn bản và ảnh, đánh dấu đã đọc, tìm trong hộp thư, cập nhật thời gian thực" } }
   - { id: FR-DEAL-02, was: [REQ-14], module: Giao dịch, uc: [UC-DEAL-02], text: { vi: "Thương lượng giá theo BR-DEAL-03" } }
-  - { id: FR-DEAL-03, was: [REQ-15], module: "Giao dịch, Vận chuyển", uc: [UC-DEAL-03, UC-DEAL-04, UC-DEAL-06], text: { vi: "Yêu cầu COD; tạo đơn gửi qua GHTK/GHN hoặc tự gửi; hủy trước khi lấy hàng" } }
-  - { id: FR-DEAL-04, was: [REQ-16], module: "Vận chuyển, Giao dịch", uc: [UC-DEAL-05], text: { vi: "Nhận trạng thái vận đơn từ hãng và cập nhật đơn, thương lượng, tin đăng" } }
-  - { id: FR-TRS-01, was: [REQ-17], module: Uy tín, uc: [UC-TRS-01], text: { vi: "Đánh giá người bán sau đơn" } }
-  - { id: FR-TRS-02, was: [REQ-18], module: Uy tín, uc: [UC-TRS-02, UC-TRS-03], text: { vi: "Ghi nhận sự cố kèm nhận xét trung lập của AI" } }
-  - { id: FR-TRS-03, was: [REQ-19], module: Uy tín, uc: [UC-DSC-04, UC-TRS-04], text: { vi: "Tính điểm uy tín, bậc, quyền và chế tài tự động" } }
-  - { id: FR-MOD-01, was: [REQ-20], module: "Uy tín, Nhân viên", uc: [UC-MOD-01, UC-MOD-02], text: { vi: "Báo cáo vi phạm; điều phối viên xử lý và tạm khóa tài khoản" } }
-  - { id: FR-SHR-02, was: [REQ-21], module: Thông báo, uc: [UC-DEAL-02, UC-DEAL-03, UC-DEAL-04, UC-DEAL-05, UC-DEAL-06, UC-TRS-01, UC-TRS-02, UC-TRS-03], ucText: UC-DEAL-02 – UC-TRS-03, text: { vi: "Thông báo trong ứng dụng và đẩy tới điện thoại" } }
-  - { id: FR-MOD-02, was: [REQ-22], module: Nhân viên, uc: [UC-MOD-04, UC-MOD-05, UC-SHR-02], text: { vi: "Quản lý nhân viên, đăng nhập có mã xác thực hai lớp, nhật ký kiểm toán" } }
+  - { id: FR-DEAL-03, was: [REQ-15], module: "Giao dịch, Vận chuyển", uc: [UC-DEAL-03, UC-DEAL-04, UC-DEAL-06], text: { vi: "Yêu cầu COD; tạo vận đơn GHTK/GHN trên tài khoản người bán hoặc nhập mã; hủy trước khi gửi" } }
+  - { id: FR-DEAL-04, was: [REQ-16], module: "Vận chuyển, Giao dịch", uc: [UC-DEAL-05], text: { vi: "Nhận trạng thái vận đơn từ hãng, hỏi lại mỗi 2 giờ; cập nhật đơn, thương lượng, tin đăng; tự hoàn tất và tự hủy theo thời hạn" } }
+  - { id: FR-TRS-01, was: [REQ-17], module: Uy tín, uc: [UC-TRS-01], text: { vi: "Đánh giá hai chiều sau đơn, người được đánh giá trả lời một lần" } }
+  - { id: FR-TRS-02, was: [REQ-18], status: retired, module: Uy tín, uc: [UC-TRS-02, UC-TRS-03], text: { vi: "Ghi nhận sự cố kèm nhận xét trung lập của AI" } }
+  - { id: FR-TRS-03, was: [REQ-19], module: Uy tín, uc: [UC-DSC-04, UC-TRS-04], text: { vi: "Tính số liệu uy tín: sao trung bình khi bán và khi mua, số món đã bán, tỉ lệ trả lời trong 24 giờ, đơn giao không thành trong 90 ngày" } }
+  - { id: FR-TRS-04, module: Uy tín, uc: [UC-DEAL-01], text: { vi: "Cảnh báo dấu hiệu lừa đảo trong trò chuyện; người dùng tắt được cảnh báo" } }
+  - { id: FR-MOD-01, was: [REQ-20], module: "Uy tín, Nhân viên", uc: [UC-MOD-01, UC-MOD-02], text: { vi: "Báo cáo vi phạm; nhân viên xử lý và tạm khóa tài khoản" } }
+  - { id: FR-SHR-02, was: [REQ-21], module: Thông báo, uc: [UC-DEAL-02, UC-DEAL-03, UC-DEAL-04, UC-DEAL-05, UC-DEAL-06, UC-TRS-01], ucText: UC-DEAL-02 – UC-TRS-01, text: { vi: "Thông báo trong ứng dụng và đẩy tới điện thoại; công tắc theo loại và giờ yên lặng" } }
+  - { id: FR-MOD-02, was: [REQ-22], module: Nhân viên, uc: [UC-MOD-04, UC-MOD-05, UC-SHR-02], text: { vi: "Quản lý thành viên console, đăng nhập riêng cho nhân viên, nhật ký kiểm toán" } }
   - { id: FR-MOD-03, module: "Nhân viên, AI", uc: [UC-MOD-06, UC-MOD-07, UC-MOD-08], text: { vi: "Agent của console đọc ca báo cáo và ticket, trình bằng chứng, đề xuất thao tác và soạn câu trả lời; nhân viên duyệt, sửa bằng tick hoặc chat, làm theo và hoàn tác" } }
+  - { id: FR-MOD-04, module: Hỗ trợ, uc: [UC-MOD-09, UC-MOD-07], text: { vi: "Phiếu hỗ trợ là một cuộc trò chuyện giữa người dùng và sàn; nhân viên trả lời trên console" } }
 
 br:
   - { id: BR-DEAL-01, was: [BR-01], text: { vi: "Sàn không giữ tiền: không ví, không cọc, không thu hộ, không hoàn tiền qua sàn." } }
   - { id: BR-LST-01, was: [BR-02], text: { vi: "Tin đăng gồm tình trạng hàng theo thang Mới / Như mới / Đã dùng, các thông tin người bán ghi trong tin và ảnh; tin không có phần khai vết, AI không chỉ ra vết nào." } }
   - { id: BR-DEAL-02, was: [BR-03], text: { vi: "Người mua tự xem hàng khi đồng kiểm tại cửa rồi nhận hoặc từ chối; ứng dụng không gợi ý cần kiểm gì." } }
-  - { id: BR-LST-02, was: [BR-04], text: { vi: "Chỉ tài khoản đã xác minh danh tính, không bị tạm khóa mới được đăng tin; số tin đang bán tối đa theo bậc là 5/20/20/20." } }
+  - { id: BR-LST-02, was: [BR-04], text: { vi: "Chỉ tài khoản có số điện thoại đã xác minh và không bị tạm khóa mới được đăng tin; mỗi người có tối đa 20 tin đang bán." } }
   - { id: BR-LST-03, was: [BR-05], text: { vi: "Tiêu đề 1–70 ký tự; giá nguyên đồng từ 10.000 đến 1.000.000.000; mô tả ≤ 1.500 ký tự; 1–10 ảnh, ảnh đầu là ảnh bìa; ≤ 20 thông số; vị trí lưu theo phường/xã (tọa độ tâm xã), không lưu GPS của người bán." } }
   - { id: BR-DEAL-03, was: [BR-06], text: { vi: "Giá thương lượng là bội số 1.000 đ; giá trả ≥ nửa giá niêm yết (làm tròn lên 1.000) và thấp hơn giá niêm yết hoặc phản giá; phản giá cao hơn giá trả và thấp hơn giá niêm yết; mỗi thời điểm chỉ một giá đang mở, giá mở không hết hạn; chấp nhận phải đúng giá mà người chấp nhận đang thấy, nếu giá vừa bị đổi thì lượt chấp nhận bị từ chối và ứng dụng báo giá đã thay đổi." } }
   - { id: BR-DEAL-04, was: [BR-07], text: { vi: "Chốt giá không giữ hàng; nhiều người mua có thể cùng chốt một tin; khi người bán gửi hàng cho một người, các yêu cầu COD khác trên tin tự hủy với lý do \"đã gửi cho người khác\"." } }
-  - { id: BR-DEAL-05, was: [BR-08], text: { vi: "COD đồng kiểm là đường giao dịch duy nhất trong ứng dụng; vận đơn đặt người nhận trả phí ship; người mua chỉ trả tiền sau khi xem hàng." } }
-  - { id: BR-DEAL-06, was: [BR-09], text: { vi: "Số đơn COD đang mở của một người mua không vượt hạn mức theo bậc 2/5/10/20." } }
-  - { id: BR-DEAL-07, was: [BR-10], text: { vi: "Chỉ hủy được đơn trước khi hãng lấy hàng; vận đơn GHTK/GHN được hệ thống hủy luôn trên tài khoản hãng của người bán." } }
+  - { id: BR-DEAL-05, was: [BR-08], text: { vi: "COD đồng kiểm qua GHTK hoặc GHN trên tài khoản của người bán là đường giao dịch duy nhất trong ứng dụng; vận đơn thu hộ tiền hàng và đặt người nhận trả phí ship; người mua chỉ trả tiền sau khi xem hàng." } }
+  - { id: BR-DEAL-06, was: [BR-09], text: { vi: "Một người mua có tối đa 3 đơn COD đang mở." } }
+  - { id: BR-DEAL-07, was: [BR-10], text: { vi: "Người mua hoặc người bán hủy được đơn khi người bán chưa gửi; người bán không gửi trong 3 ngày thì đơn tự hủy; hãng chưa lấy hàng 3 ngày sau khi gửi thì đơn bị hủy và vận đơn trên tài khoản hãng bị hủy theo." } }
   - { id: BR-DEAL-08, was: [BR-11], text: { vi: "Từ chối nhận tại cửa: người mua không mất tiền; phí hai chiều do hãng tính vào tài khoản người bán; tin đăng mở bán lại." } }
   - { id: BR-DEAL-09, was: [BR-12], text: { vi: "Sau khi người mua đã trả tiền cho shipper, sàn không có cơ chế đòi lại; Trợ giúp ghi điều này, màn nhận hàng không nhắc." } }
+  - { id: BR-DEAL-11, text: { vi: "Đơn hoàn tất khi người mua bấm đã nhận hàng, hoặc 3 ngày sau khi hãng báo đã giao; hãng báo không giao được hoặc hoàn hàng thì đơn giao không thành." } }
+  - { id: BR-DEAL-12, text: { vi: "Mã vận đơn người bán nhập tay phải thuộc tài khoản GHTK/GHN mà người bán đã liên kết; hãng khác được xin thêm qua phiếu hỗ trợ." } }
   - { id: BR-DEAL-10, was: [BR-13], status: retired, text: { vi: "Món giá trên 5.000.000 đ: ứng dụng gợi ý hẹn gặp xem hàng trước, vẫn cho chọn COD." } }
-  - { id: BR-TRS-01, was: [BR-14], text: { vi: "Ghi nhận sự cố không được phân xử; người bán trả lời trong 3 ngày bằng tự hoàn hoặc từ chối; ghi nhận bị từ chối hoặc quá hạn hiển thị công khai trên hồ sơ người bán." } }
-  - { id: BR-TRS-02, was: [BR-15], text: { vi: "Chế tài tự động chỉ xét khi có ≥ 5 đơn COD trong 90 ngày; tỉ lệ từ chối nhận ≥ 20% thì giới hạn còn 1 đơn COD mở, ≥ 35% thì mất quyền COD 30 ngày; mỗi 30 ngày không có lần từ chối nào hồi lại một nấc; đơn tự gửi không tính vào tỉ lệ." } }
-  - { id: BR-TRS-03, was: [BR-16], text: { vi: "Điểm uy tín 0–1000 tính theo bảng sự kiện; quyền COD và bậc uy tín không mua được bằng gói trả phí." } }
-  - { id: BR-TRS-04, was: [BR-17], text: { vi: "Mỗi đơn được đánh giá một lần (1–5 sao, ≤ 500 ký tự) sau khi đơn đã gửi; sửa hoặc xóa được trong 7 ngày." } }
-  - { id: BR-DSC-01, was: [BR-18], text: { vi: "AI agent chỉ đọc: không đặt hàng, không thương lượng, không thanh toán; mọi ràng buộc agent đặt ra hiện thành chip người dùng sửa được." } }
-  - { id: BR-MOD-01, was: [BR-19], text: { vi: "Điều phối viên chỉ xử lý hàng cấm, hàng giả bị báo cáo, lừa đảo có tổ chức, yêu cầu của cơ quan có thẩm quyền và hồ sơ eKYC duyệt tay; giá và tình trạng hàng là việc giữa hai bên." } }
+  - { id: BR-TRS-01, was: [BR-14], status: retired, text: { vi: "Ghi nhận sự cố không được phân xử; người bán trả lời trong 3 ngày bằng tự hoàn hoặc từ chối; ghi nhận bị từ chối hoặc quá hạn hiển thị công khai trên hồ sơ người bán." } }
+  - { id: BR-TRS-02, was: [BR-15], status: retired, text: { vi: "Chế tài tự động chỉ xét khi có ≥ 5 đơn COD trong 90 ngày; tỉ lệ từ chối nhận ≥ 20% thì giới hạn còn 1 đơn COD mở, ≥ 35% thì mất quyền COD 30 ngày; mỗi 30 ngày không có lần từ chối nào hồi lại một nấc; đơn tự gửi không tính vào tỉ lệ." } }
+  - { id: BR-TRS-03, was: [BR-16], status: retired, text: { vi: "Điểm uy tín 0–1000 tính theo bảng sự kiện; quyền COD và bậc uy tín không mua được bằng gói trả phí." } }
+  - { id: BR-TRS-04, was: [BR-17], text: { vi: "Sau khi đơn hoàn tất, người mua và người bán đánh giá nhau mỗi người một lần (1–5 sao, ≤ 500 ký tự); đánh giá ẩn cho đến khi bên kia cũng đánh giá hoặc qua 7 ngày; người được đánh giá trả lời một lần (≤ 500 ký tự), sau đó đánh giá khóa lại; trước khi có câu trả lời, người viết sửa hoặc xóa được trong 7 ngày." } }
+  - { id: BR-TRS-05, text: { vi: "Uy tín hiển thị bằng số liệu quan sát được, không có điểm hay bậc; hạn mức như nhau cho mọi tài khoản và không mua được bằng gói trả phí; tỉ lệ trả lời chỉ tính khi có từ 5 cuộc trò chuyện trong 90 ngày." } }
+  - { id: BR-TRS-06, text: { vi: "Cảnh báo lừa đảo cần ít nhất một dấu hiệu trong tin nhắn; số điện thoại, số tài khoản, số thẻ, email và link được che trước khi AI đọc; cảnh báo đã tắt hiện lại khi có dấu hiệu mới." } }
+  - { id: BR-DSC-01, was: [BR-18], text: { vi: "AI tìm kiếm chỉ đọc câu tìm: không đặt hàng, không thương lượng, không nhắn tin thay người dùng; mọi điều kiện AI đặt ra hiện thành chip người dùng tắt được." } }
+  - { id: BR-MOD-01, was: [BR-19], text: { vi: "Nhân viên chỉ xử lý phiếu hỗ trợ, hàng cấm và hàng giả bị báo cáo, lừa đảo có tổ chức và yêu cầu của cơ quan có thẩm quyền; giá và tình trạng hàng là việc giữa hai bên." } }
   - { id: BR-ACC-01, was: [BR-20], text: { vi: "Chặn có hiệu lực hai chiều: hai bên không nhắn tin, không mở thương lượng trên tin của nhau." } }
   - { id: BR-ACC-02, was: [BR-21], text: { vi: "Không luồng nào tiết lộ một số điện thoại hoặc email đã có tài khoản hay chưa; khi người dùng mở nội dung không thuộc quyền xem của mình, hệ thống trả lời như thể nội dung đó không tồn tại." } }
   - { id: BR-ACC-03, text: { vi: "Tài khoản phải có số điện thoại mới được đăng tin, mở thương lượng hoặc mở cuộc trò chuyện." } }
   - { id: BR-MOD-02, text: { vi: "Tài khoản đang bị tạm khóa không được trả giá, chấp nhận giá hay yêu cầu COD; vẫn được rút giá, từ chối và hủy." } }
-  - { id: BR-MOD-03, text: { vi: "Agent của console chỉ đọc và đề xuất; mọi thay đổi do nhân viên bấm và được ghi nhật ký thao tác; tin nhắn gửi cho người dùng luôn mang tên ShopNexus." } }
+  - { id: BR-MOD-03, text: { vi: "Agent của console chỉ đọc và đề xuất; mọi thay đổi do nhân viên bấm và được ghi nhật ký thao tác; tin nhắn gửi cho người dùng luôn mang tên chung của sàn." } }
 
 nfr:
-  - { id: NFR-DUR-01, was: [NFR-01], attr: Độ bền, text: { vi: "Máy chủ gặp sự cố giữa một quy trình nhiều bước không để lại dữ liệu dở dang; quy trình chạy tiếp từ bước đã xong và không lặp việc đã làm (không tạo hai vận đơn, không gửi hai SMS)." } }
+  - { id: NFR-DUR-01, was: [NFR-01], attr: Độ bền, text: { vi: "Máy chủ gặp sự cố giữa một quy trình nhiều bước không để lại dữ liệu dở dang; quy trình chạy tiếp từ bước đã xong và không lặp việc đã làm (không tạo hai vận đơn, không gửi hai email mã đăng nhập)." } }
   - { id: NFR-IDEM-01, was: [NFR-02], attr: Không lặp khi gửi lại, text: { vi: "Một thao tác được ứng dụng gửi lại vì mạng chập chờn cho đúng kết quả của lần đầu; hãng báo trùng một trạng thái thì đơn không đổi trạng thái hai lần." } }
   - { id: NFR-CONC-01, was: [NFR-03], attr: Nhất quán khi đồng thời, text: { vi: "Hai người cùng sửa một dữ liệu thì người sửa sau được báo dữ liệu đã thay đổi thay vì ghi đè; các hạn mức (số đơn COD đang mở, số tin đang bán) vẫn đúng khi nhiều yêu cầu đến cùng lúc." } }
   - { id: NFR-MSG-01, was: [NFR-04], attr: Không mất thông báo giữa phân hệ, text: { vi: "Thông báo cho các phân hệ khác được ghi cùng lúc với thay đổi dữ liệu; khi phần điều phối quy trình tạm ngừng, thông báo được giữ lại và gửi sau, người dùng vẫn xem được dữ liệu và giữ được phiên đăng nhập." } }
-  - { id: NFR-PERF-01, was: [NFR-05], attr: Hiệu năng, text: { vi: "95% lượt xem dữ liệu trả về dưới 300 ms; 95% lượt tìm kiếm lai dưới 800 ms; AI agent trả kết quả trong 8 giây hoặc rơi về tìm kiếm lai." } }
+  - { id: NFR-PERF-01, was: [NFR-05], attr: Hiệu năng, text: { vi: "95% lượt xem dữ liệu trả về dưới 300 ms; 95% lượt tìm kiếm có câu đã đọc trả về dưới 800 ms; mô hình đọc câu quá 4 giây thì hệ thống tìm bằng câu gốc." } }
   - { id: NFR-SEC-01, was: [NFR-06], attr: An toàn xác thực, text: { vi: "Phiên đăng nhập ngắn hạn sống 15 phút và được làm mới tự động; mã làm mới bị dùng lại thì phiên bị thu hồi; có hạn mức gửi OTP; không lộ việc một số điện thoại hay email đã có tài khoản." } }
   - { id: NFR-PRIV-01, was: [NFR-07], attr: Quyền riêng tư, text: { vi: "Xóa thông tin vị trí chụp khỏi ảnh; vị trí tin theo xã; che số điện thoại, email trong nhật ký; mã hóa khóa kết nối tài khoản hãng vận chuyển của người bán." } }
   - { id: NFR-OBS-01, was: [NFR-08], attr: Quan trắc, text: { vi: "Mọi yêu cầu được theo vết; thông báo lỗi mang mã tra cứu để đối chiếu nhật ký; có số liệu đăng nhập, gửi OTP và thông báo đã gửi giữa các phân hệ." } }
@@ -526,7 +534,7 @@ nfr:
   - { id: NFR-PRIV-02, attr: Quyền riêng tư, text: { vi: "Mỗi lần agent của console đọc dữ liệu cá nhân được ghi lại kèm nhân viên đã hỏi; cuộc chat với agent giữ 180 ngày; xóa tài khoản thì xóa các phần trích dữ liệu của tài khoản đó." } }
   - { id: NFR-API-01, was: [NFR-09], attr: Tuân thủ hợp đồng API, text: { vi: "Mọi yêu cầu được kiểm theo đặc tả API; bộ kiểm thử đầu-cuối gặp đủ mọi kết quả trả về đã khai trong đặc tả." } }
   - { id: NFR-ARCH-01, was: [NFR-10], attr: Khả năng tách phân hệ, text: { vi: "Mỗi phân hệ chỉ cho phân hệ khác dùng qua giao diện đã công bố; tách ra chạy riêng không phải sửa nghiệp vụ." } }
-  - { id: NFR-UX-01, was: [NFR-11], attr: Ứng dụng di động, text: { vi: "Chạy trên điện thoại Android 12 trở lên, có giao diện tối, cỡ chữ 130%, vùng chạm tối thiểu 48 dp." } }
+  - { id: NFR-UX-01, was: [NFR-11], attr: Ứng dụng di động, text: { vi: "Ứng dụng chạy trên Android 12 trở lên, có giao diện tối, cỡ chữ 130%, vùng chạm tối thiểu 48 dp; website dùng được ở bề rộng điện thoại." } }
 
 adr:
   - id: ADR-0001

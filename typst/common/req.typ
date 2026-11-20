@@ -33,6 +33,9 @@
 // Mã không xuống dòng ở dấu gạch ngang; cột mã co theo mã dài nhất.
 #let _id(id) = box(id)
 
+// Mục đã bỏ (status: retired) không lên bảng.
+#let _live(xs) = xs.filter(x => x.at("status", default: "") != "retired")
+
 #let _band(n, body) = table.cell(colspan: n, fill: rgb("#F7F7F7"))[*#body*]
 
 // Bảng danh mục ca sử dụng, chia theo nhóm.
@@ -80,7 +83,7 @@
     inset: (x: 6pt, y: 3pt),
     align: (left + top, left + top, left + top, left + top),
     table.header([Mã], [Yêu cầu], [Phân hệ], [UC liên quan]),
-    ..req.fr.map(f => (
+    .._live(req.fr).map(f => (
       _id(f.id), [#f.text.vi], [#f.module],
       _ucs(f),
     )).flatten(),
@@ -95,7 +98,7 @@
     inset: (x: 6pt, y: 3.2pt),
     align: (left + top, left + top),
     table.header([Mã], [Nội dung]),
-    ..req.br.map(b => (_id(b.id), [#b.text.vi])).flatten(),
+    .._live(req.br).map(b => (_id(b.id), [#b.text.vi])).flatten(),
   ),
 )
 
@@ -107,7 +110,7 @@
     inset: (x: 6pt, y: 3pt),
     align: (left + top, left + top, left + top),
     table.header([Mã], [Thuộc tính], [Tiêu chí kiểm chứng]),
-    ..req.nfr.map(n => (_id(n.id), [#n.attr], [#n.text.vi])).flatten(),
+    .._live(req.nfr).map(n => (_id(n.id), [#n.attr], [#n.text.vi])).flatten(),
   ),
 )
 

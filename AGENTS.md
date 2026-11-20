@@ -54,14 +54,14 @@ Two top-level areas with very different roles:
   | Periodic report (báo cáo định kỳ) | `dinh-ky/dinh-ky-1/`, `dinh-ky/dinh-ky-2/` | 2 |
   | Final report (báo cáo cuối) | `bao-cao-cuoi/` | 1 |
 
-  Plus `thuyet-trinh/` (slides) and `idea.typ` (AI-agent search proposal).
+  Plus `thuyet-trinh/` (slides) and the topic proposal (`de-xuat-de-tai.typ`, `de-xuat-noi-dung.typ`).
 
   Shared code lives in `typst/common/` and is the single source for everything:
   - `info.typ` — team, topic, advisor, class, student list. Change it here, every report follows.
   - `tokens.typ` — fonts, grayscale palette, fletcher diagram helpers (`fig`, `nt`, `np`, …), `note`, `wireframe`, `sechead`, `assets`, `anh-mobile`. Re-exports `fletcher` so chapters need only this one import.
   - `style-quyen.typ` — bound-volume template per Phụ lục 3 QĐ 449/QĐ-HV (periodic + final reports).
   - `style-a4.typ` — lighter A4 template (weekly reports).
-  - `refs.bib`, `assets/` (app screenshots in `assets/mobile/`), `fonts/`.
+  - `assets/` (app screenshots in `assets/mobile/`, website screenshots in `assets/web/`), `fonts/`.
 
 ## Typst authoring conventions
 
@@ -78,6 +78,6 @@ Two top-level areas with very different roles:
 ## Working with this repo
 
 - When writing or revising a chapter, the corresponding `manual/technique/*.txt` guide and `manual/diagram/*/hướng dẫn.txt` notes are the intended source material — consult them for the methodology and intended figures.
-- Keep `common/refs.bib` entries consistent with the existing style; cite with Typst's `@key` syntax.
+- Reference lists are written by hand in each report's `main.typ`, grouped Tiếng Việt / Tiếng Anh / Website; the body cites them as `[n]`.
 - This repo contains no application code, tests, or linters — "verification" means `make all` compiles cleanly with no warnings and the PDFs render as intended.
 - `typst/tmp/` holds retired drafts and unused files; it is gitignored and safe to ignore.

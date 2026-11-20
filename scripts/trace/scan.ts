@@ -138,7 +138,8 @@ export function scanRegistry(reg: Registry): Ref[] {
 }
 
 export const SKIP_SERVER = /(^|\/)(tmp|vendor|node_modules|\.git)\//;
-export const SKIP_TYPST = /(^|\/)(tmp|out|bao-cao-tuan)\//;
+// Submitted reports (weekly, periodic 1) keep the IDs they were handed in with.
+export const SKIP_TYPST = /(^|\/)(tmp|out|bao-cao-tuan|dinh-ky-1)\//;
 
 export interface Scan {
   refs: Ref[];
