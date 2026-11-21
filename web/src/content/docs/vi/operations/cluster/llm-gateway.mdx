@@ -254,10 +254,10 @@ sequenceDiagram
   G-->>S: 422 Budget has been exceeded, hoặc 402
   S->>S: log "the model did not read the query"
   S->>S: tìm các từ gốc như một cụm
-  S-->>App: 200, danh sách tin, không có "understood"
+  S-->>App: 200, danh sách tin, không có chip
 ```
 
-Người dùng vẫn nhận một trang tin đăng, khớp theo các từ họ đã gõ. Trang không có dòng `understood`, và không có các boost về danh mục, giá, nơi chốn hay độ mới mà mô hình lẽ ra đọc ra từ câu truy vấn. Một câu truy vấn mô hình đã đọc trong 7 ngày qua được lấy từ cache của server và giữ nguyên phần hiểu của nó. Lỗi của server khi câu trả lời khác 200 là `model answered <status>`, nên hết ngân sách ghi `model answered 422` và hết credit ghi `model answered 402`.
+Người dùng vẫn nhận một trang tin đăng, khớp theo các từ họ đã gõ. Trang không có chip, và không có các boost về danh mục, giá, nơi chốn hay độ mới mà mô hình lẽ ra đọc ra từ câu truy vấn. Một câu truy vấn mô hình đã đọc trong 7 ngày qua được lấy từ cache của server và giữ nguyên phần hiểu của nó. Lỗi của server khi câu trả lời khác 200 là `model answered <status>`, nên hết ngân sách ghi `model answered 422` và hết credit ghi `model answered 402`.
 
 Lời gọi vượt giới hạn token mỗi phút cũng lỗi, và tìm kiếm quay về các từ gốc cho tới khi sang phút mới. [Tìm kiếm và khám phá](/vi/architecture/search-and-discovery) liệt kê các boost mà mô hình có thể đặt.
 

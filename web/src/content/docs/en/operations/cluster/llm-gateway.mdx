@@ -254,10 +254,10 @@ sequenceDiagram
   G-->>S: 422 Budget has been exceeded, or 402
   S->>S: log "the model did not read the query"
   S->>S: search the raw words as a phrase
-  S-->>App: 200, listings, no "understood"
+  S-->>App: 200, listings, no chips
 ```
 
-The person still gets a page of listings, matched on the words they typed. The page has no `understood` text, and there are no boosts for category, price, place or freshness that the model would have read out of the query. A query the model read in the last 7 days comes from the server's cache and keeps its understanding. The server's error for a non-200 answer is `model answered <status>`, so a spent budget logs `model answered 422` and spent credit `model answered 402`.
+The person still gets a page of listings, matched on the words they typed. The page has no chips, and no boosts for category, price, place or freshness that the model would have read out of the query. A query the model read in the last 7 days comes from the server's cache and keeps its understanding. The server's error for a non-200 answer is `model answered <status>`, so a spent budget logs `model answered 422` and spent credit `model answered 402`.
 
 Calls over the tokens-per-minute limit fail too, and search falls back to the raw words until the minute has passed. [Search and discovery](/en/architecture/search-and-discovery) lists the boosts the model can set.
 
