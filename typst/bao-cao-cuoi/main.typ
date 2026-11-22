@@ -66,9 +66,9 @@ Nhận xét của giáo viên hướng dẫn:
   [*Giáo viên hướng dẫn*], [#info.gvhd],
   [*Nội dung nhiệm vụ*], align(left)[
     #set enum(indent: 0pt)
-    1. Khảo sát giao dịch C2C hàng đã qua sử dụng tại Việt Nam, đề xuất mô hình nghiệp vụ trong đó sàn không giữ tiền và không phán xử.
+    1. Khảo sát giao dịch C2C hàng đã qua sử dụng tại Việt Nam, đề xuất mô hình nghiệp vụ trong đó hệ thống không giữ tiền và không phán xử.
     2. Phân tích, đặc tả yêu cầu bằng UML: ca sử dụng, quy tắc nghiệp vụ, yêu cầu chức năng và phi chức năng.
-    3. Thiết kế hệ thống theo các phân hệ nghiệp vụ: tài khoản, tin đăng, tìm kiếm, trò chuyện, thương lượng và đơn COD, vận chuyển, đánh giá và uy tín, hỗ trợ, thông báo.
+    3. Thiết kế hệ thống theo các phân hệ nghiệp vụ: tài khoản, tin đăng, tìm kiếm, trò chuyện, trả giá và đơn COD, vận chuyển, đánh giá và uy tín, hỗ trợ, thông báo.
     4. Hiện thực dịch vụ nền, ứng dụng Android và website cho người mua, người bán, trang điều hành cho nhân viên; tích hợp GHTK, GHN cho đơn COD đồng kiểm; dùng AI để điền tin đăng, hiểu câu tìm kiếm, cảnh báo lừa đảo và hỗ trợ nhân viên.
     5. Kiểm thử trên hạ tầng thật, đánh giá kết quả và viết báo cáo.
   ],
@@ -162,13 +162,13 @@ Nếu phát hiện có bất kỳ sự gian lận nào, nhóm xin hoàn toàn ch
 
 #sechead([MỞ ĐẦU])
 
-Mua bán đồ cũ giữa các cá nhân đã thành thói quen của nhiều người dùng Việt Nam, nhưng giao dịch vẫn diễn ra theo cách thủ công: người mua chuyển khoản trước cho người lạ hoặc hai bên tự thỏa thuận giao nhận tiền mặt, thương lượng qua nhiều ứng dụng nhắn tin, và khi có sự cố thì không có quy tắc chung nào để dựa vào. Rủi ro nằm ở chỗ không ai biết trước hàng có đúng như mô tả và tiền có đến tay hay không. Đó là lý do nhóm chọn đề tài "#info.de-tai".
+Mua bán đồ cũ giữa các cá nhân đã thành thói quen của nhiều người dùng Việt Nam, nhưng giao dịch vẫn diễn ra theo cách thủ công: người mua chuyển khoản trước cho người lạ hoặc hai bên tự thỏa thuận giao nhận tiền mặt, trả giá qua nhiều ứng dụng nhắn tin, và khi có sự cố thì không có quy tắc chung nào để dựa vào. Rủi ro nằm ở chỗ không ai biết trước hàng có đúng như mô tả và tiền có đến tay hay không. Đó là lý do nhóm chọn đề tài "#info.de-tai".
 
-Mục đích của đồ án là xây dựng một sàn C2C cho hàng đã qua sử dụng, trong đó giao dịch duy nhất trong ứng dụng là giao COD có đồng kiểm qua tài khoản GHTK hoặc GHN của chính người bán. Sàn không giữ tiền và không phán xử từng vụ việc. Tin đăng gồm tình trạng, thông tin người bán ghi và ảnh; mọi dữ kiện giao nhận do hãng vận chuyển báo về; uy tín của mỗi người là các số liệu quan sát được, công khai cho người khác xem. AI được dùng ở bốn chỗ: điền tin đăng từ video, ảnh hoặc link, hiểu câu tìm kiếm tự nhiên, cảnh báo dấu hiệu lừa đảo trong trò chuyện, và hỗ trợ nhân viên đọc hồ sơ.
+Mục đích của đồ án là xây dựng một hệ thống C2C cho hàng đã qua sử dụng, trong đó giao dịch duy nhất trong ứng dụng là giao COD có đồng kiểm qua tài khoản GHTK hoặc GHN của chính người bán. Hệ thống không giữ tiền và không phán xử từng vụ việc. Tin đăng gồm tình trạng, thông tin người bán ghi và ảnh; mọi dữ kiện giao nhận do hãng vận chuyển báo về; uy tín của mỗi người là các số liệu quan sát được, công khai cho người khác xem. AI được dùng ở bốn chỗ: điền tin đăng từ video, ảnh hoặc link, hiểu câu tìm kiếm tự nhiên, cảnh báo dấu hiệu lừa đảo trong trò chuyện, và hỗ trợ nhân viên đọc hồ sơ.
 
-Về tình hình nghiên cứu, các sàn lớn trong nước giải quyết niềm tin bằng cách giữ tiền của người mua, điều đòi hỏi giấy phép trung gian thanh toán và một bộ phận xử lý khiếu nại có quy mô tăng theo số đơn; các nền tảng rao vặt thì chỉ kết nối thông tin và để hai bên tự lo phần còn lại. Hướng dựa vào dữ kiện do hãng vận chuyển báo về và thống kê hành vi để thay cho phân xử từng vụ chưa được các nền tảng phổ biến trong nước áp dụng cho hàng đã qua sử dụng. Ở phía tìm kiếm, việc kết hợp tìm theo ngữ nghĩa với tìm theo từ khóa [4][5] cho phép hiểu câu hỏi tự nhiên của người mua thay vì chỉ khớp chữ.
+Về tình hình nghiên cứu, các nền tảng lớn trong nước giải quyết niềm tin bằng cách giữ tiền của người mua, điều đòi hỏi giấy phép trung gian thanh toán và một bộ phận xử lý khiếu nại có quy mô tăng theo số đơn; các nền tảng rao vặt thì chỉ kết nối thông tin và để hai bên tự lo phần còn lại. Hướng dựa vào dữ kiện do hãng vận chuyển báo về và thống kê hành vi để thay cho phân xử từng vụ chưa được các nền tảng phổ biến trong nước áp dụng cho hàng đã qua sử dụng. Ở phía tìm kiếm, việc kết hợp tìm theo ngữ nghĩa với tìm theo từ khóa [4][5] cho phép hiểu câu hỏi tự nhiên của người mua thay vì chỉ khớp chữ.
 
-Đối tượng nghiên cứu là quy trình mua bán hàng đã qua sử dụng giữa các cá nhân, các tác nhân tham gia (người mua, người bán, hãng vận chuyển, điều phối viên, quản trị viên) và các quy tắc nghiệp vụ giúp hai bên tin nhau khi sàn không giữ tiền. Phạm vi gồm hệ thống dịch vụ nền, ứng dụng Android và website cho người dùng, và trang điều hành cho nhân viên; không gồm thanh toán tạm giữ, ứng dụng iOS, giao hàng quốc tế, gian hàng doanh nghiệp, và việc ký hợp đồng đối tác, kết nối với hệ thống thật của hãng vận chuyển.
+Đối tượng nghiên cứu là quy trình mua bán hàng đã qua sử dụng giữa các cá nhân, các tác nhân tham gia (người mua, người bán, hãng vận chuyển, điều phối viên, quản trị viên) và các quy tắc nghiệp vụ giúp hai bên tin nhau khi hệ thống không giữ tiền. Phạm vi gồm hệ thống dịch vụ nền, ứng dụng Android và website cho người dùng, và trang điều hành cho nhân viên; không gồm thanh toán tạm giữ, ứng dụng iOS, giao hàng quốc tế, gian hàng doanh nghiệp, và việc ký hợp đồng đối tác, kết nối với hệ thống thật của hãng vận chuyển.
 
 Phương pháp thực hiện gồm các bước sau. Nhóm khảo sát thói quen mua bán đồ cũ và các nền tảng đang có để rút ra những rủi ro chính của người mua và người bán. Từ đó nhóm mô hình hóa nghiệp vụ bằng UML với sơ đồ ca sử dụng, sơ đồ hoạt động và sơ đồ trạng thái, và ghi các quy tắc nghiệp vụ thành danh mục có mã. Hệ thống được chia theo phân hệ nghiệp vụ để mỗi nhóm quy tắc có một nơi chịu trách nhiệm. Công việc chia thành ba giai đoạn bốn tuần, mỗi giai đoạn kết thúc bằng một phiên bản chạy được. Ở giai đoạn 2, khi nối ứng dụng với dữ liệu thật, nhóm rút gọn một số phần của mô hình nghiệp vụ (mục 1.3). Cuối cùng, hệ thống được kiểm thử theo kịch bản nghiệp vụ, đi từ đăng tin đến giao nhận và đánh giá.
 
@@ -188,7 +188,7 @@ Ngoài phần mở đầu và kết luận, đồ án gồm sáu chương. Chư�
   [4], [Nguyên mẫu toàn bộ màn hình ứng dụng Android, design system], [Nguyễn Tấn Khoa], [1–4], [Hoàn thành],
   [5], [Phân hệ tài khoản, đăng nhập và tài khoản nhân viên], [Đậu Văn Đăng Khoa], [2–6], [Hoàn thành],
   [6], [Phân hệ tin đăng, ảnh; AI điền tin và gợi ý giá], [Hồ Công Toản], [2–7], [Hoàn thành],
-  [7], [Phân hệ trò chuyện, thương lượng giá và đơn COD], [Đậu Văn Đăng Khoa, Nguyễn Tấn Khoa], [3–8], [Hoàn thành],
+  [7], [Phân hệ trò chuyện, trả giá và đơn COD], [Đậu Văn Đăng Khoa, Nguyễn Tấn Khoa], [3–8], [Hoàn thành],
   [8], [Phân hệ vận chuyển, kết nối GHTK, GHN], [Đậu Văn Đăng Khoa], [6–7], [Hoàn thành],
   [9], [Phân hệ tìm kiếm và khám phá], [Hồ Công Toản], [5–7], [Hoàn thành],
   [10], [Đánh giá hai chiều, uy tín, cảnh báo lừa đảo, báo cáo vi phạm, thông báo], [Hồ Công Toản], [6–8], [Hoàn thành],

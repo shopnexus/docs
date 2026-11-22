@@ -24,11 +24,11 @@
 
 == Tác nhân và ngữ cảnh hệ thống
 
-Hệ thống có bốn loại tác nhân người. Khách là người chưa đăng nhập, chỉ xem và tìm kiếm; mọi thao tác thay đổi dữ liệu đều đòi đăng nhập. Người dùng sở hữu một tài khoản vừa mua vừa bán, hệ thống không có vai trò người bán riêng; tùy ngữ cảnh, người dùng được gọi là Người mua hoặc Người bán. Điều phối viên và Quản trị viên là thành viên của trang điều hành, dùng tài khoản riêng tách khỏi tài khoản khách hàng và đăng nhập bằng email và mật khẩu. Quản trị viên làm được mọi việc của điều phối viên; quản trị viên đầu tiên do người vận hành hệ thống tạo trực tiếp trên máy chủ, không tạo được qua giao diện.
+Hệ thống có bốn loại tác nhân người. Khách là người chưa đăng nhập, chỉ xem và tìm kiếm; mọi thao tác thay đổi dữ liệu đều đòi đăng nhập. Người dùng sở hữu một tài khoản vừa mua vừa bán, hệ thống không có vai trò người bán riêng; tùy ngữ cảnh, người dùng được gọi là Người mua hoặc Người bán. Điều phối viên và Quản trị viên là nhân viên, dùng tài khoản riêng tách khỏi tài khoản người dùng và đăng nhập bằng email và mật khẩu. Quản trị viên làm được mọi việc của điều phối viên; quản trị viên đầu tiên do người vận hành hệ thống tạo trực tiếp trên máy chủ, không tạo được qua giao diện.
 
-Phía hệ thống ngoài có sáu nhóm: GHTK và GHN tạo, hủy vận đơn, báo phí và báo trạng thái giao hàng [16], [17]; dịch vụ xác thực số điện thoại và tài khoản Google; dịch vụ gửi email mã đăng nhập; dịch vụ AI gồm mô hình ngôn ngữ lớn (LLM) và mô hình nhúng văn bản; dịch vụ đẩy thông báo tới điện thoại; trang Chợ Tốt, nơi hệ thống đọc tin cũ của người bán. Ngoài ra còn tác nhân thời gian bên trong hệ thống: các thời hạn 3 ngày của đơn COD, lượt hỏi lại hãng mỗi 2 giờ và lượt quét theo dõi tìm kiếm mỗi 30 phút.
+Phía hệ thống ngoài có sáu nhóm: GHTK và GHN tạo, hủy vận đơn, báo phí và báo trạng thái giao hàng [16], [17]; dịch vụ xác thực số điện thoại và tài khoản Google; dịch vụ gửi email mã OTP; dịch vụ AI gồm mô hình ngôn ngữ lớn (LLM) và mô hình nhúng văn bản; dịch vụ đẩy thông báo tới điện thoại; trang Chợ Tốt, nơi hệ thống đọc tin cũ của người bán. Ngoài ra còn tác nhân thời gian bên trong hệ thống: các thời hạn 3 ngày của đơn COD, lượt hỏi lại hãng mỗi 2 giờ và lượt quét theo dõi tìm kiếm mỗi 30 phút.
 
-Hình 3.1 đặt hệ thống ở giữa và chỉ vẽ những gì đi qua đường biên của nó. Ở mức ngữ cảnh, không có đường tiền nào đi qua hệ thống: tiền hàng và phí ship đi từ người mua sang shipper tại cửa, từ shipper về hãng, rồi từ hãng vào tài khoản ngân hàng người bán đã khai với hãng; hệ thống chỉ nhận về trạng thái vận đơn. Đây là ràng buộc BR-DEAL-01 nhìn từ ngoài vào: hệ thống không có ví, không có số dư và không nối tới cổng thanh toán nào.
+Hình 3.1 đặt hệ thống ở giữa và chỉ vẽ những gì đi qua đường biên của nó. Ở mức ngữ cảnh, không có đường tiền nào đi qua hệ thống: tiền hàng và phí vận chuyển đi từ người mua sang shipper tại cửa, từ shipper về hãng, rồi từ hãng vào tài khoản ngân hàng người bán đã khai với hãng; hệ thống chỉ nhận về trạng thái vận đơn. Đây là ràng buộc BR-DEAL-01 nhìn từ ngoài vào: hệ thống không có ví, không có số dư và không nối tới cổng thanh toán nào.
 
 #fig(
   [Sơ đồ ngữ cảnh hệ thống],
@@ -53,16 +53,16 @@ Hình 3.1 đặt hệ thống ở giữa và chỉ vẽ những gì đi qua đư
 
   edge((0, 0), (1, 0), "-|>", snap-to: (auto, <sys>), elabel[xem, tìm kiếm]),
   edge((0, 1.67), (1, 1.67), "<|-|>", snap-to: (auto, <sys>),
-    elabel[tin đăng, tin nhắn, thương lượng,\ yêu cầu COD, đánh giá, phiếu hỗ trợ]),
+    elabel[tin đăng, tin nhắn, trả giá,\ yêu cầu COD, đánh giá, phiếu hỗ trợ]),
   edge((0, 3.33), (1, 3.33), "<|-|>", snap-to: (auto, <sys>),
     elabel[phiếu hỗ trợ, báo cáo,\ tạm khóa, hỏi trợ lý AI]),
   edge((0, 5), (1, 5), "<|-|>", snap-to: (auto, <sys>),
-    elabel[thành viên trang điều hành,\ nhật ký kiểm toán]),
+    elabel[nhân viên,\ nhật ký kiểm toán]),
 
   edge((1, 0), (2, 0), "<|-|>", snap-to: (<sys>, auto),
     elabel[tạo/hủy vận đơn, phí;\ trạng thái giao hàng]),
-  edge((1, 1), (2, 1), "<|-|>", snap-to: (<sys>, auto), elabel[mã xác minh]),
-  edge((1, 2), (2, 2), "-|>", snap-to: (<sys>, auto), elabel[mã đăng nhập]),
+  edge((1, 1), (2, 1), "<|-|>", snap-to: (<sys>, auto), elabel[mã OTP]),
+  edge((1, 2), (2, 2), "-|>", snap-to: (<sys>, auto), elabel[mã OTP]),
   edge((1, 3), (2, 3), "<|-|>", snap-to: (<sys>, auto),
     elabel[ảnh, video, câu tìm, tin nhắn;\ tin điền sẵn, điều kiện, cảnh báo]),
   edge((1, 4), (2, 4), "-|>", snap-to: (<sys>, auto), elabel[thông báo đẩy]),
@@ -76,7 +76,7 @@ Hình 3.1 đặt hệ thống ở giữa và chỉ vẽ những gì đi qua đư
   edge((0, 6.4), (0.67, 6.4), "-|>", stroke: (dash: "dashed")),
   edge((0.67, 6.4), (1.33, 6.4), "-|>", stroke: (dash: "dashed")),
   edge((1.33, 6.4), (2, 6.4), "-|>", stroke: (dash: "dashed")),
-  node((1, 7.1), text(size: 8pt)[Đường tiền hàng và phí ship (COD): đi ngoài hệ thống],
+  node((1, 7.1), text(size: 8pt)[Đường tiền hàng và phí vận chuyển (COD): đi ngoài hệ thống],
     stroke: none, fill: none),
 )
 
@@ -86,7 +86,7 @@ Bảng 3.1 liệt kê #n-uc ca sử dụng nghiệp vụ chia thành sáu nhóm,
 
 #uc-table()
 
-Hình 3.2 chỉ vẽ lõi giao dịch, gồm nhóm D, phần đánh giá và uy tín của nhóm E và phiếu hỗ trợ, vì đây là phần có ba tác nhân cùng tham gia một chuỗi ca nối tiếp và có quan hệ «extend» thật giữa các ca. Các nhóm còn lại chủ yếu là một tác nhân nối với một ca, Bảng 3.1 đã thể hiện đủ. UC-DEAL-02 «extend» UC-DEAL-01 vì thương lượng diễn ra trong cuộc trò chuyện theo tin đăng và chỉ có khi tin cho phép trả giá. UC-MOD-09 «extend» UC-DEAL-05 tại điểm mở rộng "đơn đã báo giao", chỉ khi người mua chưa nhận được hàng.
+Hình 3.2 chỉ vẽ lõi giao dịch, gồm nhóm D, phần đánh giá và uy tín của nhóm E và phiếu hỗ trợ, vì đây là phần có ba tác nhân cùng tham gia một chuỗi ca nối tiếp và có quan hệ «extend» thật giữa các ca. Các nhóm còn lại chủ yếu là một tác nhân nối với một ca, Bảng 3.1 đã thể hiện đủ. UC-DEAL-02 «extend» UC-DEAL-01 vì việc trả giá diễn ra trong cuộc trò chuyện theo tin đăng và chỉ có khi tin cho phép trả giá. UC-MOD-09 «extend» UC-DEAL-05 tại điểm mở rộng "đơn đã báo giao", chỉ khi người mua chưa nhận được hàng.
 
 #fig(
   [Sơ đồ ca sử dụng lõi giao dịch],
@@ -144,7 +144,7 @@ Ba ca được đặc tả đầy đủ là ba ca mang nghiệp vụ riêng củ
 
 == Quy tắc nghiệp vụ
 
-Bảng 3.5 gom #n-br quy tắc nghiệp vụ. Chúng suy ra từ hai ràng buộc gốc: sàn không giữ tiền (BR-DEAL-01) và sàn không phán xử từng vụ việc (BR-MOD-01). Vì không giữ tiền, sàn không có khoản nào để hoàn, nên "hoàn tiền" trở thành từ chối nhận tại cửa (BR-DEAL-08). Vì không phán xử, tin đăng không có phần khai vết và người mua tự xem tình trạng hàng tại cửa (BR-LST-01, BR-DEAL-02); đơn đi theo dữ kiện hãng báo và các thời hạn tự động (BR-DEAL-07, BR-DEAL-11); uy tín là số liệu công khai và đánh giá hai chiều (BR-TRS-04, BR-TRS-05); nhân viên chỉ xử lý vài nhóm việc không tăng theo số đơn (BR-MOD-01).
+Bảng 3.5 gom #n-br quy tắc nghiệp vụ. Chúng suy ra từ hai ràng buộc gốc: hệ thống không giữ tiền (BR-DEAL-01) và hệ thống không phán xử từng vụ việc (BR-MOD-01). Vì không giữ tiền, hệ thống không có khoản nào để hoàn, nên "hoàn tiền" trở thành từ chối nhận tại cửa (BR-DEAL-08). Vì không phán xử, tin đăng không có phần khai vết và người mua tự xem tình trạng hàng tại cửa (BR-LST-01, BR-DEAL-02); đơn đi theo dữ kiện hãng báo và các thời hạn tự động (BR-DEAL-07, BR-DEAL-11); uy tín là số liệu công khai và đánh giá hai chiều (BR-TRS-04, BR-TRS-05); nhân viên chỉ xử lý vài nhóm việc không tăng theo số đơn (BR-MOD-01).
 
 #br-table()
 
@@ -189,7 +189,7 @@ Hình 3.3 mô tả quy trình giao dịch từ lúc chốt giá đến khi đơn
       np((3, 13), s[Giao tới cửa,\ người mua mở xem], width: w),
       quyet((0, 14), [Nhận hay\ từ chối?]),
       np((3, 14), s[Hoàn hàng về người bán,\ tính phí hai chiều], width: w),
-      nr((0, 16), s[Trả tiền hàng và phí\ ship cho shipper], width: w),
+      nr((0, 16), s[Trả tiền hàng và phí\ vận chuyển cho shipper], width: w),
       ng((2, 16), s[Đơn giao không thành,\ tin về đang bán], width: w),
       nt((1, 16), s[Kết thúc]),
       ng((2, 17), s[Người mua bấm đã nhận\ hoặc sau 3 ngày: đơn\ hoàn tất, tin đã bán], width: w),
@@ -224,7 +224,7 @@ Hình 3.3 mô tả quy trình giao dịch từ lúc chốt giá đến khi đơn
   edge((2, 17), (3, 17), "-|>"),
 )
 
-Hình 3.4 là sơ đồ trạng thái của đơn COD, mỗi cạnh ghi sự kiện làm đơn đổi trạng thái. Đơn mang mã dạng SN-100001, bắt đầu ở trạng thái chờ tạo đơn khi người mua gửi yêu cầu kèm một địa chỉ trong sổ địa chỉ của mình. Ba trạng thái nền xám là trạng thái cuối; từ đã gửi trở đi, người dùng không tự hủy đơn được. Mỗi lần đơn đổi trạng thái, tin đăng và thương lượng liên quan đổi theo: khi đơn đã gửi, tin chuyển sang đang giữ chỗ và các yêu cầu COD khác trên tin bị hủy; khi đơn hoàn tất, tin và thương lượng chuyển sang đã bán; khi đơn giao không thành hoặc đã hủy, tin về đang bán và thương lượng về đang thương lượng. Hệ thống ghi thay đổi của đơn cùng lúc với thông báo cho các phân hệ liên quan, nên không có trường hợp đơn đã đổi mà tin đăng hay thông báo không được cập nhật. Tin đăng có vòng đời riêng: từ đang xử lý sang đang bán hoặc bị từ chối tùy kết quả xử lý ảnh; đang bán và đang ẩn chuyển qua lại và cùng sang được đã bán khi người bán đánh dấu; đang bán sang đang giữ chỗ khi người bán gửi hàng, rồi sang đã bán hoặc về đang bán theo kết quả đơn; mọi trạng thái sang được đã xóa, trừ việc tin đang giữ chỗ không sửa, ẩn hay xóa được.
+Hình 3.4 là sơ đồ trạng thái của đơn COD, mỗi cạnh ghi sự kiện làm đơn đổi trạng thái. Đơn mang mã dạng SN-100001, bắt đầu ở trạng thái chờ tạo đơn khi người mua gửi yêu cầu kèm một địa chỉ trong sổ địa chỉ của mình. Ba trạng thái nền xám là trạng thái cuối; từ đã gửi trở đi, người dùng không tự hủy đơn được. Mỗi lần đơn đổi trạng thái, tin đăng và phiên trả giá liên quan đổi theo: khi đơn đã gửi, tin chuyển sang đang giữ chỗ và các yêu cầu COD khác trên tin bị hủy; khi đơn hoàn tất, tin và phiên trả giá chuyển sang đã bán; khi đơn giao không thành hoặc đã hủy, tin về đang bán và phiên trả giá về đang trả giá. Hệ thống ghi thay đổi của đơn cùng lúc với thông báo cho các phân hệ liên quan, nên không có trường hợp đơn đã đổi mà tin đăng hay thông báo không được cập nhật. Tin đăng có vòng đời riêng: từ đang xử lý sang đang bán hoặc bị từ chối tùy kết quả xử lý ảnh; đang bán và đang ẩn chuyển qua lại và cùng sang được đã bán khi người bán đánh dấu; đang bán sang đang giữ chỗ khi người bán gửi hàng, rồi sang đã bán hoặc về đang bán theo kết quả đơn; mọi trạng thái sang được đã xóa, trừ việc tin đang giữ chỗ không sửa, ẩn hay xóa được.
 
 #fig(
   [Sơ đồ trạng thái của đơn COD],

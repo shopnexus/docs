@@ -22,7 +22,7 @@ Phần lớn yêu cầu chức năng ở Chương 3 chỉ thêm một chức nă
     [Mỗi quy trình ghi nhận từng bước đã xong; máy chủ gặp sự cố thì quy trình chạy tiếp từ bước đã ghi, không làm lại bước cũ [3]],
     [AD-02], [Người dùng bấm lặp, mạng chập chờn hoặc hãng báo trùng không được tạo hai đơn, hai vận đơn], [NFR-IDEM-01],
     [Mỗi thao tác quan trọng mang một mã yêu cầu do ứng dụng sinh; gửi lại cùng mã thì nhận lại kết quả của lần đầu [7]],
-    [AD-03], [Hai người cùng thao tác trên một thương lượng; hạn mức đơn COD và số tin đang bán không được vượt], [NFR-CONC-01],
+    [AD-03], [Hai người cùng thao tác trên một phiên trả giá; hạn mức đơn COD và số tin đang bán không được vượt], [NFR-CONC-01],
     [Chỉ lượt ghi đến trước được nhận, lượt sau được báo dữ liệu đã đổi để xem lại; hạn mức được đếm lần lượt theo từng người],
     [AD-04], [Tin báo giữa các phân hệ, như đơn đã hoàn tất hay tin đã bán, không được mất], [NFR-MSG-01],
     [Tin báo được lưu cùng lúc với thay đổi sinh ra nó và được gửi lại cho tới khi nơi nhận xử lý xong [8]],
@@ -35,7 +35,7 @@ Phần lớn yêu cầu chức năng ở Chương 3 chỉ thêm một chức nă
 
 == Kiến trúc tổng thể
 
-Hình 4.1 trình bày kiến trúc theo năm tầng. Tầng khách gồm ứng dụng Android và website cho người mua, người bán, cùng trang điều hành cho nhân viên. Tầng giao tiếp là nơi duy nhất nhận yêu cầu từ bên ngoài: giao diện lập trình được đặc tả trước [18], kênh cập nhật thời gian thực cho màn hình đang mở, và cổng nhận trạng thái vận đơn do hãng vận chuyển báo về. Mọi yêu cầu được kiểm theo đặc tả và xác thực người gọi trước khi tới phân hệ nghiệp vụ. Tầng nền tảng cung cấp những thứ mọi phân hệ dùng chung: điều phối quy trình nhiều bước, kênh tin báo giữa các phân hệ, cơ sở dữ liệu có tìm kiếm theo từ khóa và theo nghĩa, kho ảnh, cổng mô hình AI và giám sát vận hành.
+Hình 4.1 trình bày kiến trúc theo năm tầng. Tầng khách gồm ứng dụng Android và website cho người mua, người bán, cùng trang điều hành cho nhân viên. Tầng giao tiếp là nơi duy nhất nhận yêu cầu từ bên ngoài: giao diện lập trình được đặc tả trước [18], kênh cập nhật thời gian thực cho màn hình đang mở, và cổng nhận trạng thái vận đơn do hãng vận chuyển báo về. Mọi yêu cầu được kiểm theo đặc tả và xác thực người gọi trước khi tới phân hệ nghiệp vụ. Tầng nền tảng cung cấp những thứ mọi phân hệ dùng chung: điều phối quy trình nhiều bước, kênh tin báo giữa các phân hệ, cơ sở dữ liệu có tìm kiếm theo từ khóa và theo nghĩa, kho ảnh, cổng mô hình ngôn ngữ lớn (LLM) và giám sát vận hành.
 
 #fig(
   [Kiến trúc tổng thể của hệ thống],
@@ -51,12 +51,12 @@ Hình 4.1 trình bày kiến trúc theo năm tầng. Tầng khách gồm ứng d
   band((0, 2), "PHÂN HỆ NGHIỆP VỤ", (
     [Tài khoản], [Trang điều hành], [Ảnh], [Tin đăng], [Hỗ trợ đăng tin], [Khám phá],
     [Trò chuyện], [Giao dịch], [Vận chuyển], [Uy tín], [Hỗ trợ], [Thông báo],
-    [Màn hình], [Xóa dữ liệu], [AI], [Agent],
+    [Màn hình], [Xóa dữ liệu], [AI], [Trợ lý AI],
   ), cot: 6, rong: 150mm, nen: headfill,
     ghi: [Phân hệ gọi nhau qua chức năng đã công bố; mỗi phân hệ chỉ dùng dữ liệu của mình.],
     name: <a-svc>),
   band((0, 3), "NỀN TẢNG", (
-    [Điều phối quy trình], [Kênh tin báo], [Cơ sở dữ liệu], [Kho ảnh], [Cổng mô hình AI], [Giám sát],
+    [Điều phối quy trình], [Kênh tin báo], [Cơ sở dữ liệu], [Kho ảnh], [Cổng mô hình ngôn ngữ], [Giám sát],
   ), rong: 150mm, name: <a-plat>),
   band((0, 4), "HỆ THỐNG BÊN NGOÀI", (
     [GHTK, GHN], [Mô hình ngôn ngữ lớn], [Xác thực số điện thoại, Google], [Email], [Đẩy thông báo], [Chợ Tốt],
@@ -69,7 +69,7 @@ Hình 4.1 trình bày kiến trúc theo năm tầng. Tầng khách gồm ứng d
   edge(<a-plat>, <a-ext>, "-|>", rel[gọi đối tác trong một bước]),
 )
 
-Bảng 4.2 liệt kê chức năng và dữ liệu của từng phân hệ. Ngoài 16 phân hệ này, vòng lặp của trợ lý AI cho nhân viên chạy thành một dịch vụ riêng trong mạng nội bộ; phân hệ Agent chỉ chuyển tiếp yêu cầu của trang điều hành tới dịch vụ đó và cấp cho nó các công cụ chỉ đọc.
+Bảng 4.2 liệt kê chức năng và dữ liệu của từng phân hệ. Ngoài 16 phân hệ này, vòng lặp của trợ lý AI cho nhân viên chạy thành một dịch vụ riêng trong mạng nội bộ; phân hệ Trợ lý AI chỉ chuyển tiếp yêu cầu của trang điều hành tới dịch vụ đó và cấp cho nó các công cụ chỉ đọc.
 
 #figure(
   kind: table,
@@ -79,13 +79,13 @@ Bảng 4.2 liệt kê chức năng và dữ liệu của từng phân hệ. Ngo�
     align: (left + horizon, left + horizon, left + horizon),
     table.header([Phân hệ], [Chức năng], [Dữ liệu quản lý]),
     [Tài khoản], [Đăng nhập, phiên, hồ sơ, sổ địa chỉ, chặn, theo dõi người bán, tạm khóa], [Tài khoản, định danh, phiên, địa chỉ],
-    [Trang điều hành], [Thành viên, phân quyền, nhật ký thao tác], [Thành viên, phiên, nhật ký],
+    [Trang điều hành], [Nhân viên, phân quyền, nhật ký kiểm toán], [Nhân viên, phiên, nhật ký],
     [Ảnh], [Nhận ảnh và video tải lên, xử lý ảnh], [Tệp đã tải],
     [Tin đăng], [Tin đăng, nháp, danh mục, địa giới, chỉ mục tìm kiếm, lượt xem], [Tin, nháp, danh mục, xã],
     [Hỗ trợ đăng tin], [AI đọc video, ảnh, link Chợ Tốt; gợi ý giá], [Lượt đọc],
     [Khám phá], [Hiểu câu tìm, tìm kiếm lai, lưu tin, báo giảm giá, theo dõi tìm kiếm, ẩn tin], [Cách đọc câu, tin đã lưu, câu theo dõi],
-    [Trò chuyện], [Hội thoại, tin nhắn, tìm trong hộp thư], [Hội thoại, tin nhắn],
-    [Giao dịch], [Thương lượng giá, đơn COD, thời hạn của đơn], [Thương lượng, nước đi, đơn],
+    [Trò chuyện], [Cuộc trò chuyện, tin nhắn, tìm trong hộp thư], [Cuộc trò chuyện, tin nhắn],
+    [Giao dịch], [Trả giá, đơn COD, thời hạn của đơn], [Phiên trả giá, lượt trả giá, đơn],
     [Vận chuyển], [Liên kết tài khoản hãng, phí, vận đơn, trạng thái hãng báo], [Liên kết hãng],
     [Uy tín], [Đánh giá hai chiều, báo cáo vi phạm, cảnh báo lừa đảo], [Đánh giá, báo cáo, cảnh báo],
     [Hỗ trợ], [Phiếu hỗ trợ], [Phiếu],
@@ -93,7 +93,7 @@ Bảng 4.2 liệt kê chức năng và dữ liệu của từng phân hệ. Ngo�
     [Màn hình], [Ghép dữ liệu của nhiều phân hệ cho một màn hình, như trang Uy tín], [Không có],
     [Xóa dữ liệu], [Xóa tài khoản theo yêu cầu của người dùng], [Không có],
     [AI], [Nhận dạng tiếng nói, cắt khung hình video, nhúng ảnh], [Không có],
-    [Agent], [Chuyển tiếp tới trợ lý AI, chạy nền, công cụ chỉ đọc], [Không có],
+    [Trợ lý AI], [Chuyển tiếp tới dịch vụ trợ lý AI, chạy nền, công cụ chỉ đọc], [Không có],
   ),
 )
 
@@ -105,7 +105,7 @@ Các phân hệ phối hợp theo ba cách. Khi cần câu trả lời ngay, m�
 
 === Quy trình nhiều bước
 
-Một thao tác ghi vào nhiều nhóm dữ liệu, gọi tới đối tác bên ngoài hoặc phải chờ một thời hạn chạy thành một quy trình có ghi nhận tiến độ (AD-01). Bảng 4.3 liệt kê các quy trình chính. Mỗi bước sau khi xong được ghi lại cùng kết quả; nếu máy chủ sập, quy trình chạy tiếp từ bước kế tiếp và dùng lại kết quả đã ghi, nên người bán không nhận hai vận đơn, người dùng không nhận hai email mã đăng nhập. Khi một bước bị từ chối vì lý do nghiệp vụ, chẳng hạn người mua đã đủ 3 đơn COD đang mở, quy trình dừng và báo lý do thay vì thử lại một việc không thể thành công. Mã đăng nhập không bao giờ được ghi vào nhật ký tiến độ.
+Một thao tác ghi vào nhiều nhóm dữ liệu, gọi tới đối tác bên ngoài hoặc phải chờ một thời hạn chạy thành một quy trình có ghi nhận tiến độ (AD-01). Bảng 4.3 liệt kê các quy trình chính. Mỗi bước sau khi xong được ghi lại cùng kết quả; nếu máy chủ sập, quy trình chạy tiếp từ bước kế tiếp và dùng lại kết quả đã ghi, nên người bán không nhận hai vận đơn, người dùng không nhận hai email mã OTP. Khi một bước bị từ chối vì lý do nghiệp vụ, chẳng hạn người mua đã đủ 3 đơn COD đang mở, quy trình dừng và báo lý do thay vì thử lại một việc không thể thành công. Mã OTP không bao giờ được ghi vào nhật ký tiến độ.
 
 #figure(
   kind: table,
@@ -128,20 +128,20 @@ Một thao tác ghi vào nhiều nhóm dữ liệu, gọi tới đối tác bên
     [Nhận trạng thái vận đơn], [Vận chuyển], [Ghi trạng thái hãng báo về, mỗi trạng thái đúng một lần],
     [Mở phiếu hỗ trợ], [Hỗ trợ], [Tạo phiếu và cuộc trò chuyện của phiếu],
     [Quét theo dõi tìm kiếm], [Khám phá], [Mỗi 30 phút tìm tin mới khớp câu đã theo dõi],
-    [Chạy nền trợ lý AI], [Agent], [Cho trợ lý đọc phiếu, báo cáo mới và soạn đề xuất],
+    [Chạy nền trợ lý AI], [Trợ lý AI], [Cho trợ lý AI đọc phiếu, báo cáo mới và soạn đề xuất],
   ),
 )
 
 === Tin báo giữa các phân hệ
 
-Khi một đơn hàng hay một tin đăng đổi trạng thái, hệ thống ghi lại sự thay đổi đó cùng lúc với tin báo cho các phân hệ liên quan, nên không có trường hợp đơn đã đổi mà phân hệ tìm kiếm hay thông báo không biết (AD-04). Nếu một phân hệ tạm thời không nhận được, tin báo được giữ lại và gửi lại sau với khoảng chờ tăng dần, tối đa một giờ; một nơi nhận lỗi không chặn các nơi khác. Hình 4.2 lấy ví dụ lúc người mua bấm đã nhận hàng.
+Khi một đơn COD hay một tin đăng đổi trạng thái, hệ thống ghi lại sự thay đổi đó cùng lúc với tin báo cho các phân hệ liên quan, nên không có trường hợp đơn đã đổi mà phân hệ tìm kiếm hay thông báo không biết (AD-04). Nếu một phân hệ tạm thời không nhận được, tin báo được giữ lại và gửi lại sau với khoảng chờ tăng dần, tối đa một giờ; một nơi nhận lỗi không chặn các nơi khác. Hình 4.2 lấy ví dụ lúc người mua bấm đã nhận hàng.
 
 #fig(
   [Luồng thông tin giữa các phân hệ khi một đơn hoàn tất],
   spacing: (10mm, 14mm),
   np((0, 0), [Người mua\ #text(size: 8.5pt)[bấm đã nhận hàng]], shape: rect, name: <f-hang>),
   ncore((1, 0), [Giao dịch\ #text(size: 8.5pt, weight: 400)[đơn chuyển hoàn tất]], shape: rect, name: <f-gd>),
-  np((0, 1), [Tìm kiếm\ #text(size: 8.5pt)[gỡ tin khỏi kết quả]], shape: rect, name: <f-tk>),
+  np((0, 1), [Tìm kiếm\ #text(size: 8.5pt)[bỏ tin khỏi kết quả]], shape: rect, name: <f-tk>),
   np((1, 1), [Tin đăng\ #text(size: 8.5pt)[tin chuyển đã bán]], shape: rect, name: <f-tin>),
   np((2, 1), [Trò chuyện\ #text(size: 8.5pt)[hiện bước của đơn]], shape: rect, name: <f-ct>),
   np((3, 1), [Thông báo\ #text(size: 8.5pt)[báo hai bên, mời đánh giá]], shape: rect, name: <f-tb>),
@@ -156,13 +156,13 @@ Khi một đơn hàng hay một tin đăng đổi trạng thái, hệ thống gh
   ]), stroke: none, fill: none),
 )
 
-Tin báo chỉ nói điều gì đã xảy ra với đối tượng nào; nơi nhận tự hỏi lại trạng thái hiện tại của đối tượng đó. Vì vậy tin đến chậm, đến sai thứ tự hay đến hai lần đều cho cùng kết quả. Theo cách này, phân hệ tin đăng lập lại chỉ mục mỗi khi tin đổi; phân hệ giao dịch đóng giá đang mở và hủy yêu cầu COD khi tin bị sửa, ẩn, bán hay xóa; phân hệ khám phá báo người đã lưu tin khi tin giảm giá và báo người theo dõi khi người bán đăng tin mới; phân hệ thông báo báo cho người dùng mọi thay đổi của thương lượng, đơn hàng, đánh giá và phiếu hỗ trợ; khi một tài khoản bị xóa, mỗi phân hệ tự xóa dữ liệu của tài khoản đó.
+Tin báo chỉ nói điều gì đã xảy ra với đối tượng nào; nơi nhận tự hỏi lại trạng thái hiện tại của đối tượng đó. Vì vậy tin đến chậm, đến sai thứ tự hay đến hai lần đều cho cùng kết quả. Theo cách này, phân hệ tin đăng lập lại chỉ mục mỗi khi tin đổi; phân hệ giao dịch đóng giá đang mở và hủy yêu cầu COD khi tin bị sửa, ẩn, bán hay xóa; phân hệ khám phá báo người đã lưu tin khi tin giảm giá và báo người theo dõi khi người bán đăng tin mới; phân hệ thông báo báo cho người dùng mọi thay đổi của phiên trả giá, đơn COD, đánh giá và phiếu hỗ trợ; khi một tài khoản bị xóa, mỗi phân hệ tự xóa dữ liệu của tài khoản đó.
 
-Màn hình đang mở trên ứng dụng và website được cập nhật qua một kết nối thời gian thực. Mỗi tài khoản có một dãy sự kiện đánh số tăng dần; khi mất kết nối, ứng dụng nối lại kèm số cuối cùng đã nhận và nhận đúng phần đã lỡ. Sự kiện chỉ nói tin nhắn, thương lượng, đơn hàng hay thông báo nào vừa đổi, ứng dụng tự lấy dữ liệu mới, nên một sự kiện bị lỡ chỉ làm màn hình cập nhật chậm hơn chứ không hiển thị sai.
+Màn hình đang mở trên ứng dụng và website được cập nhật qua một kết nối thời gian thực. Mỗi tài khoản có một dãy sự kiện đánh số tăng dần; khi mất kết nối, ứng dụng nối lại kèm số cuối cùng đã nhận và nhận đúng phần đã lỡ. Sự kiện chỉ nói tin nhắn, phiên trả giá, đơn COD hay thông báo nào vừa đổi, ứng dụng tự lấy dữ liệu mới, nên một sự kiện bị lỡ chỉ làm màn hình cập nhật chậm hơn chứ không hiển thị sai.
 
 == Thiết kế uy tín và cảnh báo lừa đảo
 
-Sàn không phán xử từng vụ việc, nên thông tin giúp người dùng quyết định có giao dịch với một người hay không đi qua hai kênh: số liệu uy tín công khai và cảnh báo trong cuộc trò chuyện. Hình 4.3 cho thấy nguồn của từng số liệu trên trang Uy tín và trang hồ sơ người bán. Mỗi số liệu đến từ phân hệ đang giữ dữ liệu gốc và được tính lại mỗi lần có người mở trang, nên không có bảng điểm riêng nào có thể lệch với dữ liệu thật.
+Hệ thống không phán xử từng vụ việc, nên thông tin giúp người dùng quyết định có giao dịch với một người hay không đi qua hai kênh: số liệu uy tín công khai và cảnh báo trong cuộc trò chuyện. Hình 4.3 cho thấy nguồn của từng số liệu trên trang Uy tín và trang hồ sơ người bán. Mỗi số liệu đến từ phân hệ đang giữ dữ liệu gốc và được tính lại mỗi lần có người mở trang, nên không có bảng điểm riêng nào có thể lệch với dữ liệu thật.
 
 #fig(
   [Nguồn của các số liệu uy tín],
@@ -199,7 +199,7 @@ Sàn không phán xử từng vụ việc, nên thông tin giúp người dùng 
 
 Đánh giá hai chiều được thiết kế để giảm đánh giá trả đũa (BR-TRS-04). Sau khi đơn hoàn tất, mỗi bên có một đánh giá về bên kia. Một đánh giá chỉ hiện với người được đánh giá và người ngoài khi bên kia cũng đã đánh giá, hoặc khi đã qua 7 ngày kể từ lúc giao. Người được đánh giá trả lời được một lần; sau câu trả lời, đánh giá không sửa hay xóa được nữa. Hồ sơ hiện hai điểm sao riêng, khi bán và khi mua, vì người bán và người mua chịu các rủi ro khác nhau.
 
-Cảnh báo lừa đảo chạy sau mỗi tin nhắn có chữ, từ bất kỳ bên nào (BR-TRS-06). Trước khi đưa cho bộ phát hiện, hệ thống thay số điện thoại, số tài khoản, số thẻ, email và link bằng ký hiệu giữ chỗ. Bộ phát hiện chỉ chọn mã trong một danh sách dấu hiệu cố định, gồm bảy dấu hiệu trong tin nhắn và hai dữ kiện về tài khoản và giá (Bảng 5.1). Cảnh báo chỉ hiện khi có ít nhất một dấu hiệu trong tin nhắn; hai dữ kiện chỉ đi kèm làm bằng chứng. Bộ phát hiện đứng sau một giao diện riêng: hiện nay là mô hình ngôn ngữ lớn, sau này có thể là một mô hình được huấn luyện trên chính các kết quả đã lưu, mà không đổi bảng dữ liệu, giao diện lập trình hay ứng dụng.
+Cảnh báo lừa đảo chạy sau mỗi tin nhắn có chữ, từ bất kỳ bên nào (BR-TRS-06). Trước khi đưa cho bộ phát hiện, hệ thống thay số điện thoại, số tài khoản, số thẻ, email và link bằng ký hiệu giữ chỗ. Bộ phát hiện chỉ chọn mã trong một danh sách dấu hiệu cố định, gồm bảy dấu hiệu trong tin nhắn và hai dữ kiện về tài khoản và giá (Bảng 5.1). Cảnh báo chỉ hiện khi có ít nhất một dấu hiệu trong tin nhắn; hai dữ kiện chỉ đi kèm làm bằng chứng. Bộ phát hiện đứng sau một giao diện riêng: hiện nay là mô hình ngôn ngữ, sau này có thể là một mô hình được huấn luyện trên chính các kết quả đã lưu, mà không đổi bảng dữ liệu, giao diện lập trình hay ứng dụng.
 
 == Thiết kế dữ liệu
 
@@ -213,14 +213,14 @@ Hình 4.4 là sơ đồ thực thể quan hệ mức khái niệm, các thực t
   label-size: 8pt,
   nent((0, 0), <e-addr>, [ĐỊA CHỈ]),
   nent((0, 1), <e-acc>, [TÀI KHOẢN]),
-  nent((0, 2.2), <e-conv>, [HỘI THOẠI]),
+  nent((0, 2.2), <e-conv>, [CUỘC TRÒ CHUYỆN]),
   nent((0, 3.2), <e-msg>, [TIN NHẮN]),
   nent((-1, 2.2), <e-tick>, [PHIẾU HỖ TRỢ]),
   nent((1, 0), <e-cat>, [DANH MỤC]),
   nent((1, 1), <e-lst>, [TIN ĐĂNG]),
-  nent((1, 2), <e-com>, [XÃ/PHƯỜNG]),
-  nent((2, 0), <e-mv>, [NƯỚC ĐI]),
-  nent((2, 1), <e-deal>, [THƯƠNG LƯỢNG]),
+  nent((1, 2), <e-com>, [PHƯỜNG/XÃ]),
+  nent((2, 0), <e-mv>, [LƯỢT TRẢ GIÁ]),
+  nent((2, 1), <e-deal>, [PHIÊN TRẢ GIÁ]),
   nent((2, 2), <e-ord>, [ĐƠN COD]),
   nent((2, 3.2), <e-link>, [LIÊN KẾT HÃNG]),
   nent((3, 2), <e-rev>, [ĐÁNH GIÁ]),
@@ -250,7 +250,7 @@ Hình 4.4 là sơ đồ thực thể quan hệ mức khái niệm, các thực t
   edge(<e-conv>, <e-scam>, "1-1?", bend: -28deg, label-pos: 0.6, [có]),
 )
 
-Mỗi tin đăng có nhiều thương lượng nhưng mỗi người mua chỉ có một thương lượng trên một tin; mỗi thương lượng có thể sinh nhiều đơn theo thời gian, vì khi đơn giao không thành hoặc bị hủy, thương lượng trở về đang thương lượng; mỗi đơn có tối đa hai đánh giá, một của mỗi bên. Một phiếu hỗ trợ là một cuộc trò chuyện loại hỗ trợ giữa người dùng và sàn, nên tin nhắn của phiếu dùng chung mọi chức năng của trò chuyện. Mỗi cuộc trò chuyện có tối đa một cảnh báo lừa đảo đang hiệu lực. Bảng 4.4 tóm tắt dữ liệu chính của từng phân hệ cùng những quy tắc mà cơ sở dữ liệu trực tiếp bảo đảm, để luật nghiệp vụ đúng ngay cả khi có lỗi lập trình ở phía trên.
+Mỗi tin đăng có nhiều phiên trả giá nhưng mỗi người mua chỉ có một phiên trả giá trên một tin; mỗi phiên trả giá có thể sinh nhiều đơn theo thời gian, vì khi đơn giao không thành hoặc bị hủy, phiên trả giá trở về đang trả giá; mỗi đơn có tối đa hai đánh giá, một của mỗi bên. Một phiếu hỗ trợ là một cuộc trò chuyện loại hỗ trợ giữa người dùng và hệ thống, nên tin nhắn của phiếu dùng chung mọi chức năng của trò chuyện. Mỗi cuộc trò chuyện có tối đa một cảnh báo lừa đảo đang hiệu lực. Bảng 4.4 tóm tắt dữ liệu chính của từng phân hệ cùng những quy tắc mà cơ sở dữ liệu trực tiếp bảo đảm, để luật nghiệp vụ đúng ngay cả khi có lỗi lập trình ở phía trên.
 
 #figure(
   kind: table,
@@ -260,21 +260,21 @@ Mỗi tin đăng có nhiều thương lượng nhưng mỗi người mua chỉ c
     align: (left + horizon, left + horizon, left + horizon),
     table.header([Phân hệ], [Dữ liệu], [Quy tắc được bảo đảm]),
     [Tài khoản], [Tài khoản, định danh, phiên, địa chỉ], [Mỗi số điện thoại hoặc email chỉ gắn với một tài khoản; mỗi mã làm mới phiên chỉ dùng được một lần; tối đa 10 địa chỉ],
-    [Tin đăng], [Tin đăng, nháp, danh mục, xã/phường], [Ảnh và thông số lưu cùng tin; vị trí chỉ lưu đến 3.321 xã/phường sau sáp nhập 2025; chỉ mục từ khóa cập nhật cùng giao dịch ghi tin],
+    [Tin đăng], [Tin đăng, nháp, danh mục, phường/xã], [Ảnh và thông số lưu cùng tin; vị trí chỉ lưu đến 3.321 phường/xã sau sáp nhập 2025; chỉ mục từ khóa cập nhật cùng giao dịch ghi tin],
     [Khám phá], [Cách đọc câu, tin đã lưu, câu theo dõi], [Cách đọc câu lưu theo câu tìm, không gắn tài khoản, hết hạn sau 7 ngày],
-    [Giao dịch], [Thương lượng, nước đi, đơn COD], [Mỗi người mua một thương lượng trên một tin; mỗi thương lượng một đơn đang mở; mỗi tin một đơn đã gửi],
+    [Giao dịch], [Phiên trả giá, lượt trả giá, đơn COD], [Mỗi người mua một phiên trả giá trên một tin; mỗi phiên trả giá một đơn đang mở; mỗi tin một đơn đã gửi],
     [Vận chuyển], [Liên kết hãng], [Mỗi người bán tối đa một tài khoản mỗi hãng; khóa kết nối được mã hóa],
-    [Trò chuyện], [Hội thoại, tin nhắn], [Mỗi cặp người dùng chỉ có một hội thoại; mỗi phiếu một hội thoại riêng],
+    [Trò chuyện], [Cuộc trò chuyện, tin nhắn], [Mỗi cặp người dùng chỉ có một cuộc trò chuyện; mỗi phiếu một cuộc trò chuyện riêng],
     [Uy tín], [Đánh giá, báo cáo, cảnh báo], [Mỗi bên tối đa một đánh giá trên một đơn và một câu trả lời trên một đánh giá],
-    [Trang điều hành], [Thành viên, nhật ký thao tác], [Email thành viên không trùng; mọi thao tác ghi đều có dòng nhật ký],
+    [Trang điều hành], [Nhân viên, nhật ký kiểm toán], [Email nhân viên không trùng; mọi thao tác ghi đều có dòng nhật ký],
   ),
 )
 
-Khi hai thao tác cùng sửa một thương lượng, ví dụ người bán phản giá đúng lúc người mua chấp nhận giá cũ, chỉ lượt đến trước được ghi; lượt sau được báo thương lượng vừa thay đổi, ứng dụng hiện giá mới để người dùng quyết định lại (AD-03). Hạn mức như số đơn COD đang mở hay số tin đang bán được kiểm lần lượt theo từng người: người mua gửi cùng lúc năm yêu cầu COD thì đúng ba yêu cầu được nhận.
+Khi hai thao tác cùng sửa một phiên trả giá, ví dụ người bán phản giá đúng lúc người mua chấp nhận giá cũ, chỉ lượt đến trước được ghi; lượt sau được báo phiên trả giá vừa thay đổi, ứng dụng hiện giá mới để người dùng quyết định lại (AD-03). Hạn mức như số đơn COD đang mở hay số tin đang bán được kiểm lần lượt theo từng người: người mua gửi cùng lúc năm yêu cầu COD thì đúng ba yêu cầu được nhận.
 
 == Thiết kế các luồng xử lý chính
 
-Hình 4.5 là trình tự của UC-DEAL-04. Khi người bán tạo đơn, phân hệ giao dịch kiểm đơn còn ở trạng thái chờ tạo đơn. Nếu người bán chọn tạo qua hãng, phân hệ vận chuyển tạo vận đơn trên tài khoản hãng của chính người bán, thu hộ tiền hàng, đặt chế độ người nhận trả phí ship, rồi nhận mã vận đơn và phí thật. Nếu người bán nhập mã đã tạo trên ứng dụng của hãng, phân hệ vận chuyển đọc vận đơn đó bằng tài khoản của người bán; mã không thuộc tài khoản này bị từ chối (BR-DEAL-12). Sau đó phân hệ tin đăng giữ tin cho người mua này, đơn chuyển sang đã gửi và các yêu cầu COD khác trên cùng tin tự hủy với lý do đã gửi cho người khác (BR-DEAL-04); người mua và những người bị hủy yêu cầu đều được báo. Quy trình hẹn 3 ngày cho hãng lấy hàng và bắt đầu hỏi lại hãng mỗi 2 giờ. Nếu máy chủ gặp sự cố giữa chừng, quy trình tiếp tục từ bước đã xong nên hãng không nhận lệnh tạo vận đơn lần hai (NFR-DUR-01); người bán bấm lặp cũng chỉ nhận lại đơn đã tạo (NFR-IDEM-01).
+Hình 4.5 là trình tự của UC-DEAL-04. Khi người bán tạo đơn, phân hệ giao dịch kiểm đơn còn ở trạng thái chờ tạo đơn. Nếu người bán chọn tạo qua hãng, phân hệ vận chuyển tạo vận đơn trên tài khoản hãng của chính người bán, thu hộ tiền hàng, đặt chế độ người nhận trả phí vận chuyển, rồi nhận mã vận đơn và phí thật. Nếu người bán nhập mã đã tạo trên ứng dụng của hãng, phân hệ vận chuyển đọc vận đơn đó bằng tài khoản của người bán; mã không thuộc tài khoản này bị từ chối (BR-DEAL-12). Sau đó phân hệ tin đăng giữ tin cho người mua này, đơn chuyển sang đã gửi và các yêu cầu COD khác trên cùng tin tự hủy với lý do đã gửi cho người khác (BR-DEAL-04); người mua và những người bị hủy yêu cầu đều được báo. Quy trình hẹn 3 ngày cho hãng lấy hàng và bắt đầu hỏi lại hãng mỗi 2 giờ. Nếu máy chủ gặp sự cố giữa chừng, quy trình tiếp tục từ bước đã xong nên hãng không nhận lệnh tạo vận đơn lần hai (NFR-DUR-01); người bán bấm lặp cũng chỉ nhận lại đơn đã tạo (NFR-IDEM-01).
 
 #fig(
   [Sơ đồ trình tự UC-DEAL-04: người bán tạo đơn gửi hàng],
@@ -336,7 +336,7 @@ Hình 4.6 là trình tự của UC-DSC-01. Phân hệ khám phá tìm cách đ�
 
 == Thiết kế các chức năng AI
 
-Hệ thống dùng AI ở năm chỗ, liệt kê trong Bảng 4.5. Mỗi chỗ có một quy tắc chặn rủi ro riêng, và ở chỗ nào AI lỗi thì người dùng vẫn đi tiếp được. Mọi lời gọi mô hình ngôn ngữ lớn đi qua một cổng chung; mỗi chức năng có khóa riêng và hạn mức chi phí theo ngày, nên một chức năng dùng quá mức không làm hỏng các chức năng khác.
+Hệ thống dùng AI ở năm chỗ, liệt kê trong Bảng 4.5. Mỗi chỗ có một quy tắc chặn rủi ro riêng, và ở chỗ nào AI lỗi thì người dùng vẫn đi tiếp được. Mọi lời gọi mô hình ngôn ngữ đi qua một cổng chung; mỗi chức năng có khóa riêng và hạn mức chi phí theo ngày, nên một chức năng dùng quá mức không làm hỏng các chức năng khác.
 
 #figure(
   kind: table,
@@ -349,11 +349,11 @@ Hệ thống dùng AI ở năm chỗ, liệt kê trong Bảng 4.5. Mỗi chỗ c
     [Đọc câu tìm], [Câu của người mua], [Điều kiện ưu tiên, câu diễn giải], [Giá trị phải khớp dữ liệu thật; quá 4 giây thì tìm bằng câu gốc],
     [Tìm bằng ảnh], [Ảnh người mua chụp], [Tin có ảnh gần nhất], [Chỉ người đã đăng nhập; mô hình lỗi thì báo tạm không tìm được],
     [Cảnh báo lừa đảo], [20 tin nhắn gần nhất đã che thông tin], [Danh sách mã dấu hiệu], [Chỉ cảnh báo, không chặn; người dùng tắt được],
-    [Trợ lý nhân viên], [Phiếu, báo cáo hoặc tài khoản], [Bằng chứng, đề xuất, câu trả lời soạn sẵn], [Chỉ đọc; nhân viên bấm thao tác; 60 giây mỗi lượt; 20 USD mỗi ngày],
+    [Trợ lý AI], [Phiếu, báo cáo hoặc tài khoản], [Bằng chứng, đề xuất, câu trả lời soạn sẵn], [Chỉ đọc; nhân viên bấm thao tác; 60 giây mỗi lượt; 20 USD mỗi ngày],
   ),
 )
 
-Trợ lý của nhân viên là một agent [14] chạy thành dịch vụ riêng trong mạng nội bộ. Trang điều hành chỉ gọi dịch vụ nền; dịch vụ nền kiểm phiên và quyền của nhân viên rồi mới chuyển tiếp. Agent lấy dữ liệu qua các công cụ chỉ đọc mà dịch vụ nền cung cấp: đọc phiếu, đơn, vận đơn, tin nhắn, tin đăng và lịch sử tài khoản. Mỗi lần agent đọc dữ liệu cá nhân được ghi lại kèm nhân viên đã hỏi (NFR-PRIV-02). Mỗi phiếu, báo cáo hoặc tài khoản có một cuộc chat với agent dùng chung cho mọi nhân viên, nên ca sau thấy ca trước đã hỏi gì. Câu trả lời gồm các khối có kiểu: nguồn đã đọc, bằng chứng, đề xuất để nhân viên đánh dấu từng mục, câu trả lời soạn sẵn cho khách, bảng và đồ thị liên kết tài khoản. Thao tác tạm khóa, ẩn tin hay gửi trả lời là lời gọi của trang điều hành tới dịch vụ nền bằng phiên của nhân viên, có nhật ký và có nút hoàn tác (BR-MOD-03).
+Trợ lý AI của nhân viên [14] chạy thành dịch vụ riêng trong mạng nội bộ. Trang điều hành chỉ gọi dịch vụ nền; dịch vụ nền kiểm phiên và quyền của nhân viên rồi mới chuyển tiếp. Trợ lý AI lấy dữ liệu qua các công cụ chỉ đọc mà dịch vụ nền cung cấp: đọc phiếu, đơn, vận đơn, tin nhắn, tin đăng và lịch sử tài khoản. Mỗi lần trợ lý AI đọc dữ liệu cá nhân được ghi lại kèm nhân viên đã hỏi (NFR-PRIV-02). Mỗi phiếu, báo cáo hoặc tài khoản có một cuộc trò chuyện với trợ lý AI dùng chung cho mọi nhân viên, nên ca sau thấy ca trước đã hỏi gì. Câu trả lời gồm các khối có kiểu: nguồn đã đọc, bằng chứng, đề xuất để nhân viên đánh dấu từng mục, câu trả lời soạn sẵn cho người dùng, bảng và đồ thị liên kết tài khoản. Thao tác tạm khóa, ẩn tin hay gửi trả lời là lời gọi của trang điều hành tới dịch vụ nền bằng phiên của nhân viên, có nhật ký và có nút hoàn tác (BR-MOD-03).
 
 == Chức năng cung cấp cho ứng dụng và bảo vệ người dùng
 
@@ -369,7 +369,7 @@ Mọi chức năng mà ứng dụng, website và trang điều hành gọi tới
     [Đăng nhập], [Gửi mã email; đăng nhập bằng số điện thoại, Google hoặc mã email], [Khách], [Có],
     [Tin đăng], [Xin đường tải ảnh; AI đọc tin; gợi ý giá; lưu nháp; đăng tin], [Người bán], [Có],
     [Tìm kiếm], [Tìm bằng câu, bằng ảnh, tin tương tự; theo dõi tìm kiếm], [Khách, người mua], [Không],
-    [Trò chuyện], [Mở hội thoại theo tin; gửi tin nhắn; tắt cảnh báo lừa đảo], [Người dùng], [Có],
+    [Trò chuyện], [Mở cuộc trò chuyện theo tin; gửi tin nhắn; tắt cảnh báo lừa đảo], [Người dùng], [Có],
     [Giao dịch], [Trả giá, phản giá, chấp nhận], [Hai bên], [Không],
     [Giao dịch], [Gửi yêu cầu COD; tạo đơn gửi hàng; bấm đã nhận hàng; hủy đơn], [Người mua, người bán], [Có],
     [Vận chuyển], [Liên kết hãng; nhận trạng thái vận đơn từ hãng], [Người bán, hãng], [Không],
@@ -379,6 +379,6 @@ Mọi chức năng mà ứng dụng, website và trang điều hành gọi tới
   ),
 )
 
-Về đăng nhập (NFR-SEC-01), khách hàng có ba cách: số điện thoại được xác minh qua dịch vụ xác thực, tài khoản Google, hoặc mã sáu chữ số gửi qua email. Lần đăng nhập đầu tiên tạo tài khoản, nên đăng ký và đăng nhập là một thao tác. Người dùng xem được danh sách thiết bị đang đăng nhập, đăng xuất từng máy hoặc mọi máy khác; thao tác nhạy cảm như đăng xuất máy khác hay xóa tài khoản đòi người dùng vừa đăng nhập trong 15 phút gần nhất. Nếu một mã làm mới phiên bị dùng lại, hệ thống coi phiên đã bị đánh cắp và thu hồi nó. Thành viên trang điều hành dùng tài khoản tách hẳn khỏi tài khoản khách hàng: đăng nhập bằng email và mật khẩu, sai 5 lần thì email bị khóa 15 phút, phiên dài 8 giờ, và mọi thao tác của nhân viên lên dữ liệu khách hàng đều được ghi lại để quản trị viên tra cứu.
+Về đăng nhập (NFR-SEC-01), người dùng có ba cách: số điện thoại được xác minh qua dịch vụ xác thực, tài khoản Google, hoặc mã sáu chữ số gửi qua email. Lần đăng nhập đầu tiên tạo tài khoản, nên đăng ký và đăng nhập là một thao tác. Người dùng xem được danh sách thiết bị đang đăng nhập, đăng xuất từng máy hoặc mọi máy khác; thao tác nhạy cảm như đăng xuất máy khác hay xóa tài khoản đòi người dùng vừa đăng nhập trong 15 phút gần nhất. Nếu một mã làm mới phiên bị dùng lại, hệ thống coi phiên đã bị đánh cắp và thu hồi nó. Nhân viên dùng tài khoản tách hẳn khỏi tài khoản người dùng: đăng nhập bằng email và mật khẩu, sai 5 lần thì email bị khóa 15 phút, phiên dài 8 giờ, và mọi thao tác của nhân viên lên dữ liệu người dùng đều được ghi lại để quản trị viên tra cứu.
 
-Về quyền riêng tư (NFR-PRIV-01), ảnh tải lên được xóa thông tin vị trí chụp trước khi hiển thị; vị trí tin đăng chỉ ghi tới xã, phường, hoặc một điểm đã làm mờ khi người bán cho dùng vị trí, nên người lạ không suy ra được nhà của người bán. Thông tin kết nối tới tài khoản hãng của người bán được mã hóa và không bao giờ trả ra ngoài, kể cả cho nhân viên; hệ thống không giữ mật khẩu tài khoản hãng. Theo BR-ACC-02, phản hồi khi gửi mã giống hệt nhau dù email đã có tài khoản hay chưa, và dữ liệu người dùng không được xem thì được báo là không tồn tại, nên không ai dò được một địa chỉ đã đăng ký hay một đơn hàng có thật hay không. Khi người dùng xóa tài khoản, tài khoản bị xóa ngay; tên trên đơn, đánh giá và tin nhắn cũ hiện là "đã xóa".
+Về quyền riêng tư (NFR-PRIV-01), ảnh tải lên được xóa thông tin vị trí chụp trước khi hiển thị; vị trí tin đăng chỉ ghi tới phường/xã, hoặc một điểm đã làm mờ khi người bán cho dùng vị trí, nên người lạ không suy ra được nhà của người bán. Thông tin kết nối tới tài khoản hãng của người bán được mã hóa và không bao giờ trả ra ngoài, kể cả cho nhân viên; hệ thống không giữ mật khẩu tài khoản hãng. Theo BR-ACC-02, phản hồi khi gửi mã giống hệt nhau dù email đã có tài khoản hay chưa, và dữ liệu người dùng không được xem thì được báo là không tồn tại, nên không ai dò được một địa chỉ đã đăng ký hay một đơn COD có thật hay không. Khi người dùng xóa tài khoản, tài khoản bị xóa ngay; tên trên đơn, đánh giá và tin nhắn cũ hiện là "đã xóa".

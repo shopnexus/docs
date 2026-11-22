@@ -124,11 +124,11 @@ Nếu bị phát hiện có bất kỳ sự gian lận nào các thành viên tr
 
 Ở Việt Nam, giao dịch đồ cũ giữa các cá nhân hiện chủ yếu diễn ra qua tin rao vặt và các hội nhóm mạng xã hội. Hai bên vốn không quen biết nhau nên phải chọn giữa hai cách thanh toán đều có rủi ro: chuyển khoản trước, người mua có thể mất tiền; hoặc giao hàng thu tiền hộ (COD), người bán có thể bị từ chối nhận hàng. Các sàn thương mại điện tử lớn xử lý vấn đề này bằng cách giữ tiền trung gian và phân xử khiếu nại. Cách làm đó đòi hỏi chi phí vận hành cao và quy trình nặng nề, không phù hợp với người chỉ cần bán một vài món đồ.
 
-Xuất phát từ thực tiễn này, nhóm chúng em thực hiện đề tài “Xây dựng hệ thống thương mại điện tử theo kiến trúc microservice, có tích hợp AI agent hỗ trợ người dùng tìm kiếm” là một sàn C2C dành cho các mặt hàng cũ/đã qua sử dụng. Hệ thống được thiết kế theo hai ràng buộc: sàn không giữ tiền của người dùng và không phân xử từng vụ việc. Hình thức giao dịch duy nhất là COD đồng kiểm, trong đó người mua được kiểm tra hàng cùng nhân viên giao hàng trước khi thanh toán. Rủi ro sẽ được kiểm soát dựa trên thống kê hành vi của người dùng.
+Xuất phát từ thực tiễn này, nhóm chúng em thực hiện đề tài “Xây dựng hệ thống thương mại điện tử theo kiến trúc microservice, có tích hợp AI agent hỗ trợ người dùng tìm kiếm” là một hệ thống C2C dành cho các món hàng cũ/đã qua sử dụng. Hệ thống được thiết kế theo hai ràng buộc: hệ thống không giữ tiền của người dùng và không phân xử từng vụ việc. Hình thức giao dịch duy nhất là COD đồng kiểm, trong đó người mua được kiểm tra hàng cùng shipper trước khi thanh toán. Rủi ro sẽ được kiểm soát dựa trên thống kê hành vi của người dùng.
 
-Về mặt nghiên cứu, nhóm tập trung tìm hiểu ba nội dung: các quy trình nghiệp vụ của một trang thương mại điện tử, kỹ thuật lập trình theo kiến trúc microservice, và ứng dụng AI Agent để nâng cao trải nghiệm người dùng trên hệ thống. Về mặt thực hiện, nhóm phân tích và thiết kế hệ thống, xây dựng các tính năng ở phía giao diện người dùng, xây dựng phần backend theo mô hình microservice, đồng thời phân tích cụ thể vai trò của AI agent.
+Về mặt nghiên cứu, nhóm tập trung tìm hiểu ba nội dung: các quy trình nghiệp vụ của một trang thương mại điện tử, kỹ thuật lập trình theo kiến trúc microservice, và ứng dụng trợ lý AI để nâng cao trải nghiệm người dùng trên hệ thống. Về mặt thực hiện, nhóm phân tích và thiết kế hệ thống, xây dựng các tính năng ở phía giao diện người dùng, xây dựng phần backend theo mô hình microservice, đồng thời phân tích cụ thể vai trò của trợ lý AI.
 
-Đối tượng nghiên cứu của đề tài là hệ thống sàn giao dịch hàng đã qua sử dụng giữa cá nhân với cá nhân, vận hành theo hình thức COD đồng kiểm và được xây dựng trên kiến trúc microservice. Phạm vi nghiên cứu tập trung vào mô hình nghiệp vụ, thiết kế hệ thống, các phân hệ nền của backend, ứng dụng Android và nguyên lý hoạt động của AI Agent.
+Đối tượng nghiên cứu của đề tài là hệ thống giao dịch hàng đã qua sử dụng giữa cá nhân với cá nhân, vận hành theo hình thức COD đồng kiểm và được xây dựng trên kiến trúc microservice. Phạm vi nghiên cứu tập trung vào mô hình nghiệp vụ, thiết kế hệ thống, các phân hệ nền của backend, ứng dụng Android và nguyên lý hoạt động của trợ lý AI.
 
 #pagebreak()
 
@@ -141,10 +141,10 @@ Về mặt nghiên cứu, nhóm tập trung tìm hiểu ba nội dung: các quy 
   [2], [Đặc tả ca sử dụng, quy tắc nghiệp vụ, yêu cầu chức năng và phi chức năng], [Cả nhóm], [Tuần 1–2], [Hoàn thành],
   [3], [Thiết kế kiến trúc 12 phân hệ, mô hình dữ liệu; nền tảng dùng chung và công cụ kiểm thử], [Đậu Văn Đăng Khoa], [Tuần 2–3], [Hoàn thành],
   [4], [Phân hệ đăng nhập, tài khoản, nhân viên], [Đậu Văn Đăng Khoa], [Tuần 2–3], [Hoàn thành],
-  [5], [Phân hệ thương lượng giá và đơn COD tự gửi], [Đậu Văn Đăng Khoa], [Tuần 3–4], [Hoàn thành],
+  [5], [Phân hệ trả giá và đơn COD tự gửi], [Đậu Văn Đăng Khoa], [Tuần 3–4], [Hoàn thành],
   [6], [Phân hệ ảnh và tin đăng (danh mục, địa giới)], [Hồ Công Toản], [Tuần 2–4], [Hoàn thành],
   [7], [Phân hệ trò chuyện thời gian thực], [Đậu Văn Đăng Khoa, Nguyễn Tấn Khoa], [Tuần 3–4], [Hoàn thành],
-  [8], [Thiết kế tìm kiếm theo ngữ nghĩa và AI agent hỗ trợ người mua], [Hồ Công Toản], [Tuần 3–4], [Hoàn thành thiết kế],
+  [8], [Thiết kế tìm kiếm theo ngữ nghĩa và trợ lý AI hỗ trợ người mua], [Hồ Công Toản], [Tuần 3–4], [Hoàn thành thiết kế],
   [9], [Nguyên mẫu ứng dụng Android trên dữ liệu giả lập], [Nguyễn Tấn Khoa], [Tuần 1–4], [Hoàn thành nguyên mẫu],
   [10], [Kiểm thử trọn quy trình các phân hệ đã làm; viết báo cáo định kỳ 1], [Cả nhóm], [Tuần 4], [Hoàn thành],
 )

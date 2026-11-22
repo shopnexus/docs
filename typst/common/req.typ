@@ -24,7 +24,7 @@
   s.at("vi", default: it.title.vi)
 }
 
-// "UC-DEAL-02 · Thương lượng giá", dùng cho nhãn sơ đồ và văn xuôi.
+// "UC-DEAL-02 · Trả giá", dùng cho nhãn sơ đồ và văn xuôi.
 #let uc(id) = [#id · #_title(req-item(id))]
 
 #let _actor(key) = req.actors.at(key).vi
