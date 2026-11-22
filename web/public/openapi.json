@@ -102,7 +102,7 @@
     },
     {
       "name": "internal",
-      "description": "Operations the app does not call. The console and the ops dashboards' sign-in, carrier webhooks, the health checks and the dev routes have it."
+      "description": "Operations the app does not call. The console and the ops dashboards' sign-in, carrier webhooks, the health checks, the dev routes and the website's sitemap have it."
     },
     {
       "name": "websocket",
@@ -2868,6 +2868,187 @@
         }
       }
     },
+    "/v1/sitemap": {
+      "get": {
+        "operationId": "getSitemap",
+        "summary": "The parts of the website's sitemap.",
+        "description": "Splits the public listings (active and reserved), and the sellers who\nhave one, into parts of at most 10,000, newest first. The website\nwrites one sitemap file per part and reads its entries with the\npart's cursor. Public, and cacheable for an hour.\n",
+        "tags": [
+          "catalog",
+          "internal"
+        ],
+        "responses": {
+          "200": {
+            "description": "The parts, the first of each list without a cursor.",
+            "headers": {
+              "Cache-Control": {
+                "description": "public, max-age=3600",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Sitemap"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/sitemap/listings": {
+      "get": {
+        "operationId": "listSitemapListings",
+        "summary": "One part of the website's sitemap of listings.",
+        "description": "The public listings below the part's cursor, newest first, at most 10,000, each with its photo URLs for an image sitemap.",
+        "tags": [
+          "catalog",
+          "internal"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/SitemapCursor"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The part's listings.",
+            "headers": {
+              "Cache-Control": {
+                "description": "public, max-age=3600",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SitemapListingList"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          }
+        }
+      }
+    },
+    "/v1/sitemap/sellers": {
+      "get": {
+        "operationId": "listSitemapSellers",
+        "summary": "One part of the website's sitemap of sellers.",
+        "description": "The sellers with a public listing whose IDs are below the part's cursor, newest first, at most 10,000.",
+        "tags": [
+          "catalog",
+          "internal"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/SitemapCursor"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The part's sellers.",
+            "headers": {
+              "Cache-Control": {
+                "description": "public, max-age=3600",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SitemapSellerList"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          }
+        }
+      }
+    },
+    "/v1/sitemap/areas": {
+      "get": {
+        "operationId": "listSitemapAreas",
+        "summary": "The category and province pairs of the website's landing pages.",
+        "description": "Each root category and province with at least 5 listings on sale\n(active), with how many and the latest change to one of them, by\ncategory then province. The website builds a landing page per pair,\nGET /v1/search?category=&province= under it, and lists them in its\nsitemap. Public, and cacheable for an hour.\n",
+        "tags": [
+          "catalog",
+          "internal"
+        ],
+        "responses": {
+          "200": {
+            "description": "The pairs.",
+            "headers": {
+              "Cache-Control": {
+                "description": "public, max-age=3600",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SitemapAreaList"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/sitemap/indexnow": {
+      "get": {
+        "operationId": "getIndexNowKey",
+        "summary": "The IndexNow key the website serves.",
+        "description": "The server tells search engines through IndexNow when a listing page\nchanges: goes on sale, is edited, hidden, sold or deleted. It submits\nhttps://<website>/listings/<slug> at most once a minute, with the key\nfile at https://<website>/<key>.txt, which the website serves with\nthis key as its whole body. Public, and cacheable for an hour.\n",
+        "tags": [
+          "catalog",
+          "internal"
+        ],
+        "responses": {
+          "200": {
+            "description": "The key.",
+            "headers": {
+              "Cache-Control": {
+                "description": "public, max-age=3600",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IndexNowKey"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "indexnow_off: the server has no IndexNow key.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/deals": {
       "post": {
         "operationId": "openDeal",
@@ -4020,6 +4201,47 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/MyListingsScreen"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/v1/screens/offers": {
+      "get": {
+        "operationId": "getOffersScreen",
+        "summary": "One page of the buyers' open offers on the caller's listings, each with its buyer.",
+        "description": "The offers waiting on the caller as seller: deals negotiating whose\nopen price is the buyer's and still stands for the listing. An offer\na change of the listing voided (a new price, offers turned off, the\nlisting hidden or gone) is left out; an offer on a reserved listing\nstays, without offer_range, since the seller may only decline it.\nNewest offer first, paged by deal ID: the next page lists the offers\nmade before the cursor deal's. When the cursor deal no longer holds\nan open offer of its buyer's, the page starts again from the newest,\nand the client drops the rows it already shows. Accept, counter and\ndecline are the deal's moves.\n",
+        "tags": [
+          "screen"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Cursor"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The view.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OffersScreen"
                 }
               }
             }
@@ -5692,8 +5914,8 @@
     "/v1/me/unread": {
       "get": {
         "operationId": "getUnread",
-        "summary": "Count the caller's unread messages and unread notices.",
-        "description": "unread counts the messages over unarchived pair conversations, as the\ninbox does; notifications counts the unread notices, as Home's\nnotifications_unread does. Module screen serves it, since it reads\nchat and notification; the chat tag keeps it in the app's chat client.\n",
+        "summary": "Count the caller's unread messages, unread notices and the offers waiting on them.",
+        "description": "unread counts the messages over unarchived pair conversations, as the\ninbox does; notifications counts the unread notices, as Home's\nnotifications_unread does; offers counts the buyers' open offers on\nthe caller's listings as the deals hold them, so an offer a change of\nthe listing voided counts until the deal records that change. Module\nscreen serves it, since it reads chat, notification and deal; the\nchat tag keeps it in the app's chat client.\n",
         "tags": [
           "chat"
         ],
@@ -5709,6 +5931,84 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Unread"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/v1/me/quick-replies": {
+      "get": {
+        "operationId": "getQuickReplies",
+        "summary": "The caller's quick replies; an account that never saved any reads the defaults.",
+        "description": "The defaults are three answers a seller often gives. Reading them\nwrites nothing; the first PUT saves the list.\n",
+        "tags": [
+          "chat"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The quick replies.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuickReplies"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      },
+      "put": {
+        "operationId": "putQuickReplies",
+        "summary": "Replace the caller's quick replies.",
+        "description": "The list replaces the saved one whole, in the order given; an empty\nlist saves no answer, and the defaults do not come back. The last PUT\nwins.\n",
+        "tags": [
+          "chat"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuickReplies"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The saved quick replies, trimmed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuickReplies"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A malformed body (invalid_request, malformed_json): over 20 answers, or an answer that is blank or over 200 characters.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
                 }
               }
             }
@@ -5940,7 +6240,7 @@
       "get": {
         "operationId": "getListingScreen",
         "summary": "The listing view, a listing on sale with its seller and the reader's ties to it.",
-        "description": "Only an active or reserved listing has the view; its seller reads it\nin another status through GET /v1/listings/{id}. A signed-in reader\nwho is not the seller also gets `viewer`, and the read counts as a\nview of the listing, once per reader and UTC day; a signed-out read\ncounts none (GET /v1/screens/my-listings). With a position the view\nhas distance_km, measured as GET /v1/search measures it.\n",
+        "description": "Only an active or reserved listing has the view; its seller reads it\nin another status through GET /v1/listings/{id}, and anyone reads a\nsold one through GET /v1/screens/sold-listing/{id}. A signed-in reader\nwho is not the seller also gets `viewer`, and the read counts as a\nview of the listing, once per reader and UTC day; a signed-out read\ncounts none (GET /v1/screens/my-listings). A prefetch (Sec-Purpose)\ncounts none either: the client counts the open with\nPUT /v1/viewed/{listing_id} when the person sees the page. With a\nposition the view has distance_km, measured as GET /v1/search\nmeasures it.\n",
         "tags": [
           "screen"
         ],
@@ -5968,6 +6268,9 @@
           },
           {
             "$ref": "#/components/parameters/NearCommune"
+          },
+          {
+            "$ref": "#/components/parameters/SecPurpose"
           }
         ],
         "responses": {
@@ -5996,6 +6299,58 @@
           },
           "404": {
             "description": "No such listing on sale (listing_not_found), for its seller too.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/screens/sold-listing/{id}": {
+      "get": {
+        "operationId": "getSoldListingScreen",
+        "summary": "The sold listing view, what anyone still sees of a listing after it sold.",
+        "description": "A listing marked sold, by hand or through an order, keeps its title,\nphotos, category, condition, place and price, so an old link still\nshows what it was and leads to similar listings. It has no seller,\ndescription or actions, and a read counts no view. A listing in any\nother status, hidden by ShopNexus after the sale included, has no\nview.\n",
+        "tags": [
+          "screen"
+        ],
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The listing's ID, or the slug of its web address (ListingSlug).",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The sold listing view.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SoldListingScreen"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "description": "No such sold listing (listing_not_found).",
             "content": {
               "application/json": {
                 "schema": {
@@ -6219,7 +6574,7 @@
             }
           },
           "422": {
-            "description": "Stars or text break a rule (invalid_review, with fields).",
+            "description": "Stars or text break a rule (invalid_review, with fields), or a photo is not one the caller may use (invalid_upload).",
             "content": {
               "application/json": {
                 "schema": {
@@ -6289,8 +6644,15 @@
       "get": {
         "operationId": "listSellerReviews",
         "summary": "A seller's visible reviews, newest first; the same as /v1/accounts/{id}/reviews?role=seller.",
+        "description": "A signed-in reader gets helpful.marked on each review they may mark.",
         "tags": [
           "trust"
+        ],
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          }
         ],
         "parameters": [
           {
@@ -6340,8 +6702,15 @@
       "get": {
         "operationId": "listAccountReviews",
         "summary": "A person's visible reviews in one role, newest first.",
+        "description": "A signed-in reader gets helpful.marked on each review they may mark.",
         "tags": [
           "trust"
+        ],
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          }
         ],
         "parameters": [
           {
@@ -6486,6 +6855,107 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/v1/reviews/{id}/helpful": {
+      "put": {
+        "operationId": "markReviewHelpful",
+        "summary": "Mark a visible review helpful; marking it again changes nothing.",
+        "description": "Anyone signed in but the review's reviewer and its subject. The count\nshows in Review.helpful.\n",
+        "tags": [
+          "trust"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Marked."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "The account is suspended (account_suspended).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such visible review (review_not_found).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The caller wrote the review or is its subject (own_review).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "unmarkReviewHelpful",
+        "summary": "Take back the caller's helpful mark; an absent one is fine.",
+        "tags": [
+          "trust"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Not marked."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
           }
         }
       }
@@ -6742,7 +7212,7 @@
       "get": {
         "operationId": "search",
         "summary": "Search active listings; without q, browse them.",
-        "description": "Three ways to search, all under the person's filters and sorts. With q a\nmodel reads the query; BM25 on its words, its Vietnamese rewrite against\nlisting text vectors and its English description against listing photos\nare fused by weighted RRF. With photo, the photo against listing photos\nalone. With like, the listing's title, text vector and photos. Without\nany, the call browses, newest first by default, and category alone is the\ncategory page. sort=nearby is the \"Gần bạn\" feed, which Home's first page\ncomes from. A model that fails leaves the lists it feeds out; q then\nsearches its raw words, with no understood and no chips. A signed-in\ncaller's first page with q is kept in the search history, and a\nsigned-in caller never sees the listings they hid nor those of an\naccount on either side of their blocks. With watch, a watch of the\ncaller's runs its query and filters. photo and watch need a signed-in\ncaller.\n",
+        "description": "Three ways to search, all under the person's filters and sorts. With q a\nmodel reads the query; BM25 on its words, its Vietnamese rewrite against\nlisting text vectors and its English description against listing photos\nare fused by weighted RRF. With photo, the photo against listing photos\nalone. With like, the listing's title, text vector and photos. Without\nany, the call browses, newest first by default, and category alone is the\ncategory page. sort=nearby is the \"Gần bạn\" feed, which Home's first page\ncomes from. A model that fails leaves the lists it feeds out; q then\nsearches its raw words, with no chips. A signed-in caller's first page\nwith q is kept in the search history, and a signed-in caller never sees\nthe listings they hid nor those of an account on either side of their\nblocks. With watch, a watch of the caller's runs its query and filters.\nphoto and watch need a signed-in caller. province keeps the listings of\none province, in the results and in counts, and goes with every other\nfilter.\n",
         "tags": [
           "discovery"
         ],
@@ -6767,6 +7237,15 @@
             "description": "A root or subcategory code from GET /v1/categories.",
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "province",
+            "in": "query",
+            "description": "A province code from GET /v1/regions, such as 01 for Hà Nội; keeps the listings whose commune is in it. An unknown code is invalid_province.",
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9]{2}$"
             }
           },
           {
@@ -6875,7 +7354,7 @@
             }
           },
           "400": {
-            "description": "A malformed parameter, position_required, invalid_position, invalid_cursor, invalid_price_range, or search_conflict: photo with q or like, sort=nearby with q, photo or like, or watch with any parameter but cursor, limit, sort and off.",
+            "description": "A malformed parameter, position_required, invalid_position, invalid_province, invalid_cursor, invalid_price_range, or search_conflict: photo with q or like, sort=nearby with q, photo or like, or watch with any parameter but cursor, limit, sort and off.",
             "content": {
               "application/json": {
                 "schema": {
@@ -7215,7 +7694,8 @@
     "/v1/saved": {
       "get": {
         "operationId": "listSaved",
-        "summary": "List the caller's saved listings, newest save first.",
+        "summary": "List the caller's saved listings, those still on sale first.",
+        "description": "The saves of listings that are not sold, hidden or deleted come first,\nthen the others, each group newest save first. A listing that sells\nbetween two pages moves to the end, so the later pages may show it\nagain or skip a save that moved up.\n",
         "tags": [
           "discovery"
         ],
@@ -7525,6 +8005,43 @@
         "responses": {
           "204": {
             "description": "Shown again."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/v1/viewed/{listing_id}": {
+      "put": {
+        "operationId": "markViewed",
+        "summary": "Count the caller's open of someone else's listing on sale, once per UTC day.",
+        "description": "For a listing view read as a prefetch (Sec-Purpose on\nGET /v1/screens/listing/{id}), which counts nothing until the person\nsees it. Any other read of the view counts by itself. The seller's\nown listing, one not active or reserved and a second open that day\ncount nothing, and each answers 204.\n",
+        "tags": [
+          "discovery"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "listing_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Counted, or nothing to count."
           },
           "400": {
             "$ref": "#/components/responses/BadRequest"
@@ -8040,6 +8557,62 @@
         }
       }
     },
+    "/v1/console/members/{id}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/ConsoleCSRF"
+        }
+      ],
+      "patch": {
+        "operationId": "renameConsoleMember",
+        "summary": "Rename a moderator. Admins only.",
+        "tags": [
+          "console",
+          "internal"
+        ],
+        "security": [
+          {
+            "consoleAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ConsoleMemberID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RenameMemberRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The member.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Member"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "403": {
+            "$ref": "#/components/responses/ConsoleForbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
     "/v1/console/members/{id}/disable": {
       "parameters": [
         {
@@ -8264,7 +8837,7 @@
       "get": {
         "operationId": "listConsoleAccounts",
         "summary": "Customer accounts, newest first, or the one q names.",
-        "description": "q matches an account ID or a phone number in any common form, exactly. status=suspended lists only the accounts whose suspension is in force now, the one that ends soonest first and those without an end last, and returns their count as total; with q as well, the account q names only if it is suspended.",
+        "description": "q matches an account ID, an email address or a phone number in any common form, exactly. status=suspended lists only the accounts whose suspension is in force now, the one that ends soonest first and those without an end last, and returns their count as total; with q as well, the account q names only if it is suspended.",
         "tags": [
           "console",
           "internal"
@@ -12426,6 +12999,7 @@
               "member.reset_password",
               "member.reset_totp",
               "member.unlock",
+              "member.rename",
               "ticket.reply",
               "ticket.resolve",
               "ticket.reopen",
@@ -12471,6 +13045,10 @@
               "id": {
                 "type": "string",
                 "format": "uuid"
+              },
+              "name": {
+                "type": "string",
+                "description": "A member target's display name."
               }
             }
           },
@@ -15607,6 +16185,10 @@
           "suspend_reason": {
             "type": "string"
           },
+          "contact": {
+            "type": "string",
+            "description": "The phone number, or the email address without one, to tell apart accounts that have no name."
+          },
           "created_at": {
             "type": "string",
             "format": "date-time"
@@ -16278,6 +16860,10 @@
           },
           "person": {
             "$ref": "#/components/schemas/Person"
+          },
+          "person_contact": {
+            "type": "string",
+            "description": "The person's phone number, or email address without one."
           },
           "last_text": {
             "type": "string",
@@ -17421,6 +18007,20 @@
           }
         }
       },
+      "IndexNowKey": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "key"
+        ],
+        "properties": {
+          "key": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9-]{8,128}$",
+            "description": "The key; the website serves it at /<key>.txt."
+          }
+        }
+      },
       "LinkedCarrier": {
         "type": "string",
         "enum": [
@@ -17659,6 +18259,9 @@
           "sold_at": {
             "type": "string",
             "format": "date-time"
+          },
+          "price_drop": {
+            "$ref": "#/components/schemas/PriceDrop"
           }
         }
       },
@@ -17964,6 +18567,11 @@
             ],
             "description": "Only when status is failed. unreadable: no picture could be read;\nvideo_too_short and video_too_long: under 3 s or over 35 s;\nlisting_not_found: Chợ Tốt has no such listing on sale, or none of\nits photos could be copied; no_item: no single item for sale;\nunavailable: the models or Chợ Tốt did not answer in time, try again.\n"
           },
+          "failure_reason": {
+            "type": "string",
+            "maxLength": 300,
+            "description": "Only when status is failed, and only when there is one: why, in a\nVietnamese sentence for the seller. For no_item it is the model's\nown reason; for unavailable, the error the model gave or what went\nwrong asking it. Show it under the failure's own words.\n"
+          },
           "link": {
             "$ref": "#/components/schemas/LinkSource"
           },
@@ -18255,6 +18863,7 @@
           "role",
           "status",
           "totp_enrolled",
+          "must_change_password",
           "created_at"
         ],
         "properties": {
@@ -18289,6 +18898,15 @@
             "type": "string",
             "format": "date-time",
             "description": "Present while failed sign-ins lock the member's email."
+          },
+          "must_change_password": {
+            "type": "boolean",
+            "description": "True while the member holds a temporary password."
+          },
+          "last_sign_in_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The start of the member's newest session, on lists; absent before the first sign-in."
           },
           "created_at": {
             "type": "string",
@@ -18969,6 +19587,43 @@
           }
         }
       },
+      "OffersScreen": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OffersScreenItem"
+            }
+          },
+          "next_cursor": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Present when more offers follow; pass it as cursor."
+          }
+        }
+      },
+      "OffersScreenItem": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "deal",
+          "buyer"
+        ],
+        "description": "A buyer's open offer, as its deal, with the buyer.",
+        "properties": {
+          "deal": {
+            "$ref": "#/components/schemas/Deal"
+          },
+          "buyer": {
+            "$ref": "#/components/schemas/Person"
+          }
+        }
+      },
       "OpenPrice": {
         "type": "object",
         "additionalProperties": false,
@@ -19056,6 +19711,11 @@
           "closed_at": {
             "type": "string",
             "format": "date-time"
+          },
+          "due_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the server moves the order on unless someone acts first: a\npending order is cancelled with seller_timeout, a parcel still\nwaiting for pickup is cancelled with pickup_timeout, a delivered\none completes. Absent while no such wait runs.\n"
           }
         }
       },
@@ -19124,6 +19784,11 @@
           "closed_at": {
             "type": "string",
             "format": "date-time"
+          },
+          "due_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the server moves the order on unless someone acts first: a\npending order is cancelled with seller_timeout, a parcel still\nwaiting for pickup is cancelled with pickup_timeout, a delivered\none completes. Absent while no such wait runs.\n"
           },
           "deal_id": {
             "type": "string",
@@ -19314,6 +19979,14 @@
           },
           "reply": {
             "$ref": "#/components/schemas/ReviewReply"
+          },
+          "photos": {
+            "type": "array",
+            "maxItems": 4,
+            "description": "The review's photos; absent on a deleted review.",
+            "items": {
+              "$ref": "#/components/schemas/ReviewPhoto"
+            }
           }
         }
       },
@@ -19429,6 +20102,26 @@
             "items": {
               "$ref": "#/components/schemas/PickupPoint"
             }
+          }
+        }
+      },
+      "PriceDrop": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "previous_price",
+          "dropped_at"
+        ],
+        "description": "The listing's last price change, sent while it is a drop of 5 % or more\nmade in the last 7 days. A later raise ends it, and a drop that follows\na raise in that week counts from the price before the raise.\n",
+        "properties": {
+          "previous_price": {
+            "type": "integer",
+            "format": "int64",
+            "description": "The price the drop replaced."
+          },
+          "dropped_at": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
@@ -19752,6 +20445,27 @@
           }
         }
       },
+      "QuickReplies": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items"
+        ],
+        "description": "The caller's saved chat answers, in their order, which a composer\noffers to put in the field. An account that never saved any reads\nthree defaults.\n",
+        "properties": {
+          "items": {
+            "type": "array",
+            "maxItems": 20,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200,
+              "pattern": "\\S",
+              "description": "An answer, with something besides spaces; the server trims it."
+            }
+          }
+        }
+      },
       "QuietHours": {
         "type": "object",
         "additionalProperties": false,
@@ -20001,6 +20715,20 @@
           }
         }
       },
+      "RenameMemberRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "display_name"
+        ],
+        "properties": {
+          "display_name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          }
+        }
+      },
       "ReplyDraft": {
         "type": "object",
         "additionalProperties": false,
@@ -20035,6 +20763,16 @@
             "description": "The conversations that count."
           }
         }
+      },
+      "ReplyTime": {
+        "type": "string",
+        "enum": [
+          "minutes",
+          "hour",
+          "hours",
+          "day"
+        ],
+        "description": "How soon the seller usually answers someone who writes about one of\ntheir listings: the median wait over the answers of the last 30 days.\nA wait starts at the other person's first message after the seller's\nlast one, when that came at least an hour before, or at the first\nmessage of the conversation; the seller's next message ends it. minutes\nis within 10 minutes, hour within an hour, hours within 6 hours and day\nwithin 24 hours. Absent with fewer than 5 answers in the 30 days, or a\nmedian over a day.\n"
       },
       "Report": {
         "type": "object",
@@ -20595,6 +21333,17 @@
             ],
             "description": "The subject's one reply; null without one."
           },
+          "photos": {
+            "type": "array",
+            "maxItems": 4,
+            "description": "The reviewer's photos in their order; empty without any.",
+            "items": {
+              "$ref": "#/components/schemas/ReviewPhoto"
+            }
+          },
+          "helpful": {
+            "$ref": "#/components/schemas/ReviewHelpful"
+          },
           "created_at": {
             "type": "string",
             "format": "date-time",
@@ -20620,6 +21369,34 @@
           "text": {
             "type": "string",
             "description": "At most 500 characters after trimming; may be empty."
+          },
+          "photos": {
+            "type": "array",
+            "maxItems": 4,
+            "uniqueItems": true,
+            "description": "Upload IDs of the caller's photos, in the order they show; [] removes\nthem, and leaving the field out keeps the review's photos. Each is a\nphoto upload of the caller's, uploaded and not yet used elsewhere, or\nalready one of this review's.\n",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        }
+      },
+      "ReviewHelpful": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "count"
+        ],
+        "description": "The people who found the review helpful.",
+        "properties": {
+          "count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "marked": {
+            "type": "boolean",
+            "description": "Whether the reader marked the review helpful; present only when the\nreader may mark it: signed in, and neither its reviewer nor its\nsubject.\n"
           }
         }
       },
@@ -20640,6 +21417,32 @@
             "type": "string",
             "format": "uuid",
             "description": "Present when more reviews follow; pass it as cursor."
+          }
+        }
+      },
+      "ReviewPhoto": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "upload_id",
+          "url",
+          "thumb_url"
+        ],
+        "properties": {
+          "upload_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "What ReviewDraft.photos names to keep the photo."
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "The photo, at most 1600 px on its long side."
+          },
+          "thumb_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "A 400 px thumbnail."
           }
         }
       },
@@ -20811,6 +21614,11 @@
           "text": {
             "type": "string",
             "description": "Vietnamese, written by the server, as \"Tài khoản mới tạo 2 ngày\"."
+          },
+          "message_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The other member's newest message in the check that found the\nsignal, so a client shows the warning under it. Absent when the\ncheck read no message of theirs, and on signals found before\n2026-11-20.\n"
           }
         }
       },
@@ -20929,6 +21737,15 @@
             "type": "string",
             "format": "uri"
           },
+          "photo_thumb_urls": {
+            "type": "array",
+            "maxItems": 5,
+            "items": {
+              "type": "string",
+              "format": "uri"
+            },
+            "description": "The thumbnails of the listing's first five photos in order, the cover first."
+          },
           "category_code": {
             "type": "string",
             "description": "The listing's subcategory, such as phones.iphone."
@@ -20942,6 +21759,9 @@
           "commune": {
             "type": "string",
             "description": "The name of the listing's commune."
+          },
+          "price_drop": {
+            "$ref": "#/components/schemas/PriceDrop"
           },
           "distance_km": {
             "type": "integer",
@@ -20992,10 +21812,6 @@
             "type": "string",
             "description": "Present when more listings follow, up to the 500th."
           },
-          "understood": {
-            "type": "string",
-            "description": "The model's sentence of what was searched."
-          },
           "chips": {
             "type": "array",
             "items": {
@@ -21009,7 +21825,7 @@
           },
           "counts": {
             "type": "array",
-            "description": "With a root category filter, the matches per subcategory.",
+            "description": "With a root category filter, the matches per subcategory, under every other filter, province included.",
             "items": {
               "$ref": "#/components/schemas/CategoryCount"
             }
@@ -21187,7 +22003,8 @@
           "buyer_rating",
           "sold",
           "on_sale",
-          "followers"
+          "followers",
+          "phone_verified"
         ],
         "description": "The seller as the seller view shows them.",
         "properties": {
@@ -21230,6 +22047,13 @@
           "followers": {
             "type": "integer",
             "description": "How many accounts follow the seller."
+          },
+          "phone_verified": {
+            "type": "boolean",
+            "description": "Whether the person signs in with a phone number, which the sign-in\nverified. The number itself is never sent.\n"
+          },
+          "reply_time": {
+            "$ref": "#/components/schemas/ReplyTime"
           },
           "last_active_at": {
             "type": "string",
@@ -21275,7 +22099,8 @@
           "display_name",
           "joined_at",
           "rating",
-          "sold"
+          "sold",
+          "phone_verified"
         ],
         "description": "The seller of a listing, as the listing view shows them.",
         "properties": {
@@ -21301,6 +22126,13 @@
           "sold": {
             "type": "integer",
             "description": "Listings sold, through an order or marked by hand."
+          },
+          "phone_verified": {
+            "type": "boolean",
+            "description": "Whether the person signs in with a phone number, which the sign-in\nverified. The number itself is never sent.\n"
+          },
+          "reply_time": {
+            "$ref": "#/components/schemas/ReplyTime"
           }
         }
       },
@@ -21412,6 +22244,11 @@
           },
           "status": {
             "$ref": "#/components/schemas/ShipmentStatus"
+          },
+          "picked_up_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the carrier first reported the parcel past pending_pickup; absent while it waits for pickup."
           },
           "delivered_at": {
             "type": "string",
@@ -21697,6 +22534,235 @@
           }
         }
       },
+      "Sitemap": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "listings",
+          "sellers"
+        ],
+        "properties": {
+          "listings": {
+            "type": "array",
+            "description": "The parts of the public listings, newest first; none when no listing is public.",
+            "items": {
+              "$ref": "#/components/schemas/SitemapPart"
+            }
+          },
+          "sellers": {
+            "type": "array",
+            "description": "The parts of the sellers with a public listing, newest account first.",
+            "items": {
+              "$ref": "#/components/schemas/SitemapPart"
+            }
+          }
+        }
+      },
+      "SitemapArea": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "category_code",
+          "province_code",
+          "count",
+          "updated_at"
+        ],
+        "description": "A root category in a province, with at least 5 listings on sale.",
+        "properties": {
+          "category_code": {
+            "type": "string",
+            "description": "A root category code from GET /v1/categories."
+          },
+          "province_code": {
+            "type": "string",
+            "description": "A province code from GET /v1/regions."
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 5,
+            "description": "How many listings of the category are on sale in the province."
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The latest change to one of those listings."
+          }
+        }
+      },
+      "SitemapAreaList": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SitemapArea"
+            }
+          }
+        }
+      },
+      "SitemapListing": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "slug",
+          "photos",
+          "updated_at"
+        ],
+        "properties": {
+          "slug": {
+            "type": "string",
+            "description": "The listing's web address name, /listings/{slug} on the website."
+          },
+          "photos": {
+            "type": "array",
+            "description": "The public URLs of the listing's processed photos, in order, the cover first; the same URLs as the listing's photos[].url.",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            }
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "SitemapListingList": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SitemapListing"
+            }
+          }
+        }
+      },
+      "SitemapPart": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "updated_at"
+        ],
+        "properties": {
+          "cursor": {
+            "type": "string",
+            "format": "uuid",
+            "description": "What GET /v1/sitemap/listings or /v1/sitemap/sellers takes for this part; absent on the first part."
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The latest change to an entry of the part."
+          }
+        }
+      },
+      "SitemapSeller": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "updated_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The latest change to one of the seller's public listings."
+          }
+        }
+      },
+      "SitemapSellerList": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SitemapSeller"
+            }
+          }
+        }
+      },
+      "SoldListing": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "slug",
+          "title",
+          "price",
+          "category_code",
+          "condition",
+          "location",
+          "photos",
+          "sold_at"
+        ],
+        "description": "A sold listing as anyone still sees it.",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "slug": {
+            "$ref": "#/components/schemas/ListingSlug"
+          },
+          "title": {
+            "type": "string"
+          },
+          "price": {
+            "type": "integer",
+            "format": "int64",
+            "description": "The price the listing asked when it sold; an order's agreed price stays with its two people."
+          },
+          "category_code": {
+            "type": "string"
+          },
+          "condition": {
+            "$ref": "#/components/schemas/Condition"
+          },
+          "location": {
+            "$ref": "#/components/schemas/Location"
+          },
+          "photos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Photo"
+            }
+          },
+          "sold_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "SoldListingScreen": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "listing"
+        ],
+        "properties": {
+          "listing": {
+            "$ref": "#/components/schemas/SoldListing"
+          }
+        }
+      },
       "Spec": {
         "type": "object",
         "additionalProperties": false,
@@ -21852,6 +22918,14 @@
           "can_reply": {
             "type": "boolean",
             "description": "Visible and without a reply. A reply closes the review for both sides."
+          },
+          "photos": {
+            "type": "array",
+            "maxItems": 4,
+            "description": "A visible review's photos.",
+            "items": {
+              "$ref": "#/components/schemas/ReviewPhoto"
+            }
           }
         }
       },
@@ -22110,7 +23184,8 @@
         "additionalProperties": false,
         "required": [
           "unread",
-          "notifications"
+          "notifications",
+          "offers"
         ],
         "properties": {
           "unread": {
@@ -22120,6 +23195,10 @@
           "notifications": {
             "type": "integer",
             "description": "The caller's unread notices."
+          },
+          "offers": {
+            "type": "integer",
+            "description": "The buyers' open offers waiting on the caller as seller, as GET /v1/screens/offers lists them."
           }
         }
       },
@@ -22657,6 +23736,24 @@
         "name": "watch",
         "in": "query",
         "description": "A search watch of the caller's: search its query and filters from its\ncommune. Goes with cursor, limit, sort and off only, and needs a\nsigned-in caller. The first page sets the watch's new_count to 0.\n",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "SecPurpose": {
+        "name": "Sec-Purpose",
+        "in": "header",
+        "required": false,
+        "description": "The Fetch standard's purpose of the request. A list with the token\nprefetch, such as prefetch or prefetch;prerender, marks a\nspeculative read: a browser fetching a page the person may not open.\nSuch a read answers as any other and records nothing; the client\nreports the open when the person sees the page.\n",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "SitemapCursor": {
+        "name": "cursor",
+        "in": "query",
+        "description": "The part's cursor from GET /v1/sitemap; absent for the first part.",
         "schema": {
           "type": "string",
           "format": "uuid"
