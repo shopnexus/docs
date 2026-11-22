@@ -6,13 +6,14 @@ Ba agent soát website trên dev stack compose ngày 23/11/2026: soát từng tr
 
 ## 1. Lỗi hỏng
 
-- [ ] Ảnh trong nháp trả 403 (`/_img/.../shopnexus/uploads/<id>`) khi mở lại nháp hoặc quay lại form sau khi đăng lỗi; ảnh trong Xem trước cũng vỡ.
-- [ ] `sign-in.astro` đưa tài khoản mới tới Hoàn thiện hồ sơ và bỏ `next`; khách vừa bấm Trả giá mất việc đang làm.
-- [ ] Ô giá trả có sẵn giá, gõ thêm thành "4.200.380.000.000 ₫"; "Gửi giá" không gửi và không báo gì.
-- [ ] Tài khoản mới không có tên: thông báo ghi "trả 3,8 tr cho …", thẻ người bán ở 1280 để trống tên, chat ghi "Người dùng".
-- [ ] Cột dính `sticky-fit` ở 1280 cắt nội dung: "Tin khác của…" trên trang tin, thẻ "Mua bằng COD" trên rail của Home.
-- [ ] Tìm kiếm: hai chip "iPhone ×" giống nhau, không có số kết quả, kết quả khớp một phần (`?q=xyzqwv abc`) hiện như khớp đủ.
-- [ ] Thông số tin lệch tiêu đề (tiêu đề iPhone 13 Pro 128GB, bảng ghi iPhone 12 64GB). Cần xem là dữ liệu seed hay AI trích sai.
+- [x] Ảnh trong nháp trả 403 (`/_img/.../shopnexus/uploads/<id>`) khi mở lại nháp hoặc quay lại form sau khi đăng lỗi; ảnh trong Xem trước cũng vỡ. Sửa ở website `c9353ca`: URL ký sẵn tải thẳng, không qua imgproxy.
+- [x] `sign-in.astro` đưa tài khoản mới tới Hoàn thiện hồ sơ và bỏ `next`; khách vừa bấm Trả giá mất việc đang làm. Website `c9353ca`: về `next`, chỉ mở Hoàn thiện hồ sơ khi đến từ Home.
+- [x] Ô giá trả có sẵn giá, gõ thêm thành "4.200.380.000.000 ₫"; "Gửi giá" không gửi và không báo gì. Website `c9353ca`: ô tiền chọn hết cho tới khi người dùng sửa; giá sai báo dưới ô.
+- [x] Tài khoản mới không có tên: thông báo ghi "trả 3,8 tr cho …", thẻ người bán ở 1280 để trống tên, chat ghi "Người dùng". Server `2b8dfbb0` (câu thông báo, push chat) và website `c9353ca` (`shownName` ở mọi trang) dùng "Người dùng".
+- [x] Cột dính `sticky-fit` ở 1280 cắt nội dung: "Tin khác của…" trên trang tin, thẻ "Mua bằng COD" trên rail của Home. Website `c9353ca`: cột cao hơn cửa sổ cuộn theo trang tới đáy rồi mới dính.
+- [x] Tìm kiếm: hai chip "iPhone ×" giống nhau (model đặt "iPhone" vừa là danh mục vừa là cụm từ). Server `076616d8`: một chip cho cả hai, tắt chip thì bỏ cả hai.
+- [ ] Tìm kiếm: không có số kết quả, kết quả khớp một phần (`?q=xyzqwv abc`) hiện như khớp đủ. Cần server trả tổng số và cờ khớp đủ; một session khác đang sửa phần đếm của search.
+- [x] Thông số tin lệch tiêu đề (tiêu đề iPhone 13 Pro 128GB, bảng ghi iPhone 12 64GB). Không phải lỗi: tin `wvnyyejb` là bản sao do tài khoản "Seller Tools" (công cụ test) đăng; dòng seed `p-iphone13` đúng.
 
 ## 2. Chặn luồng chính
 
@@ -34,7 +35,7 @@ Ba agent soát website trên dev stack compose ngày 23/11/2026: soát từng tr
 - [ ] Chỉ số rỗng ("– Chưa có đánh giá", "Đơn COD đang mở 0/3", "0 lượt xem"); ba chỉ số trên Tôi ở 390 rớt thành 2+1.
 - [ ] Lối vào trùng: toggle Mua/Bán ở Đơn hàng trùng thanh bên; thẻ "Hãng vận chuyển" ở Đơn bán trùng Giao COD; Đã lưu có ở header, rail và thanh bên.
 - [ ] Thông báo: 7 công tắc và nút "Lưu cài đặt" lấn át danh sách; giờ hiện "10:00 PM". Đưa cài đặt ra sau bánh răng, công tắc tự lưu, giờ 24h.
-- [ ] Feed Dành cho bạn lặp một tin iPhone 4 lần (slug khác, cùng ảnh và tiêu đề); Tin tương tự có bản sao của tin đang xem.
+- [ ] Feed Dành cho bạn lặp một tin iPhone 4 lần (slug khác, cùng ảnh và tiêu đề); Tin tương tự có bản sao của tin đang xem. Trên dev, 3 trong 4 bản là tin do công cụ test đăng lại; vẫn nên gộp tin trùng của cùng người bán.
 - [ ] Tìm kiếm ở 390: "Bộ lọc" chiếm một hàng, tab "Giá thấp" bị nút lưới/danh sách che.
 - [ ] Đăng tin: dải "AI điền giúp" chỉ có icon bóng đèn trước khi có ảnh; header vẫn hiện nút Đăng tin trên /sell.
 - [ ] Tin nhắn ở 1280 dừng ở 904px; dark mode: nút "Xem 3 ảnh" vẫn là pill trắng.
