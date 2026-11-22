@@ -95,7 +95,7 @@
     #v(1.2cm)
     #block(width: 92%)[
       #set par(justify: false, leading: 0.65em)
-      #text(size: 18pt, weight: "bold", style: "italic")[Đề tài: “#upper(info.de-tai)”]
+      #text(size: 18pt, weight: "bold")[Đề tài: “#upper(info.de-tai)”]
     ]
 
     #v(1fr)

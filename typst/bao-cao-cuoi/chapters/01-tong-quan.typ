@@ -20,7 +20,7 @@ Nhóm khảo sát ba nền tảng có lượng người dùng lớn tại Việt
   kind: table,
   caption: [So sánh các nền tảng theo tiêu chí giao dịch C2C hàng cũ],
   table(
-    columns: (1fr, 2cm, 2.3cm, 1.8cm, 2.6cm),
+    columns: (1fr, 2cm, 2.3cm, 2cm, 2.6cm),
     align: (left, center, center, center, center),
     table.header([Tiêu chí], [Chợ Tốt], [Facebook Marketplace], [Shopee], [Đề tài]),
     [Sàn giữ tiền người mua], [Không], [Không], [Có], [Không],

@@ -1,9 +1,10 @@
 // ============================================================
-//  BÁO CÁO ĐỊNH KỲ 2 — ĐỒ ÁN TỐT NGHIỆP ĐẠI HỌC
-//  Giai đoạn 2: tuần 5–8. Chuẩn quyển báo cáo PTIT.
+//  BÁO CÁO ĐỊNH KỲ 1 — ĐỒ ÁN TỐT NGHIỆP ĐẠI HỌC
+//  Giai đoạn 1 (tuần 1–4), nộp Tháng 10/2026.
+//  Mô hình: Chuẩn quyển báo cáo PTIT (Phụ lục 3, QĐ 449/QĐ-HV)
+//  Biên dịch: make dinh-ky   (Makefile ở thư mục typst/)
 // ============================================================
 #import "../../common/style-quyen.typ": *
-#import "../../common/info.typ" as info
 
 #show: quyen.with(
   tieu-de: ("BÁO CÁO ĐỊNH KỲ 2", "ĐỒ ÁN TỐT NGHIỆP", "ĐẠI HỌC"),
@@ -11,23 +12,77 @@
   thoi-diem: "Tháng 11/2026",
 )
 
+
 #set page(numbering: "i")
 #counter(page).update(1)
 
 #sechead([LỜI CẢM ƠN], outlined: false)
 
-Chúng em xin chân thành cảm ơn quý Thầy, Cô Khoa Công nghệ Thông tin, Học viện Công nghệ Bưu chính Viễn thông Cơ sở tại TP. Hồ Chí Minh, và thầy ThS. Nguyễn Đức Thịnh đã theo dõi tiến độ và góp ý cho nhóm sau báo cáo định kỳ 1.
+Trong suốt quá trình nghiên cứu và thực hiện đồ án, nhóm chúng em đã nhận được sự quan tâm, hướng dẫn và giúp đỡ tận tình từ quý thầy cô thuộc Khoa Công nghệ thông tin 2, Học viện Công nghệ Bưu chính Viễn thông – Cơ sở tại TP. Hồ Chí Minh.
 
-Báo cáo khó tránh khỏi thiếu sót, chúng em mong nhận được ý kiến của quý Thầy, Cô để hoàn thiện đồ án ở giai đoạn cuối.
+Trước hết, nhóm chúng em xin chân thành cảm ơn Học viện đã tạo điều kiện thuận lợi về cơ sở vật chất, môi trường học tập và nghiên cứu, giúp nhóm có thể vận dụng những kiến thức đã học vào quá trình thực hiện đồ án. Đồng thời, nhóm chúng em xin gửi lời cảm ơn sâu sắc đến quý thầy cô Khoa Công nghệ thông tin 2 đã tận tình giảng dạy, truyền đạt kiến thức chuyên môn và hỗ trợ nhóm trong suốt quá trình học tập.
 
-#v(1.5cm)
-#align(right, block(width: 45%, align(center)[
-  *Sinh viên thực hiện* \
-  #v(0.5em)
-  Đậu Văn Đăng Khoa \
-  Hồ Công Toản \
-  Nguyễn Tấn Khoa
-]))
+Đặc biệt, nhóm chúng em xin bày tỏ lòng biết ơn chân thành đến thầy Nguyễn Đức Thịnh, giảng viên Học viện Công nghệ Bưu chính Viễn thông – Cơ sở tại TP. Hồ Chí Minh, đã tận tình hướng dẫn, định hướng và đóng góp những ý kiến quý báu, giúp nhóm từng bước hoàn thiện đồ án.
+
+Mặc dù đã nỗ lực thực hiện đồ án với tinh thần nghiêm túc và trách nhiệm, nhưng do thời gian thực hiện có hạn và kiến thức, kinh nghiệm thực tiễn còn hạn chế, đồ án khó tránh khỏi những thiếu sót. Nhóm chúng em kính mong nhận được những ý kiến nhận xét và góp ý từ quý thầy cô để có thể bổ sung, khắc phục những hạn chế và hoàn thiện hơn trong quá trình học tập, nghiên cứu sau này.
+
+Nhóm chúng em xin chân thành cảm ơn!
+
+
+#v(0.5cm)
+
+#align(right)[
+  #block(width: 45%)[
+    #align(center)[
+      #v(0.5em)
+
+      #text(style: "italic")[
+        TPHCM, ngày …… tháng …… năm ……
+      ]
+
+      #text(weight: "bold")[
+        ĐẠI DIỆN NHÓM SINH VIÊN
+      ]
+
+      #text(style: "italic")[
+        (Ký và ghi rõ họ tên)
+      ]
+    ]
+  ]
+]
+
+#pagebreak()
+
+#sechead([LỜI CAM ĐOAN], outlined: false)
+
+Chúng em xin cam đoan rằng đây là đồ án do nhóm sinh viên thực hiện, có sự hỗ trợ từ tập thể giáo viên hướng dẫn. Các nội dung nghiên cứu và kết quả trong đề tài này là trung thực và do các thành viên trong nhóm thực hiện. Những số liệu trong các bảng biểu phục vụ cho việc phân tích, nhận xét, đánh giá được các thành viên trong nhóm thu thập từ các nguồn khác nhau có ghi trong phần tài liệu tham khảo hoặc lấy từ thực nghiệp.
+
+Nếu bị phát hiện có bất kỳ sự gian lận nào các thành viên trong nhóm xin hoàn toàn chịu trách nhiệm.
+
+
+
+
+#v(0.5cm)
+
+#align(right)[
+  #block(width: 45%)[
+    #align(center)[
+      #v(0.5em)
+
+      #text(style: "italic")[
+        TPHCM, ngày …… tháng …… năm ……
+      ]
+
+      #text(weight: "bold")[
+        ĐẠI DIỆN NHÓM SINH VIÊN
+      ]
+
+      #text(style: "italic")[
+        (Ký và ghi rõ họ tên)
+      ]
+    ]
+  ]
+]
 
 #pagebreak()
 
@@ -37,49 +92,61 @@ Báo cáo khó tránh khỏi thiếu sót, chúng em mong nhận được ý ki�
 #sechead([DANH MỤC CÁC KÝ HIỆU VÀ CHỮ VIẾT TẮT], outlined: false)
 
 #table(
-  inset: (x: 8pt, y: 4pt),
-  columns: (auto, 1.5fr, 2fr),
+  inset: (x: 8pt, y: 3.6pt),
+  columns: (auto, 1.6fr, 2fr),
   align: (left, left, left),
   table.header([*Viết tắt*], [*Cụm từ đầy đủ*], [*Ý nghĩa*]),
   [AI], [Artificial Intelligence], [Trí tuệ nhân tạo],
+  [BR], [Business Rule], [Quy tắc nghiệp vụ (đánh mã BR-xx)],
   [C2C], [Consumer to Consumer], [Giao dịch giữa các cá nhân],
-  [CCCD], [], [Căn cước công dân],
   [COD], [Cash on Delivery], [Giao hàng thu tiền hộ],
   [eKYC], [Electronic Know Your Customer], [Xác minh danh tính điện tử],
   [GHN], [], [Công ty Giao Hàng Nhanh],
   [GHTK], [], [Công ty Giao Hàng Tiết Kiệm],
+  [NFR], [Non-Functional Requirement], [Yêu cầu phi chức năng (đánh mã NFR-xx)],
   [OTP], [One-Time Password], [Mã dùng một lần],
-  [TC], [Test Case], [Kịch bản kiểm thử (mã TC-xx)],
-  [UC], [Use Case], [Ca sử dụng (mã UC-xx)],
+  [REQ], [Requirement], [Yêu cầu chức năng (đánh mã REQ-xx)],
+  [SMS], [Short Message Service], [Tin nhắn ngắn],
+  [UC], [Use Case], [Ca sử dụng (đánh mã UC-xx)],
+  [UML], [Unified Modeling Language], [Ngôn ngữ mô hình hóa thống nhất],
 )
 
 #pagebreak()
 
 #danh-muc-bang()
 #v(1em)
+#pagebreak()
+
 #danh-muc-hinh()
 #pagebreak()
 
-#sechead([KẾ HOẠCH THỰC HIỆN CÔNG VIỆC NHÓM], outlined: false)
+#sechead([MỞ ĐẦU])
 
-#v(0.5cm)
+Ở Việt Nam, giao dịch đồ cũ giữa các cá nhân hiện chủ yếu diễn ra qua tin rao vặt và các hội nhóm mạng xã hội. Hai bên vốn không quen biết nhau nên phải chọn giữa hai cách thanh toán đều có rủi ro: chuyển khoản trước, người mua có thể mất tiền; hoặc giao hàng thu tiền hộ (COD), người bán có thể bị từ chối nhận hàng. Các sàn thương mại điện tử lớn xử lý vấn đề này bằng cách giữ tiền trung gian và phân xử khiếu nại. Cách làm đó đòi hỏi chi phí vận hành cao và quy trình nặng nề, không phù hợp với người chỉ cần bán một vài món đồ.
+
+Xuất phát từ thực tiễn này, nhóm chúng em thực hiện đề tài “Xây dựng hệ thống thương mại điện tử theo kiến trúc microservice, có tích hợp AI agent hỗ trợ người dùng tìm kiếm” là một sàn C2C dành cho các mặt hàng cũ/đã qua sử dụng. Hệ thống được thiết kế theo hai ràng buộc: sàn không giữ tiền của người dùng và không phân xử từng vụ việc. Hình thức giao dịch duy nhất là COD đồng kiểm, trong đó người mua được kiểm tra hàng cùng nhân viên giao hàng trước khi thanh toán. Rủi ro sẽ được kiểm soát dựa trên thống kê hành vi của người dùng.
+
+Về mặt nghiên cứu, nhóm tập trung tìm hiểu ba nội dung: các quy trình nghiệp vụ của một trang thương mại điện tử, kỹ thuật lập trình theo kiến trúc microservice, và ứng dụng AI Agent để nâng cao trải nghiệm người dùng trên hệ thống. Về mặt thực hiện, nhóm phân tích và thiết kế hệ thống, xây dựng các tính năng ở phía giao diện người dùng, xây dựng phần backend theo mô hình microservice, đồng thời phân tích cụ thể vai trò của AI agent.
+
+Đối tượng nghiên cứu của đề tài là hệ thống sàn giao dịch hàng đã qua sử dụng giữa cá nhân với cá nhân, vận hành theo hình thức COD đồng kiểm và được xây dựng trên kiến trúc microservice. Phạm vi nghiên cứu tập trung vào mô hình nghiệp vụ, thiết kế hệ thống, các phân hệ nền của backend, ứng dụng Android và nguyên lý hoạt động của AI Agent.
+
+#pagebreak()
+
+#sechead([KẾ HOẠCH THỰC HIỆN CÔNG VIỆC NHÓM], outlined: false)
 #table(
-  columns: (0.9cm, 1fr, 3.1cm, 1.8cm, 2.8cm),
-  inset: 7pt,
-  align: (center, left, left, center, center),
+  inset: (x: 6pt, y: 5pt),
+  columns: (0.9cm, 1fr, 3.2cm, 2.1cm, 2.6cm),
   table.header([*STT*], [*Nội dung công việc*], [*Người thực hiện*], [*Thời gian*], [*Mức độ hoàn thành*]),
-  [1], [Rà soát mô hình nghiệp vụ sau định kỳ 1, rút gọn luồng đơn COD và phần uy tín], [Cả nhóm], [Tuần 5], [Hoàn thành],
-  [2], [Môi trường chạy thử và môi trường chính thức trên cụm máy chủ của nhóm], [Đậu Văn Đăng Khoa], [Tuần 5–6], [Hoàn thành],
-  [3], [Đăng nhập bằng số điện thoại, email, Google; quản lý thiết bị, xóa tài khoản], [Đậu Văn Đăng Khoa], [Tuần 5–6], [Hoàn thành],
-  [4], [Đơn COD qua GHTK, GHN: liên kết tài khoản hãng, tạo vận đơn, nhận trạng thái], [Đậu Văn Đăng Khoa], [Tuần 6–7], [Hoàn thành],
-  [5], [Tìm kiếm bằng câu tự nhiên, tìm bằng ảnh, tin tương tự, theo dõi tìm kiếm, báo giảm giá], [Hồ Công Toản], [Tuần 5–7], [Hoàn thành],
-  [6], [AI điền tin từ video, ảnh, link Chợ Tốt; gợi ý giá khi đăng tin], [Hồ Công Toản], [Tuần 6–7], [Hoàn thành],
-  [7], [Cảnh báo lừa đảo trong trò chuyện, báo cáo vi phạm, đánh giá hai chiều, thông báo], [Hồ Công Toản], [Tuần 6–8], [Hoàn thành],
-  [8], [Nối ứng dụng Android với dịch vụ nền, bỏ dữ liệu giả lập], [Nguyễn Tấn Khoa], [Tuần 6–8], [Hoàn thành],
-  [9], [Website cho người mua và người bán], [Nguyễn Tấn Khoa], [Tuần 7–8], [Hoàn thành],
-  [10], [Phiếu hỗ trợ và trang điều hành cho nhân viên, có trợ lý AI], [Đậu Văn Đăng Khoa, Hồ Công Toản], [Tuần 7–8], [Đang thực hiện],
-  [11], [Kiểm thử các kịch bản nghiệp vụ], [Cả nhóm], [Tuần 8], [Đang thực hiện],
-  [12], [Viết báo cáo định kỳ 2], [Cả nhóm], [Tuần 8], [Hoàn thành],
+  [1], [Khảo sát Chợ Tốt, Facebook Marketplace, Shopee; xây dựng mô hình nghiệp vụ], [Cả nhóm], [Tuần 1], [Hoàn thành],
+  [2], [Đặc tả ca sử dụng, quy tắc nghiệp vụ, yêu cầu chức năng và phi chức năng], [Cả nhóm], [Tuần 1–2], [Hoàn thành],
+  [3], [Thiết kế kiến trúc 12 phân hệ, mô hình dữ liệu; nền tảng dùng chung và công cụ kiểm thử], [Đậu Văn Đăng Khoa], [Tuần 2–3], [Hoàn thành],
+  [4], [Phân hệ đăng nhập, tài khoản, nhân viên], [Đậu Văn Đăng Khoa], [Tuần 2–3], [Hoàn thành],
+  [5], [Phân hệ thương lượng giá và đơn COD tự gửi], [Đậu Văn Đăng Khoa], [Tuần 3–4], [Hoàn thành],
+  [6], [Phân hệ ảnh và tin đăng (danh mục, địa giới)], [Hồ Công Toản], [Tuần 2–4], [Hoàn thành],
+  [7], [Phân hệ trò chuyện thời gian thực], [Đậu Văn Đăng Khoa, Nguyễn Tấn Khoa], [Tuần 3–4], [Hoàn thành],
+  [8], [Thiết kế tìm kiếm theo ngữ nghĩa và AI agent hỗ trợ người mua], [Hồ Công Toản], [Tuần 3–4], [Hoàn thành thiết kế],
+  [9], [Nguyên mẫu ứng dụng Android trên dữ liệu giả lập], [Nguyễn Tấn Khoa], [Tuần 1–4], [Hoàn thành nguyên mẫu],
+  [10], [Kiểm thử trọn quy trình các phân hệ đã làm; viết báo cáo định kỳ 1], [Cả nhóm], [Tuần 4], [Hoàn thành],
 )
 
 // ============================================================
@@ -88,48 +155,48 @@ Báo cáo khó tránh khỏi thiếu sót, chúng em mong nhận được ý ki�
 #set page(numbering: "1")
 #counter(page).update(1)
 
-#pagebreak()
-#sechead([MỞ ĐẦU])
-
-Giai đoạn 1 của đồ án "#info.de-tai" đã xây dựng mô hình nghiệp vụ, đặc tả yêu cầu, nguyên mẫu ứng dụng Android trên dữ liệu giả lập và bảy phân hệ nền đầu tiên. Đơn COD khi đó do người bán tự gửi rồi nhập mã vận đơn bằng tay.
-
-Giai đoạn 2 (tuần 5–8) đưa sản phẩm sang chạy trên dữ liệu thật. Người bán tạo vận đơn GHTK, GHN ngay trong ứng dụng, người mua tìm hàng bằng câu nói tự nhiên, AI điền giúp tin đăng và cảnh báo lừa đảo trong trò chuyện. Ngoài ứng dụng Android, nhóm làm thêm website cho người mua và người bán, và trang điều hành cho nhân viên vận hành. Trong giai đoạn này nhóm cũng rút gọn một số phần của mô hình nghiệp vụ sau khi thử với luồng thật.
-
-Chương 1 so sánh kết quả với kế hoạch và nêu các điều chỉnh mô hình. Chương 2 trình bày các chức năng đã làm theo thứ tự một giao dịch, từ đăng tin tới đánh giá, rồi tới phần của nhân viên. Chương 3 nêu cách kiểm thử và các kịch bản chính. Phần kết luận nêu kết quả, khó khăn và kế hoạch giai đoạn 3.
-
-#include "chapters/01-tong-quan-tien-do.typ"
-#include "chapters/02-thiet-ke-hien-thuc.typ"
-#include "chapters/03-kiem-thu.typ"
-#include "chapters/04-ket-luan.typ"
+// ---- Các chương (template tự ngắt trang trước mỗi chương) --
+#include "chapters/01-gioi-thieu-de-tai.typ"
+#include "chapters/02-khao-sat-va-co-so-ly-thuyet.typ"
+#include "chapters/03-phan-tich-va-thiet-ke-he-thong.typ"
+#include "chapters/04-hien-thuc-va-trien-khai-he-thong.typ"
+#include "chapters/05-kiem-thu-danh-gia.typ"
 
 #pagebreak()
 #sechead([DANH MỤC TÀI LIỆU THAM KHẢO])
 
-#let nhom-tltk(ten) = block(above: 1.1em, below: 0.5em)[#strong(ten)]
+// Danh mục chung của cả ba báo cáo, số thứ tự cố định, tách theo ngôn ngữ
+#let nhom-tltk(ten) = block(above: 0.9em, below: 0.4em)[#strong(ten)]
+#set par(leading: 0.5em)
+#set text(size: 11.5pt)
+#let tltk(tu, ..muc) = enum(numbering: n => "[" + str(n + tu - 1) + "]", spacing: 0.6em, ..muc)
 
 #nhom-tltk[Tiếng Việt]
-#enum(
-  numbering: n => "[" + str(n) + "]",
-  start: 1,
+#tltk(1,
   [Quốc hội nước Cộng hòa xã hội chủ nghĩa Việt Nam, Luật Bảo vệ quyền lợi người tiêu dùng số 19/2023/QH15, Công báo, Hà Nội (2023).],
   [Quốc hội nước Cộng hòa xã hội chủ nghĩa Việt Nam, Luật Thương mại điện tử số 122/2025/QH15, Công báo, Hà Nội (2025).],
 )
 
 #nhom-tltk[Tiếng Anh]
-#enum(
-  numbering: n => "[" + str(n) + "]",
-  start: 3,
+#tltk(3,
+  [Burckhardt S., Gillum C., Justo D., Kallas K., McMahon C., Meiklejohn C. S., Durable Functions: Semantics for Stateful Serverless, Proceedings of the ACM on Programming Languages, vol. 5, OOPSLA, article 133, pp. 1–27 (2021).],
   [Chen J., Xiao S., Zhang P., Luo K., Lian D., Liu Z., M3-Embedding: Multi-Linguality, Multi-Functionality, Multi-Granularity Text Embeddings Through Self-Knowledge Distillation, Findings of the Association for Computational Linguistics: ACL 2024, pp. 2318–2335, Bangkok, Thailand (2024).],
   [Cormack G. V., Clarke C. L. A., Büttcher S., Reciprocal Rank Fusion Outperforms Condorcet and Individual Rank Learning Methods, Proceedings of the 32nd International ACM SIGIR Conference, pp. 758–759, Boston, USA (2009).],
-  [Tschannen M., Gritsenko A., Wang X., et al., SigLIP 2: Multilingual Vision-Language Encoders with Improved Semantic Understanding, Localization, and Dense Features, arXiv:2502.14786 (2025).],
+  [Garcia-Molina H., Salem K., Sagas, ACM SIGMOD Record, vol. 16, no. 3, pp. 249–259 (1987).],
+  [Helland P., Idempotence Is Not a Medical Condition, ACM Queue, vol. 10, no. 4, pp. 30–46 (2012).],
+  [Kleppmann M., Designing Data-Intensive Applications, O'Reilly Media, Sebastopol, CA, USA (2017).],
+  [Malkov Y. A., Yashunin D. A., Efficient and Robust Approximate Nearest Neighbor Search Using Hierarchical Navigable Small World Graphs, IEEE Transactions on Pattern Analysis and Machine Intelligence, vol. 42, no. 4, pp. 824–836 (2020).],
+  [Newman S., Building Microservices: Designing Fine-Grained Systems, 2nd ed., O'Reilly Media, Sebastopol, CA, USA (2021).],
+  [Richardson C., Microservices Patterns: With Examples in Java, Manning Publications, Shelter Island, NY, USA (2018).],
   [Yao S., Zhao J., Yu D., Du N., Shafran I., Narasimhan K., Cao Y., ReAct: Synergizing Reasoning and Acting in Language Models, International Conference on Learning Representations (ICLR), Kigali, Rwanda (2023).],
 )
 
 #nhom-tltk[Website]
-#enum(
-  numbering: n => "[" + str(n) + "]",
-  start: 7,
+#tltk(13,
   [Android Developers, Guide to app architecture, https:\/\/developer.android.com/topic/architecture.],
   [Giao Hàng Nhanh, GHN Developer API Documentation, https:\/\/api.ghn.vn.],
   [Giao Hàng Tiết Kiệm, GHTK OpenAPI Documentation, https:\/\/docs.giaohangtietkiem.vn.],
+  [OpenAPI Initiative, OpenAPI Specification v3.2.0, https:\/\/spec.openapis.org/oas/v3.2.0.],
+  [pgvector: Open-Source Vector Similarity Search for PostgreSQL, https:\/\/github.com/pgvector/pgvector.],
+  [Restate Documentation: Durable Execution Engine, https:\/\/docs.restate.dev.],
 )

@@ -10,7 +10,7 @@
 #let co-so-ngan = "Cơ sở TP. HCM"
 #let khoa = "KHOA CÔNG NGHỆ THÔNG TIN 2"
 
-#let de-tai = "Sàn thương mại điện tử C2C tích hợp AI"
+#let de-tai = "Xây dựng hệ thống thương mại điện tử theo kiến trúc microservice, có tích hợp AI agent hỗ trợ người dùng tìm kiếm"
 #let de-tai-hoa = upper(de-tai)
 #let de-tai-ngan = ""
 
