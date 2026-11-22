@@ -17,15 +17,15 @@ Ba agent soát website trên dev stack compose ngày 23/11/2026: soát từng tr
 
 ## 2. Chặn luồng chính
 
-- [ ] Tài khoản chỉ có email bị chặn chat, trả giá và mua (`phone_required`); lỗi ghi "Xem Bảo mật". Xin SĐT ngay trong sheet rồi quay lại việc đang làm.
-- [ ] "Tự gửi" chỉ hiện khi đã liên kết GHTK/GHN (`ShipForm.astro`). Người bán cá nhân không có token API của hãng. Luôn cho "Tự gửi".
-- [ ] Trang Tôi dưới 840px không có link Đơn mua, Đơn bán, Trả giá, Tin của bạn; chỉ có trong menu avatar ở góc. Thêm hai nhóm Mua và Bán.
-- [ ] Trang tin ở 390: cuộn qua "Mua ngay" thì không còn nút mua, nút Đăng tin nổi che Hỏi nhanh. Thanh dính giá, Trả giá, Mua ngay; ẩn nút Đăng tin nổi ở trang tin, trang đơn và Tin nhắn.
-- [ ] Tin nhắn trên bottom bar không có số chưa đọc (header ở desktop có).
-- [ ] "Cho phép trả giá" mặc định tắt; chạm vào chữ không bật. Bật sẵn, chạm cả hàng.
-- [ ] Đăng tin: AI để trống thông số bắt buộc, Xem trước vẫn cho đăng, server mới từ chối và lỗi hiện ở đầu trang. Kiểm tra trước Xem trước, cuộn tới ô lỗi.
-- [ ] Lưu và Mua ngay khi chưa đăng nhập: sau khi đăng nhập chỉ về trang tin, tim chưa lưu, hộp mua không mở.
-- [ ] Phường/xã là danh sách thả xuống 169 mục.
+- [x] Tài khoản chỉ có email bị chặn chat, trả giá và mua (`phone_required`); lỗi ghi "Xem Bảo mật". website `be94cd7`: link "Thêm số điện thoại" tới bước SĐT của Bảo mật, xong thì quay lại trang cũ (mua thì mở lại hộp mua). Chưa làm sheet ngay tại chỗ: bước SĐT cần reCAPTCHA của Firebase và xác thực lại.
+- [x] "Tự gửi" chỉ hiện khi đã liên kết GHTK/GHN (`ShipForm.astro`). Giữ yêu cầu này: server đọc trạng thái vận đơn bằng tài khoản hãng của người bán (UC-DEAL-04, E3), đó là thứ chốt đơn COD. website `be94cd7`: một dòng giải thích, liên kết xong quay về đơn.
+- [x] Trang Tôi dưới 840px không có link Đơn mua, Đơn bán, Trả giá, Tin của bạn; chỉ có trong menu avatar ở góc. Thêm hai nhóm Mua và Bán. website `be94cd7`: `AccountLinks` dùng chung cho thanh bên, Tôi và menu avatar.
+- [x] Trang tin ở 390: cuộn qua "Mua ngay" thì không còn nút mua, nút Đăng tin nổi che Hỏi nhanh. Thanh dính giá, Trả giá, Mua ngay; ẩn nút Đăng tin nổi ở trang tin, trang đơn và Tin nhắn. website `be94cd7`: nút Đăng tin nổi chỉ còn ở Khám phá, Danh mục, Tìm kiếm.
+- [x] Tin nhắn trên bottom bar không có số chưa đọc (header ở desktop có). website `be94cd7`.
+- [x] "Cho phép trả giá" mặc định tắt; chạm vào chữ không bật. Mặc định vốn bật, AI điền tin ghi đè thành tắt. website `be94cd7`: AI chỉ được bật, chạm cả hàng.
+- [x] Đăng tin: AI để trống thông số bắt buộc, Xem trước vẫn cho đăng, server mới từ chối và lỗi hiện ở đầu trang. Kiểm tra trước Xem trước, cuộn tới ô lỗi. website `be94cd7`: ô bắt buộc có `required`, báo "Điền <thông số>".
+- [x] Lưu và Mua ngay khi chưa đăng nhập: sau khi đăng nhập chỉ về trang tin, tim chưa lưu, hộp mua không mở. website `be94cd7`: `?then=` cho Lưu, Theo dõi, Mua ngay.
+- [x] Phường/xã là danh sách thả xuống 169 mục. website `be94cd7`: gõ để lọc, không cần dấu.
 
 ## 3. Đồng nhất UI
 
