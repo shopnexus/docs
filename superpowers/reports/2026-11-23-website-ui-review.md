@@ -29,17 +29,17 @@ Ba agent soát website trên dev stack compose ngày 23/11/2026: soát từng tr
 
 ## 3. Đồng nhất UI
 
-- [ ] Năm kiểu empty state (Đơn mua, Trả giá, Đã lưu, Tin của bạn, Tin nhắn). Một component `EmptyState`: icon tròn, một dòng, một nút viền. Đơn bán đang gợi ý "Khám phá tin đang bán".
-- [ ] Bốn kiểu tab: gạch chân (Home, Tìm kiếm), segmented (Đơn hàng, Người bán), chip mint (Tin của bạn), pill (Tin nhắn). Chỉ dùng `Seg`.
-- [ ] Teal đặc ở ô "Như mới" của thang Tình trạng, CTA cuối trang Danh mục, banner Trợ giúp, vòng chỉ số ở Tin của bạn, nút "Báo khi có tin mới". Chuyển sang mint.
-- [ ] Chỉ số rỗng ("– Chưa có đánh giá", "Đơn COD đang mở 0/3", "0 lượt xem"); ba chỉ số trên Tôi ở 390 rớt thành 2+1.
-- [ ] Lối vào trùng: toggle Mua/Bán ở Đơn hàng trùng thanh bên; thẻ "Hãng vận chuyển" ở Đơn bán trùng Giao COD; Đã lưu có ở header, rail và thanh bên.
-- [ ] Thông báo: 7 công tắc và nút "Lưu cài đặt" lấn át danh sách; giờ hiện "10:00 PM". Đưa cài đặt ra sau bánh răng, công tắc tự lưu, giờ 24h.
-- [ ] Feed Dành cho bạn lặp một tin iPhone 4 lần (slug khác, cùng ảnh và tiêu đề); Tin tương tự có bản sao của tin đang xem. Trên dev, 3 trong 4 bản là tin do công cụ test đăng lại; vẫn nên gộp tin trùng của cùng người bán.
-- [ ] Tìm kiếm ở 390: "Bộ lọc" chiếm một hàng, tab "Giá thấp" bị nút lưới/danh sách che.
-- [ ] Đăng tin: dải "AI điền giúp" chỉ có icon bóng đèn trước khi có ảnh; header vẫn hiện nút Đăng tin trên /sell.
-- [ ] Tin nhắn ở 1280 dừng ở 904px; dark mode: nút "Xem 3 ảnh" vẫn là pill trắng.
-- [ ] Hộp Giao COD là hộp thoại giữa màn hình trong khi Mua ngay là bottom sheet; "+ phí ship" không có số tiền; "Hủy giá đã chốt" đứng trước "Đặt giao COD".
+- [x] Năm kiểu empty state (Đơn mua, Trả giá, Đã lưu, Tin của bạn, Tin nhắn). Một component `EmptyState`: icon tròn, một dòng, một nút viền. Đơn bán đang gợi ý "Khám phá tin đang bán". website `85a5948`: `EmptyState.astro`.
+- [x] Bốn kiểu tab: gạch chân (Home, Tìm kiếm), segmented (Đơn hàng, Người bán), chip mint (Tin của bạn), pill (Tin nhắn). Chỉ dùng `Seg`. website `85a5948`: `TabLinks.astro` (seg, tabs) cho tab dạng link.
+- [x] Teal đặc ở ô "Như mới" của thang Tình trạng, CTA cuối trang Danh mục, banner Trợ giúp, vòng chỉ số ở Tin của bạn, nút "Báo khi có tin mới". Chuyển sang mint. website `85a5948`.
+- [x] Chỉ số rỗng ("– Chưa có đánh giá", "Đơn COD đang mở 0/3", "0 lượt xem"); ba chỉ số trên Tôi ở 390 rớt thành 2+1. website `85a5948`: ẩn khi chưa có dữ liệu, ô bằng nhau.
+- [x] Lối vào trùng: toggle Mua/Bán ở Đơn hàng trùng thanh bên; thẻ "Hãng vận chuyển" ở Đơn bán trùng Giao COD; Đã lưu có ở header, rail và thanh bên. website `85a5948`: toggle chỉ còn trên điện thoại, thẻ hãng vận chuyển chỉ hiện khi có đơn chờ.
+- [x] Thông báo: 7 công tắc và nút "Lưu cài đặt" lấn át danh sách; giờ hiện "10:00 PM". Đưa cài đặt ra sau bánh răng, công tắc tự lưu, giờ 24h. website `85a5948`: gập sau bánh răng, tự lưu, giờ 24h.
+- [x] Feed Dành cho bạn lặp một tin iPhone 4 lần (slug khác, cùng ảnh và tiêu đề); Tin tương tự có bản sao của tin đang xem. Trên dev, 3 trong 4 bản là tin do công cụ test đăng lại; vẫn nên gộp tin trùng của cùng người bán. Server `ff39ba34`: feed và hàng Vì bạn đã xem bỏ tin trùng người bán và tiêu đề.
+- [x] Tìm kiếm ở 390: "Bộ lọc" chiếm một hàng, tab "Giá thấp" bị nút lưới/danh sách che. website `85a5948`.
+- [x] Đăng tin: dải "AI điền giúp" chỉ có icon bóng đèn trước khi có ảnh; header vẫn hiện nút Đăng tin trên /sell. website `85a5948`.
+- [x] Tin nhắn ở 1280 dừng ở 904px; dark mode: nút "Xem 3 ảnh" vẫn là pill trắng. website `85a5948`.
+- [x] Hộp Giao COD là hộp thoại giữa màn hình trong khi Mua ngay là bottom sheet; "+ phí ship" không có số tiền; "Hủy giá đã chốt" đứng trước "Đặt giao COD". website `85a5948`: chưa có phí ship ước tính từ server nên ghi "báo khi gửi".
 
 ## 4. Ý tưởng từ các sàn C2C
 
