@@ -1,0 +1,73 @@
+---
+title: Linux server setup
+description: The host under the cluster, its firewall, and the per-address flood limits on ports 80 and 443.
+group: Cluster
+order: 2.5
+groupOrder: 2
+audience: [admins]
+type: how-to
+readingTime: 6
+updated: 2026-11-23
+related: ["/en/operations/cluster/bootstrap", "/en/operations/cluster/networking", "/en/operations/cluster/runbook"]
+---
+
+The author's server is one Arch Linux machine on a home connection. It runs the k3d cluster in `behind-proxy` mode, a Caddy shared with other projects, and an nftables firewall. IPv4 reaches it through the home router, which forwards ports 80 and 443; IPv6 reaches its network card directly. The files for the host are in `infra/host/` of the umbrella repo.
+
+## Firewall
+
+The table `inet firewall` holds the host's own rules, and the script `/usr/local/bin/fw` manages it. Its chain `gate` hooks prerouting at priority `mangle`, drops by default and accepts the ports in the sets `allowed_tcp` and `allowed_udp`. `fw save` rewrites `/etc/nftables.conf` from the live `inet firewall` table only, so rules for shopnexus live in a separate table, which neither `fw save` nor `fw reload` touches.
+
+## Web guard
+
+`infra/host/web-guard.nft` defines the table `inet web_guard`. Its chain hooks prerouting at priority `mangle - 10`, before `gate` and after conntrack, and looks at new TCP connections to ports 80 and 443.
+
+| Rule | Limit | Key |
+|---|---|---|
+| New connections | 50 a second, bursts of 100 | IPv4 address, IPv6 `/64` |
+| Open connections | 256 | IPv4 address, IPv6 `/64` |
+
+A connection over either limit is dropped. A drop in `web_guard` is final; every other packet goes on to `gate`. Addresses in `10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`, `fc00::/7` and `fe80::/10`, and packets from `lo`, are not limited: Docker's networks use those ranges, and a request from the LAN to the public address comes back through the router's hairpin NAT with the router's address `192.168.1.1`.
+
+The limits are high because Vietnamese mobile carriers put many subscribers behind one CGNAT address. Ports 80 and 443 belong to Caddy, so the guard covers every site on the server.
+
+`infra/host/90-web-guard.conf` sets the kernel's TCP settings for SYN floods:
+
+| Setting | Value | Before |
+|---|---|---|
+| `net.ipv4.tcp_syncookies` | 1 | 1 |
+| `net.ipv4.tcp_synack_retries` | 2 | 5 |
+| `net.ipv4.tcp_max_syn_backlog` | 8192 | 2048 |
+| `net.core.netdev_max_backlog` | 16384 | 1000 |
+| `net.ipv4.conf.all.rp_filter`, `.default.rp_filter` | 2 (loose) | 0 |
+
+Loose reverse-path filtering drops packets whose source address has no route back at all. Strict mode (1) would drop traffic on Docker's bridges, which route asymmetrically.
+
+## Install
+
+<Steps>
+<Step title="Copy the files to the server">
+Pull the umbrella repo on the server, or copy `infra/host/` there.
+</Step>
+<Step title="Run the installer">
+```bash
+sudo sh infra/host/install.sh
+```
+The script checks `web-guard.nft` with `nft -c`, copies it to `/etc/nftables.d/`, copies the sysctl file to `/etc/sysctl.d/` and the unit `web-guard.service` to `/etc/systemd/system/`, applies the sysctl settings, then enables and restarts the unit. The unit loads the table at boot, after `nftables.service`.
+</Step>
+<Step title="Check the counters">
+```bash
+sudo nft list chain inet web_guard web
+```
+Each rule has a counter of the packets it dropped.
+</Step>
+</Steps>
+
+To change a limit, edit `web-guard.nft` and run `install.sh` again. `sudo systemctl stop web-guard` removes the table until the next boot, and `sudo systemctl disable --now web-guard` removes it for good.
+
+The rules were tested in a throwaway network namespace on 2026-11-23, with the limits lowered to 5 a second, bursts of 10, and 20 open connections. Of 60 connections opened in a burst from one address, 20 were accepted. The connection-count rule dropped 32 SYN packets and the rate rule 8, and once 20 connections were open, every new one was dropped.
+
+## What the host cannot stop
+
+- An attack larger than the home line fills the line before a packet reaches nftables. Only the ISP, or a proxy in front of the line, can drop that traffic.
+- The home router keeps a NAT entry for every IPv4 connection it forwards, and a SYN flood can fill its table before the host sees anything. In bridge mode, with the host dialing PPPoE itself, nftables is the first filter.
+- An HTTP flood from many addresses stays under per-address limits. The server limits guest searches to 2 a second per address in bursts of 30, and model calls to 200 a day per account; each server process counts on its own.

@@ -14,7 +14,7 @@ related: ["/vi/operations/cluster", "/vi/operations/cluster/networking", "/vi/op
 Bài hướng dẫn này đưa một bản fork của repo umbrella thành một cluster k3d tên `shopnexus` chạy hai stack: dev trong `shopnexus-dev` và prod trong `shopnexus-prod`. Bạn chạy ba lệnh: `k3d cluster create` với một file cấu hình trong `infra/cluster/` tạo cluster, và k3s cài Argo CD vào đó; `go -C infra run ./cmd/seal` ghi các secret; còn Hurl chạy `infra/smoke.hurl` để kiểm tra kết quả. Argo CD cài và đồng bộ mọi thứ còn lại từ bản fork của bạn.
 
 <Prereqs time="1 giờ" who="Quản trị viên và lập trình viên">
-- Một máy Linux có địa chỉ IP công khai và đủ bộ nhớ trống cho hai stack. Kế hoạch dựng hệ thống của tác giả dừng lại để cân nhắc khi còn dưới 6 GB khả dụng.
+- Một máy Linux có địa chỉ IP công khai và đủ bộ nhớ trống cho hai stack. Kế hoạch dựng hệ thống của tác giả dừng lại để cân nhắc khi còn dưới 6 GB khả dụng. Tường lửa và giới hạn chống flood của tác giả nằm ở [Cài đặt máy chủ Linux](/vi/operations/cluster/linux-server).
 - Docker. Lệnh seal cũng dùng Docker để chạy image server sinh khóa.
 - k3d. Cluster được dựng bằng k3d v5.9.0; server của tác giả chạy v5.8.3. Cả hai file cấu hình trong `infra/cluster/`, `k3d-direct.yaml` và `k3d-behind-proxy.yaml`, ghim image node `rancher/k3s:v1.37.1-k3s1`.
 - kubectl (đã thử với v1.37.2), Helm (v4.3.1) và kubeseal (0.41.2).

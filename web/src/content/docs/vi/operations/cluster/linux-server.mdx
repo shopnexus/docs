@@ -1,0 +1,73 @@
+---
+title: Cài đặt máy chủ Linux
+description: Máy chủ chạy cluster, tường lửa của nó, và giới hạn chống flood theo từng địa chỉ trên cổng 80 và 443.
+group: Cụm máy chủ
+order: 2.5
+groupOrder: 2
+audience: [admins]
+type: how-to
+readingTime: 6
+updated: 2026-11-23
+related: ["/vi/operations/cluster/bootstrap", "/vi/operations/cluster/networking", "/vi/operations/cluster/runbook"]
+---
+
+Server của tác giả là một máy Arch Linux dùng mạng gia đình. Máy chạy cluster k3d ở chế độ `behind-proxy`, một Caddy dùng chung với các dự án khác, và tường lửa nftables. IPv4 tới máy qua router nhà, router chuyển tiếp cổng 80 và 443; IPv6 tới thẳng card mạng của máy. Các file cho máy chủ nằm trong `infra/host/` của repo umbrella.
+
+## Tường lửa
+
+Bảng `inet firewall` giữ các rule riêng của máy, do script `/usr/local/bin/fw` quản lý. Chain `gate` của bảng gắn vào prerouting ở priority `mangle`, mặc định drop và nhận các cổng trong hai set `allowed_tcp` và `allowed_udp`. `fw save` ghi lại `/etc/nftables.conf` chỉ từ bảng `inet firewall` đang chạy, nên rule của shopnexus nằm ở một bảng riêng mà cả `fw save` lẫn `fw reload` đều không đụng tới.
+
+## Web guard
+
+`infra/host/web-guard.nft` định nghĩa bảng `inet web_guard`. Chain của bảng gắn vào prerouting ở priority `mangle - 10`, chạy trước `gate` và sau conntrack, và xét các kết nối TCP mới tới cổng 80 và 443.
+
+| Rule | Giới hạn | Tính theo |
+|---|---|---|
+| Kết nối mới | 50 mỗi giây, burst 100 | địa chỉ IPv4, dải IPv6 `/64` |
+| Kết nối đang mở | 256 | địa chỉ IPv4, dải IPv6 `/64` |
+
+Kết nối vượt một trong hai giới hạn bị drop. Drop trong `web_guard` là quyết định cuối; mọi gói khác đi tiếp tới `gate`. Các địa chỉ trong `10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`, `fc00::/7`, `fe80::/10` và gói từ `lo` không bị giới hạn: mạng Docker dùng các dải đó, và request từ LAN tới địa chỉ public quay về qua hairpin NAT của router với địa chỉ của router, `192.168.1.1`.
+
+Giới hạn đặt cao vì nhà mạng di động ở Việt Nam cho nhiều thuê bao dùng chung một địa chỉ CGNAT. Cổng 80 và 443 là của Caddy, nên guard áp dụng cho mọi site trên server.
+
+`infra/host/90-web-guard.conf` đặt các thông số TCP của kernel cho SYN flood:
+
+| Thông số | Giá trị | Trước đó |
+|---|---|---|
+| `net.ipv4.tcp_syncookies` | 1 | 1 |
+| `net.ipv4.tcp_synack_retries` | 2 | 5 |
+| `net.ipv4.tcp_max_syn_backlog` | 8192 | 2048 |
+| `net.core.netdev_max_backlog` | 16384 | 1000 |
+| `net.ipv4.conf.all.rp_filter`, `.default.rp_filter` | 2 (loose) | 0 |
+
+Chế độ loose của reverse-path filter drop gói có địa chỉ nguồn không có route quay về. Chế độ strict (1) sẽ drop traffic trên các bridge của Docker, vốn định tuyến bất đối xứng.
+
+## Cài đặt
+
+<Steps>
+<Step title="Đưa file lên server">
+Pull repo umbrella trên server, hoặc chép thư mục `infra/host/` lên đó.
+</Step>
+<Step title="Chạy script cài đặt">
+```bash
+sudo sh infra/host/install.sh
+```
+Script kiểm tra `web-guard.nft` bằng `nft -c`, chép nó vào `/etc/nftables.d/`, chép file sysctl vào `/etc/sysctl.d/` và unit `web-guard.service` vào `/etc/systemd/system/`, áp dụng sysctl, rồi enable và restart unit. Unit nạp bảng lúc khởi động, sau `nftables.service`.
+</Step>
+<Step title="Xem counter">
+```bash
+sudo nft list chain inet web_guard web
+```
+Mỗi rule có counter đếm số gói nó đã drop.
+</Step>
+</Steps>
+
+Muốn đổi giới hạn thì sửa `web-guard.nft` rồi chạy lại `install.sh`. `sudo systemctl stop web-guard` gỡ bảng tới lần khởi động sau, còn `sudo systemctl disable --now web-guard` gỡ hẳn.
+
+Rule đã được thử trong một network namespace dùng xong bỏ ngày 2026-11-23, với giới hạn hạ xuống 5 mỗi giây, burst 10, và 20 kết nối đang mở. Trong 60 kết nối mở liên tiếp từ một địa chỉ, 20 kết nối được nhận. Rule đếm kết nối drop 32 gói SYN, rule tốc độ drop 8 gói, và khi đã có 20 kết nối mở thì mọi kết nối mới đều bị drop.
+
+## Những gì máy chủ không chặn được
+
+- Đợt tấn công lớn hơn băng thông đường mạng nhà làm nghẽn đường truyền trước khi gói tới được nftables. Chỉ nhà mạng, hoặc một proxy đặt trước đường truyền, mới drop được traffic đó.
+- Router nhà giữ một mục NAT cho mỗi kết nối IPv4 nó chuyển tiếp, và SYN flood có thể làm đầy bảng NAT trước khi máy chủ thấy gì. Ở chế độ bridge, khi máy chủ tự quay PPPoE, nftables là lớp lọc đầu tiên.
+- HTTP flood từ nhiều địa chỉ nằm dưới giới hạn theo từng địa chỉ. Server giới hạn search của khách ở 2 lần mỗi giây cho mỗi địa chỉ, burst 30, và 200 lần gọi model mỗi ngày cho mỗi tài khoản; mỗi process của server đếm riêng.

@@ -14,7 +14,7 @@ related: ["/en/operations/cluster", "/en/operations/cluster/networking", "/en/op
 This tutorial takes a fork of the umbrella repo to one k3d cluster named `shopnexus` that runs two stacks: dev in `shopnexus-dev` and prod in `shopnexus-prod`. You run three commands: `k3d cluster create` with a config from `infra/cluster/` creates the cluster, and k3s installs Argo CD in it; `go -C infra run ./cmd/seal` writes the secrets; and Hurl runs `infra/smoke.hurl` to check the result. Argo CD installs and syncs everything else from your fork.
 
 <Prereqs time="1 hour" who="Admins and developers">
-- A Linux machine with a public IP address and enough free memory for two stacks. The author's bring-up plan stops to reconsider when less than 6 GB is available.
+- A Linux machine with a public IP address and enough free memory for two stacks. The author's bring-up plan stops to reconsider when less than 6 GB is available. [Linux server setup](/en/operations/cluster/linux-server) has the author's firewall and flood limits.
 - Docker. The seal command also runs the server image with Docker to generate keys.
 - k3d. The cluster was built with k3d v5.9.0; the author's server runs v5.8.3. Both configs in `infra/cluster/`, `k3d-direct.yaml` and `k3d-behind-proxy.yaml`, pin the node image `rancher/k3s:v1.37.1-k3s1`.
 - kubectl (tested with v1.37.2), Helm (v4.3.1) and kubeseal (0.41.2).
