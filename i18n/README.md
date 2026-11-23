@@ -22,7 +22,7 @@ phrase a listed product lacks or has no text for in a language it writes.
 | Text | Where | Language picked by |
 |---|---|---|
 | App screens | `app/**/src/main/res/values/strings.xml`, plurals in the same files; formatting in `core:model` `Formats` | the app's language (Android per-app language) |
-| Website pages | `website/src/i18n/vi/<area>.ts`; formatting in `website/src/i18n/format.ts` | the URL (Vietnamese has no prefix) |
+| Website pages | `website/src/i18n/<lang>/<area>.ts`; formatting in `website/src/i18n/format.ts` | the URL: Vietnamese has no prefix, English is under `/en` |
 | Notices, pushes, mail | `server/internal/notification/domain/text/<tag>.json` | the request's `Accept-Language` for the list; `accounts.locale` for pushes and mail |
 | OTP mail | `server/internal/account/service/mail/<tag>.json` | the request's `Accept-Language` |
 | Mail layout | `server/internal/platform/mailview/locales/<tag>.json` | the letter's language |
@@ -53,8 +53,10 @@ Layout embeds as JSON, so scripts carry no dictionary.
 
 - Server: a `<tag>.json` beside each `vi.json` and the tag in
   `locale.Supported`.
-- Website: `src/i18n/<tag>.ts` typed as `Dict`, the tag in `LANGS`, and the
-  `/<tag>` prefix in `langOf`.
+- Website: `src/i18n/<tag>/<area>.ts` for every area, typed against the
+  Vietnamese, `src/i18n/<tag>/index.ts`, and the tag in `LANGS` and `PREFIX`
+  in `src/i18n/paths.ts`. `src/build/en-routes.mjs` registers each page again
+  under the prefix, and `R` builds paths in the request's language.
 - App: `values-<tag>/strings.xml` and the tag in `locales_config.xml`.
 - Each platform's `format` tests read `format-cases.json`; add the language's
   column there.
