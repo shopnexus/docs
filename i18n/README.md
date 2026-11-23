@@ -10,15 +10,12 @@ add English. The design is in
 language, the words to use and the words to avoid; `ui` lists phrases the UI
 may use though they hold an avoided word ("hàng cấm"); `phrases` lists the
 sentences several products must write word for word, such as when a seller
-is paid. `docs/manual/thuat-ngu.md`, the table the report follows, is
-rendered from it with `bun docs/i18n/glossary.ts render`; edit the YAML,
-never the Markdown.
+is paid. The report, the slides and `docs/registry` follow the same file.
 
-`bun docs/i18n/glossary.ts check` scans every language each product writes
+`bun docs/i18n/glossary.ts` scans every language each product writes
 (the app's `res/values*/strings.xml`, the website's `src/i18n/<lang>`, the
 server's `<lang>.json` catalogs). It fails on an avoided word, on a shared
-phrase a listed product lacks or has no text for in a language it writes,
-and on a `thuat-ngu.md` that no longer matches the YAML.
+phrase a listed product lacks or has no text for in a language it writes.
 
 ## Where text lives
 
@@ -74,7 +71,7 @@ Layout embeds as JSON, so scripts carry no dictionary.
 | website: `npx astro check` | a language missing a key (types) and a key no dictionary has |
 | website: `node --test src/i18n/*.test.ts` | a format case, and a dictionary key no code names |
 | app: lint `MissingTranslation`, `UnusedResources` | a string missing in a language, a string no code reads |
-| umbrella: `make i18n` | a repo's `format-cases.json` that differs from `docs/i18n/format-cases.json`, and everything `glossary.ts check` checks |
+| umbrella: `make i18n` | a repo's `format-cases.json` that differs from `docs/i18n/format-cases.json`, and everything `glossary.ts` checks |
 
 `docs/i18n/sync.sh` copies `format-cases.json` into the three repos after
 you change it.

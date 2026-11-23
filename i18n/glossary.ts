@@ -1,18 +1,17 @@
 #!/usr/bin/env bun
 // glossary: keeps the products' words in line with i18n/glossary.yaml.
 //
-//   bun i18n/glossary.ts check  [root]   problems exit 1
-//   bun i18n/glossary.ts render [root]   write manual/thuat-ngu.md from the glossary
+//   bun i18n/glossary.ts [root]   problems exit 1
 //
 // check scans the text people see, in every language a product writes: the
 // app's res/values*/strings.xml, the website's src/i18n/<lang>, the server's
 // <lang>.json catalogs. It fails on an avoided term outside the phrases that
-// may hold it, on a shared phrase a product lacks word for word, and on a
-// thuat-ngu.md that no longer matches the glossary. TERMS_APP,
-// TERMS_WEBSITE and TERMS_SERVER point at another checkout of a repo, such
-// as a worktree, relative to root.
+// may hold it, and on a shared phrase a product lacks word for word or has
+// no text for in a language it writes. TERMS_APP, TERMS_WEBSITE and
+// TERMS_SERVER point at another checkout of a repo, such as a worktree,
+// relative to root.
 
-import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 
 type Lang = string;
@@ -20,7 +19,6 @@ type Words = { use: string[]; avoid?: string[] };
 type Term = { meaning: string } & Record<Lang, Words | string>;
 type Glossary = {
   languages: Lang[];
-  intro: string;
   sections: { title: string; terms: Term[] }[];
   ui: Record<Lang, { phrase: string[]; instead_of: string; why: string }[]>;
   phrases: ({ id: string; why: string; in: Product[] } & Record<Lang, string>)[];
@@ -28,10 +26,8 @@ type Glossary = {
 type Product = "app" | "website" | "server";
 type Text = { file: string; where: string | number; text: string };
 
-const [command = "check", rootArg] = process.argv.slice(2);
-const root = resolve(rootArg ?? join(import.meta.dir, "../.."));
+const root = resolve(process.argv[2] ?? join(import.meta.dir, "../.."));
 const glossaryFile = join(root, "docs/i18n/glossary.yaml");
-const manualFile = join(root, "docs/manual/thuat-ngu.md");
 const checkouts: Record<Product, string> = {
   app: join(root, process.env.TERMS_APP ?? "app"),
   website: join(root, process.env.TERMS_WEBSITE ?? "website"),
@@ -41,56 +37,6 @@ const checkouts: Record<Product, string> = {
 const g = Bun.YAML.parse(readFileSync(glossaryFile, "utf8")) as Glossary;
 const words = (t: Term, lang: Lang) => t[lang] as Words | undefined;
 const unparen = (s: string) => s.replace(/\s*\(.*?\)/g, "").trim();
-
-// ── render ───────────────────────────────────────────────────────────────
-
-const cell = (s: string) => s.replace(/\|/g, "\\|");
-
-function render(): string {
-  const out = [
-    "# Thuật ngữ thống nhất",
-    "",
-    "<!-- Sinh từ docs/i18n/glossary.yaml bằng `bun docs/i18n/glossary.ts render`; sửa file yaml, không sửa file này. -->",
-    "",
-    g.intro.trim(),
-    "",
-    "`make i18n` (chạy `bun docs/i18n/glossary.ts check`) quét chữ trên giao diện của ứng dụng, website và máy chủ theo bảng này, mục \"Giao diện\" và mục \"Câu dùng chung\".",
-  ];
-  for (const s of g.sections) {
-    out.push("", `## ${s.title}`, "", "| Dùng | Nghĩa | Không dùng | Tiếng Anh |", "|---|---|---|---|");
-    for (const t of s.terms) {
-      const vi = words(t, "vi");
-      const en = words(t, "en");
-      const enCell = en ? [en.use.join(", "), en.avoid?.length ? `(không dùng: ${en.avoid.join(", ")})` : ""].filter(Boolean).join(" ") : "";
-      out.push(`| ${cell(vi?.use.join(", ") ?? "")} | ${cell(t.meaning)} | ${cell(vi?.avoid?.join(", ") ?? "")} | ${cell(enCell)} |`);
-    }
-  }
-  out.push(
-    "",
-    "## Giao diện",
-    "",
-    "Cách gọi được phép trên giao diện dù cột \"Không dùng\" ở trên có liệt kê, vì nghĩa khác hoặc vì là tên riêng.",
-    "",
-    "| Dùng trên giao diện | Thay cho | Lý do |",
-    "|---|---|---|",
-    ...(g.ui.vi ?? []).map((u) => `| ${cell(u.phrase.join(", "))} | ${cell(u.instead_of)} | ${cell(u.why)} |`),
-    "",
-    "## Câu dùng chung",
-    "",
-    "Câu mà các sản phẩm ở cột \"Có ở\" phải viết y nguyên, trong mọi ngôn ngữ sản phẩm đó có.",
-    "",
-    "| Câu | Nói về | Có ở |",
-    "|---|---|---|",
-    ...g.phrases.map((p) => `| ${cell(p.vi)} | ${cell(p.why)} | ${p.in.join(", ")} |`),
-  );
-  return `${out.join("\n")}\n`;
-}
-
-if (command === "render") {
-  writeFileSync(manualFile, render());
-  console.log(`wrote ${relative(root, manualFile)}`);
-  process.exit(0);
-}
 
 // ── texts ────────────────────────────────────────────────────────────────
 
@@ -181,10 +127,6 @@ for (const lang of g.languages) {
       else if (!corpus.includes(ph[lang])) problems.push(`phrase ${ph.id}: ${p} [${lang}] lacks “${ph[lang]}”`);
     }
   }
-}
-
-if (readFileSync(manualFile, "utf8") !== render()) {
-  problems.push(`${relative(root, manualFile)} differs from the glossary: run bun docs/i18n/glossary.ts render`);
 }
 
 for (const p of problems) console.log(p);

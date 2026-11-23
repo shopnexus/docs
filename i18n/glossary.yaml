@@ -1,7 +1,8 @@
 # The words ShopNexus uses in every language it writes, and the sentences
-# several products must say word for word. This file is the source:
-# manual/thuat-ngu.md is rendered from it (bun i18n/glossary.ts render), and
-# bun i18n/glossary.ts check scans the products' text against it.
+# several products must say word for word: the one source for the report,
+# the slides, docs/registry and the products' text. bun i18n/glossary.ts
+# (make i18n) scans the products' text against it. Requirement IDs, repo
+# names, technology names and code stay as they are.
 #
 # A term has a meaning (Vietnamese, the report's language) and, per
 # language, the words to use and the words to avoid. `use` may carry a note
@@ -9,14 +10,6 @@
 # `languages` and to each term, UI phrase and shared phrase it needs.
 
 languages: [vi, en]
-
-intro: >-
-  Bảng này áp dụng cho báo cáo định kỳ, báo cáo cuối, slide,
-  `registry/requirements.yaml` và chữ trên giao diện: ứng dụng, website,
-  email và thông báo. Cột "Không dùng" liệt kê các cách gọi đã gặp trong bản
-  thảo. Cột "Tiếng Anh" là cách gọi trên giao diện tiếng Anh. Mã yêu cầu, tên
-  repo (`shopnexus/console`, `shopnexus/agent`), tên công nghệ, mã nguồn và
-  phần `en` của registry giữ nguyên.
 
 sections:
   - title: Người và vai trò
