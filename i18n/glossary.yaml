@@ -1,0 +1,258 @@
+# The words ShopNexus uses in every language it writes, and the sentences
+# several products must say word for word. This file is the source:
+# manual/thuat-ngu.md is rendered from it (bun i18n/glossary.ts render), and
+# bun i18n/glossary.ts check scans the products' text against it.
+#
+# A term has a meaning (Vietnamese, the report's language) and, per
+# language, the words to use and the words to avoid. `use` may carry a note
+# in parentheses, which checks ignore. A new language adds its key to
+# `languages` and to each term, UI phrase and shared phrase it needs.
+
+languages: [vi, en]
+
+intro: >-
+  Bảng này áp dụng cho báo cáo định kỳ, báo cáo cuối, slide,
+  `registry/requirements.yaml` và chữ trên giao diện: ứng dụng, website,
+  email và thông báo. Cột "Không dùng" liệt kê các cách gọi đã gặp trong bản
+  thảo. Cột "Tiếng Anh" là cách gọi trên giao diện tiếng Anh. Mã yêu cầu, tên
+  repo (`shopnexus/console`, `shopnexus/agent`), tên công nghệ, mã nguồn và
+  phần `en` của registry giữ nguyên.
+
+sections:
+  - title: Người và vai trò
+    terms:
+      - meaning: tài khoản mua bán trên ứng dụng hoặc website
+        vi: { use: [người dùng], avoid: [khách hàng, user] }
+        en: { use: [user], avoid: [customer] }
+      - meaning: người chưa đăng nhập (tác nhân Khách)
+        vi: { use: [khách] }
+        en: { use: [guest] }
+      - meaning: vai trò của người dùng trong một giao dịch
+        vi: { use: [người bán, người mua], avoid: [seller, buyer] }
+        en: { use: [seller, buyer] }
+      - meaning: gọi chung điều phối viên và quản trị viên
+        vi: { use: [nhân viên], avoid: [nhân sự quản lý, thành viên console, thành viên trang điều hành, thành viên] }
+        en: { use: [staff] }
+      - meaning: nhân viên xử lý báo cáo vi phạm và phiếu hỗ trợ
+        vi: { use: [điều phối viên], avoid: [mod, moderator, kiểm duyệt viên] }
+        en: { use: [moderator] }
+      - meaning: nhân viên có thêm quyền quản lý nhân viên, nhật ký kiểm toán và cấu hình
+        vi: { use: [quản trị viên], avoid: [admin] }
+        en: { use: [administrator] }
+      - meaning: người của hãng vận chuyển giao hàng tới cửa
+        vi: { use: [shipper], avoid: [nhân viên giao hàng, người giao hàng] }
+        en: { use: [courier] }
+
+  - title: Phần mềm
+    terms:
+      - meaning: phần mềm của đề tài nói chung
+        vi: { use: [hệ thống], avoid: [sàn, nền tảng, ShopNexus (trong văn xuôi)] }
+        en: { use: [the system] }
+      - meaning: chỉ dùng cho Chợ Tốt, Facebook Marketplace, Shopee… khi khảo sát, so sánh
+        vi: { use: [nền tảng] }
+        en: { use: [platform] }
+      - meaning: ứng dụng Android cho người dùng
+        vi: { use: [ứng dụng], avoid: [app] }
+        en: { use: [app] }
+      - meaning: bản web cho người dùng
+        vi: { use: [website], avoid: [trang web] }
+        en: { use: [website] }
+      - meaning: trang web dành cho nhân viên
+        vi: { use: [trang điều hành], avoid: [console, trang quản trị, bảng điều khiển, dashboard] }
+        en: { use: [console] }
+      - meaning: trợ lý trên trang điều hành, đọc dữ liệu và đề xuất. Lần đầu trong chương 2 ghi "trợ lý AI (AI agent)"
+        vi: { use: [trợ lý AI], avoid: [agent, AI Agent, trợ lý (đứng một mình), chatbot] }
+        en: { use: [AI assistant] }
+      - meaning: tác nhân phụ trong đặc tả ca sử dụng
+        vi: { use: [dịch vụ AI] }
+        en: { use: [AI service] }
+      - meaning: lần đầu trong mỗi chương; các lần sau ghi "mô hình ngôn ngữ"
+        vi: { use: [mô hình ngôn ngữ lớn (LLM)], avoid: [mô hình AI] }
+        en: { use: [large language model (LLM)] }
+      - meaning: "một phần nghiệp vụ trong máy chủ: Tài khoản, Tin đăng, Khám phá, Trò chuyện, Giao dịch, Vận chuyển, Uy tín, Thông báo, Vận hành và hỗ trợ, Media"
+        vi: { use: [phân hệ], avoid: [module, mô-đun, dịch vụ nghiệp vụ] }
+        en: { use: [module] }
+      - meaning: "chương trình chạy riêng hoặc bên ngoài máy chủ: trợ lý AI, LiteLLM, Restate, hãng vận chuyển, dịch vụ giả lập hãng"
+        vi: { use: [dịch vụ], avoid: [service] }
+        en: { use: [service] }
+
+  - title: Tin đăng và hàng
+    terms:
+      - meaning: "bản ghi người bán đăng lên hệ thống: được đăng, sửa, ẩn, tìm thấy, giữ chỗ"
+        vi: { use: [tin đăng (viết tắt "tin" khi đã rõ)], avoid: [bài đăng, tin rao, bài viết, listing, sản phẩm] }
+        en: { use: [listing], avoid: [ad, advert] }
+      - meaning: "đồ vật thật: có tình trạng, được chụp, gửi, giao, xem tại cửa"
+        vi: { use: [món hàng, hàng], avoid: [sản phẩm, mặt hàng] }
+        en: { use: [item], avoid: [product] }
+      - meaning: giá người bán ghi trên tin đăng
+        vi: { use: [giá niêm yết], avoid: [giá bán, giá đăng, giá gốc] }
+        en: { use: [listed price], avoid: [asking price] }
+      - meaning: thang Mới / Như mới / Đã dùng
+        vi: { use: [tình trạng] }
+        en: { use: [condition] }
+      - meaning: đang xử lý, đang bán, đang ẩn, đang giữ chỗ, đã bán, bị từ chối, đã xóa
+        vi: { use: [trạng thái tin đăng] }
+        en: { use: [listing status] }
+      - meaning: đơn vị vị trí của tin đăng
+        vi: { use: [phường/xã], avoid: [xã/phường] }
+        en: { use: [commune] }
+      - meaning: ảnh của tin đăng, tin nhắn, phiếu hỗ trợ
+        vi: { use: [ảnh], avoid: [hình ảnh] }
+        en: { use: [photo], avoid: [picture] }
+      - meaning: ""
+        vi: { use: [ẩn tin, hiện tin], avoid: [gỡ tin] }
+        en: { use: [hide, show] }
+
+  - title: Trả giá
+    terms:
+      - meaning: hoạt động hai bên đưa giá qua lại (UC-DEAL-02)
+        vi: { use: [trả giá], avoid: [thương lượng, đàm phán, mặc cả] }
+        en: { use: [make an offer], avoid: [haggle, bargain, negotiate] }
+      - meaning: bản ghi của một người mua trên một tin đăng
+        vi: { use: [phiên trả giá], avoid: [thương lượng (danh từ)] }
+        en: { use: [offer thread] }
+      - meaning: "một bước trong phiên: đề nghị, phản giá, chấp nhận, từ chối, rút giá"
+        vi: { use: [lượt trả giá], avoid: [nước đi, offer] }
+        en: { use: [move] }
+      - meaning: mức giá người mua đưa ra
+        vi: { use: [giá đề nghị], avoid: [đề nghị giá] }
+        en: { use: [offer] }
+      - meaning: mức giá người bán đưa lại
+        vi: { use: [phản giá] }
+        en: { use: [counter-offer] }
+      - meaning: hành động của một bên
+        vi: { use: [chấp nhận giá] }
+        en: { use: [accept] }
+      - meaning: trạng thái sau khi một bên chấp nhận
+        vi: { use: [chốt giá, đã chốt giá] }
+        en: { use: [agreed price] }
+
+  - title: Đơn và giao nhận
+    terms:
+      - meaning: đơn giao COD đồng kiểm
+        vi: { use: [đơn COD (viết tắt "đơn" khi đã rõ)], avoid: [đơn hàng, order] }
+        en: { use: [COD order ("order" once clear)] }
+      - meaning: thao tác người mua tạo đơn COD
+        vi: { use: [yêu cầu COD] }
+        en: { use: [cash on delivery] }
+      - meaning: chờ tạo đơn, đã gửi, hoàn tất, giao không thành, đã hủy
+        vi: { use: [trạng thái đơn], avoid: [hoàn thành, giao không thành công, giao thất bại] }
+        en: { use: [order status] }
+      - meaning: vận đơn trên tài khoản GHTK/GHN của người bán
+        vi: { use: [vận đơn, mã vận đơn] }
+        en: { use: [waybill, tracking code] }
+      - meaning: GHTK, GHN
+        vi: { use: [hãng vận chuyển (viết tắt "hãng")], avoid: [đơn vị vận chuyển, nhà vận chuyển, bên vận chuyển, carrier] }
+        en: { use: [carrier], avoid: [shipping company] }
+      - meaning: phí hãng tính, người nhận trả khi nhận hàng
+        vi: { use: [phí vận chuyển], avoid: [phí ship, phí giao hàng, cước] }
+        en: { use: [shipping fee] }
+      - meaning: người mua xem hàng tại cửa rồi nhận hoặc từ chối
+        vi: { use: [đồng kiểm] }
+        en: { use: [check at the door] }
+
+  - title: Trò chuyện và hỗ trợ
+    terms:
+      - meaning: giữa hai người dùng, giữa người dùng và hệ thống trong phiếu hỗ trợ, giữa nhân viên và trợ lý AI
+        vi: { use: [cuộc trò chuyện], avoid: [hội thoại, luồng hội thoại, chat, cuộc chat] }
+        en: { use: [conversation] }
+      - meaning: ""
+        vi: { use: [tin nhắn, tin nhắn hệ thống] }
+        en: { use: [message, system message] }
+      - meaning: danh sách cuộc trò chuyện của một người dùng
+        vi: { use: [hộp thư] }
+        en: { use: [inbox] }
+      - meaning: yêu cầu người dùng gửi cho hệ thống (UC-MOD-09)
+        vi: { use: [phiếu hỗ trợ], avoid: [ticket, yêu cầu hỗ trợ, khiếu nại] }
+        en: { use: [support ticket], avoid: [complaint] }
+      - meaning: chỉ dùng khi khảo sát các nền tảng khác
+        vi: { use: [khiếu nại] }
+        en: { use: [complaint] }
+      - meaning: người dùng báo một tin đăng hoặc tài khoản
+        vi: { use: [báo cáo vi phạm], avoid: [tố cáo, report] }
+        en: { use: [report] }
+      - meaning: các báo cáo vi phạm về cùng một tài khoản, gom lại
+        vi: { use: [ca báo cáo] }
+        en: { use: [report case] }
+      - meaning: ""
+        vi: { use: [tạm khóa tài khoản], avoid: [khóa tài khoản, bị khóa, cấm, ban] }
+        en: { use: [suspend the account], avoid: [ban, banned] }
+      - meaning: dòng ghi lại mỗi thao tác của nhân viên (UC-SHR-02, UC-MOD-05)
+        vi: { use: [nhật ký kiểm toán], avoid: [nhật ký thao tác, audit log] }
+        en: { use: [audit log] }
+      - meaning: ""
+        vi: { use: [đánh giá, trả lời đánh giá], avoid: [nhận xét, review] }
+        en: { use: [review, reply to a review] }
+      - meaning: ""
+        vi: { use: [số liệu uy tín, hạn mức], avoid: [điểm uy tín, bậc uy tín] }
+        en: { use: [reputation figures, limits], avoid: [reputation points, tier] }
+      - meaning: ""
+        vi: { use: [cảnh báo lừa đảo] }
+        en: { use: [scam warning] }
+
+  - title: Đăng nhập và thông báo
+    terms:
+      - meaning: mã dùng một lần khi đăng nhập hoặc thêm email
+        vi: { use: [mã OTP], avoid: [mã xác thực, mã đăng nhập, mã xác minh] }
+        en: { use: [code], avoid: [verification code, OTP] }
+      - meaning: ""
+        vi: { use: [phiên đăng nhập], avoid: [session] }
+        en: { use: [session] }
+      - meaning: thông báo gửi tới điện thoại
+        vi: { use: [thông báo đẩy], avoid: [push] }
+        en: { use: [push notification] }
+
+  - title: Chính tả
+    terms:
+      - meaning: dấu thanh đặt trên nguyên âm chính, như sách giáo khoa hiện hành
+        vi: { use: [hủy, khóa, thủy, hòa, lũy], avoid: [huỷ, khoá, thuỷ, hoà, luỹ] }
+
+# Phrases the UI may use though they hold an avoided term, because they mean
+# something else or are a name.
+ui:
+  vi:
+    - { phrase: [ShopNexus], instead_of: ShopNexus, why: 'tên thương hiệu trên logo, chân trang và câu như "ShopNexus không giữ tiền"' }
+    - { phrase: [hàng cấm, chất cấm], instead_of: cấm, why: hàng bị cấm bán, không phải tạm khóa tài khoản }
+    - { phrase: [ban đêm], instead_of: ban, why: 'từ tiếng Việt, không phải "ban" tài khoản' }
+    - { phrase: [đã mod], instead_of: mod, why: máy game đã độ, không phải điều phối viên }
+    - { phrase: [Uy tín của bạn], instead_of: "", why: tên màn hình số liệu uy tín và hạn mức của người dùng }
+    - { phrase: [Nhắn tin, Nhắn tin với], instead_of: chat, why: 'nút mở cuộc trò chuyện; trong câu vẫn viết "cuộc trò chuyện"' }
+    - { phrase: [Đơn COD], instead_of: đơn hàng, why: tên màn hình danh sách đơn và nhóm thông báo, email }
+
+# Sentences each listed product must contain word for word in every language
+# it writes. A product that adds a language needs the phrase in it.
+phrases:
+  - id: tagline
+    why: khẩu hiệu
+    in: [app, website, server]
+    vi: Đồ cũ giá tốt, xem hàng rồi mới trả
+    en: Good prices on used things, check before you pay
+  - id: payout
+    why: khi nào người bán nhận tiền
+    in: [app, website, server]
+    vi: Hãng vận chuyển gửi tiền hàng cho bạn 1–2 ngày sau khi người mua nhận.
+    en: The carrier pays you 1–2 days after the buyer receives the item.
+  - id: return_leg
+    why: ai trả phí khi người mua từ chối nhận
+    in: [app, website]
+    vi: Người mua từ chối nhận thì bạn trả phí vận chuyển cả chiều đi và chiều về.
+  - id: after_pay
+    why: không đòi lại tiền đã trả shipper
+    in: [app, website]
+    vi: Đã trả tiền cho shipper thì không đòi lại qua ứng dụng được.
+  - id: no_arbitration
+    why: hệ thống không phân xử
+    in: [app, website]
+    vi: Hệ thống không phân xử giữa người mua và người bán.
+  - id: door_check
+    why: cách đồng kiểm
+    in: [app, website]
+    vi: Shipper tới, bạn mở hàng xem rồi mới trả tiền. Không ưng thì từ chối nhận, hàng quay về người bán và bạn không mất tiền.
+  - id: delivery
+    why: cách giao trong một câu
+    in: [app, website]
+    vi: Giao tận nơi, xem hàng rồi mới trả
+  - id: like_new
+    why: tình trạng Như mới
+    in: [app, website]
+    vi: Không vết, hoặc vết rất nhỏ chỉ thấy khi soi gần

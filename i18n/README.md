@@ -2,8 +2,23 @@
 
 The app, the website and the server write Vietnamese today and are built to
 add English. The design is in
-`docs/superpowers/specs/2026-11-23-i18n-design.md`. Words follow
-`docs/manual/thuat-ngu.md`.
+`docs/superpowers/specs/2026-11-23-i18n-design.md`.
+
+## Glossary
+
+`docs/i18n/glossary.yaml` is the source of the words. Each term has, per
+language, the words to use and the words to avoid; `ui` lists phrases the UI
+may use though they hold an avoided word ("hàng cấm"); `phrases` lists the
+sentences several products must write word for word, such as when a seller
+is paid. `docs/manual/thuat-ngu.md`, the table the report follows, is
+rendered from it with `bun docs/i18n/glossary.ts render`; edit the YAML,
+never the Markdown.
+
+`bun docs/i18n/glossary.ts check` scans every language each product writes
+(the app's `res/values*/strings.xml`, the website's `src/i18n/<lang>`, the
+server's `<lang>.json` catalogs). It fails on an avoided word, on a shared
+phrase a listed product lacks or has no text for in a language it writes,
+and on a `thuat-ngu.md` that no longer matches the YAML.
 
 ## Where text lives
 
@@ -32,7 +47,8 @@ Layout embeds as JSON, so scripts carry no dictionary.
 1. Pick the area that owns the screen (`orders`, `account`…, a feature
    module's `strings.xml`, a server catalog).
 2. Write the Vietnamese with the glossary's terms. A count with a noun is a
-   plural on the app and a function on the website.
+   plural on the app and a function on the website. A sentence that another
+   product also says belongs in the glossary's `phrases`.
 3. Read it through `t` (website), `stringResource` (app) or `say` (server).
    A code from the API gets its label from the client's dictionary.
 
@@ -45,6 +61,9 @@ Layout embeds as JSON, so scripts carry no dictionary.
 - App: `values-<tag>/strings.xml` and the tag in `locales_config.xml`.
 - Each platform's `format` tests read `format-cases.json`; add the language's
   column there.
+- Glossary: the tag in `languages`, the language's words in each term, its
+  `ui` phrases, and its text for every shared phrase of a product that now
+  writes it.
 
 ## Checks
 
@@ -55,7 +74,7 @@ Layout embeds as JSON, so scripts carry no dictionary.
 | website: `npx astro check` | a language missing a key (types) and a key no dictionary has |
 | website: `node --test src/i18n/*.test.ts` | a format case, and a dictionary key no code names |
 | app: lint `MissingTranslation`, `UnusedResources` | a string missing in a language, a string no code reads |
-| umbrella: `make i18n` | a repo's `format-cases.json` that differs from `docs/i18n/format-cases.json`, and a glossary term listed under "Không dùng" in any product's UI text |
+| umbrella: `make i18n` | a repo's `format-cases.json` that differs from `docs/i18n/format-cases.json`, and everything `glossary.ts check` checks |
 
 `docs/i18n/sync.sh` copies `format-cases.json` into the three repos after
 you change it.
