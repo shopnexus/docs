@@ -229,23 +229,29 @@ phrases:
     why: ai trả phí khi người mua từ chối nhận
     in: [app, website]
     vi: Người mua từ chối nhận thì bạn trả phí vận chuyển cả chiều đi và chiều về.
+    en: If the buyer refuses the parcel, you pay the shipping fee both ways.
   - id: after_pay
     why: không đòi lại tiền đã trả shipper
     in: [app, website]
     vi: Đã trả tiền cho shipper thì không đòi lại qua ứng dụng được.
+    en: Once you have paid the courier, you cannot get the money back through the app.
   - id: no_arbitration
     why: hệ thống không phân xử
     in: [app, website]
     vi: Hệ thống không phân xử giữa người mua và người bán.
+    en: ShopNexus does not settle disputes between buyers and sellers.
   - id: door_check
     why: cách đồng kiểm
     in: [app, website]
     vi: Shipper tới, bạn mở hàng xem rồi mới trả tiền. Không ưng thì từ chối nhận, hàng quay về người bán và bạn không mất tiền.
+    en: The courier arrives, you open the parcel and check the item before paying. If it is not right, refuse it; it goes back to the seller and you lose nothing.
   - id: delivery
     why: cách giao trong một câu
     in: [app, website]
     vi: Giao tận nơi, xem hàng rồi mới trả
+    en: Delivered to your door, check before you pay
   - id: like_new
     why: tình trạng Như mới
     in: [app, website]
     vi: Không vết, hoặc vết rất nhỏ chỉ thấy khi soi gần
+    en: No marks, or tiny ones you only see up close
