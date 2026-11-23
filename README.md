@@ -1,18 +1,20 @@
-# document
-Documentations for shopnexus
+# Tài liệu ShopNexus
 
-## Docs site
+Repository này lưu tài liệu phát triển ShopNexus và các sản phẩm của đồ án tốt nghiệp. Nội dung gồm tài liệu sản phẩm, yêu cầu, kiến trúc, API, vận hành và các báo cáo được biên soạn bằng tiếng Việt.
 
-The developer docs are an Astro site in `web/`. See `web/README.md` for writing pages.
+Website tài liệu có bản tiếng Việt và tiếng Anh. Chạy website bằng Bun:
 
 ```bash
 cd web
 bun install
-bun run dev        # http://localhost:4321
+bun run dev
 ```
 
-Every push to `main` builds the site and publishes it on GitHub Pages, at https://shopnexus.github.io/docs/ (`.github/workflows/pages.yml`).
+Để tạo bản tĩnh, chạy `bun run build` trong thư mục website. Các báo cáo và slide được biên dịch bằng Typst:
 
-## API reference
+```bash
+cd typst
+make all
+```
 
-The OpenAPI spec lives in the server repository, under `api/`. The docs site explains the conventions; the spec is the reference for every endpoint.
+Các mã yêu cầu và thông tin truy vết được dùng chung giữa báo cáo và website tài liệu.
