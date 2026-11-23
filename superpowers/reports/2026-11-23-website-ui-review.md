@@ -60,6 +60,13 @@ Xếp theo giá trị trên công sức.
 | 11 | Tự hạ giá dần tới giá sàn (sau mục 5) | Mercari Smart Pricing | có | M |
 | 12 | Gom nhiều món của một người bán vào một đơn COD | [Vinted](https://www.vinted.co.uk/help/260-buying-a-bundle) | có | L |
 
+Đã làm ngày 23/11/2026:
+
+- [x] 1 Báo cáo tin, trên trang tin và trang người bán: website `14bb79f`.
+- [x] 2 "Bán món giống vậy?": website `14bb79f` (app: đang làm).
+- [x] 3 Chế độ tạm nghỉ: server `3cce3d03` (`away_until`, 409 `seller_away` cho trả giá, chốt giá, COD), website `739e035` (app: đang làm).
+- [x] 7 Chip đánh giá: server `84e7ccfc` (`tags` trên review, `Rating.tags`), website `63cb021` (app: đang làm).
+
 Bỏ: tỉ lệ phản hồi (web đã hiện `reply_time`); xác thực hàng thật và bảo vệ người mua (cần giữ tiền); hiện số điện thoại (kéo giao dịch ra ngoài chat); hẹn gặp trực tiếp (bỏ qua vận đơn COD); tìm trên bản đồ (đã có lọc khoảng cách); nhãn ship trả trước (cần thu tiền).
 
 ## Dữ liệu thử còn trên dev
