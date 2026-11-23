@@ -2,7 +2,7 @@
 
 Bảng này áp dụng cho báo cáo định kỳ, báo cáo cuối, slide, `registry/requirements.yaml` và chữ trên giao diện: ứng dụng, website, email và thông báo. Cột "Không dùng" liệt kê các cách gọi đã gặp trong bản thảo. Mã yêu cầu, tên repo (`shopnexus/console`, `shopnexus/agent`), tên công nghệ, mã nguồn và phần `en` của registry giữ nguyên.
 
-`python3 docs/i18n/check-terms.py` quét chữ trên giao diện của ứng dụng, website và máy chủ theo cột "Không dùng" và mục "Giao diện" ở cuối bảng.
+`bun docs/i18n/check-terms.ts` quét chữ trên giao diện của ứng dụng, website và máy chủ theo cột "Không dùng" và mục "Giao diện" ở cuối bảng.
 
 ## Người và vai trò
 
