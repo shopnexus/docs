@@ -63,9 +63,9 @@ Xếp theo giá trị trên công sức.
 Đã làm ngày 23/11/2026:
 
 - [x] 1 Báo cáo tin, trên trang tin và trang người bán: website `14bb79f`.
-- [x] 2 "Bán món giống vậy?": website `14bb79f` (app: đang làm).
-- [x] 3 Chế độ tạm nghỉ: server `3cce3d03` (`away_until`, 409 `seller_away` cho trả giá, chốt giá, COD), website `739e035` (app: đang làm).
-- [x] 7 Chip đánh giá: server `84e7ccfc` (`tags` trên review, `Rating.tags`), website `63cb021` (app: đang làm).
+- [x] 2 "Bán món giống vậy?": website `14bb79f`, app `d6a9cbb8`.
+- [x] 3 Chế độ tạm nghỉ: server `3cce3d03` (`away_until`, 409 `seller_away` cho trả giá, chốt giá, COD), website `739e035`, app `d6a9cbb8`.
+- [x] 7 Chip đánh giá: server `84e7ccfc` (`tags` trên review, `Rating.tags`), website `63cb021`, app `d6a9cbb8`.
 
 Bỏ: tỉ lệ phản hồi (web đã hiện `reply_time`); xác thực hàng thật và bảo vệ người mua (cần giữ tiền); hiện số điện thoại (kéo giao dịch ra ngoài chat); hẹn gặp trực tiếp (bỏ qua vận đơn COD); tìm trên bản đồ (đã có lọc khoảng cách); nhãn ship trả trước (cần thu tiền).
 
