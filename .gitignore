@@ -10,6 +10,7 @@
 !/LICENSE
 !/README.md
 !/registry/
+!/i18n/
 !/manual/
 !/nginx.conf
 !/package.json
@@ -29,3 +30,6 @@ typst/tmp/
 
 # Superdesign scratch files.
 web/.superdesign/tmp/
+
+# Python bytecode from docs/i18n scripts.
+__pycache__/

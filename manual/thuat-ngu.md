@@ -1,6 +1,8 @@
 # Thuật ngữ thống nhất
 
-Bảng này áp dụng cho báo cáo định kỳ, báo cáo cuối, slide và `registry/requirements.yaml`. Cột "Không dùng" liệt kê các cách gọi đã gặp trong bản thảo. Mã yêu cầu, tên repo (`shopnexus/console`, `shopnexus/agent`), tên công nghệ, mã nguồn và phần `en` của registry giữ nguyên.
+Bảng này áp dụng cho báo cáo định kỳ, báo cáo cuối, slide, `registry/requirements.yaml` và chữ trên giao diện: ứng dụng, website, email và thông báo. Cột "Không dùng" liệt kê các cách gọi đã gặp trong bản thảo. Mã yêu cầu, tên repo (`shopnexus/console`, `shopnexus/agent`), tên công nghệ, mã nguồn và phần `en` của registry giữ nguyên.
+
+`python3 docs/i18n/check-terms.py` quét chữ trên giao diện của ứng dụng, website và máy chủ theo cột "Không dùng" và mục "Giao diện" ở cuối bảng.
 
 ## Người và vai trò
 
@@ -62,7 +64,7 @@ Bảng này áp dụng cho báo cáo định kỳ, báo cáo cuối, slide và `
 | yêu cầu COD | thao tác người mua tạo đơn COD | |
 | trạng thái đơn | chờ tạo đơn, đã gửi, hoàn tất, giao không thành, đã hủy | hoàn thành, giao không thành công, giao thất bại |
 | vận đơn, mã vận đơn | vận đơn trên tài khoản GHTK/GHN của người bán | |
-| hãng vận chuyển (viết tắt "hãng") | GHTK, GHN | đơn vị vận chuyển, nhà vận chuyển, carrier |
+| hãng vận chuyển (viết tắt "hãng") | GHTK, GHN | đơn vị vận chuyển, nhà vận chuyển, bên vận chuyển, carrier |
 | phí vận chuyển | phí hãng tính, người nhận trả khi nhận hàng | phí ship, phí giao hàng, cước |
 | đồng kiểm | người mua xem hàng tại cửa rồi nhận hoặc từ chối | |
 
@@ -77,7 +79,7 @@ Bảng này áp dụng cho báo cáo định kỳ, báo cáo cuối, slide và `
 | khiếu nại | chỉ dùng khi khảo sát các nền tảng khác | |
 | báo cáo vi phạm | người dùng báo một tin đăng hoặc tài khoản | tố cáo, report |
 | ca báo cáo | các báo cáo vi phạm về cùng một tài khoản, gom lại | |
-| tạm khóa tài khoản | | khóa tài khoản, cấm, ban |
+| tạm khóa tài khoản | | khóa tài khoản, bị khóa, cấm, ban |
 | nhật ký kiểm toán | dòng ghi lại mỗi thao tác của nhân viên (UC-SHR-02, UC-MOD-05) | nhật ký thao tác, audit log |
 | đánh giá, trả lời đánh giá | | nhận xét, review |
 | số liệu uy tín, hạn mức | | điểm uy tín, bậc uy tín |
@@ -87,6 +89,26 @@ Bảng này áp dụng cho báo cáo định kỳ, báo cáo cuối, slide và `
 
 | Dùng | Nghĩa | Không dùng |
 |---|---|---|
-| mã OTP | mã dùng một lần khi đăng nhập | mã xác thực, mã đăng nhập, mã xác minh |
+| mã OTP | mã dùng một lần khi đăng nhập hoặc thêm email | mã xác thực, mã đăng nhập, mã xác minh |
 | phiên đăng nhập | | session |
 | thông báo đẩy | thông báo gửi tới điện thoại | push |
+
+## Chính tả
+
+| Dùng | Nghĩa | Không dùng |
+|---|---|---|
+| hủy, khóa, thủy, hòa, lũy | dấu thanh đặt trên nguyên âm chính, như sách giáo khoa hiện hành | huỷ, khoá, thuỷ, hoà, luỹ |
+
+## Giao diện
+
+Cách gọi được phép trên giao diện dù cột "Không dùng" ở trên có liệt kê, vì nghĩa khác hoặc vì là tên riêng.
+
+| Dùng trên giao diện | Thay cho | Lý do |
+|---|---|---|
+| ShopNexus | ShopNexus | tên thương hiệu trên logo, chân trang và câu như "ShopNexus không giữ tiền" |
+| hàng cấm, chất cấm | cấm | hàng bị cấm bán, không phải tạm khóa tài khoản |
+| ban đêm | ban | từ tiếng Việt, không phải "ban" tài khoản |
+| đã mod | mod | máy game đã độ, không phải điều phối viên |
+| Uy tín của bạn | | tên màn hình số liệu uy tín và hạn mức của người dùng |
+| Nhắn tin, Nhắn tin với … | chat | nút mở cuộc trò chuyện; trong câu vẫn viết "cuộc trò chuyện" |
+| Đơn COD | đơn hàng | tên màn hình danh sách đơn và nhóm thông báo, email |
