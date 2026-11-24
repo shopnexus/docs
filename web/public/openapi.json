@@ -3,7 +3,7 @@
   "info": {
     "title": "ShopNexus API",
     "version": "0.1.0",
-    "description": "The HTTP contract between the ShopNexus app and its server. The server\nvalidates every request against this document, and the end-to-end suite\nvalidates every response against it. The docs site explains each module:\nhttps://docs.shopnexus.id.vn/en/api.\n\n## Signing in\n\n1. `POST /v1/auth/email-codes` mails a six-digit code to an email address.\n2. `POST /v1/auth/sign-in` with that code returns an access token and a\n   refresh token. The first sign-in of an address creates the account. A\n   phone number Firebase verified or a Google account signs in the same way.\n3. Send the access token as `Authorization: Bearer <token>`. It lasts 15\n   minutes; `POST /v1/auth/refresh` returns a new one and rotates the\n   refresh token.\n4. A call that needs a sign-in within 15 minutes answers 428\n   `reauth_required` after that. `POST /v1/auth/sessions/current/reauthenticate`\n   with a new proof of the same account returns an access token that\n   passes it.\n\nIn the playground, paste the access token under Authentication. It stays in\nthis browser only.\n\n## Requests and answers\n\n- Bodies are JSON. A field the schema does not list is 400.\n- A write the app may send twice takes an `Idempotency-Key` header: a new\n  UUID per user action, the same one on a retry. A repeated key returns the\n  first answer.\n- Lists page with `cursor` and `limit`; pass the `next_cursor` of one page to\n  get the next.\n- Every error has the body `{\"error\": {\"code\", \"message\", \"fields\",\n  \"details\", \"trace_id\"}}`. `code` is stable and snake_case, and each operation lists the\n  codes it can return. `trace_id` equals the `Trace-Id` header.\n- A resource the caller may not see is 404, the same as one that does not\n  exist.\n\n## Live updates\n\n`GET /v1/ws` is a WebSocket that tells the open app what changed for the\ncaller; the playground cannot open it. `GET /v1/updates` returns the same\nupdates after a `since` seq, for an app with no socket open.\n"
+    "description": "The HTTP contract between the ShopNexus app and its server. The server\nvalidates every request against this document, and the end-to-end suite\nvalidates every response against it. The docs site explains each module:\nhttps://docs.shopnexus.id.vn/en/api.\n\n## Signing in\n\n1. `POST /v1/auth/email-codes` mails a six-digit code to an email address.\n2. `POST /v1/auth/sign-in` with that code returns an access token and a\n   refresh token. The first sign-in of an address creates the account. A\n   phone number Firebase verified or a Google account signs in the same way.\n3. Send the access token as `Authorization: Bearer <token>`. It lasts 15\n   minutes; `POST /v1/auth/refresh` returns a new one and rotates the\n   refresh token.\n4. A call that needs a sign-in within 15 minutes answers 428\n   `reauth_required` after that. `POST /v1/auth/sessions/current/reauthenticate`\n   with a new proof of the same account returns an access token that\n   passes it.\n\nIn the playground, paste the access token under Authentication. It stays in\nthis browser only.\n\n## Requests and answers\n\n- Bodies are JSON. A field the schema does not list is 400.\n- A write the app may send twice takes an `Idempotency-Key` header: a new\n  UUID per user action, the same one on a retry. A repeated key returns the\n  first answer.\n- Lists page with `cursor` and `limit`; pass the `next_cursor` of one page to\n  get the next.\n- Every error has the body `{\"error\": {\"code\", \"message\", \"fields\",\n  \"details\", \"trace_id\"}}`. `code` is stable and snake_case, and each operation lists the\n  codes it can return. `trace_id` equals the `Trace-Id` header.\n- A resource the caller may not see is 404, the same as one that does not\n  exist.\n- Any operation answers 429 `rate_limited`, with `details.retry_after` in\n  seconds, when one address or one signed-in caller sends faster than its\n  tier allows. `x-rate-limit` names an operation's tier; without it, GET\n  is `read` and every other method `write`.\n\n## Live updates\n\n`GET /v1/ws` is a WebSocket that tells the open app what changed for the\ncaller; the playground cannot open it. `GET /v1/updates` returns the same\nupdates after a `since` seq, for an app with no socket open.\n"
   },
   "servers": [
     {
@@ -76,6 +76,11 @@
       "description": "Tickets the caller opens with ShopNexus and their chat."
     },
     {
+      "name": "feedback",
+      "x-displayName": "Feedback",
+      "description": "Feedback the caller sends ShopNexus, which needs no answer, and what became of it."
+    },
+    {
       "name": "notification",
       "x-displayName": "Notifications",
       "description": "The caller's notices, their read state, push tokens and notification settings."
@@ -99,6 +104,11 @@
       "name": "system",
       "x-displayName": "Health",
       "description": "Liveness and readiness checks."
+    },
+    {
+      "name": "beacon",
+      "x-displayName": "Client events",
+      "description": "What the website and the app report about errors, page speed, request times and search results."
     },
     {
       "name": "internal",
@@ -139,6 +149,7 @@
       "tags": [
         "trust",
         "support",
+        "feedback",
         "notification",
         "stream"
       ]
@@ -158,7 +169,8 @@
     {
       "name": "System",
       "tags": [
-        "system"
+        "system",
+        "beacon"
       ]
     }
   ],
@@ -166,6 +178,7 @@
     "/healthz": {
       "get": {
         "operationId": "getHealthz",
+        "x-rate-limit": "exempt",
         "summary": "Liveness: the process is up.",
         "tags": [
           "system",
@@ -188,6 +201,7 @@
     "/readyz": {
       "get": {
         "operationId": "getReadyz",
+        "x-rate-limit": "exempt",
         "summary": "Readiness: the process can reach its dependencies.",
         "tags": [
           "system",
@@ -220,6 +234,7 @@
     "/v1/auth/sign-in": {
       "post": {
         "operationId": "signIn",
+        "x-rate-limit": "auth",
         "summary": "Sign in, or sign up on first use, with a phone number Firebase verified, a Google account or an email code.",
         "description": "phone_token is what Firebase returned for the number: the ID token of\nFirebase Authentication after an SMS code, or the Phone Number\nVerification token of the SIM. google_token is the Google ID token\nCredential Manager returned; it proves the account's email, and an\nemail identity with that address is the same account. email_code is\nthe code sendEmailCode mailed. A token must be at most 5 minutes old.\nA repeated Idempotency-Key with a proof of the same address returns\nthe first sign-in's session with a new refresh token.\n",
         "tags": [
@@ -228,6 +243,9 @@
         "parameters": [
           {
             "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
           }
         ],
         "requestBody": {
@@ -296,6 +314,7 @@
     "/v1/auth/email-codes": {
       "post": {
         "operationId": "sendEmailCode",
+        "x-rate-limit": "code",
         "summary": "Mail a six-digit code to sign in, or sign up on first use, with an email address.",
         "description": "The reply is the same whether or not an account holds the address.\nThe code lasts 5 minutes and takes 5 guesses. Limits: one code per\naddress per 45 seconds, five per address per hour, twenty per client\naddress per hour.\n",
         "tags": [
@@ -304,6 +323,9 @@
         "parameters": [
           {
             "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
           }
         ],
         "requestBody": {
@@ -460,6 +482,7 @@
     "/v1/auth/sessions/current/reauthenticate": {
       "post": {
         "operationId": "reauthenticateSession",
+        "x-rate-limit": "auth",
         "summary": "Prove again that the caller holds the account, for the calls that need a sign-in within 15 minutes.",
         "description": "Takes a proof as signIn does: a phone_token, a google_token or an\nemail_code from sendEmailCode. The proof must name a phone number or\nan email address of the caller's account. A proof of another account,\nor of an address no account holds, is wrong_account, and no account\nis created or changed. The session's sign-in time becomes the time the\nproof was checked. The reply is a new access token that carries it;\nthe refresh token stays as it was, and the tokens it refreshes carry\nthe new time too. A repeated Idempotency-Key with a proof of the same\naddress answers as the first request did and keeps the first\nrequest's sign-in time.\n",
         "tags": [
@@ -650,8 +673,8 @@
       },
       "patch": {
         "operationId": "updateMyAccount",
-        "summary": "Change the display name, the bio or the avatar.",
-        "description": "A new avatar is processed before the reply, which carries its URL.\n",
+        "summary": "Change the display name, the bio, the avatar or away mode.",
+        "description": "A new avatar is processed before the reply, which carries its URL.\naway_until sets or clears away mode (tạm nghỉ): until then, buyers\ncannot make an offer, accept a price or ask for COD on the caller's\nlistings (409 seller_away), while chat, the caller's own moves and\norders already placed go on.\n",
         "tags": [
           "account"
         ],
@@ -697,7 +720,7 @@
             "$ref": "#/components/responses/Conflict"
           },
           "422": {
-            "description": "The name or the bio breaks a rule (invalid_account, with fields), or the avatar upload is not the caller's or not a photo media can process (invalid_upload).",
+            "description": "The name, the bio or away_until breaks a rule (invalid_account, with fields), or the avatar upload is not the caller's or not a photo media can process (invalid_upload).",
             "content": {
               "application/json": {
                 "schema": {
@@ -749,6 +772,7 @@
     "/v1/accounts/me/email-codes": {
       "post": {
         "operationId": "sendMyEmailCode",
+        "x-rate-limit": "code",
         "summary": "Mail a six-digit code that adds this email address to the caller's account.",
         "description": "The code works only for the caller's account, through\nPOST /v1/accounts/me/identities. Needs a sign-in within 15 minutes.\nLimits as for sendEmailCode.\n",
         "tags": [
@@ -762,6 +786,9 @@
         "parameters": [
           {
             "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
           }
         ],
         "requestBody": {
@@ -1507,6 +1534,7 @@
     "/v1/listing-reads": {
       "post": {
         "operationId": "createListingRead",
+        "x-rate-limit": "costly",
         "x-uc": [
           "UC-LST-01"
         ],
@@ -1708,6 +1736,7 @@
     "/v1/link-previews": {
       "post": {
         "operationId": "previewLink",
+        "x-rate-limit": "costly",
         "x-uc": [
           "UC-LST-01"
         ],
@@ -1794,6 +1823,7 @@
     "/v1/price-guides": {
       "post": {
         "operationId": "createPriceGuide",
+        "x-rate-limit": "costly",
         "x-uc": [
           "UC-LST-01"
         ],
@@ -1891,6 +1921,15 @@
         "responses": {
           "201": {
             "description": "The listing, in processing.",
+            "headers": {
+              "Vary": {
+                "description": "Accept-Language, on a response whose text follows the request's language, so a cache keeps one copy per language.",
+                "required": true,
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -1926,7 +1965,7 @@
             }
           },
           "422": {
-            "description": "A field breaks a rule (invalid_listing, with fields), or an upload is not the caller's, not uploaded yet, or already used (invalid_upload).",
+            "description": "A field breaks a rule (invalid_listing, with fields; details.missing_spec_keys when specs the category asks for lack a value), or an upload is not the caller's, not uploaded yet, or already used (invalid_upload).",
             "content": {
               "application/json": {
                 "schema": {
@@ -1966,6 +2005,15 @@
         "responses": {
           "200": {
             "description": "The listing.",
+            "headers": {
+              "Vary": {
+                "description": "Accept-Language, on a response whose text follows the request's language, so a cache keeps one copy per language.",
+                "required": true,
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -2034,6 +2082,15 @@
         "responses": {
           "200": {
             "description": "The listing.",
+            "headers": {
+              "Vary": {
+                "description": "Accept-Language, on a response whose text follows the request's language, so a cache keeps one copy per language.",
+                "required": true,
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -2072,7 +2129,7 @@
             }
           },
           "422": {
-            "description": "A field breaks a rule (invalid_listing, with fields), or an added upload is not the caller's, not uploaded yet, or already used (invalid_upload).",
+            "description": "A field breaks a rule (invalid_listing, with fields; details.missing_spec_keys when specs the category asks for lack a value), or an added upload is not the caller's, not uploaded yet, or already used (invalid_upload).",
             "content": {
               "application/json": {
                 "schema": {
@@ -2170,6 +2227,15 @@
         "responses": {
           "200": {
             "description": "The listing.",
+            "headers": {
+              "Vary": {
+                "description": "Accept-Language, on a response whose text follows the request's language, so a cache keeps one copy per language.",
+                "required": true,
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -2236,6 +2302,15 @@
         "responses": {
           "200": {
             "description": "The listing.",
+            "headers": {
+              "Vary": {
+                "description": "Accept-Language, on a response whose text follows the request's language, so a cache keeps one copy per language.",
+                "required": true,
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -2302,6 +2377,15 @@
         "responses": {
           "200": {
             "description": "The listing.",
+            "headers": {
+              "Vary": {
+                "description": "Accept-Language, on a response whose text follows the request's language, so a cache keeps one copy per language.",
+                "required": true,
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -2368,6 +2452,15 @@
         "responses": {
           "200": {
             "description": "The listing.",
+            "headers": {
+              "Vary": {
+                "description": "Accept-Language, on a response whose text follows the request's language, so a cache keeps one copy per language.",
+                "required": true,
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -2695,9 +2788,23 @@
         "tags": [
           "catalog"
         ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Every category.",
+            "headers": {
+              "Vary": {
+                "description": "Accept-Language, on a response whose text follows the request's language, so a cache keeps one copy per language.",
+                "required": true,
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -3195,7 +3302,7 @@
           "UC-DEAL-02"
         ],
         "summary": "Make an offer, or a counter to the buyer's offer.",
-        "description": "The buyer offers; the seller counters the buyer's open offer. The\namount must lie inside the deal's offer_range.\n",
+        "description": "The buyer offers; the seller counters the buyer's open offer. The\namount must lie inside the deal's offer_range. A buyer's offer is\nrefused while the seller is in away mode.\n",
         "tags": [
           "deal"
         ],
@@ -3263,7 +3370,7 @@
             }
           },
           "409": {
-            "description": "The deal's state or the caller's side does not allow an offer (move_not_allowed), the listing is not on sale (listing_unavailable), or the other side moved first (deal_changed).",
+            "description": "The deal's state or the caller's side does not allow an offer (move_not_allowed), the listing is not on sale (listing_unavailable), the buyer offers while the seller is in away mode (seller_away), or the other side moved first (deal_changed).",
             "content": {
               "application/json": {
                 "schema": {
@@ -3292,7 +3399,7 @@
           "UC-DEAL-02"
         ],
         "summary": "Agree the deal at a price.",
-        "description": "The side facing an open price accepts it; the buyer may also accept\nthe listed price at any time while negotiating.\n",
+        "description": "The side facing an open price accepts it. The buyer takes the\nlisted price by asking for COD at it (POST /v1/deals/{id}/cod). The\nbuyer's accept is refused while the seller is in away mode.\n",
         "tags": [
           "deal"
         ],
@@ -3360,7 +3467,7 @@
             }
           },
           "409": {
-            "description": "Nothing to accept (move_not_allowed), the listing is not on sale (listing_unavailable), the price has changed (price_changed), or the other side moved first (deal_changed).",
+            "description": "Nothing to accept (move_not_allowed), the listing is not on sale (listing_unavailable), the buyer accepts while the seller is in away mode (seller_away), the price has changed (price_changed), or the other side moved first (deal_changed).",
             "content": {
               "application/json": {
                 "schema": {
@@ -3633,8 +3740,8 @@
         "x-uc": [
           "UC-DEAL-03"
         ],
-        "summary": "Ask for cash on delivery on an agreed deal.",
-        "description": "The buyer of an agreed deal with no open order, on a listing on sale,\nwith fewer than 3 open orders, to one of the buyer's addresses. The\norder keeps a copy of the address as its recipient. It starts\npending; either side may cancel it until the seller creates the\nshipment, and it is cancelled with seller_timeout when the seller has\ncreated none 3 days later. A repeated Idempotency-Key of the caller\nruns nothing more: it answers the first request's refusal, or the\ndeal as it is now.\n",
+        "summary": "Order the listing with cash on delivery, at the price the buyer saw.",
+        "description": "Mua ngay. On an agreed deal the price is the agreed one. On a deal\nstill negotiating it is the listed price or the seller's open\ncounter, and the order agrees the deal at it in the same save, with\nno accept move; a lower price is an offer (POST\n/v1/deals/{id}/offer). The buyer of a deal with no open order, on a\nlisting on sale, with fewer than 3 open orders, to one of the\nbuyer's addresses, while the seller is not in away mode. The order\nkeeps a copy of the address as its recipient. It starts\npending; either side may cancel it until the seller creates the\nshipment, and it is cancelled with seller_timeout when the seller has\ncreated none 3 days later. A repeated Idempotency-Key of the caller\nruns nothing more: it answers the first request's refusal, or the\ndeal as it is now.\n",
         "tags": [
           "deal"
         ],
@@ -3705,7 +3812,7 @@
             }
           },
           "409": {
-            "description": "The deal is not agreed or has an open order, or the caller is the seller (move_not_allowed); the listing is not on sale (listing_unavailable); the saved pickup is absent (pickup_not_configured); the buyer has 3 open orders (cod_limit_reached); or the deal changed meanwhile (deal_changed).",
+            "description": "The deal is sold or has an open order, or the caller is the seller (move_not_allowed); the price is not the one on offer (price_changed); the listing is not on sale (listing_unavailable); the saved pickup is absent (pickup_not_configured); the seller is in away mode (seller_away); the buyer has 3 open orders (cod_limit_reached); or the deal changed meanwhile (deal_changed).",
             "content": {
               "application/json": {
                 "schema": {
@@ -4197,6 +4304,15 @@
         "responses": {
           "200": {
             "description": "The view.",
+            "headers": {
+              "Vary": {
+                "description": "Accept-Language, on a response whose text follows the request's language, so a cache keeps one copy per language.",
+                "required": true,
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -4508,10 +4624,10 @@
     "/v1/dev/shipments/{code}/status": {
       "post": {
         "operationId": "setShipmentStatus",
-        "summary": "Set the status of every shipment with a tracking code, as its carrier would.",
-        "description": "Served only with CARRIER=fake, which the dev and test stacks run, to\nanyone, since the fake carrier's shipments move only through it.\nProduction runs CARRIER=none and does not serve it. It calls the entry point the real\ncarriers' reports will use. A closed order changes nothing.\ndelivered completes the order 3 days later unless the buyer\nconfirms first; failed fails it at once and releases the listing.\n",
+        "summary": "Report a step of every shipment with a tracking code, as its carrier would.",
+        "description": "Served only with CARRIER=fake, which the dev and test stacks run, to\nanyone, since the fake carrier's parcels move only through it.\nProduction does not serve it. The step joins the parcel's timeline\nand moves its orders as a carrier's report does: delivered completes\nthe order 3 days later unless the buyer confirms first; returning or\nreturned fails it at once and releases the listing. A closed order\nchanges nothing.\n",
         "tags": [
-          "deal",
+          "shipping",
           "internal"
         ],
         "parameters": [
@@ -4529,7 +4645,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ShipmentStatusChange"
+                "$ref": "#/components/schemas/DevShipmentReport"
               }
             }
           }
@@ -4543,16 +4659,6 @@
           },
           "404": {
             "description": "No order has a shipment with the tracking code (shipment_not_found).",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "The status is not pending_pickup, in_transit, delivered or failed (invalid_status).",
             "content": {
               "application/json": {
                 "schema": {
@@ -4608,7 +4714,7 @@
       "put": {
         "operationId": "linkCarrierAccount",
         "summary": "Link the caller's account at a carrier, or replace the one linked.",
-        "description": "GHTK: the seller's email and password, exchanged at once for the\nshop's token through GHTK's partner API; the password is not stored.\nGHN: the seller's token and ShopId, checked against GHN's shop list.\nThe token is stored encrypted and never returned.\n",
+        "description": "GHTK: the seller's email and password, exchanged at once for the\nshop's token through GHTK's partner API; the password is not stored.\nGHN: the seller's token and ShopId, checked against GHN's shop list;\nor the phone and the code from POST .../otp, with which GHN makes the\nseller a shop that ShopNexus is staff of, so no token is kept.\nThe token is stored encrypted and never returned.\n",
         "tags": [
           "shipping"
         ],
@@ -4645,7 +4751,7 @@
             "$ref": "#/components/responses/Unauthorized"
           },
           "422": {
-            "description": "The carrier refused the account (carrier_login_failed), or the carrier is not ghtk or ghn, or the body is the other carrier's (invalid_carrier).",
+            "description": "The carrier refused the account (carrier_login_failed), the code is wrong or expired (carrier_otp_invalid), the phone has no GHN account or is not a mobile (carrier_phone_unknown), GHN refused for a reason of its own (carrier_refused), or the carrier is not ghtk or ghn, or the body is the other carrier's (invalid_carrier).",
             "content": {
               "application/json": {
                 "schema": {
@@ -4717,9 +4823,80 @@
         }
       }
     },
+    "/v1/carrier-accounts/{carrier}/otp": {
+      "post": {
+        "operationId": "sendCarrierOTP",
+        "x-rate-limit": "code",
+        "summary": "Have GHN text the code that links the seller's GHN account.",
+        "tags": [
+          "shipping"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "carrier",
+            "in": "path",
+            "required": true,
+            "description": "ghn; another value is 422 invalid_carrier.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CarrierOTPRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "GHN texted the code; it lasts 10 minutes."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "422": {
+            "description": "No GHN account has the phone, or it is not a mobile (carrier_phone_unknown), or the carrier is not ghn (invalid_carrier).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "503": {
+            "description": "The stack has no carrier, CARRIER=none (carrier_unavailable).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/carrier-accounts/{carrier}/pickups": {
       "get": {
         "operationId": "listCarrierPickups",
+        "x-rate-limit": "costly",
         "summary": "The pickup points the caller registered at the carrier, read from it.",
         "tags": [
           "shipping"
@@ -4790,6 +4967,7 @@
     "/v1/shipments/quote": {
       "get": {
         "operationId": "quoteShipment",
+        "x-rate-limit": "costly",
         "summary": "The carrier's fee for a linked shipment of a pending order, read-only.",
         "description": "The seller, before making a linked shipment. The fee depends on the\norder's recipient, the pickup and the weight. Give carrier_pickup_id\nor address_id or saved_pickup=true, exclusively, or none for the carrier's default pickup point.\n",
         "tags": [
@@ -4931,6 +5109,7 @@
     "/v1/carriers/{carrier}/webhook/{secret}": {
       "post": {
         "operationId": "carrierWebhook",
+        "x-rate-limit": "exempt",
         "x-uc": [
           "UC-DEAL-05"
         ],
@@ -4993,11 +5172,23 @@
           },
           {
             "$ref": "#/components/parameters/Limit"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
           }
         ],
         "responses": {
           "200": {
             "description": "One page of notices.",
+            "headers": {
+              "Vary": {
+                "description": "Accept-Language, on a response whose text follows the request's language, so a cache keeps one copy per language.",
+                "required": true,
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -5945,7 +6136,7 @@
       "get": {
         "operationId": "getQuickReplies",
         "summary": "The caller's quick replies; an account that never saved any reads the defaults.",
-        "description": "The defaults are three answers a seller often gives. Reading them\nwrites nothing; the first PUT saves the list.\n",
+        "description": "The defaults are three answers a seller often gives, in the request's\nlanguage. Reading them writes nothing; the first PUT saves the list.\n",
         "tags": [
           "chat"
         ],
@@ -5954,9 +6145,23 @@
             "bearerAuth": []
           }
         ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
+          }
+        ],
         "responses": {
           "200": {
             "description": "The quick replies.",
+            "headers": {
+              "Vary": {
+                "description": "Accept-Language, on a response whose text follows the request's language, so a cache keeps one copy per language.",
+                "required": true,
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -6046,11 +6251,23 @@
           },
           {
             "$ref": "#/components/parameters/Limit"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
           }
         ],
         "responses": {
           "200": {
             "description": "One page of the inbox.",
+            "headers": {
+              "Vary": {
+                "description": "Accept-Language, on a response whose text follows the request's language, so a cache keeps one copy per language.",
+                "required": true,
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -6095,11 +6312,23 @@
           },
           {
             "$ref": "#/components/parameters/Limit"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
           }
         ],
         "responses": {
           "200": {
             "description": "The matches.",
+            "headers": {
+              "Vary": {
+                "description": "Accept-Language, on a response whose text follows the request's language, so a cache keeps one copy per language.",
+                "required": true,
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -6149,11 +6378,23 @@
               "type": "string",
               "format": "uuid"
             }
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
           }
         ],
         "responses": {
           "200": {
             "description": "The chat.",
+            "headers": {
+              "Vary": {
+                "description": "Accept-Language, on a response whose text follows the request's language, so a cache keeps one copy per language.",
+                "required": true,
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -6207,11 +6448,23 @@
           },
           {
             "$ref": "#/components/parameters/RadiusKm"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
           }
         ],
         "responses": {
           "200": {
             "description": "The Home view.",
+            "headers": {
+              "Vary": {
+                "description": "Accept-Language, on a response whose text follows the request's language, so a cache keeps one copy per language.",
+                "required": true,
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -6276,6 +6529,15 @@
         "responses": {
           "200": {
             "description": "The listing view.",
+            "headers": {
+              "Vary": {
+                "description": "Accept-Language, on a response whose text follows the request's language, so a cache keeps one copy per language.",
+                "required": true,
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -6574,7 +6836,7 @@
             }
           },
           "422": {
-            "description": "Stars or text break a rule (invalid_review, with fields), or a photo is not one the caller may use (invalid_upload).",
+            "description": "Stars, text or tags break a rule (invalid_review, with fields), or a photo is not one the caller may use (invalid_upload).",
             "content": {
               "application/json": {
                 "schema": {
@@ -7212,7 +7474,7 @@
       "get": {
         "operationId": "search",
         "summary": "Search active listings; without q, browse them.",
-        "description": "Three ways to search, all under the person's filters and sorts. With q a\nmodel reads the query; BM25 on its words, its Vietnamese rewrite against\nlisting text vectors and its English description against listing photos\nare fused by weighted RRF. With photo, the photo against listing photos\nalone. With like, the listing's title, text vector and photos. Without\nany, the call browses, newest first by default, and category alone is the\ncategory page. sort=nearby is the \"Gần bạn\" feed, which Home's first page\ncomes from. A model that fails leaves the lists it feeds out; q then\nsearches its raw words, with no chips. A signed-in caller's first page\nwith q is kept in the search history, and a signed-in caller never sees\nthe listings they hid nor those of an account on either side of their\nblocks. With watch, a watch of the caller's runs its query and filters.\nphoto and watch need a signed-in caller. province keeps the listings of\none province, in the results and in counts, and goes with every other\nfilter.\n",
+        "description": "Three ways to search, all under the person's filters and sorts. With q\nfrom a signed-in caller a model reads the query; BM25 on its words, its\nVietnamese rewrite against listing text vectors and its English\ndescription against listing photos are fused by weighted RRF. A guest's\nq searches its raw words through BM25 alone, on the listing text with\ndiacritics folded away and one edit allowed in long words; a caller's\nq past 200 model reads that UTC day adds their text vector. Neither\nhas chips. A guest's\naddress makes 2 searches with q a second, in bursts of 30; past them\n429. With photo, the photo against listing photos\nalone. With like, the listing's title, text vector and photos. Without\nany, the call browses, newest first by default, and category alone is the\ncategory page. sort=nearby is the \"Gần bạn\" feed, which Home's first page\ncomes from. A model that fails leaves the lists it feeds out; q then\nsearches its raw words, with no chips. A signed-in caller's first page\nwith q is kept in the search history, and a signed-in caller never sees\nthe listings they hid nor those of an account on either side of their\nblocks. With watch, a watch of the caller's runs its query and filters.\nphoto and watch need a signed-in caller. province keeps the listings of\none province, in the results and in counts, and goes with every other\nfilter.\n",
         "tags": [
           "discovery"
         ],
@@ -7340,11 +7602,23 @@
           },
           {
             "$ref": "#/components/parameters/Limit"
+          },
+          {
+            "$ref": "#/components/parameters/AcceptLanguage"
           }
         ],
         "responses": {
           "200": {
             "description": "One page of listings.",
+            "headers": {
+              "Vary": {
+                "description": "Accept-Language, on a response whose text follows the request's language, so a cache keeps one copy per language.",
+                "required": true,
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -7386,6 +7660,9 @@
               }
             }
           },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
           "503": {
             "description": "search_unavailable: the photo could not be embedded; try again.",
             "content": {
@@ -7395,6 +7672,44 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/v1/client-events": {
+      "post": {
+        "operationId": "sendClientEvents",
+        "x-rate-limit": "telemetry",
+        "summary": "Report what a client saw that the server cannot.",
+        "description": "A batch of up to 50 events from the website or the Android app: a\nscript error, a Core Web Vital, how long a request took on the client,\nand which search results were shown and which was opened. The server\nturns them into metrics and log lines and keeps no rows. Anyone may\ncall it, signed in or not, up to 2 batches a second from one address\nin bursts of 60.\n",
+        "tags": [
+          "beacon"
+        ],
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClientEvents"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Recorded."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
           }
         }
       }
@@ -8256,6 +8571,111 @@
         }
       }
     },
+    "/v1/feedback": {
+      "get": {
+        "operationId": "listMyFeedback",
+        "summary": "The caller's feedback, newest first.",
+        "tags": [
+          "feedback"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "At most 100; a person sends few.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeedbackList"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      },
+      "post": {
+        "operationId": "sendFeedback",
+        "summary": "Send feedback to ShopNexus.",
+        "description": "Feedback needs no answer, unlike a ticket. It needs a mood or a text.\nAt most 20 in 24 hours. A repeated Idempotency-Key returns the feedback\nits first request made. A suspended account may send feedback.\n",
+        "tags": [
+          "feedback"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FeedbackDraft"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The feedback this key already made.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Feedback"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Sent.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Feedback"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "422": {
+            "description": "No mood and no text (invalid_feedback, with fields), or a photo that is not the caller's or was refused (invalid_upload).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "20 feedback in the last 24 hours (too_many_feedback).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/console/login": {
       "parameters": [
         {
@@ -8264,6 +8684,7 @@
       ],
       "post": {
         "operationId": "consoleLogin",
+        "x-rate-limit": "auth",
         "summary": "Sign a console member in.",
         "description": "Every call sends the email and password. The first sign-in takes up to\nthree calls: one that answers password_change_required, one with\nnew_password that answers totp_enrollment_required (the console then\ncalls totp-enrollment), and one with the new password and a code.\nLater sign-ins send the password and a code together.\n\nAn unknown email, a wrong password and a disabled member all get\ninvalid_credentials. Each call counts toward the email's lock until the\npassword proves right; a wrong code counts too. Five failures on one\nemail lock it for 15 minutes, whether or not a member has the email.\nSuccess sets the console_session cookie.\n",
         "tags": [
@@ -8324,6 +8745,7 @@
       ],
       "post": {
         "operationId": "consoleLoginTotpEnrollment",
+        "x-rate-limit": "auth",
         "summary": "Start TOTP enrollment during the first sign-in.",
         "description": "Only a member without TOTP may call it; a second call replaces the\nsecret of the first. The password counts toward the email's lock as in\nlogin.\n",
         "tags": [
@@ -9273,6 +9695,479 @@
           },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/v1/console/feedback": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/ConsoleCSRF"
+        }
+      ],
+      "get": {
+        "operationId": "listConsoleFeedback",
+        "summary": "Feedback, newest first.",
+        "tags": [
+          "console",
+          "internal"
+        ],
+        "security": [
+          {
+            "consoleAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FeedbackStatusQuery"
+          },
+          {
+            "$ref": "#/components/parameters/FeedbackKindQuery"
+          },
+          {
+            "$ref": "#/components/parameters/Cursor"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Done.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsoleFeedbackList"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/v1/console/feedback/groups": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/ConsoleCSRF"
+        }
+      ],
+      "get": {
+        "operationId": "listConsoleFeedbackGroups",
+        "summary": "Feedback groups, largest first, with their figures.",
+        "tags": [
+          "console",
+          "internal"
+        ],
+        "security": [
+          {
+            "consoleAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FeedbackKindQuery"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Done.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeedbackGroupList"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/v1/console/feedback/summary": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/ConsoleCSRF"
+        }
+      ],
+      "get": {
+        "operationId": "getConsoleFeedbackSummary",
+        "summary": "What was sent in the last 30 days.",
+        "tags": [
+          "console",
+          "internal"
+        ],
+        "security": [
+          {
+            "consoleAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Done.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeedbackSummary"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/v1/console/feedback/{id}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/ConsoleCSRF"
+        }
+      ],
+      "get": {
+        "operationId": "getConsoleFeedback",
+        "summary": "A feedback with the rest of its group.",
+        "tags": [
+          "console",
+          "internal"
+        ],
+        "security": [
+          {
+            "consoleAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ConsoleFeedbackID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Done.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsoleFeedbackDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "description": "No such feedback (feedback_not_found).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/console/feedback/{id}/status": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/ConsoleCSRF"
+        }
+      ],
+      "post": {
+        "operationId": "setConsoleFeedbackStatus",
+        "summary": "Set the status of a feedback's whole group.",
+        "description": "Sets the status, note and version of the feedback, its group's root and\nevery feedback joined to it. A note or version left out or blank is\ncleared. A move to in_progress or shipped tells each owner whose status\nchanged.\n",
+        "tags": [
+          "console",
+          "internal"
+        ],
+        "security": [
+          {
+            "consoleAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ConsoleFeedbackID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConsoleFeedbackStatus"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Done.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsoleFeedback"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "description": "No such feedback (feedback_not_found).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "A version without shipped (invalid_feedback, with fields).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/console/feedback/{id}/reply": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/ConsoleCSRF"
+        }
+      ],
+      "post": {
+        "operationId": "replyConsoleFeedback",
+        "summary": "Set ShopNexus's one reply to a feedback.",
+        "description": "A second call replaces the text. Only the first tells the owner.",
+        "tags": [
+          "console",
+          "internal"
+        ],
+        "security": [
+          {
+            "consoleAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ConsoleFeedbackID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConsoleFeedbackReply"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Done.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsoleFeedback"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "description": "No such feedback (feedback_not_found).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "A blank text (invalid_feedback, with fields).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/console/feedback/{id}/heart": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/ConsoleCSRF"
+        },
+        {
+          "$ref": "#/components/parameters/ConsoleFeedbackID"
+        }
+      ],
+      "put": {
+        "operationId": "heartConsoleFeedback",
+        "summary": "Heart a feedback.",
+        "tags": [
+          "console",
+          "internal"
+        ],
+        "security": [
+          {
+            "consoleAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Done.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsoleFeedback"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "description": "No such feedback (feedback_not_found).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "unheartConsoleFeedback",
+        "summary": "Take a feedback's heart back.",
+        "tags": [
+          "console",
+          "internal"
+        ],
+        "security": [
+          {
+            "consoleAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Done.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsoleFeedback"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "description": "No such feedback (feedback_not_found).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/console/feedback/{id}/same-as": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/ConsoleCSRF"
+        }
+      ],
+      "post": {
+        "operationId": "joinConsoleFeedback",
+        "summary": "Join a feedback to another's group.",
+        "description": "Groups are flat: each feedback points at its group's root. Joining a\nroot moves the feedback joined to it too. The moved feedback take the\ngroup's status, note and version.\n",
+        "tags": [
+          "console",
+          "internal"
+        ],
+        "security": [
+          {
+            "consoleAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ConsoleFeedbackID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConsoleFeedbackSameAs"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Done.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsoleFeedback"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "description": "No such feedback, either one (feedback_not_found).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "feedback_id is the feedback itself (invalid_feedback, with fields).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           }
         }
       }
@@ -12660,6 +13555,7 @@
     "/v1/console/dashboard-auth": {
       "get": {
         "operationId": "authorizeConsoleDashboard",
+        "x-rate-limit": "exempt",
         "summary": "Traefik's forwardAuth check in front of every ops dashboard.",
         "description": "Traefik calls it with the dashboard request's Cookie and its\nX-Forwarded-* headers; no console header. X-Forwarded-Host names the\ndashboard through DASHBOARD_HOSTS, and the console_dashboard cookie\nmust belong to that dashboard and to a console session that still\nlives, of a member whose role opens the dashboard. Without such a\ncookie a GET is sent to the console, which asks for a ticket; any\nother method gets 401. Traefik copies X-Console-Email and X-Console-Role\nonto the request it lets through and drops a client's own.\n",
         "tags": [
@@ -12915,6 +13811,11 @@
           "created_at": {
             "type": "string",
             "format": "date-time"
+          },
+          "away_until": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When away mode (tạm nghỉ) ends; absent when the person is not away.\nBuyers cannot offer, accept or ask for COD on their listings before\nthen.\n"
           }
         }
       },
@@ -12922,7 +13823,7 @@
         "type": "object",
         "additionalProperties": false,
         "minProperties": 1,
-        "description": "The fields to change; at least one. The text rules are business rules:\nbreaking one answers 422 invalid_account with an entry per field.\n",
+        "description": "The fields to change; at least one. The text and time rules are\nbusiness rules: breaking one answers 422 invalid_account with an entry\nper field.\n",
         "properties": {
           "display_name": {
             "type": "string",
@@ -12939,6 +13840,14 @@
             ],
             "format": "uuid",
             "description": "An upload of the caller's, which becomes the avatar once processed\ninto a square; null removes the avatar.\n"
+          },
+          "away_until": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "Turns away mode (tạm nghỉ) on until this time, which must be in the\nfuture and at most 30 days ahead (422 invalid_account, field\naway_until); null turns it off. Away mode ends by itself then.\n"
           }
         }
       },
@@ -13017,7 +13926,12 @@
               "ai.agent_update",
               "ai.rotation",
               "ai.budgets",
-              "dashboard.floor"
+              "dashboard.floor",
+              "feedback.status",
+              "feedback.reply",
+              "feedback.heart",
+              "feedback.unheart",
+              "feedback.same_as"
             ]
           },
           "target": {
@@ -13039,7 +13953,8 @@
                   "ai_model",
                   "ai_agent",
                   "ai_settings",
-                  "dashboard"
+                  "dashboard",
+                  "feedback"
                 ]
               },
               "id": {
@@ -15713,7 +16628,7 @@
       "CarrierLogin": {
         "type": "object",
         "additionalProperties": false,
-        "description": "GHTK takes the seller's email and password; GHN takes the seller's API token and ShopId. A body holds one pair and nothing of the other.",
+        "description": "GHTK takes the seller's email and password; GHN takes the seller's API token and ShopId, or the phone of the seller's GHN account and the code GHN texted to it. A body holds one pair and nothing of the others.",
         "oneOf": [
           {
             "required": [
@@ -15725,6 +16640,12 @@
             "required": [
               "token",
               "shop_id"
+            ]
+          },
+          {
+            "required": [
+              "phone",
+              "otp"
             ]
           }
         ],
@@ -15740,6 +16661,12 @@
           ],
           "shop_id": [
             "token"
+          ],
+          "phone": [
+            "otp"
+          ],
+          "otp": [
+            "phone"
           ]
         },
         "properties": {
@@ -15766,6 +16693,33 @@
             "minLength": 1,
             "maxLength": 50,
             "description": "GHN's ShopId."
+          },
+          "phone": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20,
+            "description": "The phone of the seller's GHN account, sent to POST /v1/carrier-accounts/ghn/otp first."
+          },
+          "otp": {
+            "type": "string",
+            "minLength": 4,
+            "maxLength": 10,
+            "description": "The code GHN texted to phone; GHN makes the seller a shop with ShopNexus as its staff."
+          }
+        }
+      },
+      "CarrierOTPRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "phone"
+        ],
+        "properties": {
+          "phone": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20,
+            "description": "The phone of the seller's GHN account, a Vietnamese mobile."
           }
         }
       },
@@ -15775,6 +16729,7 @@
         "required": [
           "code",
           "display_name",
+          "specs",
           "spec_labels"
         ],
         "properties": {
@@ -15786,11 +16741,20 @@
             "description": "Absent on a root. A listing takes a category with a parent."
           },
           "display_name": {
-            "type": "string"
+            "type": "string",
+            "description": "The name in the request's language, as \"Điện thoại\" or \"Phones\"."
+          },
+          "specs": {
+            "type": "array",
+            "description": "The specs a listing under it must fill, in order. Empty on a root and on \"Khác\".",
+            "items": {
+              "$ref": "#/components/schemas/CategorySpec"
+            }
           },
           "spec_labels": {
             "type": "array",
-            "description": "The specs a listing under it must fill, in order. Empty on a root and on \"Khác\".",
+            "deprecated": true,
+            "description": "The names of specs in Vietnamese, for apps that predate specs.",
             "items": {
               "type": "string"
             }
@@ -15860,6 +16824,25 @@
             "items": {
               "$ref": "#/components/schemas/Category"
             }
+          }
+        }
+      },
+      "CategorySpec": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "key",
+          "name"
+        ],
+        "properties": {
+          "key": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "description": "Stays the same in every language, as brand or storage."
+          },
+          "name": {
+            "type": "string",
+            "description": "In the request's language, as \"Hãng\" or \"Brand\"."
           }
         }
       },
@@ -15992,7 +16975,164 @@
             ]
           },
           "label": {
-            "type": "string"
+            "type": "string",
+            "description": "In the request's language, as \"Dưới 3 triệu\" or \"Under 3M ₫\". A\nphrase or a place reads as the model wrote it, in Vietnamese.\n"
+          }
+        }
+      },
+      "ClientError": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "type",
+          "message"
+        ],
+        "description": "A script error the page did not catch. The app reports its crashes to Crashlytics instead.",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "error"
+            ]
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          },
+          "stack": {
+            "type": "string",
+            "maxLength": 8000
+          },
+          "page": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "The page's path, without its query."
+          }
+        }
+      },
+      "ClientEvent": {
+        "description": "One thing the client saw, picked by type.",
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/ClientError"
+          },
+          {
+            "$ref": "#/components/schemas/WebVital"
+          },
+          {
+            "$ref": "#/components/schemas/ClientRequest"
+          },
+          {
+            "$ref": "#/components/schemas/SearchImpression"
+          },
+          {
+            "$ref": "#/components/schemas/SearchClick"
+          }
+        ],
+        "discriminator": {
+          "propertyName": "type",
+          "mapping": {
+            "error": "#/ClientError",
+            "vital": "#/WebVital",
+            "request": "#/ClientRequest",
+            "search_impression": "#/SearchImpression",
+            "search_click": "#/SearchClick"
+          }
+        }
+      },
+      "ClientEvents": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "app",
+          "events"
+        ],
+        "properties": {
+          "app": {
+            "type": "string",
+            "enum": [
+              "website",
+              "android"
+            ]
+          },
+          "events": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 50,
+            "items": {
+              "$ref": "#/components/schemas/ClientEvent"
+            }
+          }
+        }
+      },
+      "ClientRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "type",
+          "method",
+          "path",
+          "status",
+          "duration_ms"
+        ],
+        "description": "One API call as the client timed it, network included.",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "request"
+            ]
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "GET",
+              "POST",
+              "PUT",
+              "PATCH",
+              "DELETE"
+            ]
+          },
+          "path": {
+            "type": "string",
+            "pattern": "^/",
+            "maxLength": 300,
+            "description": "The request's path, without its query. The server reads the route from it."
+          },
+          "status": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 599,
+            "description": "The response's status, 0 when none came."
+          },
+          "duration_ms": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 600000
+          },
+          "network": {
+            "type": "string",
+            "enum": [
+              "wifi",
+              "cellular",
+              "other"
+            ]
+          },
+          "trace_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{32}$",
+            "description": "The trace id the client sent in traceparent, which the response's Trace-Id header repeats."
+          },
+          "span_id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{16}$",
+            "description": "The parent span id the client sent in traceparent."
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the client sent the request. With trace_id and span_id, the server records the client's span, under which its own spans of the call hang; one more than an hour old or ahead of the server's clock is left out."
           }
         }
       },
@@ -16061,9 +17201,16 @@
         "type": "object",
         "additionalProperties": false,
         "required": [
+          "price",
           "address_id"
         ],
         "properties": {
+          "price": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "description": "The price the buyer saw. On an agreed deal, the agreed price. On a deal still negotiating, the listed price or the seller's open counter; the order agrees the deal at it. Any other price is price_changed."
+          },
           "address_id": {
             "type": "string",
             "format": "uuid",
@@ -16288,6 +17435,146 @@
             "items": {
               "$ref": "#/components/schemas/ConsoleAgent"
             }
+          }
+        }
+      },
+      "ConsoleFeedback": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "feedback",
+          "account_id",
+          "person",
+          "contact",
+          "source",
+          "root_id"
+        ],
+        "properties": {
+          "feedback": {
+            "$ref": "#/components/schemas/Feedback"
+          },
+          "account_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Who sent it."
+          },
+          "person": {
+            "$ref": "#/components/schemas/FeedbackPerson"
+          },
+          "device": {
+            "$ref": "#/components/schemas/FeedbackDevice"
+          },
+          "screen": {
+            "type": "string",
+            "description": "The app screen or the website's route it was sent from."
+          },
+          "contact": {
+            "type": "boolean",
+            "description": "Whether ShopNexus may ask the person more, through Hỗ trợ."
+          },
+          "source": {
+            "$ref": "#/components/schemas/FeedbackSource"
+          },
+          "page_url": {
+            "type": "string",
+            "description": "The website's page it was sent on."
+          },
+          "root_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The root of its group; its own id for a root."
+          }
+        }
+      },
+      "ConsoleFeedbackDetail": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "item",
+          "group"
+        ],
+        "properties": {
+          "item": {
+            "$ref": "#/components/schemas/ConsoleFeedback"
+          },
+          "group": {
+            "type": "array",
+            "maxItems": 50,
+            "description": "The rest of its group, the root included, newest first.",
+            "items": {
+              "$ref": "#/components/schemas/ConsoleFeedback"
+            }
+          }
+        }
+      },
+      "ConsoleFeedbackList": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ConsoleFeedback"
+            }
+          },
+          "next_cursor": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "ConsoleFeedbackReply": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "text"
+        ],
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          }
+        }
+      },
+      "ConsoleFeedbackSameAs": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "feedback_id"
+        ],
+        "properties": {
+          "feedback_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "A feedback of the group to join."
+          }
+        }
+      },
+      "ConsoleFeedbackStatus": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/FeedbackStatus"
+          },
+          "note": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80,
+            "description": "The short note the app shows with the status."
+          },
+          "version": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20,
+            "description": "The app version that has it; only with shipped."
           }
         }
       },
@@ -17410,6 +18697,33 @@
           }
         }
       },
+      "DevShipmentReport": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "step"
+        ],
+        "properties": {
+          "step": {
+            "$ref": "#/components/schemas/ShipmentStep"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "warehouse": {
+            "type": "string"
+          },
+          "shipper_name": {
+            "type": "string"
+          },
+          "shipper_phone": {
+            "type": "string"
+          },
+          "proof_url": {
+            "type": "string"
+          }
+        }
+      },
       "DevUpdate": {
         "description": "An update to log for the caller, with exactly the IDs its kind carries.",
         "oneOf": [
@@ -17666,7 +18980,14 @@
               },
               "fields": {
                 "type": "object",
-                "description": "One entry per invalid field, keyed by its JSON path.",
+                "description": "One entry per invalid field, keyed by its JSON path, in English for developers.",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              },
+              "field_codes": {
+                "type": "object",
+                "description": "The code of each entry in fields, by the same keys, so a client\nwrites the problem in its own words: required, too_short,\ntoo_long (text), too_few, too_many (lists), out_of_range,\noff_step (an amount between two steps), invalid (type or\nformat), not_allowed (a value the field does not take there),\nunknown (names nothing that exists, or a property the schema\nlacks), duplicate, one_of (takes exactly one of several fields),\nmissing_specs (with details.missing_spec_keys), parcel_failed or\nin_use. More may come; a client reads an unknown code as\ninvalid.\n",
                 "additionalProperties": {
                   "type": "string"
                 }
@@ -17689,6 +19010,22 @@
                   "reason": {
                     "type": "string",
                     "description": "What the carrier answered, in its words and language, sent with carrier_refused."
+                  },
+                  "missing_spec_keys": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "The keys of the specs the listing's category asks for that it lacks, in the category's order, sent with invalid_listing when field_codes.specs is missing_specs."
+                  },
+                  "missing_specs": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "The Vietnamese names of missing_spec_keys, in the same order, for clients older than the keys."
                   }
                 }
               },
@@ -17696,6 +19033,436 @@
                 "type": "string",
                 "description": "Equals the Trace-Id response header."
               }
+            }
+          }
+        }
+      },
+      "Feedback": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "photos",
+          "status",
+          "others",
+          "hearted",
+          "created_at",
+          "status_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "mood": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5,
+            "description": "Absent when the person picked none."
+          },
+          "kind": {
+            "$ref": "#/components/schemas/FeedbackKind"
+          },
+          "text": {
+            "type": "string",
+            "description": "Absent when the person wrote none."
+          },
+          "photos": {
+            "type": "array",
+            "description": "The screenshots in their order; empty without any.",
+            "items": {
+              "$ref": "#/components/schemas/FeedbackPhoto"
+            }
+          },
+          "status": {
+            "$ref": "#/components/schemas/FeedbackStatus"
+          },
+          "status_note": {
+            "type": "string",
+            "maxLength": 80,
+            "description": "Staff's short note on the status: for in_progress something like\n\"Dự kiến bản 2.6\", for shipped the headline, like \"Bộ lọc Size khung\nđã có\".\n"
+          },
+          "shipped_version": {
+            "type": "string",
+            "maxLength": 20,
+            "description": "The app version that has it, with shipped.",
+            "example": "2.5"
+          },
+          "others": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "How many other people's feedback staff joined to this one, for \"Bạn và 12 người khác\"."
+          },
+          "reply": {
+            "$ref": "#/components/schemas/FeedbackReply"
+          },
+          "hearted": {
+            "type": "boolean",
+            "description": "Staff hearted it; the app shows it on praise."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the status last changed; created_at at first."
+          }
+        }
+      },
+      "FeedbackDevice": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "model",
+          "os"
+        ],
+        "description": "The phone or browser it was sent from, for staff.",
+        "properties": {
+          "model": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "The phone, or the browser with its version.",
+            "example": "Pixel 9"
+          },
+          "os": {
+            "type": "string",
+            "maxLength": 40,
+            "example": "Android 16"
+          },
+          "app_version": {
+            "type": "string",
+            "maxLength": 40,
+            "description": "The app's version; none from a browser.",
+            "example": "2.5.0"
+          }
+        }
+      },
+      "FeedbackDraft": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "contact"
+        ],
+        "description": "Feedback needs a mood or a text that is not blank (invalid_feedback, with\nfields).\n",
+        "properties": {
+          "mood": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5,
+            "description": "The face the person picked, 1 (Tệ) to 5 (Tuyệt)."
+          },
+          "kind": {
+            "$ref": "#/components/schemas/FeedbackKind"
+          },
+          "text": {
+            "type": "string",
+            "maxLength": 1000,
+            "description": "Trimmed; a blank text counts as none."
+          },
+          "photos": {
+            "type": "array",
+            "maxItems": 3,
+            "uniqueItems": true,
+            "description": "Screenshots, as photo uploads of the caller's.",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "device": {
+            "$ref": "#/components/schemas/FeedbackDevice"
+          },
+          "screen": {
+            "type": "string",
+            "maxLength": 60,
+            "description": "The app screen or the website's route it was sent from, for staff.",
+            "example": "search_results"
+          },
+          "contact": {
+            "type": "boolean",
+            "description": "Whether ShopNexus may ask the person more, through Hỗ trợ."
+          },
+          "source": {
+            "$ref": "#/components/schemas/FeedbackSource"
+          },
+          "page_url": {
+            "type": "string",
+            "maxLength": 500,
+            "description": "The website's page it was sent on, with the browser info; trimmed.",
+            "example": "https://shopnexus.id.vn/search?q=laptop"
+          }
+        }
+      },
+      "FeedbackGroup": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "root",
+          "size",
+          "moods",
+          "app",
+          "web",
+          "days"
+        ],
+        "properties": {
+          "root": {
+            "$ref": "#/components/schemas/ConsoleFeedback"
+          },
+          "size": {
+            "type": "integer",
+            "description": "The feedback in the group, the root included."
+          },
+          "moods": {
+            "type": "array",
+            "minItems": 5,
+            "maxItems": 5,
+            "items": {
+              "type": "integer"
+            },
+            "description": "How many gave each mood, 1 to 5."
+          },
+          "app": {
+            "type": "integer"
+          },
+          "web": {
+            "type": "integer"
+          },
+          "days": {
+            "type": "array",
+            "minItems": 7,
+            "maxItems": 7,
+            "items": {
+              "type": "integer"
+            },
+            "description": "Sent on each of the last seven days, oldest first."
+          }
+        }
+      },
+      "FeedbackGroupList": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "$ref": "#/components/schemas/FeedbackGroup"
+            }
+          }
+        }
+      },
+      "FeedbackKind": {
+        "type": "string",
+        "enum": [
+          "bug",
+          "idea",
+          "praise"
+        ]
+      },
+      "FeedbackList": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "description": "The caller's feedback, newest first, at most 100.",
+            "items": {
+              "$ref": "#/components/schemas/Feedback"
+            }
+          }
+        }
+      },
+      "FeedbackPerson": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "display_name",
+          "status"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Empty for a person without a name or a deleted account."
+          },
+          "contact": {
+            "type": "string",
+            "description": "The phone number, or the email address without one."
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "suspended",
+              "deleted"
+            ]
+          }
+        }
+      },
+      "FeedbackPhoto": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "upload_id",
+          "url",
+          "thumb_url"
+        ],
+        "properties": {
+          "upload_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "The photo, at most 1600 px on its long side."
+          },
+          "thumb_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "A 400 px thumbnail."
+          }
+        }
+      },
+      "FeedbackReply": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "text",
+          "at"
+        ],
+        "description": "ShopNexus's one reply.",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "FeedbackScreenCount": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "screen",
+          "count"
+        ],
+        "properties": {
+          "screen": {
+            "type": "string"
+          },
+          "count": {
+            "type": "integer"
+          }
+        }
+      },
+      "FeedbackSource": {
+        "type": "string",
+        "enum": [
+          "app",
+          "web"
+        ],
+        "description": "Where it was sent from, the app or the website; app when absent."
+      },
+      "FeedbackStatus": {
+        "type": "string",
+        "enum": [
+          "sent",
+          "seen",
+          "in_progress",
+          "shipped"
+        ],
+        "description": "sent until staff read it; seen once they did; in_progress while ShopNexus\nworks on it; shipped once a version has it.\n"
+      },
+      "FeedbackSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "day_mood",
+          "day_sent",
+          "mood",
+          "mood_before",
+          "sent",
+          "app",
+          "web",
+          "bugs",
+          "ideas",
+          "praise",
+          "waiting",
+          "shipped_groups",
+          "shipped_people",
+          "screens"
+        ],
+        "description": "The last 30 days; a mood of 0 is none.",
+        "properties": {
+          "day_mood": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "description": "Each day's mean mood, oldest first."
+          },
+          "day_sent": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "mood": {
+            "type": "number"
+          },
+          "mood_before": {
+            "type": "number",
+            "description": "The mean mood of the 30 days before."
+          },
+          "sent": {
+            "type": "integer"
+          },
+          "app": {
+            "type": "integer"
+          },
+          "web": {
+            "type": "integer"
+          },
+          "bugs": {
+            "type": "integer"
+          },
+          "ideas": {
+            "type": "integer"
+          },
+          "praise": {
+            "type": "integer"
+          },
+          "waiting": {
+            "type": "integer",
+            "description": "Feedback still sent, at any age."
+          },
+          "shipped_groups": {
+            "type": "integer"
+          },
+          "shipped_people": {
+            "type": "integer",
+            "description": "The feedback in the groups shipped."
+          },
+          "screens": {
+            "type": "array",
+            "maxItems": 6,
+            "items": {
+              "$ref": "#/components/schemas/FeedbackScreenCount"
             }
           }
         }
@@ -18454,9 +20221,9 @@
           "specs": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/Spec"
+              "$ref": "#/components/schemas/SpecInput"
             },
-            "description": "Up to 20 label and value pairs, with one for each of the category's spec_labels."
+            "description": "Up to 20 specs, with a value for each of the category's specs."
           },
           "gps": {
             "type": "object",
@@ -18979,7 +20746,11 @@
           },
           "failure": {
             "type": "string",
-            "description": "Why media refused a photo, on a failed message."
+            "description": "Why media refused a photo, on a failed message, in English."
+          },
+          "failure_code": {
+            "type": "string",
+            "description": "failure as a code, as Photo.failure_code in catalog.yaml."
           },
           "reply_to": {
             "$ref": "#/components/schemas/ChatQuote"
@@ -19339,6 +21110,11 @@
             "type": "string",
             "format": "date-time"
           },
+          "away_until": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When away mode (tạm nghỉ) ends; absent when the person is not away.\nBuyers cannot offer, accept or ask for COD on their listings before\nthen.\n"
+          },
           "identities": {
             "type": "array",
             "minItems": 1,
@@ -19448,12 +21224,14 @@
               "suspended",
               "unsuspended",
               "watch_matched",
-              "price_dropped"
+              "price_dropped",
+              "feedback_moved",
+              "feedback_replied"
             ]
           },
           "text": {
             "type": "string",
-            "description": "What the notice says, in Vietnamese."
+            "description": "What the notice says, in the language Accept-Language prefers."
           },
           "target": {
             "$ref": "#/components/schemas/Target"
@@ -19521,9 +21299,10 @@
           "price_cuts",
           "followed",
           "reviews",
+          "order_emails",
           "quiet"
         ],
-        "description": "Which notices push. A switch that is off stops the push only; the notice\nis still listed. Search watch notices push by each watch's own bell, and\nthe listing and account notices always push. No push goes out during\nquiet hours.\n",
+        "description": "Which notices push, and whether order notices are mailed. A switch that\nis off stops the push or the mail only; the notice is still listed.\nSearch watch notices push by each watch's own bell, and the listing and\naccount notices always push. Account notices are always mailed too. No\npush goes out during quiet hours; mail does.\n",
         "properties": {
           "messages": {
             "type": "boolean",
@@ -19548,6 +21327,10 @@
           "reviews": {
             "type": "boolean",
             "description": "A review of the caller that shows, or a reply to the caller's review."
+          },
+          "order_emails": {
+            "type": "boolean",
+            "description": "Mail each order notice to the account's email address too. An\naccount without one gets no mail.\n"
           },
           "quiet": {
             "$ref": "#/components/schemas/QuietHours"
@@ -19843,6 +21626,10 @@
                 "type": "null"
               }
             ]
+          },
+          "tracking": {
+            "$ref": "#/components/schemas/Tracking",
+            "description": "The shipment's timeline; absent until its carrier reports something. The buyer gets the steps only."
           }
         }
       },
@@ -19980,6 +21767,14 @@
           "reply": {
             "$ref": "#/components/schemas/ReviewReply"
           },
+          "tags": {
+            "type": "array",
+            "uniqueItems": true,
+            "description": "The review's chips; absent without any and on a deleted review.",
+            "items": {
+              "$ref": "#/components/schemas/ReviewTag"
+            }
+          },
           "photos": {
             "type": "array",
             "maxItems": 4,
@@ -20030,6 +21825,11 @@
           "official": {
             "type": "boolean",
             "description": "ShopNexus itself, the other side of every support chat."
+          },
+          "away_until": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the person's away mode (tạm nghỉ) ends; absent when they are\nnot away. Until then a buyer's offer, accept or COD request on\ntheir listings answers 409 seller_away.\n"
           }
         }
       },
@@ -20061,7 +21861,11 @@
           },
           "failure": {
             "type": "string",
-            "description": "Why processing refused the photo, on a rejected listing."
+            "description": "Why processing refused the photo, on a rejected listing, in English."
+          },
+          "failure_code": {
+            "type": "string",
+            "description": "failure as a code, for a client to write in its own words:\ntoo_large, wrong_type, unreadable, too_many_pixels (over 40\nmegapixels, or 20 at 16 bits a channel), unknown_upload,\nnot_attached or other. More may come; a client reads an unknown\ncode as other.\n"
           }
         }
       },
@@ -20255,7 +22059,7 @@
             "type": "array",
             "maxItems": 20,
             "items": {
-              "$ref": "#/components/schemas/Spec"
+              "$ref": "#/components/schemas/SpecInput"
             }
           },
           "description": {
@@ -20451,7 +22255,7 @@
         "required": [
           "items"
         ],
-        "description": "The caller's saved chat answers, in their order, which a composer\noffers to put in the field. An account that never saved any reads\nthree defaults.\n",
+        "description": "The caller's saved chat answers, in their order, which a composer\noffers to put in the field. An account that never saved any reads\nthree defaults in the request's language.\n",
         "properties": {
           "items": {
             "type": "array",
@@ -20507,6 +22311,30 @@
           },
           "count": {
             "type": "integer"
+          },
+          "tags": {
+            "type": "array",
+            "description": "How many of the reviews carry each tag, most used first, then by tag; a tag none carries is left out.",
+            "items": {
+              "$ref": "#/components/schemas/RatingTag"
+            }
+          }
+        }
+      },
+      "RatingTag": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "tag",
+          "count"
+        ],
+        "properties": {
+          "tag": {
+            "$ref": "#/components/schemas/ReviewTag"
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 1
           }
         }
       },
@@ -20540,7 +22368,7 @@
           "allow_offers",
           "photos"
         ],
-        "description": "ListingInput's fields as the read filled them. The model writes only\nthe title and the description; catalog guesses the category from them.\nThe seller adds the price, the category's specs (its spec_labels) and\ncommune_code (and gps when allowed), then posts it to POST /v1/listings.\n",
+        "description": "ListingInput's fields as the read filled them. The model writes only\nthe title and the description; catalog guesses the category from them.\nThe seller adds the price, the category's specs and\ncommune_code (and gps when allowed), then posts it to POST /v1/listings.\n",
         "properties": {
           "title": {
             "type": "string",
@@ -21278,6 +23106,14 @@
           "text": {
             "type": "string"
           },
+          "tags": {
+            "type": "array",
+            "uniqueItems": true,
+            "description": "The reviewer's chips in their order; empty without any.",
+            "items": {
+              "$ref": "#/components/schemas/ReviewTag"
+            }
+          },
           "reviewer": {
             "type": "object",
             "additionalProperties": false,
@@ -21369,6 +23205,14 @@
           "text": {
             "type": "string",
             "description": "At most 500 characters after trimming; may be empty."
+          },
+          "tags": {
+            "type": "array",
+            "uniqueItems": true,
+            "description": "Quick chips from ReviewTag, each once. A review of a seller takes\nas_described, quick_reply and well_packed; one of a buyer takes\nquick_reply and on_time. Another value, or one of the other role,\nis a business rule, so 422 invalid_review with a field on tags. []\nremoves them, and leaving the field out keeps the review's tags.\n",
+            "items": {
+              "type": "string"
+            }
           },
           "photos": {
             "type": "array",
@@ -21472,6 +23316,16 @@
         ],
         "description": "The side the reviewed person was on. seller rates the person who sold, written by the buyer; buyer rates the person who bought, written by the seller."
       },
+      "ReviewTag": {
+        "type": "string",
+        "enum": [
+          "as_described",
+          "quick_reply",
+          "well_packed",
+          "on_time"
+        ],
+        "description": "A quick chip on a review. About a seller: as_described (Đúng mô tả),\nquick_reply (Trả lời nhanh), well_packed (Gói kỹ). About a buyer:\nquick_reply (Trả lời nhanh), on_time (Nhận hàng đúng hẹn).\n"
+      },
       "SavedAlert": {
         "type": "object",
         "additionalProperties": false,
@@ -21574,6 +23428,10 @@
                 "type": "string",
                 "description": "The name of the listing's commune."
               },
+              "commune_code": {
+                "type": "string",
+                "description": "The code of the listing's commune, as in /v1/regions/{province_code}/communes."
+              },
               "status": {
                 "$ref": "#/components/schemas/ListingStatus"
               }
@@ -21611,9 +23469,26 @@
             "type": "string",
             "description": "prepayment_request, off_app_contact, suspicious_link,\nsensitive_info_request, impersonation, fake_payment_proof, pressure,\nnew_account or price_far_below. More may come; the app shows an\nunknown code with the Info icon.\n"
           },
+          "params": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "The numbers the code's sentence uses, so a client writes it from\ncode and params: days on new_account, percent on price_far_below.\nAbsent on a code whose sentence has none.\n",
+            "properties": {
+              "days": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Whole days since the account was created."
+              },
+              "percent": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "How far the price is under similar listings, in percent, rounded down."
+              }
+            }
+          },
           "text": {
             "type": "string",
-            "description": "Vietnamese, written by the server, as \"Tài khoản mới tạo 2 ngày\"."
+            "description": "Written by the server in the request's language, as \"Tài khoản mới tạo 2 ngày\" or \"Account only 2 days old\". Kept for older clients; a client writes its own from code and params."
           },
           "message_id": {
             "type": "string",
@@ -21641,6 +23516,38 @@
           "dismissed": {
             "type": "boolean",
             "description": "True while no message code has appeared since the caller last\ndismissed the warning. The inbox shows the warning either way; Chat\nshows its banner only when this is false.\n"
+          }
+        }
+      },
+      "SearchClick": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "type",
+          "search_id",
+          "listing_id",
+          "position"
+        ],
+        "description": "A search result the person opened.",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "search_click"
+            ]
+          },
+          "search_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "listing_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "position": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Its position in the results, from 0."
           }
         }
       },
@@ -21685,7 +23592,7 @@
           },
           "category": {
             "type": "string",
-            "description": "The category the search understood; absent when none."
+            "description": "The Vietnamese name of the category the search understood; absent when none."
           },
           "photo_url": {
             "type": "string",
@@ -21695,6 +23602,44 @@
           "searched_at": {
             "type": "string",
             "format": "date-time"
+          }
+        }
+      },
+      "SearchImpression": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "type",
+          "search_id",
+          "listing_ids",
+          "offset"
+        ],
+        "description": "Search results that came into view, in their order on the page.",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "search_impression"
+            ]
+          },
+          "search_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The search_id of the search response that listed them."
+          },
+          "listing_ids": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 100,
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "The position of the first one in the results, from 0."
           }
         }
       },
@@ -21711,6 +23656,7 @@
           "condition",
           "allow_offers",
           "commune",
+          "commune_code",
           "saved"
         ],
         "description": "A listing as a browse surface shows it: a search page, Home's nearby\nfeed and the seller view. It carries no point of the listing.\n",
@@ -21760,6 +23706,10 @@
             "type": "string",
             "description": "The name of the listing's commune."
           },
+          "commune_code": {
+            "type": "string",
+            "description": "The code of the listing's commune, as in /v1/regions/{province_code}/communes."
+          },
           "price_drop": {
             "$ref": "#/components/schemas/PriceDrop"
           },
@@ -21799,9 +23749,15 @@
         "type": "object",
         "additionalProperties": false,
         "required": [
+          "search_id",
           "items"
         ],
         "properties": {
+          "search_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Names this response; the client sends it back with the search events of POST /v1/client-events."
+          },
           "items": {
             "type": "array",
             "items": {
@@ -21814,6 +23770,13 @@
           },
           "chips": {
             "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Chip"
+            }
+          },
+          "preview_chips": {
+            "type": "array",
+            "description": "Signed out, on a first page with q: the chips the model read for the same query when a signed-in person searched it, from the cache. The search did not apply them; signing in does. Absent when nobody signed in searched the query.",
             "items": {
               "$ref": "#/components/schemas/Chip"
             }
@@ -22059,6 +24022,11 @@
             "type": "string",
             "format": "date-time",
             "description": "When the person last had the app open, to the 30 seconds; absent\nbefore the first time. The app shows \"Đang hoạt động\" under 5\nminutes, otherwise how long ago.\n"
+          },
+          "away_until": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the seller's away mode (tạm nghỉ) ends; absent when they are\nnot away. Until then an offer, an accept or a COD request on their\nlistings answers 409 seller_away.\n"
           }
         }
       },
@@ -22133,6 +24101,11 @@
           },
           "reply_time": {
             "$ref": "#/components/schemas/ReplyTime"
+          },
+          "away_until": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the seller's away mode (tạm nghỉ) ends; absent when they are\nnot away. Until then an offer, an accept or a COD request on their\nlistings answers 409 seller_away.\n"
           }
         }
       },
@@ -22351,18 +24324,24 @@
         ],
         "description": "Where the parcel is, as its carrier reports it."
       },
-      "ShipmentStatusChange": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "status"
+      "ShipmentStep": {
+        "type": "string",
+        "enum": [
+          "ready_to_pick",
+          "picking",
+          "pickup_failed",
+          "picked",
+          "at_hub",
+          "transporting",
+          "out_for_delivery",
+          "delivery_failed",
+          "delivered",
+          "returning",
+          "returned",
+          "cancelled",
+          "lost"
         ],
-        "properties": {
-          "status": {
-            "type": "string",
-            "description": "pending_pickup, in_transit, delivered or failed; another value is 422 invalid_status."
-          }
-        }
+        "description": "Where the parcel is, in the same words for every carrier, finer than\nShipmentStatus. ready_to_pick, picking and pickup_failed are\npending_pickup; picked, at_hub, transporting, out_for_delivery and\ndelivery_failed are in_transit, since the carrier tries a failed\ndelivery again; delivered is delivered; returning and returned are\nfailed. cancelled and lost move no order.\n"
       },
       "ShippingQuote": {
         "type": "object",
@@ -22771,9 +24750,35 @@
           "value"
         ],
         "properties": {
+          "key": {
+            "type": "string",
+            "description": "The key of a spec the category asks for; absent on a spec the seller named."
+          },
           "label": {
             "type": "string",
+            "description": "A keyed spec's name in the request's language, as \"Hãng\" or \"Brand\"; the seller's own label on the others."
+          },
+          "value": {
+            "type": "string",
             "description": "1 to 50 characters."
+          }
+        }
+      },
+      "SpecInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "value"
+        ],
+        "description": "A spec as a request sends it. A spec the category asks for goes by its\nkey from Category.specs, or by label alone, its name in any language\nthe server writes, case aside; either way the listing stores the key. Any\nother label is a spec of the seller's own. A spec with neither key nor\nlabel, a key the category lacks, or two specs of one key is 422\ninvalid_listing on field specs.\n",
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "A key of the category's specs, such as brand."
+          },
+          "label": {
+            "type": "string",
+            "description": "1 to 50 characters; read only when key is absent."
           },
           "value": {
             "type": "string",
@@ -22852,12 +24857,13 @@
               "listing",
               "seller_reviews",
               "account",
-              "search_watch"
+              "search_watch",
+              "feedback"
             ]
           },
           "id": {
             "type": "string",
-            "description": "The deal, order, listing, seller or search watch; empty for the account."
+            "description": "The deal, order, listing, seller, search watch or feedback; empty for the account."
           }
         }
       },
@@ -22918,6 +24924,14 @@
           "can_reply": {
             "type": "boolean",
             "description": "Visible and without a reply. A reply closes the review for both sides."
+          },
+          "tags": {
+            "type": "array",
+            "uniqueItems": true,
+            "description": "A visible review's chips; absent without any.",
+            "items": {
+              "$ref": "#/components/schemas/ReviewTag"
+            }
           },
           "photos": {
             "type": "array",
@@ -23160,6 +25174,27 @@
           }
         }
       },
+      "Tracking": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "events"
+        ],
+        "description": "The parcel's timeline as its carrier reported it, through webhooks and the poll.",
+        "properties": {
+          "step": {
+            "$ref": "#/components/schemas/ShipmentStep",
+            "description": "The newest step; absent before the carrier reported one."
+          },
+          "events": {
+            "type": "array",
+            "description": "Newest first.",
+            "items": {
+              "$ref": "#/components/schemas/TrackingEvent"
+            }
+          }
+        }
+      },
       "TrackingCode": {
         "type": "object",
         "additionalProperties": false,
@@ -23176,6 +25211,67 @@
           "tracking_code": {
             "type": "string",
             "description": "1 to 50 characters once trimmed."
+          }
+        }
+      },
+      "TrackingEvent": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "at",
+          "kind"
+        ],
+        "description": "One thing the carrier reported of the parcel. Fields the carrier did not send are absent.",
+        "properties": {
+          "at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When it happened, as the carrier tells it."
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "step",
+              "weight",
+              "fee",
+              "cod",
+              "cod_transfer"
+            ],
+            "description": "step is a move of the parcel; weight, fee and cod a new weight in grams, fee or COD amount in đồng; cod_transfer the COD paid out to the seller. The buyer sees only steps."
+          },
+          "step": {
+            "$ref": "#/components/schemas/ShipmentStep",
+            "description": "Present on a step."
+          },
+          "carrier_status": {
+            "type": "string",
+            "description": "The carrier's own status code on a step, such as GHN's storing or GHTK's 9, for a client that tells more than the step."
+          },
+          "reason": {
+            "type": "string",
+            "description": "The carrier's words on a failed pickup or delivery, a return or a delay."
+          },
+          "reason_code": {
+            "type": "string"
+          },
+          "warehouse": {
+            "type": "string",
+            "description": "The carrier's hub the parcel is at."
+          },
+          "shipper_name": {
+            "type": "string"
+          },
+          "shipper_phone": {
+            "type": "string"
+          },
+          "proof_url": {
+            "type": "string",
+            "description": "The carrier's photo of the delivery."
+          },
+          "amount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "The weight in grams, or the fee, the COD or the COD paid out in đồng."
           }
         }
       },
@@ -23360,6 +25456,45 @@
             "type": "boolean"
           }
         }
+      },
+      "WebVital": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "type",
+          "name",
+          "value"
+        ],
+        "description": "A Core Web Vital of one page view, as the web-vitals library reports it.",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "vital"
+            ]
+          },
+          "name": {
+            "type": "string",
+            "enum": [
+              "LCP",
+              "INP",
+              "CLS",
+              "FCP",
+              "TTFB"
+            ]
+          },
+          "value": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 600000,
+            "description": "Milliseconds, or the unitless layout shift score for CLS."
+          },
+          "page": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "The page's route, such as /listings/[slug]."
+          }
+        }
       }
     },
     "responses": {
@@ -23525,6 +25660,16 @@
       }
     },
     "parameters": {
+      "AcceptLanguage": {
+        "name": "Accept-Language",
+        "in": "header",
+        "required": false,
+        "description": "The caller's languages, as browsers and the apps send them. The server\nwrites in Vietnamese (vi) or English (en), whichever the header\nprefers, and Vietnamese when it names neither. An email code is mailed,\nand the text the server writes in a response (notices, category names,\nsearch chips, scam signals, default quick replies) is written, in the\nrequest's language; such a response sends Vary: Accept-Language. A\nsign-in records it as the language of the account's pushes and mail.\n",
+        "schema": {
+          "type": "string",
+          "example": "vi-VN,vi;q=0.9,en;q=0.8"
+        }
+      },
       "AgentConversationID": {
         "name": "id",
         "in": "path",
@@ -23610,6 +25755,15 @@
           ]
         }
       },
+      "ConsoleFeedbackID": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
       "ConsoleMemberID": {
         "name": "id",
         "in": "path",
@@ -23635,6 +25789,24 @@
         "schema": {
           "type": "string",
           "format": "uuid"
+        }
+      },
+      "FeedbackKindQuery": {
+        "name": "kind",
+        "in": "query",
+        "required": false,
+        "description": "Only feedback of this kind.",
+        "schema": {
+          "$ref": "#/components/schemas/FeedbackKind"
+        }
+      },
+      "FeedbackStatusQuery": {
+        "name": "status",
+        "in": "query",
+        "required": false,
+        "description": "Only feedback of this status.",
+        "schema": {
+          "$ref": "#/components/schemas/FeedbackStatus"
         }
       },
       "IdempotencyKey": {

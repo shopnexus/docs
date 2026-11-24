@@ -206,7 +206,7 @@ uc:
       4: Một bên chấp nhận đúng giá mình đang thấy; phiên trả giá chuyển sang đã chốt giá.
     alt:
       A1: { at: 1, text: "Người mua đã có phiên trả giá trên tin: hệ thống mở lại phiên trả giá đó." }
-      A2: { at: 2, text: "Người mua chấp nhận ngay giá niêm yết, không trả giá." }
+      A2: { at: 2, text: "Người mua mua ngay đúng giá niêm yết hoặc giá người bán đề nghị, không trả giá: yêu cầu COD ở giá đó chốt giá luôn (UC-DEAL-03)." }
       A3: { at: 4, text: "Sau khi chốt, một bên hủy chốt giá khi chưa có đơn: phiên trả giá quay lại bước 2." }
       A4: { at: 3, text: "Người bán đổi giá niêm yết, tắt trả giá, ẩn hoặc xóa tin: giá đang mở bị rút; tin bị xóa thì chốt giá cũng bị bỏ." }
     exc:
@@ -229,11 +229,11 @@ uc:
     br: [BR-DEAL-01, BR-DEAL-04, BR-DEAL-05, BR-DEAL-06]
     adr: [ADR-0001]
     api: ["POST /v1/deals/{id}/cod"]
-    pre: Phiên trả giá đã chốt giá, chưa có đơn đang mở.
+    pre: Phiên trả giá chưa có đơn đang mở; đã chốt giá, hoặc người mua mua ngay ở giá đang bán.
     post: Có một đơn chờ người bán gửi hàng, giữ bản sao địa chỉ người nhận.
     main:
-      1: Người mua chọn yêu cầu COD và chọn một địa chỉ trong sổ địa chỉ.
-      2: Hệ thống tạo đơn chờ gửi với giá đã chốt, lưu bản sao địa chỉ và bắt đầu đếm thời hạn người bán gửi hàng.
+      1: Người mua chọn Mua ngay hoặc yêu cầu COD ở giá mình đang thấy (giá đã chốt, giá người bán đề nghị hoặc giá niêm yết) và chọn một địa chỉ trong sổ địa chỉ.
+      2: Hệ thống chốt giá nếu phiên còn đang trả giá, tạo đơn chờ gửi với giá đó, lưu bản sao địa chỉ và bắt đầu đếm thời hạn người bán gửi hàng.
       3: Người bán thấy yêu cầu trong cuộc trò chuyện và chuyển sang UC-DEAL-04.
     alt:
       A1: { at: 2, text: "Nhiều người mua cùng yêu cầu COD trên một tin: mỗi người có đơn riêng; chốt giá không giữ hàng (BR-DEAL-04)." }
@@ -242,7 +242,8 @@ uc:
       E2: { at: 1, text: Địa chỉ không thuộc người mua, error: address_not_found }
       E3: { at: 2, text: Người mua đã đủ số đơn COD đang mở, br: BR-DEAL-06, error: cod_limit_reached }
       E4: { at: 2, text: Tin không còn đang bán, error: listing_unavailable }
-      E5: { at: 2, text: Phiên trả giá chưa chốt giá hoặc đã có đơn đang mở, error: move_not_allowed }
+      E5: { at: 2, text: Phiên trả giá đã bán hoặc đã có đơn đang mở, error: move_not_allowed }
+      E6: { at: 2, text: Giá người mua thấy không còn là giá đang bán, br: BR-DEAL-03, error: price_changed }
 
   - id: UC-DEAL-04
     was: [UC-16]
