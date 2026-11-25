@@ -256,7 +256,7 @@ uc:
     br: [BR-DEAL-04, BR-DEAL-05, BR-DEAL-12]
     nfr: [NFR-DUR-01, NFR-IDEM-01, NFR-CONC-01]
     adr: [ADR-0001, ADR-0002]
-    api: ["POST /v1/orders/{order_id}/shipment", "PUT /v1/orders/{order_id}/shipment", "GET /v1/shipments/lookup"]
+    api: ["POST /v1/orders/{order_id}/shipment"]
     pre: Có đơn đang chờ gửi; người bán đã liên kết tài khoản GHTK hoặc GHN (UC-ACC-04).
     post: Đơn ở trạng thái đã gửi, tin đăng được giữ cho đơn này; các đơn chờ khác trên tin bị hủy.
     main:

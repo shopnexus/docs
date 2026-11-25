@@ -46,6 +46,11 @@
       "description": "Fill a listing draft from a video, photos or a Chợ Tốt link, and price it against similar listings."
     },
     {
+      "name": "chotot",
+      "x-displayName": "Chợ Tốt",
+      "description": "Link the caller's Chợ Tốt profile, bring its listings over, and keep the copies in step with Chợ Tốt."
+    },
+    {
       "name": "discovery",
       "x-displayName": "Search and saved listings",
       "description": "Search and browse listings, saved listings, recent searches and a seller's public listings."
@@ -133,6 +138,7 @@
       "tags": [
         "catalog",
         "assist",
+        "chotot",
         "discovery"
       ]
     },
@@ -1733,93 +1739,6 @@
         }
       }
     },
-    "/v1/link-previews": {
-      "post": {
-        "operationId": "previewLink",
-        "x-rate-limit": "costly",
-        "x-uc": [
-          "UC-LST-01"
-        ],
-        "summary": "Preview the listing a pasted link names.",
-        "description": "Reads the seller's listing on Chợ Tốt for the card the app shows under\nthe paste field, before the seller asks for a read. Nothing is stored.\nPOST keeps the link out of access logs.\n",
-        "tags": [
-          "assist"
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/LinkRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "The listing's card.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/LinkPreview"
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "description": "The account is suspended (account_suspended).",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Chợ Tốt has no such listing on sale (listing_not_found).",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "The text is not an http or https link (not_a_link), or not a link to a listing on chotot.com (unsupported_source).",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "503": {
-            "description": "Chợ Tốt did not answer (source_unavailable); try again.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/v1/price-guides": {
       "post": {
         "operationId": "createPriceGuide",
@@ -1876,6 +1795,408 @@
           },
           "422": {
             "description": "The category is not a subcategory or the commune is not on the list\n(invalid_listing, with fields); a photo is not the caller's, not a\nphoto, already in a listing or expired (invalid_upload).\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/me/chotot": {
+      "get": {
+        "operationId": "getChotot",
+        "summary": "The caller's linked Chợ Tốt profile, if any.",
+        "tags": [
+          "chotot"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The link, or null when none is linked. It reads ShopNexus only, never Chợ Tốt.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChototState"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      },
+      "put": {
+        "operationId": "linkChotot",
+        "x-rate-limit": "costly",
+        "summary": "Link the Chợ Tốt profile whose bio holds the caller's code.",
+        "description": "Reads the profile from Chợ Tốt and links it when its \"Giới thiệu về\ntrang\" holds the caller's live code, case, spaces and dashes aside.\nThe code is used up; the seller may then take it out of the bio.\n\nA profile maps to one ShopNexus account. Linking one that another\naccount linked moves it here, since the code proves who holds it, and\nthat account's link is removed; its imported listings stay and stop\nfollowing Chợ Tốt. Linking another profile replaces the caller's.\nLinking the same profile again keeps its settings. Listings already on\nChợ Tốt at linking are not imported on their own: only newer ones are,\nwhile auto_import is on.\n\nChecks, in order: invalid_profile_url, code_expired (no live code),\nchotot_profile_not_found, chotot_unavailable, code_not_found.\n",
+        "tags": [
+          "chotot"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChototLinkRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The linked profile.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChototLink"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "description": "Chợ Tốt has no such profile (chotot_profile_not_found).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Not a Chợ Tốt profile's address (invalid_profile_url); no live code, so ask for a new one (code_expired); or the profile's bio does not hold the code (code_not_found), with details.profile, the profile's name and avatar, so the app shows which profile it read.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Chợ Tốt did not answer (chotot_unavailable).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "updateChotot",
+        "summary": "Change the link's settings.",
+        "tags": [
+          "chotot"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChototSettingsPatch"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The link with its settings.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChototLink"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "description": "No profile is linked (chotot_not_linked).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "unlinkChotot",
+        "summary": "Unlink the caller's Chợ Tốt profile.",
+        "description": "Imported listings stay on ShopNexus and stop following Chợ Tốt. Also 204 when none is linked.",
+        "tags": [
+          "chotot"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Unlinked."
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/v1/me/chotot/codes": {
+      "post": {
+        "operationId": "createChototCode",
+        "summary": "The code that links the caller's Chợ Tốt profile.",
+        "description": "The live code when the caller has one, otherwise a new one for 30\nminutes. The seller puts it in their profile's \"Giới thiệu về trang\"\nand sends the profile's address with PUT /v1/me/chotot.\n",
+        "tags": [
+          "chotot"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The live code.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChototCode"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/v1/me/chotot/ads": {
+      "get": {
+        "operationId": "listChototAds",
+        "x-rate-limit": "costly",
+        "summary": "The linked profile's listings on sale on Chợ Tốt, each with what it is on ShopNexus.",
+        "description": "Reads Chợ Tốt each call. The app polls it after POST\n/v1/me/chotot/imports until no listing is importing; the imports with\nreview or a draft are what needs the seller (\"Cần bạn xem\").\n",
+        "tags": [
+          "chotot"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The listings, newest first.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChototAdList"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "description": "No profile is linked (chotot_not_linked).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Chợ Tốt did not answer (chotot_unavailable).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/me/chotot/ads/{list_id}/listing": {
+      "post": {
+        "operationId": "postChototDraft",
+        "summary": "Post an imported listing that waits as a draft, with the fields the seller filled.",
+        "description": "The body is the whole listing, as for POST /v1/listings; the draft's\nphotos are the caller's uploads. A listing already posted answers its\nimport as it is. Refusals are those of POST /v1/listings.\n",
+        "tags": [
+          "chotot"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "list_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ListingInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The import, listed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChototImport"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "The account is suspended (account_suspended), or has no phone to sign in with (phone_required).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No profile is linked (chotot_not_linked), or no import of that listing waits as a draft (chotot_draft_not_found).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The seller has 20 listings on sale (listing_cap_reached).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "A field breaks a rule (invalid_listing, with fields and details.missing_spec_keys), or an upload is not the caller's or already used (invalid_upload).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/me/chotot/imports": {
+      "post": {
+        "operationId": "importChototAds",
+        "x-rate-limit": "costly",
+        "summary": "Bring the chosen Chợ Tốt listings over as listings.",
+        "description": "Starts one import per listing and answers at once. An import reads\nthe listing from Chợ Tốt, checks it is the linked profile's, fills the\ntitle, description, category, condition and specs as a link read\ndoes, copies its photos (copied: true), takes the commune of the\ncaller's default address (or of their newest listing), and posts it\nlike POST /v1/listings. Each listing is imported once per account:\na listing already listed, a draft or one still importing answers as\nit is, so a retried request needs no Idempotency-Key. A listing of\nanother profile is skipped as not_yours.\n",
+        "tags": [
+          "chotot"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChototImportRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Each chosen listing's import as it is now, in the order asked.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChototImportList"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "description": "No profile is linked (chotot_not_linked).",
             "content": {
               "application/json": {
                 "schema": {
@@ -3831,7 +4152,7 @@
           "UC-DEAL-04"
         ],
         "summary": "Create the shipment of a pending order.",
-        "description": "The seller, in one commit. manual: the seller made the shipment on\nthe carrier's own app and types its code; the server reads it with\nthe seller's account at that carrier. linked: the server makes it on\nthe seller's account at the carrier asked, GHTK or GHN, picked up\nwhere pickup_from says. A saved_pickup selection is resolved and\njournaled after the seller and order checks. A retry with the same\ncaller and Idempotency-Key recovers that invocation even if the saved\npreference or address has since been removed. The order is shipped,\nthe listing is reserved for it, and\nother buyers' pending orders on the listing are cancelled with\nshipped_to_another. A parcel the carrier reports delivered ships\ndelivered. Checks, in order: the shipment's fields, for a manual one\nthe carrier's answer, then the order is the caller's, the order's\nstate, the listing, and for a linked one the carrier's answer. A\ncarrier the caller has not linked is 409 carrier_not_linked, once the\norder is found to be the caller's to ship. A stack\nwithout a carrier (CARRIER=none, production for now) answers 503\ncarrier_unavailable.\n",
+        "description": "The seller, in one commit. The server makes the shipment on the\nseller's account at the carrier asked, GHTK or GHN, picked up where\npickup_from says. A saved_pickup selection is resolved and journaled\nafter the seller and order checks. A retry with the same caller and\nIdempotency-Key recovers that invocation even if the saved\npreference or address has since been removed. The order is shipped,\nits parcel waiting for pickup, the listing is reserved for it, and\nother buyers' pending orders on the listing are cancelled with\nshipped_to_another. Checks, in order: the shipment's fields, then the\norder is the caller's, the order's state, the listing, and the\ncarrier's answer. A carrier the caller has not linked is 409\ncarrier_not_linked. A carrier the stack runs off (both are off in\nproduction for now) answers 503 carrier_unavailable.\n",
         "tags": [
           "deal"
         ],
@@ -3902,7 +4223,7 @@
             }
           },
           "422": {
-            "description": "The shipment breaks a rule, the carrier's report of a failed parcel included (invalid_shipment, with fields); the carrier does not know the tracking code (shipment_not_found); the carrier does not know the recipient's or the pickup's address (carrier_address_unknown); or the carrier refused the shipment, its words in details.reason (carrier_refused).",
+            "description": "The shipment breaks a rule (invalid_shipment, with fields); the carrier does not know the recipient's or the pickup's address (carrier_address_unknown); or the carrier refused the shipment, its words in details.reason (carrier_refused).",
             "content": {
               "application/json": {
                 "schema": {
@@ -3912,102 +4233,7 @@
             }
           },
           "503": {
-            "description": "The stack has no carrier, CARRIER=none (carrier_unavailable).",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "operationId": "editShipment",
-        "x-uc": [
-          "UC-DEAL-04"
-        ],
-        "summary": "Correct the carrier and tracking code of a manual shipment.",
-        "description": "The seller, while the shipment is pending_pickup or in_transit. The\nserver reads the new code with the seller's account at that carrier,\nas on creation, and takes its status. Checks, in order: the carrier and the code, the\ncarrier's answer, then the order is the caller's and its state.\n",
-        "tags": [
-          "deal"
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "order_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TrackingCode"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "The order's deal.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Deal"
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "404": {
-            "description": "No such order of the caller's (order_not_found).",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "The order is not shipped, its shipment is linked or no longer pending_pickup or in_transit, or the caller is the buyer (move_not_allowed); the deal changed meanwhile (deal_changed); or the caller has not linked that carrier, or must link it again because its token no longer opens (carrier_not_linked, carrier_relink_needed).",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "The carrier or the code breaks a rule, the carrier's report of a failed parcel included (invalid_shipment, with fields), or the carrier does not know the tracking code (shipment_not_found).",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "503": {
-            "description": "The stack has no carrier, CARRIER=none (carrier_unavailable).",
+            "description": "The stack runs the carrier off (carrier_unavailable).",
             "content": {
               "application/json": {
                 "schema": {
@@ -4525,107 +4751,11 @@
         }
       }
     },
-    "/v1/shipments/lookup": {
-      "get": {
-        "operationId": "lookupShipment",
-        "x-uc": [
-          "UC-DEAL-04"
-        ],
-        "summary": "Read a shipment from its carrier, for the seller's preview.",
-        "description": "Before the seller confirms a manual shipment or a corrected code.\nThe code is read with the caller's own account at that carrier. The\napp warns, and does not block, when cod_amount differs from the\nagreed price.\n",
-        "tags": [
-          "deal"
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "carrier",
-            "in": "query",
-            "required": true,
-            "description": "ghtk, ghn, spx, jt or viettel_post; another value is 422 invalid_shipment.",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "code",
-            "in": "query",
-            "required": true,
-            "description": "The tracking code, 1 to 50 characters once trimmed.",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "The shipment as its carrier reads it.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ShipmentPreview"
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "404": {
-            "description": "The carrier does not know the tracking code (shipment_not_found).",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "The caller has not linked that carrier, or must link it again (carrier_not_linked, carrier_relink_needed).",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "The carrier or the code breaks a rule (invalid_shipment, with fields).",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "503": {
-            "description": "The stack has no carrier, CARRIER=none (carrier_unavailable).",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/v1/dev/shipments/{code}/status": {
       "post": {
         "operationId": "setShipmentStatus",
         "summary": "Report a step of every shipment with a tracking code, as its carrier would.",
-        "description": "Served only with CARRIER=fake, which the dev and test stacks run, to\nanyone, since the fake carrier's parcels move only through it.\nProduction does not serve it. The step joins the parcel's timeline\nand moves its orders as a carrier's report does: delivered completes\nthe order 3 days later unless the buyer confirms first; returning or\nreturned fails it at once and releases the listing. A closed order\nchanges nothing.\n",
+        "description": "Served only while a carrier is the fake, as on the dev and test\nstacks, to anyone, since the fake's parcels move only through it; a\nlive carrier's parcels never move through it.\nProduction does not serve it. The step joins the parcel's timeline\nand moves its orders as a carrier's report does: delivered completes\nthe order 3 days later unless the buyer confirms first; returning or\nreturned fails it at once and releases the listing. A closed order\nchanges nothing.\n",
         "tags": [
           "shipping",
           "internal"
@@ -4673,7 +4803,7 @@
     "/v1/carrier-accounts": {
       "get": {
         "operationId": "listCarrierAccounts",
-        "summary": "The carrier accounts the caller linked.",
+        "summary": "The carrier accounts the caller linked, and the carriers they can link.",
         "tags": [
           "shipping"
         ],
@@ -4684,7 +4814,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Linked accounts, GHN before GHTK, in code order.",
+            "description": "Linked accounts, GHN before GHTK, in code order, and the carriers this stack runs.",
             "content": {
               "application/json": {
                 "schema": {
@@ -4761,7 +4891,7 @@
             }
           },
           "503": {
-            "description": "The stack has no carrier, CARRIER=none (carrier_unavailable).",
+            "description": "The stack runs the carrier off (carrier_unavailable).",
             "content": {
               "application/json": {
                 "schema": {
@@ -4881,7 +5011,7 @@
             "$ref": "#/components/responses/TooManyRequests"
           },
           "503": {
-            "description": "The stack has no carrier, CARRIER=none (carrier_unavailable).",
+            "description": "The stack runs the carrier off (carrier_unavailable).",
             "content": {
               "application/json": {
                 "schema": {
@@ -4952,7 +5082,7 @@
             }
           },
           "503": {
-            "description": "The stack has no carrier, CARRIER=none (carrier_unavailable).",
+            "description": "The stack runs the carrier off (carrier_unavailable).",
             "content": {
               "application/json": {
                 "schema": {
@@ -5094,7 +5224,7 @@
             }
           },
           "503": {
-            "description": "The stack has no carrier, CARRIER=none (carrier_unavailable).",
+            "description": "The stack runs the carrier off (carrier_unavailable).",
             "content": {
               "application/json": {
                 "schema": {
@@ -8460,7 +8590,7 @@
             }
           },
           "409": {
-            "description": "The order is not shipped, or was completed by the buyer or more than 7 days ago (ticket_not_allowed).",
+            "description": "The order is not shipped, or was completed by the buyer or more than 7 days ago (ticket_not_allowed); a retry that raced a refused first try (try_again).",
             "content": {
               "application/json": {
                 "schema": {
@@ -8470,7 +8600,7 @@
             }
           },
           "422": {
-            "description": "A field the kind needs is missing or out of range (invalid_ticket, with fields).",
+            "description": "A field the kind needs is missing or out of range (invalid_ticket, with fields), or a photo is not the caller's waiting upload (invalid_upload).",
             "content": {
               "application/json": {
                 "schema": {
@@ -9590,16 +9720,6 @@
                 }
               }
             }
-          },
-          "409": {
-            "description": "Already resolved (ticket_not_allowed).",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
           }
         }
       }
@@ -9643,16 +9763,6 @@
           },
           "404": {
             "description": "No such ticket (ticket_not_found).",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Already open (ticket_not_allowed).",
             "content": {
               "application/json": {
                 "schema": {
@@ -11022,7 +11132,7 @@
           "UC-MOD-08"
         ],
         "summary": "Open the agent conversation of a record, or start one of the caller's own.",
-        "description": "A record has one conversation, shared by every member: the first call\nfor a subject makes it, and later calls answer the same one. Without a\nsubject the conversation is new and the caller's.\n",
+        "description": "A record has one conversation, shared by every member: the first call\nfor a subject makes it, and later calls answer the same one. Without a\nsubject the conversation is new and the caller's; a repeated\nIdempotency-Key answers the conversation its first call made.\n",
         "tags": [
           "console",
           "internal"
@@ -11030,6 +11140,11 @@
         "security": [
           {
             "consoleAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKeyOptional"
           }
         ],
         "requestBody": {
@@ -11238,7 +11353,7 @@
           "UC-MOD-08"
         ],
         "summary": "Ask a console agent in a conversation; the run starts and the answer comes on its events.",
-        "description": "The server opens the turn as running and starts its run on the agent\nservice with the picked agent's configuration (the Console assistant\nwhen agent_id is left out), then answers 202 with the turn's id; the\nconsole opens GET /v1/console/agent/turns/{id}/events to watch the\nrun step by step. Closing the stream does not stop the run. The\nattachments are kept on the turn, each record once; the run is told\nthe kind and id of every record the conversation's questions\nmention, without the labels.\n",
+        "description": "The server opens the turn as running and starts its run on the agent\nservice with the picked agent's configuration (the Console assistant\nwhen agent_id is left out), then answers 202 with the turn's id; the\nconsole opens GET /v1/console/agent/turns/{id}/events to watch the\nrun step by step. Closing the stream does not stop the run. The\nattachments are kept on the turn, each record once; the run is told\nthe kind and id of every record the conversation's questions\nmention, without the labels. A repeated Idempotency-Key answers the\nturn its first call opened and starts no run.\n",
         "tags": [
           "console",
           "internal"
@@ -11246,6 +11361,11 @@
         "security": [
           {
             "consoleAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKeyOptional"
           }
         ],
         "requestBody": {
@@ -11286,7 +11406,7 @@
             }
           },
           "409": {
-            "description": "A turn is still running in this conversation (agent_turn_in_progress), the conversation is closed (agent_conversation_closed) or the agent is turned off (ai_agent_disabled).",
+            "description": "A turn is still running in this conversation (agent_turn_in_progress) or the agent is turned off (ai_agent_disabled).",
             "content": {
               "application/json": {
                 "schema": {
@@ -11620,7 +11740,7 @@
       "post": {
         "operationId": "steerConsoleAgentTurn",
         "summary": "Steer a run, or continue a paused one with a message.",
-        "description": "The text waits on the turn's control stream and the run reads it\nbefore its next model call (steer.read names the step). Sent to a\npaused turn it continues the run (turn.resumed with by steer). An\nupdate that carries an attachment, a skill or another agent is a new\nquestion instead.\n",
+        "description": "The text waits on the turn's control stream and the run reads it\nbefore its next model call (steer.read names the step). Sent to a\npaused turn it continues the run (turn.resumed with by steer). An\nupdate that carries an attachment, a skill or another agent is a new\nquestion instead. A repeated Idempotency-Key answers the steer its\nfirst call sent and sends nothing.\n",
         "tags": [
           "console",
           "internal"
@@ -11628,6 +11748,11 @@
         "security": [
           {
             "consoleAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKeyOptional"
           }
         ],
         "requestBody": {
@@ -11875,6 +12000,7 @@
       "post": {
         "operationId": "createConsoleAgentSkill",
         "summary": "Save a skill, a question with {{variables}}, for every member.",
+        "description": "A repeated Idempotency-Key answers the skill its first call saved.",
         "tags": [
           "console",
           "internal"
@@ -11882,6 +12008,11 @@
         "security": [
           {
             "consoleAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKeyOptional"
           }
         ],
         "requestBody": {
@@ -12041,7 +12172,7 @@
             }
           },
           "409": {
-            "description": "Another skill has this slug (agent_skill_taken).",
+            "description": "Another skill has this slug (agent_skill_taken), or the skill changed meanwhile (try_again).",
             "content": {
               "application/json": {
                 "schema": {
@@ -12799,7 +12930,7 @@
       "post": {
         "operationId": "createAIAgent",
         "summary": "Make a console agent. Admins only; each change is a console action.",
-        "description": "The model must carry the required tags. The alias gets one deployment per provider of the model and joins the agent service's key.",
+        "description": "The model must carry the required tags. The agent is saved first; then the alias gets one deployment per provider of the model and joins the agent service's key. After 503 the same create again answers the saved agent and writes LiteLLM.",
         "tags": [
           "console",
           "internal"
@@ -12944,7 +13075,7 @@
       "patch": {
         "operationId": "updateAIAgent",
         "summary": "Change an agent. Admins only; each change is a console action.",
-        "description": "A new model rewrites the alias's deployments, so the code that calls it needs no deploy; new instructions are a new version.",
+        "description": "The agent is saved first; then a new model rewrites the alias's deployments, so the code that calls it needs no deploy, and a budget goes to LiteLLM. After 503 the same change again writes LiteLLM. New instructions are a new version.",
         "tags": [
           "console",
           "internal"
@@ -13195,7 +13326,7 @@
       "patch": {
         "operationId": "updateAIBudgets",
         "summary": "Set agents' monthly budgets and the members' daily budget. Admins only; each change is a console action.",
-        "description": "An app agent's budget is its LiteLLM keys'; a console agent's is its alias's budget on the agent service's key; a member's is a LiteLLM end-user budget of one day.",
+        "description": "An app agent's budget is its LiteLLM keys'; a console agent's is its alias's budget on the agent service's key; a member's is a LiteLLM end-user budget of one day. The settings are saved before LiteLLM takes them, so after 503 the same change again writes them to LiteLLM.",
         "tags": [
           "console",
           "internal"
@@ -13236,7 +13367,7 @@
             "$ref": "#/components/responses/ConsoleForbidden"
           },
           "404": {
-            "description": "No such agent (ai_agent_not_found).",
+            "description": "No such agent (ai_agent_not_found) or console member (member_not_found).",
             "content": {
               "application/json": {
                 "schema": {
@@ -13244,6 +13375,9 @@
                 }
               }
             }
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
           },
           "503": {
             "$ref": "#/components/responses/AIGatewayUnavailable"
@@ -14830,7 +14964,7 @@
             "description": "The arguments the model gave, as JSON."
           },
           "output": {
-            "description": "The tool's result as JSON, once it has one."
+            "description": "The tool's result as JSON, once it has one; absent 90 days after the call, and once the account the conversation is about is deleted."
           },
           "output_spilled": {
             "type": "boolean",
@@ -16585,7 +16719,7 @@
           "jt",
           "viettel_post"
         ],
-        "description": "The carriers ShopNexus can read; there is no other."
+        "description": "A shipment's carrier. New shipments are at ghtk or ghn; spx, jt and viettel_post appear only on manual shipments from before 2026-11-25."
       },
       "CarrierAccount": {
         "type": "object",
@@ -16614,13 +16748,21 @@
         "type": "object",
         "additionalProperties": false,
         "required": [
-          "items"
+          "items",
+          "linkable"
         ],
         "properties": {
           "items": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/CarrierAccount"
+            }
+          },
+          "linkable": {
+            "type": "array",
+            "description": "The carriers this stack runs, the ones a seller can link now, in code order. A carrier it runs off is absent; an account kept there is still in items.",
+            "items": {
+              "$ref": "#/components/schemas/LinkedCarrier"
             }
           }
         }
@@ -16980,6 +17122,415 @@
           }
         }
       },
+      "ChototAd": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "list_id",
+          "title",
+          "price",
+          "thumb_url",
+          "url",
+          "state",
+          "reason",
+          "listing_id",
+          "import"
+        ],
+        "description": "One of the linked profile's listings on sale on Chợ Tốt.\n\n- importable: may be brought over.\n- importing: being brought over.\n- imported: brought over; listing_id is the copy, null while it waits\n  as a draft (see import).\n- already_here: a listing of the caller's on ShopNexus, listing_id, has\n  the same title and price, so it is not offered.\n- unsupported: reason real_estate (Nhà Tốt), no_item or no_photos.\n",
+        "properties": {
+          "list_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "title": {
+            "type": "string",
+            "description": "The listing's title on Chợ Tốt."
+          },
+          "price": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64",
+            "description": "Null when the listing shows no price."
+          },
+          "thumb_url": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The cover on Chợ Tốt's CDN."
+          },
+          "url": {
+            "type": "string",
+            "description": "https://www.chotot.com/<list_id>.htm"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "importable",
+              "importing",
+              "imported",
+              "already_here",
+              "unsupported"
+            ]
+          },
+          "reason": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Why it is unsupported, or why the last import skipped it."
+          },
+          "listing_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "import": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ChototImport"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The caller's import of it, when there was one."
+          }
+        }
+      },
+      "ChototAdList": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "room"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChototAd"
+            },
+            "description": "Newest first, at most 200."
+          },
+          "room": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "How many more listings the caller can put on sale before the cap of 20."
+          }
+        }
+      },
+      "ChototCode": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code",
+          "expires_at"
+        ],
+        "description": "The code the seller puts in their Chợ Tốt profile's \"Giới thiệu về\ntrang\" to show the profile is theirs. An account has one live code; it\nlasts 30 minutes, and asking again before then answers the same code.\n",
+        "properties": {
+          "code": {
+            "type": "string",
+            "pattern": "^SN-[2-9A-HJKMNP-Z]{6}$",
+            "description": "SN- and six characters without 0, O, 1, I or L.",
+            "example": "SN-7K3Q9M"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ChototDraft": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "title",
+          "price",
+          "description",
+          "category_code",
+          "condition",
+          "specs",
+          "photos"
+        ],
+        "description": "The listing an import could not post, as far as it was filled, for the\nposting form. Its photos are kept for 30 days.\n",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "price": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "int64",
+            "description": "The listing's price on Chợ Tốt; null when it is outside 10,000 to 1,000,000,000 đồng."
+          },
+          "description": {
+            "type": "string"
+          },
+          "category_code": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The subcategory guessed from the title and description; null when no guess came."
+          },
+          "condition": {
+            "$ref": "#/components/schemas/Condition"
+          },
+          "specs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Spec"
+            }
+          },
+          "photos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ListingDraftPhoto"
+            }
+          }
+        }
+      },
+      "ChototImport": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "list_id",
+          "state",
+          "listing_id",
+          "review",
+          "missing_spec_keys",
+          "reason",
+          "draft",
+          "updated_at"
+        ],
+        "description": "What became of bringing one Chợ Tốt listing over. Each listing is\nbrought over once per account: importing it again answers this.\n\n- importing: still running.\n- listed: posted as listing_id, published like any post. review names\n  the fields the import set without the listing on Chợ Tốt stating\n  them (condition, set to used), for the seller to check; it empties\n  once the seller edits the listing.\n- draft: the listing rules refused to post it; review names the fields\n  to fill (from invalid_listing), and missing_spec_keys the specs the\n  category asks for. draft holds what was filled. POST\n  /v1/me/chotot/ads/{list_id}/listing posts it.\n- skipped: not brought over this time; reason says why\n  (listing_cap_reached, account_suspended, phone_required, ad_gone, not_yours,\n  unavailable). It may be imported again.\n- unsupported: never brought over; reason is real_estate, no_item (not\n  one item for sale) or no_photos.\n",
+        "properties": {
+          "list_id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "importing",
+              "listed",
+              "draft",
+              "skipped",
+              "unsupported"
+            ]
+          },
+          "listing_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "review": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Field names of ListingInput."
+          },
+          "missing_spec_keys": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "draft": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ChototDraft"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ChototImportList": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChototImport"
+            }
+          }
+        }
+      },
+      "ChototImportRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "list_ids"
+        ],
+        "properties": {
+          "list_ids": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "uniqueItems": true,
+            "items": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        }
+      },
+      "ChototLink": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "oid",
+          "name",
+          "avatar_url",
+          "profile_url",
+          "linked_at",
+          "checked_at",
+          "imported",
+          "waiting",
+          "auto_import",
+          "follow_updates",
+          "remind_hide"
+        ],
+        "description": "The caller's linked Chợ Tốt profile. ShopNexus only reads Chợ Tốt and\nnever writes to it. The settings start on.\n",
+        "properties": {
+          "oid": {
+            "type": "string",
+            "description": "The profile's ID on Chợ Tốt, 32 hex digits."
+          },
+          "name": {
+            "type": "string",
+            "description": "The profile's display name, as Chợ Tốt showed it when it was last read."
+          },
+          "avatar_url": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The profile's photo on Chợ Tốt; null without one."
+          },
+          "profile_url": {
+            "type": "string",
+            "description": "https://www.chotot.com/user/<oid>."
+          },
+          "linked_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "checked_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "When ShopNexus last read the profile's listings in the background, about once an hour; null before the first time."
+          },
+          "imported": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "The profile's listings brought over and not deleted on ShopNexus, drafts included."
+          },
+          "waiting": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0,
+            "description": "The profile's listings on sale that could still be brought over, as of the last read; null before one."
+          },
+          "auto_import": {
+            "type": "boolean",
+            "description": "Bring the profile's new listings over on their own, and notify the seller (chotot_imported)."
+          },
+          "follow_updates": {
+            "type": "boolean",
+            "description": "When a listing on Chợ Tốt is sold or hidden, hide its copy here; when its price changes, change the copy's price."
+          },
+          "remind_hide": {
+            "type": "boolean",
+            "description": "When a copy here sells, notify the seller to hide the listing on Chợ Tốt (chotot_sold_here)."
+          }
+        }
+      },
+      "ChototLinkRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "profile_url"
+        ],
+        "properties": {
+          "profile_url": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2048,
+            "description": "The profile's address as Chợ Tốt shares it, https://www.chotot.com/user/<id>, with or without www, the scheme or a query."
+          }
+        }
+      },
+      "ChototSettingsPatch": {
+        "type": "object",
+        "additionalProperties": false,
+        "minProperties": 1,
+        "description": "The settings to change; the others keep their values.",
+        "properties": {
+          "auto_import": {
+            "type": "boolean"
+          },
+          "follow_updates": {
+            "type": "boolean"
+          },
+          "remind_hide": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ChototState": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "link"
+        ],
+        "properties": {
+          "link": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ChototLink"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The caller's linked profile; null when none is linked."
+          }
+        }
+      },
       "ClientError": {
         "type": "object",
         "additionalProperties": false,
@@ -17241,10 +17792,7 @@
             "$ref": "#/components/schemas/ShippingSettings"
           },
           "carrier_accounts": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/CarrierAccount"
-            }
+            "$ref": "#/components/schemas/CarrierAccountList"
           }
         }
       },
@@ -18987,7 +19535,7 @@
               },
               "field_codes": {
                 "type": "object",
-                "description": "The code of each entry in fields, by the same keys, so a client\nwrites the problem in its own words: required, too_short,\ntoo_long (text), too_few, too_many (lists), out_of_range,\noff_step (an amount between two steps), invalid (type or\nformat), not_allowed (a value the field does not take there),\nunknown (names nothing that exists, or a property the schema\nlacks), duplicate, one_of (takes exactly one of several fields),\nmissing_specs (with details.missing_spec_keys), parcel_failed or\nin_use. More may come; a client reads an unknown code as\ninvalid.\n",
+                "description": "The code of each entry in fields, by the same keys, so a client\nwrites the problem in its own words: required, too_short,\ntoo_long (text), too_few, too_many (lists), out_of_range,\noff_step (an amount between two steps), invalid (type or\nformat), not_allowed (a value the field does not take there),\nunknown (names nothing that exists, or a property the schema\nlacks), duplicate, one_of (takes exactly one of several fields),\nmissing_specs (with details.missing_spec_keys) or in_use. More may come; a client reads an unknown code as\ninvalid.\n",
                 "additionalProperties": {
                   "type": "string"
                 }
@@ -19019,13 +19567,25 @@
                     },
                     "description": "The keys of the specs the listing's category asks for that it lacks, in the category's order, sent with invalid_listing when field_codes.specs is missing_specs."
                   },
-                  "missing_specs": {
-                    "type": "array",
-                    "minItems": 1,
-                    "items": {
-                      "type": "string"
-                    },
-                    "description": "The Vietnamese names of missing_spec_keys, in the same order, for clients older than the keys."
+                  "profile": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "name",
+                      "avatar_url"
+                    ],
+                    "description": "The Chợ Tốt profile the server read, sent with code_not_found.",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "avatar_url": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      }
+                    }
                   }
                 }
               },
@@ -19794,125 +20354,7 @@
           "ghtk",
           "ghn"
         ],
-        "description": "The carriers a seller can link. The other carriers in Carrier cannot be linked yet."
-      },
-      "LinkedShipmentDraft": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "mode",
-          "carrier",
-          "service",
-          "weight_grams",
-          "pickup"
-        ],
-        "properties": {
-          "mode": {
-            "type": "string",
-            "enum": [
-              "linked"
-            ]
-          },
-          "carrier": {
-            "type": "string",
-            "description": "ghtk or ghn, a carrier the caller linked; another value is 422 invalid_shipment, an unlinked one 409 carrier_not_linked."
-          },
-          "service": {
-            "type": "string",
-            "description": "standard or express."
-          },
-          "weight_grams": {
-            "type": "integer",
-            "description": "The parcel's weight, 1 to 20,000 grams."
-          },
-          "pickup": {
-            "type": "string",
-            "description": "home (the carrier picks the parcel up from the seller) or post_office (the seller brings it to one)."
-          },
-          "pickup_from": {
-            "type": "object",
-            "additionalProperties": false,
-            "description": "Where the carrier picks the parcel up, one of carrier_pickup_id, address_id or saved_pickup; absent, the carrier's default pickup point. The order keeps a copy.",
-            "properties": {
-              "carrier_pickup_id": {
-                "type": "string",
-                "description": "One of the carrier's pickup points, from GET /v1/carrier-accounts/{carrier}/pickups."
-              },
-              "saved_pickup": {
-                "type": "boolean",
-                "enum": [
-                  true
-                ],
-                "description": "Use the caller's saved pickup address and contact phone with their current display name."
-              },
-              "address_id": {
-                "type": "string",
-                "format": "uuid",
-                "description": "An address of the caller's from GET /v1/addresses."
-              }
-            }
-          }
-        }
-      },
-      "LinkPreview": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "site",
-          "url",
-          "title",
-          "price",
-          "cover_url",
-          "photo_count"
-        ],
-        "properties": {
-          "site": {
-            "type": "string",
-            "enum": [
-              "chotot.com"
-            ]
-          },
-          "url": {
-            "type": "string",
-            "format": "uri",
-            "description": "The link without what tracks the share, as https://www.chotot.com/<list id>.htm."
-          },
-          "title": {
-            "type": "string",
-            "description": "The listing's title as Chợ Tốt shows it."
-          },
-          "price": {
-            "type": [
-              "integer",
-              "null"
-            ],
-            "format": "int64",
-            "description": "Whole đồng; null when the listing has no price between 10,000 and 1,000,000,000."
-          },
-          "cover_url": {
-            "type": "string",
-            "format": "uri",
-            "description": "The listing's first photo on Chợ Tốt's CDN."
-          },
-          "photo_count": {
-            "type": "integer",
-            "minimum": 1
-          }
-        }
-      },
-      "LinkRequest": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "url"
-        ],
-        "properties": {
-          "url": {
-            "type": "string",
-            "maxLength": 2048,
-            "description": "The link the seller pasted to their own listing."
-          }
-        }
+        "description": "The carriers with a client. A seller links those the stack runs; one it runs off answers 503 carrier_unavailable. The other carriers in Carrier cannot be linked yet."
       },
       "LinkSource": {
         "type": "object",
@@ -20559,31 +21001,6 @@
           }
         }
       },
-      "ManualShipmentDraft": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "mode",
-          "carrier",
-          "tracking_code"
-        ],
-        "properties": {
-          "mode": {
-            "type": "string",
-            "enum": [
-              "manual"
-            ]
-          },
-          "carrier": {
-            "type": "string",
-            "description": "ghtk, ghn, spx, jt or viettel_post; another value is 422 invalid_shipment. The code is read with the caller's account at that carrier, so only a linked carrier works (409 carrier_not_linked)."
-          },
-          "tracking_code": {
-            "type": "string",
-            "description": "1 to 50 characters once trimmed. A code the carrier does not know is 422 shipment_not_found."
-          }
-        }
-      },
       "Me": {
         "type": "object",
         "additionalProperties": false,
@@ -21134,7 +21551,8 @@
           "views",
           "views_7d",
           "askers",
-          "saves"
+          "saves",
+          "from_chotot"
         ],
         "properties": {
           "listing": {
@@ -21159,6 +21577,10 @@
           },
           "order": {
             "$ref": "#/components/schemas/ListingOrder"
+          },
+          "from_chotot": {
+            "type": "boolean",
+            "description": "The listing was brought over from the seller's Chợ Tốt profile."
           }
         }
       },
@@ -21226,7 +21648,9 @@
               "watch_matched",
               "price_dropped",
               "feedback_moved",
-              "feedback_replied"
+              "feedback_replied",
+              "chotot_imported",
+              "chotot_sold_here"
             ]
           },
           "text": {
@@ -21692,7 +22116,7 @@
           "failed",
           "cancelled"
         ],
-        "description": "pending: the buyer asked for COD; either side may cancel. shipped: the\nseller created the shipment; the listing is reserved. completed: the\nbuyer confirmed receipt, or 3 days passed after the carrier reported\nthe parcel delivered. failed: the carrier reported the delivery\nfailed; the deal negotiates again. cancelled: before the shipment, or\nby the pickup timeout.\n"
+        "description": "pending: the buyer asked for COD; either side may cancel. shipped: the\nseller created the shipment; the listing is reserved. completed: the\nbuyer confirmed receipt, or 3 days passed after the carrier reported\nthe parcel delivered. failed: the carrier returned the parcel,\nor lost or cancelled it after the pickup, or knew it no more 30 days\ninto transit; the deal negotiates again. cancelled: before the shipment, or\nby the pickup timeout.\n"
       },
       "OwnReview": {
         "type": "object",
@@ -24202,7 +24626,7 @@
               "linked",
               "manual"
             ],
-            "description": "linked is made on the seller's account at GHTK or GHN; manual, on a carrier's own app and typed by the seller."
+            "description": "linked is made on the seller's account at GHTK or GHN. manual is an order shipped before 2026-11-25, which the seller made on a carrier's own app and typed the code of; no new shipment is manual."
           },
           "carrier": {
             "$ref": "#/components/schemas/Carrier"
@@ -24213,7 +24637,7 @@
           "fee": {
             "type": "integer",
             "format": "int64",
-            "description": "The carrier's fee in đồng; absent while the carrier has none."
+            "description": "The carrier's newest fee in đồng, from its reports and the poll; absent while the carrier has told none."
           },
           "status": {
             "$ref": "#/components/schemas/ShipmentStatus"
@@ -24234,20 +24658,54 @@
         }
       },
       "ShipmentDraft": {
-        "description": "A manual shipment the seller made on a carrier's own app, or a linked one to make on the seller's account at GHTK or GHN.",
-        "oneOf": [
-          {
-            "$ref": "#/components/schemas/ManualShipmentDraft"
-          },
-          {
-            "$ref": "#/components/schemas/LinkedShipmentDraft"
-          }
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "carrier",
+          "service",
+          "weight_grams",
+          "pickup"
         ],
-        "discriminator": {
-          "propertyName": "mode",
-          "mapping": {
-            "manual": "#/ManualShipmentDraft",
-            "linked": "#/LinkedShipmentDraft"
+        "description": "A shipment to make on the seller's account at GHTK or GHN.",
+        "properties": {
+          "carrier": {
+            "type": "string",
+            "description": "ghtk or ghn, a carrier the caller linked; another value is 422 invalid_shipment, an unlinked one 409 carrier_not_linked."
+          },
+          "service": {
+            "type": "string",
+            "description": "standard or express."
+          },
+          "weight_grams": {
+            "type": "integer",
+            "description": "The parcel's weight, 1 to 20,000 grams."
+          },
+          "pickup": {
+            "type": "string",
+            "description": "home (the carrier picks the parcel up from the seller) or post_office (the seller brings it to one)."
+          },
+          "pickup_from": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "Where the carrier picks the parcel up, one of carrier_pickup_id, address_id or saved_pickup; absent, the carrier's default pickup point. The order keeps a copy.",
+            "properties": {
+              "carrier_pickup_id": {
+                "type": "string",
+                "description": "One of the carrier's pickup points, from GET /v1/carrier-accounts/{carrier}/pickups."
+              },
+              "saved_pickup": {
+                "type": "boolean",
+                "enum": [
+                  true
+                ],
+                "description": "Use the caller's saved pickup address and contact phone with their current display name."
+              },
+              "address_id": {
+                "type": "string",
+                "format": "uuid",
+                "description": "An address of the caller's from GET /v1/addresses."
+              }
+            }
           }
         }
       },
@@ -24270,47 +24728,6 @@
           },
           "commune_code": {
             "type": "string"
-          }
-        }
-      },
-      "ShipmentPreview": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "carrier",
-          "tracking_code",
-          "recipient_name",
-          "district",
-          "cod_amount",
-          "status"
-        ],
-        "description": "A shipment as its carrier reads it, before the seller confirms it.",
-        "properties": {
-          "carrier": {
-            "$ref": "#/components/schemas/Carrier"
-          },
-          "tracking_code": {
-            "type": "string"
-          },
-          "recipient_name": {
-            "type": "string",
-            "description": "As the carrier masks it."
-          },
-          "district": {
-            "type": "string"
-          },
-          "cod_amount": {
-            "type": "integer",
-            "format": "int64",
-            "description": "What the carrier collects at the door, in đồng."
-          },
-          "status": {
-            "$ref": "#/components/schemas/ShipmentStatus"
-          },
-          "fee": {
-            "type": "integer",
-            "format": "int64",
-            "description": "The carrier's fee in đồng; absent while the carrier has none."
           }
         }
       },
@@ -24858,12 +25275,14 @@
               "seller_reviews",
               "account",
               "search_watch",
-              "feedback"
+              "feedback",
+              "chotot",
+              "chotot_ad"
             ]
           },
           "id": {
             "type": "string",
-            "description": "The deal, order, listing, seller, search watch or feedback; empty for the account."
+            "description": "The deal, order, listing, seller, search watch or feedback; empty for the account and chotot, the Chợ Tốt link; for chotot_ad, the listing's address on Chợ Tốt, https://www.chotot.com/<list_id>.htm."
           }
         }
       },
@@ -25192,25 +25611,6 @@
             "items": {
               "$ref": "#/components/schemas/TrackingEvent"
             }
-          }
-        }
-      },
-      "TrackingCode": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "carrier",
-          "tracking_code"
-        ],
-        "description": "A manual shipment's corrected carrier and code.",
-        "properties": {
-          "carrier": {
-            "type": "string",
-            "description": "ghtk, ghn, spx, jt or viettel_post; another value is 422 invalid_shipment."
-          },
-          "tracking_code": {
-            "type": "string",
-            "description": "1 to 50 characters once trimmed."
           }
         }
       },
