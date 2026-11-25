@@ -9,6 +9,7 @@ name: Build image
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
 
 concurrency:
@@ -19,7 +20,22 @@ env:
   IMAGE: ghcr.io/${{ github.repository }}
 
 jobs:
+  # Lint and types; build waits for it.
+  check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    defaults:
+      run: { working-directory: web }
+    steps:
+      - uses: actions/checkout@v7
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: bun run lint
+      - run: bun run check
+
   build:
+    needs: check
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
