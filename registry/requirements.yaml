@@ -76,7 +76,7 @@ uc:
     br: [BR-LST-01, BR-LST-02, BR-LST-03]
     nfr: [NFR-IDEM-01, NFR-DUR-01]
     adr: [ADR-0002]
-    api: ["POST /v1/listing-reads", "GET /v1/listing-reads/{id}", "GET /v1/listing-reads/{id}/events", "POST /v1/link-previews", "POST /v1/category-guesses", "POST /v1/price-guides", "GET /v1/listing-drafts", "GET /v1/listing-drafts/{id}", "PUT /v1/listing-drafts/{id}", "DELETE /v1/listing-drafts/{id}", "POST /v1/listings", "POST /v1/listings/{id}/photo-copies"]
+    api: ["POST /v1/listing-reads", "GET /v1/listing-reads/{id}", "GET /v1/listing-reads/{id}/events", "POST /v1/category-guesses", "POST /v1/price-guides", "GET /v1/listing-drafts", "GET /v1/listing-drafts/{id}", "PUT /v1/listing-drafts/{id}", "DELETE /v1/listing-drafts/{id}", "POST /v1/listings", "POST /v1/listings/{id}/photo-copies"]
     pre: Đã đăng nhập.
     post: Tin được lưu ở trạng thái đang xử lý; khi mọi ảnh xử lý xong, tin chuyển sang đang bán và bắt đầu xuất hiện trong kết quả tìm kiếm.
     main:
@@ -87,7 +87,7 @@ uc:
       5: Hệ thống lưu tin ở trạng thái đang xử lý, chuẩn hóa ảnh và xóa thông tin vị trí chụp trong ảnh; xong thì tin chuyển sang đang bán, ứng dụng báo "Đã đăng tin".
     alt:
       A1: { at: 2, text: "Mô hình không trả kết quả: người bán tự điền biểu mẫu, tiếp tục bước 3." }
-      A2: { at: 1, text: "Người bán dán link tin của mình trên Chợ Tốt: hệ thống hiện thẻ xem trước rồi đọc tin đó thành biểu mẫu, bỏ số điện thoại và Zalo trong mô tả." }
+      A2: { at: 1, text: "Người bán dán link tin của mình trên Chợ Tốt: hệ thống đọc tin đó thành biểu mẫu, bỏ số điện thoại và Zalo trong mô tả." }
       A3: { at: 3, text: "Hệ thống hiện các tin tương tự, số người mua đang theo dõi loại hàng này và hai mức gợi ý: giá thị trường và giá bán nhanh, kèm số ngày bán." }
       A4: { at: 3, text: "Người bán lưu nháp và quay lại sau; nháp giữ ảnh đã tải." }
       A5: { at: 1, text: "Người bán đăng lại từ một tin cũ của mình: ảnh của tin đó được chép thành ảnh tải lên mới." }
