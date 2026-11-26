@@ -67,7 +67,7 @@ server reconciler ── admin API (Basic) ─────┘     └─► Post
 
 ### Data
 
-A new migration (the applied ones stay as they are):
+A new migration (`0103_bifrost.sql`) (the applied ones stay as they are):
 
 - `ai_agents.model_provider text NOT NULL`, seeded `upstream` for the
   Claude agents and `openrouter` for `search` and `embed-text`. The
@@ -93,8 +93,9 @@ A new migration (the applied ones stay as they are):
 startup and after every AI settings write, under a Postgres advisory lock
 so that two replicas never create the same key twice.
 
-1. List the teams, virtual keys and pricing overrides that carry
-   `metadata.owner = "server"`.
+1. List what the server owns: the teams, by the agents' slugs (a team is
+   never deleted, so its spend stays readable); the virtual keys that carry
+   `metadata.owner = "server"`; the pricing overrides named `server:…`.
 2. For each agent: upsert its team and monthly budget. For each caller,
    upsert its virtual key with `team_id`, `provider_configs` (one per
    provider among the model and fallbacks, `allowed_models` exact), its
