@@ -7,7 +7,7 @@ order: 2
 audience: [developers, admins]
 type: reference
 readingTime: 4
-updated: 2026-11-19
+updated: 2026-11-26
 related: ["/en/agent/control", "/en/agent/setup", "/en/operations/cluster/llm-gateway"]
 ---
 
@@ -36,11 +36,11 @@ The server stops a question before the turn opens; the agent stops a segment whi
 
 ## Budgets
 
-Every model call carries `user=<moderator id>`, so LiteLLM applies each moderator's daily budget; a console agent also has a monthly budget on its alias. A budget spent midway ends the segment `FAILED` with `agent_budget`, and the console's ask box says asking is paused until midnight or until an admin adds budget. Each call's cost comes from the `x-litellm-response-cost` header and adds up in the turn's `usage`.
+Each agent has one monthly budget in USD, set on its page in the console; Bifrost enforces it on the agent's team. There are no budgets per moderator or per role. A budget spent midway makes Bifrost answer 402 (`policy_budget_exceeded`); the agent does not retry it and ends the segment `FAILED` with `agent_budget`, and the console's ask box says asking is paused. Bifrost returns no cost, so the agent counts each call as its tokens times the price in the run's `gateway.prices` for the model that served it, cache reads and writes included, and adds it up in the turn's `usage`.
 
 ## Provider rate limits
 
-On a 429 from LiteLLM that is not a spent budget, the agent waits and sends the same request again. The wait comes from `reset_at`, `retry-after-ms` or `retry-after`, 60 seconds when none is given. A segment waits at most three times, at most 90 seconds each, and writes `rate.waiting {until}` for the console's countdown. Stop now and the segment's deadline end a wait.
+On a 429 from Bifrost (`policy_rate_limited`, the caller's rate limit, or an upstream's 429), the agent waits and sends the same request again. Bifrost sends no Retry-After, so the wait is `retry-after-ms` or `retry-after` when an upstream gave one, else the window in the message ("resets every 1m"), else 60 seconds. A segment waits at most three times, at most 90 seconds each, and writes `rate.waiting {until}` for the console's countdown. Stop now and the segment's deadline end a wait.
 
 ## Context
 

@@ -7,7 +7,7 @@ order: 2
 audience: [developers, admins]
 type: reference
 readingTime: 4
-updated: 2026-11-19
+updated: 2026-11-26
 related: ["/vi/agent/control", "/vi/agent/setup", "/vi/operations/cluster/llm-gateway"]
 ---
 
@@ -36,11 +36,11 @@ Server chặn một câu hỏi trước khi lượt mở; agent chặn một đo
 
 ## Ngân sách
 
-Mỗi lần gọi model mang `user=<id moderator>`, nên LiteLLM áp ngân sách theo ngày của từng moderator; agent console còn một ngân sách tháng trên alias của nó. Hết ngân sách giữa chừng thì đoạn kết thúc `FAILED` với `agent_budget`, và ô hỏi của console báo việc hỏi bị dừng tới nửa đêm hoặc tới khi admin thêm ngân sách. Chi phí mỗi lần gọi đọc từ header `x-litellm-response-cost` và cộng dồn vào `usage` của lượt.
+Mỗi agent có một ngân sách tháng bằng USD, đặt trên trang của nó trong console; Bifrost áp ngân sách đó lên team của agent. Không có ngân sách theo moderator hay theo vai trò. Hết ngân sách giữa chừng thì Bifrost trả 402 (`policy_budget_exceeded`); agent không thử lại mà kết thúc đoạn `FAILED` với `agent_budget`, và ô hỏi của console báo việc hỏi bị dừng. Bifrost không trả chi phí, nên agent tính mỗi lần gọi bằng số token nhân với giá trong `gateway.prices` của lượt chạy cho model đã trả lời, kể cả đọc và ghi cache, rồi cộng dồn vào `usage` của lượt.
 
 ## Giới hạn tốc độ của nhà cung cấp
 
-LiteLLM trả 429 không phải vì hết ngân sách thì agent chờ rồi gửi lại đúng request đó. Thời gian chờ lấy từ `reset_at`, `retry-after-ms` hoặc `retry-after`, mặc định 60 giây. Một đoạn chờ tối đa ba lần, mỗi lần tối đa 90 giây, và ghi event `rate.waiting {until}` để console hiện đồng hồ đếm ngược. Stop now và thời hạn của đoạn cắt ngang lúc chờ.
+Bifrost trả 429 (`policy_rate_limited`, tức giới hạn tốc độ của bên gọi, hoặc 429 của upstream) thì agent chờ rồi gửi lại đúng request đó. Bifrost không gửi Retry-After, nên thời gian chờ lấy từ `retry-after-ms` hoặc `retry-after` khi upstream có gửi, nếu không thì theo khung thời gian ghi trong thông báo ("resets every 1m"), mặc định 60 giây. Một đoạn chờ tối đa ba lần, mỗi lần tối đa 90 giây, và ghi event `rate.waiting {until}` để console hiện đồng hồ đếm ngược. Stop now và thời hạn của đoạn cắt ngang lúc chờ.
 
 ## Ngữ cảnh
 

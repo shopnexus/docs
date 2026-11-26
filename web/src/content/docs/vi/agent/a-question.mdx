@@ -7,7 +7,7 @@ order: 1
 audience: [developers]
 type: concept
 readingTime: 5
-updated: 2026-11-19
+updated: 2026-11-26
 related: ["/vi/agent/control", "/vi/agent/limits", "/vi/api/live-updates"]
 ---
 
@@ -19,12 +19,12 @@ Một câu hỏi là một lượt (turn). Một lượt chạy thành một hay
     { id: "console", label: "Console", icon: "ri:computer-line", note: "Trình duyệt của moderator" },
     { id: "server", label: "Server", icon: "ri:server-line", note: "Module agent, cổng API và cổng MCP" },
     { id: "agent", label: "Agent", icon: "ri:robot-2-line", note: "Service NestJS nội bộ" },
-    { id: "llm", label: "LiteLLM", icon: "ri:sparkling-2-line", note: "Cổng model của stack" },
+    { id: "llm", label: "Bifrost", icon: "ri:sparkling-2-line", note: "Cổng model của stack" },
   ]}
   steps={[
     { from: "console", to: "server", label: "Gửi câu hỏi", detail: "`POST …/turns`" },
     { from: "server", to: "agent", label: "Mở một đoạn chạy", detail: "`POST /runs`, mode `new`" },
-    { from: "agent", to: "llm", label: "Gọi model", detail: "alias của agent, `user` = moderator" },
+    { from: "agent", to: "llm", label: "Gọi model", detail: "virtual key của lượt chạy, `provider/model`" },
     { from: "llm", to: "agent", label: "Model trả lời, có thể xin gọi tool", back: true },
     { from: "agent", to: "server", label: "Gọi tool qua MCP", detail: "`/mcp`, kèm id của moderator" },
     { from: "agent", to: "server", label: "Trả từng dòng NDJSON", detail: "event, tool call, checkpoint, tài liệu", back: true },
@@ -43,7 +43,7 @@ Server kiểm phiên console, đọc agent được chọn trong `ai_agents` (m�
 </Step>
 
 <Step title="Server mở một đoạn chạy">
-Server gửi `POST /runs` tới agent với `AGENT_SERVICE_TOKEN`: câu hỏi, moderator và vai trò, bản ghi đang mở, 20 lượt đã xong gần nhất làm lịch sử, và `agent_config` (alias model, hướng dẫn, danh sách tool, giới hạn). Server chờ agent trả trạng thái tối đa 10 giây; khác 200 thì lượt mới bị bỏ và console nhận `503 agent_unavailable`.
+Server gửi `POST /runs` tới agent với `AGENT_SERVICE_TOKEN`: câu hỏi, moderator và vai trò, bản ghi đang mở, 20 lượt đã xong gần nhất làm lịch sử, `agent_config` (hướng dẫn, danh sách tool, giới hạn) và `gateway` (virtual key, model, model dự phòng và giá). Server chờ agent trả trạng thái tối đa 10 giây; khác 200 thì lượt mới bị bỏ và console nhận `503 agent_unavailable`.
 </Step>
 
 <Step title="Agent mở MCP và chạy vòng lặp">

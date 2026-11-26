@@ -7,7 +7,7 @@ order: 1
 audience: [developers, admins]
 type: overview
 readingTime: 4
-updated: 2026-11-19
+updated: 2026-11-26
 related: ["/en/agent/a-question", "/en/architecture/console", "/en/marketplace/moderation"]
 ---
 
@@ -34,7 +34,7 @@ The read-only rule is <Req id="BR-MOD-03" />. The agent has no tool that changes
 
 ## The four parts
 
-The console calls only the server. The server starts each run segment on the agent. The agent calls the model through LiteLLM and reads data through the MCP server that the server opens on a port of its own. Everything the agent does flows back to the server as lines; the server stores them and sends them on to the console.
+The console calls only the server. The server starts each run segment on the agent. The agent calls the model through Bifrost, with the virtual key and model the server sends in each run, and reads data through the MCP server that the server opens on a port of its own. Everything the agent does flows back to the server as lines; the server stores them and sends them on to the console.
 
 <Sequence
   caption="One question through the four parts. Dashed arrows are data flowing back."
@@ -42,7 +42,7 @@ The console calls only the server. The server starts each run segment on the age
     { id: "console", label: "Console", icon: "ri:computer-line", note: "The moderator asks and watches each step" },
     { id: "server", label: "Server", icon: "ri:server-line", note: "Checks the session, stores the turn, sends events" },
     { id: "agent", label: "Agent", icon: "ri:robot-2-line", note: "The model loop, with no database" },
-    { id: "llm", label: "LiteLLM", icon: "ri:sparkling-2-line", note: "Picks the model, counts the budget" },
+    { id: "llm", label: "Bifrost", icon: "ri:sparkling-2-line", note: "Routes to the model, enforces the budget" },
   ]}
   steps={[
     { from: "console", to: "server", label: "Send the question", detail: "`POST …/turns` answers 202 at once" },
@@ -54,7 +54,7 @@ The console calls only the server. The server starts each run segment on the age
   ]}
 />
 
-The agent is a NestJS service of its own in the `shopnexus/agent` repo, running a Strands loop on the model LiteLLM picks. The decision to run it apart and have it read through the server's MCP is <Req id="ADR-0003" />.
+The agent is a NestJS service of its own in the `shopnexus/agent` repo, running a Strands loop on the model the server names, through Bifrost. The decision to run it apart and have it read through the server's MCP is <Req id="ADR-0003" />.
 
 ## The moderator's screen
 

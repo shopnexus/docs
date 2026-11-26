@@ -7,7 +7,7 @@ order: 1
 audience: [developers]
 type: concept
 readingTime: 5
-updated: 2026-11-19
+updated: 2026-11-26
 related: ["/en/agent/control", "/en/agent/limits", "/en/api/live-updates"]
 ---
 
@@ -19,12 +19,12 @@ A question is a turn. A turn runs as one or more segments: each time it is pause
     { id: "console", label: "Console", icon: "ri:computer-line", note: "The moderator's browser" },
     { id: "server", label: "Server", icon: "ri:server-line", note: "Module agent, the API port and the MCP port" },
     { id: "agent", label: "Agent", icon: "ri:robot-2-line", note: "Internal NestJS service" },
-    { id: "llm", label: "LiteLLM", icon: "ri:sparkling-2-line", note: "The stack's model gateway" },
+    { id: "llm", label: "Bifrost", icon: "ri:sparkling-2-line", note: "The stack's model gateway" },
   ]}
   steps={[
     { from: "console", to: "server", label: "Send the question", detail: "`POST …/turns`" },
     { from: "server", to: "agent", label: "Start a segment", detail: "`POST /runs`, mode `new`" },
-    { from: "agent", to: "llm", label: "Call the model", detail: "the agent's alias, `user` = moderator" },
+    { from: "agent", to: "llm", label: "Call the model", detail: "the run's virtual key, `provider/model`" },
     { from: "llm", to: "agent", label: "Answer, maybe asking for tools", back: true },
     { from: "agent", to: "server", label: "Call a tool through MCP", detail: "`/mcp`, with the moderator's id" },
     { from: "agent", to: "server", label: "Stream NDJSON lines", detail: "events, tool calls, checkpoints, documents", back: true },
@@ -43,7 +43,7 @@ The server checks the console session, reads the chosen agent from `ai_agents` (
 </Step>
 
 <Step title="The server starts a segment">
-The server sends `POST /runs` to the agent with `AGENT_SERVICE_TOKEN`: the question, the moderator and their role, the open record, the last 20 finished turns as history, and `agent_config` (model alias, instructions, tool list, limits). It waits at most 10 seconds for the status; anything but 200 drops the new turn and the console gets `503 agent_unavailable`.
+The server sends `POST /runs` to the agent with `AGENT_SERVICE_TOKEN`: the question, the moderator and their role, the open record, the last 20 finished turns as history, `agent_config` (instructions, tool list, limits) and `gateway` (the virtual key, model, fallbacks and prices). It waits at most 10 seconds for the status; anything but 200 drops the new turn and the console gets `503 agent_unavailable`.
 </Step>
 
 <Step title="The agent opens MCP and runs the loop">

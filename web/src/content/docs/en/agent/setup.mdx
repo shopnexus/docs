@@ -1,17 +1,17 @@
 ---
 title: Agents and configuration
-description: Console agents in the ai_agents table, the config the server sends with each segment, the environment on both sides and a local run of the agent.
+description: Console agents in the ai_agents table, the config and gateway the server sends with each segment, the environment on both sides and a local run of the agent.
 group: Inside
 groupOrder: 4
 order: 3
 audience: [developers, admins]
 type: how-to
 readingTime: 4
-updated: 2026-11-19
+updated: 2026-11-26
 related: ["/en/agent/limits", "/en/operations/cluster/llm-gateway", "/en/operations/local-stack"]
 ---
 
-The server is the only place an agent's configuration lives. The agent keeps no copy: each segment gets it in the `agent_config` field of `POST /runs`.
+The server is the only place an agent's configuration lives. The agent keeps no copy: each segment gets it in the `agent_config` and `gateway` fields of `POST /runs`.
 
 ## Agents in `ai_agents`
 
@@ -22,28 +22,33 @@ The server's `ai_agents` table holds two kinds of agent. Migration 0056 seeds th
 | `console` | Console assistant (`console-agent`) | moderators, picked in the ask box | create, edit, turn on and off |
 | `app` | Scam check, Listing photo reader, Search, Search embeddings | the server's code | change the model, limits and budget |
 
-An agent has a display name ("Console assistant") and an alias (`console-agent`) used only on calls to LiteLLM. Each save of new instructions adds a version to `ai_agent_versions` with who saved it and when. A question that names no agent uses the Console assistant; an unknown agent or an `app` agent is 404 `ai_agent_not_found`, and one turned off is 409 `ai_agent_disabled`.
+An agent has a display name ("Console assistant") and a slug (`console-agent`), which names its team in Bifrost. Each save of new instructions adds a version to `ai_agent_versions` with who saved it and when. A question that names no agent uses the Console assistant; an unknown agent or an `app` agent is 404 `ai_agent_not_found`, and one turned off is 409 `ai_agent_disabled`.
 
-Admins manage agents, models, providers and budgets under **Settings** in the console. The server writes those changes to LiteLLM through its admin API.
+Admins manage agents under **Settings** in the console. An agent's page holds its model (provider and model), its fallbacks, its monthly budget and its callers' rate limits; each model has a price. The Providers page is read-only, since a provider is an infra change. The server writes the teams, virtual keys, budgets and prices into Bifrost through its admin API ([Bifrost gateway](/en/operations/cluster/llm-gateway#keys-and-budgets)).
 
 ## Config per segment
 
 ```jsonc
 "agent_config": {
   "id": "uuid", "name": "Console assistant",
-  "alias": "console-agent",               // model alias in LiteLLM
   "instructions": "…", "instructions_version": 3,
   "tools": ["ticket_get", "account_get"],  // MCP tools the agent may use
   "limits": { "deadline_s": 60, "max_model_calls": 40, "context_window": 128000,
               "tool_timeout_s": 20, "tool_attempts": 3, "max_tokens": 4096 }
+},
+"gateway": {
+  "key": "sk-bf-…",                         // the agent's Bifrost virtual key
+  "model": "upstream/claude-sonnet-5-5",   // provider/model
+  "fallbacks": [],                         // provider/model, tried in order
+  "prices": { "upstream/claude-sonnet-5-5": { "input": 2e-6, "output": 1e-5, "cache_read": null, "cache_write": null } }
 }
 ```
 
-The agent drops unknown keys; a value out of range refuses the whole request with 400. A segment's system prompt is the built-in prompt (role, the open record, the moderation and support rules), the output tool rules, the agent's `instructions` and the skill's prompt when the question uses one.
+The agent drops unknown keys of `agent_config`; a value out of range refuses the whole request with 400. A segment without `gateway` is refused with 400 too. The agent never logs or stores the key, and prices each call with `prices` (USD per token; a null cache price is the input price). A segment's system prompt is the built-in prompt (role, the open record, the moderation and support rules), the output tool rules, the agent's `instructions` and the skill's prompt when the question uses one.
 
 ## Environment
 
-Values shared by compose and every stack live in `infra/stack/env/agent.env`; the chart reads that file and compose reads it through `env_file`. The two tokens and the LiteLLM key are in the keys volume's `.env`.
+Values shared by compose and every stack live in `infra/stack/env/agent.env`; the chart reads that file and compose reads it through `env_file`. The two tokens are in the keys volume's `.env`. The agent holds no model key of its own.
 
 | Variable | Side | Meaning |
 |---|---|---|
@@ -52,28 +57,27 @@ Values shared by compose and every stack live in `infra/stack/env/agent.env`; th
 | `AGENT_MCP_ADDR` | server | The MCP server's listener, `0.0.0.0:9090` |
 | `AGENT_MCP_TOKEN` | both | Token the agent sends to MCP and the control endpoint |
 | `MCP_SERVER_URL` | agent | The server's `/mcp`, such as `http://server-dev:9090/mcp`; its origin also serves the control endpoint |
-| `AGENT_MODEL_ID` | agent | Alias used when `agent_config` has none, `console-agent` |
-| `LITELLM_BASE_URL`, `LITELLM_API_KEY` | agent | LiteLLM's OpenAI-compatible endpoint and key |
-| `LITELLM_URL`, `LITELLM_MASTER_KEY` | server | LiteLLM's admin API, for the Settings pages |
+| `GATEWAY_BASE_URL` | agent | Bifrost's OpenAI-compatible endpoint, `http://bifrost:8080/v1` |
+| `GATEWAY_URL`, `GATEWAY_ADMIN_USERNAME`, `GATEWAY_ADMIN_PASSWORD` | server | Bifrost's admin API, for the reconciler and the Settings pages |
 | `AGENT_TURN_DEADLINE_MS` | agent | A segment's default deadline, 60 000 |
 | `FEATURE_ALL_AGENT`, `FEATURE_LLM` | agent | `false` refuses every segment with 503 |
 
-Each token has at least 32 characters; the server's `cmd/envgen` writes both. No log line carries a token or the master key. The agent's full list is in `agent/.env.example` and `agent/src/config.ts`.
+Each token has at least 32 characters; the server's `cmd/envgen` writes both. No log line carries a token or a gateway key. The agent's full list is in `agent/.env.example` and `agent/src/config.ts`.
 
 ## A local run
 
-The agent has no compose file of its own. It runs on the stack's LiteLLM and MCP, from the umbrella repo's `docker-compose.yml` or the cluster.
+The agent has no compose file of its own. It runs on the stack's Bifrost and MCP, from the umbrella repo's `docker-compose.yml` or the cluster.
 
 ```bash
 cd agent
 npm install
 cp .env.example .env
-# Set AGENT_SERVICE_TOKEN, AGENT_MCP_TOKEN, MCP_SERVER_URL and LiteLLM to the stack's.
+# Set AGENT_SERVICE_TOKEN, AGENT_MCP_TOKEN, MCP_SERVER_URL, GATEWAY_BASE_URL and CLI_GATEWAY_KEY to the stack's.
 npm run start:dev
 npm run chat -- "Có bao nhiêu ticket đang mở?"
 ```
 
-`npm run chat` posts one `new` segment to the agent on `PORT` as `CLI_MEMBER_ID` and prints its events and end line. It calls the real model and MCP, which may cost money. Without the server's control endpoint the polls fail and the segment goes on without Pause, Stop now or updates.
+`npm run chat` posts one `new` segment to the agent on `PORT` as `CLI_MEMBER_ID`, with `CLI_GATEWAY_KEY` and `CLI_GATEWAY_MODEL` as its `gateway` at zero prices, and prints its events and end line. Take the key from the `console-agent` team in Bifrost's UI. It calls the real model and MCP, which may cost money. Without the server's control endpoint the polls fail and the segment goes on without Pause, Stop now or updates.
 
 ## Tests
 
@@ -81,7 +85,7 @@ npm run chat -- "Có bao nhiêu ticket đang mở?"
 npm run build
 npm run typecheck
 npm test                  # offline
-npm run test:live-cache   # calls a real LiteLLM; skipped without LIVE_LITELLM_URL and LIVE_LITELLM_KEY
+npm run test:live-cache   # calls a real Bifrost; skipped without LIVE_GATEWAY_URL and LIVE_GATEWAY_KEY
 ```
 
 `npm test` uses a scripted model, a fake server on 127.0.0.1 (an MCP server with read-only and write tools, and the control endpoint) and an in-memory line collector. The suites cover the token, the 400 and 503 refusals, NDJSON framing, steps, source numbers, documents, tool retry, `ask_user`, pause and resume, updates while running, Stop now, the budget, the deadline and context compaction.

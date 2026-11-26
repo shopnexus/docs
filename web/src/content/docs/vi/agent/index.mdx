@@ -7,7 +7,7 @@ order: 1
 audience: [developers, admins]
 type: overview
 readingTime: 4
-updated: 2026-11-19
+updated: 2026-11-26
 related: ["/vi/agent/a-question", "/vi/architecture/console", "/vi/marketplace/moderation"]
 ---
 
@@ -34,7 +34,7 @@ Quy tắc chỉ đọc là <Req id="BR-MOD-03" />. Agent không có tool nào s�
 
 ## Bốn phần của hệ thống
 
-Console chỉ gọi server. Server mở từng đoạn chạy trên agent. Agent gọi model qua LiteLLM và đọc dữ liệu qua MCP server mà server mở trên một cổng riêng. Mọi việc agent làm chảy về server thành từng dòng; server lưu lại rồi phát cho console.
+Console chỉ gọi server. Server mở từng đoạn chạy trên agent. Agent gọi model qua Bifrost, bằng virtual key và model server gửi kèm mỗi lượt chạy, và đọc dữ liệu qua MCP server mà server mở trên một cổng riêng. Mọi việc agent làm chảy về server thành từng dòng; server lưu lại rồi phát cho console.
 
 <Sequence
   caption="Một câu hỏi đi qua bốn phần. Mũi tên nét đứt là dữ liệu chảy về."
@@ -42,7 +42,7 @@ Console chỉ gọi server. Server mở từng đoạn chạy trên agent. Agent
     { id: "console", label: "Console", icon: "ri:computer-line", note: "Moderator hỏi và xem từng bước" },
     { id: "server", label: "Server", icon: "ri:server-line", note: "Kiểm phiên, lưu lượt, phát event" },
     { id: "agent", label: "Agent", icon: "ri:robot-2-line", note: "Vòng lặp model, không có database" },
-    { id: "llm", label: "LiteLLM", icon: "ri:sparkling-2-line", note: "Chọn model, tính ngân sách" },
+    { id: "llm", label: "Bifrost", icon: "ri:sparkling-2-line", note: "Chuyển tới model, giữ ngân sách" },
   ]}
   steps={[
     { from: "console", to: "server", label: "Gửi câu hỏi", detail: "`POST …/turns` trả 202 ngay" },
@@ -54,7 +54,7 @@ Console chỉ gọi server. Server mở từng đoạn chạy trên agent. Agent
   ]}
 />
 
-Agent là service NestJS riêng trong repo `shopnexus/agent`, chạy vòng lặp Strands trên model mà LiteLLM chọn. Quyết định tách agent ra và cho nó đọc qua MCP của server là <Req id="ADR-0003" />.
+Agent là service NestJS riêng trong repo `shopnexus/agent`, chạy vòng lặp Strands trên model mà server chỉ định, qua Bifrost. Quyết định tách agent ra và cho nó đọc qua MCP của server là <Req id="ADR-0003" />.
 
 ## Màn hình của moderator
 
