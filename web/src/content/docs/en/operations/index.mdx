@@ -7,11 +7,11 @@ groupOrder: 1
 audience: [developers, admins]
 type: overview
 readingTime: 4
-updated: 2026-11-17
+updated: 2026-11-26
 related: ["/en/operations/cluster", "/en/operations/cluster/bootstrap", "/en/operations/cluster/releases", "/en/operations/configuration", "/en/operations/local-stack"]
 ---
 
-The server, the website, the docs and the console run on one k3d cluster in two stacks, dev and prod. Each stack has its own namespace and its own Postgres, Restate, RustFS and AI hub (`ai-gateway` and `ai-models`, from the `ai` repo). Everything the cluster needs is in `infra/` in the umbrella repo. The Android app is built and installed from Gradle and is not part of the cluster.
+The server, the website, the docs and the console run on one k3d cluster in two stacks, dev and prod. Each stack has its own namespace and its own Postgres, Restate, RustFS and Bifrost, the gateway to the remote models. Everything the cluster needs is in `infra/` in the umbrella repo. The Android app is built and installed from Gradle and is not part of the cluster.
 
 | Stack | Domain | Namespace | Follows |
 |---|---|---|---|
@@ -50,7 +50,7 @@ Argo CD Image Updater watches GHCR for dev. It follows the digest of `:main`, wr
   <Card title="Postgres, Restate and RustFS" href="/en/operations/cluster/data" icon="ri:database-2-line">The stateful workloads, their operators and their storage.</Card>
   <Card title="Releases" href="/en/operations/cluster/releases" icon="ri:price-tag-3-line">How dev follows main and prod runs a release of the umbrella.</Card>
   <Card title="Secrets" href="/en/operations/cluster/secrets" icon="ri:key-2-line">Sealed Secrets, the seal command and the key to back up.</Card>
-  <Card title="AI hub" href="/en/operations/cluster/llm-gateway" icon="ri:robot-2-line">ai-gateway and ai-models in each stack, the aliases, keys and daily budgets.</Card>
+  <Card title="Bifrost gateway" href="/en/operations/cluster/llm-gateway" icon="ri:robot-2-line">Bifrost in each stack: providers, agents, keys and monthly budgets.</Card>
   <Card title="Runbook and troubleshooting" href="/en/operations/cluster/runbook" icon="ri:first-aid-kit-line">Daily commands, drills and fixes for known failures.</Card>
 </Cards>
 

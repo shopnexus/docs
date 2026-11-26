@@ -7,7 +7,7 @@ groupOrder: 2
 audience: [admins, developers]
 type: concept
 readingTime: 9
-updated: 2026-11-17
+updated: 2026-11-26
 related: ["/en/operations/cluster", "/en/operations/cluster/bootstrap", "/en/operations/cluster/data", "/en/operations/cluster/runbook"]
 ---
 
@@ -111,9 +111,8 @@ flowchart TB
   SA --> S1["server pods<br/>all versions"]
   S1 -->|"DATABASE_URL"| PG["postgres-rw"]
   S1 -->|"http://rustfs:9000"| RF
-  S1 -->|"http://ai-gateway:4000/v1"| LL["ai-gateway"]
-  S1 -->|"http://ai-models:8000/v1, frames"| AM["ai-models"]
-  LL -->|"stt, embed-image"| AM
+  S1 -->|"http://bifrost:8080/v1"| LL["bifrost"]
+  LL -->|"upstream, OpenRouter"| EXT["model providers"]
   S1 -->|"restate.restate-#lt;stack#gt;:8080, :9070"| R["Restate"]
   R -->|"HTTP/1.1, :9080"| SV["per-version server Service"]
   R -->|"snapshots"| RF
@@ -128,15 +127,17 @@ flowchart TB
 
 ## NetworkPolicy
 
-`infra/stack/templates/networkpolicy.yaml` puts five policies in each stack namespace. `default-deny-ingress` selects every pod and admits nothing, and each of the other four admits one source.
+`infra/stack/templates/networkpolicy.yaml` puts these policies, among others, in each stack namespace. `default-deny-ingress` selects every pod and admits nothing, and each of the others admits one source, or for `bifrost-egress` limits where Bifrost may connect.
 
 | Policy | Pods it selects | Admits traffic from |
 |---|---|---|
 | `default-deny-ingress` | every pod | nothing |
-| `from-stack` | every pod | any pod in the same namespace |
-| `from-traefik` | `website`, `docs`, `console`, `server`, `rustfs` | pods `app.kubernetes.io/name: traefik` in `kube-system` |
+| `from-stack` | every pod but `server`, `server-ai`, `agent`, `pgweb`, `imgproxy`, `lgtm` and `bifrost` | any pod in the same namespace |
+| `from-traefik` | `website`, `docs`, `console`, `rustfs`, `lgtm`, `bifrost`, `pgweb`, `imgproxy-cache` | pods `app.kubernetes.io/name: traefik` in `kube-system` |
 | `from-cnpg` | `cnpg.io/cluster: postgres` | the namespace `cnpg-system` (the CloudNativePG operator) |
 | `from-restate` | `server`, `rustfs` | the namespace `restate-<stack>` |
+| `to-bifrost` | `bifrost` | the server, the console agent and the cluster's Prometheus, on 8080 |
+| `bifrost-egress` | `bifrost` (egress) | DNS, Postgres, the upstream's port, and 443 to public addresses |
 
 ```mermaid title="Allowed flows into shopnexus-prod"
 flowchart TB
@@ -154,7 +155,7 @@ flowchart TB
     SRV["server"]
     RFS["rustfs"]
     PG["postgres"]
-    LLM["ai-gateway, ai-models"]
+    LLM["bifrost"]
   end
   subgraph sd["shopnexus-dev"]
     DEV["any pod"]
@@ -166,7 +167,7 @@ flowchart TB
   RS -->|"from-restate"| SRV
   RS -->|"from-restate"| RFS
   SRV -->|"from-stack"| PG
-  SRV -->|"from-stack"| LLM
+  SRV -->|"to-bifrost"| LLM
   WEB -->|"from-stack"| SRV
   SRV -->|"networkPeers"| RS
   DEV --x|"no policy"| PG
@@ -180,8 +181,8 @@ The restate-operator writes the policies for the Restate namespace from the `Res
 <KeyRules>
 - `from-stack` has no `namespaceSelector`, so it admits pods of its own namespace only.
 - No policy admits traffic from `shopnexus-dev` into `shopnexus-prod` or the reverse, and each stack's `from-restate` names only its own `restate-<stack>` namespace.
-- Egress is open. The server calls Firebase and FCM outside the cluster, and `ai-gateway` calls OpenRouter.
-- `ai-gateway` and `ai-models` are reachable from every pod of their stack through `from-stack`. Only the server and the console agent hold virtual keys for `ai-gateway`; `ai-models` has no authentication.
+- Egress is open but for Bifrost. The server calls Firebase and FCM outside the cluster; Bifrost reaches only the upstream and public addresses on 443 ([Bifrost gateway](/en/operations/cluster/llm-gateway#network)).
+- `from-stack` leaves Bifrost out. Only the server and the console agent reach it, and every model call carries a virtual key.
 </KeyRules>
 
 The failover drill in the [Runbook](/en/operations/cluster/runbook#failover-drills) connects from a `shopnexus-dev` pod to `postgres-rw.shopnexus-prod`. The NetworkPolicy drops the packets, so the connection times out. The drill is planned for the live server and has not run yet.

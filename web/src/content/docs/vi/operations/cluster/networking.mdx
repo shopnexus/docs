@@ -7,7 +7,7 @@ groupOrder: 2
 audience: [admins, developers]
 type: concept
 readingTime: 9
-updated: 2026-11-17
+updated: 2026-11-26
 related: ["/vi/operations/cluster", "/vi/operations/cluster/bootstrap", "/vi/operations/cluster/data", "/vi/operations/cluster/runbook"]
 ---
 
@@ -111,9 +111,8 @@ flowchart TB
   SA --> S1["pod server<br/>mọi phiên bản"]
   S1 -->|"DATABASE_URL"| PG["postgres-rw"]
   S1 -->|"http://rustfs:9000"| RF
-  S1 -->|"http://ai-gateway:4000/v1"| LL["ai-gateway"]
-  S1 -->|"http://ai-models:8000/v1, frames"| AM["ai-models"]
-  LL -->|"stt, embed-image"| AM
+  S1 -->|"http://bifrost:8080/v1"| LL["bifrost"]
+  LL -->|"upstream, OpenRouter"| EXT["model providers"]
   S1 -->|"restate.restate-#lt;stack#gt;:8080, :9070"| R["Restate"]
   R -->|"HTTP/1.1, :9080"| SV["Service server theo phiên bản"]
   R -->|"snapshot"| RF
@@ -128,15 +127,17 @@ flowchart TB
 
 ## NetworkPolicy
 
-`infra/stack/templates/networkpolicy.yaml` đặt năm policy trong mỗi namespace của stack. `default-deny-ingress` chọn mọi pod và không cho gì vào, còn mỗi policy trong bốn cái kia mở cho một nguồn.
+`infra/stack/templates/networkpolicy.yaml` đặt các policy sau, cùng một số policy khác, trong mỗi namespace của stack. `default-deny-ingress` chọn mọi pod và không cho gì vào, còn mỗi policy kia mở cho một nguồn, riêng `bifrost-egress` giới hạn nơi Bifrost được kết nối tới.
 
 | Policy | Pod được chọn | Cho phép lưu lượng từ |
 |---|---|---|
 | `default-deny-ingress` | mọi pod | không gì cả |
-| `from-stack` | mọi pod | mọi pod trong cùng namespace |
-| `from-traefik` | `website`, `docs`, `console`, `server`, `rustfs` | pod `app.kubernetes.io/name: traefik` trong `kube-system` |
+| `from-stack` | mọi pod trừ `server`, `server-ai`, `agent`, `pgweb`, `imgproxy`, `lgtm` và `bifrost` | mọi pod trong cùng namespace |
+| `from-traefik` | `website`, `docs`, `console`, `rustfs`, `lgtm`, `bifrost`, `pgweb`, `imgproxy-cache` | pod `app.kubernetes.io/name: traefik` trong `kube-system` |
 | `from-cnpg` | `cnpg.io/cluster: postgres` | namespace `cnpg-system` (operator CloudNativePG) |
 | `from-restate` | `server`, `rustfs` | namespace `restate-<stack>` |
+| `to-bifrost` | `bifrost` | server, console agent và Prometheus của cluster, ở cổng 8080 |
+| `bifrost-egress` | `bifrost` (egress) | DNS, Postgres, cổng của upstream, và 443 tới địa chỉ công khai |
 
 ```mermaid title="Các luồng được phép vào shopnexus-prod"
 flowchart TB
@@ -154,7 +155,7 @@ flowchart TB
     SRV["server"]
     RFS["rustfs"]
     PG["postgres"]
-    LLM["ai-gateway, ai-models"]
+    LLM["bifrost"]
   end
   subgraph sd["shopnexus-dev"]
     DEV["mọi pod"]
@@ -166,7 +167,7 @@ flowchart TB
   RS -->|"from-restate"| SRV
   RS -->|"from-restate"| RFS
   SRV -->|"from-stack"| PG
-  SRV -->|"from-stack"| LLM
+  SRV -->|"to-bifrost"| LLM
   WEB -->|"from-stack"| SRV
   SRV -->|"networkPeers"| RS
   DEV --x|"không policy nào"| PG
@@ -180,8 +181,8 @@ Restate-operator tự viết policy cho namespace của Restate dựa trên `Res
 <KeyRules>
 - `from-stack` không có `namespaceSelector`, nên chỉ cho pod trong chính namespace của nó.
 - Không policy nào mở đường từ `shopnexus-dev` vào `shopnexus-prod` hay theo chiều ngược lại, và `from-restate` của mỗi stack chỉ ghi namespace `restate-<stack>` của chính stack đó.
-- Egress để mở. Server gọi Firebase và FCM ở ngoài cluster, còn `ai-gateway` gọi OpenRouter.
-- Mọi pod trong stack gọi được `ai-gateway` và `ai-models` qua `from-stack`. Chỉ server và console agent giữ virtual key của `ai-gateway`; `ai-models` không có xác thực.
+- Egress để mở, trừ Bifrost. Server gọi Firebase và FCM ở ngoài cluster; Bifrost chỉ tới được upstream và các địa chỉ công khai ở cổng 443 ([Cổng Bifrost](/vi/operations/cluster/llm-gateway#mạng)).
+- `from-stack` không gồm Bifrost. Chỉ server và console agent tới được nó, và mọi lời gọi mô hình đều mang virtual key.
 </KeyRules>
 
 Bài diễn tập trong [Runbook](/vi/operations/cluster/runbook#diễn-tập-failover) kết nối từ một pod trong `shopnexus-dev` tới `postgres-rw.shopnexus-prod`. NetworkPolicy bỏ các gói tin, nên kết nối hết thời gian chờ (timeout). Bài diễn tập được lên kế hoạch cho server thật và chưa chạy.
