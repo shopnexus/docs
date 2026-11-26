@@ -1,0 +1,110 @@
+---
+title: Shipping
+description: How sellers link their own GHTK or GHN account, how the server makes and tracks a COD shipment there, the saved pickup, and the order screens.
+group: Marketplace modules
+order: 9
+groupOrder: 4
+audience: [developers]
+type: concept
+readingTime: 7
+updated: 2026-11-27
+related: ["/en/architecture/deal", "/en/marketplace/cod-deal", "/en/architecture/account", "/en/architecture/screens", "/en/architecture/durable-flows"]
+---
+
+Every shipment goes out on the seller's own account at GHTK or GHN. ShopNexus never ships on an account of its own and never touches the COD money: the carrier collects it from the buyer and pays it to the seller (<Req id="BR-DEAL-05" />).
+
+The shipping module owns the sellers' carrier accounts, one client per carrier, the carriers' webhooks, the tracking timeline and the seller's saved pickup. Deal calls shipping to create, track and cancel a shipment. Shipping never imports deal; it reaches the few reads it needs through an interface it declares. The order's states and timers are on [Deal](/en/architecture/deal).
+
+## Linking a carrier account
+
+A seller links GHTK and GHN, at most one account at each (<Req id="FR-ACC-05" />). The API reuses an account the seller already has at the carrier; it creates none.
+
+| Carrier | What the seller gives | What ShopNexus keeps |
+|---|---|---|
+| GHTK | Email and password | The shop's token, traded at once through GHTK's partner endpoint. The password goes no further. |
+| GHN, by token | Token and ShopId | The token, once the ShopId is one of its shops. |
+| GHN, by phone | Phone, then the code GHN texts to it | A GHN shop with ShopNexus as staff. GHN's affiliate API makes a new shop, or rejoins the newest shop of that phone where ShopNexus is already staff, so linking again makes no second shop. |
+
+The phone code is sent by `POST /v1/carrier-accounts/ghn/otp`, under the rate limit for codes. A wrong login is `carrier_login_failed`, a wrong or expired code `carrier_otp_invalid`.
+
+Tokens are sealed with a key of their own and a fresh nonce per seal, and never returned or logged (<Req id="NFR-PRIV-01" />). A token sealed under another environment's key does not open: the call fails, the error carries no token, and linking again replaces it.
+
+### Unlinking and switching shops
+
+Unlinking is 409 `shipments_open` while one of the seller's shipped orders is at that carrier. So is linking a different shop there: the new shop's token would not know the open parcels, so the poll and the timeouts would read them as gone while the COD parcel moved on. Linking the same shop again is free.
+
+Linking, unlinking and the save that ships an order take the same lock on the seller and carrier, and the order stores the shop its shipment was made at. An unlink that lands while a shipment is being made either sees the shipped order and refuses, or makes the ship save refuse with `carrier_not_linked`. Deleting an account drops its carrier accounts.
+
+### Carriers per stack
+
+Each stack runs each carrier `live`, `fake` or `off`. `GET /v1/carrier-accounts` returns the carriers the stack runs as `linkable`, and the clients offer only those. A shipment at a carrier that is off is 503 `carrier_unavailable`, after the order checks and with the listing given back. Unlinking needs no client, so an account at a carrier turned off can still be dropped.
+
+The fake carrier is for development. It links any account but the password or token `wrong`, texts a code to any phone but one ending in `0000`, takes any code but `wrong`, and its webhooks take the secret `dev`. With a fake carrier, `POST /v1/dev/shipments/{code}/status` moves a fake parcel one step, as the carrier would report it. Production refuses `fake`.
+
+## Making a shipment
+
+The seller sends `POST /v1/orders/{order_id}/shipment` with a draft: the carrier, the service (`standard` or `express`), the weight (1 to 20,000 g) and how the carrier takes the parcel (`home`, or `post_office` at GHTK only). `GET /v1/shipments/quote` previews the fee first. Every rule past the schema is 422 `invalid_shipment` with fields.
+
+The pickup comes from one of three places, exactly one per request:
+
+- one of the carrier's pickup points on the seller's account (`GET /v1/carrier-accounts/{carrier}/pickups`);
+- one of the seller's addresses;
+- the saved pickup (`saved_pickup: true`), resolved before the listing is reserved. Without one saved, the request is `pickup_not_configured`.
+
+Sending none keeps the carrier's default point. The order copies the pickup, so later edits leave it as it was.
+
+The waybill collects the item's price as COD and sets the recipient to pay the shipping fee. At GHN it also marks the parcel as open to inspection without trying it on (<Req id="BR-DEAL-02" />). The carrier's order reference is the ShopNexus order code, so a retried create finds the first one instead of making a second waybill.
+
+The fee is the carrier's newest, and null while the carrier has told none. It comes from the create's answer when there is one, then from the newest fee each report and poll carries.
+
+### Refusals
+
+| Code | Meaning |
+|---|---|
+| 422 `carrier_refused` | The carrier refused the request (a phone, a weight, a pickup it will not serve). `details.reason` has its words. |
+| 422 `carrier_address_unknown` | The carrier does not know the address. |
+| 409 `carrier_relink_needed` | The stored token no longer opens; the seller links again. |
+| 409 `carrier_not_linked` | The seller has no account at that carrier. |
+| 503 `carrier_unavailable` | The stack runs that carrier off. |
+
+These are refusals, not outages, so a durable step that meets one ends the request instead of trying again. The ship flow gives the listing back on each.
+
+## Tracking
+
+Each carrier's status maps to a shared step (`ready_to_pick` through `delivered`, then `returning`, `returned`, `cancelled`, `lost`), and each step to one of the four shipment statuses the order shows.
+
+| Shipment status | Steps | Effect on the order |
+|---|---|---|
+| `pending_pickup` | Waiting for the shipper | None. The pickup timer runs. |
+| `in_transit` | Picked up, moving, a failed delivery attempt | Starts the transit timer. The carrier tries again after a failed attempt. |
+| `delivered` | Delivered | Starts the 3-day complete timer. |
+| `failed` | Returning, returned | Fails the order and releases the listing. |
+| (none) | Cancelled, lost | Reported as lost: fails an order already picked up, leaves one waiting for pickup to its timeout. |
+
+### Reports
+
+Reports arrive two ways (<Req id="FR-DEAL-04" />):
+
+- **Webhooks** at `POST /v1/carriers/{ghtk|ghn}/webhook/{secret}`. The secret in the path is the only check, compared in constant time; a wrong one is 404. Once it matches the answer is 200, even for an unknown code or an unreadable body, since GHTK resends on anything else and the poll covers a lost report.
+- **The poll** every 2 hours while an order is shipped. It reads the parcel through the seller's account, keeps the carrier's history and fee in the timeline, and moves the order when the status or fee differs.
+
+Shipping keeps everything the carriers report in `shipment_events`, by carrier and tracking code: steps with the carrier's own status, reason, hub, shipper and delivery photo, and changes to weight, fee, COD and payout. An event that repeats a kept one is dropped under the parcel's lock, so a webhook and a poll reading the same status keep one row.
+
+A webhook's events are kept even for a code no order has yet. An early `ready_to_pick` can race the save of the shipment, and GHTK's poll returns only the current status, so that step would otherwise be lost. Only the order's move waits; the next report moves it.
+
+Every report of a known code sends its orders the timeline's newest step, its time and the newest fee, whatever this report added. A resend that keeps nothing new still moves an order whose first move failed, and a late step changes nothing (<Req id="NFR-IDEM-01" />).
+
+## Saved pickup
+
+`PUT /v1/me/shipping-settings` replaces `{pickup: null | {address_id, phone}}`: one of the seller's addresses and a contact phone, which has no verification of its own. A null pickup deletes the setting, and deleting the address deletes it too. The address must be the caller's. Editing the address changes later shipments only; made shipments keep their copy.
+
+The saved pickup resolves at use with the seller's current name, the saved phone and the current address. Quotes read it on every request. A retried shipment request whose shipment already landed answers from the order, even if the setting was removed since.
+
+## Order screens
+
+The app reads orders through screen endpoints, which compose several modules in one response.
+
+- **`GET /v1/screens/order/{order_id}`**: the order, the current deal, the other side as a public person, both sides' reviews of this order, and for the buyer the support ticket on it. The order may be an earlier one on the deal; it keeps its own status. It carries the tracking timeline newest first; the buyer gets the steps only.
+- **`GET /v1/screens/orders?role=buying|selling`**: the orders list, newest first, paged by order. Each row is the order, the other side and the caller's own review. The buying side also counts open COD orders against the cap of 3; the selling side counts pending orders waiting for the seller's shipment.
+- **`GET /v1/screens/cod-setup`**: the seller's account, addresses, saved pickup and linked carriers with the `linkable` set.
+- **`GET /v1/screens/cod-checkout/{deal_id}?address_id=`**: buyer only. The deal, the seller, the chosen or default address, the COD cap `{used, max}` and `shipping_estimate`. The estimate is always null: a quote needs the parcel's weight and the seller's carrier, which the checkout does not have. An empty address book gives a null address; a foreign address is `address_not_found`, a foreign deal `deal_not_found`. The read writes nothing and calls no carrier.

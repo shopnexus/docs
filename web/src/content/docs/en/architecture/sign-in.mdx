@@ -1,51 +1,76 @@
 ---
 title: Sign-in
-description: How a customer signs in with a phone number that Firebase has verified, and how the server finds or creates the account.
+description: How a person signs in or signs up with a phone number, a Google account or an emailed code, how a second identity is added, and which actions need a phone.
 group: Identity and access
 order: 1
 groupOrder: 3
 audience: [developers]
 type: concept
-readingTime: 3
-updated: 2026-11-04
-related: ["/en/architecture/sessions", "/en/architecture/console", "/en/api/authentication"]
+readingTime: 4
+updated: 2026-11-27
+related: ["/en/architecture/sessions", "/en/architecture/account", "/en/api/authentication", "/en/architecture/console"]
 ---
 
-Every customer account has a phone number, and the phone number is the only way to sign in. The server sends no codes. The app verifies the number through Firebase and hands the server the token Firebase returns.
+A person signs in, or signs up on first use, with one proof sent to `POST /v1/auth/sign-in` <Req id="FR-ACC-01" />. Console members sign in separately; see [Console](/en/architecture/console).
 
-## Verifying the number
+## Identities and proofs
 
-Firebase offers two ways to prove a number. Phone Number Verification (PNV) reads it from the SIM through the carrier. Firebase Authentication sends an SMS code. In September 2026 PNV covered no Vietnamese carrier, so people in Vietnam take the SMS path for now. When Google adds a carrier, an installed app uses it without an update, and the server already accepts its tokens.
+An account holds a phone identity, an email identity, or both, at most one of each. A number or address belongs to one account only. Accounts are never merged, and no endpoint changes or removes an identity.
 
-```mermaid title="Phone sign-in"
+| Proof | Proves | Source |
+|---|---|---|
+| `phone_token` | a phone number | Firebase: an SMS code, or Phone Number Verification from the SIM |
+| `google_token` | an email address | a Google ID token from Android Credential Manager |
+| `email_code` | an email address | a challenge ID and the six-digit code the server mailed |
+
+Google is not an identity kind. A Google token for an address an email identity holds signs in to that account.
+
+## The flow
+
+Tokens and codes never enter Restate, because its journal is readable through the admin API. The HTTP side checks a token and passes on only the proven address; for a code it passes the challenge ID and a keyed hash of address and code.
+
+```mermaid title="Sign-in"
 sequenceDiagram
   participant App
-  participant Firebase
-  participant Server
-  participant SignIn as SignIn (Restate)
-  App->>Firebase: verify number (SIM or SMS code)
-  Firebase-->>App: signed token
-  App->>Server: POST /v1/auth/sign-in
-  Server->>Server: check token, read +84 number
-  Server->>SignIn: number only
-  SignIn-->>Server: account and session ID
-  Server-->>App: access and refresh tokens
+  participant API as HTTP handler
+  participant Flow as SignIn (Restate)
+  App->>API: proof + Idempotency-Key
+  API->>API: check token, or hash the code
+  API->>Flow: proven address
+  Flow->>Flow: judge the code guess
+  Flow->>Flow: find identity, or create account + identity
+  Flow-->>API: account
+  API->>API: create session for (account, key)
+  API-->>App: tokens, account.is_new
 ```
 
-## What the server checks
+1. A code is refused when its challenge is unknown, not the newest for its address, meant for adding an identity, expired or out of guesses. The counted guess is saved.
+2. A known identity is marked as used; a suspended account ends the run with `account_suspended`.
+3. An unknown address gets a new account and identity in one transaction. If another sign-up took the value first, nothing is written and the answer is `try_again`.
+4. The HTTP side creates the [session](/en/architecture/sessions). `account.is_new` tells the app to ask for a profile.
 
-The token's issuer decides which public keys, algorithm and audience apply. The verification must be at most 5 minutes old. Within that window the same token can sign in again; the team chose that over single use. A number outside Vietnam is refused with `invalid_phone`, and any other failed check with `invalid_phone_token`, with the failed check named in the log.
+A retry with the same key and a valid proof finds the session already made and gets fresh tokens for it, or `session_revoked` if it was signed out since. A code retry finds the code consumed by its own first try and proves again; another code is `code_expired`.
 
-The server fetches each issuer's keys from its published key set and caches them. If it has never managed to fetch any, sign-in answers `unavailable`, so the app retries instead of asking the person for a new code. The endpoint has no quota of its own, because Firebase already limits code requests.
+## Token checks
 
-## Finding or creating the account
+The issuer picks the key set, algorithm and audience. The verification must be at most 5 minutes old (30 seconds of clock skew); within that window a token signs in again. A failed check is 401 `invalid_phone_token` or `invalid_google_token`, and a number outside Vietnam is 422 `invalid_phone`.
 
-The token stays in the HTTP handler. Only the verified number goes to the durable <Term id="sign-in-flow">SignIn</Term> flow, because Restate's journal is readable through its admin API.
+Provider keys are cached and fetched again at most once a minute. With no keys ever fetched, sign-in answers 503 `unavailable`, so the app retries rather than asking for a new code.
 
-The flow looks up the phone identity. A known, active account is marked as used. A suspended account ends the run. An unknown number gets a new account and then its phone identity. If another sign-up takes the same number between those two steps, the flow deletes the account it just made and the app gets `try_again`.
+## Email codes
 
-The invocation key combines the number with the request's idempotency key. A retried request with a valid token for the same number gets the same [session](/en/architecture/sessions) back, with a fresh refresh token.
+`POST /v1/auth/email-codes` mails a sign-in code; `POST /v1/accounts/me/email-codes` mails a code that adds an email to the caller's account. The answer is the same whether or not an account holds the address <Req id="BR-ACC-02" />.
 
-## Email and OTP
+- Limits: 20 codes an hour per client address, and per email one per 45 seconds and 5 an hour (`otp_too_soon`, `otp_limit`).
+- A code lasts 5 minutes and takes 5 guesses: `invalid_code` with `attempts_left`, then `code_locked`. A newer code replaces the old one (`code_expired`).
+- The code is derived from the challenge, so none is stored, and the mail goes out with the challenge as idempotency key. A retried step or request mails once and spends no extra quota <Req id="NFR-DUR-01" />.
 
-Email sign-in, server-sent OTP codes and their quotas were removed on 2026-10-28. The migration deleted accounts that had only an email, and the database now accepts phone identities only. Console members still sign in with email, through a separate flow described in [Console](/en/architecture/console).
+## Adding an identity
+
+`POST /v1/accounts/me/identities` takes a proof of the kind the account lacks. A held kind is 409 `identity_kind_taken`; a value another account holds is 409 `identity_taken`. A retry answers with the identities.
+
+Adding an identity and mailing an add-email code need a sign-in within 15 minutes (428 `reauth_required`, see [reauthentication](/en/architecture/sessions#reauthentication)), since an identity added with a leaked access token would let its holder in for good. On these calls a bad proof is 422, not 401: a 401 on a bearer call always means the bearer.
+
+## What needs a phone
+
+Posting a listing, opening a deal and opening a chat need a phone identity, otherwise 403 `phone_required` <Req id="BR-ACC-03" />. Replying, requesting COD and everything else need none. A delivery address's phone is not an identity.

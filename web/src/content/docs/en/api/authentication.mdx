@@ -1,50 +1,59 @@
 ---
 title: Authentication
-description: How the app signs in with a Firebase-verified phone number, sends its access token and refreshes it.
+description: How a client signs in with a phone, Google or an emailed code, sends its access token, refreshes it and reauthenticates.
 group: API
 order: 2
 groupOrder: 1
 audience: [developers]
 type: how-to
 readingTime: 3
-updated: 2026-11-04
-related: ["/en/architecture/sign-in", "/en/architecture/sessions", "/en/api/errors"]
+updated: 2026-11-27
+related: ["/en/architecture/sign-in", "/en/architecture/sessions", "/en/api/errors", "/en/api/idempotency"]
 ---
 
-A customer signs in with a phone number that Firebase has verified. The server sends no SMS itself. Moderators and admins sign in to the console separately, with a session cookie, and that flow is in [Console](/en/architecture/console).
+A customer signs in with a phone number, a Google account or an emailed code; the first sign-in creates the account. Console members sign in with a session cookie instead; see [Console](/en/architecture/console).
 
 ## Sign in
 
-The app verifies the number with Firebase, either by an SMS code through Firebase Authentication or by the SIM through Phone Number Verification. It then sends the token Firebase returned to `POST /v1/auth/sign-in`, with an `Idempotency-Key` header and an optional device name for the device list:
+Send one proof to `POST /v1/auth/sign-in` with an `Idempotency-Key` and an optional device name:
 
 ```json title="POST /v1/auth/sign-in"
-{ "phone_token": "eyJhbGciOi...", "device_name": "Pixel 8" }
+{ "phone_token": "eyJhbGciOi...", "device_name": "Pixel 9" }
 ```
 
-The verification must be at most five minutes old. The first sign-in with a number creates the account, and the answer then has `account.is_new` set to true so the app can ask for a profile. Once it has the token, the app signs out of Firebase.
+- `phone_token`: the token Firebase returns after an SMS code or SIM check. Sign out of Firebase once you have it.
+- `google_token`: the ID token from Android Credential Manager.
+- `email_code`: `{challenge_id, code}`. Get the challenge from `POST /v1/auth/email-codes {"email": "…"}` first.
 
-The answer holds an access token, its expiry time and a refresh token. A token that fails a check is 401 `invalid_phone_token`, a number outside Vietnam is 422 `invalid_phone`, and 503 `unavailable` means the server could not fetch Firebase's keys yet, so the app retries with the same token.
+The answer holds `access_token`, `access_token_expires_at`, `refresh_token` and `account`. `account.is_new` means this sign-in created the account, so ask for a profile.
+
+| Answer | What to do |
+|---|---|
+| 401 `invalid_phone_token`, `invalid_google_token` | get a new token (tokens last 5 minutes) |
+| 422 `invalid_phone` | the number is not a Vietnamese mobile |
+| 422 `invalid_code` | let the person retype; `details.attempts_left` |
+| 422 `code_expired`, `code_locked` | ask for a new code |
+| 429 `otp_too_soon`, `otp_limit` | wait `details.retry_after` seconds |
+| 503 `unavailable` | retry with the same token |
 
 ## Calling the API
-
-Send the access token on every signed-in call:
 
 ```http
 Authorization: Bearer <access_token>
 ```
 
-The access token lasts 15 minutes. A missing or bad one answers 401.
+The access token lasts 15 minutes. On a bearer call, 401 is always about the bearer (`unauthenticated`, `invalid_token`, `session_revoked`, `session_expired`); a bad proof on such a call is 422. 403 `phone_required` means the call needs a phone; add one with `POST /v1/accounts/me/identities`.
 
 ## Refresh
 
-`POST /v1/auth/refresh` with the refresh token returns a new pair. A refresh token works once, so the app must keep the new one. Presenting an old token again, or sending two refreshes with the same token, looks like a replay and signs the session out.
+`POST /v1/auth/refresh {"refresh_token": "…"}` returns a new pair. A refresh token works once; reusing one, or two refreshes with one token, signs the session out. So refresh as a single flight, when less than a minute is left or on the first 401, and let other requests wait. The app keeps the refresh token encrypted under a Keystore key.
 
-The app therefore refreshes as a single flight. It refreshes when the access token has less than a minute left, or on the first 401. Other requests wait and retry with the new token. The refresh token is stored encrypted, under a Keystore key.
+On `session_revoked`, `session_expired` or `invalid_refresh_token`, send the person to sign-in. `account_suspended` means the account is suspended.
 
-A session ends 60 days after sign-in or after 30 days unused. When refresh answers `session_revoked` or `session_expired`, the app sends the user back to sign-in.
+## Reauthenticate
+
+A 428 `reauth_required` means the call needs a sign-in within 15 minutes. Send a fresh proof to `POST /v1/auth/sessions/current/reauthenticate`, replace the access token with the one it returns, keep the refresh token, and repeat the call. A proof of another address is 403 `wrong_account`. Never call sign-in for this: an unknown address would create a new account.
 
 ## Sign out and devices
 
-- `POST /v1/auth/logout` ends the current session. The access token keeps working until it expires, so the app discards it.
-- `GET /v1/auth/sessions` lists signed-in devices and `DELETE /v1/auth/sessions/{id}` signs one out.
-- `POST /v1/auth/logout-all` signs out every device and needs a sign-in within the last 15 minutes; otherwise it answers 428 `reauth_required`.
+`DELETE /v1/auth/sessions/current` ends this session; discard the access token. `GET /v1/auth/sessions` lists devices, `DELETE /v1/auth/sessions/{id}` signs one out, and `DELETE /v1/auth/sessions/others` signs out the rest after a recent sign-in.

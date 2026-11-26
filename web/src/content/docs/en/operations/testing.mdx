@@ -1,32 +1,85 @@
 ---
 title: Testing
-description: How the server's tests are organised, what they run against, and how the app is checked.
+description: The server's test stack, the kinds of tests and what each proves, how to run them, what CI checks, and how the Android app is checked.
 group: Operations
 order: 5
 groupOrder: 1
 audience: [developers]
 type: reference
-readingTime: 2
-updated: 2026-11-04
-related: ["/en/operations/local-stack", "/en/architecture/durable-flows"]
+readingTime: 5
+updated: 2026-11-27
+related: ["/en/operations/local-stack", "/en/architecture/durable-flows", "/en/architecture/data"]
 ---
 
-## Server
+## No fakes for the database
 
-`make test` starts the test stack, runs every test with the race detector, then runs golangci-lint. The lint step also checks formatting with gofumpt. After one run the stack stays up, so `go test` on a single package works directly. `go test -short` runs only the tests that need no database.
+The server has no in-memory fakes. Anything that touches a store is tested on Postgres, and each test gets its own clone of a migrated template database. A fake would have to copy Postgres's behaviour, such as microsecond timestamps, conflict handling and unique constraints, and would need its own tests to prove the copy.
 
-There are no in-memory fakes. Anything that touches a store runs on Postgres, and each test gets its own clone of a migrated template database. A fake would have to copy Postgres behaviour and would need its own tests to prove the copy.
+`go test -short` runs only the tests that need no database.
+
+## The test stack
+
+The tests run against their own Postgres (ParadeDB), Restate and RustFS, apart from the development stack, so a test run never touches development data. Postgres and RustFS keep their data in tmpfs, so stopping the stack empties it. The tests accept only the test database, `server_test` on port 56433, and refuse to clone or drop anything elsewhere.
+
+| Container | Port |
+|---|---|
+| Postgres | 56433 |
+| Restate | ingress 56581, admin 56571 |
+| RustFS | 56491 |
+
+Restate signs every request to a test endpoint with the stack's identity key, and the tests read its public half, as the server does in production. Test packages share one Restate server, so each test registers its services under a fresh name prefix and removes them when it ends.
+
+## Running the tests
+
+There are two ways to run them.
+
+- **From the server repo**: `make test` starts the stack in `server/docker-compose.test.yml`, recreates Restate (its journal grows with every run), runs every test with the race detector, then runs golangci-lint, which also runs `go vet` and checks gofumpt formatting. The stack stays up, so `go test ./internal/<module>/...` works directly afterwards. `make down` stops it.
+- **From the umbrella**: `make test` runs `docker compose --profile test run --rm --build tests`, the same tests in a container that shares Restate's network, against the compose file's `test` profile. Its Postgres publishes no host port, so tests run only inside that container. The root `make down` stops it.
+
+<Callout type="warning">
+The test stack is one set of containers per machine, shared by every checkout and worktree. Recreating it while another run is going breaks that run. "Connection refused" on the stack's ports, a Restate 401 when registering, or Restate load shedding usually mean the stack was recreated or overloaded, not a bug. Rerun only the failed packages on a fresh stack before calling a failure real, and keep package parallelism low (`go test -p 2`) when several runs share the stack.
+</Callout>
+
+## Kinds of tests
 
 | Layer | How it is tested |
 |---|---|
-| Entities | unit tests with no database; the business rules live here |
-| Repositories and services | on Postgres, with a stopped clock |
-| Restate handlers | against the test stack's Restate, the endpoint served in-process and a clock moved by hand; a wrapper can make a step commit and then fail once, to prove a retry duplicates nothing |
-| HTTP | middleware tests in-process; the endpoints run in the end-to-end suite |
-| End to end | the whole server in-process against Postgres and Restate, with phone tokens signed by a test issuer and pushes captured by a fake sender |
+| Entities | unit tests, no database. The business rules live here. |
+| Repositories | on Postgres, including the optimistic write check: a stale write conflicts, a repeated save of the same change succeeds, and two new changes in a row both succeed. |
+| Services | on Postgres, through the module's real repositories and a stopped clock. A test sets only the dependencies its method uses, and wraps a repository when it needs a conflict or a failure. |
+| HTTP | middleware tests in-process; the endpoints themselves run in the end-to-end suite. |
+| Restate flows | against the test stack's Restate, with the endpoint served in-process and a clock moved by hand. These hold a flow's business rules, because the flow lives in its handler. |
+| End to end | the whole server in-process (HTTP and Restate endpoint) against the test stack. |
 
-The end-to-end suite in `server/e2e` also checks the routes against the OpenAPI spec. Every test runs in parallel, and the linter enforces it. A test that changes process-wide state runs alone and says why.
+### Retries
+
+A [durable flow](/en/architecture/durable-flows) must survive a step that commits and then fails. A store wrapper makes one step commit and then fail once with a retryable error. Restate retries the step, and the test checks that no row is duplicated, no message is counted twice and a compensation ran at most once.
+
+### End to end
+
+The end-to-end suite runs the real server with only the outside world replaced:
+
+- phone sign-in tokens and Google tokens are signed by test issuers;
+- emails land in an inbox the test reads, and pushes are captured by a fake sender;
+- the phone number verification keys stay unreachable, so that path answers 503.
+
+Every call goes through one helper that checks the response, status included, against the OpenAPI spec. At the end, the run fails if a status the spec declares for an operation was never observed, so every documented error has a test.
+
+### Parallel by default
+
+Every test and subtest runs in parallel, and the linter enforces it. A test that changes process-wide state, such as environment variables or the global tracer, runs alone and says why in its lint exemption.
+
+## Outside `make test`
+
+- `make search-eval` runs the search sample set against the real models and prints recall@10 and nDCG@10 per query. It needs the models (`make models`) and a model API key.
+- `make loadtest` runs the k6 load test in `server/loadtest` against a running server. `make loadtest-sessions` signs in the sessions it uses first. Its README lists the profiles.
+
+## CI
+
+A push or pull request on the server runs one check job: golangci-lint, `go vet`, govulncheck, and sqlfluff on the migrations the push adds. The image is built only after it passes. The tests need the test stack, so they are not part of CI; run them before you push.
+
+The umbrella adds two cross-repo checks. The API contract job checks that the website's generated types match the server's OpenAPI at the pinned commits. `make trace` checks that server code, tests, OpenAPI and the docs name only requirement IDs that exist.
 
 ## Android app
 
-`./gradlew check` runs the unit tests, the Robolectric UI tests, Android Lint, detekt, ktlint and a check that no screen uses a raw colour. `./gradlew spotlessApply` fixes formatting.
+`./gradlew check` in `clients/app-android` runs the unit and ViewModel tests, a few Robolectric UI tests, Android Lint, detekt, ktlint and a check that no screen uses a raw colour. `./gradlew spotlessApply` fixes formatting.

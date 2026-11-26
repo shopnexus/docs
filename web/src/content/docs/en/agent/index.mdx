@@ -6,12 +6,12 @@ groupOrder: 1
 order: 1
 audience: [developers, admins]
 type: overview
-readingTime: 4
-updated: 2026-11-26
+readingTime: 5
+updated: 2026-11-27
 related: ["/en/agent/a-question", "/en/architecture/console", "/en/marketplace/moderation"]
 ---
 
-A moderator opens a ticket, a report case or an account in the console and asks the agent a question in plain words. The agent picks tools to read the data, splits the work into named steps and answers with text, key figures, tables or charts. Each claim in the answer carries a number such as <span class="run-cite">1</span> that points to the record it came from.
+A moderator opens an account, a report case or a ticket in the console, or a chat of their own, and asks the agent a question in plain words. Typing `@` mentions a record (a ticket, an account, an order, a listing, a report case or a document) so the agent knows which one the question is about. The agent picks tools to read the data, splits the work into named steps and answers with text, key figures, tables or charts. Each claim in the answer carries a number such as <span class="run-cite">1</span> that points to the record it came from.
 
 <DoDont
   doTitle="The agent can"
@@ -66,9 +66,14 @@ A run shows up as it happens: each step with a one-line summary, each tool call 
 When the agent proposes suspending an account, the moderator presses the console's suspend button as always. The action goes through the console's endpoint and into the audit log under the moderator's name.
 </Callout>
 
-## One chat per record
+## Chats
 
-A ticket, a report case or an account has one chat, shared by every moderator who opens it, so the next shift sees what was asked, and each question shows who asked it. A chat with no record belongs to the moderator who opened it. Use cases: <Req id="UC-MOD-06" />, <Req id="UC-MOD-07" />, <Req id="UC-MOD-08" />.
+A chat holds questions and their answers, and it comes in two kinds.
+
+- **Shared.** An account or a ticket can have one chat, shared by every moderator who opens it, so the next shift sees what was asked; each question shows who asked it. The first moderator to ask makes it. The console opens an account's shared chat from the account, its report case and its feedback; a report case is about an account, so it has no chat of its own. Only an admin renames or deletes a shared chat.
+- **Own.** A chat with no record belongs to the moderator who opened it, and nobody else sees it. A record's page, such as a ticket, an order or a listing, lists the moderator's own chats that mention it and opens a new one with the record already mentioned. The moderator renames or deletes their own chats; an admin can too.
+
+A chat with an unfinished turn (running, paused or waiting for answers) cannot be deleted (`409 agent_turn_in_progress`). A chat with no activity for 180 days is deleted with everything in it, and the next question about the same record starts a fresh one. Use cases: <Req id="UC-MOD-06" />, <Req id="UC-MOD-07" />, <Req id="UC-MOD-08" />.
 
 ## Pages in this tab
 

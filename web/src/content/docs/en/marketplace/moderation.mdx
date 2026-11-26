@@ -1,24 +1,33 @@
 ---
 title: Moderation
-description: The three kinds of case that moderators handle, and why their volume stays flat as orders grow.
+description: What people can report, the kinds of case staff handle, and why their volume stays flat as orders grow.
 group: Marketplace
 order: 7
 groupOrder: 1
 audience: [everyone]
 type: concept
-readingTime: 1
-updated: 2026-11-04
-related: ["/en/marketplace/trust-and-sanctions", "/en/architecture/console"]
+readingTime: 2
+updated: 2026-11-27
+related: ["/en/marketplace/trust-and-sanctions", "/en/architecture/trust", "/en/architecture/console"]
 ---
 
-Moderators handle three kinds of case:
+Staff handle only these cases:
 
-- Reported listings of prohibited or counterfeit goods.
+- Reported listings of banned or counterfeit goods.
 - Scams that show signs of being organised.
 - Valid requests from the authorities.
+- Support tickets.
 
-The number of these cases does not grow with the number of orders. Everything else, from a refused parcel to a seller who declines an issue report, goes into the statistics described in [Trust and sanctions](/en/marketplace/trust-and-sanctions). A seller who lies about a shipment is reported as a user, the same way.
+The number of these cases does not grow with the number of orders. Price and condition are between the buyer and the seller. A refused parcel or a slow answer goes into the [figures](/en/marketplace/trust-and-sanctions) people see, not into a case.
 
-Moderators and admins work in a separate web console, on accounts of their own. They can suspend a customer account with a reason and an end date, and every such action is kept in an audit log.
+## Reporting
 
-User reports are part of the design and are not built on the server yet.
+Anyone signed in can report a listing or an account, with a reason (banned goods, fake, scam or other) and a short note. A report of an account can include the chat with that person, so staff can read it. To stop someone writing while you report them, block them first; the chat stays for the report.
+
+You have one open report per listing or account. Reporting it again updates your report. You can undo a report, and you can see your reports and whether each is still open or resolved.
+
+## How staff handle reports
+
+Staff work in a separate web console, on accounts of their own. The reports about one person form one case. A staff member reads the case, then either dismisses it as no violation or acts on it: hides a listing, or suspends the account with a reason and, if it is temporary, an end date. A closed case can be reopened, and the next report about the person opens a new case.
+
+The console's AI assistant can read a case and propose what to do, but only a staff member makes a change. Every action is kept in an audit log.

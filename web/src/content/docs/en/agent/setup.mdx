@@ -7,15 +7,15 @@ order: 3
 audience: [developers, admins]
 type: how-to
 readingTime: 4
-updated: 2026-11-26
-related: ["/en/agent/limits", "/en/operations/cluster/llm-gateway", "/en/operations/local-stack"]
+updated: 2026-11-27
+related: ["/en/agent/limits", "/en/architecture/ai", "/en/operations/cluster/llm-gateway", "/en/operations/local-stack"]
 ---
 
 The server is the only place an agent's configuration lives. The agent keeps no copy: each segment gets it in the `agent_config` and `gateway` fields of `POST /runs`.
 
 ## Agents in `ai_agents`
 
-The server's `ai_agents` table holds two kinds of agent. Migration 0056 seeds the first rows.
+The server's `ai_agents` table holds two kinds of agent, and the first rows come seeded.
 
 | Kind | Seeded agents | Used by | Admins can |
 |---|---|---|---|
@@ -24,7 +24,7 @@ The server's `ai_agents` table holds two kinds of agent. Migration 0056 seeds th
 
 An agent has a display name ("Console assistant") and a slug (`console-agent`), which names its team in Bifrost. Each save of new instructions adds a version to `ai_agent_versions` with who saved it and when. A question that names no agent uses the Console assistant; an unknown agent or an `app` agent is 404 `ai_agent_not_found`, and one turned off is 409 `ai_agent_disabled`.
 
-Admins manage agents under **Settings** in the console. An agent's page holds its model (provider and model), its fallbacks, its monthly budget and its callers' rate limits; each model has a price. The Providers page is read-only, since a provider is an infra change. The server writes the teams, virtual keys, budgets and prices into Bifrost through its admin API ([Bifrost gateway](/en/operations/cluster/llm-gateway#keys-and-budgets)).
+Admins manage agents under **Settings** in the console; [AI settings](/en/architecture/ai) covers the server's side. An agent's page holds its model (provider and model), its fallbacks, its monthly budget and its callers' rate limits; each model has a price. The Providers page is read-only, since a provider is an infra change. The server writes the teams, virtual keys, budgets and prices into Bifrost through its admin API ([Bifrost gateway](/en/operations/cluster/llm-gateway#keys-and-budgets)).
 
 ## Config per segment
 
@@ -48,7 +48,7 @@ The agent drops unknown keys of `agent_config`; a value out of range refuses the
 
 ## Environment
 
-Values shared by compose and every stack live in `infra/stack/env/agent.env`; the chart reads that file and compose reads it through `env_file`. The two tokens are in the keys volume's `.env`. The agent holds no model key of its own.
+Values that are the same in compose and every cluster stack live in one shared agent environment file, which both read. The two tokens are generated with the stack's other keys. The agent holds no model key of its own.
 
 | Variable | Side | Meaning |
 |---|---|---|
@@ -58,11 +58,11 @@ Values shared by compose and every stack live in `infra/stack/env/agent.env`; th
 | `AGENT_MCP_TOKEN` | both | Token the agent sends to MCP and the control endpoint |
 | `MCP_SERVER_URL` | agent | The server's `/mcp`, such as `http://server-dev:9090/mcp`; its origin also serves the control endpoint |
 | `GATEWAY_BASE_URL` | agent | Bifrost's OpenAI-compatible endpoint, `http://bifrost:8080/v1` |
-| `GATEWAY_URL`, `GATEWAY_ADMIN_USERNAME`, `GATEWAY_ADMIN_PASSWORD` | server | Bifrost's admin API, for the reconciler and the Settings pages |
+| Bifrost's admin URL and login | server | For writing teams, keys and budgets, and for the Settings pages |
 | `AGENT_TURN_DEADLINE_MS` | agent | A segment's default deadline, 60 000 |
 | `FEATURE_ALL_AGENT`, `FEATURE_LLM` | agent | `false` refuses every segment with 503 |
 
-Each token has at least 32 characters; the server's `cmd/envgen` writes both. No log line carries a token or a gateway key. The agent's full list is in `agent/.env.example` and `agent/src/config.ts`.
+Each token has at least 32 characters; the server's environment generator writes both as 32 random bytes. No log line carries a token, a gateway key or the admin password. The agent repository's example environment lists the rest, all optional.
 
 ## A local run
 
@@ -79,13 +79,11 @@ npm run chat -- "Có bao nhiêu ticket đang mở?"
 
 `npm run chat` posts one `new` segment to the agent on `PORT` as `CLI_MEMBER_ID`, with `CLI_GATEWAY_KEY` and `CLI_GATEWAY_MODEL` as its `gateway` at zero prices, and prints its events and end line. Take the key from the `console-agent` team in Bifrost's UI. It calls the real model and MCP, which may cost money. Without the server's control endpoint the polls fail and the segment goes on without Pause, Stop now or updates.
 
-## Tests
+## Checks
 
 ```bash
 npm run build
 npm run typecheck
-npm test                  # offline
-npm run test:live-cache   # calls a real Bifrost; skipped without LIVE_GATEWAY_URL and LIVE_GATEWAY_KEY
+npm test                  # offline, against a scripted model and a fake server
+npm run test:live-cache   # calls a real Bifrost; skipped without a live gateway set
 ```
-
-`npm test` uses a scripted model, a fake server on 127.0.0.1 (an MCP server with read-only and write tools, and the control endpoint) and an in-memory line collector. The suites cover the token, the 400 and 503 refusals, NDJSON framing, steps, source numbers, documents, tool retry, `ask_user`, pause and resume, updates while running, Stop now, the budget, the deadline and context compaction.

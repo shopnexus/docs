@@ -1,46 +1,66 @@
 ---
 title: Modules
-description: How the server is cut into modules, what a module holds, and the rules between them.
+description: How the server is cut into modules, what each one holds, and the rules between them.
 group: Foundations
 groupOrder: 2
 order: 1
 audience: [developers]
 type: concept
-readingTime: 3
-updated: 2026-11-04
+readingTime: 4
+updated: 2026-11-27
 related: ["/en/architecture", "/en/architecture/events", "/en/architecture/data"]
 ---
 
-The server is one binary made of modules under `server/internal/`. The modules follow the product model, a C2C marketplace for used goods. ShopNexus holds no money, so there is no wallet, payment or finance module.
+The server is one binary made of modules. The modules follow the product model, a C2C marketplace for used goods paid cash on delivery. ShopNexus holds no money, so there is no wallet, payment or finance module.
 
 ## The modules
 
 | Module | Holds |
 |---|---|
-| account | Profiles, suspension and the address book |
-| auth | Phone sign-in and the sessions of each device |
-| console | Moderator and admin accounts for the web console |
-| catalog | Listings, categories, provinces and communes |
+| account | Profiles, suspension, addresses, blocks and follows, and sign-in: phone, Google and email identities and each device's session |
+| catalog | Listings from draft to sale, categories, provinces and communes, and the listings' vectors |
+| media | Uploads, their processing into public photos and thumbnails, and their expiry |
 | deal | Price negotiation and COD orders |
-| chat | Conversations between a buyer and a seller |
-| trust | Reviews and a seller's public profile |
-| discovery | Search, the nearby feed and saved listings |
-| media | Photo uploads and their processing |
-| notification | The in-app notice list and push |
-| screen | One read per app screen, built from the other modules |
+| shipping | A seller's GHN and GHTK accounts, shipments and the carriers' reports |
+| chat | Conversations between two people and their messages |
+| trust | Reviews, a seller's public profile, scam signals and reports |
+| discovery | Search with the nearby feed as one of its sorts, saved listings, search history and search watches |
+| assist | Reading a photo, video or Chợ Tốt link into a listing draft, and price guides |
+| chotot | A seller's linked Chợ Tốt profile and the listings brought over from it |
+| notification | The in-app notice list, push and mail |
+| support | Support tickets, answered in a chat with ShopNexus |
+| feedback | What people tell ShopNexus without asking for an answer |
+| console | Moderator and admin accounts, their sessions and roles, and the console's API |
+| agent | The console agent's conversations and runs, its MCP endpoint, and the AI settings |
+| ai | The models the server runs itself: speech to text, photo vectors, video frames |
+| erasure | Deleting an account |
+| beacon | Script errors, page speed and other reports from the clients, as metrics and logs |
+| screen | One read per app or website view, built from the other modules |
 
-Two shared folders sit beside them. `platform` holds the plumbing every module uses: config, Postgres, the Restate helpers, the events bus, HTTP helpers, the live stream and errors. `provider` wraps outside services: Firebase token checks, FCM push and the language model.
+There is no identity-check module: a verified phone is enough, since the carrier checks a seller's identity when it opens their account. Reputation has no module or table either; screen reads the figures from the modules that hold them. `billing`, for boosts and seller plans, is the next planned module.
+
+Two shared areas sit beside the modules. The platform holds what every module uses: config, Postgres, the Restate helpers, the event bus, HTTP helpers, the live socket, errors, languages and telemetry. The providers wrap outside services: Firebase, Google, push, mail, the carriers, Chợ Tốt, Bifrost and the embedding models.
 
 ## Inside a module
 
-A module has four layers, and imports run one way, from handler down to domain:
+A module has up to five layers, and calls run one way, from the top down:
 
-- domain holds the entities and their rules, and the business errors a client can see.
-- repository holds one interface per aggregate and its Postgres version, written in plain SQL.
-- service holds the module's contract and its use cases, one per file. The few use cases that must survive a crash run there as Restate services.
-- handler turns HTTP requests into service calls and adds no rules of its own.
+```mermaid title="Layers of one module"
+flowchart TB
+  handler[handler<br/>HTTP in, HTTP out] --> service
+  worker[worker<br/>event handlers] --> service
+  service[service<br/>the contract and its use cases,<br/>durable flows] --> repository
+  repository[repository<br/>one store per aggregate, plain SQL] --> domain
+  domain[domain<br/>entities, rules, business errors]
+```
 
-A module that reacts to events also has a worker, the Restate handlers for the event kinds it hears. Screen has only service and handler, since it owns no table. A root file per module wires the layers together, registers the routes and returns the service for the modules that depend on it.
+- The domain holds the entities and their rules, and the business errors a client can see.
+- The repository loads and saves one aggregate at a time.
+- The service is the module's contract. Each use case is one method. The few that must survive a crash run as Restate services.
+- The handler turns an HTTP request into one service call and adds no rules of its own.
+- The worker, in a module that reacts to events, holds one Restate handler per event kind it hears.
+
+Screen, erasure and beacon own no table, so they have only a service and a handler.
 
 ## Rules between modules
 
@@ -48,9 +68,12 @@ A module that reacts to events also has a worker, the Restate handlers for the e
 - A module calls another module only through that module's service.
 - A module never reads or writes another module's tables.
 - A module announces a change with an event and never lists who reacts to it.
-- No module imports screen, and only screen calls notification.
+- No module calls screen or erasure. Only screen calls notification; notification hears the others through events.
+- A module that would need the reverse of an existing call gets it passed in, as deal passes itself to shipping, so no two modules import each other.
 </KeyRules>
 
-Lint rules in the server's linter config refuse an import against the layer order or these rules. Because every call crosses a service contract, a module could later run in its own process behind a network client of the same contract. Moving its tables out of the shared database would be separate work.
+A test refuses an import against the layer order or these rules. Because every call crosses a service contract, a module could later run in its own process behind a network client of the same contract. Moving its tables out of the shared database would be separate work.
 
-`billing`, for boosts and seller plans, is the next planned module. There is no identity-check module: a verified phone is enough, since the carrier checks a seller's identity when it opens their account.
+## One binary, two roles
+
+The same binary runs in two roles. The API role serves HTTP, the Restate endpoint and MCP, and loads no model. The ai role serves only module ai's models and opens no database. Locally one process does both. In the cluster the ai role is its own deployment, so a model's memory and start time never hold up the API. The modules reach module ai through Restate, so they do not know where it runs.

@@ -7,8 +7,8 @@ groupOrder: 2
 audience: [admins, developers]
 type: concept
 readingTime: 9
-updated: 2026-11-26
-related: ["/en/operations/cluster/secrets", "/en/operations/cluster/data", "/en/operations/cluster/runbook", "/en/agent/setup", "/en/architecture/search-and-discovery"]
+updated: 2026-11-27
+related: ["/en/architecture/ai", "/en/operations/cluster/secrets", "/en/operations/cluster/data", "/en/operations/cluster/runbook", "/en/agent/setup", "/en/architecture/search-and-discovery"]
 ---
 
 Search asks a language model what a query means, a listing read turns a seller's video or photo into a draft, a scam check reads a chat, and the console agent answers moderators. None of them calls a model provider itself. Each stack runs Bifrost (`maximhq/bifrost:v2.6.0`), a gateway with an OpenAI-compatible API, as the Service `bifrost` on port 8080. The design is in `docs/superpowers/specs/2026-11-26-bifrost-gateway-design.md`.
@@ -89,11 +89,11 @@ The pod's annotations carry a checksum of `config.json`, `start.sh`, `env/bifros
 
 ## Keys and budgets
 
-The server's reconciler writes Bifrost's governance objects. It runs at startup and after every AI settings write, under a Postgres advisory lock, so two replicas never create the same key twice.
+The server's reconciler writes Bifrost's governance objects. It runs at startup (retrying until it succeeds), after every AI settings write, every 5 minutes, and when a caller finds no key for itself. It holds a Postgres advisory lock, so two replicas never create the same key twice. The design is on [AI layer](/en/architecture/ai).
 
 <Steps>
 <Step title="List what the server owns">
-It lists the teams, virtual keys and pricing overrides that carry `metadata.owner = "server"`.
+It lists the teams, the virtual keys that carry `metadata.owner = "server"` and the pricing overrides named `server:<provider>/<model>`.
 </Step>
 <Step title="Write each agent">
 One team per agent, named after its slug, carries the monthly budget. One virtual key per caller, under its agent's team, carries the caller's rate limit and `allowed_models`: the agent's model and fallbacks, exactly. A leaked key can call nothing else.
@@ -102,20 +102,20 @@ One team per agent, named after its slug, carries the monthly budget. One virtua
 Each row of `ai_model_prices` becomes a pricing override for its provider and model.
 </Step>
 <Step title="Clean up">
-It deletes server-owned objects that no agent or price names any more, and disables the keys of agents that are turned off.
+It deletes server-owned keys and overrides that no caller or price names any more, and disables the keys of agents that are turned off. Teams are never deleted, as agents are not.
 </Step>
 <Step title="Load the keys">
 It reads every server-owned key's value into the server's memory.
 </Step>
 </Steps>
 
-Bifrost generates the key values. No caller key is stored in git, in a Secret or in the server's database. The server hands its own modules their key from memory, and on a 401 it reloads the keys from Bifrost once before it fails. The console agent gets its key, model, fallbacks and prices in each run request; see [Agents and configuration](/en/agent/setup).
+Bifrost generates the key values. No caller key is stored in git, in a Secret or in the server's database. The server hands its own modules their key from memory. When Bifrost refuses a key as unknown, disabled or not allowed the model, the server reads the keys again (at most every 10 s) and retries once if the key changed. A provider's own 401 or 403 passes through. The console agent gets its key, model, fallbacks and prices in each run request; see [Agents and configuration](/en/agent/setup).
 
 Bifrost's own UI shows the server's teams and keys. An edit made there is overwritten at the next reconcile.
 
 ## Prices and spend
 
-`ai_model_prices` holds the price of every model an agent uses, in USD per token for input and output, seeded with list prices, so budgets are in dollars. The model picker in the console prefills a price from Bifrost's catalog. Bifrost counts each call's cost from these prices and charges it to the caller's team.
+`ai_model_prices` holds the price of every model an agent uses, in USD per token for input, output, cache read and cache write, seeded with list prices, so budgets are in dollars. The model picker in the console prefills a price from Bifrost's catalog. Bifrost counts each call's cost from these prices and charges it to the caller's team.
 
 The console reads spend by agent and by day from Bifrost's logs and shows it on the Overview page. Bifrost's totals trail real time by up to a minute. Each agent's budget is on its own page.
 

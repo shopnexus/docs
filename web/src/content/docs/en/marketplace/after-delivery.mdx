@@ -1,33 +1,30 @@
 ---
 title: After delivery
-description: Issue reports in the chat, the seller's choice to refund or decline, the model's neutral note, and the public record that results.
+description: "What happens once an order closes: two-way reviews, the report of a parcel that never arrived, and why ShopNexus does not rule on disputes."
 group: Marketplace
 order: 5
 groupOrder: 1
 audience: [everyone]
 type: concept
 readingTime: 2
-updated: 2026-11-04
+updated: 2026-11-27
 related: ["/en/marketplace/trust-and-sanctions", "/en/marketplace/money-and-cancellation", "/en/architecture/trust"]
 ---
 
-ShopNexus records problems after delivery and does not rule on them. At the scale of one case nobody can tell who is right, and the platform holds no money it could move anyway.
-
-## Issue reports
-
-A buyer who finds a problem after paying opens an <Term id="issue-report">issue report</Term> (ghi nhận sự cố) in the chat, with photos and a few lines on what happened, and the seller answers it in one of two ways:
-
-- Refund on their own, by bank transfer straight to the buyer. A seller who refunds gains reputation points.
-- Decline. The report and the seller's answer then appear on the seller's public profile, where every future buyer can read them.
-
-The buyer can withdraw a report while it is open.
-
-## The model's note
-
-The model writes a neutral note that both sides read. It quotes what the listing stated, for example "Tin ghi: Pin 88% · Máy zin, chưa sửa · Bản VN/A", or "Tin không ghi thông tin nào" when the listing stated nothing. The note gives both people the same facts and makes no decision.
+ShopNexus records what happened after a sale and does not rule on it. At the scale of one case nobody can tell who is right, and the platform holds no money it could move anyway. The buyer's protection is the inspection at the door: they pay only after looking at the item, and refusing costs them nothing.
 
 ## Reviews
 
-The buyer reviews the seller once the order is shipped, delivered or returned: 1 to 5 stars and up to 500 characters. There is one review per order, and the buyer can change or delete it for 7 days after first posting it. A rating takes the place of a receipt, since no buyer confirms delivery in the app.
+Once an order is completed or failed, the buyer and the seller review each other, once each: 1 to 5 stars and up to 500 characters. A review rates the person, as a seller or as a buyer.
 
-Reviews exist on the server today. Issue reports and the reputation they feed are designed in the app and will join the server's trust module later.
+- A review stays hidden until the other side has also reviewed, or 7 days after the order closed, so neither side writes in answer to the other.
+- The writer can edit or delete it for 7 days after first posting it. Deleting and posting again does not restart the 7 days.
+- The person reviewed can reply once, up to 500 characters, to a visible review. A reply locks the review.
+
+## A parcel that never arrived
+
+When the carrier reports a parcel delivered but the buyer never got it, the buyer opens a **Báo chưa nhận hàng** ticket from the order. It is open while the order is shipped, or for 7 days after the order completed on its own. There is one such ticket per order, and staff answer it in the ticket's chat.
+
+## After paying
+
+Once the buyer has paid the shipper, ShopNexus has no way to get the money back. Any refund is between the two people, by their own transfer.

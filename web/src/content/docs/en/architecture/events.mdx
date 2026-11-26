@@ -6,42 +6,63 @@ groupOrder: 2
 order: 3
 audience: [developers]
 type: concept
-readingTime: 3
-updated: 2026-11-04
-related: ["/en/architecture/durable-flows", "/en/architecture/modules"]
+readingTime: 4
+updated: 2026-11-27
+related: ["/en/architecture/durable-flows", "/en/architecture/modules", "/en/architecture/notifications"]
 ---
 
-A module announces a change with an event, and modules that care subscribe to its kind. The module that changed the data never knows who reacts. Every subscriber is a module of the same server, so there is no broker: the outbox is a Postgres table, `events`, and Restate does the delivery.
+A module announces a change with an event, and modules that care subscribe to its kind. The module that changed the data never knows who reacts. Every subscriber is a module of the same server, so there is no broker: the outbox is a Postgres table, `events`, and Restate does the delivery. <Req id="NFR-MSG-01" />
 
 ```mermaid title="From a write to a subscriber"
 flowchart LR
-  repo[Repository write] -->|same transaction| table[(events table)]
-  table --> bus[Events bus]
+  repo[A change is saved] -->|same commit| table[(events table)]
+  table -->|wake on commit,<br/>and every second| bus[Event bus]
   bus -->|once per event ID| deliver[Restate: deliver]
   deliver --> w1[deal worker]
   deliver --> w2[notification worker]
+  deliver --> w3[other workers]
 ```
 
 ## Publishing
 
-A repository writes the events of a change in the transaction of that change. A write that loses a race leaves no event, and a commit always leaves its events. An event is thin: a kind such as `listing.sold`, the ID of what changed, and, for some kinds, a few fields its subscribers need, such as the end of a suspension.
+A change and its events are written in one commit. A write that loses a race leaves no event, and a commit always leaves its events. An event whose ID exists already is not written again, so a durable step that retries its save writes one event.
 
-Kinds in use today come from account (updated, suspended, unsuspended), catalog (listing published, updated, hidden, unhidden, sold, unsold, deleted, reserved, released, rejected), deal (`deal.moved`), chat (`message.sent`) and trust (`review.posted`).
+An event is thin: a kind in the form `aggregate.past_tense`, the ID of what changed, and, for a few kinds, the fields its subscribers need, such as the end of a suspension.
+
+| Module | Kinds |
+|---|---|
+| account | `account.updated`, `account.suspended`, `account.unsuspended`, `account.deleted` |
+| catalog | `listing.published`, `listing.updated`, `listing.hidden`, `listing.unhidden`, `listing.sold`, `listing.unsold`, `listing.reserved`, `listing.released`, `listing.rejected`, `listing.deleted` |
+| deal | `deal.moved` |
+| chat | `message.sent` |
+| trust | `review.posted`, `review.replied` |
+| discovery | `saved.price_dropped`, `search_watch.matched` |
+| feedback | `feedback.moved`, `feedback.replied` |
+| chotot | `chotot_link.imported`, `chotot_import.sold` |
 
 ## Subscribers
 
 | Module | Listens to | Does |
 |---|---|---|
-| deal | listing updated, hidden, sold, deleted | Drops open prices and cancels requests on a listing that closed or changed price |
-| notification | deal moves, messages, listing published or rejected, reviews, suspensions | Writes notices and sends push |
+| deal | listing updated, hidden, sold, deleted | Brings open deals in line: drops a price or cancels a request on a listing that changed or closed |
+| deal | `deal.moved` | Posts the move into the pair's conversation |
+| catalog | listing deleted; listing changes | Releases the deleted listing's photos; queues the change for IndexNow |
+| discovery | listing published, updated | Records first publications for search watches, and checks saved listings for a price drop |
+| trust | `message.sent` | Runs the scam check on the conversation |
+| support | `message.sent` | Moves the ticket of a support chat: a person's message reopens it, a staff answer marks it answered |
+| chotot | listing sold, updated, deleted | Reminds the seller to hide the ad on Chợ Tốt, or updates or forgets the import |
+| notification | deal moves, messages, listing published or rejected, reviews and replies, suspensions, price drops, search watch matches, feedback, Chợ Tốt imports | Writes notices and sends push and mail |
+| every module with data about a person | `account.deleted` | Clears or ends what it holds of the account |
 
-A subscriber reads the current state through the source module's service. Order, delay and duplicate deliveries therefore do not change the result.
+A subscriber reads the current state through the source module's service. Order, delay and duplicate deliveries therefore do not change the result. A subscriber that writes something of its own derives its IDs from the event's, so a second delivery writes nothing new.
 
 ## Delivery
 
-The bus runs in the server. It wakes on a Postgres notification at each commit, and once a second, takes up to 100 pending rows and hands each one to Restate with the event ID as the idempotency key. Restate then starts one invocation per subscriber and retries each alone until it succeeds, so a failing subscriber holds up no other subscriber and no other event.
+The bus runs in the server. It wakes on a Postgres notification at each commit, and also once a second. Each round takes up to 100 pending rows and hands each one to Restate with the event ID as the idempotency key. Restate then starts one invocation per subscriber and retries each alone until it succeeds. A failing subscriber holds up no other subscriber and no other event.
 
-- Delivery is at least once to the bus's Restate service, and Restate drops a repeated event ID for 24 hours.
-- An event the ingress refuses backs off from 1 second up to an hour.
+- Delivery to the bus's Restate service is at least once, and Restate drops a repeated event ID for 24 hours.
+- An event with no subscriber is marked done without a send.
+- An event the ingress refuses waits 1 second, then 2, 4 and so on, up to an hour. Any other failure ends the round, and the next round sends the rest again.
+- During a rolling deploy, a delivery to a subscriber Restate does not know yet is retried with backoff until the new version is registered.
 - While Restate is down, events wait in the table and the API keeps working.
 - Dispatched rows are deleted after 7 days. Nothing replays history; a subscriber that needs to rebuild its data reads the current tables with a job of its own.

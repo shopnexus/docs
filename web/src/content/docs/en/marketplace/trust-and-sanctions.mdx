@@ -1,45 +1,64 @@
 ---
 title: Trust and sanctions
-description: The figures ShopNexus tracks for buyers and sellers, the ladder of rights a person loses past a threshold, and the limit on open COD orders.
+description: The figures ShopNexus shows for buyers and sellers, the limits every account shares, scam warnings in chat, and what a suspension takes away.
 group: Marketplace
 order: 6
 groupOrder: 1
 audience: [everyone]
 type: concept
-readingTime: 2
-updated: 2026-11-04
+readingTime: 3
+updated: 2026-11-27
 related: ["/en/marketplace/after-delivery", "/en/marketplace/moderation", "/en/architecture/trust"]
 ---
 
-Since the platform judges no case, trust is a set of statistics. Nobody can tell who is right in a single case, but across fifty cases a pattern shows in the numbers.
+Since the platform judges no case, trust is a set of facts people can see before they deal. There are no points, tiers or badges to earn or buy.
 
-## What is tracked
+## What people see
 
-- For a buyer, the <Term id="refusal-rate">refusal rate</Term>: how often they refuse a parcel at the door, counted from the orders sellers report as returned.
-- For a seller, how often they decline issue reports.
-- For a seller, how many issue reports are still waiting for their answer.
+On a listing and on a seller's page:
 
-The app shows each person these figures over the last 90 days.
+- The rating as a seller: the average stars and the number of reviews.
+- How many items the seller has sold, in the app or marked sold by hand.
+- How soon the seller usually answers, once they have answered at least 5 people in the last 30 days.
+- Whether the seller's phone number is verified. The number itself is never shown.
 
-## The ladder
+When a buyer makes an offer, the seller sees the buyer's own rating as a buyer.
 
-A person who crosses a threshold loses rights in this order:
+## Reviews
 
-1. Lower visibility for their listings.
-2. A lower limit on COD orders.
-3. No COD at all.
-4. The account is locked.
+After an order is completed or failed, the buyer and the seller review each other once. A review stays hidden until both have written one, or until 7 days after the order ended, so neither side answers the other's stars. While it is hidden its writer can change or delete it. The person reviewed can reply once, and then the review is final.
 
-Every step is automatic and follows the figures. A sanction removes rights only, since the platform holds no money to fine anyone with. A seller plan cannot buy COD rights or a reputation tier; those come only from a person's history of deals.
+## Your reputation
 
-The thresholds are not decided yet. They do the work a judge would do in another marketplace, so they are the next part of the model to settle.
+**Uy tín của bạn** shows each person their own figures:
 
-## Open COD orders for new buyers
+- Their rating as a seller and as a buyer.
+- Items sold, followers and when they joined.
+- Their reply rate: how often they answered within 24 hours when someone wrote about their listings, once at least 5 such chats count.
+- As a buyer, the COD orders of the last 90 days and how many failed.
 
-When a buyer refuses a parcel, the seller pays shipping both ways. The refusal rate is the only thing that keeps buyers ordering seriously, so a new buyer may have only a few COD orders waiting for delivery at once. The plan is for that limit to grow with the number of orders the buyer has received. Today the server applies a fixed limit of 3 orders requested or shipped per buyer.
+## Limits for everyone
 
-## Sales outside the app
+Every account has the same limits. A paid seller plan cannot raise them.
 
-A seller who sells an item off the app marks it with **Đánh dấu đã bán**. The sale counts in the seller's sold total and in their record.
+- At most 20 listings on sale at once.
+- At most 3 open COD orders as a buyer, requested or on their way.
 
-A suspended account cannot post, make offers or ask for COD. It can still finish or cancel an order already under way.
+When a buyer refuses a parcel, the seller pays shipping both ways. The limit of 3 open orders keeps that risk small for sellers.
+
+## Scam warnings
+
+ShopNexus reads chats for common scam signs, such as a request to pay first, to move off the app, a strange link, a request for an OTP or card number, or a fake payment proof. When the other person shows one, the app warns you under their message. It may add that their account is new or the price is far below similar listings. Phone numbers, bank numbers, emails and links are hidden before the check reads the chat.
+
+You can dismiss a warning. It comes back only if a new sign appears. The person the warning is about never sees it.
+
+## Sanctions
+
+Nothing is sanctioned automatically. Staff act on reports, and only for banned or fake goods, organised scams and requests from the authorities (see [Moderation](/en/marketplace/moderation)). They can:
+
+- Hide a listing. The seller cannot show it again until staff lift it.
+- Suspend an account, with a reason and possibly an end date.
+
+A suspended account cannot post, make or accept offers, ask for COD, review or report. It can still withdraw an offer, decline, and cancel an order already under way.
+
+A sanction removes rights only, since the platform holds no money to fine anyone with.

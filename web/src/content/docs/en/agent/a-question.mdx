@@ -6,8 +6,8 @@ groupOrder: 2
 order: 1
 audience: [developers]
 type: concept
-readingTime: 5
-updated: 2026-11-26
+readingTime: 6
+updated: 2026-11-27
 related: ["/en/agent/control", "/en/agent/limits", "/en/api/live-updates"]
 ---
 
@@ -39,11 +39,13 @@ A question is a turn. A turn runs as one or more segments: each time it is pause
 
 <Steps>
 <Step title="The server takes the question">
-The server checks the console session, reads the chosen agent from `ai_agents` (the Console assistant by default), checks the month's budget and the limit of 30 questions and updates a minute per moderator, then cleans the question of control characters, zero-width characters and HTML tags. A question over 2000 characters is refused with `agent_input_rejected`. The turn opens `running` under the conversation's row lock, and the console gets `202 {conversation_id, turn_id}`.
+The server checks the console session and reads the chosen console agent (the Console assistant by default): an unknown one is `404 ai_agent_not_found`, one turned off `409 ai_agent_disabled`. It checks the limit of 30 questions and updates a minute per moderator, then cleans the question of control characters, zero-width characters and HTML tags. A question over 2000 characters is refused with `agent_input_rejected`. The records the moderator mentioned with `@` come along: at most 10, each once. The turn opens `running` under the conversation's row lock, one unfinished turn per chat, and the console gets `202 {conversation_id, turn_id}`.
 </Step>
 
 <Step title="The server starts a segment">
-The server sends `POST /runs` to the agent with `AGENT_SERVICE_TOKEN`: the question, the moderator and their role, the open record, the last 20 finished turns as history, `agent_config` (instructions, tool list, limits) and `gateway` (the virtual key, model, fallbacks and prices). It waits at most 10 seconds for the status; anything but 200 drops the new turn and the console gets `503 agent_unavailable`.
+The server sends `POST /runs` to the agent with the service token: the question, the moderator and their role, the chat's record, the last 20 finished turns as history, the chat's documents, `agent_config` (instructions, tool list, limits) and `gateway` (the virtual key, model, fallbacks and prices). It also sends `mentions`: the records mentioned anywhere in the chat, this turn's first, at most 20, as kind and id only. Labels stay on the server, so the agent's prompt holds only values the server owns, never text a person typed.
+
+The server waits at most 10 seconds for the status. Anything but 200 deletes the new turn and the console gets `503 agent_unavailable`; the chat's title and last activity change only once a run has started, so a failed start leaves the chat as it was.
 </Step>
 
 <Step title="The agent opens MCP and runs the loop">
@@ -51,17 +53,25 @@ The agent opens a new MCP client for the segment and keeps only tools that carry
 </Step>
 
 <Step title="Lines flow back to the server">
-The agent writes each thing it does as one JSON line and flushes it. The server reads the stream in the background: an `event` line is stored with the turn's next sequence number and rung to open streams through `pg_notify`; `checkpoint` stores the state to resume from; `tool_call` updates the tool call's row; `document` stores a new version of a document.
+The agent writes each thing it does as one JSON line and flushes it. The server reads the stream in the background on the same replica, each line in its own transaction: an `event` line is stored with the turn's next sequence number and rung to open streams through `pg_notify`; `checkpoint` stores the state to resume from; `tool_call` updates the tool call's row and never moves a finished call back; `document` stores a new version of a document.
+
+A line is written only while the turn is still `running` in the same segment. A late line from a segment the server already closed is dropped, so it cannot write into a turn that has since resumed. The server stops reading 60 seconds past the segment's deadline.
 </Step>
 
 <Step title="The console draws the run">
-The console opens `GET /v1/console/agent/turns/{id}/events`. The server replays the stored events, then sends new ones, each with its sequence number as `id`. A reloaded page asks from the last number it saw through `Last-Event-ID`. When the moderator closes the tab, the server closes the stream and the turn goes on running on the agent.
+The console opens `GET /v1/console/agent/turns/{id}/events`. The server replays the stored events, then sends new ones as they are rung, each with its sequence number as `id`. A reloaded page asks from the last number it saw through `Last-Event-ID`. Every 15 seconds without an event the server sends a keep-alive and reads the table again, in case a ring was missed.
+
+The stream ends after `turn.finished`, `turn.paused` or `clarify`, or 10 seconds after the turn stopped running with nothing new. After Continue, an answer or an update to a paused turn, the console opens it again from its last number. When the moderator closes the tab, the server closes the stream and the turn goes on running on the agent.
 </Step>
 
 <Step title="The end line closes the segment">
 The last line carries the status, the answer, its blocks, sources, cost, the checkpoint and the closing event. The server writes them all in one transaction. A stream that ends without an `end` line closes the turn `failed` with `agent_stuck`.
 </Step>
 </Steps>
+
+## Retries
+
+Opening a chat without a record, sending a question, sending an update and saving a skill take an optional `Idempotency-Key` header. A key the moderator already used answers with what it made the first time, and no second run starts. The key is claimed with the new row before the run starts, so a racing retry finds the first row. A run that fails to start deletes its turn or puts back its update, which frees the key.
 
 ## How a segment ends
 

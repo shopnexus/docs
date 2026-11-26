@@ -6,9 +6,9 @@ order: 3
 groupOrder: 1
 audience: [developers]
 type: reference
-readingTime: 2
-updated: 2026-11-04
-related: ["/en/api", "/en/api/authentication"]
+readingTime: 3
+updated: 2026-11-27
+related: ["/en/api", "/en/api/authentication", "/en/api/idempotency"]
 ---
 
 Every error answer has the same body:
@@ -18,39 +18,51 @@ Every error answer has the same body:
   "error": {
     "code": "invalid_request",
     "message": "request does not match the API description",
-    "fields": { "phone_token": "required" },
+    "fields": { "title": "maxLength" },
+    "field_codes": { "title": "too_long" },
     "trace_id": "4bf92f3577b34da6..."
   }
 }
 ```
 
-- `code` is stable and `snake_case`. The app maps it to its own Vietnamese text.
+- `code` is stable and `snake_case`. The client maps it to its own text in the user's language.
 - `message` is English, for developers. Never show it to users.
-- `fields` appears on validation errors, one entry per invalid field, keyed by its JSON path. The value is the rule it broke, such as `required`, `minLength` or `additionalProperties`.
-- `details` carries values the client acts on, such as `retry_after` in seconds.
-- `trace_id` equals the `Trace-Id` response header. Quote it when reporting a problem; it finds the request in the logs and traces.
+- `fields` appears on validation errors, one entry per invalid field, keyed by its JSON path. The value says the problem in English.
+- `field_codes` has the same keys and gives each problem as a code: `required`, `too_short`, `too_long`, `too_few`, `too_many`, `out_of_range`, `off_step`, `invalid`, `not_allowed`, `unknown`, `duplicate`, `one_of`, `missing_specs` or `in_use`. More may come; read an unknown one as `invalid`.
+- `details` carries values the client acts on. Each operation's error description names the ones its codes send.
+- `trace_id` equals the `Trace-Id` response header. Quote it when reporting a problem; it finds the request in the logs and traces. <Req id="NFR-OBS-01" />
+
+## Details
+
+| Field | Sent with | Means |
+|---|---|---|
+| `retry_after` | `rate_limited`, `otp_too_soon`, `otp_limit`, `login_locked` | Seconds to wait, rounded up |
+| `attempts_left` | `invalid_code` | Guesses the code still takes. With 1 left, a wrong guess answers `code_locked` |
+| `reason` | `carrier_refused` | What the carrier answered, in its own words and language |
+| `missing_spec_keys` | `invalid_listing` with `field_codes.specs` = `missing_specs` | The specs the category asks for that the listing lacks, in the category's order |
+| `profile` | `code_not_found` | The Chợ Tốt profile the server read, its name and avatar |
 
 ## Status codes
 
 | Status | Meaning | Typical codes |
 |---|---|---|
-| 400 | The request does not match the spec | `invalid_request`, `malformed_json` |
-| 401 | No valid credentials | `unauthenticated`, `invalid_token`, `invalid_refresh_token`, `session_revoked`, `session_expired`, `invalid_phone_token` |
-| 403 | The account is suspended | `account_suspended` |
+| 400 | The request does not match the spec | `invalid_request`, `malformed_json`, `invalid_cursor` |
+| 401 | No valid credentials | `unauthenticated`, `invalid_token`, `invalid_refresh_token`, `session_revoked`, `session_expired` |
+| 403 | The account is suspended, or a console role is too low | `account_suspended`, `console_forbidden` |
 | 404 | No such resource for this caller | `listing_not_found`, `deal_not_found`, ... |
-| 409 | The write collided with another | `try_again` |
+| 409 | The write collided with another | `try_again`, `deal_changed` |
 | 413 | The body is over 1 MB | `body_too_large` |
 | 422 | Well formed, but a rule refuses it | one code per rule, such as `invalid_phone` |
 | 428 | The caller must do something first | `reauth_required` |
-| 429 | Rate limited | see `details.retry_after` |
+| 429 | Rate limited | `rate_limited`, see `details.retry_after` |
 | 500 | Unexpected failure | `internal` |
-| 503 | A service the request needs is down | `unavailable` |
+| 503 | A service the request needs is down; try again | `unavailable`, `search_unavailable`, `carrier_unavailable`, `chotot_unavailable`, `agent_unavailable` |
 
 A resource the caller may not see answers 404, the same as one that does not exist. Another account's session, for example, is 404.
 
 `try_again` is shared by every module: the write lost a race with another write to the same record, and sending it again is safe. Each operation in the spec lists the codes it can return, so check the operation before handling a code.
 
-The real cause of a 500 goes to the server log only and never into the body.
+The real cause of a 500 goes to the server log only and never into the body. An error from inside a durable flow reaches the client with the same code, fields and details as from a plain call.
 
 ## Codes by use case
 

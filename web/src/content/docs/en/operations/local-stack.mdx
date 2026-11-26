@@ -1,13 +1,13 @@
 ---
 title: Local stack
-description: The containers the server needs in development and in tests, and how they start and stop.
+description: The containers the server needs in development and in tests, how they start and stop, and how to fill the development database with seed packs.
 group: Operations
 order: 2
 groupOrder: 1
 audience: [developers]
 type: reference
-readingTime: 2
-updated: 2026-11-04
+readingTime: 5
+updated: 2026-11-27
 related: ["/en/get-started/quick-start", "/en/operations/testing", "/en/operations/configuration"]
 ---
 
@@ -31,3 +31,47 @@ The observability container sits behind the `obs` Compose profile. `.env.example
 `make test` starts the test stack and recreates Restate on every run, because Restate's journal lives in tmpfs and grows with each run.
 
 `make down` stops both. The development database stays in its volume. The test stack keeps its data in tmpfs, so stopping it wipes the data.
+
+## Development data
+
+A fresh development database is empty. Seed packs fill it with a marketplace: people, listings, photos, sold items with their reviews, follows and search vectors. A pack is a directory of plain files (JSON lines, JPEG photos and float16 vector arrays), built once from a source and loaded as many times as you like.
+
+| Pack | What it holds |
+|---|---|
+| `demo` | 12 people, 44 listings, 4 sold items and 5 follows, 2.1 MB, built from the app's fixtures and committed with the server |
+| `vn-catalog` | about 110,000 listings, built from the old ShopNexus development database; a sample such as `vn-catalog-10k` loads faster |
+
+### The seedpack command
+
+`go run ./cmd/seedpack` in `server/` has five subcommands. `--help` on each lists its flags.
+
+| Command | What it does |
+|---|---|
+| `build <source>` | makes a pack from a source: `fixtures` or `legacy` |
+| `embed` | fills a pack's search vectors with the stack's models; a stopped run resumes |
+| `verify` | checks a pack's files, lines and vectors offline |
+| `load` | writes a pack into the stack; shows the plan and asks first (`--dry-run`, `--yes`) |
+| `wipe` | deletes one pack's people and everything that refers to them, then their photos |
+
+`load`, `wipe` and `embed` read the server's `.env` and refuse any `APP_ENV` but `dev`. `load` takes a directory, a URL of a `.tar` (downloaded once into `~/.cache/shopnexus/seedpacks`) or a pack name. It can load a subset: the first N listings, some categories or provinces, the first N sellers, or a share of the sold items.
+
+### How a load writes
+
+A load goes through the server's own rules, not raw inserts, so the rows look like real use:
+
+- each person signs up with a phone number;
+- each photo becomes a processed upload, with its thumbnail in the object store;
+- each listing is created and published;
+- each sold item becomes an agreed deal and a COD order that GHTK shipped and delivered and the buyer confirmed, with the listing held for that order and then sold;
+- reviews and their replies are written in the order they were posted;
+- search vectors are copied from the pack where they match the stack's models; `--vectors recompute` leaves them to the server and `--vectors none` skips them.
+
+A load publishes no events, apart from the review events a review writes. Nothing else reacts, so no notifications go out.
+
+Every row's ID is derived from the pack's name, the row's key and the row's own date. A second load therefore skips what is already there, and lists ordered by ID keep the pack's dates.
+
+### The demo scenario
+
+`go run ./cmd/devseed`, with the development server running, loads the `demo` pack and then plays a short scenario through the HTTP API: each seller links GHTK on the fake carrier, people save listings, one follows another, two chat, one makes an offer, and one COD order is placed and shipped. It signs each person in with a verifier that accepts the phone number as its own token. A second run writes only what is missing.
+
+The demo people use the numbers +84900199001 to +84900199012. To sign in as one on the Android app, add the number as a Firebase Auth test number.

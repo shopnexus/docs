@@ -7,7 +7,7 @@ order: 1
 audience: [developers]
 type: reference
 readingTime: 4
-updated: 2026-11-19
+updated: 2026-11-27
 related: ["/en/agent/tools", "/en/agent/a-question"]
 ---
 
@@ -22,11 +22,13 @@ The model builds its answer through output tools, and the agent checks each tool
 
 ## Answer blocks
 
+An answer has 1 to 20 blocks.
+
 | Block | Content | Limits |
 |---|---|---|
 | `text` | Markdown, with source numbers `[n]` | |
 | `figures` | Key figures, each with a label | 2 to 4 |
-| `table` | `columns` and `rows` | 20 rows, each as wide as the columns |
+| `table` | `columns` and `rows` | 12 columns, 20 rows, each as wide as the columns; longer tables go in a document |
 | `chart` | `bar`, `stacked_bar` or `line`, with `labels` and `series` | each series as long as `labels` |
 | `document_ref` | A document and version in the same chat | |
 | `follow_ups` | Suggested next questions | at most 3 |
@@ -56,4 +58,6 @@ At the top of each tool result the agent lists the numbers and labels for the mo
 
 ## Skills
 
-A skill is a saved question with a name and variables, stored in `agent_skills` and shared with every moderator. Typing `/` in the ask box lists them; the skill's prompt is added to that turn's system prompt. A moderator can change only their own skills; an admin can change any.
+A skill is a saved prompt with a name, a unique slug and up to 20 variables, stored in `agent_skills` and shared with every moderator. Its name has 1 to 80 characters and its prompt up to 8000. Typing `/` in the ask box lists them; the skill's prompt is added to that turn's system prompt.
+
+A moderator can change or delete only the skills they made (`403 agent_forbidden` otherwise); an admin can change any. An edit carries the version it started from, so two people editing the same skill do not overwrite each other: the later save gets `409 try_again`, and a save to a deleted skill gets `404`.

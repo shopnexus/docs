@@ -1,47 +1,61 @@
 ---
 title: Catalog
-description: How the catalog module stores listings, categories and regions, and how a posted listing becomes public.
+description: What the catalog module owns, how categories, specs and regions work, and how listings reach sitemaps and search vectors.
 group: Marketplace modules
 order: 1
 groupOrder: 4
 audience: [developers]
 type: concept
-readingTime: 2
-updated: 2026-11-04
-related: ["/en/marketplace/listings", "/en/architecture/media", "/en/architecture/search-and-discovery"]
+readingTime: 4
+updated: 2026-11-27
+related: ["/en/architecture/listings-lifecycle", "/en/architecture/media", "/en/architecture/search-and-discovery", "/en/marketplace/listings"]
 ---
 
-The catalog module owns listings, the category tree and the regions of Vietnam. A listing is one item at one price, sold C2C with cash on delivery. The product rules for a listing are in [Listings](/en/marketplace/listings).
+The catalog module owns listings, the category tree and the regions of Vietnam. A listing is one item at one price, sold C2C with cash on delivery. Drafting, posting, editing and selling are on [Listing lifecycle](/en/architecture/listings-lifecycle).
 
-## Listing lifecycle
+## Reading a listing
 
-Drafts stay on the phone. The server receives a complete listing, which starts in processing while its photos are made.
+`GET /v1/listings/{id}` works signed out. Anyone sees an active or reserved listing; the seller also sees their own in every status but deleted. Anything else is `listing_not_found`. Listings store photo object keys, and views build public URLs at read time.
 
-```mermaid title="Listing status"
-stateDiagram-v2
-  [*] --> processing
-  processing --> active
-  processing --> rejected
-  active --> hidden
-  hidden --> active
-  active --> reserved
-  reserved --> active
-  reserved --> sold
-  active --> sold
-  hidden --> sold
-  sold --> active
-```
+A listing's web address is `/listings/{slug}`: the title without accents, then an 8-character code hashed from the ID. Only the code finds the listing, so an edited title keeps old links working; the website 301s any other form to the current slug. The API and the app use IDs.
 
-Any status can also go to deleted. Active and reserved listings are public. An edit that adds a photo, or an edit of a rejected listing, sends the listing back to processing.
+## Categories and specs
 
-A listing is reserved while an order's parcel is on its way, and it records which order holds it. The deal module reserves, releases and sells listings, and each of those calls can be repeated safely, because a durable flow may run them again.
+There are 9 roots. Each has subcategories coded `<root>.<slug>`, ending with `<root>.other` ("Khác"). A listing names a subcategory, never a root.
 
-## Posting and editing
+Each subcategory lists the specs a listing must fill, such as model, capacity, colour and battery for iPhones. `GET /v1/categories` returns them as keys with names in the request's language.
 
-Posting and editing run as Restate flows, keyed by the seller and the request's `Idempotency-Key`, so a retried tap posts one listing. A post checks the account, then the cap of 20 listings in processing, active, hidden or rejected, then the fields, and reports every bad field at once. After the post, a publish flow waits for the media module to process each photo: all ready makes the listing active, one failure makes it rejected with the reason kept on that photo.
+- A spec is sent by key, or by name, matched in any language, case aside.
+- A missing required spec, an unknown or repeated key, or neither key nor name is `invalid_listing` on `specs`.
+- A name that matches nothing stays the seller's own spec. At most 20 specs in all.
+- The listing stores Vietnamese names, so embeddings and search read one language.
 
-Every change writes an event in the same transaction (`listing.published`, `listing.updated`, `listing.sold` and so on). The deal, search and notification modules react to them; see [Events](/en/architecture/events).
+Specs are keyed because some names mean different things by category: "Kích thước" is screen size on monitors and dimensions elsewhere.
 
-## Categories and regions
+`POST /v1/category-guesses` guesses a draft's subcategory. It embeds the title and description and picks the nearest subcategory text and keywords. "Khác" is never guessed. With the text model off, the answer is null.
 
-The category tree has 9 roots, each with subcategories and a last "Khác" entry, and a listing must name a subcategory. Regions are the 34 provinces and 3,321 communes after the 2025 merger, each commune with one point used to measure distance. A price is whole đồng from 10,000 to 1,000,000,000; the ceiling catches a price typed with extra zeros.
+## Regions
+
+Regions are the 34 provinces and 3,321 communes after the 2025 merger, each commune with one point. A listing stores its commune, and distance is measured from that point, never the seller's GPS. See [Search and discovery](/en/architecture/search-and-discovery).
+
+`GET /v1/regions/nearest?lat=&lng=` returns the commune nearest the phone. Past 30 km from every commune it is `no_commune_near` (404). The point is neither stored nor logged.
+
+## Seller pages
+
+`GET /v1/sellers/{id}/listings` is public: active and reserved listings, newest first, as search cards. Each card carries the first five thumbnails for hover. Trust and screens read a seller's counts from catalog. "Đã bán" counts every sale, by order or by hand, and deletion keeps the sale, so it erases none.
+
+## Sitemaps and IndexNow
+
+| Endpoint | Returns |
+|---|---|
+| `GET /v1/sitemap` | Public listings and their sellers in parts of 10,000, newest first, each with a cursor and its latest change |
+| `GET /v1/sitemap/listings`, `/sellers` | One part by cursor; listings carry their photo URLs for the image sitemap |
+| `GET /v1/sitemap/areas` | Root category and province pairs with at least 5 active listings, for landing pages |
+
+The website caches these for an hour.
+
+With an IndexNow key on an https site, a worker queues each listing on every listing event except reservation. A minute after the first add, a flush posts up to 10,000 current addresses. A 429 or 5xx is retried 5 times from 10 seconds, doubling; then the batch is dropped and logged. Listing changes never wait on it.
+
+## Search vectors
+
+Catalog keeps one text vector per listing (title, category, condition, specs and description, cut at 2,000 characters) and one vector per processed photo. A vector from another model version counts as missing, so a new model re-embeds everything. Active, reserved, hidden and sold listings are embedded. Vectors stay after hiding, sale or deletion; search filters by status.

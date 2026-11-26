@@ -7,7 +7,7 @@ order: 2
 audience: [developers, admins]
 type: reference
 readingTime: 4
-updated: 2026-11-26
+updated: 2026-11-27
 related: ["/en/agent/control", "/en/agent/setup", "/en/operations/cluster/llm-gateway"]
 ---
 
@@ -17,12 +17,16 @@ The server stops a question before the turn opens; the agent stops a segment whi
 
 | Check | Where | Result |
 |---|---|---|
-| The agent's monthly budget is spent | server | 429 `agent_budget` |
+| The chosen agent is unknown or not a console agent | server | 404 `ai_agent_not_found` |
+| The chosen agent is turned off | server | 409 `ai_agent_disabled` |
 | Over 30 questions and updates a minute from one moderator | server, in each replica's memory | 429 `agent_rate_limited` |
 | The question is empty once cleaned | server | 400 `invalid_request` |
 | The question is over 2000 characters | server | 422 `agent_input_rejected` |
+| A mention is of an unknown kind, there are over 10, or a label is over 120 characters | server | 400 `invalid_request` |
 | The chat has an unfinished turn | server | 409 `agent_turn_in_progress` |
-| `FEATURE_ALL_AGENT` or `FEATURE_LLM` is `false` | agent | 503, which the server answers as `agent_unavailable` |
+| The agent's kill switch is off, it refuses the segment, or it gives no status within 10 seconds | agent, or the server's wait | 503 `agent_unavailable`; the new turn is deleted |
+
+A spent budget is not checked here: it ends the run, as below.
 
 ## While running
 
@@ -31,12 +35,12 @@ The server stops a question before the turn opens; the agent stops a segment whi
 | A segment's deadline (`limits.deadline_s`, 10 to 300) | 60 seconds | `TIMED_OUT`; the steps and tool calls so far stay |
 | Model calls per segment (`max_model_calls`) | 40 | `FAILED`, `agent_limit` |
 | Output tokens per model call (`max_tokens`) | 4096 | that call's reply is cut |
-| Tool output kept in context (`AGENT_TOOL_OUTPUT_CAP`) | 20 000 characters | the rest pages through the `read_output` tool |
+| One tool result kept in context | 20 000 characters | the rest pages through the `read_output` tool |
 | The same tool with the same input | 2 calls | the third is cancelled, a `guardrail` event `loop_stopped` is written, and the model is told to answer with what it has |
 
 ## Budgets
 
-Each agent has one monthly budget in USD, set on its page in the console; Bifrost enforces it on the agent's team. There are no budgets per moderator or per role. A budget spent midway makes Bifrost answer 402 (`policy_budget_exceeded`); the agent does not retry it and ends the segment `FAILED` with `agent_budget`, and the console's ask box says asking is paused. Bifrost returns no cost, so the agent counts each call as its tokens times the price in the run's `gateway.prices` for the model that served it, cache reads and writes included, and adds it up in the turn's `usage`.
+Each agent has one monthly budget in USD, set on its page in the console; Bifrost enforces it on the agent's team. There are no budgets per moderator or per role. A budget spent midway makes Bifrost answer 402 (`policy_budget_exceeded`); the agent does not retry it and ends the segment `FAILED` with `agent_budget`, which `turn.finished` reports with the status `BUDGET`, and the console's ask box says asking is paused. Bifrost returns no cost, so the agent counts each call as its tokens times the price in the run's `gateway.prices` for the model that served it, cache reads and writes included, and adds it up in the turn's `usage`.
 
 ## Provider rate limits
 
@@ -56,7 +60,7 @@ After each model call, a `context.meter` event reports the tokens used against t
 | `agent_failed` | `broken` | yes | Agent gặp lỗi giữa chừng. Có thể tiếp tục lượt này. |
 | `agent_stuck` | `broken` | yes | Lượt hỏi bị gián đoạn. Hãy hỏi lại. |
 | `agent_unavailable` | `unavailable` | no | Agent đang không trả lời được. Hãy thử lại sau. |
-| `agent_budget` | `blocked` | no | Hết hạn mức hôm nay. |
+| `agent_budget` | `blocked` | no | Agent đã dùng hết ngân sách của tháng này. |
 | `agent_blocked` | `blocked` | no | Lượt hỏi bị chặn. |
 
 A `FAILED` or `TIMED_OUT` turn can continue when it is the chat's latest turn, it wrote at least a step, a tool call or some text, and its code is one of the five marked "yes". A turn cancelled with **End** has the outcome `stopped`.
@@ -65,5 +69,6 @@ A `FAILED` or `TIMED_OUT` turn can continue when it is the chat's latest turn, i
 
 - Stop now, a tool's time limit and the segment's deadline cannot stop an MCP call already running on the server.
 - Pause, Stop now and updates reach the agent within about a second, the control poll interval.
-- The kill switches apply per process.
+- The kill switches apply per agent process.
+- The server logs no question or answer body, since a turn quotes people.
 - The agent masks personal data in its own audit log. Answers may quote personal data the moderator is allowed to read, and the server records those reads.

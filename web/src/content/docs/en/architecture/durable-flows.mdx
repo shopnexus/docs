@@ -1,58 +1,73 @@
 ---
 title: Durable flows
-description: Which use cases run on Restate, how a request hands off to one, and the rules a flow follows.
+description: Which use cases run on Restate, how a request hands off to one, and the rules that let a flow replay safely.
 group: Foundations
 groupOrder: 2
 order: 2
 audience: [developers]
 type: concept
-readingTime: 3
-updated: 2026-11-04
+readingTime: 4
+updated: 2026-11-27
 related: ["/en/architecture/events", "/en/architecture/data", "/en/api/idempotency"]
 ---
 
-Most use cases are plain calls: a handler calls the module's service and the service talks to Postgres. A use case runs as a Restate flow only when it writes to more than one place and must finish after a crash. Keeping the rest off Restate means reads and token refresh keep working while Restate is down.
+Most use cases are plain calls: a handler calls the module's service and the service talks to Postgres. A use case runs as a Restate flow only when it has several steps that must all happen after a crash, such as a write followed by a mail or a carrier call. Keeping the rest off Restate means reads and token refresh keep working while Restate is down. <Req id="ADR-0002" /> <Req id="NFR-DUR-01" />
 
 ## Flows in the server
 
-| Flow | Why it is durable |
+| Module | Flows |
 |---|---|
-| Sign-in | First sign-in creates the account, then its phone identity, and undoes the account if the identity was taken meanwhile |
-| Posting and editing a listing | Writes the listing, attaches its uploads, then starts publishing |
-| Publishing a listing | Waits for every photo to be processed, then makes the listing active or rejected |
-| Processing and expiring uploads | Resizes a photo in the store; deletes uploads never attached after 24 hours |
-| Shipping and finishing an order | Changes the order and reserves, sells or releases the listing |
-| Sending a chat message | Adds the message and attaches its photos |
+| account | Sign-in, sending an email code, adding an identity, reauthentication |
+| catalog | Posting, editing and publishing a listing, copying photos into a listing, embedding a listing, telling IndexNow |
+| media | Processing an upload, expiring uploads never attached, releasing photos a listing dropped |
+| deal | Asking for COD, shipping, confirming and cancelling an order, the order's timers, applying carrier updates |
+| chat | Sending and publishing a message |
+| trust | The scam check after a message |
+| assist | Reading a photo, a video or a Chợ Tốt link |
+| chotot | Importing listings and the hourly sync |
+| support | Opening a ticket |
+| ai | Speech to text, photo vectors, video frames |
 
-Event delivery and every module's event handlers also run on Restate (see [Events](/en/architecture/events)).
+Event delivery, every module's event handlers and the periodic sweeps also run on Restate (see [Events](/en/architecture/events)).
 
 ## Handing off
 
 ```mermaid title="A request that runs a durable flow"
 sequenceDiagram
-  participant App
+  participant Client
   participant Server as Server (HTTP)
   participant Restate
   participant Flow as Flow (server :9080)
-  App->>Server: POST with Idempotency-Key
-  Server->>Restate: invoke, keyed by the caller and the key
-  Restate->>Flow: run, journaling each step
-  Flow-->>Restate: result or refusal
-  Restate-->>Server: result
-  Server-->>App: response
+  Client->>Server: POST with Idempotency-Key
+  Server->>Server: has this caller's key made a row already?
+  alt key seen
+    Server-->>Client: the first request's result
+  else new key
+    Server->>Restate: invoke the flow
+    Restate->>Flow: run, journaling each step
+    Flow->>Flow: first insert claims the key
+    Flow-->>Restate: result, or a refusal as data
+    Restate-->>Server: result
+    Server-->>Client: response
+  end
 ```
 
-The service method in front of a flow invokes it through Restate's ingress and waits for the answer, so the handler sees the same result and errors as a plain call. The client's `Idempotency-Key` becomes the invocation key. A repeated key attaches to the first run and returns its result without running a step again.
+The service method in front of a flow invokes it through Restate's ingress and waits for the answer, so the handler sees the same result and errors as a plain call. A flow does not rely on a Restate idempotency key. It dedupes by the keys of the rows it writes: the first insert claims the caller's request key, so a retry that races the first run finds that row and answers with it. [Data](/en/architecture/data#retries-and-duplicates) has the full standard.
+
+A few internal flows do keep a Restate key, because the key is the natural ID of the work: processing an upload runs once per upload, publishing a listing once per listing and write, publishing a message once per message, and delivering an event once per event.
 
 ## Rules inside a flow
 
-- A step only reads or writes a store. Any error from a step is a fault, and Restate retries it.
-- Every business decision happens between steps, on values the journal kept, so a replay takes the same decisions.
-- IDs and the clock come from the journal, so a retried insert lands the same row and does nothing the second time.
-- A business refusal, such as a reached listing cap, comes back as data in the result. Restate keeps only the code and message of a failed invocation, and the client needs the error's details.
+- A step only reads or writes a store, or calls an outside service. Any error from a step is a fault, and Restate retries it.
+- Every business decision happens between steps, on the values the journal kept. A replay therefore takes the same decisions.
+- A step that can lose a race, such as a save that finds the row changed, returns that as a value. The flow then decides between steps: read again, or answer `try_again`.
+- The clock is read once per run through the journal, and IDs are minted from it before the step that inserts them. A retried insert lands the same row and does nothing the second time.
+- A business refusal, such as a reached listing cap or a suspended account, comes back as data in the result. Restate keeps only the code and message of a failed invocation, and the client needs the error's details.
 
-The first version judged inside steps, and a retried step applied its change twice. The split into read, decide and save replaced it on 2026-10-21.
+## A flow keyed by listing
+
+Embedding a listing runs one run per listing at a time, and a new request queues behind the run in progress. A burst of edits therefore embeds the newest content once, and the later runs find nothing left to do. When the gateway reports a spent budget, the run ends without the vector and tries again 6 hours later.
 
 ## Running Restate
 
-The server registers its endpoint with Restate's admin API at start. Restate signs every request to the endpoint with a private key, and in production the server runs only requests signed with it. A service name prefix keeps test packages that share one Restate server apart.
+The server registers its endpoint with Restate at start. In the cluster an operator registers each server version instead and keeps the old version running until its invocations finish, so a run never replays on code it did not start on. Restate signs every request to the endpoint, and in production the server runs only signed requests.

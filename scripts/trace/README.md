@@ -37,7 +37,7 @@ trước (`ChatQuote`, `ShippingQuote`); file `paths/` được chép thẳng v�
 
 ## Cách code ghi mã
 
-Quy ước nằm ở mục Use cases của `server/ARCHITECTURE.md`. Tóm tắt: doc comment
+Quy ước nằm ở mục Code shape của `server/AGENTS.md`. Tóm tắt: doc comment
 của hàm ghi `// Open is UC-DEAL-02.`, trong hàm `// 1.` là bước của luồng
 chính, `// A1` và `// E2` là luồng thay thế và luồng ngoại lệ, test ghi
 `// UC-DEAL-02 A1, E1, E2.` phía trên `func Test…`.

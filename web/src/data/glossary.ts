@@ -168,11 +168,11 @@ export const glossary: GlossaryEntry[] = [
     "architecture",
     [
       "SignIn flow",
-      "The durable Restate flow that takes a verified phone number and finds or creates the account and its phone identity.",
+      "The durable Restate flow that takes a proven identity (a phone number, a Google account or an email code) and finds or creates the account and that identity.",
     ],
     [
       "Flow SignIn",
-      "Flow Restate bền vững nhận số điện thoại đã xác minh rồi tìm hoặc tạo tài khoản cùng identity số điện thoại.",
+      "Flow Restate bền vững nhận một identity đã xác minh (số điện thoại, tài khoản Google hoặc mã email) rồi tìm hoặc tạo tài khoản cùng identity đó.",
     ],
     ["durable-flow"],
   ),
