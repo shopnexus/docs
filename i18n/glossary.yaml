@@ -211,6 +211,7 @@ ui:
     - { phrase: [Uy tín của bạn], instead_of: "", why: tên màn hình số liệu uy tín và hạn mức của người dùng }
     - { phrase: [Nhắn tin, Nhắn tin với], instead_of: chat, why: 'nút mở cuộc trò chuyện; trong câu vẫn viết "cuộc trò chuyện"' }
     - { phrase: [Đơn COD], instead_of: đơn hàng, why: tên màn hình danh sách đơn và nhóm thông báo, email }
+    - { phrase: [chotot.com/user], instead_of: user, why: đường dẫn trang cá nhân Chợ Tốt, giữ nguyên như trên trình duyệt }
 
 # Sentences each listed product must contain word for word in every language
 # it writes. A product that adds a language needs the phrase in it.
