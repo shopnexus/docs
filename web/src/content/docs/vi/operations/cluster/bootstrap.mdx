@@ -7,7 +7,7 @@ groupOrder: 2
 audience: [admins, developers]
 type: tutorial
 readingTime: 12
-updated: 2026-11-17
+updated: 2026-11-26
 related: ["/vi/operations/cluster", "/vi/operations/cluster/networking", "/vi/operations/cluster/secrets", "/vi/operations/cluster/runbook"]
 ---
 
@@ -33,17 +33,14 @@ flowchart TD
   argo --> root["Application root"]
   root --> w0["Wave 0: platform<br/>cnpg, sealed-secrets,<br/>restate-operator, image-updater"]
   w0 --> w1["Wave 1: stack-dev, stack-prod,<br/>ImageUpdater shopnexus"]
-  w1 --> w2["Wave 2: ai-dev, ai-prod"]
   w1 -->|"ComparisonError:<br/>chưa có sealed secret"| seal["cmd/seal dev, cmd/seal prod<br/>commit và push"]
   seal --> sm1["Wave -1 của stack<br/>Namespace restate-#lt;stack#gt;"]
   sm1 --> s0["Wave 0 của stack<br/>postgres, rustfs, SealedSecret"]
   s0 --> s1["Wave 1 của stack<br/>migrate, objectstore-init,<br/>RestateCluster"]
-  s1 --> s2["Wave 2 của stack<br/>server, website, docs,<br/>console, Ingress"]
-  s2 --> a0["Wave 0 của ai-#lt;stack#gt;<br/>ai-gateway, ai-models"]
-  a0 --> a1["Wave 1 của ai-#lt;stack#gt;<br/>ai-gateway-keys"]
+  s1 --> s2["Wave 2 của stack<br/>server, server-ai, agent, bifrost,<br/>website, docs, console, Ingress"]
 ```
 
-Application `root` đồng bộ `infra/platform` và `infra/argocd` từ bản fork của bạn. Wave 0 của nó cài bốn operator của platform, wave 1 tạo mỗi stack một Application, và wave 2 tạo `ai-dev` và `ai-prod`. Mỗi Application của stack render Helm chart trong `infra/stack` và áp dụng nó theo các wave riêng. `ai-<stack>` render chart trong `chart/` của repo `ai` vào cùng namespace khi Application của stack đã Healthy, nên Postgres của stack đã có database `litellm`.
+Application `root` đồng bộ `infra/platform` và `infra/argocd` từ bản fork của bạn. Wave 0 của nó cài bốn operator của platform, và wave 1 tạo mỗi stack một Application. Mỗi Application của stack render Helm chart trong `infra/stack` và áp dụng nó theo các wave riêng. Bifrost, cổng mô hình của stack, khởi động ở wave 2, sau khi wave 1 đã tạo database `bifrost` của nó.
 
 ## Các bước
 
@@ -56,11 +53,9 @@ Fork `shopnexus/shopnexus` trên GitHub rồi clone bản fork về máy. Argo C
 - `infra/argocd/root.yaml`, có hai chỗ, một cho `infra/platform` và một cho `infra/argocd`;
 - `infra/argocd/stacks.yaml`, một chỗ trong `stack-dev` và một chỗ trong `stack-prod`.
 
-`infra/argocd/ai.yaml` đọc repo `ai`, `https://github.com/shopnexus/ai.git`, một chỗ trong `ai-dev` và một chỗ trong `ai-prod`. Trỏ nó về bản fork `ai` của bạn nếu bạn sửa hub.
-
 Đặt `domain` trong `infra/stack/values-dev.yaml` và `infra/stack/values-prod.yaml`. Giá trị gốc là `dev.shopnexus.id.vn` và `shopnexus.id.vn`; giữ nguyên cấu trúc đó, với dev nằm dưới prod một nhãn.
 
-`ai-gateway` của mỗi stack gửi mọi lời gọi mô hình tới mô hình mà alias của nó ghi trong `gateway.aliases` ở `chart/values.yaml` của repo `ai`, phần lớn trên OpenRouter, nên mỗi stack cần một khóa OpenRouter. Ngân sách theo ngày của từng key nằm trong `infra/argocd/ai.yaml`. Nếu bạn tự build image, đổi các tên `ghcr.io/shopnexus/*` trong `infra/stack/values.yaml`, `infra/argocd/stacks.yaml` và `images` của chart `ai`, và đặt các package GHCR ở chế độ public.
+Bifrost của mỗi stack gửi mọi lời gọi mô hình tới một trong hai nhà cung cấp trong `infra/stack/bifrost/config.json`: upstream ở `LLM_UPSTREAM_BASE_URL` trong `infra/stack/env/bifrost.env`, và OpenRouter. Mỗi stack cần một khóa cho mỗi nhà cung cấp. Mô hình và ngân sách tháng của các agent nằm trong database của server và được sửa trong console ([Cổng Bifrost](/vi/operations/cluster/llm-gateway)). Nếu bạn tự build image, đổi các tên `ghcr.io/shopnexus/*` trong `infra/stack/values.yaml` và `infra/argocd/stacks.yaml`, và đặt các package GHCR ở chế độ public.
 
 Commit và push lên `main`.
 
@@ -170,7 +165,7 @@ Chạy lệnh seal một lần cho mỗi stack, từ thư mục gốc của umbr
 go -C infra run ./cmd/seal dev
 ```
 
-Lần chạy đầu chép `infra/stack/secrets/example.env` thành `infra/stack/secrets/dev.env` với quyền 600 và sinh mọi khóa stack cần, điền thẳng vào dòng `KEY=` còn trống hoặc thêm một dòng mới: khóa JWT, khóa console và khóa ký của Restate (từ `/envgen` trong image server), khóa RustFS, master key và mật khẩu database của gateway, và virtual key của server và console agent. Khóa riêng của Restate nằm ở `dev.restate.pem` bên cạnh. Rồi lệnh dừng:
+Lần chạy đầu chép `infra/stack/secrets/example.env` thành `infra/stack/secrets/dev.env` với quyền 600 và sinh mọi khóa stack cần, điền thẳng vào dòng `KEY=` còn trống hoặc thêm một dòng mới: khóa JWT, khóa console và khóa ký của Restate (từ `/envgen` trong image server), khóa RustFS, và mật khẩu admin, khóa mã hóa cùng mật khẩu database của Bifrost. Khóa riêng của Restate nằm ở `dev.restate.pem` bên cạnh. Rồi lệnh dừng:
 
 ```text
 seal: .../infra/stack/secrets/dev.env: set OPENROUTER_API_KEY
@@ -181,9 +176,10 @@ Mở `dev.env` và điền các giá trị mà lệnh không tự sinh được:
 | Biến | dev | prod |
 |---|---|---|
 | `OPENROUTER_API_KEY` | bắt buộc | bắt buộc |
+| `LLM_UPSTREAM_API_KEY` | bắt buộc | bắt buộc |
 | `FCM_CREDENTIALS` | tùy chọn; để trống thì thông báo đẩy chỉ được ghi log thay vì gửi đi | bắt buộc; `APP_ENV=prod` không chấp nhận giá trị trống, và lệnh seal cho prod cũng vậy |
 
-`OPENROUTER_API_KEY` là khóa OpenRouter của stack, `ai-gateway` gửi nó cho mọi alias trên OpenRouter; hãy đặt cho khóa một hạn mức credit theo ngày trên OpenRouter. `FCM_CREDENTIALS` là JSON của một service account Firebase, mã hóa base64.
+`OPENROUTER_API_KEY` là khóa OpenRouter của stack, Bifrost gửi nó cho nhà cung cấp `openrouter`; hãy đặt cho khóa một hạn mức credit theo ngày trên OpenRouter. `LLM_UPSTREAM_API_KEY` là khóa của upstream. `FCM_CREDENTIALS` là JSON của một service account Firebase, mã hóa base64.
 
 Chạy lại lệnh cho dev, rồi hai lần cho prod:
 
@@ -193,7 +189,7 @@ go -C infra run ./cmd/seal prod     # tạo prod.env rồi dừng
 go -C infra run ./cmd/seal prod     # sau khi điền prod.env
 ```
 
-Lần chạy thứ hai giữ các khóa đã có trong `<stack>.env`, nên niêm phong đúng những giá trị đó. Mỗi lần chạy thành công ghi bốn SealedSecret vào `infra/stack/secrets/<stack>/`: `server-secrets.yaml`, `restate-secrets.yaml`, `litellm-secrets.yaml` và `litellm-db.yaml`. Commit và push chúng:
+Lần chạy thứ hai giữ các khóa đã có trong `<stack>.env`, nên niêm phong đúng những giá trị đó. Mỗi lần chạy thành công ghi sáu SealedSecret vào `infra/stack/secrets/<stack>/`: `server-secrets.yaml`, `agent-secrets.yaml`, `restate-secrets.yaml`, `rustfs-secrets.yaml`, `bifrost-secrets.yaml` và `bifrost-db.yaml`. Commit và push chúng:
 
 ```bash title="Terminal"
 git add infra/stack/secrets/dev infra/stack/secrets/prod
@@ -224,7 +220,7 @@ kubectl -n argocd annotate application stack-dev argocd.argoproj.io/refresh=norm
 kubectl -n argocd annotate application stack-prod argocd.argoproj.io/refresh=normal
 ```
 
-Sau đó mỗi stack đồng bộ theo các wave từ -1 tới 2, rồi `ai-<stack>` của nó theo wave 0 và 1, như sơ đồ ở trên. Argo CD chờ một wave healthy rồi mới bắt đầu wave sau. Trang [Postgres, Restate và RustFS](/vi/operations/cluster/data#sync-wave-và-job) liệt kê mọi resource của từng wave.
+Sau đó mỗi stack đồng bộ theo các wave từ -1 tới 2, như sơ đồ ở trên. Argo CD chờ một wave healthy rồi mới bắt đầu wave sau. Trang [Postgres, Restate và RustFS](/vi/operations/cluster/data#sync-wave-và-job) liệt kê mọi resource của từng wave.
 
 ```bash title="Terminal"
 kubectl -n argocd get applications -w
@@ -232,7 +228,7 @@ kubectl -n shopnexus-prod get pods -o wide
 kubectl -n restate-prod get pods -o wide
 ```
 
-Bạn sẽ thấy `stack-dev`, `stack-prod`, `ai-dev` và `ai-prod` ở trạng thái Synced và Healthy. Dev chạy mỗi thứ một bản. Prod chạy ba pod server trên `agent-1` và `agent-2`, hai pod Postgres trên hai node khác nhau và ba pod Restate trên ba node khác nhau.
+Bạn sẽ thấy `stack-dev` và `stack-prod` ở trạng thái Synced và Healthy. Dev chạy mỗi thứ một bản. Prod chạy ba pod server trên `agent-1` và `agent-2`, hai pod Postgres trên hai node khác nhau và ba pod Restate trên ba node khác nhau.
 </Step>
 
 <Step title="Chạy smoke test">

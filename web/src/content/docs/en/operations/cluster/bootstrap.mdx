@@ -7,7 +7,7 @@ groupOrder: 2
 audience: [admins, developers]
 type: tutorial
 readingTime: 12
-updated: 2026-11-17
+updated: 2026-11-26
 related: ["/en/operations/cluster", "/en/operations/cluster/networking", "/en/operations/cluster/secrets", "/en/operations/cluster/runbook"]
 ---
 
@@ -33,17 +33,14 @@ flowchart TD
   argo --> root["Application root"]
   root --> w0["Wave 0: platform<br/>cnpg, sealed-secrets,<br/>restate-operator, image-updater"]
   w0 --> w1["Wave 1: stack-dev, stack-prod,<br/>ImageUpdater shopnexus"]
-  w1 --> w2["Wave 2: ai-dev, ai-prod"]
   w1 -->|"ComparisonError:<br/>no sealed secrets"| seal["cmd/seal dev, cmd/seal prod<br/>commit and push"]
   seal --> sm1["Stack wave -1<br/>Namespace restate-#lt;stack#gt;"]
   sm1 --> s0["Stack wave 0<br/>postgres, rustfs, SealedSecrets"]
   s0 --> s1["Stack wave 1<br/>migrate, objectstore-init,<br/>RestateCluster"]
-  s1 --> s2["Stack wave 2<br/>server, website, docs,<br/>console, Ingress"]
-  s2 --> a0["ai-#lt;stack#gt; wave 0<br/>ai-gateway, ai-models"]
-  a0 --> a1["ai-#lt;stack#gt; wave 1<br/>ai-gateway-keys"]
+  s1 --> s2["Stack wave 2<br/>server, server-ai, agent, bifrost,<br/>website, docs, console, Ingress"]
 ```
 
-The `root` Application syncs `infra/platform` and `infra/argocd` from your fork. Its wave 0 installs the four platform operators, its wave 1 creates one Application per stack, and its wave 2 creates `ai-dev` and `ai-prod`. Each stack Application renders the Helm chart in `infra/stack` and applies it in its own waves. `ai-<stack>` renders the chart in `chart/` of the `ai` repo into the same namespace once the stack Application is Healthy, so the stack's Postgres already holds the `litellm` database.
+The `root` Application syncs `infra/platform` and `infra/argocd` from your fork. Its wave 0 installs the four platform operators, and its wave 1 creates one Application per stack. Each stack Application renders the Helm chart in `infra/stack` and applies it in its own waves. Bifrost, the stack's model gateway, starts in wave 2, after wave 1 has made its `bifrost` database.
 
 ## Steps
 
@@ -56,11 +53,9 @@ Set `repoURL` to your fork's clone URL in two files:
 - `infra/argocd/root.yaml`, which has it twice, once for `infra/platform` and once for `infra/argocd`;
 - `infra/argocd/stacks.yaml`, once in `stack-dev` and once in `stack-prod`.
 
-`infra/argocd/ai.yaml` reads the `ai` repo, `https://github.com/shopnexus/ai.git`, once in `ai-dev` and once in `ai-prod`. Point it at your fork of `ai` if you change the hub.
-
 Set `domain` in `infra/stack/values-dev.yaml` and `infra/stack/values-prod.yaml`. The upstream values are `dev.shopnexus.id.vn` and `shopnexus.id.vn`; keep the same shape, with dev one label below prod.
 
-Each stack's `ai-gateway` sends every model call to the model its alias names in `gateway.aliases` of the `ai` repo's `chart/values.yaml`, most of them on OpenRouter, so you need an OpenRouter key for each stack. The daily budget of each key is in `infra/argocd/ai.yaml`. If you build your own images, change the `ghcr.io/shopnexus/*` names in `infra/stack/values.yaml`, `infra/argocd/stacks.yaml` and the `ai` chart's `images`, and make the GHCR packages public.
+Each stack's Bifrost sends every model call to one of two providers in `infra/stack/bifrost/config.json`: the upstream at `LLM_UPSTREAM_BASE_URL` in `infra/stack/env/bifrost.env`, and OpenRouter. You need a key for each, per stack. The agents' models and monthly budgets live in the server's database and are edited in the console ([Bifrost gateway](/en/operations/cluster/llm-gateway)). If you build your own images, change the `ghcr.io/shopnexus/*` names in `infra/stack/values.yaml` and `infra/argocd/stacks.yaml`, and make the GHCR packages public.
 
 Commit and push to `main`.
 
@@ -170,7 +165,7 @@ Run the seal command once per stack, from the umbrella root. It needs Docker, Go
 go -C infra run ./cmd/seal dev
 ```
 
-The first run copies `infra/stack/secrets/example.env` to `infra/stack/secrets/dev.env` with mode 600 and generates every key the stack needs, filling an empty `KEY=` line in place or adding a line: the JWT and console keys and the Restate signing key (from the server image's `/envgen`), the RustFS keys, the gateway's master key and database password, and the virtual keys of the server and the console agent. The Restate private key goes to `dev.restate.pem` beside it. Then it stops:
+The first run copies `infra/stack/secrets/example.env` to `infra/stack/secrets/dev.env` with mode 600 and generates every key the stack needs, filling an empty `KEY=` line in place or adding a line: the JWT and console keys and the Restate signing key (from the server image's `/envgen`), the RustFS keys, and Bifrost's admin password, encryption key and database password. The Restate private key goes to `dev.restate.pem` beside it. Then it stops:
 
 ```text
 seal: .../infra/stack/secrets/dev.env: set OPENROUTER_API_KEY
@@ -181,9 +176,10 @@ Open `dev.env` and fill the values the script cannot make:
 | Variable | dev | prod |
 |---|---|---|
 | `OPENROUTER_API_KEY` | required | required |
+| `LLM_UPSTREAM_API_KEY` | required | required |
 | `FCM_CREDENTIALS` | optional; empty logs push notifications instead of sending them | required; `APP_ENV=prod` refuses it empty, and so does the seal command for prod |
 
-`OPENROUTER_API_KEY` is the stack's OpenRouter key, which `ai-gateway` sends for every alias on OpenRouter; give it a daily credit limit on OpenRouter. `FCM_CREDENTIALS` is a Firebase service account's JSON, encoded in base64.
+`OPENROUTER_API_KEY` is the stack's OpenRouter key, which Bifrost sends for the provider `openrouter`; give it a daily credit limit on OpenRouter. `LLM_UPSTREAM_API_KEY` is the key of the upstream. `FCM_CREDENTIALS` is a Firebase service account's JSON, encoded in base64.
 
 Run the command again for dev, then twice for prod:
 
@@ -193,7 +189,7 @@ go -C infra run ./cmd/seal prod     # creates prod.env and stops
 go -C infra run ./cmd/seal prod     # after filling prod.env
 ```
 
-A second run keeps the keys already in `<stack>.env`, so it seals the same values. Each successful run writes four SealedSecrets to `infra/stack/secrets/<stack>/`: `server-secrets.yaml`, `restate-secrets.yaml`, `litellm-secrets.yaml` and `litellm-db.yaml`. Commit and push them:
+A second run keeps the keys already in `<stack>.env`, so it seals the same values. Each successful run writes six SealedSecrets to `infra/stack/secrets/<stack>/`: `server-secrets.yaml`, `agent-secrets.yaml`, `restate-secrets.yaml`, `rustfs-secrets.yaml`, `bifrost-secrets.yaml` and `bifrost-db.yaml`. Commit and push them:
 
 ```bash title="Terminal"
 git add infra/stack/secrets/dev infra/stack/secrets/prod
@@ -224,7 +220,7 @@ kubectl -n argocd annotate application stack-dev argocd.argoproj.io/refresh=norm
 kubectl -n argocd annotate application stack-prod argocd.argoproj.io/refresh=normal
 ```
 
-Each stack then syncs in waves -1 to 2, and its `ai-<stack>` in waves 0 and 1 after it, as in the diagram above. Argo CD waits for one wave to be healthy before it starts the next. [Postgres, Restate and RustFS](/en/operations/cluster/data#sync-waves-and-jobs) lists every resource of each wave.
+Each stack then syncs in waves -1 to 2, as in the diagram above. Argo CD waits for one wave to be healthy before it starts the next. [Postgres, Restate and RustFS](/en/operations/cluster/data#sync-waves-and-jobs) lists every resource of each wave.
 
 ```bash title="Terminal"
 kubectl -n argocd get applications -w
@@ -232,7 +228,7 @@ kubectl -n shopnexus-prod get pods -o wide
 kubectl -n restate-prod get pods -o wide
 ```
 
-You should see `stack-dev`, `stack-prod`, `ai-dev` and `ai-prod` Synced and Healthy. Dev runs one of everything. Prod runs three server pods on `agent-1` and `agent-2`, two Postgres pods on different nodes and three Restate pods on three different nodes.
+You should see `stack-dev` and `stack-prod` Synced and Healthy. Dev runs one of everything. Prod runs three server pods on `agent-1` and `agent-2`, two Postgres pods on different nodes and three Restate pods on three different nodes.
 </Step>
 
 <Step title="Run the smoke test">
