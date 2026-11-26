@@ -1,386 +1,231 @@
 ---
-title: Hub AI
-description: Repo ai là hub AI của mỗi stack. ai-gateway (LiteLLM) với alias, key và ngân sách theo ngày, ai-models cho chuyển giọng nói thành văn bản, embedding ảnh và khung hình video, upstream OpenRouter, và cách đổi mô hình, ngân sách hay alias.
+title: Cổng Bifrost
+description: Bifrost, cổng của mỗi stack tới các mô hình ở xa. Ai sở hữu nhà cung cấp, agent, key và ngân sách, file cấu hình, database, secret, mạng, metric, và cách đổi mô hình, ngân sách hay nhà cung cấp.
 group: Cụm máy chủ
 order: 7
 groupOrder: 2
 audience: [admins, developers]
 type: concept
-readingTime: 13
-updated: 2026-11-17
-related: ["/vi/operations/cluster/secrets", "/vi/operations/cluster/data", "/vi/operations/cluster/runbook", "/vi/architecture/search-and-discovery"]
+readingTime: 9
+updated: 2026-11-26
+related: ["/vi/operations/cluster/secrets", "/vi/operations/cluster/data", "/vi/operations/cluster/runbook", "/vi/agent/setup", "/vi/architecture/search-and-discovery"]
 ---
 
-Tìm kiếm hỏi một mô hình ngôn ngữ xem câu truy vấn có nghĩa gì, một lượt đọc tin biến video hay ảnh của người bán thành bản nháp, còn tìm bằng ảnh so sánh embedding của chữ và ảnh. Trên cluster, không bên gọi nào tự gọi nhà cung cấp mô hình. Mỗi stack chạy hub AI từ repo `ai` (`shopnexus/ai`): `ai-gateway`, một proxy LiteLLM có API tương thích OpenAI, và `ai-models`, service Go chứa các mô hình ShopNexus tự host. Bản thiết kế nằm ở `docs/superpowers/specs/2026-11-17-ai-hub-design.md`.
+Tìm kiếm hỏi một mô hình ngôn ngữ xem câu truy vấn có nghĩa gì, một lượt đọc tin biến video hay ảnh của người bán thành bản nháp, một lượt kiểm tra lừa đảo đọc một cuộc trò chuyện, và console agent trả lời điều phối viên. Không bên nào tự gọi nhà cung cấp mô hình. Mỗi stack chạy Bifrost (`maximhq/bifrost:v2.6.0`), một cổng có API tương thích OpenAI, dưới dạng Service `bifrost` ở cổng 8080. Bản thiết kế nằm ở `docs/superpowers/specs/2026-11-26-bifrost-gateway-design.md`.
 
-Bên gọi là server và console agent. Mỗi bên nêu một mục đích, tức một alias như `search`, và giữ một virtual key cho mỗi mục đích, kèm ngân sách theo ngày. Mỗi stack có gateway, key và ngân sách riêng, nên một vòng lặp ở dev không thể tiêu hết phần của prod.
+Bifrost thay LiteLLM từ ngày 2026-11-26. LiteLLM chiếm tới 1 GiB, mất khoảng 45 giây mới sẵn sàng, và đến từ chuỗi cung ứng Python và PyPI. Bifrost là một file chạy Go duy nhất: trong lần thử ngày 2026-11-26 nó dùng 260 tới 440 MiB và khởi động trong 1 tới 2 giây, hoặc 20 giây trên database rỗng khi đang chạy migration.
 
-| Alias | Upstream | Mô hình | Dùng cho |
+Chuyển giọng nói thành văn bản, vector ảnh và khung hình video không đi qua Bifrost. Đó là phân hệ ai của server, chạy trong `server-ai` và được gọi qua Restate.
+
+## Agent
+
+Một agent là một mục đích gọi mô hình. Bảng `ai_agents` của server giữ chúng, và một migration của server tạo sẵn các agent sau:
+
+| Agent | Mô hình | Bên gọi | Dùng cho |
 |---|---|---|---|
-| `search` | OpenRouter | `anthropic/claude-haiku-5.5` | đọc câu truy vấn tìm kiếm |
-| `listing-read` | OpenRouter | `anthropic/claude-haiku-5.5` | đọc khung hình và lời nói trong video, một tấm ảnh, hoặc tin Chợ Tốt của người bán thành bản nháp |
-| `scam-check` | OpenRouter | `anthropic/claude-haiku-5.5` | kiểm tra một khung chat xem có lừa đảo không |
-| `console-agent` | OpenRouter | `anthropic/claude-sonnet-5.5` | console agent |
-| `embed-text` | OpenRouter, chỉ DeepInfra | `baai/bge-m3`, 1024 chiều | vector chữ của tin đăng và câu truy vấn |
-| `embed-image` | `ai-models` | `siglip2-so400m-patch16-384`, 1152 chiều | vector ảnh, và các đoạn chữ tiếng Anh ngắn cho text tower của SigLIP |
-| `stt` | `ai-models` | `gipformer-1.5` | chuyển giọng nói thành văn bản khi đọc video |
+| `console-agent` | `upstream/claude-sonnet-5-5` | `console-agent` | console agent |
+| `scam-check` | `upstream/claude-haiku-5-5` | `server-trust` | kiểm tra một khung chat xem có lừa đảo không |
+| `listing-read` | `upstream/claude-haiku-5-5` | `server-assist` | đọc video, ảnh hoặc tin Chợ Tốt của người bán thành bản nháp |
+| `search` | `openrouter/google/gemini-2.5-flash` | `server-search` | đọc câu truy vấn tìm kiếm |
+| `embed-text` | `openrouter/baai/bge-m3`, chỉ DeepInfra | `server-embed-index`, `server-embed-search` | vector chữ của tin đăng và câu truy vấn |
 
-Mỗi alias là một mục của `gateway.aliases` trong `chart/values.yaml` của repo `ai`. Đổi mô hình đứng sau một alias không cần image server mới.
+Mô hình luôn viết là `provider/model`. Một tên mô hình trần sẽ mơ hồ khi hai nhà cung cấp cùng có nó, nên bên gọi không bao giờ gửi tên trần, và alias của Bifrost không được dùng. Mỗi agent còn có các mô hình dự phòng (thêm các mục `provider/model`, chưa tạo sẵn mục nào), một ngân sách theo tháng bằng USD (100 cho `console-agent`, 30 cho các agent khác) và một giới hạn tốc độ cho mỗi bên gọi.
+
+## Ai sở hữu gì
+
+| Thứ gì | Chủ | Ở đâu |
+|---|---|---|
+| Nhà cung cấp: base URL, API key, số lần thử lại, thời gian chờ | infra | `infra/stack/bifrost/config.json`; key nằm trong Secret `bifrost-secrets` |
+| Agent: mô hình, mô hình dự phòng, giá mỗi mô hình, ngân sách tháng, bên gọi và giới hạn tốc độ của chúng | server | database của server, tạo sẵn bằng migration và sửa trong console |
+| Team, virtual key, ngân sách, giới hạn tốc độ và giá ghi đè trong Bifrost | server | do bộ đối soát của server ghi; không ai khác ghi |
+| Mức chi đo được, log, metric | Bifrost | kho log của Bifrost, server đọc từ đó; `/metrics` cho Prometheus |
+
+Trang Providers của console chỉ để xem. Thêm một nhà cung cấp hay một key của nhà cung cấp là việc của infra. Mọi thứ của một agent được sửa trong console, và server ghi nó vào Bifrost.
 
 ## Triển khai
 
-Repo `ai` có một Helm chart trong `chart/`. Repo tổng triển khai nó một lần cho mỗi stack bằng hai Application của Argo CD trong `infra/argocd/ai.yaml`: `ai-dev` vào `shopnexus-dev` và `ai-prod` vào `shopnexus-prod`. Mỗi Application có một nguồn, `chart/` của repo `ai`, `ai-dev` ở nhánh `main` và `ai-prod` ở commit ai của bản phát hành của repo tổng, và đặt values riêng của stack ngay trong `spec.source.helm.valuesObject`. `root` tạo chúng ở wave 2, sau các Application của stack ở wave 1, vì Postgres của stack chứa database của gateway và secret đã seal của stack chứa các key.
+`infra/stack/templates/bifrost.yaml` render ConfigMap `bifrost-config` từ `bifrost/config.json` và `bifrost/start.sh`, một Deployment `bifrost` một replica ở sync wave 2, và Service `bifrost`. Các probe gọi `/health`. Pod xin 64Mi và bị giới hạn ở 512Mi. Startup probe cho phép hai phút, vì database rỗng mất khoảng 20 giây chạy migration.
 
-```mermaid title="Những gì ai-dev render vào shopnexus-dev"
-flowchart TB
-  app["Application ai-dev<br/>repo shopnexus/ai, chart/, main<br/>+ valuesObject trong infra/argocd/ai.yaml"]
-  app -->|wave 0| gw["Deployment và Service ai-gateway<br/>ghcr.io/berriai/litellm-database:v1.108.0<br/>ConfigMap ai-gateway-config"]
-  app -->|wave 0| models["Deployment và Service ai-models<br/>ghcr.io/shopnexus/ai"]
-  app -->|"wave 1, Sync hook"| job["Job ai-gateway-keys<br/>curlimages/curl"]
-  gw --> db[("postgres-rw<br/>database litellm")]
-```
-
-| Values | Nằm ở | Chứa |
-|---|---|---|
-| lựa chọn của hub | `chart/values.yaml` trong repo `ai` | các alias và mô hình của chúng, các image, các key và alias mỗi key được gọi, thiết lập của `ai-models` |
-| của stack | `valuesObject` của `ai-<stack>` trong `infra/argocd/ai.yaml` | `stack`, `dailyUnits` và `tpmLimit` hoặc `rpmLimit` của mọi key, `models.embedModels`, `models.memoryRequest` và `models.memoryLimit` |
-
-Chart từ chối render khi thiếu values của stack. Image Updater dời image `ai-models` trên `ai-dev` theo digest của `:main`. Trên `ai-prod`, workflow Release của repo tổng ghi commit ai và `images.models.tag` ([Phát hành](/vi/operations/cluster/releases)). Một thay đổi ở chart hay ở `chart/values.yaml` tới dev ngay khi nó nằm trên `main` của repo `ai`, và tới prod cùng bản phát hành tiếp theo.
-
-## Đường đi của request
-
-```mermaid title="Một câu truy vấn tìm kiếm, từ server tới mô hình"
+```mermaid title="Bifrost trong một stack"
 flowchart LR
-  server["pod server<br/>LLM_MODEL=search"] -->|"POST /v1/chat/completions<br/>Bearer LLM_API_KEY"| gw["ai-gateway:4000<br/>alias search"]
-  gw -->|"kiểm tra key, ngân sách, tpm"| db[("Postgres<br/>database litellm")]
-  gw -->|"openai/anthropic/claude-haiku-5.5<br/>Bearer OPENROUTER_API_KEY"| or["OpenRouter<br/>openrouter.ai/api/v1"]
+  server["các pod server"] -->|"virtual key của từng bên gọi"| bf["bifrost:8080"]
+  agent["console agent"] -->|"virtual key của lượt chạy"| bf
+  rec["bộ đối soát của server"] -->|"admin API, Basic auth"| bf
+  bf --> up["upstream<br/>claude-*"]
+  bf --> or["OpenRouter<br/>gemini, bge-m3"]
+  bf --> db[("Postgres<br/>database bifrost")]
 ```
 
-```mermaid title="Một lượt đọc video, từ server tới ai-models và mô hình"
-flowchart LR
-  server["pod server<br/>module assist"] -->|"POST /v1/video/frames<br/>không key"| models["ai-models:8000<br/>ffmpeg, khung hình, Gipformer"]
-  server -->|"POST /v1/audio/transcriptions, model stt<br/>Bearer STT_API_KEY"| gw["ai-gateway:4000<br/>alias stt, listing-read"]
-  server -->|"POST /v1/chat/completions, model listing-read<br/>Bearer ASSIST_LLM_API_KEY"| gw
-  gw -->|"openai/gipformer-1.5<br/>không key"| models
-  gw -->|"openai/anthropic/claude-haiku-5.5<br/>Bearer OPENROUTER_API_KEY"| or["OpenRouter"]
+Annotation của pod mang checksum của `config.json`, `start.sh`, `env/bifrost.env` và các secret đã seal của stack, nên đổi bất kỳ thứ nào trong đó sẽ khởi động lại Bifrost. Prometheus scrape `/metrics` ở cổng 8080.
+
+## File cấu hình
+
+`config.json` chỉ chứa `client`, `governance.auth_config`, hai kho dữ liệu, `encryption_key` và `providers`. Nó đặt `source_of_truth: "config.json"`, và Bifrost áp dụng điều đó theo từng phần: mỗi lần khởi động, nó đặt lại các nhà cung cấp theo file và giữ nguyên virtual key, team, ngân sách và giá ghi đè mà server đã tạo qua API. Một phần `governance` khác `auth_config` trong file sẽ xóa những gì server đã tạo, nên `infra/check.sh` báo lỗi khi gặp.
+
+```json title="infra/stack/bifrost/config.json, các nhà cung cấp"
+"upstream": {
+  "keys": [{ "name": "upstream", "value": "env.LLM_UPSTREAM_API_KEY", "models": ["*"], "weight": 1 }],
+  "network_config": {
+    "base_url": "${LLM_UPSTREAM_BASE_URL}",
+    "allow_private_network": true,
+    "default_request_timeout_in_seconds": 120,
+    "max_retries": 2
+  },
+  "custom_provider_config": { "base_provider_type": "openai", "allowed_requests": { "list_models": true, "chat_completion": true, "chat_completion_stream": true } }
+},
+"openrouter": {
+  "keys": [{ "name": "openrouter", "value": "env.OPENROUTER_API_KEY", "models": ["*"], "weight": 1 }],
+  "network_config": { "base_url": "https://openrouter.ai/api", "default_request_timeout_in_seconds": 60, "max_retries": 2 },
+  "ignore_provider_cost": true
+}
 ```
 
-```mermaid title="Embedding, từ server tới OpenRouter và ai-models"
-flowchart LR
-  server["pod server<br/>EMBED_TEXT_MODEL=embed-text<br/>EMBED_IMAGE_MODEL=embed-image"] -->|"POST /v1/embeddings<br/>Bearer EMBED_INDEX_API_KEY hoặc EMBED_SEARCH_API_KEY"| gw["ai-gateway:4000<br/>alias embed-text, embed-image"]
-  gw -->|"kiểm tra key, ngân sách, rpm"| db[("Postgres<br/>database litellm")]
-  gw -->|"openai/baai/bge-m3, provider DeepInfra<br/>Bearer OPENROUTER_API_KEY"| or["OpenRouter"]
-  gw -->|"openai/siglip2-so400m-patch16-384<br/>không key"| models["ai-models:8000<br/>SigLIP 2"]
-```
+- `upstream` là một nhà cung cấp tự khai báo, nói API của OpenAI. URL của nó là `LLM_UPSTREAM_BASE_URL` trong `infra/stack/env/bifrost.env`, không có `/v1`. `allow_private_network` cho Bifrost gọi nó ở một địa chỉ nội bộ.
+- `base_url` không nhận tham chiếu `env.`, nên file giữ chỗ trống `${LLM_UPSTREAM_BASE_URL}`. `start.sh` điền giá trị vào rồi ghi kết quả vào thư mục dữ liệu của Bifrost trước khi khởi động Bifrost. Chart và compose đều chạy `start.sh`.
+- `openrouter` là nhà cung cấp có sẵn của Bifrost. `ignore_provider_cost` khiến Bifrost ghi chi phí theo giá của server, không theo giá của OpenRouter.
+- `client` bật xác thực cho các lời gọi mô hình (`enforce_auth_on_inference`), chỉ để mở `/metrics` (`whitelisted_routes`), và đặt thông tin định tuyến của Bifrost vào header của response (`extra_fields_placement: "headers"`).
+- Log không giữ body của request hay response (`disable_content_logging`), vì ảnh của tìm bằng ảnh đi qua đây, và được giữ 30 ngày.
+- `auth_config` bảo vệ admin API và UI bằng user `BIFROST_ADMIN_USERNAME` (`admin`, trong `env/bifrost.env`) và `BIFROST_ADMIN_PASSWORD`.
 
-ConfigMap `server-env` của server (`infra/stack/templates/_server-env.tpl`) trỏ mọi thiết lập mô hình vào hub:
+## Key và ngân sách
 
-```yaml
-LLM_BASE_URL: http://ai-gateway:4000/v1
-LLM_MODEL: search
-ASSIST_LLM_BASE_URL: http://ai-gateway:4000/v1
-ASSIST_LLM_MODEL: listing-read
-TRUST_LLM_BASE_URL: http://ai-gateway:4000/v1
-TRUST_LLM_MODEL: scam-check
-STT_BASE_URL: http://ai-gateway:4000/v1
-STT_MODEL: stt
-AI_FRAMES_BASE_URL: http://ai-models:8000/v1
-EMBED_TEXT_BASE_URL: http://ai-gateway:4000/v1
-EMBED_IMAGE_BASE_URL: http://ai-gateway:4000/v1
-EMBED_TEXT_MODEL: embed-text
-EMBED_IMAGE_MODEL: embed-image
-EMBED_TEXT_VERSION: bge-m3@5617a9f61b028005a4858fdac845db406aefb181
-EMBED_IMAGE_VERSION: siglip2-so400m-patch16-384@29f74e673c298fd07482d8e20138179282001eb7-fp32
-```
+Bộ đối soát của server ghi các đối tượng quản trị của Bifrost. Nó chạy khi server khởi động và sau mỗi lần ghi cài đặt AI, dưới một advisory lock của Postgres, nên hai replica không bao giờ cùng tạo một key hai lần.
 
-Console agent nhận `LITELLM_BASE_URL=http://ai-gateway:4000/v1` và `AGENT_MODEL_ID=console-agent`. Server tự gọi `/v1/video/frames` của `ai-models`, vì LiteLLM chỉ định tuyến API của OpenAI. Tên Service `ai-gateway` và `ai-models` được phân giải trong chính namespace của stack, nên server dev gọi tới hub của dev và server prod gọi tới hub của prod.
+<Steps>
+<Step title="Liệt kê những gì server sở hữu">
+Nó liệt kê các team, virtual key và giá ghi đè mang `metadata.owner = "server"`.
+</Step>
+<Step title="Ghi từng agent">
+Mỗi agent một team, đặt tên theo slug của agent, mang ngân sách tháng. Mỗi bên gọi một virtual key, nằm dưới team của agent, mang giới hạn tốc độ của bên gọi và `allowed_models`: đúng mô hình và các mô hình dự phòng của agent. Một key bị lộ không gọi được gì khác.
+</Step>
+<Step title="Ghi giá">
+Mỗi dòng của `ai_model_prices` thành một giá ghi đè cho nhà cung cấp và mô hình của nó.
+</Step>
+<Step title="Dọn dẹp">
+Nó xóa các đối tượng của server mà không agent hay giá nào còn nêu, và tắt key của các agent đang tắt.
+</Step>
+<Step title="Nạp key">
+Nó đọc giá trị của mọi key thuộc server vào bộ nhớ của server.
+</Step>
+</Steps>
 
-## Alias và cấu hình gateway
+Bifrost sinh giá trị key. Không key nào của bên gọi được lưu trong git, trong Secret hay trong database của server. Server đưa key cho các phân hệ của nó từ bộ nhớ, và khi gặp 401 thì nạp lại key từ Bifrost một lần trước khi báo lỗi. Console agent nhận key, mô hình, mô hình dự phòng và giá trong mỗi request chạy; xem [Agent và cấu hình](/vi/agent/setup).
 
-Các alias trong `chart/values.yaml`, ở đây là `search` và `embed-text`:
+UI của Bifrost hiện team và key của server. Một chỉnh sửa làm ở đó bị ghi đè ở lần đối soát tiếp theo.
 
-```yaml title="chart/values.yaml trong repo ai"
-gateway:
-  secret: litellm-secrets
-  database: { host: postgres-rw, name: litellm, user: litellm, passwordSecret: litellm-db }
-  aliases:
-    search:
-      model: openai/anthropic/claude-haiku-5.5
-      apiBase: https://openrouter.ai/api/v1
-      apiKeySecret: OPENROUTER_API_KEY
-      price: token
-    embed-text:
-      model: openai/baai/bge-m3
-      apiBase: https://openrouter.ai/api/v1
-      apiKeySecret: OPENROUTER_API_KEY
-      mode: embedding
-      price: token
-      extraBody: { provider: { order: [DeepInfra], allow_fallbacks: false } }
-```
+## Giá và mức chi
 
-Chart render mỗi alias thành một mục `model_list` trong ConfigMap `ai-gateway-config`. Mục `search` và các thiết lập chung ra như sau:
+`ai_model_prices` giữ giá của mọi mô hình mà agent dùng, bằng USD cho mỗi token vào và ra, tạo sẵn theo giá niêm yết, nên ngân sách tính bằng đô la. Bộ chọn mô hình trong console điền sẵn giá từ danh mục của Bifrost. Bifrost tính chi phí mỗi lời gọi theo các giá này và trừ vào team của bên gọi.
 
-```yaml
-model_list:
-  - model_name: search
-    litellm_params:
-      model: openai/anthropic/claude-haiku-5.5
-      api_base: https://openrouter.ai/api/v1
-      api_key: os.environ/OPENROUTER_API_KEY
-    model_info:
-      input_cost_per_token: 0.000001
-      output_cost_per_token: 0.000001
-general_settings:
-  master_key: os.environ/LITELLM_MASTER_KEY
-  database_url: os.environ/DATABASE_URL
-  store_prompts_in_spend_logs: false
-  maximum_spend_logs_retention_period: 30d
-litellm_settings:
-  drop_params: true
-```
+Console đọc mức chi theo agent và theo ngày từ log của Bifrost và hiện nó ở trang Overview. Số tổng của Bifrost chậm hơn thời gian thực tối đa một phút. Ngân sách của mỗi agent nằm trên trang của chính agent đó.
 
-Tiền tố `openai/` báo LiteLLM nói API của OpenAI với `api_base`. Alias có `apiKeySecret` gửi key đó của `litellm-secrets`; alias không có nó gửi `api_key: none`, dành cho `ai-models`, vốn không có xác thực. `extraBody` tới upstream dưới dạng `extra_body`. `drop_params: true` khiến LiteLLM bỏ các trường request mà upstream không nhận. NetworkPolicy của stack để egress mở, nên `ai-gateway` gọi được tới OpenRouter.
+## Khi hết ngân sách hay vượt giới hạn
 
-`store_prompts_in_spend_logs: false` giữ body của request, trong đó có ảnh của tìm bằng ảnh, ngoài spend log của LiteLLM, và spend log được giữ 30 ngày. `infra/probes/litellm-embed/run.sh` đo điều này trên LiteLLM v1.108.0 với một upstream giả ngày 2026-11-10: data URL 706 kB và 1,72 MB tới upstream nguyên vẹn, ba lời gọi tốn 0,001728 (mỗi lời gọi 576 token, tính theo `usage` của upstream), và không dòng nào trong ba dòng spend log chứa input.
+- Hết ngân sách tháng: Bifrost trả 402 với `X-Bifrost-Error-Type: policy_budget_exceeded`. Console agent kết thúc đoạn chạy với `agent_budget` ([Giới hạn và lỗi](/vi/agent/limits)).
+- Một bên gọi vượt giới hạn tốc độ: Bifrost trả 429 với `policy_rate_limited` và không gửi Retry-After. Console agent chờ hết khung thời gian ghi trong thông báo, hoặc 60 giây.
+- Hết credit OpenRouter: mã 402 của upstream được chuyển nguyên.
 
-## OpenRouter
+Tìm kiếm của server không hỏng khi mô hình hỏng. `Search` trong `server/internal/discovery/service/search.go` cho mô hình 4 giây. Gặp bất kỳ lỗi nào, nó ghi log mức warn `the model did not read the query` kèm lỗi, rồi tìm bằng đúng những từ người dùng gõ. Trang kết quả khi đó không có chip và không được ưu tiên theo danh mục, giá, nơi bán hay độ mới. Câu truy vấn mô hình đã đọc trong 7 ngày qua lấy từ cache của server và giữ nguyên cách hiểu.
 
-Mọi alias trừ `embed-image` và `stt` đi tới OpenRouter bằng `OPENROUTER_API_KEY` của stack, mỗi stack một key. Hãy đặt cho key đó một hạn mức credit theo ngày trên OpenRouter; đó là chốt chặn cuối sau ngân sách của chính gateway. Các số đo qua LiteLLM v1.108.0 ngày 2026-11-17:
+## OpenRouter và vector chữ
 
-- LiteLLM chuyển nguyên `usage` của OpenRouter (token và `cost`) cho chat và embedding, nên ngân sách đếm đúng số token OpenRouter báo.
-- Mã 402 của upstream, câu trả lời của OpenRouter khi credit của key đã hết, tới bên gọi dưới dạng HTTP 402 với code `"402"`.
-- OpenRouter phục vụ `baai/bge-m3` từ hai provider. DeepInfra (fp32) cho các vector của TEI mà các stack từng chạy với cosine 0,999999 trên mọi văn bản tham chiếu dưới 2048 token (`ai/embed/testdata/bge-m3-reference.json`); Parasail cho 0,996. `embed-text` ghim DeepInfra với `allow_fallbacks: false`, nên vector đã lưu và vector mới nằm trong cùng một không gian. LiteLLM chuyển tiếp lệnh ghim: ghim Parasail qua nó cho ra vector của Parasail.
-- 16 input trong một request `embed-text` mất 2,3 giây.
+`search` và `embed-text` đi tới OpenRouter bằng `OPENROUTER_API_KEY` của stack, mỗi stack một key. Hãy đặt cho key đó một hạn mức credit theo ngày trên OpenRouter; đó là chốt chặn cuối sau ngân sách của các agent.
 
-## Mô hình ngân sách
+OpenRouter phục vụ `baai/bge-m3` từ hai nhà cung cấp. DeepInfra (fp32) cho các vector của TEI mà các stack từng chạy với cosine 0,999999 trên mọi văn bản tham chiếu dưới 2048 token; Parasail cho 0,996. `embed-text` ghim DeepInfra và không cho dự phòng, nên vector đã lưu và vector mới nằm trong cùng một không gian.
 
-Ngân sách của LiteLLM tính bằng tiền, và `price` của mỗi alias quyết định số tiền đó đại diện cho gì:
+Server lưu `EMBED_TEXT_VERSION` và `EMBED_IMAGE_VERSION` cùng mỗi vector. Cả hai nằm trong `infra/stack/env/server.env`. Một mô hình mới cần một version mới trong cùng thay đổi: server khi đó coi các vector đã lưu là chưa có, và `go run ./cmd/search-reindex -every 2s` trong server embed lại mọi tin đăng. `EMBED_TEXT_MODEL` chỉ còn là công tắc bật tắt vector chữ: `server.embed.text` trong values của stack đặt nó.
 
-| `price` | Giá | 1 đơn vị ngân sách là |
-|---|---|---|
-| `token` | `0.000001` mỗi token, cả input lẫn output | 1.000.000 token |
-| `second` | `0.000001` mỗi giây audio | 1.000.000 giây |
-| `usd` | giá niêm yết của mô hình, `inputCostPerToken` và `outputCostPerToken` | 1 USD |
+## Database
 
-`console-agent` được tính theo giá 2 và 10 USD cho mỗi 1 triệu token vào và ra. `dailyUnits` của một key tính bằng phần triệu đơn vị của các alias của nó, và chart chia nó cho 1.000.000 để ra `max_budget`. Chart từ chối một key gồm các alias tính giá theo đơn vị khác nhau.
+Bifrost giữ kho cấu hình và log của nó trong database `bifrost` trên cluster CNPG `postgres` của stack. `templates/postgres.yaml` khai báo managed role `bifrost`, lấy mật khẩu từ Secret basic-auth `bifrost-db` (`username` và `password`), và một `Database` của CNPG tên `bifrost` do role đó sở hữu, ở wave 1.
 
-| Key | Secret | Alias | `dailyUnits` dev | giới hạn dev | `dailyUnits` prod | giới hạn prod |
-|---|---|---|---|---|---|---|
-| `server-llm` | `server-secrets` `LLM_API_KEY` | `search` | 200.000 token | 20.000 tpm | 2.000.000 token | 100.000 tpm |
-| `server-stt` | `server-secrets` `STT_API_KEY` | `stt` | 3.600 giây | 10 rpm | 36.000 giây | 60 rpm |
-| `server-assist` | `server-secrets` `ASSIST_LLM_API_KEY` | `listing-read` | 1.200.000 token | 60.000 tpm | 12.000.000 token | 300.000 tpm |
-| `server-trust` | `server-secrets` `TRUST_LLM_API_KEY` | `scam-check` | 600.000 token | 30.000 tpm | 6.000.000 token | 150.000 tpm |
-| `server-embed-index` | `server-secrets` `EMBED_INDEX_API_KEY` | `embed-text`, `embed-image` | 10.000.000 token | 120 rpm | 50.000.000 token | 600 rpm |
-| `server-embed-search` | `server-secrets` `EMBED_SEARCH_API_KEY` | `embed-text`, `embed-image` | 1.000.000 token | 60 rpm | 10.000.000 token | 600 rpm |
-| `agent` | `agent-secrets` `AGENT_LLM_API_KEY` | `console-agent` | 20 USD | 100.000 tpm | 20 USD | 200.000 tpm |
-
-`chart/values.yaml` đặt 20 USD mỗi ngày của agent cho mọi stack; `infra/argocd/ai.yaml` đặt phần còn lại. LiteLLM reset mức chi của mỗi key hằng ngày, với `budget_duration: 1d`.
-
-Server index tin đăng bằng `server-embed-index` và embed câu truy vấn bằng `server-embed-search`. Một lần backfill toàn bộ tin đăng tiêu key index, còn tìm bằng ảnh giữ ngân sách riêng. `ai-models` tính mỗi ảnh 576 token, tức 24 × 24 patch, và mỗi đoạn chữ theo số token của nó; LiteLLM tính giá theo `usage` đó. Một tin 10 ảnh tốn khoảng 5.800 token, nên ngân sách index của dev đủ cho khoảng 1.700 tin mỗi ngày.
-
-Một lượt đọc video gửi cho `listing-read` 8 khung hình 768 px, danh sách danh mục con và lời nói đã chép, khoảng 5.500 token, nên ngân sách dev đủ cho khoảng 200 lượt mỗi ngày và prod khoảng 2.000 lượt. Một lượt đọc ảnh gửi một tấm ảnh, khoảng 1.500 token; mỗi tài khoản được bắt đầu 30 lượt đọc video, 60 lượt đọc ảnh và 30 lượt đọc link mỗi ngày. Một lần kiểm tra lừa đảo gửi prompt và 20 tin nhắn ngắn, khoảng 1.300 token, nên dev đủ cho khoảng 460 lần mỗi ngày và prod khoảng 4.600 lần.
-
-Một lần thử trên cluster k3d cục bộ đặt ngân sách 60 token cho key tìm kiếm: khi tiêu hết, các lời gọi thất bại với HTTP 422 và `Budget has been exceeded`, còn lời gọi tới một alias ngoài `models` của key nhận 403. Một lần thử trên LiteLLM v1.108.0 gửi 5,55 giây audio, và mức chi của `server-stt` tăng 0,00000555. LiteLLM hỏi `ai-models` định dạng `verbose_json` khi bên gọi không nêu `response_format`, và tính giá mỗi lời gọi giọng nói theo trường `duration` mà câu trả lời `json` và `verbose_json` mang theo. Câu trả lời `text` không có duration và có giá 0, nên server không được hỏi `text`.
-
-## Job tạo key
-
-Các key được tạo bởi Job `ai-gateway-keys`, một Sync hook của Argo CD ở wave 1 của `ai-<stack>`, sau khi `ai-gateway` (wave 0) sẵn sàng. `chart/templates/gateway-keys.yaml` render nó từ `gateway.keys`. Pod của nó chạy `curlimages/curl` và làm như sau cho từng key:
-
-```mermaid title="ai-gateway-keys ở mỗi lần sync, cho từng key"
-flowchart TD
-  start["Sync hook ai-gateway-keys"] --> update["POST /key/update<br/>key = giá trị của key trong Secret của nó"]
-  update -->|200| ok["log: key server-llm: HTTP 200"]
-  update -->|not 200| generate["POST /key/generate<br/>cùng giá trị key"]
-  generate -->|200| ok
-  generate -->|not 200| fail["log mã trạng thái và message<br/>exit 1, thử lại tối đa 10 lần"]
-```
-
-Hai lời gọi gửi cùng một body: giá trị của key lấy từ Secret mà trường `secret` của key ghi, `key_alias` (tên key), `models`, `max_budget`, `budget_duration: 1d`, và `tpm_limit` hoặc `rpm_limit`. Chúng xác thực bằng master key trong `litellm-secrets`. Một lần sync thành công ghi một dòng `key <tên>: HTTP 200` cho mỗi key, tổng cộng bảy dòng.
-
-Giá trị của các key được cố định từ trước: lệnh seal sinh chúng rồi seal vào `server-secrets` và `agent-secrets`, và Job ghi đúng các giá trị đó vào LiteLLM. Chạy Job hai lần cho cùng một kết quả. Khi mất database của gateway, lời gọi update thất bại, lời gọi generate tạo lại key với giá trị bên gọi đang giữ, và bên gọi không phải khởi động lại. Một key đổi tên trong `gateway.keys` vẫn giữ giá trị, nên `/key/update` của lần sync sau tìm thấy nó theo giá trị và đổi alias; trên v1.108.0 ngày 2026-11-10, key được đổi tên giữ nguyên mức chi.
-
-Câu trả lời của LiteLLM chứa key, nên Job chỉ log mã HTTP. Khi thất bại, nó in thêm trường `message` của câu trả lời.
-
-```bash
-kubectl -n shopnexus-dev logs job/ai-gateway-keys
-```
-
-`argocd.argoproj.io/hook-delete-policy: BeforeHookCreation` giữ Job của lần chạy trước cho tới khi lần sync sau thay nó.
-
-## Database của gateway
-
-LiteLLM lưu key và mức chi trong Postgres, ở một database riêng trên cluster CNPG `postgres` của stack. Chart của stack tạo database đó, vì Postgres thuộc về stack:
-
-- `postgres.yaml` trong `infra/stack` khai báo một managed role `litellm` lấy mật khẩu từ Secret `litellm-db`, và một `Database` của CNPG tên `litellm` do role đó sở hữu (wave 1 của stack).
-- `ai-gateway` ghép `DATABASE_URL=postgresql://litellm:$(DB_PASSWORD)@postgres-rw:5432/litellm` từ `gateway.database`.
-- Image là `ghcr.io/berriai/litellm-database:v1.108.0`, bản LiteLLM có dùng database.
-
-Dữ liệu của server nằm trong database `app` của cùng cluster. Role `litellm` chỉ sở hữu `litellm`.
+Chart cho Bifrost `BIFROST_DB_HOST=postgres-rw`, `BIFROST_DB_USER=bifrost` và `BIFROST_DB_PASSWORD` từ `bifrost-db`. Lịch sử mức chi của LiteLLM không được chuyển sang. CNPG không xóa database hay role mà chart thôi khai báo, nên database và role `litellm` cũ phải được xóa bằng tay một lần; xem [Runbook](/vi/operations/cluster/runbook#sau-khi-chuyển-sang-bifrost).
 
 ## Secret
 
-`go -C infra run ./cmd/seal <stack>` sinh mọi giá trị dưới đây trừ `OPENROUTER_API_KEY` vào file `infra/stack/secrets/<stack>.env` (đã bị git bỏ qua). Bạn tự ghi `OPENROUTER_API_KEY`, và lệnh seal dừng với `set OPENROUTER_API_KEY` cho tới khi bạn ghi. Tên Secret `litellm-secrets` và `litellm-db` giữ như trước khi có hub.
+`go -C infra run ./cmd/seal <stack>` sinh ba giá trị Bifrost dưới đây vào `infra/stack/secrets/<stack>.env`. Bạn tự ghi hai key của nhà cung cấp.
 
 | Giá trị trong `<stack>.env` | Seal vào | Ai đọc |
 |---|---|---|
-| `LITELLM_MASTER_KEY` | `litellm-secrets` | `ai-gateway`, Job `ai-gateway-keys`, bạn trong admin UI |
-| `OPENROUTER_API_KEY` | `litellm-secrets` | `ai-gateway`, khi gọi OpenRouter |
-| `LITELLM_DB_PASSWORD` | `litellm-db` (basic-auth), khóa `password` | CNPG cho role, `ai-gateway` cho `DATABASE_URL` |
-| `LLM_API_KEY`, `STT_API_KEY`, `ASSIST_LLM_API_KEY`, `TRUST_LLM_API_KEY`, `EMBED_INDEX_API_KEY`, `EMBED_SEARCH_API_KEY` | `server-secrets` | server; Job `ai-gateway-keys` |
-| `AGENT_LLM_API_KEY` | `agent-secrets` | console agent; Job `ai-gateway-keys` |
+| `BIFROST_ADMIN_PASSWORD` | `bifrost-secrets` | Bifrost; server dưới tên `GATEWAY_ADMIN_PASSWORD`; bạn trong UI |
+| `BIFROST_ENCRYPTION_KEY` | `bifrost-secrets` | Bifrost, dùng nó để mã hóa những gì nó lưu |
+| `LLM_UPSTREAM_API_KEY` | `bifrost-secrets` | Bifrost, cho nhà cung cấp `upstream` |
+| `OPENROUTER_API_KEY` | `bifrost-secrets` | Bifrost, cho nhà cung cấp `openrouter` |
+| `BIFROST_DB_PASSWORD` | `bifrost-db`, kèm `username: bifrost` | CNPG cho role, Bifrost |
 
-`ai-gateway` thuộc một Application khác với secret của stack và không mang checksum của chúng. Sau khi seal lại `litellm-secrets` hay `litellm-db`, khởi động lại nó bằng tay:
+<Callout type="danger" title="Không bao giờ đổi khóa mã hóa">
+Một `BIFROST_ENCRYPTION_KEY` mới khiến mọi thứ Bifrost đã lưu không đọc được nữa. Trên dev, nó được seal trên máy chủ của cluster. Hãy chép nó và `BIFROST_ADMIN_PASSWORD` vào `dev.env` của bạn trước mọi lần chạy đầy đủ `seal dev`; [Runbook](/vi/operations/cluster/runbook#khóa-mã-hóa-của-bifrost) có các lệnh.
+</Callout>
 
-```bash
-kubectl -n shopnexus-dev rollout restart deploy/ai-gateway
-```
+Server đọc `GATEWAY_URL=http://bifrost:8080` và `GATEWAY_ADMIN_USERNAME=admin` từ `infra/stack/env/server.env`. Agent đọc `GATEWAY_BASE_URL=http://bifrost:8080/v1` từ `infra/stack/env/agent.env`. Các key bên gọi thời LiteLLM (`LLM_API_KEY`, `ASSIST_LLM_API_KEY`, `TRUST_LLM_API_KEY`, `EMBED_*_API_KEY`, `AGENT_LLM_API_KEY`) đã bỏ khỏi `server-secrets` và `agent-secrets`.
 
-Một key chart có nêu mà Secret của nó không có khiến pod `ai-gateway-keys` không khởi động được, và lần sync `ai-<stack>` dừng ở wave 1: seal lại và push secret trước khi commit `ai` thêm key tới `main`. [Secret](/vi/operations/cluster/secrets) mô tả cách lệnh seal và controller seal chúng.
+## Mạng
 
-## Khi hết ngân sách
+`default-deny-ingress` cũng áp cho Bifrost, và `from-stack` không gồm nó. Hai policy trong `infra/stack/templates/networkpolicy.yaml` nêu nó:
 
-Gateway từ chối một key đã tiêu hết bằng HTTP 422 và `Budget has been exceeded`. Khi credit OpenRouter của stack đã hết, nó chuyển nguyên mã 402 của OpenRouter. Client LLM của server coi 402 như 429, một lỗi tạm thời, và client embed của nó thử lại. `isBudgetError` của console agent coi 402 là hết ngân sách, như với `budget_exceeded` của chính LiteLLM.
+| Policy | Cho phép |
+|---|---|
+| `to-bifrost` | cổng 8080 từ server, console agent và Prometheus của cluster |
+| `bifrost-egress` | DNS; Postgres ở 5432; cổng của upstream ở mọi địa chỉ; 443 chỉ tới địa chỉ công khai (OpenRouter, và `getbifrost.ai` cho bảng giá) |
 
-Tìm kiếm của server không hỏng khi mô hình hỏng. `Search` trong `server/internal/discovery/service/search.go` cho mô hình 4 giây. Gặp bất kỳ lỗi nào, kể cả bị từ chối vì hết ngân sách hay vượt giới hạn tốc độ, nó ghi log mức warn `the model did not read the query` kèm lỗi, rồi tìm bằng đúng những từ người dùng gõ.
+NetworkPolicy không nêu được tên máy, nên chart đọc cổng của upstream từ `LLM_UPSTREAM_BASE_URL` và mở cổng đó. `from-traefik` cho Traefik vào để phục vụ host dashboard. Bifrost tải bảng giá khi khởi động và vẫn khởi động khi không tải được; giá của server đã phủ mọi mô hình đang dùng.
 
-```mermaid title="Tìm kiếm khi ai-gateway từ chối"
-sequenceDiagram
-  participant App as app
-  participant S as server
-  participant G as ai-gateway
-  App->>S: GET /v1/search?q=...
-  S->>S: tra cache (7 ngày)
-  S->>G: chat/completions, model search
-  G-->>S: 422 Budget has been exceeded, hoặc 402
-  S->>S: log "the model did not read the query"
-  S->>S: tìm các từ gốc như một cụm
-  S-->>App: 200, danh sách tin, không có chip
-```
+## Metric và cảnh báo
 
-Người dùng vẫn nhận một trang tin đăng, khớp theo các từ họ đã gõ. Trang không có chip, và không có các boost về danh mục, giá, nơi chốn hay độ mới mà mô hình lẽ ra đọc ra từ câu truy vấn. Một câu truy vấn mô hình đã đọc trong 7 ngày qua được lấy từ cache của server và giữ nguyên phần hiểu của nó. Lỗi của server khi câu trả lời khác 200 là `model answered <status>`, nên hết ngân sách ghi `model answered 422` và hết credit ghi `model answered 402`.
+Dashboard platform của Grafana và các cảnh báo của cluster đọc metric của Bifrost: `bifrost_success_requests_total`, `bifrost_error_requests_total`, `bifrost_upstream_latency_seconds`, `bifrost_cost_total` và `bifrost_provider_key_up`, gắn nhãn `team_name`, tức agent. Hai cảnh báo theo dõi chúng: `sn-bifrost-failing`, tỉ lệ lời gọi thất bại trong 10 phút, và `sn-bifrost-key-down`, một key của nhà cung cấp có lần gọi gần nhất thất bại suốt 10 phút.
 
-Lời gọi vượt giới hạn token mỗi phút cũng lỗi, và tìm kiếm quay về các từ gốc cho tới khi sang phút mới. [Tìm kiếm và khám phá](/vi/architecture/search-and-discovery) liệt kê các boost mà mô hình có thể đặt.
+## Dashboard
 
-## ai-models
-
-`ai-models` gồm một Deployment và một Service ở cổng 8000, không có Ingress và không có xác thực; `from-stack` cho các pod của stack đi vào. Alias `stt` và `embed-image` của gateway gọi nó, còn server gọi thẳng route khung hình của nó. Thiết lập của nó là `models.*` trong `chart/values.yaml`.
-
-### Chuyển giọng nói thành văn bản
-
-`ai-models` phục vụ `POST /v1/audio/transcriptions` của OpenAI bằng Gipformer 1.5, một mô hình tiếng Việt 68,6 triệu tham số, chạy trên CPU. Nó nhận mọi file audio hay video mà ffmpeg đọc được, tối đa 100 MB và 300 giây audio (`models.maxUploadMB`, `models.maxAudioSeconds`). Silero VAD cắt phần có tiếng nói tại các khoảng lặng thành các đoạn dài tối đa 20 giây, và câu trả lời là văn bản chữ thường, không dấu câu. Mỗi lúc có hai request được giải mã (`models.maxConcurrent`), các request khác chờ.
-
-Server gọi `stt` khi đọc video của người bán (module assist). Nó xin `response_format: json`, nên LiteLLM tính giá lời gọi theo `duration`.
-
-Để chuyển `stt` sang nhà cung cấp khác, đặt `gateway.aliases.stt.model` là chuỗi mô hình LiteLLM của nhà cung cấp đó, ví dụ `groq/whisper-large-v3`, và `gateway.aliases.stt.apiBase` là base URL của họ; thêm key của nhà cung cấp vào `litellm-secrets` và ghi tên nó vào `gateway.aliases.stt.apiKeySecret`. Server vẫn hỏi `stt` như cũ.
-
-`ai-models` ghi một dòng log cho mỗi request, không kèm nội dung transcript:
+Host dashboard `bifrost.<domain>` của stack, nằm sau phần đăng nhập của console, dẫn tới `bifrost:8080`. Đăng nhập UI của Bifrost với user `admin` và `BIFROST_ADMIN_PASSWORD`:
 
 ```bash
-kubectl -n shopnexus-dev logs deploy/ai-models
+kubectl -n shopnexus-dev get secret bifrost-secrets -o jsonpath='{.data.BIFROST_ADMIN_PASSWORD}' | base64 -d; echo
 ```
 
-### Khung hình video
-
-`POST /v1/video/frames` không phải route của OpenAI, nên server gọi nó ở `AI_FRAMES_BASE_URL`, không có key, và gateway không tính gì cho nó. Nó nhận video dài 3 đến 35 giây (`models.framesMaxSeconds`), giải mã 2 khung mỗi giây với cạnh dài tối đa 1600 px, bỏ các khung có phương sai Laplacian dưới `models.framesMinSharpness` và các khung lặp lại khung khác, rồi trả về tối đa 8 ảnh JPEG rải đều trên video. Mỗi lúc có hai request cắt khung (`models.framesMaxConcurrent`), ngoài hai request giải mã giọng nói. Ngày 2026-11-10, hai request cắt khung của một video 1080p dài 30 giây và hai request chép lời cùng lúc đưa pod lên 2,42 GiB.
-
-### Embedding ảnh
-
-`ai-models` phục vụ `POST /v1/embeddings` bằng SigLIP 2 (`siglip2-so400m-patch16-384`, ONNX fp32, 1152 chiều) khi `models.embedModels` ghi tên nó. Input bắt đầu bằng `data:image/` là ảnh; mọi input khác là chữ cho text tower của SigLIP. Weights nặng 4,5 GB. Khi `models.embedModels` rỗng, `ai-models` không nạp SigLIP 2, và `/v1/embeddings` trả 404 `model_not_found`.
-
-| Stack | `models.embedModels` | Bộ nhớ xin, giới hạn | Số đo |
-|---|---|---|---|
-| dev | rỗng | 2Gi, 3Gi | chỉ giọng nói và khung hình đạt đỉnh 2,42 GiB ngày 2026-11-10 |
-| prod | `siglip2-so400m-patch16-384=/models/siglip2-so400m-patch16-384` | 6Gi, 8Gi | 4,0 GiB lúc rảnh và 5,3 GiB với 16 ảnh, ngày 2026-11-10 |
-
-Dev không nạp SigLIP 2 vì máy dev không còn chỗ cho nó (2026-11-17). Values của stack dev đặt `server.embed.image: false`, nên server không ghi và không truy vấn vector ảnh ở đó. `infra/check.sh` báo lỗi khi vector ảnh của một stack bật mà `ai-models` của nó không có SigLIP 2, hoặc tắt mà có.
-
-## Vector và version của chúng
-
-Server lưu `EMBED_TEXT_VERSION` và `EMBED_IMAGE_VERSION` cùng mỗi vector. Cả hai nằm trong `infra/stack/env/server.env`, file mà chart của cluster và `docker-compose.yml` ở gốc cùng đọc. Một mô hình mới cần một version mới trong cùng thay đổi: server khi đó coi các vector đã lưu là thiếu, và `go run ./cmd/search-reindex -every 2s` trong server embed lại mọi tin đăng, mỗi 2 giây một tin.
-
-`EMBED_TEXT_VERSION` giữ nguyên `bge-m3@5617a9f61b028005a4858fdac845db406aefb181` khi `embed-text` chuyển từ TEI sang OpenRouter, vì vector của DeepInfra khớp. Một văn bản dài hơn 2048 token cho cosine 0,90, vì TEI cắt input ở 2048 token còn OpenRouter thì không. Server cắt chữ của tin đăng ở 2.000 ký tự (`EmbeddingTextMax`), dưới 2048 token.
-
-Mỗi loại vector có thể tắt. `server.embed.text` và `server.embed.image` trong values của stack bật hay tắt nó, và một loại bị tắt nhận `EMBED_*_MODEL`, `EMBED_*_BASE_URL` và `EMBED_*_VERSION` rỗng. Server khi đó không ghi vector loại đó và bỏ danh sách của nó khỏi tìm kiếm; BM25 luôn chạy. Tìm `photo` khi vector ảnh tắt trả 503 `search_unavailable`.
+Dùng UI để đọc log và mức chi của từng team. Mọi thay đổi làm trong console.
 
 ## Stack cục bộ
 
-`docker-compose.yml` ở gốc chạy `ai-models-dev` ở 127.0.0.1:56491 và `ai-models-prod` ở 127.0.0.1:56490, không có gateway và không có TEI. Server gọi thẳng `ai-models-<stack>` cho vector ảnh, giọng nói và khung hình, và gọi mô hình là `siglip2-so400m-patch16-384`; `ai-models` không cần key và bỏ qua key được gửi. Với vector chữ, nó đọc `EMBED_TEXT_BASE_URL`, `EMBED_TEXT_MODEL`, `EMBED_INDEX_API_KEY` và `EMBED_SEARCH_API_KEY` từ `server/.env`: `baai/bge-m3` của OpenRouter với khóa OpenRouter của bạn, hoặc `EMBED_TEXT_MODEL` rỗng, tức tắt vector chữ. `infra/check.sh` báo lỗi khi các thiết lập `AI_*` của file compose khác `models.*` trong chart `ai`.
+`docker-compose.yml` ở gốc chạy `bifrost-dev` và `bifrost-prod` với cùng image, `config.json`, `start.sh` và `env/bifrost.env`, trả lời dưới tên `bifrost` trong stack của chúng. Chúng không có host: chỉ server và agent gọi chúng. `bifrost-keys-<stack>` thêm `BIFROST_ADMIN_PASSWORD`, `BIFROST_ENCRYPTION_KEY` và `GATEWAY_ADMIN_PASSWORD` vào volume key khi còn thiếu, và `bifrost-db-<stack>` tạo database `bifrost`. Key của nhà cung cấp lấy từ `infra/stack/secrets/compose.env`. Các khối `x-bifrost-env-<stack>` của compose đặt `BIFROST_DB_HOST`, `BIFROST_DB_USER` và `BIFROST_DB_PASSWORD`.
 
-## Smoke test
-
-`infra/smoke-models.sh <stack>` port-forward `svc/ai-gateway` và gọi mọi alias bằng key của server: `search`, `listing-read` với một ảnh, `scam-check`, `stt` với một đoạn audio im lặng, `embed-text` (1024 chiều), và `embed-image` với một ảnh và với một đoạn chữ (1152 chiều). Nó bỏ qua các lời gọi `embed-image` khi `EMBED_IMAGE_MODEL` của stack rỗng. Sau đó nó kiểm tra `server-llm` bị từ chối `embed-text`, `server-assist` và `server-trust` bị từ chối `search`, mỗi lần bằng 403. Nó cần `hurl` và `kubectl`.
-
-## Đổi mô hình hoặc nhà cung cấp
-
-Bên gọi luôn hỏi cùng các alias. Để đổi thứ trả lời `search`:
+## Đổi mô hình hoặc ngân sách
 
 <Steps>
-<Step title="Sửa values">
-Trong `chart/values.yaml` của repo `ai`, đặt `gateway.aliases.search.model` là chuỗi mô hình của LiteLLM, kèm tiền tố nhà cung cấp (`openai/anthropic/claude-haiku-5.5`), và `gateway.aliases.search.apiBase` là base URL tương thích OpenAI của nó. Để chỉ đổi một stack, đặt chúng dưới `gateway.aliases.search` trong `valuesObject` của `ai-<stack>` ở `infra/argocd/ai.yaml`. Chart từ chối render nếu một trong hai để trống.
+<Step title="Mở agent trong console">
+Trong **Settings**, mở agent. Chọn nhà cung cấp và mô hình, thêm mô hình dự phòng nếu cần, rồi đặt ngân sách tháng và giới hạn tốc độ của các bên gọi.
 </Step>
-<Step title="Thêm key của nhà cung cấp">
-Với nhà cung cấp khác OpenRouter, thêm key của họ vào `infra/stack/secrets/<stack>.env` và vào `litellm-secrets` trong lệnh seal, ghi tên nó vào `apiKeySecret`, seal lại cả hai stack rồi push, và khởi động lại `ai-gateway`.
+<Step title="Kiểm tra giá">
+Mô hình cần có giá. Bộ chọn mô hình điền sẵn giá trong danh mục của Bifrost; sửa nó trên mô hình nếu giá niêm yết khác.
 </Step>
-<Step title="Chạy test và push">
-Chạy `helm unittest chart` trong repo `ai`, commit rồi push lên `main` của nó. Argo CD sync `ai-dev`; `ai-prod` nhận thay đổi cùng bản phát hành tiếp theo. Annotation `checksum/config` trên pod của `ai-gateway` đổi theo cấu hình, nên gateway khởi động lại với mô hình mới.
-</Step>
-<Step title="Kiểm tra một lần tìm kiếm">
-Tìm một thứ gì đó trên stack và đọc log của server. Dòng `the model did not read the query` nghĩa là mô hình mới thất bại.
+<Step title="Lưu">
+Server đối soát Bifrost ngay. Không cần khởi động lại và không cần image mới.
 </Step>
 </Steps>
 
-Server yêu cầu response format `json_schema` chặt. Mô hình bỏ qua nó sẽ trả văn bản server không giải mã được, và tìm kiếm quay về chữ gốc ở mọi câu truy vấn. Để đổi `embed-text` hay `embed-image`, xem [Vector và version của chúng](#vector-và-version-của-chúng): version của vector đổi theo mô hình.
+Server yêu cầu response format `json_schema` chặt. Mô hình bỏ qua nó sẽ trả văn bản server không giải mã được, và tìm kiếm quay về chữ gốc ở mọi câu truy vấn. Một mô hình `embed-text` mới còn cần `EMBED_TEXT_VERSION` mới và một lần index lại.
 
-## Đổi ngân sách
+## Thêm nhà cung cấp hoặc key của nhà cung cấp
 
 <Steps>
-<Step title="Sửa values của stack">
-Trong `infra/argocd/ai.yaml`, dưới `valuesObject` của `ai-dev` hoặc `ai-prod`, đổi `dailyUnits` hoặc `tpmLimit`, `rpmLimit` của một key dưới `gateway.keys`. Ngân sách theo ngày của agent nằm trong `chart/values.yaml` của repo `ai`.
+<Step title="Sửa cấu hình">
+Thêm nhà cung cấp vào `providers` trong `infra/stack/bifrost/config.json`, với key là `env.<NAME>`.
+</Step>
+<Step title="Seal key">
+Thêm `<NAME>` vào `bifrost-secrets` trong `infra/cmd/seal/main.go`, vào danh sách env trong `templates/bifrost.yaml` và vào `infra/stack/secrets/example.env`; ghi giá trị vào `<stack>.env` và `compose.env`, rồi seal từng stack.
+</Step>
+<Step title="Mở mạng">
+Nếu nhà cung cấp không ở cổng 443 trên địa chỉ công khai, nới `bifrost-egress`.
 </Step>
 <Step title="Kiểm tra và push">
-Chạy `infra/check.sh`, lệnh này render chart `ai` với values của từng stack, rồi commit và push repo tổng. `root` cập nhật Application, `ai-<stack>` sync, và Job `ai-gateway-keys` chạy `/key/update` trên mọi key với giới hạn mới.
-</Step>
-<Step title="Kiểm tra Job">
-`kubectl -n shopnexus-dev logs job/ai-gateway-keys` in một dòng `key <tên>: HTTP 200` cho mỗi key.
+Chạy `infra/check.sh` và `helm unittest stack` trong `infra/`, rồi commit và push. Bifrost khởi động lại với cấu hình mới, và nhà cung cấp hiện trên trang Providers của console.
 </Step>
 </Steps>
 
-## Thêm một alias mô hình
-
-Một alias là một mục của `gateway.aliases`, và một key chỉ tới được các alias trong `models` của nó:
-
-1. Thêm mục vào `gateway.aliases` trong `chart/values.yaml` của repo `ai`, với `model`, `apiBase`, `price` (`token`, `second` hoặc `usd`), và `apiKeySecret`, `mode`, `extraBody`, `inputCostPerToken` và `outputCostPerToken` khi cần.
-2. Thêm tên của nó vào `models` của key gọi nó. Với một bên gọi mới, thêm một mục vào `gateway.keys` với `secret` (`name` và `key` trong Secret của bên gọi) và `models`, đặt `dailyUnits` và `tpmLimit` hoặc `rpmLimit` cho từng stack trong `infra/argocd/ai.yaml`, rồi thêm key vào danh sách key lệnh seal sinh ra và vào Secret của bên gọi.
-3. Chạy `helm unittest chart` trong repo `ai` và `infra/check.sh` trong repo tổng trước khi push. Chart từ chối một key nêu alias không tồn tại, một key gồm alias tính giá theo đơn vị khác nhau, một key không có giới hạn nào, và một alias không có model.
-
-Alias mới chỉ được dùng bởi bên gọi nào hỏi tới nó.
-
-## Admin UI và mức chi
-
-Host dashboard `litellm.<domain>` của stack, nằm sau phần đăng nhập của console, dẫn tới Service `ai-gateway`. Từ shell, dùng port-forward và master key:
-
-```bash
-kubectl -n shopnexus-dev get secret litellm-secrets -o jsonpath='{.data.LITELLM_MASTER_KEY}' | base64 -d; echo
-kubectl -n shopnexus-dev port-forward svc/ai-gateway 4000:4000
-```
-
-Mở `http://localhost:4000/ui` và đăng nhập với user `admin`, mật khẩu là master key. UI liệt kê các key có alias `server-llm`, `server-stt`, `server-assist`, `server-trust`, `server-embed-index`, `server-embed-search` và `agent`, mỗi key kèm mức chi, ngân sách và thời điểm reset. Với prod, dùng `shopnexus-prod`.
-
-Để đọc mức chi từ shell trong lúc port-forward đang chạy:
-
-```bash
-master=$(kubectl -n shopnexus-dev get secret litellm-secrets -o jsonpath='{.data.LITELLM_MASTER_KEY}' | base64 -d)
-key=$(kubectl -n shopnexus-dev get secret server-secrets -o jsonpath='{.data.LLM_API_KEY}' | base64 -d)
-curl -s "http://localhost:4000/key/info?key=$key" -H "Authorization: Bearer $master"
-```
-
-`info.spend` tính bằng đơn vị ngân sách: mức chi `0.05` trên `server-llm` là 50.000 token trong ngày, trên `agent` là 0,05 USD. `info.max_budget` là giới hạn của ngày, `info.budget_reset_at` là lần reset kế tiếp.
-
 <KeyRules>
-- Bên gọi chỉ gọi các alias của `gateway.aliases`; mô hình đứng sau mỗi alias được đặt trong `chart/values.yaml` của repo `ai`.
-- Ngân sách được đặt theo stack trong `infra/argocd/ai.yaml`, bằng token, giây hoặc phần triệu đô la.
-- Index và tìm kiếm embed bằng hai key riêng, `server-embed-index` và `server-embed-search`.
-- Giá trị key đến từ lệnh seal; Job `ai-gateway-keys` chỉ ghi chúng vào LiteLLM.
-- Sau khi seal lại `litellm-secrets`, `ai-gateway` chỉ khởi động lại bằng tay.
-- `embed-text` giữ ghim DeepInfra chừng nào `EMBED_TEXT_VERSION` còn ghi bge-m3 của TEI.
+- Bên gọi luôn gửi `provider/model`; alias của Bifrost không được dùng.
+- Server là bên duy nhất ghi team, virtual key, ngân sách và giá ghi đè; `config.json` giữ các nhà cung cấp.
+- `config.json` không có phần `governance` nào khác `auth_config`.
+- Ngân sách tính theo tháng cho mỗi agent, bằng USD; giới hạn tốc độ tính cho mỗi bên gọi.
+- `BIFROST_ENCRYPTION_KEY` không bao giờ đổi khi stack đã có dữ liệu.
+- `embed-text` giữ ghim DeepInfra chừng nào `EMBED_TEXT_VERSION` còn ghi bge-m3.
 </KeyRules>

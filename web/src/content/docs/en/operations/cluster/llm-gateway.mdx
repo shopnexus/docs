@@ -1,386 +1,231 @@
 ---
-title: AI hub
-description: The ai repo as the AI hub of each stack. ai-gateway (LiteLLM) with its aliases, keys and daily budgets, ai-models for speech to text, photo embeddings and video frames, OpenRouter upstream, and how to change a model, a budget or an alias.
+title: Bifrost gateway
+description: Bifrost, each stack's door to the remote models. Who owns the providers, the agents, the keys and the budgets, the config file, the database, the secrets, the network, the metrics, and how to change a model, a budget or a provider.
 group: Cluster
 order: 7
 groupOrder: 2
 audience: [admins, developers]
 type: concept
-readingTime: 13
-updated: 2026-11-17
-related: ["/en/operations/cluster/secrets", "/en/operations/cluster/data", "/en/operations/cluster/runbook", "/en/architecture/search-and-discovery"]
+readingTime: 9
+updated: 2026-11-26
+related: ["/en/operations/cluster/secrets", "/en/operations/cluster/data", "/en/operations/cluster/runbook", "/en/agent/setup", "/en/architecture/search-and-discovery"]
 ---
 
-Search asks a language model what a query means, a listing read turns a seller's video or photo into a draft, and photo search compares embeddings of text and photos. In the cluster no client calls a model provider itself. Each stack runs the AI hub from the `ai` repo (`shopnexus/ai`): `ai-gateway`, a LiteLLM proxy with an OpenAI-compatible API, and `ai-models`, the Go service with the models ShopNexus hosts itself. The design is in `docs/superpowers/specs/2026-11-17-ai-hub-design.md`.
+Search asks a language model what a query means, a listing read turns a seller's video or photo into a draft, a scam check reads a chat, and the console agent answers moderators. None of them calls a model provider itself. Each stack runs Bifrost (`maximhq/bifrost:v2.6.0`), a gateway with an OpenAI-compatible API, as the Service `bifrost` on port 8080. The design is in `docs/superpowers/specs/2026-11-26-bifrost-gateway-design.md`.
 
-The clients are the server and the console agent. Each names a purpose, an alias such as `search`, and holds a virtual key per purpose with a daily budget. Each stack has its own gateway, keys and budgets, so a loop in dev cannot use up the prod allowance.
+Bifrost replaced LiteLLM on 2026-11-26. LiteLLM took up to 1 GiB and about 45 s to get ready, and came from the Python and PyPI supply chain. Bifrost is one Go binary: in a test on 2026-11-26 it used 260 to 440 MiB and started in 1 to 2 s, or 20 s on an empty database while it ran its migrations.
 
-| Alias | Upstream | Model | Used for |
+Speech to text, photo vectors and video frames do not go through Bifrost. They are the server's module ai, which runs in `server-ai` and is called through Restate.
+
+## Agents
+
+An agent is one purpose that calls a model. The server's `ai_agents` table holds them, and a server migration seeds these:
+
+| Agent | Model | Callers | Used for |
 |---|---|---|---|
-| `search` | OpenRouter | `anthropic/claude-haiku-5.5` | reading a search query |
-| `listing-read` | OpenRouter | `anthropic/claude-haiku-5.5` | reading a seller's video frames and words, one photo, or a Chợ Tốt listing into a draft |
-| `scam-check` | OpenRouter | `anthropic/claude-haiku-5.5` | checking a chat window for scams |
-| `console-agent` | OpenRouter | `anthropic/claude-sonnet-5.5` | the console agent |
-| `embed-text` | OpenRouter, DeepInfra only | `baai/bge-m3`, 1024 dimensions | text vectors of listings and queries |
-| `embed-image` | `ai-models` | `siglip2-so400m-patch16-384`, 1152 dimensions | photo vectors, and short English texts for SigLIP's text tower |
-| `stt` | `ai-models` | `gipformer-1.5` | speech to text in a video read |
+| `console-agent` | `upstream/claude-sonnet-5-5` | `console-agent` | the console agent |
+| `scam-check` | `upstream/claude-haiku-5-5` | `server-trust` | checking a chat window for scams |
+| `listing-read` | `upstream/claude-haiku-5-5` | `server-assist` | reading a seller's video, photo or Chợ Tốt listing into a draft |
+| `search` | `openrouter/google/gemini-2.5-flash` | `server-search` | reading a search query |
+| `embed-text` | `openrouter/baai/bge-m3`, DeepInfra only | `server-embed-index`, `server-embed-search` | text vectors of listings and queries |
 
-Each alias is an entry of `gateway.aliases` in the `ai` repo's `chart/values.yaml`. Changing the model behind one needs no new server image.
+A model is always `provider/model`. A bare model name is ambiguous once two providers list it, so callers never send one, and Bifrost's aliases are not used. Each agent also has fallbacks (more `provider/model` entries, none seeded), a monthly budget in USD (100 for `console-agent`, 30 for the others) and a rate limit per caller.
+
+## Who owns what
+
+| What | Owner | Where |
+|---|---|---|
+| Providers: base URL, API key, retries, timeouts | infra | `infra/stack/bifrost/config.json`; the keys in the Secret `bifrost-secrets` |
+| Agents: model, fallbacks, price per model, monthly budget, callers and their rate limits | server | its database, seeded by a migration and edited in the console |
+| Teams, virtual keys, budgets, rate limits and pricing overrides in Bifrost | server | written by the server's reconciler; nobody else writes them |
+| Measured spend, logs, metrics | Bifrost | its logs store, which the server reads; `/metrics` for Prometheus |
+
+The console's Providers page is read-only. A new provider or a new provider key is an infra change. Everything about an agent is edited in the console, and the server writes it into Bifrost.
 
 ## Deployment
 
-The `ai` repo holds a Helm chart in `chart/`. The umbrella deploys it once per stack with two Argo CD Applications in `infra/argocd/ai.yaml`, `ai-dev` into `shopnexus-dev` and `ai-prod` into `shopnexus-prod`. Each has one source, the `ai` repo's `chart/`, `ai-dev` at `main` and `ai-prod` at the ai commit of the umbrella's release, and sets the stack's own values inline in `spec.source.helm.valuesObject`. `root` creates them in wave 2, after the stack Applications in wave 1, whose Postgres holds the gateway's database and whose sealed secrets hold the keys.
+`infra/stack/templates/bifrost.yaml` renders a ConfigMap `bifrost-config` from `bifrost/config.json` and `bifrost/start.sh`, a Deployment `bifrost` with one replica in sync wave 2, and the Service `bifrost`. The probes call `/health`. The pod requests 64Mi and is limited to 512Mi. The startup probe allows two minutes, since an empty database takes about 20 s of migrations.
 
-```mermaid title="What ai-dev renders into shopnexus-dev"
-flowchart TB
-  app["Application ai-dev<br/>repo shopnexus/ai, chart/, main<br/>+ valuesObject in infra/argocd/ai.yaml"]
-  app -->|wave 0| gw["Deployment and Service ai-gateway<br/>ghcr.io/berriai/litellm-database:v1.108.0<br/>ConfigMap ai-gateway-config"]
-  app -->|wave 0| models["Deployment and Service ai-models<br/>ghcr.io/shopnexus/ai"]
-  app -->|"wave 1, Sync hook"| job["Job ai-gateway-keys<br/>curlimages/curl"]
-  gw --> db[("postgres-rw<br/>database litellm")]
-```
-
-| Values | Where | Holds |
-|---|---|---|
-| the hub's choices | `chart/values.yaml` in the `ai` repo | the aliases and their models, the images, the keys and the aliases each may call, the settings of `ai-models` |
-| the stack's | `valuesObject` of `ai-<stack>` in `infra/argocd/ai.yaml` | `stack`, every key's `dailyUnits` and `tpmLimit` or `rpmLimit`, `models.embedModels`, `models.memoryRequest` and `models.memoryLimit` |
-
-The chart refuses to render without the stack's values. Image Updater moves the `ai-models` image on `ai-dev` by the digest of `:main`. On `ai-prod` the umbrella's Release workflow writes the ai commit and `images.models.tag` ([Releases](/en/operations/cluster/releases)). A change to the chart or to `chart/values.yaml` reaches dev as soon as it is on the `ai` repo's `main`, and prod with the next release.
-
-## Request path
-
-```mermaid title="One search query, from the server to the model"
+```mermaid title="Bifrost in a stack"
 flowchart LR
-  server["server pod<br/>LLM_MODEL=search"] -->|"POST /v1/chat/completions<br/>Bearer LLM_API_KEY"| gw["ai-gateway:4000<br/>alias search"]
-  gw -->|"checks key, budget, tpm"| db[("Postgres<br/>database litellm")]
-  gw -->|"openai/anthropic/claude-haiku-5.5<br/>Bearer OPENROUTER_API_KEY"| or["OpenRouter<br/>openrouter.ai/api/v1"]
+  server["server pods"] -->|"virtual key per caller"| bf["bifrost:8080"]
+  agent["console agent"] -->|"the run's virtual key"| bf
+  rec["server's reconciler"] -->|"admin API, Basic auth"| bf
+  bf --> up["upstream<br/>claude-*"]
+  bf --> or["OpenRouter<br/>gemini, bge-m3"]
+  bf --> db[("Postgres<br/>database bifrost")]
 ```
 
-```mermaid title="A video read, from the server to ai-models and the model"
-flowchart LR
-  server["server pod<br/>module assist"] -->|"POST /v1/video/frames<br/>no key"| models["ai-models:8000<br/>ffmpeg, frames, Gipformer"]
-  server -->|"POST /v1/audio/transcriptions, model stt<br/>Bearer STT_API_KEY"| gw["ai-gateway:4000<br/>aliases stt, listing-read"]
-  server -->|"POST /v1/chat/completions, model listing-read<br/>Bearer ASSIST_LLM_API_KEY"| gw
-  gw -->|"openai/gipformer-1.5<br/>no key"| models
-  gw -->|"openai/anthropic/claude-haiku-5.5<br/>Bearer OPENROUTER_API_KEY"| or["OpenRouter"]
+The pod's annotations carry a checksum of `config.json`, `start.sh`, `env/bifrost.env` and the stack's sealed secrets, so a change to any of them restarts Bifrost. Prometheus scrapes `/metrics` on port 8080.
+
+## The config file
+
+`config.json` holds only `client`, `governance.auth_config`, the two stores, `encryption_key` and `providers`. It sets `source_of_truth: "config.json"`, and Bifrost applies that per section: on every start it resets the providers to the file and keeps the virtual keys, teams, budgets and pricing overrides that the server made through the API. A `governance` section other than `auth_config` in the file would wipe what the server made, so `infra/check.sh` fails on one.
+
+```json title="infra/stack/bifrost/config.json, the providers"
+"upstream": {
+  "keys": [{ "name": "upstream", "value": "env.LLM_UPSTREAM_API_KEY", "models": ["*"], "weight": 1 }],
+  "network_config": {
+    "base_url": "${LLM_UPSTREAM_BASE_URL}",
+    "allow_private_network": true,
+    "default_request_timeout_in_seconds": 120,
+    "max_retries": 2
+  },
+  "custom_provider_config": { "base_provider_type": "openai", "allowed_requests": { "list_models": true, "chat_completion": true, "chat_completion_stream": true } }
+},
+"openrouter": {
+  "keys": [{ "name": "openrouter", "value": "env.OPENROUTER_API_KEY", "models": ["*"], "weight": 1 }],
+  "network_config": { "base_url": "https://openrouter.ai/api", "default_request_timeout_in_seconds": 60, "max_retries": 2 },
+  "ignore_provider_cost": true
+}
 ```
 
-```mermaid title="Embeddings, from the server to OpenRouter and ai-models"
-flowchart LR
-  server["server pod<br/>EMBED_TEXT_MODEL=embed-text<br/>EMBED_IMAGE_MODEL=embed-image"] -->|"POST /v1/embeddings<br/>Bearer EMBED_INDEX_API_KEY or EMBED_SEARCH_API_KEY"| gw["ai-gateway:4000<br/>aliases embed-text, embed-image"]
-  gw -->|"checks key, budget, rpm"| db[("Postgres<br/>database litellm")]
-  gw -->|"openai/baai/bge-m3, provider DeepInfra<br/>Bearer OPENROUTER_API_KEY"| or["OpenRouter"]
-  gw -->|"openai/siglip2-so400m-patch16-384<br/>no key"| models["ai-models:8000<br/>SigLIP 2"]
-```
+- `upstream` is a custom provider that speaks the OpenAI API. Its URL is `LLM_UPSTREAM_BASE_URL` in `infra/stack/env/bifrost.env`, without `/v1`. `allow_private_network` lets Bifrost call it on a private address.
+- `base_url` takes no `env.` reference, so the file holds the placeholder `${LLM_UPSTREAM_BASE_URL}`. `start.sh` fills it in and writes the result to Bifrost's data directory before it starts Bifrost. The chart and compose both run `start.sh`.
+- `openrouter` is Bifrost's built-in provider. `ignore_provider_cost` makes Bifrost log the cost from the server's prices, not OpenRouter's.
+- `client` turns on auth for inference (`enforce_auth_on_inference`), leaves only `/metrics` open (`whitelisted_routes`), and puts Bifrost's routing details in response headers (`extra_fields_placement: "headers"`).
+- Logs keep no request or response bodies (`disable_content_logging`), since a search photo passes through, and are kept 30 days.
+- `auth_config` protects the admin API and the UI with the user `BIFROST_ADMIN_USERNAME` (`admin`, in `env/bifrost.env`) and `BIFROST_ADMIN_PASSWORD`.
 
-The server's ConfigMap `server-env` (`infra/stack/templates/_server-env.tpl`) points every model setting at the hub:
+## Keys and budgets
 
-```yaml
-LLM_BASE_URL: http://ai-gateway:4000/v1
-LLM_MODEL: search
-ASSIST_LLM_BASE_URL: http://ai-gateway:4000/v1
-ASSIST_LLM_MODEL: listing-read
-TRUST_LLM_BASE_URL: http://ai-gateway:4000/v1
-TRUST_LLM_MODEL: scam-check
-STT_BASE_URL: http://ai-gateway:4000/v1
-STT_MODEL: stt
-AI_FRAMES_BASE_URL: http://ai-models:8000/v1
-EMBED_TEXT_BASE_URL: http://ai-gateway:4000/v1
-EMBED_IMAGE_BASE_URL: http://ai-gateway:4000/v1
-EMBED_TEXT_MODEL: embed-text
-EMBED_IMAGE_MODEL: embed-image
-EMBED_TEXT_VERSION: bge-m3@5617a9f61b028005a4858fdac845db406aefb181
-EMBED_IMAGE_VERSION: siglip2-so400m-patch16-384@29f74e673c298fd07482d8e20138179282001eb7-fp32
-```
+The server's reconciler writes Bifrost's governance objects. It runs at startup and after every AI settings write, under a Postgres advisory lock, so two replicas never create the same key twice.
 
-The console agent gets `LITELLM_BASE_URL=http://ai-gateway:4000/v1` and `AGENT_MODEL_ID=console-agent`. The server calls `ai-models`' `/v1/video/frames` itself, because LiteLLM routes only OpenAI's API. The Service names `ai-gateway` and `ai-models` resolve inside the stack's own namespace, so the dev server reaches dev's hub and the prod server reaches prod's.
+<Steps>
+<Step title="List what the server owns">
+It lists the teams, virtual keys and pricing overrides that carry `metadata.owner = "server"`.
+</Step>
+<Step title="Write each agent">
+One team per agent, named after its slug, carries the monthly budget. One virtual key per caller, under its agent's team, carries the caller's rate limit and `allowed_models`: the agent's model and fallbacks, exactly. A leaked key can call nothing else.
+</Step>
+<Step title="Write the prices">
+Each row of `ai_model_prices` becomes a pricing override for its provider and model.
+</Step>
+<Step title="Clean up">
+It deletes server-owned objects that no agent or price names any more, and disables the keys of agents that are turned off.
+</Step>
+<Step title="Load the keys">
+It reads every server-owned key's value into the server's memory.
+</Step>
+</Steps>
 
-## Aliases and the gateway config
+Bifrost generates the key values. No caller key is stored in git, in a Secret or in the server's database. The server hands its own modules their key from memory, and on a 401 it reloads the keys from Bifrost once before it fails. The console agent gets its key, model, fallbacks and prices in each run request; see [Agents and configuration](/en/agent/setup).
 
-The aliases in `chart/values.yaml`, `search` and `embed-text` shown:
+Bifrost's own UI shows the server's teams and keys. An edit made there is overwritten at the next reconcile.
 
-```yaml title="chart/values.yaml in the ai repo"
-gateway:
-  secret: litellm-secrets
-  database: { host: postgres-rw, name: litellm, user: litellm, passwordSecret: litellm-db }
-  aliases:
-    search:
-      model: openai/anthropic/claude-haiku-5.5
-      apiBase: https://openrouter.ai/api/v1
-      apiKeySecret: OPENROUTER_API_KEY
-      price: token
-    embed-text:
-      model: openai/baai/bge-m3
-      apiBase: https://openrouter.ai/api/v1
-      apiKeySecret: OPENROUTER_API_KEY
-      mode: embedding
-      price: token
-      extraBody: { provider: { order: [DeepInfra], allow_fallbacks: false } }
-```
+## Prices and spend
 
-The chart renders one `model_list` entry per alias into the ConfigMap `ai-gateway-config`. The `search` entry and the shared settings come out as:
+`ai_model_prices` holds the price of every model an agent uses, in USD per token for input and output, seeded with list prices, so budgets are in dollars. The model picker in the console prefills a price from Bifrost's catalog. Bifrost counts each call's cost from these prices and charges it to the caller's team.
 
-```yaml
-model_list:
-  - model_name: search
-    litellm_params:
-      model: openai/anthropic/claude-haiku-5.5
-      api_base: https://openrouter.ai/api/v1
-      api_key: os.environ/OPENROUTER_API_KEY
-    model_info:
-      input_cost_per_token: 0.000001
-      output_cost_per_token: 0.000001
-general_settings:
-  master_key: os.environ/LITELLM_MASTER_KEY
-  database_url: os.environ/DATABASE_URL
-  store_prompts_in_spend_logs: false
-  maximum_spend_logs_retention_period: 30d
-litellm_settings:
-  drop_params: true
-```
+The console reads spend by agent and by day from Bifrost's logs and shows it on the Overview page. Bifrost's totals trail real time by up to a minute. Each agent's budget is on its own page.
 
-The `openai/` prefix tells LiteLLM to speak the OpenAI API to `api_base`. An alias with `apiKeySecret` sends that key of `litellm-secrets`; one without it sends `api_key: none`, for `ai-models`, which has no authentication. `extraBody` goes to the upstream as `extra_body`. `drop_params: true` makes LiteLLM drop request fields the upstream does not accept. The stack's NetworkPolicies leave egress open, so `ai-gateway` reaches OpenRouter.
+## When a budget or a limit runs out
 
-`store_prompts_in_spend_logs: false` keeps request bodies, the photos of photo search among them, out of LiteLLM's spend logs, and the spend logs are kept 30 days. `infra/probes/litellm-embed/run.sh` measured this on LiteLLM v1.108.0 with a stub upstream on 2026-11-10: data URLs of 706 kB and 1.72 MB reached the upstream unchanged, three calls cost 0.001728 (576 tokens each, priced from the upstream's `usage`), and none of the three spend log rows held an input.
+- A spent monthly budget: Bifrost answers 402 with `X-Bifrost-Error-Type: policy_budget_exceeded`. The console agent ends the segment with `agent_budget` ([Limits and failures](/en/agent/limits)).
+- A caller over its rate limit: Bifrost answers 429 with `policy_rate_limited` and sends no Retry-After. The console agent waits for the window named in the message, or 60 s.
+- A spent OpenRouter credit: the upstream's 402 comes through.
 
-## OpenRouter
+The server's search does not fail when the model does. `Search` in `server/internal/discovery/service/search.go` gives the model 4 seconds. On any error it logs `the model did not read the query` at warn level with the error and searches the raw words alone. The page then has no chips and no boosts for category, price, place or freshness. A query the model read in the last 7 days comes from the server's cache and keeps its understanding.
 
-Every alias but `embed-image` and `stt` goes to OpenRouter with the stack's `OPENROUTER_API_KEY`, one key per stack. Give that key a daily credit limit on OpenRouter; it is the last stop behind the gateway's own budgets. Measured through LiteLLM v1.108.0 on 2026-11-17:
+## OpenRouter and the text vectors
 
-- LiteLLM passes OpenRouter's `usage` (tokens and `cost`) through for chat and embeddings, so budgets count the tokens OpenRouter reports.
-- An upstream 402, OpenRouter's answer when the key's credit is spent, reaches the client as HTTP 402 with code `"402"`.
-- OpenRouter serves `baai/bge-m3` from two providers. DeepInfra (fp32) gave the vectors of the TEI the stacks ran before at a cosine of 0.999999 on every reference text under 2048 tokens (`ai/embed/testdata/bge-m3-reference.json`); Parasail gave 0.996. `embed-text` pins DeepInfra with `allow_fallbacks: false`, so stored vectors and new ones stay in one space. LiteLLM forwards the pin: a Parasail pin through it gave Parasail's vectors.
-- 16 inputs in one `embed-text` request took 2.3 s.
+`search` and `embed-text` go to OpenRouter with the stack's `OPENROUTER_API_KEY`, one key per stack. Give that key a daily credit limit on OpenRouter; it is the last stop behind the agents' budgets.
 
-## Budget model
+OpenRouter serves `baai/bge-m3` from two providers. DeepInfra (fp32) gave the vectors of the TEI the stacks ran before at a cosine of 0.999999 on every reference text under 2048 tokens; Parasail gave 0.996. `embed-text` pins DeepInfra and allows no fallbacks, so stored vectors and new ones stay in one space.
 
-LiteLLM budgets count money, and each alias's `price` sets what that money stands for:
+The server stores `EMBED_TEXT_VERSION` and `EMBED_IMAGE_VERSION` with every vector. Both are in `infra/stack/env/server.env`. A new model needs a new version in the same change: the server then treats the stored vectors as missing, and `go run ./cmd/search-reindex -every 2s` in the server embeds every listing again. `EMBED_TEXT_MODEL` is only the on/off switch for text vectors: `server.embed.text` in a stack's values sets it.
 
-| `price` | Cost | 1 unit of budget is |
-|---|---|---|
-| `token` | `0.000001` per token, input and output | 1,000,000 tokens |
-| `second` | `0.000001` per second of audio | 1,000,000 seconds |
-| `usd` | the model's list price, `inputCostPerToken` and `outputCostPerToken` | 1 USD |
+## The database
 
-`console-agent` is priced at 2 and 10 USD per 1M tokens in and out. A key's `dailyUnits` is in millionths of its aliases' unit, and the chart divides it by 1,000,000 for `max_budget`. The chart refuses a key over aliases priced in different units.
+Bifrost keeps its config store and its logs in the database `bifrost` on the stack's CNPG cluster `postgres`. `templates/postgres.yaml` declares the managed role `bifrost`, with its password from the basic-auth Secret `bifrost-db` (`username` and `password`), and a CNPG `Database` `bifrost` owned by that role in wave 1.
 
-| Key | Secret | Aliases | dev `dailyUnits` | dev limit | prod `dailyUnits` | prod limit |
-|---|---|---|---|---|---|---|
-| `server-llm` | `server-secrets` `LLM_API_KEY` | `search` | 200,000 tokens | 20,000 tpm | 2,000,000 tokens | 100,000 tpm |
-| `server-stt` | `server-secrets` `STT_API_KEY` | `stt` | 3,600 seconds | 10 rpm | 36,000 seconds | 60 rpm |
-| `server-assist` | `server-secrets` `ASSIST_LLM_API_KEY` | `listing-read` | 1,200,000 tokens | 60,000 tpm | 12,000,000 tokens | 300,000 tpm |
-| `server-trust` | `server-secrets` `TRUST_LLM_API_KEY` | `scam-check` | 600,000 tokens | 30,000 tpm | 6,000,000 tokens | 150,000 tpm |
-| `server-embed-index` | `server-secrets` `EMBED_INDEX_API_KEY` | `embed-text`, `embed-image` | 10,000,000 tokens | 120 rpm | 50,000,000 tokens | 600 rpm |
-| `server-embed-search` | `server-secrets` `EMBED_SEARCH_API_KEY` | `embed-text`, `embed-image` | 1,000,000 tokens | 60 rpm | 10,000,000 tokens | 600 rpm |
-| `agent` | `agent-secrets` `AGENT_LLM_API_KEY` | `console-agent` | 20 USD | 100,000 tpm | 20 USD | 200,000 tpm |
-
-`chart/values.yaml` sets the agent's 20 USD a day for every stack; `infra/argocd/ai.yaml` sets the rest. LiteLLM resets each key's spend every day, with `budget_duration: 1d`.
-
-The server indexes listings with `server-embed-index` and embeds queries with `server-embed-search`. A backfill of every listing spends the index key, and photo search keeps its own budget. `ai-models` counts 576 tokens a photo, its 24 × 24 patches, and a text its token count; LiteLLM prices from that `usage`. A listing of ten photos costs about 5,800 tokens, so dev's index budget covers about 1,700 listings a day.
-
-A video read sends `listing-read` 8 frames at 768 px, the list of subcategories and the transcript, about 5,500 tokens, so dev's budget covers about 200 reads a day and prod's about 2,000. A photo read sends one photo, about 1,500 tokens; each account may start 30 video reads, 60 photo reads and 30 link reads a day. A scam check sends the prompt and 20 short messages, about 1,300 tokens, so dev covers about 460 checks a day and prod about 4,600.
-
-A test on a local k3d cluster set a 60-token budget on the search key: once it was spent, calls failed with HTTP 422 and `Budget has been exceeded`, and a call for an alias outside the key's `models` got a 403. A test against LiteLLM v1.108.0 sent 5.55 s of audio, and the spend of `server-stt` rose by 0.00000555. LiteLLM asks `ai-models` for `verbose_json` when the caller names no `response_format`, and prices every speech call from the `duration` field that `json` and `verbose_json` answers carry. A `text` answer has no duration and costs 0, so the server must not ask for `text`.
-
-## The key Job
-
-The keys are created by the Job `ai-gateway-keys`, an Argo CD Sync hook in wave 1 of `ai-<stack>`, after `ai-gateway` (wave 0) is ready. `chart/templates/gateway-keys.yaml` renders it from `gateway.keys`. Its pod runs `curlimages/curl` and does this for each key:
-
-```mermaid title="ai-gateway-keys on every sync, for each key"
-flowchart TD
-  start["Sync hook ai-gateway-keys"] --> update["POST /key/update<br/>key = the key's value from its Secret"]
-  update -->|200| ok["log: key server-llm: HTTP 200"]
-  update -->|not 200| generate["POST /key/generate<br/>same key value"]
-  generate -->|200| ok
-  generate -->|not 200| fail["log status and message<br/>exit 1, retry up to 10 times"]
-```
-
-Both calls send the same body: the key's value from the Secret its `secret` names, `key_alias` (the key's name), `models`, `max_budget`, `budget_duration: 1d`, and `tpm_limit` or `rpm_limit`. They authenticate with the master key from `litellm-secrets`. A successful sync logs one `key <name>: HTTP 200` line per key, seven in all.
-
-The key values are fixed in advance: the seal command generates them and seals them into `server-secrets` and `agent-secrets`, and the Job writes the same values into LiteLLM. Running the Job twice gives the same result. After the gateway's database is lost, the update fails, the generate call recreates the key with the value the client already holds, and the client does not restart. A key renamed in `gateway.keys` keeps its value, so the next sync's `/key/update` finds it by its value and changes its alias; on v1.108.0 on 2026-11-10 a renamed key kept its spend.
-
-The response of LiteLLM contains the key, so the Job logs only the HTTP status. On a failure it also prints the `message` field of the answer.
-
-```bash
-kubectl -n shopnexus-dev logs job/ai-gateway-keys
-```
-
-`argocd.argoproj.io/hook-delete-policy: BeforeHookCreation` keeps the last run's Job until the next sync replaces it.
-
-## The gateway's database
-
-LiteLLM keeps keys and spend in Postgres, in a database of its own on the stack's CNPG cluster `postgres`. The stack chart makes it, since Postgres belongs to the stack:
-
-- `postgres.yaml` in `infra/stack` declares a managed role `litellm` with its password from the Secret `litellm-db`, and a CNPG `Database` named `litellm` owned by that role (stack wave 1).
-- `ai-gateway` builds `DATABASE_URL=postgresql://litellm:$(DB_PASSWORD)@postgres-rw:5432/litellm` from `gateway.database`.
-- The image is `ghcr.io/berriai/litellm-database:v1.108.0`, the LiteLLM build that uses a database.
-
-The server's data lives in the database `app` of the same cluster. The `litellm` role owns only `litellm`.
+The chart gives Bifrost `BIFROST_DB_HOST=postgres-rw`, `BIFROST_DB_USER=bifrost` and `BIFROST_DB_PASSWORD` from `bifrost-db`. LiteLLM's spend history was not carried over. CNPG does not drop a database or role the chart stops declaring, so the old `litellm` database and role must be dropped by hand once; see [Runbook](/en/operations/cluster/runbook#after-the-switch-to-bifrost).
 
 ## Secrets
 
-`go -C infra run ./cmd/seal <stack>` generates every value below but `OPENROUTER_API_KEY` into the git-ignored `infra/stack/secrets/<stack>.env`. You write `OPENROUTER_API_KEY` yourself, and the seal command stops with `set OPENROUTER_API_KEY` until you do. The Secret names `litellm-secrets` and `litellm-db` are the same as before the hub.
+`go -C infra run ./cmd/seal <stack>` generates the three Bifrost values below into `infra/stack/secrets/<stack>.env`. You write the two provider keys yourself.
 
 | Value in `<stack>.env` | Sealed into | Read by |
 |---|---|---|
-| `LITELLM_MASTER_KEY` | `litellm-secrets` | `ai-gateway`, the `ai-gateway-keys` Job, you in the admin UI |
-| `OPENROUTER_API_KEY` | `litellm-secrets` | `ai-gateway`, toward OpenRouter |
-| `LITELLM_DB_PASSWORD` | `litellm-db` (basic-auth), key `password` | CNPG for the role, `ai-gateway` for `DATABASE_URL` |
-| `LLM_API_KEY`, `STT_API_KEY`, `ASSIST_LLM_API_KEY`, `TRUST_LLM_API_KEY`, `EMBED_INDEX_API_KEY`, `EMBED_SEARCH_API_KEY` | `server-secrets` | the server; the `ai-gateway-keys` Job |
-| `AGENT_LLM_API_KEY` | `agent-secrets` | the console agent; the `ai-gateway-keys` Job |
+| `BIFROST_ADMIN_PASSWORD` | `bifrost-secrets` | Bifrost; the server as `GATEWAY_ADMIN_PASSWORD`; you in the UI |
+| `BIFROST_ENCRYPTION_KEY` | `bifrost-secrets` | Bifrost, which encrypts what it stores with it |
+| `LLM_UPSTREAM_API_KEY` | `bifrost-secrets` | Bifrost, for the provider `upstream` |
+| `OPENROUTER_API_KEY` | `bifrost-secrets` | Bifrost, for the provider `openrouter` |
+| `BIFROST_DB_PASSWORD` | `bifrost-db`, with `username: bifrost` | CNPG for the role, Bifrost |
 
-`ai-gateway` is in another Application than the stack's secrets and does not carry their checksum. After a reseal of `litellm-secrets` or `litellm-db`, restart it by hand:
+<Callout type="danger" title="Never change the encryption key">
+A new `BIFROST_ENCRYPTION_KEY` makes everything Bifrost stored unreadable. On dev it was sealed on the cluster host. Copy it and `BIFROST_ADMIN_PASSWORD` into your `dev.env` before any full `seal dev`; [Runbook](/en/operations/cluster/runbook#bifrosts-encryption-key) has the commands.
+</Callout>
 
-```bash
-kubectl -n shopnexus-dev rollout restart deploy/ai-gateway
-```
+The server reads `GATEWAY_URL=http://bifrost:8080` and `GATEWAY_ADMIN_USERNAME=admin` from `infra/stack/env/server.env`. The agent reads `GATEWAY_BASE_URL=http://bifrost:8080/v1` from `infra/stack/env/agent.env`. The caller keys of the LiteLLM days (`LLM_API_KEY`, `ASSIST_LLM_API_KEY`, `TRUST_LLM_API_KEY`, `EMBED_*_API_KEY`, `AGENT_LLM_API_KEY`) are gone from `server-secrets` and `agent-secrets`.
 
-A key the chart names but its Secret lacks keeps the `ai-gateway-keys` pod from starting, and the sync of `ai-<stack>` stops at wave 1: reseal and push the secrets before the `ai` commit that adds the key reaches `main`. [Secrets](/en/operations/cluster/secrets) covers how the seal command and the controller seal them.
+## Network
 
-## When the budget runs out
+`default-deny-ingress` covers Bifrost too, and `from-stack` leaves it out. Two policies of `infra/stack/templates/networkpolicy.yaml` name it:
 
-The gateway refuses a spent key with HTTP 422 and `Budget has been exceeded`. When the stack's OpenRouter credit is spent, it passes OpenRouter's 402 through. The server's LLM client treats a 402 like a 429, as a passing failure, and its embed client retries it. The console agent's `isBudgetError` takes a 402 as a spent budget, as it takes LiteLLM's own `budget_exceeded`.
+| Policy | Allows |
+|---|---|
+| `to-bifrost` | port 8080 from the server, the console agent and the cluster's Prometheus |
+| `bifrost-egress` | DNS; Postgres on 5432; the upstream's port at any address; 443 to public addresses only (OpenRouter, and `getbifrost.ai` for the price sheet) |
 
-The server's search does not fail when the model does. `Search` in `server/internal/discovery/service/search.go` gives the model 4 seconds. On any error, a refusal for budget or rate limit included, it logs `the model did not read the query` at warn level with the error, and searches with the raw words alone.
+A NetworkPolicy names no host, so the chart reads the upstream's port from `LLM_UPSTREAM_BASE_URL` and opens that port. `from-traefik` admits Traefik for the dashboard host. Bifrost loads its price sheet at startup and starts without it when it is unreachable; the server's prices cover every model in use anyway.
 
-```mermaid title="Search when ai-gateway refuses"
-sequenceDiagram
-  participant App as app
-  participant S as server
-  participant G as ai-gateway
-  App->>S: GET /v1/search?q=...
-  S->>S: cache lookup (7 days)
-  S->>G: chat/completions, model search
-  G-->>S: 422 Budget has been exceeded, or 402
-  S->>S: log "the model did not read the query"
-  S->>S: search the raw words as a phrase
-  S-->>App: 200, listings, no chips
-```
+## Metrics and alerts
 
-The person still gets a page of listings, matched on the words they typed. The page has no chips, and no boosts for category, price, place or freshness that the model would have read out of the query. A query the model read in the last 7 days comes from the server's cache and keeps its understanding. The server's error for a non-200 answer is `model answered <status>`, so a spent budget logs `model answered 422` and spent credit `model answered 402`.
+Grafana's platform dashboard and the cluster alerts read Bifrost's metrics: `bifrost_success_requests_total`, `bifrost_error_requests_total`, `bifrost_upstream_latency_seconds`, `bifrost_cost_total` and `bifrost_provider_key_up`, labelled by `team_name`, the agent. Two alerts watch them: `sn-bifrost-failing`, the share of failed calls over 10 minutes, and `sn-bifrost-key-down`, a provider key whose last call failed for 10 minutes.
 
-Calls over the tokens-per-minute limit fail too, and search falls back to the raw words until the minute has passed. [Search and discovery](/en/architecture/search-and-discovery) lists the boosts the model can set.
+## Dashboard
 
-## ai-models
-
-`ai-models` is a Deployment and a Service on port 8000 with no Ingress and no authentication; `from-stack` admits the stack's pods. The gateway's aliases `stt` and `embed-image` call it, and the server calls its frames route directly. Its settings are `models.*` in `chart/values.yaml`.
-
-### Speech to text
-
-`ai-models` serves OpenAI's `POST /v1/audio/transcriptions` with Gipformer 1.5, a Vietnamese model with 68.6M parameters, on CPU. It takes any audio or video file ffmpeg reads, up to 100 MB and 300 s of audio (`models.maxUploadMB`, `models.maxAudioSeconds`). Silero VAD cuts the speech at silences into pieces of at most 20 s, and the answer is lower-case text without punctuation. Two requests decode at once (`models.maxConcurrent`), and the others wait.
-
-The server calls `stt` when it reads a seller's video (module assist). It asks for `response_format: json`, so LiteLLM prices the call from `duration`.
-
-To send `stt` to another provider, set `gateway.aliases.stt.model` to that provider's LiteLLM model string, for example `groq/whisper-large-v3`, and `gateway.aliases.stt.apiBase` to its base URL; add the provider's key to `litellm-secrets` and name it in `gateway.aliases.stt.apiKeySecret`. The server keeps asking for `stt`.
-
-`ai-models` logs one line per request, without the transcript:
+The stack's dashboard host `bifrost.<domain>`, behind the console's sign-in, routes to `bifrost:8080`. Sign in to Bifrost's UI as `admin` with `BIFROST_ADMIN_PASSWORD`:
 
 ```bash
-kubectl -n shopnexus-dev logs deploy/ai-models
+kubectl -n shopnexus-dev get secret bifrost-secrets -o jsonpath='{.data.BIFROST_ADMIN_PASSWORD}' | base64 -d; echo
 ```
 
-### Video frames
-
-`POST /v1/video/frames` is not an OpenAI route, so the server calls it at `AI_FRAMES_BASE_URL` with no key, and the gateway counts nothing for it. It takes a video of 3 to 35 s (`models.framesMaxSeconds`), decodes 2 frames a second at most 1600 px on the long side, drops frames whose variance of the Laplacian is under `models.framesMinSharpness` and frames that repeat another, and returns at most 8 JPEGs spread over the video. Two requests cut frames at once (`models.framesMaxConcurrent`), apart from the two that decode speech. On 2026-11-10, two frame requests of a 30 s 1080p video and two transcriptions at once raised the pod to 2.42 GiB.
-
-### Photo embeddings
-
-`ai-models` serves `POST /v1/embeddings` with SigLIP 2 (`siglip2-so400m-patch16-384`, fp32 ONNX, 1152 dimensions) when `models.embedModels` names it. An input that starts with `data:image/` is a photo; any other input is text for SigLIP's text tower. The weights are 4.5 GB. With `models.embedModels` empty, `ai-models` loads no SigLIP 2, and `/v1/embeddings` answers 404 `model_not_found`.
-
-| Stack | `models.embedModels` | Memory request, limit | Measured |
-|---|---|---|---|
-| dev | empty | 2Gi, 3Gi | speech and frames alone peaked at 2.42 GiB on 2026-11-10 |
-| prod | `siglip2-so400m-patch16-384=/models/siglip2-so400m-patch16-384` | 6Gi, 8Gi | 4.0 GiB idle and 5.3 GiB on 16 photos, 2026-11-10 |
-
-Dev loads no SigLIP 2 because the dev machine has no room for it (2026-11-17). Its stack values set `server.embed.image: false`, so the server writes and queries no photo vectors there. `infra/check.sh` fails when a stack's photo vectors are on without SigLIP 2 in its `ai-models`, or off with it.
-
-## Vectors and their versions
-
-The server stores `EMBED_TEXT_VERSION` and `EMBED_IMAGE_VERSION` with every vector. Both are in `infra/stack/env/server.env`, which the cluster's chart and the root `docker-compose.yml` both read. A new model needs a new version in the same change: the server then treats the stored vectors as missing, and `go run ./cmd/search-reindex -every 2s` in the server embeds every listing again, one listing every 2 s.
-
-`EMBED_TEXT_VERSION` stayed `bge-m3@5617a9f61b028005a4858fdac845db406aefb181` when `embed-text` moved from TEI to OpenRouter, since DeepInfra's vectors match. A text over 2048 tokens gave a cosine of 0.90, because TEI cut inputs at 2048 tokens and OpenRouter does not. The server cuts listing text at 2,000 characters (`EmbeddingTextMax`), under 2048 tokens.
-
-Each kind of vector can be off. `server.embed.text` and `server.embed.image` in a stack's values turn it on or off, and an off kind gets empty `EMBED_*_MODEL`, `EMBED_*_BASE_URL` and `EMBED_*_VERSION`. The server then writes no vectors of that kind and leaves its list out of search; BM25 always runs. A `photo` search with photo vectors off answers 503 `search_unavailable`.
+Use it to read the logs and each team's spend. Use the console for every change.
 
 ## Local stacks
 
-The root `docker-compose.yml` runs `ai-models-dev` on 127.0.0.1:56491 and `ai-models-prod` on 127.0.0.1:56490, with no gateway and no TEI. The server calls `ai-models-<stack>` directly for photo vectors, speech and frames, and names the model `siglip2-so400m-patch16-384`; `ai-models` takes no key and ignores the one sent. For text vectors it reads `EMBED_TEXT_BASE_URL`, `EMBED_TEXT_MODEL`, `EMBED_INDEX_API_KEY` and `EMBED_SEARCH_API_KEY` from `server/.env`: OpenRouter's `baai/bge-m3` with your OpenRouter key, or an empty `EMBED_TEXT_MODEL`, which turns text vectors off. `infra/check.sh` fails when the `AI_*` settings of the compose file differ from `models.*` in the `ai` chart.
+The root `docker-compose.yml` runs `bifrost-dev` and `bifrost-prod` with the same image, `config.json`, `start.sh` and `env/bifrost.env`, answering as `bifrost` inside their stack. They have no host: only the server and the agent call them. `bifrost-keys-<stack>` adds `BIFROST_ADMIN_PASSWORD`, `BIFROST_ENCRYPTION_KEY` and `GATEWAY_ADMIN_PASSWORD` to the keys volume when missing, and `bifrost-db-<stack>` creates the database `bifrost`. The provider keys come from `infra/stack/secrets/compose.env`. Compose's `x-bifrost-env-<stack>` blocks set `BIFROST_DB_HOST`, `BIFROST_DB_USER` and `BIFROST_DB_PASSWORD`.
 
-## Smoke test
-
-`infra/smoke-models.sh <stack>` port-forwards `svc/ai-gateway` and calls every alias with the server's keys: `search`, `listing-read` with a photo, `scam-check`, `stt` with a silent clip, `embed-text` (1024 dimensions), and `embed-image` with a photo and with a text (1152 dimensions). It skips the `embed-image` calls when the stack's `EMBED_IMAGE_MODEL` is empty. Then it checks that `server-llm` is refused `embed-text`, and `server-assist` and `server-trust` are refused `search`, each with a 403. It needs `hurl` and `kubectl`.
-
-## Change the model or the provider
-
-Clients always ask for the same aliases. To change what answers `search`:
+## Change a model or a budget
 
 <Steps>
-<Step title="Edit the values">
-In the `ai` repo's `chart/values.yaml`, set `gateway.aliases.search.model` to LiteLLM's model string, provider prefix included (`openai/anthropic/claude-haiku-5.5`), and `gateway.aliases.search.apiBase` to its OpenAI-compatible base URL. To change one stack only, set them under `gateway.aliases.search` in the `valuesObject` of `ai-<stack>` in `infra/argocd/ai.yaml` instead. The chart refuses to render if either is empty.
+<Step title="Open the agent in the console">
+Under **Settings**, open the agent. Pick the provider and model, add fallbacks if you want them, and set the monthly budget and the callers' rate limits.
 </Step>
-<Step title="Add the provider's key">
-For a provider other than OpenRouter, add its key to `infra/stack/secrets/<stack>.env` and to `litellm-secrets` in the seal command, name it in `apiKeySecret`, reseal both stacks and push, and restart `ai-gateway`.
+<Step title="Check the price">
+A model needs a price. The model picker prefills Bifrost's catalog price; correct it on the model if the list price differs.
 </Step>
-<Step title="Run the tests and push">
-Run `helm unittest chart` in the `ai` repo, commit and push to its `main`. Argo CD syncs `ai-dev`; `ai-prod` gets the change with the next release. The `checksum/config` annotation on `ai-gateway`'s pod changes with the config, so the gateway restarts on the new model.
-</Step>
-<Step title="Check a search">
-Search for something on the stack and read the server log. A line `the model did not read the query` means the new model failed.
+<Step title="Save">
+The server reconciles Bifrost at once. No restart and no new image is needed.
 </Step>
 </Steps>
 
-The server asks for a strict `json_schema` response format. A model that ignores it returns text the server cannot decode, and search falls back to the raw words on every query. To change `embed-text` or `embed-image`, see [Vectors and their versions](#vectors-and-their-versions): the vectors' version changes with the model.
+The server asks for a strict `json_schema` response format. A model that ignores it returns text the server cannot decode, and search falls back to the raw words on every query. A new `embed-text` model also needs a new `EMBED_TEXT_VERSION` and a reindex.
 
-## Change a budget
+## Add a provider or a provider key
 
 <Steps>
-<Step title="Edit the stack's values">
-In `infra/argocd/ai.yaml`, under the `valuesObject` of `ai-dev` or `ai-prod`, change a key's `dailyUnits` or its `tpmLimit` or `rpmLimit` under `gateway.keys`. The agent's daily budget is in the `ai` repo's `chart/values.yaml`.
+<Step title="Edit the config">
+Add the provider to `providers` in `infra/stack/bifrost/config.json`, with its key as `env.<NAME>`.
+</Step>
+<Step title="Seal the key">
+Add `<NAME>` to `bifrost-secrets` in `infra/cmd/seal/main.go`, to the env list in `templates/bifrost.yaml` and to `infra/stack/secrets/example.env`; write the value into `<stack>.env` and `compose.env`, and seal each stack.
+</Step>
+<Step title="Open the network">
+If the provider is not on 443 at a public address, widen `bifrost-egress`.
 </Step>
 <Step title="Check and push">
-Run `infra/check.sh`, which renders the `ai` chart with each stack's values, then commit and push the umbrella. `root` updates the Application, `ai-<stack>` syncs, and the `ai-gateway-keys` Job runs `/key/update` on every key with the new limits.
-</Step>
-<Step title="Check the Job">
-`kubectl -n shopnexus-dev logs job/ai-gateway-keys` prints one `key <name>: HTTP 200` line per key.
+Run `infra/check.sh` and `helm unittest stack` in `infra/`, then commit and push. Bifrost restarts on the new config, and the provider shows on the console's Providers page.
 </Step>
 </Steps>
 
-## Add another model alias
-
-An alias is an entry of `gateway.aliases`, and a key reaches only the aliases in its `models`:
-
-1. Add the entry to `gateway.aliases` in the `ai` repo's `chart/values.yaml`, with `model`, `apiBase`, `price` (`token`, `second` or `usd`), and `apiKeySecret`, `mode`, `extraBody`, `inputCostPerToken` and `outputCostPerToken` when it needs them.
-2. Add its name to the `models` of the key that calls it. For a new caller, add an entry to `gateway.keys` with its `secret` (`name` and `key` of the client's Secret) and `models`, set its `dailyUnits` and a `tpmLimit` or `rpmLimit` for each stack in `infra/argocd/ai.yaml`, and add the key to the seal command's generated keys and to the client's Secret.
-3. Run `helm unittest chart` in the `ai` repo and `infra/check.sh` in the umbrella before you push. The chart refuses a key that names a missing alias, a key over aliases priced in different units, a key with neither limit, and an alias without a model.
-
-A new alias is used only by a caller that asks for it.
-
-## Admin UI and spend
-
-The stack's dashboard host `litellm.<domain>`, behind the console's sign-in, routes to the Service `ai-gateway`. From a shell, use a port-forward and the master key:
-
-```bash
-kubectl -n shopnexus-dev get secret litellm-secrets -o jsonpath='{.data.LITELLM_MASTER_KEY}' | base64 -d; echo
-kubectl -n shopnexus-dev port-forward svc/ai-gateway 4000:4000
-```
-
-Open `http://localhost:4000/ui` and sign in with user `admin` and the master key as the password. The UI lists the keys with aliases `server-llm`, `server-stt`, `server-assist`, `server-trust`, `server-embed-index`, `server-embed-search` and `agent`, each with its spend, budget and reset time. Use `shopnexus-prod` for prod.
-
-To read the spend from a shell while the port-forward runs:
-
-```bash
-master=$(kubectl -n shopnexus-dev get secret litellm-secrets -o jsonpath='{.data.LITELLM_MASTER_KEY}' | base64 -d)
-key=$(kubectl -n shopnexus-dev get secret server-secrets -o jsonpath='{.data.LLM_API_KEY}' | base64 -d)
-curl -s "http://localhost:4000/key/info?key=$key" -H "Authorization: Bearer $master"
-```
-
-`info.spend` is in budget units: a spend of `0.05` on `server-llm` is 50,000 tokens today, and on `agent` 0.05 USD. `info.max_budget` is the day's limit and `info.budget_reset_at` the next reset.
-
 <KeyRules>
-- Clients call only aliases of `gateway.aliases`; the model behind each is set in the `ai` repo's `chart/values.yaml`.
-- Budgets are set per stack in `infra/argocd/ai.yaml`, in tokens, seconds or millionths of a dollar.
-- Indexing and search embed with separate keys, `server-embed-index` and `server-embed-search`.
-- The key values come from the seal command; the `ai-gateway-keys` Job only writes them into LiteLLM.
-- After a reseal of `litellm-secrets`, `ai-gateway` restarts only by hand.
-- `embed-text` stays pinned to DeepInfra while `EMBED_TEXT_VERSION` names TEI's bge-m3.
+- Callers always send `provider/model`; Bifrost aliases are not used.
+- The server is the only writer of teams, virtual keys, budgets and pricing overrides; `config.json` holds the providers.
+- `config.json` carries no `governance` section other than `auth_config`.
+- Budgets are monthly per agent in USD; rate limits are per caller.
+- `BIFROST_ENCRYPTION_KEY` never changes once a stack has data.
+- `embed-text` stays pinned to DeepInfra while `EMBED_TEXT_VERSION` names bge-m3.
 </KeyRules>
