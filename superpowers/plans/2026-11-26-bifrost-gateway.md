@@ -58,11 +58,14 @@ the input price. Seeded budgets are monthly: console-agent 100, the others
   "key": "sk-bf-…",
   "model": "upstream/claude-sonnet-5-5",
   "fallbacks": [],
-  "price": { "input": 2e-6, "output": 1e-5, "cache_read": null, "cache_write": null }
+  "prices": {
+    "upstream/claude-sonnet-5-5": { "input": 2e-6, "output": 1e-5, "cache_read": null, "cache_write": null }
+  }
 }
 ```
 
-The agent never logs `gateway.key`. A run without `gateway` is refused (400).
+`prices` covers the model and every fallback (cost follows the resolved
+route). The agent never logs `gateway.key`. A run without `gateway` is refused (400).
 
 ### Console API (OpenAPI, `server/api`)
 
