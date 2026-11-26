@@ -7,7 +7,7 @@ groupOrder: 2
 audience: [developers, admins]
 type: how-to
 readingTime: 10
-updated: 2026-11-17
+updated: 2026-11-26
 related: ["/en/operations/cluster", "/en/operations/cluster/bootstrap", "/en/operations/cluster/data", "/en/operations/cluster/secrets", "/en/operations/cluster/runbook"]
 ---
 
@@ -54,7 +54,7 @@ Every image prod has run carries an `X.Y.Z` tag, so cleanup does not remove it. 
 | `stack-dev` | `ghcr.io/shopnexus/<component>:main` for `server`, `website`, `docs`, `console` and `agent` | `digest` | `images.<component>.repository`, `images.<component>.tag` |
 | `ai-dev` | `ghcr.io/shopnexus/ai:main` | `digest` | `images.models.repository`, `images.models.tag` |
 
-It moves when the digest behind `:main` changes and writes the tag as `main@sha256:…`. The other images in `values.yaml` (Postgres, Restate, RustFS) are pinned there and change only by a commit. The gateway and curl images are pinned in the `ai` repo's `chart/values.yaml`.
+It moves when the digest behind `:main` changes and writes the tag as `main@sha256:…`. The other images in `values.yaml` (Postgres, Restate, RustFS, Bifrost) are pinned there and change only by a commit.
 
 ## Parameters and the root Application
 
@@ -87,7 +87,7 @@ At its first start k3s installs the `argo-cd` chart 10.11.7 from `infra/cluster/
 
 Argo CD stopped judging the health of Application resources in version 1.8. Without the Lua check, `root` would treat the platform Applications as healthy at once, and the stacks would start before CloudNativePG, Sealed Secrets and restate-operator had their CRDs. The `ImageUpdater` carries `SkipDryRunOnMissingResource=true`, because its CRD arrives with the `image-updater` Application in the same sync.
 
-Inside a stack, each sync runs the waves of the chart again, including the Sync hook Jobs `migrate`, `objectstore-init` and `objectstore-init-snapshots` (wave 1). A sync of `ai-<stack>` runs its Sync hook Job `ai-gateway-keys` (its wave 1). A new server image therefore runs its migrations before the new server pods start; the table of every wave is in [Postgres, Restate and RustFS](/en/operations/cluster/data#sync-waves-and-jobs).
+Inside a stack, each sync runs the waves of the chart again, including the Sync hook Jobs `migrate`, `objectstore-init` and `objectstore-init-snapshots` (wave 1). A new server image therefore runs its migrations before the new server pods start; the table of every wave is in [Postgres, Restate and RustFS](/en/operations/cluster/data#sync-waves-and-jobs).
 
 ## Ship to dev
 
@@ -259,7 +259,7 @@ For prod, [run a release](#release-to-prod) once the change is on `main`.
 </Step>
 
 <Step title="Watch it roll">
-The server's pod template carries `checksum/env`, a hash of the `server-env` ConfigMap, so a server setting starts a new server version. `ai-gateway`'s Deployment carries `checksum/config` for its config, and no checksum of the stack's secrets: after a reseal of `litellm-secrets`, run `kubectl -n shopnexus-<stack> rollout restart deploy/ai-gateway`.
+The server's pod template carries `checksum/env`, a hash of the `server-env` ConfigMap, so a server setting starts a new server version. Bifrost's Deployment carries `checksum/config` for `config.json`, `start.sh` and `env/bifrost.env`, and `checksum/secrets` for the stack's sealed secrets, so a change to either restarts it.
 </Step>
 </Steps>
 
