@@ -11,18 +11,18 @@ updated: 2026-11-26
 related: ["/en/operations/cluster", "/en/operations/cluster/bootstrap", "/en/operations/cluster/data", "/en/operations/cluster/secrets", "/en/operations/cluster/runbook"]
 ---
 
-Six component repos build images: `server`, `website`, `docs`, `console` and `agent` for the stack chart, and `ai` for `ai-models`. A push to `main` in a component repo reaches dev: Argo CD Image Updater sees the new digest of `:main` and writes it on `stack-dev` or `ai-dev`. Prod runs one release of the umbrella repo. The Release workflow (`.github/workflows/release.yml` in `shopnexus/shopnexus`) takes the commits the umbrella's submodules point at on `main`, tags their images `X.Y.Z`, writes the release into `infra/`, and tags the umbrella `vX.Y.Z`. Every image in a prod release has the same version.
+Five component repos build images for the stack chart: `server`, `website`, `docs`, `console` and `agent`. A push to `main` in a component repo reaches dev: Argo CD Image Updater sees the new digest of `:main` and writes it on `stack-dev`. Prod runs one release of the umbrella repo. The Release workflow (`.github/workflows/release.yml` in `shopnexus/shopnexus`) takes the commits the umbrella's submodules point at on `main`, tags their images `X.Y.Z`, writes the release into `infra/`, and tags the umbrella `vX.Y.Z`. Every image in a prod release has the same version.
 
 ```mermaid title="From a commit to a pod"
 flowchart TB
-  repo["component repo<br/>server, website, docs, console, agent, ai"] -->|"push to main"| build["build.yml<br/>GitHub Actions"]
+  repo["component repo<br/>server, website, docs, console, agent"] -->|"push to main"| build["build.yml<br/>GitHub Actions"]
   build -->|"main, sha-#lt;commit#gt;"| ghcr[("GHCR<br/>ghcr.io/shopnexus/*")]
   iu["Image Updater<br/>ImageUpdater shopnexus"] -->|"digest of :main"| ghcr
-  iu -->|"writes Helm parameters"| dev["stack-dev, ai-dev"]
+  iu -->|"writes Helm parameters"| dev["stack-dev"]
   rel["release.yml<br/>umbrella repo"] -->|"adds X.Y.Z to sha-#lt;commit#gt;"| ghcr
   rel -->|"commit release X.Y.Z, tag vX.Y.Z"| main["umbrella main"]
   main --> root["root Application"]
-  root -->|"applies infra/argocd"| prod["stack-prod at vX.Y.Z<br/>ai-prod at the ai commit"]
+  root -->|"applies infra/argocd"| prod["stack-prod at vX.Y.Z"]
   root -.->|"ignores spec.source.helm.parameters"| dev
   dev --> devns["shopnexus-dev"]
   prod --> prodns["shopnexus-prod"]
@@ -47,12 +47,11 @@ Every image prod has run carries an `X.Y.Z` tag, so cleanup does not remove it. 
 
 ## Image Updater
 
-`infra/argocd/stacks.yaml` holds one `ImageUpdater` resource, `shopnexus` in namespace `argocd`. It has entries for `stack-dev` and `ai-dev` only; prod has none. The Image Updater chart is 1.4.0, installed by the `image-updater` Application in `infra/platform/image-updater.yaml`.
+`infra/argocd/stacks.yaml` holds one `ImageUpdater` resource, `shopnexus` in namespace `argocd`. It has an entry for `stack-dev` only; prod has none. The Image Updater chart is 1.4.0, installed by the `image-updater` Application in `infra/platform/image-updater.yaml`.
 
 | Application | Images it watches | `updateStrategy` | Helm parameters it writes |
 |---|---|---|---|
 | `stack-dev` | `ghcr.io/shopnexus/<component>:main` for `server`, `website`, `docs`, `console` and `agent` | `digest` | `images.<component>.repository`, `images.<component>.tag` |
-| `ai-dev` | `ghcr.io/shopnexus/ai:main` | `digest` | `images.models.repository`, `images.models.tag` |
 
 It moves when the digest behind `:main` changes and writes the tag as `main@sha256:…`. The other images in `values.yaml` (Postgres, Restate, RustFS, Bifrost) are pinned there and change only by a commit.
 
@@ -60,7 +59,7 @@ It moves when the digest behind `:main` changes and writes the tag as `main@sha2
 
 Argo CD gives Helm parameters precedence over value files. On `stack-dev`, once Image Updater has written `images.server.tag`, the `images.*.tag` lines in `values-dev.yaml` no longer decide what runs. Prod has no parameters, so the tags in `values-prod.yaml` at the release tag decide what `stack-prod` runs.
 
-The stack Applications are themselves resources of the app-of-apps `root` (`infra/argocd/root.yaml`), which syncs `infra/platform` and `infra/argocd` from the umbrella's `main` with `selfHeal: true`. Self-heal would put each Application back to its definition in git and erase the parameters on `stack-dev` and `ai-dev`. Two settings in `root` keep them:
+The stack Applications are themselves resources of the app-of-apps `root` (`infra/argocd/root.yaml`), which syncs `infra/platform` and `infra/argocd` from the umbrella's `main` with `selfHeal: true`. Self-heal would put each Application back to its definition in git and erase the parameters on `stack-dev`. Two settings in `root` keep them:
 
 ```yaml title="infra/argocd/root.yaml"
 ignoreDifferences:
@@ -122,16 +121,16 @@ You should see a new ReplicaSet with ready pods and the old one scaled to 0 once
 
 ## Release to prod
 
-A release takes all six repos at once, at the commits the umbrella's submodules point at on `main`. The version is `X.Y.Z`, without the `v`, and must be higher than the highest `vX.Y.Z` tag of the umbrella.
+A release takes all five repos at once, at the commits the umbrella's submodules point at on `main`. The version is `X.Y.Z`, without the `v`, and must be higher than the highest `vX.Y.Z` tag of the umbrella.
 
 <Steps>
 <Step title="Bump the submodules">
-In the umbrella, move the six submodules to the commits dev has run, which are the heads of their `main` once each repo's build has finished. Commit and push to the umbrella's `main`.
+In the umbrella, move the five submodules to the commits dev has run, which are the heads of their `main` once each repo's build has finished. Commit and push to the umbrella's `main`.
 
 ```bash title="Terminal"
 git switch main && git pull
-git submodule update --remote server website docs console agent ai
-git add server website docs console agent ai
+git submodule update --remote server website docs console agent
+git add server website docs console agent
 git commit -m "bump the components for 0.2.0"
 git push origin main
 ```
@@ -145,23 +144,22 @@ gh workflow run release.yml -R shopnexus/shopnexus -f version=0.2.0
 gh run watch -R shopnexus/shopnexus
 ```
 
-The workflow checks that the version is `X.Y.Z`, that `v0.2.0` does not exist and that it is higher than the last release. It then checks that `ghcr.io/shopnexus/<repo>:sha-<commit>` exists for all six repos before it tags any of them, so a release is tagged whole or not at all. It adds the tag `0.2.0` to each image, writes the release into three files, commits `release 0.2.0` on `main`, tags that commit `v0.2.0` and pushes both.
+The workflow checks that the version is `X.Y.Z`, that `v0.2.0` does not exist and that it is higher than the last release. It then checks that `ghcr.io/shopnexus/<repo>:sha-<commit>` exists for all five repos before it tags any of them, so a release is tagged whole or not at all. It adds the tag `0.2.0` to each image, writes the release into two files, commits `release 0.2.0` on `main`, tags that commit `v0.2.0` and pushes both.
 
 | File | What the workflow writes |
 |---|---|
 | `infra/stack/values-prod.yaml` | `images.<component>.tag: 0.2.0` for `server`, `website`, `docs`, `console` and `agent` |
 | `infra/argocd/stacks.yaml` | `targetRevision: v0.2.0` on `stack-prod` |
-| `infra/argocd/ai.yaml` | `targetRevision: <ai commit>` and `images.models.tag: 0.2.0` on `ai-prod` |
 
 Run `git pull` in your umbrella checkout afterwards, because the workflow has committed on `main`.
 </Step>
 
-<Step title="Watch stack-prod and ai-prod sync">
-`root` applies the new `stacks.yaml` and `ai.yaml` from `main`. `stack-prod` then renders `infra/stack` at the tag `v0.2.0`, so the chart and `values-prod.yaml` are the release's, and `ai-prod` renders the `ai` repo's `chart/` at the release's ai commit.
+<Step title="Watch stack-prod sync">
+`root` applies the new `stacks.yaml` from `main`. `stack-prod` then renders `infra/stack` at the tag `v0.2.0`, so the chart and `values-prod.yaml` are the release's.
 
 ```bash title="Terminal"
 kubectl -n argocd annotate application root argocd.argoproj.io/refresh=normal
-kubectl -n argocd get application stack-prod ai-prod \
+kubectl -n argocd get application stack-prod \
   -o custom-columns='NAME:.metadata.name,REVISION:.spec.source.targetRevision,SYNC:.status.sync.status,HEALTH:.status.health.status'
 ```
 </Step>
@@ -204,12 +202,12 @@ The `migrate` Job applies the new version's migrations while the old server pods
 </Callout>
 
 <Callout type="note" title="First release">
-The files name `0.1.0`, the tag `v0.1.0` and an ai commit before the first release, and `v0.1.0` does not exist yet. `stack-prod` cannot render until the first run of the Release workflow creates it.
+The files name `0.1.0` and the tag `v0.1.0` before the first release, and `v0.1.0` does not exist yet. `stack-prod` cannot render until the first run of the Release workflow creates it.
 </Callout>
 
 ## Roll back prod
 
-Revert the release commit on the umbrella's `main`. The revert puts `values-prod.yaml`, `stacks.yaml` and `ai.yaml` back to the previous release, so `stack-prod` returns to the previous `vX.Y.Z` and `ai-prod` to the previous ai commit. Their `X.Y.Z` images are still in GHCR, because cleanup keeps every version tag.
+Revert the release commit on the umbrella's `main`. The revert puts `values-prod.yaml` and `stacks.yaml` back to the previous release, so `stack-prod` returns to the previous `vX.Y.Z`. Its `X.Y.Z` images are still in GHCR, because cleanup keeps every version tag.
 
 <Steps>
 <Step title="Revert the release commit">
@@ -223,7 +221,7 @@ git push origin main
 </Step>
 
 <Step title="Watch the sync">
-`root` applies the reverted Applications from `main`, and `stack-prod` and `ai-prod` sync the previous release. Use the commands of the step "Watch stack-prod and ai-prod sync" above.
+`root` applies the reverted Applications from `main`, and `stack-prod` syncs the previous release. Use the commands of the step "Watch stack-prod sync" above.
 </Step>
 </Steps>
 
@@ -233,7 +231,7 @@ The revert leaves the submodule pointers and the tag `v0.2.0` in place. The next
 
 Non-secret settings live in `infra/stack/values.yaml` and the two stack files. Secrets go through the seal command, `infra/cmd/seal` ([Secrets](/en/operations/cluster/secrets)).
 
-`stack-dev` renders `infra/stack` at the umbrella's `main`, so dev gets a change on push. `stack-prod` renders it at the release tag, so a change to `values.yaml`, `values-prod.yaml` or the chart reaches prod with the next release. The Application definitions in `infra/argocd`, among them the `valuesObject` of `ai-prod` in `ai.yaml`, come from `main` through `root` and reach both stacks on push.
+`stack-dev` renders `infra/stack` at the umbrella's `main`, so dev gets a change on push. `stack-prod` renders it at the release tag, so a change to `values.yaml`, `values-prod.yaml` or the chart reaches prod with the next release. The Application definitions in `infra/argocd` come from `main` through `root` and reach both stacks on push.
 
 <Steps>
 <Step title="Edit the values file">
@@ -269,12 +267,10 @@ A `kubectl edit` on a resource of a stack lasts until the next self-heal, which 
 
 <Tabs labels={["kubectl", "Argo CD UI"]}>
 <Tab>
-The release `stack-prod` runs, and the ai commit and `ai-models` tag of `ai-prod`:
+The release `stack-prod` runs:
 
 ```bash title="Terminal"
 kubectl -n argocd get application stack-prod -o jsonpath='{.spec.source.targetRevision}{"\n"}'
-kubectl -n argocd get application ai-prod \
-  -o jsonpath='{.spec.source.targetRevision} {.spec.source.helm.valuesObject.images.models.tag}{"\n"}'
 ```
 
 The image tags of that release, from git:
@@ -315,7 +311,7 @@ Argo CD has no health check for `RestateDeployment`, so a server that crash-loop
 <KeyRules>
 - Dev follows `:main` by digest. Prod runs one release of the umbrella, `vX.Y.Z`, and every image in it has the tag `X.Y.Z`.
 - A release takes the commits the umbrella's submodules point at on `main`. Bump them to what dev ran before you run the Release workflow.
-- The prod lines of `values-prod.yaml`, `stacks.yaml` and `ai.yaml` change by a release or by the revert of one.
+- The prod lines of `values-prod.yaml` and `stacks.yaml` change by a release or by the revert of one.
 - A release can name only commits among each repo's 10 newest builds.
 - Every migration works with the server version before it.
 - A change to the cluster goes through git. A hand edit is reverted by self-heal.
@@ -325,11 +321,11 @@ Argo CD has no health check for `RestateDeployment`, so a server that crash-loop
 
 <AccordionGroup>
 <Accordion title="The Release workflow fails with sha-<commit> does not exist">
-The submodule points at a commit with no image in GHCR. Either the repo's `build.yml` has not built that commit yet, or cleanup removed the image because it is older than the 10 newest builds. Wait for the build, or bump the submodule to a newer commit, push, and run the workflow again. No image has been tagged at that point, because the workflow checks all six before it tags any.
+The submodule points at a commit with no image in GHCR. Either the repo's `build.yml` has not built that commit yet, or cleanup removed the image because it is older than the 10 newest builds. Wait for the build, or bump the submodule to a newer commit, push, and run the workflow again. No image has been tagged at that point, because the workflow checks all five before it tags any.
 </Accordion>
 
 <Accordion title="The Release workflow cannot tag an image">
-The workflow's `GITHUB_TOKEN` writes a package only when that package grants the umbrella repository write access. This is a one-time step in the GitHub UI for each of the six packages `server`, `website`, `docs`, `console`, `agent` and `ai`: open the package settings, then <UI>Manage Actions access</UI>, add `shopnexus/shopnexus` and give it the Write role.
+The workflow's `GITHUB_TOKEN` writes a package only when that package grants the umbrella repository write access. This is a one-time step in the GitHub UI for each of the five packages `server`, `website`, `docs`, `console` and `agent`: open the package settings, then <UI>Manage Actions access</UI>, add `shopnexus/shopnexus` and give it the Write role.
 </Accordion>
 
 <Accordion title="The Release workflow refuses the version">
