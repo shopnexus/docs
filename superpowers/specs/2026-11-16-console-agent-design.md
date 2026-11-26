@@ -4,7 +4,9 @@ Date: 2026-11-16.
 Status: decided in conversation, question by question (call path, trust,
 background runs, telling buyers, one chat per record, undo, retention,
 model), with the mockups on the Superdesign canvas (project "ShopNexus
-Console").
+Console"). Superseded in part on 2026-11-26 by
+`2026-11-26-bifrost-gateway-design.md`: Bifrost replaces LiteLLM, and the
+LiteLLM keys and end-user budgets go.
 When the work lands, server decisions go into `server/ARCHITECTURE.md` and
 console decisions into `console/DESIGN.md`.
 

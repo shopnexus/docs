@@ -1,7 +1,7 @@
 # Design: the console as an AI synthesis tool
 
 Date: 2026-11-18.
-Status: decided in conversation (brainstorm of 2026-11-18), for review.
+Status: decided in conversation (brainstorm of 2026-11-18), for review. Superseded in part on 2026-11-26 by `2026-11-26-bifrost-gateway-design.md`: Bifrost replaces LiteLLM, providers are read-only, and Rotation and the role and member budgets go.
 Builds on `2026-11-16-console-agent-design.md`, whose phase 1 (buffered
 answer, source chips, the Agent page) is live. Mockups: the Superdesign
 project "ShopNexus Console", drafts `soft-*` (built by

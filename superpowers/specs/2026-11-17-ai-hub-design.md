@@ -1,7 +1,7 @@
 # Design: `ai` as the AI hub (gateway + self-hosted models)
 
 Date: 2026-11-17.
-Status: decided in conversation, question by question.
+Status: decided in conversation, question by question. Superseded in part on 2026-11-26 by `2026-11-26-bifrost-gateway-design.md`: Bifrost replaces the LiteLLM gateway, and the server owns the agents, keys and budgets.
 Supersedes, where they differ: `2026-11-09-ai-stt-gateway-design.md`
 ("Where models run", LiteLLM in `infra/stack`), and the model sections of
 `2026-11-09-server-photo-similar-search-design.md` ("Models behind
