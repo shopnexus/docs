@@ -35,7 +35,7 @@ Phần lớn yêu cầu chức năng ở Chương 3 chỉ thêm một chức nă
 
 == Kiến trúc tổng thể
 
-Hình 4.1 trình bày kiến trúc theo năm tầng. Tầng khách gồm ứng dụng Android và website cho người mua, người bán, cùng trang điều hành cho nhân viên. Tầng giao tiếp là nơi duy nhất nhận yêu cầu từ bên ngoài: giao diện lập trình được đặc tả trước [18], kênh cập nhật thời gian thực cho màn hình đang mở, và cổng nhận trạng thái vận đơn do hãng vận chuyển báo về. Mọi yêu cầu được kiểm theo đặc tả và xác thực người gọi trước khi tới phân hệ nghiệp vụ. Tầng nền tảng cung cấp những thứ mọi phân hệ dùng chung: điều phối quy trình nhiều bước, kênh tin báo giữa các phân hệ, cơ sở dữ liệu có tìm kiếm theo từ khóa và theo nghĩa, kho ảnh, cổng mô hình ngôn ngữ lớn (LLM) và giám sát vận hành.
+Hình 4.1 trình bày kiến trúc theo năm tầng. Tầng khách gồm ứng dụng Android và website cho người mua, người bán, cùng trang điều hành cho nhân viên. Tầng giao tiếp là nơi duy nhất nhận yêu cầu từ bên ngoài: giao diện lập trình được đặc tả trước [19], kênh cập nhật thời gian thực cho màn hình đang mở, và cổng nhận trạng thái vận đơn do hãng vận chuyển báo về. Mọi yêu cầu được kiểm theo đặc tả và xác thực người gọi trước khi tới phân hệ nghiệp vụ. Tầng nền tảng cung cấp những thứ mọi phân hệ dùng chung: điều phối quy trình nhiều bước, kênh tin báo giữa các phân hệ, cơ sở dữ liệu có tìm kiếm theo từ khóa và theo nghĩa, kho ảnh, cổng mô hình ngôn ngữ lớn (LLM) và giám sát vận hành.
 
 #fig(
   [Kiến trúc tổng thể của hệ thống],
@@ -336,7 +336,7 @@ Hình 4.6 là trình tự của UC-DSC-01. Phân hệ khám phá tìm cách đ�
 
 == Thiết kế các chức năng AI
 
-Hệ thống dùng AI ở năm chỗ, liệt kê trong Bảng 4.5. Mỗi chỗ có một quy tắc chặn rủi ro riêng, và ở chỗ nào AI lỗi thì người dùng vẫn đi tiếp được. Mọi lời gọi mô hình ngôn ngữ đi qua một cổng chung; mỗi chức năng có khóa riêng và hạn mức chi phí theo ngày, nên một chức năng dùng quá mức không làm hỏng các chức năng khác.
+Hệ thống dùng AI ở năm chỗ, liệt kê trong Bảng 4.5. Mỗi chỗ có một quy tắc chặn rủi ro riêng, và ở chỗ nào AI lỗi thì người dùng vẫn đi tiếp được. Mọi lời gọi mô hình ngôn ngữ đi qua một cổng chung; mỗi chức năng có khóa riêng và hạn mức chi phí theo tháng, nên một chức năng dùng quá mức không làm hỏng các chức năng khác.
 
 #figure(
   kind: table,
@@ -349,7 +349,7 @@ Hệ thống dùng AI ở năm chỗ, liệt kê trong Bảng 4.5. Mỗi chỗ c
     [Đọc câu tìm], [Câu của người mua], [Điều kiện ưu tiên, câu diễn giải], [Giá trị phải khớp dữ liệu thật; quá 4 giây thì tìm bằng câu gốc],
     [Tìm bằng ảnh], [Ảnh người mua chụp], [Tin có ảnh gần nhất], [Chỉ người đã đăng nhập; mô hình lỗi thì báo tạm không tìm được],
     [Cảnh báo lừa đảo], [20 tin nhắn gần nhất đã che thông tin], [Danh sách mã dấu hiệu], [Chỉ cảnh báo, không chặn; người dùng tắt được],
-    [Trợ lý AI], [Phiếu, báo cáo hoặc tài khoản], [Bằng chứng, đề xuất, câu trả lời soạn sẵn], [Chỉ đọc; nhân viên bấm thao tác; 60 giây mỗi lượt; 20 USD mỗi ngày],
+    [Trợ lý AI], [Phiếu, báo cáo hoặc tài khoản], [Bằng chứng, đề xuất, câu trả lời soạn sẵn], [Chỉ đọc; nhân viên bấm thao tác; 60 giây mỗi lượt; 100 USD mỗi tháng],
   ),
 )
 
@@ -357,7 +357,7 @@ Trợ lý AI của nhân viên [14] chạy thành dịch vụ riêng trong mạn
 
 == Chức năng cung cấp cho ứng dụng và bảo vệ người dùng
 
-Mọi chức năng mà ứng dụng, website và trang điều hành gọi tới được mô tả trước trong một bản đặc tả chung [18], dùng làm căn cứ cho cả lập trình lẫn kiểm thử. Khi một thao tác bị từ chối, bên gọi luôn nhận được lý do cụ thể để báo cho người dùng, ví dụ giá đã đổi, cần đăng nhập lại hoặc đã đủ 3 đơn COD đang mở. Với các thao tác quan trọng, người dùng bấm hai lần hoặc mạng chập chờn khiến ứng dụng gửi lại thì kết quả vẫn chỉ là một (AD-02). Bảng 4.6 tóm tắt các nhóm chức năng tiêu biểu.
+Mọi chức năng mà ứng dụng, website và trang điều hành gọi tới được mô tả trước trong một bản đặc tả chung [19], dùng làm căn cứ cho cả lập trình lẫn kiểm thử. Khi một thao tác bị từ chối, bên gọi luôn nhận được lý do cụ thể để báo cho người dùng, ví dụ giá đã đổi, cần đăng nhập lại hoặc đã đủ 3 đơn COD đang mở. Với các thao tác quan trọng, người dùng bấm hai lần hoặc mạng chập chờn khiến ứng dụng gửi lại thì kết quả vẫn chỉ là một (AD-02). Bảng 4.6 tóm tắt các nhóm chức năng tiêu biểu.
 
 #figure(
   kind: table,

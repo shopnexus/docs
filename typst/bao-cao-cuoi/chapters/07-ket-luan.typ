@@ -12,7 +12,7 @@ Về sản phẩm, nhóm hoàn thành dịch vụ nền chia theo phân hệ ngh
 
 == Hạn chế
 
-Chỉ hai hãng được kết nối, nên người bán quen dùng hãng khác phải chuyển sang GHTK hoặc GHN hay xin thêm hãng. Chế tài tự động theo tỉ lệ giao không thành chưa được áp dụng: hệ thống mới hiện số liệu công khai và giới hạn chung 3 đơn COD đang mở. Đẩy tin và gói người bán, nguồn doanh thu của mô hình, đã có thiết kế nhưng chưa phát hành. Bộ mẫu đánh giá tìm kiếm còn nhỏ và chưa đo độ chính xác. Mỗi lượt dùng mô hình ngôn ngữ lớn (LLM) tốn chi phí, nên các chức năng AI phải chạy trong hạn mức theo ngày. Ứng dụng mới có trên Android, chưa có cho iOS.
+Chỉ hai hãng được kết nối, nên người bán quen dùng hãng khác phải chuyển sang GHTK hoặc GHN hay xin thêm hãng. Chế tài tự động theo tỉ lệ giao không thành chưa được áp dụng: hệ thống mới hiện số liệu công khai và giới hạn chung 3 đơn COD đang mở. Đẩy tin và gói người bán, nguồn doanh thu của mô hình, đã có thiết kế nhưng chưa phát hành. Bộ mẫu đánh giá tìm kiếm còn nhỏ và chưa đo độ chính xác. Mỗi lượt dùng mô hình ngôn ngữ lớn (LLM) tốn chi phí, nên các chức năng AI phải chạy trong hạn mức theo tháng. Ứng dụng mới có trên Android, chưa có cho iOS.
 
 == Kiến nghị và hướng phát triển
 

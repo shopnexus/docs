@@ -250,6 +250,7 @@ Ngoài phần mở đầu và kết luận, đồ án gồm sáu chương. Chư�
   numbering: n => "[" + str(n) + "]",
   start: 15,
   [Android Developers, Guide to app architecture, https:\/\/developer.android.com/topic/architecture.],
+  [Bifrost Documentation: Open-Source LLM Gateway, https:\/\/docs.getbifrost.ai.],
   [Giao Hàng Nhanh, GHN Developer API Documentation, https:\/\/api.ghn.vn.],
   [Giao Hàng Tiết Kiệm, GHTK OpenAPI Documentation, https:\/\/docs.giaohangtietkiem.vn.],
   [OpenAPI Initiative, OpenAPI Specification v3.2.0, https:\/\/spec.openapis.org/oas/v3.2.0.],
