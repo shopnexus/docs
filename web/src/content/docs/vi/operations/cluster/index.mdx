@@ -7,11 +7,11 @@ groupOrder: 2
 audience: [developers, admins]
 type: concept
 readingTime: 9
-updated: 2026-11-17
+updated: 2026-11-26
 related: ["/vi/operations", "/vi/operations/cluster/bootstrap", "/vi/operations/cluster/networking", "/vi/operations/cluster/data", "/vi/operations/cluster/releases", "/vi/operations/cluster/secrets"]
 ---
 
-Một cluster k3d tên `shopnexus` chạy hai stack ShopNexus là dev và prod. Mỗi stack nằm trong namespace riêng và có database, cluster Restate, object store và hub AI của riêng nó. Argo CD giữ cả hai stack khớp với repo tổng; bản thiết kế nằm ở `docs/superpowers/specs/2026-11-04-infra-k3d-stacks-design.md`.
+Một cluster k3d tên `shopnexus` chạy hai stack ShopNexus là dev và prod. Mỗi stack nằm trong namespace riêng và có database, cluster Restate, object store và cổng mô hình (Bifrost) của riêng nó. Argo CD giữ cả hai stack khớp với repo tổng; bản thiết kế nằm ở `docs/superpowers/specs/2026-11-04-infra-k3d-stacks-design.md`.
 
 ## Các node
 
@@ -21,7 +21,7 @@ Cả hai file cấu hình k3d, `infra/cluster/k3d-direct.yaml` và `infra/cluste
 |---|---|---|
 | `server-0` | control plane | Traefik (cả hai cấu hình biên ghim nó ở đây bằng `nodeSelector`) |
 | `agent-0` | `role=stateful` | RustFS |
-| `agent-1` | `role=app` | `server`, `website`, `docs`, `console`, `ai-gateway`, `ai-models` |
+| `agent-1` | `role=app` | `server`, `server-ai`, `agent`, `website`, `docs`, `console`, `bifrost` |
 | `agent-2` | `role=app` | giống `agent-1` |
 
 ```mermaid title="Pod ưu tiên chạy ở đâu"
@@ -33,10 +33,10 @@ flowchart TB
     rustfs[rustfs]
   end
   subgraph a1["agent-1, role=app"]
-    app1["server, website, docs,<br/>console, ai-gateway, ai-models"]
+    app1["server, website, docs,<br/>console, agent, bifrost, server-ai"]
   end
   subgraph a2["agent-2, role=app"]
-    app-android["server, website, docs,<br/>console, ai-gateway, ai-models"]
+    app-android["server, website, docs,<br/>console, agent, bifrost, server-ai"]
   end
   spread["pod postgres và restate:<br/>mỗi node một pod nếu được"] -.-> a0
   spread -.-> a1
@@ -77,10 +77,11 @@ Mỗi dòng là một resource mà chart trong `infra/stack` render vào namespa
 | `postgres` | `Cluster` của CloudNativePG | 5432 | 1 instance, 5Gi | 2 instance, 10Gi |
 | `restate-<stack>` | `RestateCluster` | 8080 ingress, 9070 admin | 1 node, 2 GiB | 3 node, 4 GiB |
 | `rustfs` | `StatefulSet` | 9000 | 1, 10Gi | 1, 10Gi |
+| `bifrost` | `Deployment` | 8080 | 1 | 1 |
 
-Application `ai-<stack>` render `ai-gateway` (cổng 4000) và `ai-models` (cổng 8000) vào cùng namespace từ chart của repo `ai`, mỗi thứ một replica ở cả hai stack.
+`bifrost` là cổng của stack tới các mô hình ở xa ([Cổng Bifrost](/vi/operations/cluster/llm-gateway)). Giọng nói, vector ảnh và khung hình video chạy trong `server-ai`, tức server với phân hệ ai.
 
-Restate nhân bản mỗi partition ra `min(2, replicas)` node, tức 1 bản ở dev và 2 bản ở prod. Postgres chạy image `paradedb/paradedb:0.26.4-pg18`; `ai-gateway` có database riêng `litellm` trên cùng cluster CloudNativePG. Service `server-api` ở cổng 8080 chọn mọi pod server thuộc mọi phiên bản, còn restate-operator tạo cho mỗi phiên bản server một Service ở cổng 9080.
+Restate nhân bản mỗi partition ra `min(2, replicas)` node, tức 1 bản ở dev và 2 bản ở prod. Postgres chạy image `paradedb/paradedb:0.26.4-pg18`; Bifrost có database riêng `bifrost` trên cùng cluster CloudNativePG. Service `server-api` ở cổng 8080 chọn mọi pod server thuộc mọi phiên bản, còn restate-operator tạo cho mỗi phiên bản server một Service ở cổng 9080.
 
 Ba Job chạy dưới dạng Sync hook của Argo CD:
 
@@ -106,19 +107,14 @@ flowchart LR
   root -->|wave 1| dev["stack-dev<br/>infra/stack + values-dev.yaml"]
   root -->|wave 1| prod["stack-prod<br/>infra/stack + values-prod.yaml<br/>ở vX.Y.Z"]
   root -->|wave 1| iu["ImageUpdater shopnexus"]
-  root -->|wave 2| aidev["ai-dev<br/>repo ai, chart/"]
-  root -->|wave 2| aiprod["ai-prod<br/>repo ai, chart/"]
   iu -. "digest của :main" .-> dev
-  iu -. "digest của :main" .-> aidev
   dev --> devns[shopnexus-dev]
   prod --> prodns[shopnexus-prod]
-  aidev --> devns
-  aiprod --> prodns
 ```
 
-`root` có hai nguồn trong repo tổng: `infra/platform`, chứa một Application cho mỗi chart nền tảng, và `infra/argocd`, chứa chính `root.yaml`, `stack-dev`, `stack-prod`, `ImageUpdater`, cùng `ai-dev` và `ai-prod` trong `ai.yaml`. Các chart nền tảng lấy từ Helm repository gốc của chúng, không được vendor vào repo. Chart của restate-operator được đọc từ GHCR dưới dạng OCI repository qua Secret `repo-restatedev-oci`. `ai-dev` và `ai-prod` render chart trong `chart/` của repo `ai` (`shopnexus/ai`) vào namespace của stack, `ai-dev` ở nhánh `main` và `ai-prod` ở commit ai của bản phát hành, sau các stack; trang [Hub AI](/vi/operations/cluster/llm-gateway) mô tả chúng.
+`root` có hai nguồn trong repo tổng: `infra/platform`, chứa một Application cho mỗi chart nền tảng, và `infra/argocd`, chứa chính `root.yaml`, `stack-dev`, `stack-prod` và `ImageUpdater`. Các chart nền tảng lấy từ Helm repository gốc của chúng, không được vendor vào repo. Chart của restate-operator được đọc từ GHCR dưới dạng OCI repository qua Secret `repo-restatedev-oci`.
 
-Từ bản 1.8, Argo CD không còn tự đánh giá health của một Application. Phần values trong `infra/cluster/argocd.yaml` thêm một health check cho `argoproj.io/Application`, nhờ đó `root` chờ các Application nền tảng ở wave 0 Healthy rồi mới tạo các stack ở wave 1. Mọi Application tự sync với `prune` và `selfHeal`, và retry không giới hạn. `root` bỏ qua `/spec/source/helm/parameters` trên các Application, vì Image Updater ghi tag image của `stack-dev` và `ai-dev` vào đó và self-heal sẽ đặt lại giá trị cũ nếu không bỏ qua.
+Từ bản 1.8, Argo CD không còn tự đánh giá health của một Application. Phần values trong `infra/cluster/argocd.yaml` thêm một health check cho `argoproj.io/Application`, nhờ đó `root` chờ các Application nền tảng ở wave 0 Healthy rồi mới tạo các stack ở wave 1. Mọi Application tự sync với `prune` và `selfHeal`, và retry không giới hạn. `root` bỏ qua `/spec/source/helm/parameters` trên các Application, vì Image Updater ghi tag image của `stack-dev` vào đó và self-heal sẽ đặt lại giá trị cũ nếu không bỏ qua.
 
 ## Cấu trúc thư mục
 
@@ -137,8 +133,7 @@ infra/
 │   └── argocd.yaml               # HelmChart của k3s: Argo CD, kèm health check cho Application
 ├── argocd/
 │   ├── root.yaml                 # app-of-apps
-│   ├── stacks.yaml               # stack-dev, stack-prod và ImageUpdater
-│   └── ai.yaml                   # ai-dev, ai-prod: chart của repo ai, ngân sách key theo stack
+│   └── stacks.yaml               # stack-dev, stack-prod và ImageUpdater
 ├── platform/                     # mỗi chart gốc một Application
 │   ├── cnpg.yaml
 │   ├── image-updater.yaml
@@ -180,4 +175,4 @@ Bản thiết kế để sao lưu, quan sát hệ thống, máy thật và file 
 - Chart đặt `OTEL_EXPORTER_OTLP_ENDPOINT` là chuỗi rỗng, nên server không gửi gì qua OTLP và chỉ ghi log JSON ra stdout. Cluster không chạy collector nào.
 - Các agent là container trên cùng một host và dùng chung ổ đĩa của nó, nên hỏng ổ đĩa là mất mọi node. Chuyển sang k3s trên các máy riêng thì đổi `infra/cluster/`.
 - File `docker-compose.yml` ở gốc repo giờ có ba stack, mỗi profile một stack, mỗi stack có network, Postgres, Restate, RustFS và volume riêng. `dev` chạy server bằng `go run` và dev server của các web app với Compose Watch, sau Caddy ở cổng 56481. `prod` build mọi thành phần từ Dockerfile của nó, sau Caddy ở cổng 56480. `test` chạy các test Go của server. `infra/check.sh` báo lỗi khi tag image của Postgres, Restate và RustFS trong file đó khác với `infra/stack/values.yaml`.
-- Trước khi có tìm bằng ảnh, bản thiết kế ước tính hai stack dùng 6 đến 8 GB bộ nhớ. Tìm bằng ảnh thêm `ai-models`: xin 6Gi ở prod, có SigLIP 2 (giữ 4,0 GiB lúc rảnh, đo ngày 2026-11-10), và 2Gi ở dev, nơi không nạp SigLIP 2 từ 2026-11-17. `ai-gateway` giữ khoảng 0,6 GiB mỗi stack. Embedding chữ lấy từ OpenRouter, nên không stack nào chạy TEI. Ngày 2026-11-17, TEI (5,5 GiB) và `ai` (4,1 GiB) cùng các dự án khác đã lấp đầy máy dev 19 GiB. Phương án dự phòng là scale dev về 0 khi không dùng, hoặc giảm cluster xuống hai agent.
+- Trước khi có tìm bằng ảnh, bản thiết kế ước tính hai stack dùng 6 đến 8 GB bộ nhớ. Tìm bằng ảnh thêm `server-ai`: xin 6Gi ở prod, có SigLIP 2 (giữ 4,0 GiB lúc rảnh, đo ngày 2026-11-10), và 2Gi ở dev, nơi không nạp SigLIP 2 từ 2026-11-17. Bifrost giữ 260 tới 440 MiB mỗi stack trong lần thử ngày 2026-11-26, còn LiteLLM chiếm tới 1 GiB. Embedding chữ lấy từ OpenRouter, nên không stack nào chạy TEI. Ngày 2026-11-17, TEI (5,5 GiB) và `ai` (4,1 GiB) cùng các dự án khác đã lấp đầy máy dev 19 GiB. Phương án dự phòng là scale dev về 0 khi không dùng, hoặc giảm cluster xuống hai agent.

@@ -7,11 +7,11 @@ groupOrder: 2
 audience: [developers, admins]
 type: concept
 readingTime: 8
-updated: 2026-11-17
+updated: 2026-11-26
 related: ["/en/operations", "/en/operations/cluster/bootstrap", "/en/operations/cluster/networking", "/en/operations/cluster/data", "/en/operations/cluster/releases", "/en/operations/cluster/secrets"]
 ---
 
-One k3d cluster named `shopnexus` runs two stacks of ShopNexus, dev and prod. Each stack lives in its own namespace and has its own database, Restate cluster, object store and AI hub. Argo CD keeps both stacks in step with the umbrella repo, and the design is in `docs/superpowers/specs/2026-11-04-infra-k3d-stacks-design.md`.
+One k3d cluster named `shopnexus` runs two stacks of ShopNexus, dev and prod. Each stack lives in its own namespace and has its own database, Restate cluster, object store and model gateway (Bifrost). Argo CD keeps both stacks in step with the umbrella repo, and the design is in `docs/superpowers/specs/2026-11-04-infra-k3d-stacks-design.md`.
 
 ## Nodes
 
@@ -21,7 +21,7 @@ Both k3d configs, `infra/cluster/k3d-direct.yaml` and `infra/cluster/k3d-behind-
 |---|---|---|
 | `server-0` | control plane | Traefik (both edge configs pin it here with a `nodeSelector`) |
 | `agent-0` | `role=stateful` | RustFS |
-| `agent-1` | `role=app` | `server`, `website`, `docs`, `console`, `ai-gateway`, `ai-models` |
+| `agent-1` | `role=app` | `server`, `server-ai`, `agent`, `website`, `docs`, `console`, `bifrost` |
 | `agent-2` | `role=app` | the same as `agent-1` |
 
 ```mermaid title="Where pods prefer to run"
@@ -33,10 +33,10 @@ flowchart TB
     rustfs[rustfs]
   end
   subgraph a1["agent-1, role=app"]
-    app1["server, website, docs,<br/>console, ai-gateway, ai-models"]
+    app1["server, website, docs,<br/>console, agent, bifrost, server-ai"]
   end
   subgraph a2["agent-2, role=app"]
-    app-android["server, website, docs,<br/>console, ai-gateway, ai-models"]
+    app-android["server, website, docs,<br/>console, agent, bifrost, server-ai"]
   end
   spread["postgres and restate pods:<br/>one per node where possible"] -.-> a0
   spread -.-> a1
@@ -77,10 +77,11 @@ Each row is one resource that the chart in `infra/stack` renders into a stack na
 | `postgres` | CloudNativePG `Cluster` | 5432 | 1 instance, 5Gi | 2 instances, 10Gi |
 | `restate-<stack>` | `RestateCluster` | 8080 ingress, 9070 admin | 1 node, 2 GiB | 3 nodes, 4 GiB |
 | `rustfs` | `StatefulSet` | 9000 | 1, 10Gi | 1, 10Gi |
+| `bifrost` | `Deployment` | 8080 | 1 | 1 |
 
-The Application `ai-<stack>` renders `ai-gateway` (port 4000) and `ai-models` (port 8000) into the same namespace from the `ai` repo's chart, one replica each in both stacks.
+`bifrost` is the stack's gateway to the remote models ([Bifrost gateway](/en/operations/cluster/llm-gateway)). Speech, photo vectors and video frames run in `server-ai`, the server with module ai.
 
-Restate replicates each partition to `min(2, replicas)` nodes, which is 1 copy in dev and 2 in prod. Postgres runs the image `paradedb/paradedb:0.26.4-pg18`; `ai-gateway` keeps its own database `litellm` on the same CloudNativePG cluster. The `server-api` Service on port 8080 selects every server pod of any version, and restate-operator creates a Service per server version for port 9080.
+Restate replicates each partition to `min(2, replicas)` nodes, which is 1 copy in dev and 2 in prod. Postgres runs the image `paradedb/paradedb:0.26.4-pg18`; Bifrost keeps its own database `bifrost` on the same CloudNativePG cluster. The `server-api` Service on port 8080 selects every server pod of any version, and restate-operator creates a Service per server version for port 9080.
 
 Three Jobs run as Argo CD Sync hooks:
 
@@ -106,19 +107,14 @@ flowchart LR
   root -->|wave 1| dev["stack-dev<br/>infra/stack + values-dev.yaml"]
   root -->|wave 1| prod["stack-prod<br/>infra/stack + values-prod.yaml<br/>at vX.Y.Z"]
   root -->|wave 1| iu["ImageUpdater shopnexus"]
-  root -->|wave 2| aidev["ai-dev<br/>repo ai, chart/"]
-  root -->|wave 2| aiprod["ai-prod<br/>repo ai, chart/"]
   iu -. "digest of :main" .-> dev
-  iu -. "digest of :main" .-> aidev
   dev --> devns[shopnexus-dev]
   prod --> prodns[shopnexus-prod]
-  aidev --> devns
-  aiprod --> prodns
 ```
 
-`root` has two sources in the umbrella repo: `infra/platform`, with one Application per platform chart, and `infra/argocd`, with `root.yaml` itself, `stack-dev`, `stack-prod`, the `ImageUpdater`, and `ai-dev` and `ai-prod` in `ai.yaml`. The platform charts come from their upstream Helm repositories and are not vendored. restate-operator's chart is read from GHCR as an OCI repository through the Secret `repo-restatedev-oci`. `ai-dev` and `ai-prod` render the chart in `chart/` of the `ai` repo (`shopnexus/ai`) into the stack namespaces, `ai-dev` at `main` and `ai-prod` at the ai commit of the release, after the stacks; [AI hub](/en/operations/cluster/llm-gateway) describes them.
+`root` has two sources in the umbrella repo: `infra/platform`, with one Application per platform chart, and `infra/argocd`, with `root.yaml` itself, `stack-dev`, `stack-prod` and the `ImageUpdater`. The platform charts come from their upstream Helm repositories and are not vendored. restate-operator's chart is read from GHCR as an OCI repository through the Secret `repo-restatedev-oci`.
 
-Argo CD stopped judging the health of an Application in version 1.8. The values in `infra/cluster/argocd.yaml` add a health check for `argoproj.io/Application`, so `root` waits for the platform Applications in wave 0 to be Healthy before it creates the stacks in wave 1. Every Application syncs automatically with `prune` and `selfHeal` and retries without limit. `root` ignores `/spec/source/helm/parameters` on the Applications, because Image Updater writes the image tags of `stack-dev` and `ai-dev` there and self-heal would otherwise put them back.
+Argo CD stopped judging the health of an Application in version 1.8. The values in `infra/cluster/argocd.yaml` add a health check for `argoproj.io/Application`, so `root` waits for the platform Applications in wave 0 to be Healthy before it creates the stacks in wave 1. Every Application syncs automatically with `prune` and `selfHeal` and retries without limit. `root` ignores `/spec/source/helm/parameters` on the Applications, because Image Updater writes the image tags of `stack-dev` there and self-heal would otherwise put them back.
 
 ## Repository layout
 
@@ -137,8 +133,7 @@ infra/
 │   └── argocd.yaml               # k3s HelmChart: Argo CD, with a health check for Applications
 ├── argocd/
 │   ├── root.yaml                 # the app-of-apps
-│   ├── stacks.yaml               # stack-dev, stack-prod and the ImageUpdater
-│   └── ai.yaml                   # ai-dev, ai-prod: the ai repo's chart, keys' budgets per stack
+│   └── stacks.yaml               # stack-dev, stack-prod and the ImageUpdater
 ├── platform/                     # one Application per upstream chart
 │   ├── cnpg.yaml
 │   ├── image-updater.yaml
@@ -180,4 +175,4 @@ The spec leaves backups, observability, real machines and the root `docker-compo
 - The chart sets `OTEL_EXPORTER_OTLP_ENDPOINT` to an empty string, so the server sends nothing over OTLP and writes its JSON logs to stdout only. The cluster runs no collector.
 - The agents are containers on one host and share its disk, so a failed disk takes every node with it. A move to k3s on separate hosts changes `infra/cluster/`.
 - The root `docker-compose.yml` now has three stacks, one per profile, each with its own network, Postgres, Restate, RustFS and volumes. `dev` runs the server with `go run` and the web apps' dev servers with Compose Watch, behind Caddy on port 56481. `prod` builds every component from its Dockerfile, behind Caddy on port 56480. `test` runs the server's Go tests. `infra/check.sh` fails when the Postgres, Restate and RustFS image tags there differ from `infra/stack/values.yaml`.
-- The spec estimated the two stacks at 6 to 8 GB of memory before photo search. Photo search adds `ai-models`: 6Gi requested in prod, with SigLIP 2 (4.0 GiB held idle, measured 2026-11-10), and 2Gi in dev, which loads no SigLIP 2 since 2026-11-17. `ai-gateway` holds about 0.6 GiB per stack. Text embeddings come from OpenRouter, so no stack runs TEI. On 2026-11-17 TEI (5.5 GiB) and `ai` (4.1 GiB) filled the 19 GiB dev machine together with its other projects. The fallbacks are to scale dev to zero when unused or to drop the cluster to two agents.
+- The spec estimated the two stacks at 6 to 8 GB of memory before photo search. Photo search adds `server-ai`: 6Gi requested in prod, with SigLIP 2 (4.0 GiB held idle, measured 2026-11-10), and 2Gi in dev, which loads no SigLIP 2 since 2026-11-17. Bifrost held 260 to 440 MiB per stack in a test on 2026-11-26, where LiteLLM took up to 1 GiB. Text embeddings come from OpenRouter, so no stack runs TEI. On 2026-11-17 TEI (5.5 GiB) and `ai` (4.1 GiB) filled the 19 GiB dev machine together with its other projects. The fallbacks are to scale dev to zero when unused or to drop the cluster to two agents.
