@@ -7,7 +7,7 @@ groupOrder: 2
 audience: [admins, developers]
 type: reference
 readingTime: 9
-updated: 2026-11-17
+updated: 2026-11-26
 related: ["/en/operations/cluster/bootstrap", "/en/operations/cluster/networking", "/en/operations/cluster/data", "/en/operations/cluster/secrets", "/en/operations/cluster/llm-gateway"]
 ---
 
@@ -28,13 +28,12 @@ flowchart LR
   subgraph argocd["namespace argocd"]
     root["root"] --> sd["stack-dev"]
     root --> sp["stack-prod"]
-    root --> ad["ai-dev"]
   end
   subgraph dev["namespace shopnexus-dev"]
     server["server"] --> pg[("postgres")]
-    server --> gw["ai-gateway"]
-    server --> models["ai-models"]
-    gw --> models
+    server --> gw["bifrost"]
+    gw --> pg
+    server --> ai["server-ai"]
     server --> rustfs["rustfs"]
   end
   subgraph rdev["namespace restate-dev"]
@@ -42,7 +41,6 @@ flowchart LR
   end
   sd --> dev
   sd --> rdev
-  ad --> dev
   server <--> restate
 ```
 
@@ -76,21 +74,20 @@ Hurl reports the file as a success and exits with 0. Add `--insecure` if the cer
 
 ```bash
 kubectl -n shopnexus-dev logs -l app.kubernetes.io/name=server --prefix --tail=200
-kubectl -n shopnexus-dev logs deploy/ai-gateway --tail=200
-kubectl -n shopnexus-dev logs job/ai-gateway-keys
-kubectl -n shopnexus-dev logs deploy/ai-models --tail=200
+kubectl -n shopnexus-dev logs deploy/bifrost --tail=200
+kubectl -n shopnexus-dev logs -l app.kubernetes.io/name=server-ai --tail=200
 kubectl -n shopnexus-dev logs job/migrate
 kubectl -n restate-dev logs restate-dev-0 --tail=200
 kubectl -n shopnexus-dev logs postgres-1 --tail=200
 ```
 
-The server logs JSON. CNPG names the Postgres pods `postgres-1`, `postgres-2`; the current primary is in `kubectl -n shopnexus-dev get cluster postgres -o jsonpath='{.status.currentPrimary}'`. The Sync hook Jobs `migrate`, `objectstore-init`, `objectstore-init-snapshots` and `ai-gateway-keys` stay until the next sync replaces them.
+The server logs JSON. CNPG names the Postgres pods `postgres-1`, `postgres-2`; the current primary is in `kubectl -n shopnexus-dev get cluster postgres -o jsonpath='{.status.currentPrimary}'`. The Sync hook Jobs `migrate`, `objectstore-init` and `objectstore-init-snapshots` stay until the next sync replaces them.
 
 ## Port-forwards
 
 None of these have an Ingress. Each command holds the terminal; open the address in a browser or with `curl` from a second one.
 
-<Tabs labels={["Argo CD", "Restate admin", "ai-gateway"]}>
+<Tabs labels={["Argo CD", "Restate admin", "Bifrost"]}>
 <Tab>
 ```bash
 kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d; echo
@@ -109,13 +106,40 @@ Port 9070 is Restate's admin API, with its UI at `http://localhost:9070/ui`. Ins
 </Tab>
 <Tab>
 ```bash
-kubectl -n shopnexus-dev get secret litellm-secrets -o jsonpath='{.data.LITELLM_MASTER_KEY}' | base64 -d; echo
-kubectl -n shopnexus-dev port-forward svc/ai-gateway 4000:4000
+kubectl -n shopnexus-dev get secret bifrost-secrets -o jsonpath='{.data.BIFROST_ADMIN_PASSWORD}' | base64 -d; echo
+kubectl -n shopnexus-dev port-forward svc/bifrost 8080:8080
 ```
 
-Open `http://localhost:4000/ui` and sign in as `admin` with the master key; the commands that read each key's spend from a shell are in [AI hub](/en/operations/cluster/llm-gateway#admin-ui-and-spend).
+Open `http://localhost:8080` and sign in as `admin` with the printed password. The dashboard host `bifrost.<domain>` reaches the same UI behind the console's sign-in; [Bifrost gateway](/en/operations/cluster/llm-gateway#dashboard) says what to use it for.
 </Tab>
 </Tabs>
+
+## Bifrost
+
+### After the switch to Bifrost
+
+The first sync of a stack with Bifrost removes LiteLLM's Deployment, Job and Secrets. CNPG keeps the `litellm` database and role, because it never drops what the chart stops declaring. Drop them once, after `bifrost` is ready:
+
+```bash
+kubectl -n shopnexus-dev rollout status deploy/bifrost
+primary=$(kubectl -n shopnexus-dev get cluster postgres -o jsonpath='{.status.currentPrimary}')
+kubectl -n shopnexus-dev exec "$primary" -c postgres -- psql -c 'DROP DATABASE IF EXISTS litellm WITH (FORCE)' -c 'DROP ROLE IF EXISTS litellm'
+```
+
+LiteLLM's spend history goes with the database. Then check that the server reconciled Bifrost: the dashboard lists one team per agent.
+
+### Bifrost's encryption key
+
+`BIFROST_ENCRYPTION_KEY` encrypts what Bifrost stores. A new one makes that data unreadable, so it never changes once a stack has data. Dev's key and admin password were sealed on the cluster host. Before you run `seal dev` from any other checkout, copy them from the cluster into your `infra/stack/secrets/dev.env`:
+
+```bash
+for k in BIFROST_ENCRYPTION_KEY BIFROST_ADMIN_PASSWORD; do
+  printf '%s=%s\n' "$k" "$(kubectl -n shopnexus-dev get secret bifrost-secrets -o jsonpath="{.data.$k}" | base64 -d)"
+done
+printf 'BIFROST_DB_PASSWORD=%s\n' "$(kubectl -n shopnexus-dev get secret bifrost-db -o jsonpath='{.data.password}' | base64 -d)"
+```
+
+Replace those lines in `dev.env` with the output. A new database password would do no harm, but copying it keeps the role unchanged. The seal command keeps every value already in `dev.env`, so the reseal leaves Bifrost's data readable.
 
 ## Console admins
 
@@ -222,8 +246,8 @@ CNPG reads the Postgres major version from the image tag, and ParadeDB's tags su
 <Accordion title="The seal command stops on a missing restate.pem, or Restate's calls are refused">
 The seal command keeps Restate's signing key in `infra/stack/secrets/<stack>.restate.pem` and its public half in `RESTATE_IDENTITY_KEY` in `<stack>.env`. When the `.env` has the public key but the `.pem` is gone, the seal command stops with `restore dev.restate.pem from the backup`. Restore the file from the backup. A new pair would make Restate sign its requests with a key the running server does not know: the server refuses those requests, and durable flows stop while Restate retries them. A deliberate rotation deletes both the line and the `.pem` and restarts the Restate pods afterwards; [Secrets](/en/operations/cluster/secrets#the-restate-key) has the steps.
 </Accordion>
-<Accordion title="The server crash-loops with LLM_* or another variable not set">
-The server has no defaults. At start it exits with one line per variable that is missing or empty, such as `LLM_API_KEY is not set`. `LLM_BASE_URL` and `LLM_MODEL` come from the ConfigMap `server-env`; `LLM_API_KEY` and the other keys come from the sealed `server-secrets`. A missing key in `server-secrets` means the SealedSecrets were made before the seal command knew that key: run `go -C infra run ./cmd/seal dev` again (it keeps the existing keys and adds the new ones), commit and push. An empty `gateway.aliases.search.model` or `gateway.aliases.search.apiBase` in the `ai` chart never reaches the server: the chart fails to render with `gateway.aliases.search.model is required`, which Argo CD shows as a ComparisonError on `ai-<stack>`.
+<Accordion title="The server crash-loops with GATEWAY_* or another variable not set">
+The server has no defaults. At start it exits with one line per variable that is missing or empty, such as `GATEWAY_ADMIN_PASSWORD is not set`. `GATEWAY_URL` and `GATEWAY_ADMIN_USERNAME` come from the ConfigMap `server-env`; `GATEWAY_ADMIN_PASSWORD` comes from `bifrost-secrets`, and the other keys from the sealed `server-secrets`. A missing key means the SealedSecrets were made before the seal command knew that key: run `go -C infra run ./cmd/seal dev` again (it keeps the existing keys and adds the new ones), commit and push. Copy Bifrost's keys into `dev.env` first ([Bifrost's encryption key](#bifrosts-encryption-key)).
 </Accordion>
 <Accordion title="dev.shopnexus.id.vn does not resolve">
 `api.dev.shopnexus.id.vn` resolves but `dev.shopnexus.id.vn` does not. A `*` record does not cover `dev` once a `*.dev` record exists, so the zone needs an explicit `dev` record next to `@`, `*` and `*.dev`. Check with `dig +short dev.shopnexus.id.vn`.
