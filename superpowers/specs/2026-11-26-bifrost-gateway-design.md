@@ -139,7 +139,8 @@ on/off switch, whose meaning moves to the embed agent's `enabled`.
 |---|---|
 | Providers: add, edit and delete a credential, paste a key, test a connection | Read-only list: provider, models, status. A new provider or key is an infra change. |
 | Models: deployments per alias, weights, order | Gone. An agent names one model and its fallbacks. |
-| Agents: alias, model, budget, key aliases | Model picker (provider + model), fallbacks, price, monthly budget, callers' rate limits |
+| Agents: alias, model, budget, key aliases | Model picker (provider + model), fallbacks, monthly budget, callers' rate limits |
+| Models: tags | Tags and the model's price (one price per model, shared by the agents that use it) |
 | Rotation: strategy, retries, allowed fails, cooldown, timeout | Gone. Retries and timeouts are per provider in `config.json`. |
 | Budgets: per role, per member, per key, per model | One monthly budget per agent (on its page) |
 | Spend: by model, by member | By agent, by day |
