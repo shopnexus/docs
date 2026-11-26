@@ -7,7 +7,7 @@ groupOrder: 2
 audience: [admins, developers]
 type: concept
 readingTime: 11
-updated: 2026-11-17
+updated: 2026-11-26
 related: ["/vi/operations/cluster", "/vi/operations/cluster/bootstrap", "/vi/operations/cluster/releases", "/vi/operations/cluster/secrets", "/vi/operations/cluster/runbook"]
 ---
 
@@ -65,9 +65,9 @@ Image ParadeDB chạy `postgres` với uid 999. CNPG mặc định uid 26, uid t
 
 CNPG tạo Secret `postgres-app`. Server và các job của nó đọc `DATABASE_URL` từ key `uri`. URI đó chỉ tới Service `postgres-rw`, được CNPG giữ trỏ vào primary hiện tại, nên cấu hình của stack không nêu tên pod Postgres nào.
 
-### Database của gateway AI
+### Database của cổng AI
 
-`Cluster` còn quản lý role `litellm` (`ensure: present`, `login: true`); CNPG đọc mật khẩu của role từ Secret basic-auth `litellm-db`, do lệnh seal, `infra/cmd/seal`, niêm phong. Một resource `Database` riêng tên `litellm`, chủ sở hữu `litellm`, tạo database trên cùng cluster ở wave 1. `ai-gateway`, LiteLLM trong chart của repo `ai`, lưu virtual key và mức chi tiêu ở đó, như mô tả trong [Hub AI](/vi/operations/cluster/llm-gateway). Chart của stack giữ role và database, vì Postgres thuộc về stack; Application `ai-<stack>` sync sau stack.
+`Cluster` còn quản lý role `bifrost` (`ensure: present`, `login: true`); CNPG đọc mật khẩu của role từ Secret basic-auth `bifrost-db`, do lệnh seal, `infra/cmd/seal`, niêm phong. Một resource `Database` riêng tên `bifrost`, chủ sở hữu `bifrost`, tạo database trên cùng cluster ở wave 1. Bifrost lưu kho cấu hình và log của nó ở đó, như mô tả trong [Cổng Bifrost](/vi/operations/cluster/llm-gateway#database). Team, virtual key và ngân sách trong đó do server ghi. CNPG không xóa role hay database mà chart thôi khai báo, nên role và database `litellm` cũ phải được xóa bằng tay một lần ([Runbook](/vi/operations/cluster/runbook#sau-khi-chuyển-sang-bifrost)).
 
 ### Bố trí pod
 
@@ -207,10 +207,10 @@ Argo CD áp một stack theo từng wave. Nó chỉ bắt đầu một wave khi 
 |---|---|
 | -1 | Namespace `restate-<stack>` |
 | 0 | `ImageCatalog` và `Cluster` `postgres`, StatefulSet `rustfs`, các SealedSecret; resource không có annotation wave (ConfigMap `server-env`, Service, NetworkPolicy) |
-| 1 | `RestateCluster`, `Database` `litellm`, các job Sync hook `migrate`, `objectstore-init`, `objectstore-init-snapshots` |
+| 1 | `RestateCluster`, `Database` `bifrost`, các job Sync hook `migrate`, `objectstore-init`, `objectstore-init-snapshots` |
 | 2 | `RestateDeployment` `server`, Deployment `website`, `docs`, `console`, Ingress `shopnexus` |
 
-Application `ai-<stack>` sync sau khi Application của stack đã Healthy. Nó apply `ai-gateway` và `ai-models` ở wave 0 của nó và job Sync hook `ai-gateway-keys` ở wave 1 của nó.
+Wave 2 còn có `RestateDeployment` `server-ai` (phân hệ ai của server) và các Deployment `agent` và `bifrost`. Bifrost cần database của nó từ wave 1.
 
 Ba job ở wave 1 chạy image server với đầy đủ môi trường của server. Mỗi job có `backoffLimit: 6`, `restartPolicy: OnFailure` và `hook-delete-policy: BeforeHookCreation`, nên mỗi lần sync sẽ xoá lần chạy trước và chạy lại job.
 

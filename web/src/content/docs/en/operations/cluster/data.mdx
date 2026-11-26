@@ -7,7 +7,7 @@ groupOrder: 2
 audience: [admins, developers]
 type: concept
 readingTime: 10
-updated: 2026-11-17
+updated: 2026-11-26
 related: ["/en/operations/cluster", "/en/operations/cluster/bootstrap", "/en/operations/cluster/releases", "/en/operations/cluster/secrets", "/en/operations/cluster/runbook"]
 ---
 
@@ -67,7 +67,7 @@ CNPG creates the Secret `postgres-app`. The server and its jobs read `DATABASE_U
 
 ### The AI gateway's database
 
-The `Cluster` also manages a role `litellm` (`ensure: present`, `login: true`) whose password CNPG reads from the basic-auth Secret `litellm-db`, sealed by the seal command, `infra/cmd/seal`. A separate `Database` resource named `litellm`, owned by `litellm`, creates the database on the same cluster in wave 1. `ai-gateway`, the LiteLLM of the `ai` repo's chart, keeps its virtual keys and spend there, as described in [AI hub](/en/operations/cluster/llm-gateway). The stack chart keeps the role and the database, since Postgres belongs to the stack; the Application `ai-<stack>` syncs after the stack.
+The `Cluster` also manages a role `bifrost` (`ensure: present`, `login: true`) whose password CNPG reads from the basic-auth Secret `bifrost-db`, sealed by the seal command, `infra/cmd/seal`. A separate `Database` resource named `bifrost`, owned by `bifrost`, creates the database on the same cluster in wave 1. Bifrost keeps its config store and its logs there, as described in [Bifrost gateway](/en/operations/cluster/llm-gateway#the-database). The teams, virtual keys and budgets in it are written by the server. CNPG does not drop a role or database the chart stops declaring, so the old `litellm` ones are dropped by hand once ([Runbook](/en/operations/cluster/runbook#after-the-switch-to-bifrost)).
 
 ### Placement
 
@@ -207,10 +207,10 @@ Argo CD applies a stack in waves. It starts a wave only after every resource of 
 |---|---|
 | -1 | Namespace `restate-<stack>` |
 | 0 | `ImageCatalog` and `Cluster` `postgres`, StatefulSet `rustfs`, the SealedSecrets; resources without a wave annotation (ConfigMap `server-env`, Services, NetworkPolicies) |
-| 1 | `RestateCluster`, `Database` `litellm`, Sync hook jobs `migrate`, `objectstore-init`, `objectstore-init-snapshots` |
+| 1 | `RestateCluster`, `Database` `bifrost`, Sync hook jobs `migrate`, `objectstore-init`, `objectstore-init-snapshots` |
 | 2 | `RestateDeployment` `server`, Deployments `website`, `docs`, `console`, Ingress `shopnexus` |
 
-The Application `ai-<stack>` syncs after the stack Application is Healthy. It applies `ai-gateway` and `ai-models` in its wave 0 and the Sync hook job `ai-gateway-keys` in its wave 1.
+Wave 2 also holds `RestateDeployment` `server-ai` (the server's module ai) and the Deployments `agent` and `bifrost`. Bifrost needs its database from wave 1.
 
 The three wave-1 jobs run the server image with the server's full environment. Each has `backoffLimit: 6`, `restartPolicy: OnFailure` and `hook-delete-policy: BeforeHookCreation`, so every sync deletes the previous run and runs the job again.
 
