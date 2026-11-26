@@ -7,7 +7,7 @@ groupOrder: 2
 audience: [admins]
 type: how-to
 readingTime: 6
-updated: 2026-11-23
+updated: 2026-11-27
 related: ["/en/operations/cluster/bootstrap", "/en/operations/cluster/networking", "/en/operations/cluster/runbook"]
 ---
 
@@ -64,10 +64,10 @@ Each rule has a counter of the packets it dropped.
 
 To change a limit, edit `web-guard.nft` and run `install.sh` again. `sudo systemctl stop web-guard` removes the table until the next boot, and `sudo systemctl disable --now web-guard` removes it for good.
 
-The rules were tested in a throwaway network namespace on 2026-11-23, with the limits lowered to 5 a second, bursts of 10, and 20 open connections. Of 60 connections opened in a burst from one address, 20 were accepted. The connection-count rule dropped 32 SYN packets and the rate rule 8, and once 20 connections were open, every new one was dropped.
+The rules were tested in a throwaway network namespace, with the limits lowered to 5 a second, bursts of 10, and 20 open connections. Of 60 connections opened in a burst from one address, 20 were accepted. The connection-count rule dropped 32 SYN packets and the rate rule 8, and once 20 connections were open, every new one was dropped.
 
 ## What the host cannot stop
 
 - An attack larger than the home line fills the line before a packet reaches nftables. Only the ISP, or a proxy in front of the line, can drop that traffic.
 - The home router keeps a NAT entry for every IPv4 connection it forwards, and a SYN flood can fill its table before the host sees anything. In bridge mode, with the host dialing PPPoE itself, nftables is the first filter.
-- An HTTP flood from many addresses stays under per-address limits. The server limits guest searches to 2 a second per address in bursts of 30, and model calls to 200 a day per account; each server process counts on its own.
+- An HTTP flood from many addresses stays under per-address limits. The server's own rate limits count per address and per account in tiers ([API](/en/api)), and each server process counts on its own.

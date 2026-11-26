@@ -1,6 +1,6 @@
 ---
 import { Icon } from "astro-icon/components";
-import { glossary } from "../../data/glossary";
+import { glossary, retired } from "../../data/glossary";
 import { withBase } from "../../lib/base";
 import { STRINGS } from "../../lib/i18n";
 import { pageLang } from "../../lib/page-lang";
@@ -12,7 +12,7 @@ interface Props {
 const { id } = Astro.props;
 const lang = pageLang(Astro);
 const t = STRINGS[lang];
-const entry = glossary.find((g) => g.id === id);
+const entry = [...glossary, ...retired].find((g) => g.id === id);
 if (!entry) throw new Error(`<Term id="${id}">: no glossary entry with that id (src/data/glossary.ts).`);
 const main = entry[lang];
 const other = entry[lang === "en" ? "vi" : "en"];

@@ -1,27 +1,35 @@
 ---
 title: Cấu hình
-description: Mọi thiết lập đến từ biến môi trường và không có giá trị mặc định. Cách thiết lập và từng nhóm biến dùng để làm gì.
+description: Server đọc mọi thiết lập từ biến môi trường và không có giá trị mặc định. Từng nơi đặt biến ra sao, và mỗi nhóm biến dùng để làm gì.
 group: Vận hành
 order: 3
 groupOrder: 1
 audience: [developers]
 type: reference
-readingTime: 3
-updated: 2026-11-04
-related: ["/vi/operations/local-stack", "/vi/get-started/troubleshooting"]
+readingTime: 4
+updated: 2026-11-27
+related: ["/vi/operations/local-stack", "/vi/operations/cluster/secrets", "/vi/get-started/troubleshooting"]
 ---
 
 ## Không có giá trị mặc định
 
-Không thiết lập nào có giá trị mặc định, dù trong code Go, file Compose, Makefile hay helper của test. Biến nào cũng phải được đặt. Lúc khởi động, server kiểm tra tất cả và thoát, mỗi biến thiếu, rỗng hoặc sai là một dòng.
+Không thiết lập nào của server có giá trị mặc định, dù trong code Go, file Compose, Makefile hay helper của test. Ngoại lệ duy nhất là `SERVER_ROLE`, nhận `all` khi không đặt. Lúc khởi động, server kiểm tra mọi biến và thoát, mỗi biến thiếu, rỗng hoặc sai là một dòng.
 
-Có những biến để trống cũng mang nghĩa: không export OTLP, không có JWT key cũ, không có proxy tin cậy, push chỉ ghi ra log. Các biến đó vẫn phải có mặt, với giá trị rỗng, trong `.env.example` và mọi môi trường.
+Có những biến để trống cũng mang nghĩa: không export OTLP, không có JWT key cũ, không có proxy tin cậy, thông báo đẩy chỉ ghi ra log. Ở mọi nơi, các biến đó vẫn được đặt, với giá trị rỗng.
 
-## Thiết lập
+## Đặt biến ở đâu
 
-`server/.env.example` liệt kê mọi biến kèm giá trị cho dev. Lần `make run` đầu tiên chép file này thành `.env` rồi nối thêm các khóa được sinh ra: khóa ký JWT, khóa console và identity key của Restate. Server đọc `.env` khi khởi động, biến nào đã có sẵn trong môi trường của process thì được ưu tiên hơn file.
+| Nơi | Cách đặt |
+|---|---|
+| Server chạy riêng (`make run` trong `server/`) | `server/.env.example` liệt kê mọi biến kèm giá trị cho dev. Lần `make run` đầu tiên chép file này thành `.env`, các lần sau thêm những biến mà file mẫu mới có, và mỗi lần chạy điền các khóa được sinh ra. Biến đã có sẵn trong môi trường của process được ưu tiên hơn file. |
+| Các stack Compose của repo umbrella | `infra/stack/env/server.env` chứa những gì giống nhau ở mọi stack. File Compose thêm những gì khác biệt khi chạy local, còn volume khóa của stack giữ các khóa được sinh ra. |
+| Cluster | Chart đọc chính file `server.env` đó vào một ConfigMap và thêm giá trị riêng của từng stack. Khóa và credential lấy từ [Sealed Secrets](/vi/operations/cluster/secrets). |
 
-Hai giá trị bạn phải tự điền là `LLM_API_KEY` và `LLM_MODEL`. Thêm biến mới vào code thì thêm luôn vào `.env.example` trong cùng thay đổi.
+Mỗi biến chỉ nằm trong `server.env` hoặc trong thiết lập riêng của stack, không bao giờ ở cả hai: `infra/check.sh` và bước render chart sẽ lỗi khi một key nằm ở cả hai nơi. Biến mới được thêm vào `.env.example` và vào một trong hai nơi đó trong cùng một thay đổi.
+
+Các khóa được sinh ra gồm khóa ký JWT, khóa của trang điều hành, khóa OTP, khóa token của hãng vận chuyển, hai token của agent trên trang điều hành và identity key của Restate. Khóa nào đã có thì được giữ nguyên.
+
+Khi chạy riêng server, bạn tự chép `GATEWAY_ADMIN_PASSWORD` từ stack dev (xem [Stack local](/vi/operations/local-stack#chạy-riêng-server)).
 
 Test đọc file riêng là `.env.test`, trỏ tới stack test. Các biến trong đó có tiền tố `TEST_`.
 
@@ -29,16 +37,29 @@ Test đọc file riêng là `.env.test`, trỏ tới stack test. Các biến tro
 
 | Nhóm | Thiết lập gì |
 |---|---|
-| Runtime | `APP_ENV` (dev, test hoặc prod), địa chỉ HTTP, mức và định dạng log, dải IP của proxy tin cậy |
-| Database | URL kết nối Postgres |
-| Restate | URL ingress và admin, nơi server mở endpoint, tiền tố tên service, identity key |
-| Token | issuer, audience, khóa ký JWT, và khóa cũ khi đang đổi khóa |
-| Console | khóa console và origin duy nhất mà CORS cho phép, dành cho console |
-| Object store | endpoint RustFS, endpoint public mà điện thoại truy cập, credential, bucket và URL gốc của media |
-| Firebase | project, URL khóa để kiểm token số điện thoại, có cho số test của PNV hay không, credential push |
-| Model tìm kiếm | base URL, key và tên model của một API tương thích OpenAI |
+| Runtime | `APP_ENV` (dev, test hoặc prod), `SERVER_ROLE` (all, api hoặc ai), địa chỉ HTTP, mức và định dạng log, dải IP của proxy tin cậy |
+| Database | URL Postgres, kích thước pool và statement timeout |
+| Restate | URL ingress và admin, nơi server mở endpoint, tiền tố tên service, server có tự đăng ký hay không, identity key |
+| Khóa | issuer, audience, khóa ký JWT và một khóa cũ tùy chọn khi đang đổi khóa; khóa của trang điều hành, khóa OTP và khóa token của hãng vận chuyển |
+| Origin và host | origin của trang điều hành, website và tài liệu, host của các dashboard, khóa IndexNow, database GeoIP |
+| Object store | endpoint RustFS, endpoint public mà client truy cập, region, credential, bucket và URL gốc của media |
+| Gateway và vector | URL và tài khoản admin của Bifrost, mức reasoning effort, các mô hình embedding văn bản và ảnh cùng phiên bản và ngưỡng tương đồng của chúng |
+| Module ai | các mô hình giọng nói, nhận diện giọng nói và embedding ảnh, cùng giới hạn về số luồng, độ dài âm thanh, số khung hình và kích thước ảnh |
+| Hỗ trợ và uy tín | timeout của bước đọc tin đăng và kiểm tra lừa đảo, gateway và CDN của Chợ Tốt, tin nhắn trong cuộc trò chuyện có được đưa qua kiểm tra lừa đảo hay không |
+| Agent của trang điều hành | địa chỉ của agent, token server gửi cho nó, cùng địa chỉ và token của MCP server |
+| Hãng vận chuyển | `CARRIER_GHTK` và `CARRIER_GHN` (live, fake hoặc off), bao lâu đọc vận đơn một lần, và thiết lập API của từng hãng, chỉ đặt khi hãng đó ở chế độ live |
+| Firebase và Google | project, URL khóa để kiểm token số điện thoại và token Google, có cho số test của PNV qua hay không, credential cho thông báo đẩy |
+| Email | `EMAIL_SENDER` (log hoặc resend), khóa Resend và địa chỉ gửi |
 | Telemetry | endpoint OTLP và tên service |
 
 ## Production
 
-`APP_ENV=prod` thêm vài luật: phải có identity key của Restate, phải tắt số test của PNV, và phải có credential push.
+`APP_ENV=prod` từ chối các thiết lập dành cho dev ngay lúc khởi động:
+
+- `RESTATE_IDENTITY_KEY` để trống;
+- `PNV_TEST_NUMBERS=true`, khi đó số test của PNV đăng nhập được;
+- `FCM_CREDENTIALS` để trống, khi đó thông báo đẩy chỉ được ghi log;
+- `EMAIL_SENDER=log`, khi đó mail chỉ được ghi log;
+- một hãng vận chuyển đặt là `fake`, mà endpoint dev của nó cho phép bất kỳ ai chuyển trạng thái vận đơn.
+
+Ở mọi môi trường, server cũng từ chối khởi động khi còn migration chưa chạy.

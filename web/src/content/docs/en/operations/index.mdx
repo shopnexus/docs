@@ -7,26 +7,26 @@ groupOrder: 1
 audience: [developers, admins]
 type: overview
 readingTime: 4
-updated: 2026-11-26
+updated: 2026-11-27
 related: ["/en/operations/cluster", "/en/operations/cluster/bootstrap", "/en/operations/cluster/releases", "/en/operations/configuration", "/en/operations/local-stack"]
 ---
 
-The server, the website, the docs and the console run on one k3d cluster in two stacks, dev and prod. Each stack has its own namespace and its own Postgres, Restate, RustFS and Bifrost, the gateway to the remote models. Everything the cluster needs is in `infra/` in the umbrella repo. The Android app is built and installed from Gradle and is not part of the cluster.
+The server, the website, the docs, the console and the console agent run on one k3d cluster in two stacks, dev and prod. Each stack has its own namespace and its own Postgres, Restate, RustFS and Bifrost, the gateway to the remote models. Everything the cluster needs is in `infra/` in the umbrella repo. The Android app is built with Gradle and is not part of the cluster; its live flavor calls the dev API.
 
 | Stack | Domain | Namespace | Follows |
 |---|---|---|---|
 | dev | `dev.shopnexus.id.vn` | `shopnexus-dev` | `:main`, by digest |
 | prod | `shopnexus.id.vn` | `shopnexus-prod` | a release of the umbrella, `vX.Y.Z` |
 
-Each stack serves the website on its domain and four hosts below it: `api.` for the server, `media.` for the object store, `docs.` for the docs and `console.` for the console.
+Each stack serves the website on its domain and four hosts below it: `api.` for the server, `media.` for the object store, `docs.` for the docs and `console.` for the console. The staff dashboards have hosts of their own (see [Monitoring](/en/operations/monitoring)).
 
-The system is built and checked on a local k3d cluster. Bringing it up on the author's server and running the failover drills are the next steps, so the public hosts above are not live yet.
+The cluster runs on the author's [Linux server](/en/operations/cluster/linux-server). Prod runs from the first release on; until then the dev stack also answers on `shopnexus.id.vn`.
 
 ## From a push to a pod
 
 ```mermaid title="From a push to a running pod"
 flowchart TB
-  push[git push to main] --> ci[GitHub Actions build.yml]
+  push[git push to main] --> ci[GitHub Actions in each repo]
   ci --> ghcr["GHCR ghcr.io/shopnexus/*<br/>:main and sha-#lt;commit#gt;"]
   ghcr --> iu[Argo CD Image Updater]
   iu --> argo[Argo CD]
@@ -37,9 +37,9 @@ flowchart TB
   prodns --> traefik
 ```
 
-Each component repo (`server`, `website`, `docs`, `console`) has a `.github/workflows/build.yml`. A push to `main` builds the image and pushes it to GHCR with the tags `main` and `sha-<commit>`. For a prod release, the umbrella's Release workflow adds the tag `X.Y.Z` to the `sha-<commit>` images of the commits its submodules point at. The packages are public, because the cluster pulls them without credentials.
+A push to `main` of `server`, `docs` or the agent builds that repo's image, and a push to `clients` builds the website or the console image when its folder changed. Each image goes to GHCR with the tags `main` and `sha-<commit>`: `ghcr.io/shopnexus/server`, `docs` and `agent`, and `ghcr.io/shopnexus/clients/website` and `console`. For a prod release, the umbrella's Release workflow finds the image of each commit its submodules point at and tags it `X.Y.Z`. The packages are public, because the cluster pulls them without credentials.
 
-Argo CD Image Updater watches GHCR for dev. It follows the digest of `:main`, writes the new tag as a Helm parameter on `stack-dev`, and Argo CD syncs the chart in `infra/stack` into `shopnexus-dev`. Prod has no Image Updater: the Release workflow writes the version into `infra/` and tags the umbrella `vX.Y.Z`, and `stack-prod` renders `infra/stack` at that tag. CI never connects to the cluster. Traefik, bundled with k3s, routes each request by its `Host` header to the stack's Services.
+Argo CD Image Updater watches GHCR for dev. It follows the digest of `:main`, writes the new tag as a Helm parameter on `stack-dev`, and Argo CD syncs the chart in `infra/stack` into `shopnexus-dev`. Prod has no Image Updater: the Release workflow writes each image's digest into `infra/stack/values-prod.yaml`, tags the umbrella `vX.Y.Z`, and `stack-prod` renders `infra/stack` at that tag. `infra/RELEASING.md` is the release process, with hotfixes and rollback. CI never connects to the cluster. Traefik, bundled with k3s, routes each request by its `Host` header to the stack's Services.
 
 ## The cluster
 
@@ -64,6 +64,8 @@ The server refuses to start with `APP_ENV=prod` when:
 
 - `RESTATE_IDENTITY_KEY` is empty;
 - `FCM_CREDENTIALS` is empty, so pushes would only be logged;
-- `PNV_TEST_NUMBERS=true`, so PNV's test numbers would sign in.
+- `EMAIL_SENDER=log`, so mail would only be logged;
+- `PNV_TEST_NUMBERS=true`, so PNV's test numbers would sign in;
+- `CARRIER_GHTK` or `CARRIER_GHN` is `fake`.
 
-It also refuses to start in any environment while migrations are pending, which is why the `migrate` Job runs before the server in each stack. The chart sets `APP_ENV` from `appEnv` in the values file, `PNV_TEST_NUMBERS=false` in `values-prod.yaml`, and `LOG_FORMAT=json` in both stacks; the other server variables are on the [Configuration](/en/operations/configuration) page.
+It also refuses to start in any environment while migrations are pending, which is why the `migrate` Job runs before the server in each stack. The chart sets `APP_ENV` from `appEnv` in the values file and `LOG_FORMAT=json` in both stacks. Each stack's values file sets the test numbers, the mail sender and each carrier's mode: dev runs the fake carriers, test numbers and mail to the log, and prod turns test numbers off and sends mail through Resend. The other server variables are on the [Configuration](/en/operations/configuration) page.

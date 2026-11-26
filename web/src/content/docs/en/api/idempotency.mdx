@@ -46,14 +46,14 @@ A deal's moves keep their key too. A move the caller's key already made answers 
 
 The spec marks each one.
 
-| Required | Endpoints |
+| Area | Endpoints that require it |
 |---|---|
 | Sign-in and identity | `POST /v1/auth/sign-in`, `POST /v1/auth/email-codes`, `POST /v1/auth/sessions/current/reauthenticate`, `POST /v1/accounts/me/identities`, `POST /v1/accounts/me/email-codes` |
-| Listings | `POST /v1/listings`, `PUT /v1/listings/{id}`, `POST /v1/listings/{id}/photo-copies`, `POST /v1/listing-reads` |
+| Listings | `POST /v1/listings`, `POST /v1/listings/{id}/photo-copies`, `POST /v1/listing-reads` |
 | Orders | `POST /v1/orders/{order_id}/shipment`, `POST /v1/orders/{order_id}/confirm` |
 | Chat and help | `POST /v1/conversations`, `POST /v1/conversations/{id}/messages`, `POST /v1/support/tickets`, `POST /v1/feedback`, `POST /v1/addresses` |
 | Console | a staff reply to a support ticket |
 
 Two deal endpoints take the key as optional, because app versions from before send none: `POST /v1/deals/{id}/cod` and `POST /v1/orders/{order_id}/cancel`. Without a key every request moves on its own. The console agent's creates (a conversation, a question, a steer, a skill) take it as optional too.
 
-A listing edit writes the whole listing, so a retry writes the same content again. Endpoints without the header dedupe by what they write, such as one save per person and listing.
+`PUT /v1/listings/{id}` takes no key: an edit writes the whole listing, so a retry writes the same content again. Endpoints without the header dedupe by what they write, such as one save per person and listing.

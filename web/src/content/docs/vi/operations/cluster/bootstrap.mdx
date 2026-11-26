@@ -7,14 +7,14 @@ groupOrder: 2
 audience: [admins, developers]
 type: tutorial
 readingTime: 12
-updated: 2026-11-26
+updated: 2026-11-27
 related: ["/vi/operations/cluster", "/vi/operations/cluster/networking", "/vi/operations/cluster/secrets", "/vi/operations/cluster/runbook"]
 ---
 
 Bài hướng dẫn này đưa một bản fork của repo umbrella thành một cluster k3d tên `shopnexus` chạy hai stack: dev trong `shopnexus-dev` và prod trong `shopnexus-prod`. Bạn chạy ba lệnh: `k3d cluster create` với một file cấu hình trong `infra/cluster/` tạo cluster, và k3s cài Argo CD vào đó; `go -C infra run ./cmd/seal` ghi các secret; còn Hurl chạy `infra/smoke.hurl` để kiểm tra kết quả. Argo CD cài và đồng bộ mọi thứ còn lại từ bản fork của bạn.
 
 <Prereqs time="1 giờ" who="Quản trị viên và lập trình viên">
-- Một máy Linux có địa chỉ IP công khai và đủ bộ nhớ trống cho hai stack. Kế hoạch dựng hệ thống của tác giả dừng lại để cân nhắc khi còn dưới 6 GB khả dụng. Tường lửa và giới hạn chống flood của tác giả nằm ở [Cài đặt máy chủ Linux](/vi/operations/cluster/linux-server).
+- Một máy Linux có địa chỉ IP công khai và đủ bộ nhớ trống cho hai stack; riêng `server-ai` của prod đã xin 6Gi. Tường lửa và giới hạn chống flood của tác giả nằm ở [Cài đặt máy chủ Linux](/vi/operations/cluster/linux-server).
 - Docker. Lệnh seal cũng dùng Docker để chạy image server sinh khóa.
 - k3d. Cluster được dựng bằng k3d v5.9.0; server của tác giả chạy v5.8.3. Cả hai file cấu hình trong `infra/cluster/`, `k3d-direct.yaml` và `k3d-behind-proxy.yaml`, ghim image node `rancher/k3s:v1.37.1-k3s1`.
 - kubectl (đã thử với v1.37.2), Helm (v4.3.1) và kubeseal (0.41.2).
@@ -31,22 +31,23 @@ flowchart TD
   up["k3d cluster create<br/>--config infra/cluster/k3d-#lt;mode#gt;.yaml"] --> k3d["Cluster k3d shopnexus<br/>+ cấu hình edge của Traefik"]
   k3d --> argo["Argo CD<br/>(Helm chart 10.11.7)"]
   argo --> root["Application root"]
-  root --> w0["Wave 0: platform<br/>cnpg, sealed-secrets,<br/>restate-operator, image-updater"]
+  root --> w0["Wave 0: platform<br/>cnpg, sealed-secrets, restate-operator,<br/>image-updater, prometheus, blackbox-exporter"]
   w0 --> w1["Wave 1: stack-dev, stack-prod,<br/>ImageUpdater shopnexus"]
   w1 -->|"ComparisonError:<br/>chưa có sealed secret"| seal["cmd/seal dev, cmd/seal prod<br/>commit và push"]
   seal --> sm1["Wave -1 của stack<br/>Namespace restate-#lt;stack#gt;"]
-  sm1 --> s0["Wave 0 của stack<br/>postgres, rustfs, SealedSecret"]
-  s0 --> s1["Wave 1 của stack<br/>migrate, objectstore-init,<br/>RestateCluster"]
-  s1 --> s2["Wave 2 của stack<br/>server, server-ai, agent, bifrost,<br/>website, docs, console, Ingress"]
+  sm1 --> s0["Wave 0 của stack<br/>postgres, rustfs, lgtm, SealedSecret"]
+  s0 --> s1["Wave 1 của stack<br/>migrate, objectstore-init,<br/>RestateCluster, database bifrost"]
+  s1 --> s2["Wave 2 của stack<br/>server, server-ai, agent, bifrost,<br/>docs, imgproxy, pgweb, Ingress"]
+  s2 --> s3["Wave 3 của stack<br/>website, console,<br/>server-api, server-mcp"]
 ```
 
-Application `root` đồng bộ `infra/platform` và `infra/argocd` từ bản fork của bạn. Wave 0 của nó cài bốn operator của platform, và wave 1 tạo mỗi stack một Application. Mỗi Application của stack render Helm chart trong `infra/stack` và áp dụng nó theo các wave riêng. Bifrost, cổng mô hình của stack, khởi động ở wave 2, sau khi wave 1 đã tạo database `bifrost` của nó.
+Application `root` đồng bộ `infra/platform` và `infra/argocd` từ bản fork của bạn. Wave 0 của nó cài sáu chart của platform, và wave 1 tạo mỗi stack một Application. Mỗi Application của stack render Helm chart trong `infra/stack` và áp dụng nó theo các wave riêng. Bifrost, cổng mô hình của stack, khởi động ở wave 2, sau khi wave 1 đã tạo database `bifrost` của nó.
 
 ## Các bước
 
 <Steps>
 <Step title="Fork repo và trỏ cấu hình về bản fork">
-Fork `shopnexus/shopnexus` trên GitHub rồi clone bản fork về máy. Argo CD đọc bản fork mà không dùng thông tin đăng nhập, nên bản fork phải ở chế độ public.
+Fork `shopnexus/shopnexus` trên GitHub rồi clone bản fork về máy. Argo CD đọc bản fork mà không dùng thông tin đăng nhập, nên bản fork phải ở chế độ public. Argo CD chỉ đọc `infra/` và không bao giờ tải các submodule, vốn có cái là private.
 
 Đặt `repoURL` thành URL clone của bản fork trong hai file:
 
@@ -55,7 +56,7 @@ Fork `shopnexus/shopnexus` trên GitHub rồi clone bản fork về máy. Argo C
 
 Đặt `domain` trong `infra/stack/values-dev.yaml` và `infra/stack/values-prod.yaml`. Giá trị gốc là `dev.shopnexus.id.vn` và `shopnexus.id.vn`; giữ nguyên cấu trúc đó, với dev nằm dưới prod một nhãn.
 
-Bifrost của mỗi stack gửi mọi lời gọi mô hình tới một trong hai nhà cung cấp trong `infra/stack/bifrost/config.json`: upstream ở `LLM_UPSTREAM_BASE_URL` trong `infra/stack/env/bifrost.env`, và OpenRouter. Mỗi stack cần một khóa cho mỗi nhà cung cấp. Mô hình và ngân sách tháng của các agent nằm trong database của server và được sửa trong console ([Cổng Bifrost](/vi/operations/cluster/llm-gateway)). Nếu bạn tự build image, đổi các tên `ghcr.io/shopnexus/*` trong `infra/stack/values.yaml` và `infra/argocd/stacks.yaml`, và đặt các package GHCR ở chế độ public.
+Bifrost của mỗi stack gửi mọi lời gọi mô hình tới một trong hai nhà cung cấp trong `infra/stack/bifrost/config.json`: upstream ở `LLM_UPSTREAM_BASE_URL` trong `infra/stack/env/bifrost.env`, và OpenRouter. Mỗi stack cần một khóa cho mỗi nhà cung cấp. Mô hình và ngân sách tháng của các agent nằm trong database của server và được sửa trên trang điều hành ([Cổng Bifrost](/vi/operations/cluster/llm-gateway)). Nếu bạn tự build image, đổi các tên `ghcr.io/shopnexus/*` trong `infra/stack/values.yaml`, `values-prod.yaml` và `infra/argocd/stacks.yaml`, và đặt các package GHCR ở chế độ public.
 
 Commit và push lên `main`.
 
@@ -72,8 +73,8 @@ Tạo bốn bản ghi A trỏ về IP công khai của máy. Lấy `example.com`
 | Bản ghi | Phủ |
 |---|---|
 | `@` | `example.com`, website prod |
-| `*` | `api.`, `media.`, `docs.` và `console.example.com` |
-| `*.dev` | `api.dev.`, `media.dev.`, `docs.dev.` và `console.dev.example.com` |
+| `*` | mọi host dưới tên miền prod: `api.`, `media.`, `docs.`, `console.` và các host dashboard |
+| `*.dev` | cùng các host đó dưới `dev.example.com` |
 | `dev` | `dev.example.com`, website dev |
 
 Khi đã có `*.dev`, bản ghi `*` không còn phủ `dev.example.com`, nên website dev cần bản ghi `dev` riêng (trang [Biên và mạng](/vi/operations/cluster/networking#bản-ghi-dns) giải thích lý do).
@@ -106,11 +107,10 @@ Traefik trả lời thử thách TLS-ALPN-01 trên cổng 443, nên cổng 443 p
 k3d cluster create --config infra/cluster/k3d-behind-proxy.yaml
 ```
 
-Proxy trên máy host kết thúc TLS và chuyển HTTP thường đến `127.0.0.1:18080`. Traefik tin các header `X-Forwarded-*` đến từ địa chỉ private. Khối Caddy trên server của tác giả liệt kê mọi host của cả hai stack:
+Proxy trên máy host kết thúc TLS và chuyển HTTP thường đến `127.0.0.1:18080`. Traefik tin các header `X-Forwarded-*` đến từ địa chỉ private. Khối Caddy trên server của tác giả ghi mọi host của cả hai stack, kể cả các host dashboard (`grafana.`, `restate.`, `bifrost.`, `s3.`, `db.`, và `argocd.` ở prod), và gửi tất cả tới Traefik:
 
 ```text title="/etc/caddy/conf.d/shopnexus.caddy"
-shopnexus.id.vn, api.shopnexus.id.vn, console.shopnexus.id.vn, media.shopnexus.id.vn, docs.shopnexus.id.vn,
-dev.shopnexus.id.vn, api.dev.shopnexus.id.vn, console.dev.shopnexus.id.vn, media.dev.shopnexus.id.vn, docs.dev.shopnexus.id.vn {
+shopnexus.id.vn, api.shopnexus.id.vn, console.shopnexus.id.vn, media.shopnexus.id.vn, docs.shopnexus.id.vn, … {
 	request_body {
 		max_size 50MB
 	}
@@ -142,7 +142,7 @@ kubectl -n argocd get applications
 kubectl -n argocd get applications
 ```
 
-Sau vài phút, bốn Application của platform là `cnpg`, `sealed-secrets`, `restate-operator` và `image-updater` ở trạng thái Synced và Healthy. `stack-dev` và `stack-prod` hiện Unknown kèm một ComparisonError:
+Sau vài phút, sáu Application của platform là `cnpg`, `sealed-secrets`, `restate-operator`, `image-updater`, `prometheus` và `blackbox-exporter` ở trạng thái Synced và Healthy. `stack-dev` và `stack-prod` hiện Unknown kèm một ComparisonError:
 
 ```text
 infra/stack/secrets/dev/ holds no sealed secrets: run go -C infra run ./cmd/seal dev, commit and push
@@ -150,11 +150,10 @@ infra/stack/secrets/dev/ holds no sealed secrets: run go -C infra run ./cmd/seal
 
 Lỗi này nằm trong dự tính. Chart trong `infra/stack/templates/secrets.yaml` từ chối render khi `infra/stack/secrets/<stack>/` chưa có SealedSecret nào, vì stack không thể chạy thiếu chúng. Lúc này các secret chưa thể có: `kubeseal` mã hóa bằng chứng chỉ của controller Sealed Secrets, và controller đó vừa lên ở wave 0 một phút trước. Cả hai Application của stack thử lại, với thời gian chờ tăng dần từ 30 giây đến 5 phút, cho đến khi các file đã niêm phong có mặt trong git.
 
-Để vào giao diện web, chuyển tiếp một cổng và đọc mật khẩu admin ban đầu:
+Argo CD không có bước đăng nhập riêng: khi prod đã chạy, nó nằm sau bước đăng nhập của trang điều hành ở `argocd.<tên miền prod>`. Trước đó, chuyển tiếp cổng của nó và mở `http://localhost:8080`:
 
 ```bash title="Terminal"
-kubectl -n argocd port-forward svc/argocd-server 8080:443
-kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d
+kubectl -n argocd port-forward svc/argocd-server 8080:80
 ```
 </Step>
 
@@ -165,7 +164,7 @@ Chạy lệnh seal một lần cho mỗi stack, từ thư mục gốc của umbr
 go -C infra run ./cmd/seal dev
 ```
 
-Lần chạy đầu chép `infra/stack/secrets/example.env` thành `infra/stack/secrets/dev.env` với quyền 600 và sinh mọi khóa stack cần, điền thẳng vào dòng `KEY=` còn trống hoặc thêm một dòng mới: khóa JWT, khóa console và khóa ký của Restate (từ `/envgen` trong image server), khóa RustFS, và mật khẩu admin, khóa mã hóa cùng mật khẩu database của Bifrost. Khóa riêng của Restate nằm ở `dev.restate.pem` bên cạnh. Rồi lệnh dừng:
+Lần chạy đầu chép `infra/stack/secrets/example.env` thành `infra/stack/secrets/dev.env` với quyền 600 và sinh mọi khóa stack cần, điền thẳng vào dòng `KEY=` còn trống hoặc thêm một dòng mới: khóa JWT, khóa của trang điều hành, khóa OTP và khóa token của hãng vận chuyển, hai token của agent và khóa ký của Restate (từ `/envgen` trong image server), khóa root của RustFS cùng user của server và của Restate, và mật khẩu admin, khóa mã hóa cùng mật khẩu database của Bifrost. Khóa riêng của Restate nằm ở `dev.restate.pem` bên cạnh. Rồi lệnh dừng:
 
 ```text
 seal: .../infra/stack/secrets/dev.env: set OPENROUTER_API_KEY
@@ -178,6 +177,8 @@ Mở `dev.env` và điền các giá trị mà lệnh không tự sinh được:
 | `OPENROUTER_API_KEY` | bắt buộc | bắt buộc |
 | `LLM_UPSTREAM_API_KEY` | bắt buộc | bắt buộc |
 | `FCM_CREDENTIALS` | tùy chọn; để trống thì thông báo đẩy chỉ được ghi log thay vì gửi đi | bắt buộc; `APP_ENV=prod` không chấp nhận giá trị trống, và lệnh seal cho prod cũng vậy |
+| `RESEND_API_KEY` | tùy chọn; dev ghi các mã OTP gửi qua mail ra log | bắt buộc, vì prod gửi mail qua Resend |
+| `GHTK_*`, `GHN_*` | để trống khi hãng vận chuyển là hãng giả | chỉ cho hãng mà stack chạy ở chế độ live |
 
 `OPENROUTER_API_KEY` là khóa OpenRouter của stack, Bifrost gửi nó cho nhà cung cấp `openrouter`; hãy đặt cho khóa một hạn mức credit theo ngày trên OpenRouter. `LLM_UPSTREAM_API_KEY` là khóa của upstream. `FCM_CREDENTIALS` là JSON của một service account Firebase, mã hóa base64.
 
@@ -189,7 +190,7 @@ go -C infra run ./cmd/seal prod     # tạo prod.env rồi dừng
 go -C infra run ./cmd/seal prod     # sau khi điền prod.env
 ```
 
-Lần chạy thứ hai giữ các khóa đã có trong `<stack>.env`, nên niêm phong đúng những giá trị đó. Mỗi lần chạy thành công ghi sáu SealedSecret vào `infra/stack/secrets/<stack>/`: `server-secrets.yaml`, `agent-secrets.yaml`, `restate-secrets.yaml`, `rustfs-secrets.yaml`, `bifrost-secrets.yaml` và `bifrost-db.yaml`. Commit và push chúng:
+Lần chạy thứ hai giữ các khóa đã có trong `<stack>.env`, nên niêm phong đúng những giá trị đó. Mỗi lần chạy thành công ghi sáu SealedSecret vào `infra/stack/secrets/<stack>/`: `server-secrets.yaml`, `agent-secrets.yaml`, `restate-secrets.yaml`, `rustfs-secrets.yaml`, `bifrost-secrets.yaml` và `bifrost-db.yaml`. Stack có `lgtm.telegram: true` cần thêm `grafana-secrets.yaml`, chứa `TELEGRAM_BOT_TOKEN` và `TELEGRAM_CHAT_ID`, mà bạn tự niêm phong bằng `kubeseal`. Commit và push chúng:
 
 ```bash title="Terminal"
 git add infra/stack/secrets/dev infra/stack/secrets/prod
@@ -220,7 +221,7 @@ kubectl -n argocd annotate application stack-dev argocd.argoproj.io/refresh=norm
 kubectl -n argocd annotate application stack-prod argocd.argoproj.io/refresh=normal
 ```
 
-Sau đó mỗi stack đồng bộ theo các wave từ -1 tới 2, như sơ đồ ở trên. Argo CD chờ một wave healthy rồi mới bắt đầu wave sau. Trang [Postgres, Restate và RustFS](/vi/operations/cluster/data#sync-wave-và-job) liệt kê mọi resource của từng wave.
+Sau đó mỗi stack đồng bộ theo các wave từ -1 tới 3, như sơ đồ ở trên. Argo CD chờ một wave healthy rồi mới bắt đầu wave sau. Trang [Postgres, Restate và RustFS](/vi/operations/cluster/data#sync-wave-và-job) liệt kê mọi resource của từng wave.
 
 ```bash title="Terminal"
 kubectl -n argocd get applications -w
@@ -244,17 +245,17 @@ File kiểm tra `https://<domain>/`, `https://api.<domain>/healthz` và `/readyz
 Bạn sẽ thấy file được báo là thành công và mã thoát 0.
 </Step>
 
-<Step title="Mở console">
-Console ở `console.<domain>` cần một tài khoản nhân viên, và cluster mới chưa có tài khoản nào. API và console chỉ tạo được moderator; admin đầu tiên được tạo bằng lệnh `console` trong một pod server:
+<Step title="Mở trang điều hành">
+Trang điều hành ở `console.<domain>` cần một tài khoản nhân viên, và cluster mới chưa có tài khoản nào. API và trang điều hành chỉ tạo được điều phối viên; quản trị viên đầu tiên được tạo bằng lệnh `console` trong một pod server:
 
 ```bash title="Terminal"
 kubectl -n shopnexus-prod exec -it $(kubectl -n shopnexus-prod get pod -l app.kubernetes.io/name=server -o name | head -1) -- \
   /console create-admin --email you@example.com --name "Your Name"
 ```
 
-Lệnh in ra `created admin you@example.com (<id>)` và một mật khẩu tạm. Mở `https://console.example.com` và đăng nhập bằng mật khẩu đó. Console yêu cầu đặt mật khẩu mới, rồi đăng ký một ứng dụng xác thực TOTP. Chạy cùng lệnh đó trong `shopnexus-dev` cho console của dev.
+Lệnh in ra `created admin you@example.com (<id>)` và một mật khẩu tạm. Mở `https://console.example.com` và đăng nhập bằng mật khẩu đó. Trang điều hành yêu cầu đặt mật khẩu mới, rồi đăng ký một ứng dụng xác thực TOTP. Chạy cùng lệnh đó trong `shopnexus-dev` cho trang điều hành của dev.
 
-Bạn sẽ thấy trang chính của console. Trang [Runbook](/vi/operations/cluster/runbook#tài-khoản-admin) có các lệnh `console` còn lại.
+Bạn sẽ thấy trang chính của trang điều hành. Trang [Runbook](/vi/operations/cluster/runbook#tài-khoản-admin) có các lệnh `console` còn lại.
 </Step>
 </Steps>
 

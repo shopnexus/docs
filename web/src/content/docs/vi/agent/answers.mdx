@@ -1,59 +1,63 @@
 ---
 title: Câu trả lời và nguồn
-description: Câu trả lời được dựng từ các khối có kiểm schema, mỗi ý dẫn về bản ghi tool đã trả, kèm tài liệu có phiên bản và skill dùng chung.
+description: Câu trả lời được dựng từ các khối có kiểm schema, mỗi ý dẫn về một bản ghi tool đã trả, kèm tài liệu có phiên bản và skill dùng chung.
 group: Kết quả
 groupOrder: 3
 order: 1
 audience: [developers]
 type: reference
 readingTime: 4
-updated: 2026-11-19
+updated: 2026-11-27
 related: ["/vi/agent/tools", "/vi/agent/a-question"]
 ---
 
-Model không trả về một chuỗi chữ. Nó dựng câu trả lời qua các output tool, và agent kiểm tham số của từng tool theo schema. Tham số sai quay lại model thành lỗi tool để nó sửa.
+Model dựng câu trả lời qua các output tool, và agent kiểm tham số của từng tool theo schema. Tham số sai quay lại model thành lỗi tool để nó sửa.
 
 | Output tool | Dùng để |
 |---|---|
-| `begin_step(title)`, `end_step(summary)` | Mở và đóng một bước. Các lần gọi tool giữa hai lệnh thuộc về bước đó. Lượt không có bước thì console hiện tool thành một danh sách phẳng. |
+| `begin_step(title)`, `end_step(summary)` | Mở và đóng một bước. Các lần gọi tool giữa hai lệnh thuộc về bước đó. Lượt không có bước thì trang điều hành hiện các lần gọi tool thành một danh sách phẳng. |
 | `answer(blocks)` | Câu trả lời cuối, gồm các khối bên dưới. Chữ model viết ngoài `answer` thành một khối `text`. |
-| `write_document {title, sections, document_id?}` | Tài liệu mới, hoặc phiên bản mới của tài liệu đã có trong cùng cuộc chat. |
-| `ask_user {questions}` | Câu hỏi lại cho moderator; xem [Điều khiển một lượt chạy](/vi/agent/control). |
+| `write_document {title, sections, document_id?}` | Một tài liệu mới, hoặc phiên bản mới của một tài liệu đã có trong cùng cuộc trò chuyện. |
+| `ask_user {questions}` | Câu hỏi lại cho điều phối viên; xem [Điều khiển một lượt chạy](/vi/agent/control). |
 
 ## Các khối trả lời
 
+Một câu trả lời có từ 1 tới 20 khối.
+
 | Khối | Nội dung | Giới hạn |
 |---|---|---|
-| `text` | Markdown, có thể chứa số dẫn nguồn `[n]` | |
-| `figures` | Các con số chính, mỗi số có nhãn | 2 tới 4 số |
-| `table` | `columns` và `rows` | 20 dòng, mỗi dòng đủ số cột |
+| `text` | Markdown, có số dẫn nguồn `[n]` | |
+| `figures` | Các số liệu chính, mỗi số có nhãn | 2 tới 4 |
+| `table` | `columns` và `rows` | 12 cột, 20 dòng, mỗi dòng đủ số cột; bảng dài hơn thì đưa vào tài liệu |
 | `chart` | `bar`, `stacked_bar` hoặc `line`, với `labels` và `series` | mỗi series dài bằng `labels` |
-| `document_ref` | Một tài liệu và phiên bản trong cùng cuộc chat | |
-| `follow_ups` | Câu hỏi gợi ý tiếp theo | tối đa 3 câu |
+| `document_ref` | Một tài liệu và phiên bản trong cùng cuộc trò chuyện | |
+| `follow_ups` | Các câu hỏi gợi ý tiếp theo | tối đa 3 |
 
 ## Số dẫn nguồn
 
-Mỗi bản ghi mà một lần gọi MCP thành công trả về trở thành một nguồn có số, đánh theo thứ tự kết quả về. Agent nhận ra bản ghi qua hình dạng của nó trong kết quả:
+Mỗi bản ghi mà một lần gọi MCP thành công trả về trở thành một nguồn có số, đánh theo thứ tự kết quả về. Agent nhận ra một bản ghi qua hình dạng của nó trong kết quả:
 
 | Loại | Nhận ra qua | Nhãn ví dụ |
 |---|---|---|
 | `account` | có `display_name` | "Minh Tuấn", meta "Seller · 7d22e9 · active" |
 | `ticket` | có `kind` và `opened_at` | "Lan's ticket" |
-| `report` | ca báo cáo, hoặc từng báo cáo trong ca | "Report case: Minh Tuấn" |
+| `report` | một ca báo cáo, hoặc từng báo cáo trong ca | "Report case: Minh Tuấn" |
 | `order` | có `code` hoặc `listing_title` | "Order: iPhone 13 Pro" |
-| `listing` | có `title` | tên tin |
-| `log` | thao tác console, có `action` và `target_kind` | "suspend by Lan" |
-| `member` | moderator có tên trong một thao tác | tên moderator |
-| `data` | kết quả không phải bản ghi: số đếm, giá tham khảo, danh sách rỗng | "Reports, last 7 days" |
+| `listing` | có `title` | tiêu đề của tin đăng |
+| `log` | một thao tác trên trang điều hành, có `action` và `target_kind` | "suspend by Lan" |
+| `member` | điều phối viên có tên trong một thao tác | tên của điều phối viên |
+| `data` | kết quả không có bản ghi: số đếm, giá tham khảo, danh sách rỗng | "Reports, last 7 days" |
 
-Mỗi nguồn giữ tối đa bốn dữ kiện (trạng thái, giá, ngày, số đếm) và một trích dẫn tối đa 200 ký tự từ chữ người dùng viết. Nhãn không bao giờ là id; một `*_id` trơ không thành nguồn vì nó không có tên.
+Mỗi nguồn giữ tối đa bốn dữ kiện (trạng thái, giá, ngày, số đếm) và một trích dẫn tối đa 200 ký tự từ chữ người dùng viết. Nhãn không bao giờ là id; một `*_id` đứng riêng không thành nguồn, vì nó không có tên.
 
-Đầu mỗi kết quả tool, agent ghi danh sách số và nhãn để model trích. Bản ghi gặp lại giữ số cũ; lần đọc đầy đủ hơn (như từ tool `*_get`) thay nhãn và dữ kiện. Số `[n]` không trỏ tới nguồn nào bị bỏ khỏi câu trả lời. Danh sách nguồn ở cuối là những nguồn câu trả lời có trích, hoặc tất cả nếu câu trả lời không trích nguồn nào.
+Ở đầu mỗi kết quả tool, agent liệt kê các số và nhãn để model trích. Bản ghi gặp lại giữ số cũ. Một lần đọc đầy đủ hơn (chẳng hạn từ một tool `*_get`) thay nhãn và dữ kiện của nó. Số `[n]` không trỏ tới nguồn nào bị bỏ khỏi câu trả lời. Danh sách nguồn ở cuối gồm các nguồn câu trả lời có trích, hoặc tất cả nguồn nếu câu trả lời không trích nguồn nào.
 
 ## Tài liệu
 
-`write_document` tạo tài liệu phiên bản 1, hoặc phiên bản kế tiếp của một tài liệu trong cùng cuộc chat. Phần của tài liệu là `markdown`, `table` và `chart`. Console mở tài liệu ở khung riêng với mọi phiên bản; nút **Copy as Markdown** chép nội dung, và tài liệu in được từ trình duyệt. Xoá cuộc chat thì server xoá luôn các lượt, event và tài liệu của nó.
+`write_document` tạo phiên bản 1 của một tài liệu, hoặc phiên bản kế tiếp của một tài liệu trong cùng cuộc trò chuyện. Các phần của tài liệu là `markdown`, `table` và `chart`. Trang điều hành mở tài liệu trong một khung riêng với mọi phiên bản; nút **Copy as Markdown** chép nội dung, và trình duyệt in được tài liệu. Xóa một cuộc trò chuyện thì xóa luôn các lượt, event và tài liệu của nó.
 
 ## Skill
 
-Skill là một câu hỏi mẫu có tên và biến, lưu trong `agent_skills` và dùng chung cho mọi moderator. Gõ `/` trong ô hỏi để chọn skill; prompt của skill được nối vào system prompt của lượt đó. Moderator chỉ sửa được skill của mình, admin sửa được mọi skill.
+Skill là một prompt được lưu, có tên, một slug không trùng và tối đa 20 biến, nằm trong `agent_skills` và dùng chung cho mọi điều phối viên. Tên dài từ 1 tới 80 ký tự, prompt dài tối đa 8000 ký tự. Gõ `/` trong ô hỏi để xem danh sách skill; prompt của skill được thêm vào system prompt của lượt đó.
+
+Điều phối viên chỉ sửa hay xóa được skill do mình tạo (nếu không thì nhận `403 agent_forbidden`); quản trị viên sửa được mọi skill. Mỗi lần sửa mang theo phiên bản mà nó bắt đầu từ đó, nên hai người sửa cùng một skill không ghi đè lên nhau: lần lưu sau nhận `409 try_again`, và lưu vào một skill đã bị xóa thì nhận `404`.

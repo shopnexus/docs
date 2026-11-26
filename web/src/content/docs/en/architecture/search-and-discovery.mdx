@@ -113,7 +113,7 @@ Query text vectors are cached by the embedding model and the normalized text, an
 
 ### What a search leaves out
 
-A signed-in search of any mode, Home's feeds included, leaves out the listings the person hid and every listing of an account on either side of their blocks. Saved listings, the seller page and the listing itself still show them.
+A signed-in search of any mode, Home's feeds included, leaves out the listings the person hid and every listing of an account on either side of their blocks. The seller page leaves out the hidden listings too. Saved listings and the listing itself still show them.
 
 `PUT /v1/hidden/{listing_id}` hides someone else's listing (409 `own_listing` for one's own) and `DELETE` shows it again. An account keeps the 1,000 newest hides; the next hide shows the oldest again. No endpoint lists hides.
 

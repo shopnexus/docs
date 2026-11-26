@@ -1,61 +1,84 @@
 ---
-title: Tool và quyền đọc
-description: Mười sáu tool chỉ đọc của MCP server, cách server kiểm moderator ở mỗi lần gọi, và lần đọc dữ liệu cá nhân nào được ghi lại.
+title: Tool và quyền đọc dữ liệu
+description: Mười sáu tool chỉ đọc của MCP server, cách server kiểm điều phối viên ở mỗi lần gọi, lần đọc dữ liệu cá nhân nào được ghi lại và kết quả tool được giữ bao lâu.
 group: Bên trong
 groupOrder: 4
 order: 1
 audience: [developers]
 type: reference
-readingTime: 4
-updated: 2026-11-19
+readingTime: 6
+updated: 2026-11-27
 related: ["/vi/agent/answers", "/vi/architecture/console"]
 ---
 
-Agent chỉ đọc dữ liệu qua MCP server của server. MCP server chạy Streamable HTTP ở `/mcp`, trên một cổng riêng (`AGENT_MCP_ADDR`), không nằm trên cổng `:8080` và không đi qua ingress. Nó không giữ session: mỗi POST là một request riêng với lần kiểm quyền riêng.
+Agent chỉ đọc dữ liệu qua MCP server của server. MCP server phục vụ Streamable HTTP ở `/mcp` trên một cổng riêng, tách khỏi cổng API và không bao giờ đứng sau ingress, nên không gì ngoài mạng nội bộ tới được nó. Nó không giữ session: mỗi POST là một request với các bước kiểm riêng, trả về JSON. Cổng đã bị chiếm thì server không khởi động được. Khi tắt, server chờ các lần gọi đang chạy tối đa 10 giây.
 
-## Quyền ở mỗi lần gọi
+## Kiểm tra ở mỗi lần gọi
 
 <Steps>
-<Step title="Kiểm token">
-Mỗi lần gọi mang `Authorization: Bearer <AGENT_MCP_TOKEN>`, so trong thời gian hằng. Sai token là 401 trước khi MCP xử lý gì, và server ghi log `security: agent MCP call refused` không kèm token.
+<Step title="Token">
+Mỗi lần gọi mang MCP token dưới dạng bearer token, so sánh trong thời gian hằng. Sai token thì trả 401 trước khi MCP xử lý gì, và server ghi log `security: agent MCP call refused` không kèm token.
 </Step>
-<Step title="Kiểm moderator">
-Header `X-Console-Member` mang id của moderator đã hỏi. Server đọc lại moderator qua `ActiveMember` ở mỗi lần gọi, nên moderator bị vô hiệu giữa hai lần gọi tool thì lần sau không nhận được gì.
+<Step title="Điều phối viên">
+Header `X-Console-Member` mang id của điều phối viên đã hỏi. Server đọc lại nhân viên đó ở mỗi lần gọi, nên một điều phối viên bị vô hiệu giữa hai lần gọi tool sẽ không nhận được gì từ lần thứ hai; nhân viên không tồn tại hay đã bị vô hiệu cũng nhận 401. Mọi vai trò đều dùng được mọi tool; một tool chỉ dành cho quản trị viên sẽ tự kiểm vai trò.
 </Step>
-<Step title="Chạy tool">
-Tool là một lớp mỏng trên `Service` của một module; không tool nào đọc bảng trực tiếp. Lỗi từ chối tới agent thành lỗi tool kèm mã; lỗi khác tới agent là `internal error` và được ghi log.
+<Step title="Tool">
+Mỗi tool là một lớp chuyển đổi mỏng trên service công khai của một module; không tool nào đọc bảng trực tiếp. Lỗi từ chối tới agent thành lỗi tool kèm mã của nó; mọi lỗi khác tới agent thành `internal error` và được ghi log.
 </Step>
 </Steps>
 
-Phía agent, chỉ tool có `readOnlyHint` và nằm trong danh sách `tools` của agent mới được đưa cho model. Mỗi lần gọi có giới hạn thời gian (`AGENT_TOOL_TIMEOUT_MS`, mặc định 20 giây) và được thử lại tối đa `AGENT_TOOL_ATTEMPTS` lần khi hết giờ hoặc đứt kết nối.
+Mỗi tool khai báo `readOnlyHint` cùng schema đầu vào và đầu ra. Giá trị thuộc một tập cố định (trạng thái hay loại của phiếu hỗ trợ, trạng thái của ca báo cáo, một thực thể) là enum trong schema đầu vào, lấy từ module sở hữu nó. Kết quả về dưới dạng nội dung có cấu trúc, kèm JSON của nó trong một khối chữ. Các id nằm dưới khóa `id`, `*_id`, `ids` hoặc `*_ids`, và agent dựa vào đó để tìm nguồn. Tiêu đề của tool là nhãn của chip tương ứng trên trang điều hành.
+
+Phía agent, chỉ tool có `readOnlyHint` và nằm trong danh sách tool của agent trang điều hành mới tới được model. Mỗi lần gọi có giới hạn thời gian (`tool_timeout_s`, mặc định 20 giây) và được thử tối đa `tool_attempts` lần (mặc định 3) khi hết giờ hoặc đứt kết nối. Trước lần thử thứ hai agent chờ nửa giây, trước mỗi lần sau đó chờ gấp đôi lần trước, tối đa 4 giây.
 
 ## Danh sách tool
 
-Tool đọc danh sách nhận `cursor` và `limit` (1 tới 50, mặc định 20) và trả `{items, next_cursor}`.
+Tool đọc một bản ghi nhận id của bản ghi đó. Tool đọc danh sách nhận `cursor` và `limit` (1 tới 50, mặc định 20) và trả `{items, next_cursor}`; agent gửi lại `next_cursor` để lấy trang kế tiếp.
 
 | Tool | Đọc gì | Ghi lần đọc |
 |---|---|---|
-| `count` | Số đếm theo trạng thái của tài khoản, tin, đơn, ticket hoặc ca báo cáo, từ một ngày hoặc từ trước tới nay | không |
-| `lookup` | Một id là bản ghi nào: tài khoản, ca báo cáo, đơn, tin hay ticket, kèm tool để đọc nó | không |
-| `ticket_get` | Ticket, người mở, đơn liên quan, trang đầu của chat và các ticket khác của người đó | ticket, người mở |
-| `ticket_messages` | Một trang chat của ticket, mới nhất trước | ticket |
-| `tickets_list` | Hàng đợi hỗ trợ: ticket mở hoặc đã xử lý, kèm dòng chat cuối | ticket và người mở |
-| `tickets_of_account` | 50 ticket mới nhất tài khoản mở, hoặc trên đơn nó bán | tài khoản và ticket |
-| `account_get` | Trạng thái, tuổi tài khoản, có số điện thoại và email hay không, tin đăng, đơn mua, số lần bị khoá | không |
-| `accounts_list` | Tài khoản mới nhất, tài khoản đang bị khoá, hoặc tài khoản theo id hay số điện thoại | không |
-| `orders_of_account` | Đơn của tài khoản với vai người mua hoặc người bán | không |
-| `listings_of_account` | Tin đang bán hoặc đã bán của người bán | không |
-| `console_actions` | Nhật ký console theo bản ghi, theo moderator hoặc tất cả, không kèm IP | không |
-| `order_get` | Đơn, hai bên, tin, giá, trạng thái và trạng thái vận đơn hiện tại ở hãng | không |
-| `listing_get` | Tin ở mọi trạng thái trừ đã xoá, như người bán thấy | không |
-| `price_guide` | Giá của tin so với giá giữa của các tin cùng danh mục và tình trạng | không |
-| `report_cases_list` | Hàng đợi báo cáo: ca đang mở hoặc đã xử lý | không |
-| `report_case_get` | Ca báo cáo của tài khoản: lý do, tin bị báo cáo, từng báo cáo với ghi chú, kết quả xử lý | tài khoản, báo cáo, người báo cáo |
+| `count` | Số đếm theo trạng thái của tài khoản, tin đăng, đơn, phiếu hỗ trợ hoặc ca báo cáo, từ một ngày hoặc từ trước tới nay, kèm tổng; không tính tài khoản của chính ShopNexus | không |
+| `lookup` | Một id chỉ bản ghi nào: tài khoản, ca báo cáo, đơn, tin đăng hay phiếu hỗ trợ, kèm tool để đọc nó | không |
+| `ticket_get` | Một phiếu hỗ trợ, người gửi, đơn của phiếu, trang đầu của cuộc trò chuyện và các phiếu khác của người đó | phiếu, người gửi |
+| `ticket_messages` | Một trang trong cuộc trò chuyện của phiếu hỗ trợ, mới nhất trước | phiếu |
+| `tickets_list` | Hàng đợi hỗ trợ: phiếu đang mở hoặc đã xử lý, kèm dòng cuối của mỗi cuộc trò chuyện | các phiếu và người gửi |
+| `tickets_of_account` | 50 phiếu hỗ trợ mới nhất mà tài khoản đã mở, hoặc trên các đơn tài khoản đó bán | tài khoản và các phiếu |
+| `account_get` | Trạng thái, tuổi tài khoản, có số điện thoại và email hay không (không bao giờ có giá trị), tin đăng, đơn với vai người mua, các lần bị tạm khóa; báo cáo vi phạm để cho `report_case_get` | không |
+| `accounts_list` | Các tài khoản mới nhất, các tài khoản đang bị tạm khóa, hoặc tài khoản theo một id hay một số điện thoại | không |
+| `orders_of_account` | Đơn của một tài khoản với vai người mua hoặc người bán | không |
+| `listings_of_account` | Tin đăng đang bán hoặc đã bán của một người bán | không |
+| `console_actions` | Nhật ký kiểm toán của trang điều hành theo bản ghi, theo điều phối viên hoặc tất cả, không kèm IP | không |
+| `order_get` | Một đơn, hai bên, tin đăng, giá, trạng thái và trạng thái hiện tại ở hãng vận chuyển, đọc từ tài khoản hãng của người bán; không có địa chỉ người nhận hay địa chỉ lấy hàng; không đọc dòng thời gian sự kiện của kiện hàng hay bằng chứng giao hàng | không |
+| `listing_get` | Một tin đăng ở mọi trạng thái trừ đã xóa, như người bán thấy | không |
+| `price_guide` | Giá của một tin đăng so với giá trung vị và cỡ của một mẫu tin tương tự; tool nhận một tin đăng, vì mẫu cần vector của tin đó | không |
+| `report_cases_list` | Hàng đợi báo cáo vi phạm: ca đang mở hoặc đã xử lý | không |
+| `report_case_get` | Ca báo cáo của một tài khoản: lý do, các tin bị báo cáo, từng báo cáo kèm ghi chú, cách xử lý | tài khoản, các báo cáo, người báo cáo |
 
-## Nhật ký đọc dữ liệu cá nhân
+## Lần đọc dữ liệu cá nhân
 
-Mỗi lần tool đọc dữ liệu cá nhân (tin nhắn, ghi chú, người mở ticket, người báo cáo), server ghi một dòng vào `console_agent_reads`: moderator, tool, các id và thời điểm. Dòng được giữ 90 ngày và admin xem được cạnh nhật ký console. Yêu cầu tương ứng là <Req id="NFR-PRIV-02" />.
+Mỗi lần một tool trả dữ liệu cá nhân (chữ một người đã viết, tin nhắn, người gửi phiếu hỗ trợ, người báo cáo), tool đó ghi trước một dòng vào `console_agent_reads`: điều phối viên, tool, loại đối tượng (phiếu hỗ trợ hay tài khoản), các id đã đọc và thời điểm. Yêu cầu tương ứng là <Req id="NFR-PRIV-02" />. Trang điều hành chưa có trang nào liệt kê các dòng này.
+
+## Giữ gì, giữ bao lâu
+
+Một lượt dọn chạy khi server khởi động và mỗi giờ, mỗi lần một lô dòng:
+
+| Gì | Giữ | Sau đó |
+|---|---|---|
+| Một dòng ghi lần đọc | 90 ngày | bị xóa |
+| Kết quả của một lần gọi tool | 90 ngày | bị xóa trắng; lần gọi vẫn giữ tool, đầu vào, trạng thái và thời gian, và lịch sử của lượt chạy sau hiện "Result no longer kept" |
+| Một cuộc trò chuyện | 180 ngày sau hoạt động cuối | bị xóa cùng các lượt, lần gọi tool, event, lệnh điều khiển và tài liệu của nó |
+
+Mọi lần ghi vào một lượt đều cập nhật thời điểm hoạt động cuối của cuộc trò chuyện trước tiên, và lệnh xóa bỏ qua cuộc trò chuyện đang bị một lần ghi giữ, nên một cuộc trò chuyện đang chạy không bao giờ bị dọn. Khi người dùng xóa tài khoản, server xóa trắng các kết quả tool trong cuộc trò chuyện về tài khoản đó; các lượt và dòng ghi lần đọc vẫn giữ, giống nhật ký kiểm toán của trang điều hành.
+
+## Trang đơn và trang tin đăng
+
+Trang đơn (`GET /v1/console/orders/{id}`) và trang tin đăng (`GET /v1/console/listings/{id}`) của trang điều hành được phục vụ cạnh các tool, cho mọi điều phối viên. Mỗi trang đọc cùng dữ kiện như `order_get` hay `listing_get`, qua cùng các service, và thêm những gì điều phối viên cần thấy trên một màn hình:
+
+- **Đơn:** người mua và người bán, các tin đã bán và đánh giá của người bán, tên danh mục, và các phiếu hỗ trợ về đơn này.
+- **Tin đăng:** các số đếm của người bán, nhân viên đã ẩn tin khi tin đang ẩn, các báo cáo vi phạm về tin, và giá tham khảo khi mẫu không rỗng.
+
+Dòng cuối của các phiếu hỗ trợ và các báo cáo vi phạm là chữ người khác viết, nên trang nào hiện chúng cũng ghi lại lần đọc, như một tool. Không trang nào hiện dòng thời gian sự kiện của kiện hàng hay lý do tạm giữ. Đơn không tồn tại thì trả `404 order_not_found`, tin đăng không tồn tại hoặc đã xóa thì trả `404 listing_not_found`.
 
 ## Chữ của người dùng
 
-Hướng dẫn của MCP server và system prompt của agent đều ghi rằng chữ người dùng viết (tin nhắn, ghi chú, mô tả tin) chỉ được trích làm dữ liệu. Agent không có tool ghi, nên lệnh giấu trong chữ đó không làm thay đổi dữ liệu nào.
+Hướng dẫn của MCP server và system prompt của agent đều ghi rõ rằng chữ người dùng viết (tin nhắn, ghi chú, mô tả tin đăng) chỉ được trích làm dữ liệu. Agent không có tool ghi, nên một lệnh giấu trong chữ đó không thay đổi được dữ liệu nào.

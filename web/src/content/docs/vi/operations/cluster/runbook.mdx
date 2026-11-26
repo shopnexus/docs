@@ -7,7 +7,7 @@ groupOrder: 2
 audience: [admins, developers]
 type: reference
 readingTime: 9
-updated: 2026-11-26
+updated: 2026-11-27
 related: ["/vi/operations/cluster/bootstrap", "/vi/operations/cluster/networking", "/vi/operations/cluster/data", "/vi/operations/cluster/secrets", "/vi/operations/cluster/llm-gateway"]
 ---
 
@@ -54,7 +54,7 @@ kubectl -n shopnexus-dev get cluster postgres
 kubectl -n shopnexus-dev get rs
 ```
 
-Mọi Application phải ở trạng thái `Synced` và `Healthy`. `kubectl get rs` cho thấy mỗi phiên bản server một ReplicaSet: restate-operator giữ phiên bản cũ cho tới khi các invocation của nó chạy xong. Argo CD báo một server đang crash-loop là Healthy vì nó không có health check cho `RestateDeployment`, nên hãy xem trực tiếp các pod.
+Mọi Application phải ở trạng thái `Synced` và `Healthy`. `kubectl get rs` cho thấy mỗi phiên bản server một ReplicaSet: restate-operator giữ phiên bản cũ cho tới khi các invocation của nó chạy xong. Một lần sync bị treo ở wave 2 thường là đang chờ một phiên bản server có pod không bao giờ sẵn sàng, nên hãy xem trực tiếp các pod.
 
 Sau khi push, Argo CD tự poll repo theo chu kỳ. Để nó đọc `main` ngay:
 
@@ -83,18 +83,17 @@ kubectl -n shopnexus-dev logs postgres-1 --tail=200
 
 Server ghi log dạng JSON. CNPG đặt tên pod Postgres là `postgres-1`, `postgres-2`; primary hiện tại nằm ở `kubectl -n shopnexus-dev get cluster postgres -o jsonpath='{.status.currentPrimary}'`. Các Job Sync hook `migrate`, `objectstore-init` và `objectstore-init-snapshots` được giữ lại cho tới khi lần sync sau thay chúng.
 
-## Port-forward
+## Dashboard và port-forward
 
-Không cái nào dưới đây có Ingress. Mỗi lệnh chiếm terminal; mở địa chỉ bằng trình duyệt hoặc bằng `curl` từ một terminal khác.
+Grafana, giao diện admin của Restate, Bifrost, web console của RustFS và pgweb có host riêng trong mỗi stack (`grafana.`, `restate.`, `bifrost.`, `s3.` và `db.<domain>`), còn Argo CD có `argocd.<tên miền prod>`. Tất cả nằm sau bước đăng nhập của trang điều hành ([Giám sát](/vi/operations/monitoring)). Khi trang điều hành hoặc server ngừng chạy, hãy forward một cổng thay vào đó. Mỗi lệnh chiếm terminal; mở địa chỉ bằng trình duyệt hoặc bằng `curl` từ một terminal khác.
 
 <Tabs labels={["Argo CD", "Restate admin", "Bifrost"]}>
 <Tab>
 ```bash
-kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d; echo
-kubectl -n argocd port-forward svc/argocd-server 8080:443
+kubectl -n argocd port-forward svc/argocd-server 8080:80
 ```
 
-Mở `https://localhost:8080`, chấp nhận chứng chỉ tự ký, rồi đăng nhập với user `admin` và mật khẩu vừa in ra.
+Mở `http://localhost:8080`. Argo CD không có bước đăng nhập riêng, vì chỉ cổng chặn của trang điều hành và port-forward tới được nó.
 </Tab>
 <Tab>
 ```bash
@@ -110,7 +109,7 @@ kubectl -n shopnexus-dev get secret bifrost-secrets -o jsonpath='{.data.BIFROST_
 kubectl -n shopnexus-dev port-forward svc/bifrost 8080:8080
 ```
 
-Mở `http://localhost:8080` và đăng nhập với user `admin` và mật khẩu vừa in ra. Host dashboard `bifrost.<domain>` dẫn tới cùng UI đó, sau phần đăng nhập của console; [Cổng Bifrost](/vi/operations/cluster/llm-gateway#dashboard) nói nên dùng nó vào việc gì.
+Mở `http://localhost:8080` và đăng nhập với user `admin` và mật khẩu vừa in ra. Host dashboard `bifrost.<domain>` dẫn tới cùng UI đó, sau bước đăng nhập của trang điều hành; [Cổng Bifrost](/vi/operations/cluster/llm-gateway#dashboard) nói nên dùng nó vào việc gì.
 </Tab>
 </Tabs>
 
@@ -118,7 +117,7 @@ Mở `http://localhost:8080` và đăng nhập với user `admin` và mật kh�
 
 ### Sau khi chuyển sang Bifrost
 
-Lần sync đầu tiên của một stack có Bifrost xóa Deployment, Job và Secret của LiteLLM. CNPG giữ lại database và role `litellm`, vì nó không bao giờ xóa thứ mà chart thôi khai báo. Hãy xóa chúng một lần, sau khi `bifrost` đã sẵn sàng:
+Một stack từng chạy LiteLLM trước Bifrost vẫn giữ database và role `litellm`, vì CNPG không bao giờ xóa thứ mà chart thôi khai báo. Hãy xóa chúng một lần, sau khi `bifrost` đã sẵn sàng:
 
 ```bash
 kubectl -n shopnexus-dev rollout status deploy/bifrost
@@ -130,20 +129,20 @@ Lịch sử mức chi của LiteLLM mất theo database. Sau đó kiểm tra ser
 
 ### Khóa mã hóa của Bifrost
 
-`BIFROST_ENCRYPTION_KEY` mã hóa những gì Bifrost lưu. Một khóa mới khiến dữ liệu đó không đọc được nữa, nên khóa không bao giờ đổi khi stack đã có dữ liệu. Khóa và mật khẩu admin của dev được seal trên máy chủ của cluster. Trước khi chạy `seal dev` từ bất kỳ bản checkout nào khác, hãy chép chúng từ cluster vào `infra/stack/secrets/dev.env` của bạn:
+`BIFROST_ENCRYPTION_KEY` mã hóa những gì Bifrost lưu. Một khóa mới khiến dữ liệu đó không đọc được nữa, nên khóa không bao giờ đổi khi stack đã có dữ liệu. Trước khi chạy lệnh seal từ một bản checkout khác với bản đã seal stack đó, hãy chép chúng từ cluster vào `infra/stack/secrets/<stack>.env` của bạn:
 
 ```bash
 for k in BIFROST_ENCRYPTION_KEY BIFROST_ADMIN_PASSWORD; do
-  printf '%s=%s\n' "$k" "$(kubectl -n shopnexus-dev get secret bifrost-secrets -o jsonpath="{.data.$k}" | base64 -d)"
+  printf '%s=%s\n' "$k" "$(kubectl -n shopnexus-<stack> get secret bifrost-secrets -o jsonpath="{.data.$k}" | base64 -d)"
 done
-printf 'BIFROST_DB_PASSWORD=%s\n' "$(kubectl -n shopnexus-dev get secret bifrost-db -o jsonpath='{.data.password}' | base64 -d)"
+printf 'BIFROST_DB_PASSWORD=%s\n' "$(kubectl -n shopnexus-<stack> get secret bifrost-db -o jsonpath='{.data.password}' | base64 -d)"
 ```
 
-Thay các dòng đó trong `dev.env` bằng kết quả in ra. Một mật khẩu database mới không gây hại, nhưng chép nó giúp role giữ nguyên. Lệnh seal giữ mọi giá trị đã có trong `dev.env`, nên lần seal lại vẫn để dữ liệu của Bifrost đọc được.
+Thay các dòng đó trong file `.env` của stack đó bằng kết quả in ra. Một mật khẩu database mới không gây hại, nhưng chép nó giúp role giữ nguyên. Lệnh seal giữ mọi giá trị đã có trong `<stack>.env`, nên lần seal lại vẫn để dữ liệu của Bifrost đọc được.
 
 ## Tài khoản admin
 
-Admin chỉ tồn tại qua lệnh `console` (`server/cmd/console`). API và console tạo và quản lý moderator, và từ chối thao tác lên một admin. Image server có sẵn lệnh này ở `/console`, và lệnh đọc database cùng `CONSOLE_KEY` từ môi trường của pod, nên hãy chạy nó trong một pod server của stack:
+Quản trị viên chỉ tồn tại qua lệnh `console` (`server/cmd/console`). API và trang điều hành tạo và quản lý điều phối viên, và từ chối thao tác lên một quản trị viên. Image server có sẵn lệnh này ở `/console`, và lệnh đọc database cùng `CONSOLE_KEY` từ môi trường của pod, nên hãy chạy nó trong một pod server của stack:
 
 ```bash
 kubectl -n shopnexus-prod exec -it $(kubectl -n shopnexus-prod get pod -l app.kubernetes.io/name=server -o name | head -1) -- /console create-admin --email <email> --name <name>
@@ -151,18 +150,18 @@ kubectl -n shopnexus-prod exec -it $(kubectl -n shopnexus-prod get pod -l app.ku
 
 | Lệnh | Dùng khi |
 |---|---|
-| `create-admin --email <email> --name <name>` | cluster mới chưa có admin, hoặc cần thêm một admin. Lệnh in ra mật khẩu tạm, và console bắt đổi nó ở lần đăng nhập đầu. |
-| `unlock --email <email>` | một admin bị khóa. Năm lần sai mật khẩu khóa một email trong 15 phút, và ai biết email cũng gây ra được việc đó. |
-| `reset-password --email <email>` | một admin quên mật khẩu. Lệnh in ra mật khẩu tạm mới và kết thúc các phiên của admin đó. |
-| `reset-totp --email <email>` | một admin mất ứng dụng xác thực. Lần đăng nhập sau sẽ đăng ký ứng dụng mới. |
-| `disable --email <email>` | một admin rời đi. Lệnh kết thúc mọi phiên của người đó. |
-| `enable --email <email>` | một admin đã bị vô hiệu hóa quay lại. Các phiên cũ vẫn đã kết thúc. |
+| `create-admin --email <email> --name <name>` | cluster mới chưa có quản trị viên, hoặc cần thêm một quản trị viên. Lệnh in ra mật khẩu tạm, và trang điều hành bắt đổi nó ở lần đăng nhập đầu. |
+| `unlock --email <email>` | một quản trị viên bị khóa. Năm lần sai mật khẩu khóa một email trong 15 phút, và ai biết email cũng gây ra được việc đó. |
+| `reset-password --email <email>` | một quản trị viên quên mật khẩu. Lệnh in ra mật khẩu tạm mới và kết thúc các phiên của người đó. |
+| `reset-totp --email <email>` | một quản trị viên mất ứng dụng xác thực. Lần đăng nhập sau sẽ đăng ký ứng dụng mới. |
+| `disable --email <email>` | một quản trị viên rời đi. Lệnh kết thúc mọi phiên của người đó. |
+| `enable --email <email>` | một quản trị viên đã bị vô hiệu hóa quay lại. Các phiên cũ vẫn đã kết thúc. |
 
-Mọi lệnh trừ `create-admin` cũng dùng được cho moderator, và mỗi thay đổi được ghi vào `console_actions` với CLI là người thực hiện. Dùng `shopnexus-dev` cho stack dev.
+Mọi lệnh trừ `create-admin` cũng dùng được cho điều phối viên, và mỗi thay đổi được ghi vào `console_actions` với CLI là người thực hiện. Dùng `shopnexus-dev` cho stack dev.
 
 ## Diễn tập failover
 
-Các bài diễn tập lấy từ Task 17 của plan và chưa chạy trên server của tác giả. Ghi lại mỗi lần chạy (ngày, lệnh, điều quan sát được) vào `infra/drills.md`. Bài Postgres và bài agent chạy trên prod, bài cô lập thử kết nối từ dev sang prod, còn bài release và bài upload dùng dev.
+Chạy các bài diễn tập sau mỗi lần dựng cluster và sau mỗi thay đổi ở biên hoặc ở các dịch vụ dữ liệu. Bài Postgres và bài agent chạy trên prod, bài cô lập thử kết nối từ dev sang prod, còn bài release và bài upload dùng dev.
 
 <Steps>
 <Step title="Primary của Postgres">
@@ -188,7 +187,7 @@ docker start k3d-shopnexus-agent-1
 Mong đợi: sau thời gian eviction của node, các pod server trên agent-1 chạy lại ở node khác. Hai pod Restate vẫn Running và Restate vẫn phục vụ, nên `https://api.shopnexus.id.vn/readyz` trả 200 và smoke test qua.
 </Step>
 <Step title="Release trong lúc một invocation đang chạy">
-Bắt đầu một flow durable chạy lâu trên dev, ví dụ đăng một tin có ảnh từ app. Trong cùng phút đó, push một commit lên `main` của repo `server`. Khi CI đã build xong image:
+Bắt đầu một flow durable chạy lâu trên dev, ví dụ đăng một tin có ảnh từ ứng dụng. Trong cùng phút đó, push một commit lên `main` của repo `server`. Khi CI đã build xong image:
 
 ```bash
 kubectl -n shopnexus-dev get rs
@@ -224,7 +223,7 @@ free -g | sed -n 2p
 docker stats --no-stream --format "{{.Name}} {{.MemUsage}}" | grep k3d-shopnexus
 ```
 
-Ghi bộ nhớ còn trống và mức dùng của từng node k3d vào `infra/drills.md`. Spec ước tính hai stack cần 6 đến 8 GB, và bài này đo con số thật.
+So bộ nhớ còn trống và mức dùng của từng node k3d với lần chạy trước.
 </Step>
 </Steps>
 
@@ -241,7 +240,7 @@ Application ở trạng thái `Unknown` với thông báo `infra/stack/secrets/d
 CNPG đọc major version của Postgres từ tag image, và tag của ParadeDB như `0.26.4-pg18` không parse được. Chart xử lý bằng một `ImageCatalog` ghi rõ major 18, nên hãy giữ `major: 18` trong `postgres.yaml` khớp với tag trong `images.postgres`. CNPG còn mặc định uid 26, user trong image của chính nó, trong khi image ParadeDB chạy Postgres bằng uid 999; chart đặt `postgresUID: 999` và `postgresGID: 999`. Lỗi quyền trên thư mục dữ liệu sau khi đổi image nghĩa là image mới dùng uid khác: đọc uid bằng `docker run --rm --entrypoint id paradedb/paradedb:0.26.4-pg18`, thay bằng tag mới.
 </Accordion>
 <Accordion title="Server không bao giờ ready">
-`/readyz` trả 503 và server log `not ready` kèm `check restate: ...`. Readiness ping Postgres và admin API của Restate tại `http://restate.restate-dev:9070`. restate-operator chỉ cho traffic vào cổng ingress và admin của Restate từ các peer trong `spec.security.networkPeers` của `RestateCluster`, và chart đặt peer là các pod server trong namespace của stack. Kiểm tra pod Restate có chạy không (`kubectl -n restate-dev get pods`) và policy của operator có nhắc tới server không (`kubectl -n restate-dev get networkpolicy -o yaml`). Restate chỉ gọi ngược được các pod có nhãn `allow.restate.dev/restate-dev: "true"`, và pod template của server có nhãn này.
+`/readyz` trả 503 và server log `not ready` kèm `check restate: ...`. Readiness ping Postgres và admin API của Restate tại `http://restate.restate-dev:9070`. restate-operator chỉ cho traffic vào cổng ingress và admin của Restate từ các peer trong `spec.security.networkPeers` của `RestateCluster`, và chart đặt peer là các pod server và `server-ai` trong namespace của stack. Kiểm tra pod Restate có chạy không (`kubectl -n restate-dev get pods`) và policy của operator có nhắc tới server không (`kubectl -n restate-dev get networkpolicy -o yaml`). Restate chỉ gọi ngược được các pod có nhãn `allow.restate.dev/restate-dev: "true"`, và pod template của server có nhãn này.
 </Accordion>
 <Accordion title="Lệnh seal dừng vì thiếu restate.pem, hoặc lời gọi của Restate bị từ chối">
 Lệnh seal giữ khóa ký của Restate trong `infra/stack/secrets/<stack>.restate.pem` và nửa công khai của nó trong `RESTATE_IDENTITY_KEY` ở `<stack>.env`. Khi `.env` có khóa công khai mà file `.pem` đã mất, lệnh seal dừng với `restore dev.restate.pem from the backup`. Khôi phục file từ bản sao lưu. Một cặp khóa mới sẽ khiến Restate ký request bằng khóa mà server đang chạy không biết: server từ chối các request đó, và các flow durable đứng lại trong lúc Restate thử lại. Đổi khóa có chủ đích thì xóa cả dòng lẫn file `.pem`, rồi khởi động lại các pod Restate; trang [Secret](/vi/operations/cluster/secrets#khóa-restate) có các bước.
@@ -256,9 +255,9 @@ Server không có giá trị mặc định. Khi khởi động, nó thoát và i
 Ở chế độ direct, log của Traefik có lỗi ACME về rate limit. Endpoint production của Let's Encrypt giới hạn số chứng chỉ một domain nhận được mỗi tuần, và dựng lại nhiều lần sẽ dùng hết hạn mức. Traefik mặc định dùng endpoint production. Khi dựng thử nhiều lần, thêm `caServer: https://acme-staging-v02.api.letsencrypt.org/directory` dưới `acme` trong `infra/cluster/k3d-direct.yaml` trước khi tạo cluster, và chạy smoke test với `--insecure`. Khi đứng sau proxy, proxy giữ chứng chỉ và lỗi này không xảy ra.
 </Accordion>
 <Accordion title="Host hết bộ nhớ">
-Pod bị `OOMKilled` hoặc `Pending`, hoặc host phải swap. Spec ước tính hai stack cần 6 đến 8 GB, và server của tác giả đã dùng 17 trên 19 GB từ trước. Khi không dùng dev, scale dev về 0: trong `infra/stack/values-dev.yaml`, đặt `replicas.server`, `replicas.website`, `replicas.docs` và `replicas.console` bằng 0, giữ `postgres.instances: 1` và `restate.replicas: 1`, rồi commit và push. `kubectl scale` không giữ được lâu vì self-heal của Argo CD đặt lại số replica theo git. Spec còn một phương án dự phòng khác là cluster chỉ có hai agent.
+Pod bị `OOMKilled` hoặc `Pending`, hoặc host phải swap. `server-ai` là pod lớn nhất, xin 6Gi ở prod. Khi không dùng dev, thu nhỏ dev: trong `infra/stack/values-dev.yaml`, đặt `replicas.server`, `replicas.website`, `replicas.docs`, `replicas.console` và `replicas.agent` bằng 0, rồi commit và push. `server-ai`, Bifrost, imgproxy, Grafana, pgweb và các dịch vụ dữ liệu giữ mỗi thứ một pod. `kubectl scale` không giữ được lâu vì self-heal của Argo CD đặt lại số replica theo git. Một phương án dự phòng khác là cluster chỉ có hai agent.
 </Accordion>
 <Accordion title="Pod không pull được image ghcr.io/shopnexus">
-Pod ở trạng thái `ImagePullBackOff` và `kubectl describe pod` cho thấy lỗi unauthorized hoặc denied từ `ghcr.io`. Cluster pull image không dùng thông tin đăng nhập, nên mọi package nó dùng phải công khai: `server`, `website`, `docs` và `console` dưới `ghcr.io/shopnexus`. Trên GitHub, mở package, chọn <UI>Package settings</UI>, rồi <UI>Change visibility</UI>. Một bản fork push image lên owner khác cũng phải đổi tên image trong `infra/stack/values.yaml` và `infra/argocd/stacks.yaml`.
+Pod ở trạng thái `ImagePullBackOff` và `kubectl describe pod` cho thấy lỗi unauthorized hoặc denied từ `ghcr.io`. Cluster pull image không dùng thông tin đăng nhập, nên mọi package nó dùng phải công khai: `ghcr.io/shopnexus/server`, `docs` và `agent`, cùng `ghcr.io/shopnexus/clients/website` và `clients/console`. Trên GitHub, mở package, chọn <UI>Package settings</UI>, rồi <UI>Change visibility</UI>. Một bản fork push image lên owner khác cũng phải đổi tên image trong các file values và `infra/argocd/stacks.yaml`.
 </Accordion>
 </AccordionGroup>

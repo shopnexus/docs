@@ -7,7 +7,7 @@ groupOrder: 1
 audience: [everyone]
 type: overview
 readingTime: 3
-updated: 2026-11-04
+updated: 2026-11-27
 related: ["/en/marketplace/cod-deal", "/en/marketplace/trust-and-sanctions", "/en/architecture/deal"]
 ---
 
@@ -15,30 +15,26 @@ ShopNexus is a C2C marketplace in Vietnam where people sell used things quickly.
 
 ## What follows
 
-- There is one way to buy in the app, <Term id="cod-inspection">COD with inspection at the door</Term> (COD đồng kiểm). The buyer looks at the item before paying the shipper.
-- The buyer pays nothing in the app. There is no deposit, wallet or credit, so there is never anything to refund.
+- There is one way to buy, <Term id="cod-inspection">COD with inspection at the door</Term> (COD đồng kiểm). The buyer looks at the item before paying the shipper.
+- The buyer pays nothing in the app, so there is never anything for the platform to refund.
 - A refused parcel is the refund. After the buyer has paid, the platform cannot get money back, and the app says so before they pay.
-- Problems after delivery are recorded in the chat, and the seller decides how to answer. Nobody issues a ruling.
-- Trust comes from statistics, and a sanction removes rights.
-- Moderators handle three kinds of case. Their number does not grow with the number of orders.
-- Revenue comes from boosts and seller plans. There is no fee per order.
+- After delivery, the buyer and the seller review each other. Nobody issues a ruling.
+- Trust is a set of facts people see before they deal, and a sanction removes rights.
+- Staff handle four kinds of case: banned or fake goods, organised scams, requests from the authorities and support tickets. Their number does not grow with the number of orders.
+- There is no fee per order. Boosts and seller plans are the planned revenue.
 
 ## The COD path
 
 ```mermaid title="Where the parcel and the money go"
 flowchart LR
   B[Buyer] -- "asks for COD" --> S[Seller]
-  S -- "waybill on own carrier account" --> C[Carrier]
+  S -- "ships: waybill on own carrier account" --> C[Carrier]
   C -- "parcel" --> D{Door}
   D -- "inspects, pays price + shipping" --> C
   D -- "refuses" --> S
-  C -- "COD money" --> K[Seller's bank]
+  C -- "COD money" --> K[Seller]
 ```
 
-The seller ships through a carrier account in their own name (GHTK, GHN, SPX, J&T, Viettel Post and others) and types the carrier, waybill code and fee into ShopNexus. The carrier pays the COD money into the bank account the seller registered with it. Carriers check a seller's identity when they open the account, so posting on ShopNexus needs only a phone number verified through Firebase.
+The seller links their own GHTK or GHN account once, in the COD setup. When they ship, ShopNexus creates the waybill on that account and follows the parcel through the carrier's updates. The carrier pays the COD money to the seller under the terms of the seller's own account. Carriers check a seller's identity when they open the account, so selling on ShopNexus needs only a verified phone number.
 
-No carrier API is integrated yet, and the order model keeps room for an integration later.
-
-## Deferred: escrow
-
-Payment held by a licensed provider may be added later for expensive categories. Because a deal already goes through a named transaction path, escrow would be a second path beside COD, and the rest of the system would stay as it is.
+The steps, states and deadlines of an order are in [The COD deal](/en/marketplace/cod-deal).

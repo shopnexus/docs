@@ -48,24 +48,11 @@ export const glossary: GlossaryEntry[] = [
     "marketplace",
     [
       "Waybill",
-      "The shipment the seller creates in their own carrier account; they type its carrier, code and fee into ShopNexus.",
+      "The shipment ShopNexus creates on the seller's own GHTK or GHN account when the seller ships; the carrier collects the COD money on it.",
     ],
     [
       "Vận đơn",
-      "Đơn gửi hàng seller tạo trên tài khoản hãng vận chuyển của mình, rồi nhập hãng, mã và phí ship vào ShopNexus.",
-    ],
-    ["cod-inspection"],
-  ),
-  e(
-    "listing-claims",
-    "marketplace",
-    [
-      "Tin ghi",
-      'The facts a seller states in a listing, such as battery level or "never repaired", which the buyer can check at the door.',
-    ],
-    [
-      "Tin ghi",
-      'Các thông tin seller ghi trong tin, như mức pin hay "máy zin, chưa sửa", để buyer kiểm khi đồng kiểm.',
+      "Đơn gửi hàng ShopNexus tạo trên tài khoản GHTK hoặc GHN của chính người bán khi người bán gửi hàng; hãng thu tiền COD theo vận đơn này.",
     ],
     ["cod-inspection"],
   ),
@@ -74,47 +61,41 @@ export const glossary: GlossaryEntry[] = [
     "marketplace",
     [
       "Reserved listing",
-      "A listing held for one order while its parcel is on the way; it stays public and the seller cannot edit it.",
+      "A listing held for one order while its parcel is on the way; it stays public, and the seller cannot edit, hide or delete it.",
     ],
     [
       "Tin đang giữ chỗ",
-      "Tin được giữ cho một đơn trong lúc bưu kiện đang đi; tin vẫn công khai và người bán không sửa được.",
-    ],
-  ),
-  e(
-    "issue-report",
-    "marketplace",
-    [
-      "Issue report",
-      "A record a buyer opens in the chat, with photos, about a problem found after paying; the seller refunds or declines, and the platform does not rule on it.",
-    ],
-    [
-      "Ghi nhận sự cố",
-      "Ghi nhận buyer mở trong chat, kèm ảnh, về vấn đề phát hiện sau khi trả tiền; seller tự hoàn hoặc từ chối, sàn không phân xử.",
+      "Tin được giữ cho một đơn trong lúc bưu kiện đang đi; tin vẫn công khai, và người bán không sửa, ẩn hay xóa được.",
     ],
   ),
   e(
     "refusal-rate",
     "marketplace",
     [
-      "Refusal rate",
-      "How often a buyer refuses parcels at the door, counted from the orders sellers report as returned.",
+      "Failed COD orders",
+      "A buyer's COD orders of the last 90 days that were refused or returned, shown to the buyer in their reputation.",
     ],
-    ["Tỉ lệ từ chối nhận", "Tần suất buyer từ chối nhận hàng ở cửa, tính theo các đơn seller báo bị hoàn."],
+    [
+      "Đơn COD không thành",
+      "Các đơn COD trong 90 ngày qua của người mua bị từ chối nhận hoặc bị hoàn, hiện cho người mua trong mục uy tín của họ.",
+    ],
     ["cod-inspection"],
   ),
   e(
     "nearby-feed",
     "marketplace",
-    ["Nearby feed", "Active listings within 50 km of the viewer, ranked by distance and freshness."],
-    ["Feed gần bạn", "Các tin đang bán trong vòng 50 km quanh người xem, xếp theo khoảng cách và độ mới."],
+    ["Nearby feed", "Active listings within 50 km of the viewer by default, ranked by distance and freshness."],
+    [
+      "Feed gần bạn",
+      "Các tin đang bán trong vòng 50 km quanh người xem theo mặc định, xếp theo khoảng cách và độ mới.",
+    ],
     ["boost"],
   ),
   e(
     "boost",
     "marketplace",
-    ["Boost", "A paid placement that puts a listing at the top of the nearby feed for one or more days."],
-    ["Đẩy tin", "Dịch vụ trả phí đưa tin lên đầu mục Gần bạn trong một hoặc vài ngày."],
+    ["Boost", "A planned paid placement that would put a listing at the top of the nearby feed for one or more days."],
+    ["Đẩy tin", "Dịch vụ trả phí dự kiến, sẽ đưa tin lên đầu mục Gần bạn trong một hoặc vài ngày."],
     ["nearby-feed"],
   ),
   e(
@@ -205,18 +186,24 @@ export const glossary: GlossaryEntry[] = [
     "architecture",
     [
       "Upload",
-      "A photo the app puts straight into the object store through a presigned URL, which the server then attaches and processes.",
+      "A photo or video the client puts straight into the object store through a presigned URL, which the server then attaches and processes.",
     ],
     [
       "Lượt upload",
-      "Một ảnh app đưa thẳng lên object store qua presigned URL, sau đó server gắn vào nơi dùng và xử lý.",
+      "Một ảnh hoặc video mà ứng dụng hay website đưa thẳng lên object store qua presigned URL, sau đó server gắn vào nơi dùng và xử lý.",
     ],
   ),
   e(
     "push-token",
     "architecture",
-    ["Push token", "The FCM device token, tied to one sign-in session and deleted when that session ends."],
-    ["Push token", "Device token FCM gắn với một phiên đăng nhập, bị xóa khi phiên đó kết thúc."],
+    [
+      "Push token",
+      "The FCM token of a phone or browser, tied to one sign-in session and deleted when that session ends.",
+    ],
+    [
+      "Push token",
+      "Token FCM của một điện thoại hoặc trình duyệt, gắn với một phiên đăng nhập, bị xóa khi phiên đó kết thúc.",
+    ],
   ),
   e(
     "otlp",
@@ -263,11 +250,41 @@ export const glossary: GlossaryEntry[] = [
     "api",
     [
       "Stream event",
-      "A server-sent event on /v1/stream that carries only IDs and tells the open app to reload what it shows.",
+      "An update on the /v1/ws WebSocket that carries only IDs and tells the open app or website to reload what it shows.",
     ],
     [
       "Sự kiện stream",
-      "Sự kiện server-sent trên /v1/stream, chỉ mang ID, báo app đang mở tải lại những gì đang hiển thị.",
+      "Bản cập nhật trên WebSocket /v1/ws, chỉ mang ID, báo ứng dụng hoặc website đang mở tải lại những gì đang hiển thị.",
+    ],
+  ),
+];
+
+// Terms of features that no longer exist. Untranslated vi pages still name
+// them, so a <Term> resolves them, but the Glossary page leaves them out.
+export const retired: GlossaryEntry[] = [
+  e(
+    "listing-claims",
+    "marketplace",
+    [
+      "Tin ghi",
+      'The facts a seller states in a listing, such as battery level or "never repaired", which the buyer can check at the door.',
+    ],
+    [
+      "Tin ghi",
+      'Các thông tin seller ghi trong tin, như mức pin hay "máy zin, chưa sửa", để buyer kiểm khi đồng kiểm.',
+    ],
+    ["cod-inspection"],
+  ),
+  e(
+    "issue-report",
+    "marketplace",
+    [
+      "Issue report",
+      "A record a buyer opens in the chat, with photos, about a problem found after paying; the seller refunds or declines, and the platform does not rule on it.",
+    ],
+    [
+      "Ghi nhận sự cố",
+      "Ghi nhận buyer mở trong chat, kèm ảnh, về vấn đề phát hiện sau khi trả tiền; seller tự hoàn hoặc từ chối, sàn không phân xử.",
     ],
   ),
 ];

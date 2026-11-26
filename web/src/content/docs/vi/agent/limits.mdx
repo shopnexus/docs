@@ -1,28 +1,32 @@
 ---
 title: Giới hạn và lỗi
-description: Thời hạn, số lần gọi model, ngân sách, giới hạn tốc độ, ngữ cảnh và chống lặp tool, cùng các mã lỗi và lượt nào chạy tiếp được.
+description: Thời hạn, số lần gọi model, ngân sách, giới hạn tốc độ, ngữ cảnh và chốt chặn vòng lặp tool, cùng các mã lỗi và lượt nào chạy tiếp được.
 group: Bên trong
 groupOrder: 4
 order: 2
 audience: [developers, admins]
 type: reference
 readingTime: 4
-updated: 2026-11-26
+updated: 2026-11-27
 related: ["/vi/agent/control", "/vi/agent/setup", "/vi/operations/cluster/llm-gateway"]
 ---
 
-Server chặn một câu hỏi trước khi lượt mở; agent chặn một đoạn chạy trong lúc chạy. Lỗi ở bước đầu trả về ngay thành HTTP; lỗi ở bước sau tới console qua event `turn.finished`.
+Server chặn một câu hỏi trước khi lượt mở; agent dừng một đoạn trong lúc nó chạy. Lần từ chối loại thứ nhất trả về ngay thành HTTP. Lần dừng loại thứ hai tới trang điều hành qua event `turn.finished`.
 
 ## Trước khi lượt mở
 
 | Kiểm tra | Ở đâu | Kết quả |
 |---|---|---|
-| Ngân sách tháng của agent đã hết | server | 429 `agent_budget` |
-| Quá 30 câu hỏi và cập nhật một phút của một moderator | server, bộ nhớ của từng replica | 429 `agent_rate_limited` |
+| Agent được chọn không tồn tại hoặc không phải agent của trang điều hành | server | 404 `ai_agent_not_found` |
+| Agent được chọn đã bị tắt | server | 409 `ai_agent_disabled` |
+| Quá 30 câu hỏi và cập nhật mỗi phút từ một điều phối viên | server, trong bộ nhớ của từng replica | 429 `agent_rate_limited` |
 | Câu hỏi rỗng sau khi làm sạch | server | 400 `invalid_request` |
 | Câu hỏi quá 2000 ký tự | server | 422 `agent_input_rejected` |
-| Cuộc chat đang có lượt chưa xong | server | 409 `agent_turn_in_progress` |
-| `FEATURE_ALL_AGENT` hoặc `FEATURE_LLM` là `false` | agent | 503, server trả `agent_unavailable` |
+| Một lần nhắc có loại không biết, có quá 10 lần nhắc, hoặc một nhãn dài quá 120 ký tự | server | 400 `invalid_request` |
+| Cuộc trò chuyện đang có một lượt chưa xong | server | 409 `agent_turn_in_progress` |
+| Agent đang bị tắt bằng công tắc, agent từ chối đoạn chạy, hoặc không trả trạng thái trong 10 giây | agent, hoặc phía server chờ | 503 `agent_unavailable`; lượt mới bị xóa |
+
+Ngân sách đã hết không được kiểm ở đây: nó kết thúc lượt chạy, như mô tả bên dưới.
 
 ## Trong lúc chạy
 
@@ -30,25 +34,29 @@ Server chặn một câu hỏi trước khi lượt mở; agent chặn một đo
 |---|---|---|
 | Thời hạn của một đoạn (`limits.deadline_s`, 10 tới 300) | 60 giây | `TIMED_OUT`; các bước và lần gọi tool đã có vẫn giữ |
 | Số lần gọi model mỗi đoạn (`max_model_calls`) | 40 | `FAILED`, `agent_limit` |
-| Token đầu ra mỗi lần gọi (`max_tokens`) | 4096 | câu trả lời của lần gọi đó bị cắt |
-| Kết quả tool giữ trong ngữ cảnh (`AGENT_TOOL_OUTPUT_CAP`) | 20 000 ký tự | phần còn lại đọc qua tool `read_output` |
-| Cùng một tool với cùng đầu vào | 2 lần | lần thứ ba bị huỷ, event `guardrail` `loop_stopped`, model được bảo trả lời với những gì đã có |
+| Token đầu ra mỗi lần gọi model (`max_tokens`) | 4096 | câu trả lời của lần gọi đó bị cắt |
+| Một kết quả tool giữ trong ngữ cảnh | 20 000 ký tự | phần còn lại đọc theo trang qua tool `read_output` |
+| Cùng một tool với cùng đầu vào | 2 lần | lần thứ ba bị hủy, một event `guardrail` `loop_stopped` được ghi, và model được bảo trả lời với những gì đã có |
 
 ## Ngân sách
 
-Mỗi agent có một ngân sách tháng bằng USD, đặt trên trang của nó trong console; Bifrost áp ngân sách đó lên team của agent. Không có ngân sách theo moderator hay theo vai trò. Hết ngân sách giữa chừng thì Bifrost trả 402 (`policy_budget_exceeded`); agent không thử lại mà kết thúc đoạn `FAILED` với `agent_budget`, và ô hỏi của console báo việc hỏi bị dừng. Bifrost không trả chi phí, nên agent tính mỗi lần gọi bằng số token nhân với giá trong `gateway.prices` của lượt chạy cho model đã trả lời, kể cả đọc và ghi cache, rồi cộng dồn vào `usage` của lượt.
+Mỗi agent có một ngân sách tháng bằng USD, đặt trên trang của nó trong trang điều hành; Bifrost áp ngân sách đó lên team của agent. Không có ngân sách theo điều phối viên hay theo vai trò.
+
+Hết ngân sách giữa chừng thì Bifrost trả 402 (`policy_budget_exceeded`). Agent không thử lại mà kết thúc đoạn `FAILED` với `agent_budget`; `turn.finished` báo việc này với trạng thái `BUDGET`, và ô hỏi của trang điều hành báo việc hỏi đang tạm ngừng.
+
+Bifrost không trả chi phí. Vì vậy agent tính mỗi lần gọi bằng số token nhân với giá trong `gateway.prices` của lượt chạy cho model đã trả lời, kể cả đọc và ghi cache, rồi cộng dồn vào `usage` của lượt.
 
 ## Giới hạn tốc độ của nhà cung cấp
 
-Bifrost trả 429 (`policy_rate_limited`, tức giới hạn tốc độ của bên gọi, hoặc 429 của upstream) thì agent chờ rồi gửi lại đúng request đó. Bifrost không gửi Retry-After, nên thời gian chờ lấy từ `retry-after-ms` hoặc `retry-after` khi upstream có gửi, nếu không thì theo khung thời gian ghi trong thông báo ("resets every 1m"), mặc định 60 giây. Một đoạn chờ tối đa ba lần, mỗi lần tối đa 90 giây, và ghi event `rate.waiting {until}` để console hiện đồng hồ đếm ngược. Stop now và thời hạn của đoạn cắt ngang lúc chờ.
+Khi Bifrost trả 429 (`policy_rate_limited`, tức giới hạn tốc độ của bên gọi, hoặc 429 của upstream), agent chờ rồi gửi lại đúng request đó. Bifrost không gửi Retry-After, nên thời gian chờ lấy từ `retry-after-ms` hoặc `retry-after` khi upstream có gửi; nếu không thì theo khung thời gian ghi trong thông báo ("resets every 1m"); nếu không nữa thì 60 giây. Một đoạn chờ tối đa ba lần, mỗi lần tối đa 90 giây, và ghi `rate.waiting {until}` để trang điều hành hiện đồng hồ đếm ngược. Stop now và thời hạn của đoạn cắt ngang lúc chờ.
 
 ## Ngữ cảnh
 
-Sau mỗi lần gọi model, event `context.meter` báo số token đã dùng trên cửa sổ ngữ cảnh (`limits.context_window`, mặc định 128 000). Quá 80 %, agent tóm tắt mọi tin trước tin trả lời cuối của model bằng chính model đó, thay chúng bằng một tin gồm bản tóm tắt và câu hỏi của moderator, và ghi `context.compacting` rồi `context.compacted`. Ngữ cảnh vẫn đầy sau khi tóm tắt thì đoạn kết thúc `agent_context`.
+Sau mỗi lần gọi model, một event `context.meter` báo số token đã dùng so với cửa sổ ngữ cảnh (`limits.context_window`, mặc định 128 000). Quá 80 %, agent dùng chính model đó tóm tắt mọi tin nhắn trước câu trả lời cuối của model, thay chúng bằng một tin nhắn gồm bản tóm tắt và câu hỏi của điều phối viên, rồi ghi `context.compacting` và `context.compacted`. Ngữ cảnh vẫn đầy sau đó thì đoạn kết thúc với `agent_context`.
 
 ## Mã lỗi
 
-| Mã | Nhóm | Chạy tiếp được | Dòng console hiện |
+| Mã | Kết cục | Chạy tiếp được | Dòng chữ trang điều hành hiện |
 |---|---|---|---|
 | `agent_timeout` | `out_of_room` | có | Quá thời gian trả lời. Hãy hỏi lại. |
 | `agent_limit` | `out_of_room` | có | Lượt hỏi đã dùng hết số bước cho phép. |
@@ -56,14 +64,15 @@ Sau mỗi lần gọi model, event `context.meter` báo số token đã dùng tr
 | `agent_failed` | `broken` | có | Agent gặp lỗi giữa chừng. Có thể tiếp tục lượt này. |
 | `agent_stuck` | `broken` | có | Lượt hỏi bị gián đoạn. Hãy hỏi lại. |
 | `agent_unavailable` | `unavailable` | không | Agent đang không trả lời được. Hãy thử lại sau. |
-| `agent_budget` | `blocked` | không | Hết hạn mức hôm nay. |
+| `agent_budget` | `blocked` | không | Agent đã dùng hết ngân sách của tháng này. |
 | `agent_blocked` | `blocked` | không | Lượt hỏi bị chặn. |
 
-Một lượt `FAILED` hay `TIMED_OUT` chạy tiếp được khi nó là lượt mới nhất của cuộc chat, đã ghi ra ít nhất một bước, một lần gọi tool hay một đoạn chữ, và mã lỗi nằm trong năm mã có "có" ở bảng trên. Lượt bị huỷ bằng **End** thuộc nhóm `stopped`.
+Một lượt `FAILED` hay `TIMED_OUT` chạy tiếp được khi nó là lượt mới nhất của cuộc trò chuyện, đã ghi ra ít nhất một bước, một lần gọi tool hay một đoạn chữ, và mã lỗi là một trong năm mã có "có" ở bảng trên. Lượt bị hủy bằng **End** có kết cục `stopped`.
 
 ## Giới hạn đã biết
 
 - Stop now, giới hạn thời gian của tool và thời hạn của đoạn không dừng được một lần gọi MCP đã chạy ở server.
 - Pause, Stop now và cập nhật tới agent trong khoảng một giây, là chu kỳ hỏi lệnh điều khiển.
-- Công tắc tắt agent áp cho từng process.
-- Agent che dữ liệu cá nhân trong audit log của nó. Câu trả lời có thể trích dữ liệu cá nhân mà moderator được phép đọc, và server ghi lại các lần đọc đó.
+- Công tắc tắt áp cho từng process agent.
+- Server không ghi log nội dung câu hỏi hay câu trả lời, vì một lượt có trích lời của người khác.
+- Agent che dữ liệu cá nhân trong nhật ký kiểm toán của riêng nó. Câu trả lời có thể trích dữ liệu cá nhân mà điều phối viên được phép đọc, và server ghi lại các lần đọc đó.

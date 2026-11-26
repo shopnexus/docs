@@ -6,8 +6,8 @@ order: 4
 groupOrder: 2
 audience: [admins, developers]
 type: concept
-readingTime: 11
-updated: 2026-11-26
+readingTime: 10
+updated: 2026-11-27
 related: ["/vi/operations/cluster", "/vi/operations/cluster/bootstrap", "/vi/operations/cluster/releases", "/vi/operations/cluster/secrets", "/vi/operations/cluster/runbook"]
 ---
 
@@ -55,11 +55,11 @@ Operator CloudNativePG (CNPG, trong namespace `cnpg-system`) chạy một `Clust
 
 Image là `paradedb/paradedb:0.26.4-pg18`, tức Postgres 18 kèm extension `pg_search` của ParadeDB. CNPG đọc major version của Postgres từ tag image và không parse được `0.26.4-pg18`. Vì vậy chart khai báo một `ImageCatalog` tên `postgres` ánh xạ `major: 18` sang image này, và `Cluster` trỏ tới catalog qua `imageCatalogRef`.
 
-Image ParadeDB chạy `postgres` với uid 999. CNPG mặc định uid 26, uid trong image của chính CNPG, nên `Cluster` đặt `postgresUID: 999` và `postgresGID: 999`. Cả hai lỗi này được phát hiện trên một cluster k3d cục bộ trước khi bản sửa được đưa vào.
+Image ParadeDB chạy `postgres` với uid 999. CNPG mặc định uid 26, uid trong image của chính CNPG, nên `Cluster` đặt `postgresUID: 999` và `postgresGID: 999`.
 
-### pg_search
+### Extension và bộ nhớ
 
-`shared_preload_libraries: [pg_search]` nạp extension vào mọi instance. Phần bootstrap tạo database `app` do role `app` sở hữu, và chạy `CREATE EXTENSION IF NOT EXISTS pg_search CASCADE` trong đó qua `postInitApplicationSQL`. CNPG chạy câu lệnh này bằng superuser. Migration `0019_search.sql` của server chạy cùng câu lệnh bằng `app`, role không có quyền tạo extension, và vẫn qua vì extension đã có sẵn.
+`shared_preload_libraries: [pg_search, pg_prewarm]` nạp phần tìm kiếm của ParadeDB và `pg_prewarm`, extension nạp lại các buffer đã lưu sau khi khởi động lại. Đặt `pg_stat_statements.max` và `.track` khiến CNPG nạp `pg_stat_statements` và tạo nó trong mọi database. `shared_buffers` (2GB), `effective_cache_size` (6GB) và `max_connections` (300) lấy từ `postgres.*` trong `values.yaml`: các index vector và BM25 mà tìm kiếm đọc phải vừa trong bộ nhớ, và một lần rollout server làm số kết nối tăng gấp đôi trong chốc lát khi phiên bản cũ đang drain. Phần bootstrap tạo database `app` do role `app` sở hữu, và chạy `CREATE EXTENSION IF NOT EXISTS pg_search CASCADE` trong đó qua `postInitApplicationSQL`. CNPG chạy câu lệnh này bằng superuser. Migration `0019_search.sql` của server chạy cùng câu lệnh bằng `app`, role không có quyền tạo extension, và vẫn qua vì extension đã có sẵn.
 
 ### Kết nối và secret
 
@@ -67,7 +67,7 @@ CNPG tạo Secret `postgres-app`. Server và các job của nó đọc `DATABASE
 
 ### Database của cổng AI
 
-`Cluster` còn quản lý role `bifrost` (`ensure: present`, `login: true`); CNPG đọc mật khẩu của role từ Secret basic-auth `bifrost-db`, do lệnh seal, `infra/cmd/seal`, niêm phong. Một resource `Database` riêng tên `bifrost`, chủ sở hữu `bifrost`, tạo database trên cùng cluster ở wave 1. Bifrost lưu kho cấu hình và log của nó ở đó, như mô tả trong [Cổng Bifrost](/vi/operations/cluster/llm-gateway#database). Team, virtual key và ngân sách trong đó do server ghi. CNPG không xóa role hay database mà chart thôi khai báo, nên role và database `litellm` cũ phải được xóa bằng tay một lần ([Runbook](/vi/operations/cluster/runbook#sau-khi-chuyển-sang-bifrost)).
+`Cluster` còn quản lý role `bifrost` (`ensure: present`, `login: true`); CNPG đọc mật khẩu của role từ Secret basic-auth `bifrost-db`, do lệnh seal, `infra/cmd/seal`, niêm phong. Một resource `Database` riêng tên `bifrost`, chủ sở hữu `bifrost`, tạo database trên cùng cluster ở wave 1. Bifrost lưu kho cấu hình và log của nó ở đó, như mô tả trong [Cổng Bifrost](/vi/operations/cluster/llm-gateway#database). Team, virtual key và ngân sách trong đó do server ghi. CNPG không xóa role hay database mà chart thôi khai báo; stack nào từng chạy LiteLLM thì tự xóa role và database `litellm` của nó bằng tay ([Runbook](/vi/operations/cluster/runbook#sau-khi-chuyển-sang-bifrost)).
 
 ### Bố trí pod
 
@@ -95,7 +95,7 @@ sequenceDiagram
   C->>P1: tạo lại pod làm replica của postgres-2
 ```
 
-Bài diễn tập cho tình huống này đã được viết (plan Task 17, bước 1) nhưng chưa chạy. Kết quả mong đợi là `currentPrimary` đổi sang instance còn lại trong vòng một phút và `infra/smoke.hurl` qua. Để theo dõi:
+[Bài diễn tập failover](/vi/operations/cluster/runbook#diễn-tập-failover) mong đợi `currentPrimary` đổi sang instance còn lại trong vòng một phút và `infra/smoke.hurl` qua. Để theo dõi:
 
 ```bash
 kubectl -n shopnexus-prod get cluster postgres \
@@ -123,24 +123,24 @@ restate-operator 3.2.0 chạy hai resource cho mỗi stack: một `RestateCluste
 | Ký request | `requestSigningPrivateKey` phiên bản `v1`, key `private.pem` của `restate-secrets` |
 | Phân tán | `topologySpreadConstraints`, `maxSkew: 1` theo `kubernetes.io/hostname`, `ScheduleAnyway` |
 
-Snapshot được ghi vào RustFS của stack bằng access key lưu trong `restate-secrets` dưới tên `AWS_ACCESS_KEY_ID` và `AWS_SECRET_ACCESS_KEY`. Đó cũng là cặp key mà RustFS dùng để chạy. README của operator khuyên không chạy cluster phân tán mà thiếu snapshot, vì node bị tụt lại sẽ bắt kịp từ snapshot.
+Snapshot được ghi vào RustFS của stack bằng access key lưu trong `restate-secrets` dưới tên `AWS_ACCESS_KEY_ID` và `AWS_SECRET_ACCESS_KEY`. Cặp key này thuộc một user RustFS riêng, chỉ được dùng bucket `restate-snapshots`. README của operator khuyên không chạy cluster phân tán mà thiếu snapshot, vì node bị tụt lại sẽ bắt kịp từ snapshot.
 
 Restate ký mọi request gửi tới server bằng `private.pem`. Server giữ public key trong `RESTATE_IDENTITY_KEY` và từ chối request không có chữ ký. Lệnh seal giữ private key trong `infra/stack/secrets/<stack>.restate.pem` và dừng lại nếu file này mất trong khi `.env` vẫn còn public key; xem [Secret](/vi/operations/cluster/secrets).
 
-`spec.security.networkPeers` chỉ cho traffic vào cổng ingress và admin từ các pod server của stack. Ở chiều ngược lại, Restate chỉ được tới các pod mang nhãn `allow.restate.dev/restate-<stack>: "true"`, nhãn mà chart gắn cho pod server và pod RustFS.
+`spec.security.networkPeers` chỉ cho traffic vào cổng ingress từ các pod server của stack, vào cổng admin từ server, `server-ai` và Traefik (cho giao diện admin ở `restate.<domain>`), và vào cổng node từ Prometheus của cluster. Ở chiều ngược lại, Restate chỉ được tới các pod mang nhãn `allow.restate.dev/restate-<stack>: "true"`, nhãn mà chart gắn cho pod server, `server-ai` và RustFS.
 
-Ràng buộc phân tán `ScheduleAnyway` đặt ba node của prod lên ba agent và vẫn xếp lịch được khi một agent dừng. Với `default-replication = 2`, prod được thiết kế để vẫn nhận invocation khi mất một node; bài diễn tập dừng một agent (plan Task 17, bước 2) chưa chạy.
+Ràng buộc phân tán `ScheduleAnyway` đặt ba node của prod lên ba agent và vẫn xếp lịch được khi một agent dừng. Với `default-replication = 2`, prod được thiết kế để vẫn nhận invocation khi mất một node, và bài diễn tập agent kiểm tra điều đó.
 
 ### RestateDeployment cho server
 
-Server chạy dưới dạng `RestateDeployment` tên `server` (`restate.dev/v1beta1`), ở wave 2. Nó giống một Deployment, có điều mỗi pod template khác nhau trở thành một phiên bản với ReplicaSet riêng và Service riêng, và operator giữ phiên bản cũ chạy tới khi Restate không còn invocation nào trên đó.
+Server chạy dưới dạng `RestateDeployment` tên `server` (`restate.dev/v1beta1`), ở wave 2, và `server-ai` là một cái thứ hai bên cạnh. Nó giống một Deployment, có điều mỗi pod template khác nhau trở thành một phiên bản với ReplicaSet riêng và Service riêng, và operator giữ phiên bản cũ chạy tới khi Restate không còn invocation nào trên đó.
 
 - Operator đăng ký từng phiên bản với cluster nêu trong `restate.register.cluster` (`restate-<stack>`), kèm `useHttp11: true`. Khi đó mỗi invocation là một HTTP request riêng, nên Service chia invocation đều cho các pod.
 - Invocation bắt đầu trên phiên bản nào thì kết thúc trên phiên bản đó và không bao giờ replay trên phiên bản khác.
 - Khi một phiên bản đã drain xong, operator chờ `drainDelaySeconds` (mặc định 300 s; chart không đặt giá trị này) rồi gỡ phiên bản và scale ReplicaSet của nó về 0. Operator giữ lại `revisionHistoryLimit` (mặc định 10) ReplicaSet cũ.
-- Traffic API đi qua Service `server-api` ở cổng 8080, Service này chọn mọi pod server của mọi phiên bản, nên phiên bản cũ vẫn phục vụ request API cho tới khi bị scale về 0.
+- Traffic API đi qua Service `server-api` ở cổng 8080, và agent tới MCP server qua `server-mcp` ở 9090. Cả hai chỉ chọn phiên bản hiện tại, theo nhãn `shopnexus.id.vn/version` của nó, và nằm ở wave 3, wave này chờ tới khi các pod của phiên bản mới sẵn sàng. Phiên bản đang drain chỉ chạy nốt các invocation Restate của nó.
 
-Khi chạy bằng `make run`, server tự đăng ký với Restate lúc khởi động, kèm `force: true`. Dưới operator, lần đăng ký đó sẽ ghi đè lần đăng ký của operator, nên stack đặt `RESTATE_REGISTER: "false"` trong ConfigMap `server-env`. Khi đó server chỉ phục vụ endpoint ở `0.0.0.0:9080` và ghi log rằng việc đăng ký để cho restate-operator.
+Khi chạy ở local, server tự đăng ký với Restate lúc khởi động, kèm `force: true`. Dưới operator, lần đăng ký đó sẽ ghi đè lần đăng ký của operator, nên stack đặt `RESTATE_REGISTER: "false"` trong ConfigMap `server-env`. Khi đó server chỉ phục vụ endpoint ở `0.0.0.0:9080` và ghi log rằng việc đăng ký để cho restate-operator.
 
 Operator chỉ tạo phiên bản mới khi pod template đổi. Tag image mới làm template đổi. Thay đổi ở ConfigMap `server-env` hay ở một SealedSecret thì không, nên template mang hai annotation:
 
@@ -158,14 +158,12 @@ stateDiagram-v2
   Latest --> Registered: operator đăng ký với RestateCluster
   Registered: invocation mới đi vào đây
   Registered --> Draining: một phiên bản mới hơn được đăng ký
-  Draining: chạy nốt các invocation đã bắt đầu, vẫn phục vụ server-api
+  Draining: chạy nốt các invocation đã bắt đầu
   Draining --> Drained: hết invocation
   Drained --> ScaledToZero: sau drainDelaySeconds (300 s)
   ScaledToZero: gỡ khỏi Restate, ReplicaSet còn 0 pod
   ScaledToZero --> [*]
 ```
-
-Trên một cluster k3d cục bộ, operator đã đăng ký phiên bản đầu tiên với 13 service của nó, và một thay đổi cấu hình đã tạo phiên bản thứ hai trong khi phiên bản đầu vẫn được đăng ký. Bài diễn tập phát hành trong lúc có invocation dài (plan Task 17, bước 3) chưa chạy.
 
 Để xem các phiên bản của một stack:
 
@@ -178,20 +176,20 @@ Trang [Phát hành](/vi/operations/cluster/releases) mô tả cách một image 
 
 ## RustFS
 
-RustFS là object store tương thích S3. Mỗi stack chạy một StatefulSet `rustfs` với một replica (`rustfs/rustfs:1.0.4`), một volume 10Gi gắn ở `/data`, và một Service `rustfs` ở cổng 9000. Console của nó tắt (`RUSTFS_CONSOLE_ENABLE=false`). Pod ưu tiên node có nhãn `role=stateful`, tức `agent-0`. Nó đọc access key từ `server-secrets` (`OBJECT_STORE_ACCESS_KEY`, `OBJECT_STORE_SECRET_KEY`).
+RustFS là object store tương thích S3. Mỗi stack chạy một StatefulSet `rustfs` với một replica (`rustfs/rustfs:1.0.4`), một volume 10Gi gắn ở `/data`, và một Service `rustfs` ở cổng 9000 cho S3 và 9001 cho web console của nó, mà `s3.<domain>` phục vụ sau bước đăng nhập của trang điều hành. Pod ưu tiên node có nhãn `role=stateful`, tức `agent-0`. Nó chạy với khóa root của `rustfs-secrets`, mà chỉ nó và các job `objectstore-init` đọc.
 
 | Bucket | Dùng cho | Quyền truy cập |
 |---|---|---|
-| `shopnexus` | `OBJECT_STORE_BUCKET` của server | key dưới `media/` ai cũng đọc được |
-| `restate-snapshots` | snapshot của Restate, dưới prefix `<stack>/` | quy tắc đọc `media/` cũng có ở đây; prefix đó không chứa gì |
+| `shopnexus` | user riêng của server (`OBJECT_STORE_ACCESS_KEY`) | key dưới `media/` ai cũng đọc được |
+| `restate-snapshots` | user của Restate, snapshot dưới prefix `<stack>/` | quy tắc đọc `media/` cũng có ở đây; prefix đó không chứa gì |
 
 ### Tạo bucket
 
-Image server có sẵn `/objectstore-init`. Lệnh này tạo `OBJECT_STORE_BUCKET` nếu bucket chưa có và đặt policy cho phép bất kỳ ai `s3:GetObject` trên `<bucket>/media/*`. Chart chạy nó hai lần ở wave 1: job `objectstore-init` với môi trường của server, chuẩn bị `shopnexus`, và job `objectstore-init-snapshots` với `OBJECT_STORE_BUCKET=restate-snapshots`. Chạy lại trên bucket đã có thì chỉ đặt lại policy.
+Image server có sẵn `/objectstore-init`. Với khóa root của RustFS, lệnh này tạo `OBJECT_STORE_BUCKET` nếu bucket chưa có, đặt policy cho phép bất kỳ ai `s3:GetObject` trên `<bucket>/media/*`, và biến `OBJECT_STORE_ACCESS_KEY` thành một user chỉ được đọc và ghi bucket đó. Chart chạy nó hai lần ở wave 1: job `objectstore-init` với môi trường của server, chuẩn bị `shopnexus` và user của server, và job `objectstore-init-snapshots` với `OBJECT_STORE_BUCKET=restate-snapshots` và các khóa của Restate. Chạy lại thì chỉ đặt lại policy và user.
 
 ### Upload
 
-Trình duyệt và app upload thẳng vào RustFS bằng URL PUT presigned. Server ký URL cho `OBJECT_STORE_PUBLIC_ENDPOINT=https://media.<domain>` và nói chuyện với RustFS trong cluster qua `OBJECT_STORE_ENDPOINT=http://rustfs:9000`. Một PUT presigned cố định `Content-Type` và `Content-Length`. File công khai được đọc từ `MEDIA_PUBLIC_URL=https://media.<domain>/shopnexus`. Ingress chuyển `media.<domain>` tới `rustfs:9000`.
+Trình duyệt và ứng dụng upload thẳng vào RustFS bằng URL PUT presigned. Server ký URL cho `OBJECT_STORE_PUBLIC_ENDPOINT=https://media.<domain>` và nói chuyện với RustFS trong cluster qua `OBJECT_STORE_ENDPOINT=http://rustfs:9000`. Một PUT presigned cố định `Content-Type` và `Content-Length`. File công khai được đọc từ `MEDIA_PUBLIC_URL=https://media.<domain>/shopnexus`. Ingress chỉ chuyển `media.<domain>/shopnexus/` tới `rustfs:9000`, nên admin API của RustFS không public; ảnh đã đổi kích thước đến từ `imgproxy` qua đường dẫn `/_img` của website.
 
 <Callout type="warning" title="Header Host">
 Chữ ký bao gồm host `media.<domain>`. Một proxy đứng trước Traefik mà viết lại header `Host` sẽ làm mọi lần upload hỏng với lỗi chữ ký. Trên server của tác giả, Caddy dùng chung phải chuyển `Host` nguyên vẹn; xem [Biên và mạng](/vi/operations/cluster/networking).
@@ -206,15 +204,16 @@ Argo CD áp một stack theo từng wave. Nó chỉ bắt đầu một wave khi 
 | Wave | Resource |
 |---|---|
 | -1 | Namespace `restate-<stack>` |
-| 0 | `ImageCatalog` và `Cluster` `postgres`, StatefulSet `rustfs`, các SealedSecret; resource không có annotation wave (ConfigMap `server-env`, Service, NetworkPolicy) |
-| 1 | `RestateCluster`, `Database` `bifrost`, các job Sync hook `migrate`, `objectstore-init`, `objectstore-init-snapshots` |
-| 2 | `RestateDeployment` `server`, Deployment `website`, `docs`, `console`, Ingress `shopnexus` |
+| 0 | `ImageCatalog` và `Cluster` `postgres`, StatefulSet `rustfs`, Deployment `lgtm`, các SealedSecret; resource không có annotation wave (ConfigMap, phần lớn Service, NetworkPolicy) |
+| 1 | `RestateCluster`, `Database` `bifrost`, các middleware của Traefik, các job Sync hook `migrate`, `objectstore-init`, `objectstore-init-snapshots` |
+| 2 | `RestateDeployment` `server` và `server-ai` cùng volume `models`, Deployment `agent`, `bifrost`, `docs`, `imgproxy`, `imgproxy-cache`, `pgweb`, các Ingress và route của các dashboard |
+| 3 | Deployment `website` và `console`, Service `server-api` và `server-mcp` |
 
-Wave 2 còn có `RestateDeployment` `server-ai` (phân hệ ai của server) và các Deployment `agent` và `bifrost`. Bifrost cần database của nó từ wave 1.
+Bifrost cần database của nó từ wave 1. Wave 3 chờ phiên bản mới của server Healthy, nên website và các Service của API chỉ chuyển sang nó khi các pod của nó đã sẵn sàng.
 
 Ba job ở wave 1 chạy image server với đầy đủ môi trường của server. Mỗi job có `backoffLimit: 6`, `restartPolicy: OnFailure` và `hook-delete-policy: BeforeHookCreation`, nên mỗi lần sync sẽ xoá lần chạy trước và chạy lại job.
 
-`migrate` phải xong trước wave 2. Khi khởi động, server so database với các migration nhúng sẵn và từ chối chạy nếu còn migration chưa áp, với thông báo `migrations pending: <names>; run go run ./cmd/migrate or make run`. Server khởi động trước `migrate` sẽ crash-loop cho tới khi job xong.
+`migrate` phải xong trước wave 2. Khi khởi động, server so database với các migration nhúng sẵn và từ chối chạy nếu còn migration chưa áp, với thông báo `migrations pending: <names>; …`. Server khởi động trước `migrate` sẽ crash-loop cho tới khi job xong.
 
 <KeyRules>
 - `DATABASE_URL` luôn lấy từ `postgres-app`, key `uri`, và trỏ tới `postgres-rw`.
@@ -254,7 +253,7 @@ CNPG cần major version từ `ImageCatalog`, còn image ParadeDB cần `postgre
 <Accordion title="Thay đổi cấu hình không tới được server">
 Kiểm tra annotation của pod template mới có khác bản cũ không: `kubectl -n shopnexus-<stack> get replicasets -o yaml | grep checksum/`. Một phiên bản cũ đang drain mà khởi động lại sẽ đọc `server-env` hiện tại, vì hai phiên bản dùng chung một ConfigMap.
 </Accordion>
-<Accordion title="Argo CD báo server Healthy trong khi nó crash-loop">
-Argo CD không có health check cho `RestateCluster` và `RestateDeployment`, nên báo chúng Healthy ngay khi chúng tồn tại. Xem trực tiếp các pod: `kubectl -n shopnexus-<stack> get pods -l app.kubernetes.io/name=server`.
+<Accordion title="Một lần sync dừng ở wave 2 vì server">
+Argo CD coi một `RestateDeployment` là Healthy khi phiên bản hiện tại của nó có đủ pod sẵn sàng, và wave 3 chờ điều đó. Server crash-loop sẽ giữ lần sync ở đó. Xem các pod: `kubectl -n shopnexus-<stack> get pods -l app.kubernetes.io/name=server`. Argo CD không có health check cho `RestateCluster`, nên hãy xem cả các pod Restate.
 </Accordion>
 </AccordionGroup>

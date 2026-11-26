@@ -24,7 +24,7 @@ The server stops a question before the turn opens; the agent stops a segment whi
 | The question is over 2000 characters | server | 422 `agent_input_rejected` |
 | A mention is of an unknown kind, there are over 10, or a label is over 120 characters | server | 400 `invalid_request` |
 | The chat has an unfinished turn | server | 409 `agent_turn_in_progress` |
-| The agent's kill switch is off, it refuses the segment, or it gives no status within 10 seconds | agent, or the server's wait | 503 `agent_unavailable`; the new turn is deleted |
+| The agent is turned off by its kill switch, it refuses the segment, or it gives no status within 10 seconds | agent, or the server's wait | 503 `agent_unavailable`; the new turn is deleted |
 
 A spent budget is not checked here: it ends the run, as below.
 

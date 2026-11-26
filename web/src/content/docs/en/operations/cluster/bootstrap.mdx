@@ -7,14 +7,14 @@ groupOrder: 2
 audience: [admins, developers]
 type: tutorial
 readingTime: 12
-updated: 2026-11-26
+updated: 2026-11-27
 related: ["/en/operations/cluster", "/en/operations/cluster/networking", "/en/operations/cluster/secrets", "/en/operations/cluster/runbook"]
 ---
 
 This tutorial takes a fork of the umbrella repo to one k3d cluster named `shopnexus` that runs two stacks: dev in `shopnexus-dev` and prod in `shopnexus-prod`. You run three commands: `k3d cluster create` with a config from `infra/cluster/` creates the cluster, and k3s installs Argo CD in it; `go -C infra run ./cmd/seal` writes the secrets; and Hurl runs `infra/smoke.hurl` to check the result. Argo CD installs and syncs everything else from your fork.
 
 <Prereqs time="1 hour" who="Admins and developers">
-- A Linux machine with a public IP address and enough free memory for two stacks. The author's bring-up plan stops to reconsider when less than 6 GB is available. [Linux server setup](/en/operations/cluster/linux-server) has the author's firewall and flood limits.
+- A Linux machine with a public IP address and enough free memory for two stacks; prod's `server-ai` alone requests 6Gi. [Linux server setup](/en/operations/cluster/linux-server) has the author's firewall and flood limits.
 - Docker. The seal command also runs the server image with Docker to generate keys.
 - k3d. The cluster was built with k3d v5.9.0; the author's server runs v5.8.3. Both configs in `infra/cluster/`, `k3d-direct.yaml` and `k3d-behind-proxy.yaml`, pin the node image `rancher/k3s:v1.37.1-k3s1`.
 - kubectl (tested with v1.37.2), Helm (v4.3.1) and kubeseal (0.41.2).
@@ -31,22 +31,23 @@ flowchart TD
   up["k3d cluster create<br/>--config infra/cluster/k3d-#lt;mode#gt;.yaml"] --> k3d["k3d cluster shopnexus<br/>+ Traefik edge config"]
   k3d --> argo["Argo CD<br/>(Helm chart 10.11.7)"]
   argo --> root["Application root"]
-  root --> w0["Wave 0: platform<br/>cnpg, sealed-secrets,<br/>restate-operator, image-updater"]
+  root --> w0["Wave 0: platform<br/>cnpg, sealed-secrets, restate-operator,<br/>image-updater, prometheus, blackbox-exporter"]
   w0 --> w1["Wave 1: stack-dev, stack-prod,<br/>ImageUpdater shopnexus"]
   w1 -->|"ComparisonError:<br/>no sealed secrets"| seal["cmd/seal dev, cmd/seal prod<br/>commit and push"]
   seal --> sm1["Stack wave -1<br/>Namespace restate-#lt;stack#gt;"]
-  sm1 --> s0["Stack wave 0<br/>postgres, rustfs, SealedSecrets"]
-  s0 --> s1["Stack wave 1<br/>migrate, objectstore-init,<br/>RestateCluster"]
-  s1 --> s2["Stack wave 2<br/>server, server-ai, agent, bifrost,<br/>website, docs, console, Ingress"]
+  sm1 --> s0["Stack wave 0<br/>postgres, rustfs, lgtm, SealedSecrets"]
+  s0 --> s1["Stack wave 1<br/>migrate, objectstore-init,<br/>RestateCluster, database bifrost"]
+  s1 --> s2["Stack wave 2<br/>server, server-ai, agent, bifrost,<br/>docs, imgproxy, pgweb, Ingresses"]
+  s2 --> s3["Stack wave 3<br/>website, console,<br/>server-api, server-mcp"]
 ```
 
-The `root` Application syncs `infra/platform` and `infra/argocd` from your fork. Its wave 0 installs the four platform operators, and its wave 1 creates one Application per stack. Each stack Application renders the Helm chart in `infra/stack` and applies it in its own waves. Bifrost, the stack's model gateway, starts in wave 2, after wave 1 has made its `bifrost` database.
+The `root` Application syncs `infra/platform` and `infra/argocd` from your fork. Its wave 0 installs the six platform charts, and its wave 1 creates one Application per stack. Each stack Application renders the Helm chart in `infra/stack` and applies it in its own waves. Bifrost, the stack's model gateway, starts in wave 2, after wave 1 has made its `bifrost` database.
 
 ## Steps
 
 <Steps>
 <Step title="Fork the repo and point it at your fork">
-Fork `shopnexus/shopnexus` on GitHub and clone the fork onto the machine. Argo CD reads the fork without credentials, so the fork must be public.
+Fork `shopnexus/shopnexus` on GitHub and clone the fork onto the machine. Argo CD reads the fork without credentials, so the fork must be public. It reads only `infra/` and never fetches the submodules, some of which are private.
 
 Set `repoURL` to your fork's clone URL in two files:
 
@@ -55,7 +56,7 @@ Set `repoURL` to your fork's clone URL in two files:
 
 Set `domain` in `infra/stack/values-dev.yaml` and `infra/stack/values-prod.yaml`. The upstream values are `dev.shopnexus.id.vn` and `shopnexus.id.vn`; keep the same shape, with dev one label below prod.
 
-Each stack's Bifrost sends every model call to one of two providers in `infra/stack/bifrost/config.json`: the upstream at `LLM_UPSTREAM_BASE_URL` in `infra/stack/env/bifrost.env`, and OpenRouter. You need a key for each, per stack. The agents' models and monthly budgets live in the server's database and are edited in the console ([Bifrost gateway](/en/operations/cluster/llm-gateway)). If you build your own images, change the `ghcr.io/shopnexus/*` names in `infra/stack/values.yaml` and `infra/argocd/stacks.yaml`, and make the GHCR packages public.
+Each stack's Bifrost sends every model call to one of two providers in `infra/stack/bifrost/config.json`: the upstream at `LLM_UPSTREAM_BASE_URL` in `infra/stack/env/bifrost.env`, and OpenRouter. You need a key for each, per stack. The agents' models and monthly budgets live in the server's database and are edited in the console ([Bifrost gateway](/en/operations/cluster/llm-gateway)). If you build your own images, change the `ghcr.io/shopnexus/*` names in `infra/stack/values.yaml`, `values-prod.yaml` and `infra/argocd/stacks.yaml`, and make the GHCR packages public.
 
 Commit and push to `main`.
 
@@ -72,8 +73,8 @@ Create four A records pointing at the machine's public IP. With `example.com` as
 | Record | Covers |
 |---|---|
 | `@` | `example.com`, the prod website |
-| `*` | `api.`, `media.`, `docs.` and `console.example.com` |
-| `*.dev` | `api.dev.`, `media.dev.`, `docs.dev.` and `console.dev.example.com` |
+| `*` | every host below the prod domain: `api.`, `media.`, `docs.`, `console.` and the dashboard hosts |
+| `*.dev` | the same hosts below `dev.example.com` |
 | `dev` | `dev.example.com`, the dev website |
 
 The `*` record stops covering `dev.example.com` once `*.dev` exists, so the dev website needs its own `dev` record ([Edge and network](/en/operations/cluster/networking#dns-records) explains why).
@@ -106,11 +107,10 @@ Traefik answers the TLS-ALPN-01 challenge on port 443, so port 443 must be open 
 k3d cluster create --config infra/cluster/k3d-behind-proxy.yaml
 ```
 
-The proxy on the host terminates TLS and forwards plain HTTP to `127.0.0.1:18080`. Traefik trusts the `X-Forwarded-*` headers that arrive from private addresses. The Caddy block on the author's server lists every host of both stacks:
+The proxy on the host terminates TLS and forwards plain HTTP to `127.0.0.1:18080`. Traefik trusts the `X-Forwarded-*` headers that arrive from private addresses. The Caddy block on the author's server names every host of both stacks, the dashboard hosts (`grafana.`, `restate.`, `bifrost.`, `s3.`, `db.`, and `argocd.` on prod) included, and sends them all to Traefik:
 
 ```text title="/etc/caddy/conf.d/shopnexus.caddy"
-shopnexus.id.vn, api.shopnexus.id.vn, console.shopnexus.id.vn, media.shopnexus.id.vn, docs.shopnexus.id.vn,
-dev.shopnexus.id.vn, api.dev.shopnexus.id.vn, console.dev.shopnexus.id.vn, media.dev.shopnexus.id.vn, docs.dev.shopnexus.id.vn {
+shopnexus.id.vn, api.shopnexus.id.vn, console.shopnexus.id.vn, media.shopnexus.id.vn, docs.shopnexus.id.vn, … {
 	request_body {
 		max_size 50MB
 	}
@@ -142,7 +142,7 @@ kubectl -n argocd get applications
 kubectl -n argocd get applications
 ```
 
-After a few minutes the four platform Applications `cnpg`, `sealed-secrets`, `restate-operator` and `image-updater` are Synced and Healthy. `stack-dev` and `stack-prod` show Unknown with a ComparisonError:
+After a few minutes the six platform Applications `cnpg`, `sealed-secrets`, `restate-operator`, `image-updater`, `prometheus` and `blackbox-exporter` are Synced and Healthy. `stack-dev` and `stack-prod` show Unknown with a ComparisonError:
 
 ```text
 infra/stack/secrets/dev/ holds no sealed secrets: run go -C infra run ./cmd/seal dev, commit and push
@@ -150,11 +150,10 @@ infra/stack/secrets/dev/ holds no sealed secrets: run go -C infra run ./cmd/seal
 
 The error is expected. The chart in `infra/stack/templates/secrets.yaml` refuses to render while `infra/stack/secrets/<stack>/` holds no SealedSecrets, because the stack cannot start without them. The secrets cannot exist yet: `kubeseal` encrypts with the certificate of the Sealed Secrets controller, and that controller came up a minute ago in wave 0. Both stack Applications retry, with a backoff that grows from 30 seconds to 5 minutes, until the sealed files arrive in git.
 
-For the web UI, forward a port and read the initial admin password:
+Argo CD asks for no sign-in of its own: once prod runs, it sits behind the console's sign-in at `argocd.<prod domain>`. Until then, forward its port and open `http://localhost:8080`:
 
 ```bash title="Terminal"
-kubectl -n argocd port-forward svc/argocd-server 8080:443
-kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d
+kubectl -n argocd port-forward svc/argocd-server 8080:80
 ```
 </Step>
 
@@ -165,7 +164,7 @@ Run the seal command once per stack, from the umbrella root. It needs Docker, Go
 go -C infra run ./cmd/seal dev
 ```
 
-The first run copies `infra/stack/secrets/example.env` to `infra/stack/secrets/dev.env` with mode 600 and generates every key the stack needs, filling an empty `KEY=` line in place or adding a line: the JWT and console keys and the Restate signing key (from the server image's `/envgen`), the RustFS keys, and Bifrost's admin password, encryption key and database password. The Restate private key goes to `dev.restate.pem` beside it. Then it stops:
+The first run copies `infra/stack/secrets/example.env` to `infra/stack/secrets/dev.env` with mode 600 and generates every key the stack needs, filling an empty `KEY=` line in place or adding a line: the JWT, console, OTP and carrier token keys, the two agent tokens and the Restate signing key (from the server image's `/envgen`), RustFS's root keys and the users of the server and of Restate, and Bifrost's admin password, encryption key and database password. The Restate private key goes to `dev.restate.pem` beside it. Then it stops:
 
 ```text
 seal: .../infra/stack/secrets/dev.env: set OPENROUTER_API_KEY
@@ -178,6 +177,8 @@ Open `dev.env` and fill the values the script cannot make:
 | `OPENROUTER_API_KEY` | required | required |
 | `LLM_UPSTREAM_API_KEY` | required | required |
 | `FCM_CREDENTIALS` | optional; empty logs push notifications instead of sending them | required; `APP_ENV=prod` refuses it empty, and so does the seal command for prod |
+| `RESEND_API_KEY` | optional; dev logs the mailed sign-in codes | required, because prod mails through Resend |
+| `GHTK_*`, `GHN_*` | empty while the carrier is fake | only for a carrier the stack runs live |
 
 `OPENROUTER_API_KEY` is the stack's OpenRouter key, which Bifrost sends for the provider `openrouter`; give it a daily credit limit on OpenRouter. `LLM_UPSTREAM_API_KEY` is the key of the upstream. `FCM_CREDENTIALS` is a Firebase service account's JSON, encoded in base64.
 
@@ -189,7 +190,7 @@ go -C infra run ./cmd/seal prod     # creates prod.env and stops
 go -C infra run ./cmd/seal prod     # after filling prod.env
 ```
 
-A second run keeps the keys already in `<stack>.env`, so it seals the same values. Each successful run writes six SealedSecrets to `infra/stack/secrets/<stack>/`: `server-secrets.yaml`, `agent-secrets.yaml`, `restate-secrets.yaml`, `rustfs-secrets.yaml`, `bifrost-secrets.yaml` and `bifrost-db.yaml`. Commit and push them:
+A second run keeps the keys already in `<stack>.env`, so it seals the same values. Each successful run writes six SealedSecrets to `infra/stack/secrets/<stack>/`: `server-secrets.yaml`, `agent-secrets.yaml`, `restate-secrets.yaml`, `rustfs-secrets.yaml`, `bifrost-secrets.yaml` and `bifrost-db.yaml`. A stack with `lgtm.telegram: true` also needs `grafana-secrets.yaml`, with `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID`, which you seal by hand with `kubeseal`. Commit and push them:
 
 ```bash title="Terminal"
 git add infra/stack/secrets/dev infra/stack/secrets/prod
@@ -220,7 +221,7 @@ kubectl -n argocd annotate application stack-dev argocd.argoproj.io/refresh=norm
 kubectl -n argocd annotate application stack-prod argocd.argoproj.io/refresh=normal
 ```
 
-Each stack then syncs in waves -1 to 2, as in the diagram above. Argo CD waits for one wave to be healthy before it starts the next. [Postgres, Restate and RustFS](/en/operations/cluster/data#sync-waves-and-jobs) lists every resource of each wave.
+Each stack then syncs in waves -1 to 3, as in the diagram above. Argo CD waits for one wave to be healthy before it starts the next. [Postgres, Restate and RustFS](/en/operations/cluster/data#sync-waves-and-jobs) lists every resource of each wave.
 
 ```bash title="Terminal"
 kubectl -n argocd get applications -w

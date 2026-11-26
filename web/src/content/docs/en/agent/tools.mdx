@@ -68,7 +68,7 @@ A sweep runs when the server starts and every hour, a batch of rows at a time:
 | A tool call's result | 90 days | blanked; the call keeps its tool, input, status and timing, and a later run's history shows "Result no longer kept" |
 | A chat | 180 days after its last activity | deleted with its turns, tool calls, events, inputs and documents |
 
-Every write to a turn moves the chat's last activity first, and the delete skips a chat a write holds, so a running chat is never swept. When a customer deletes their account, the server blanks the tool results in the chat about that account; the turns and the read record stay, as the console's audit log does.
+Every write to a turn moves the chat's last activity first, and the delete skips a chat a write holds, so a running chat is never swept. When a user deletes their account, the server blanks the tool results in the chat about that account; the turns and the read record stay, as the console's audit log does.
 
 ## The order and listing pages
 

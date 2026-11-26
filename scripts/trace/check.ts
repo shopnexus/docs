@@ -10,12 +10,12 @@ export interface Report {
 
 const METHODS = ["get", "post", "put", "patch", "delete"];
 
-// Error codes the server declares with apperr.New.
+// Error codes the server declares with apperr.New, inside apperr too.
 export async function errorCodes(server: string): Promise<Set<string>> {
   const codes = new Set<string>();
   for (const f of await files(server, "internal/**/*.go", SKIP_SERVER)) {
     const text = await Bun.file(`${server}/${f}`).text();
-    for (const m of text.matchAll(/apperr\.New\(\s*apperr\.Kind\w+,\s*"([a-z0-9_]+)"/g)) codes.add(m[1]);
+    for (const m of text.matchAll(/(?:apperr\.)?\bNew\(\s*(?:apperr\.)?Kind\w+,\s*"([a-z0-9_]+)"/g)) codes.add(m[1]);
   }
   return codes;
 }
@@ -62,13 +62,15 @@ export async function check(roots: Roots, reg: Registry, refs: Ref[], scanProble
       errors.push(at(r.file, r.line, `${r.id} is not in the registry`));
       continue;
     }
+    // The Typst reports follow the site and lag behind it, so a retired id there only warns.
+    const stale = r.file.startsWith("docs/typst/") ? warnings : errors;
     if (it.status === "retired" || it.status === "superseded") {
-      errors.push(at(r.file, r.line, `${r.id} is ${it.status}`));
+      stale.push(at(r.file, r.line, `${r.id} is ${it.status}`));
     }
     const flows = flowsOf(it);
     for (const f of r.flows) {
       if (!flows.has(f)) errors.push(at(r.file, r.line, `${r.id} has no flow ${f}`));
-      else if (flows.get(f)?.status === "retired") errors.push(at(r.file, r.line, `${r.id} ${f} is retired`));
+      else if (flows.get(f)?.status === "retired") stale.push(at(r.file, r.line, `${r.id} ${f} is retired`));
     }
   }
 
@@ -109,7 +111,8 @@ export async function check(roots: Roots, reg: Registry, refs: Ref[], scanProble
       if (code.length === 0) warnings.push(at(reg.path, 0, `${it.id} is done but no code names it`));
       if (tests.length === 0) warnings.push(at(reg.path, 0, `${it.id} is done but no test names it`));
       const tested = new Set(tests.flatMap((r) => r.flows));
-      for (const fid of Object.keys(it.exc ?? {})) {
+      for (const [fid, f] of Object.entries(it.exc ?? {})) {
+        if ((f as { status?: string })?.status === "retired") continue;
         if (!tested.has(fid)) warnings.push(at(reg.path, 0, `${it.id} ${fid} has no test`));
       }
     } else if ((it.status === "planned" || it.status === "untraced") && code.length > 0) {
@@ -128,7 +131,7 @@ export async function check(roots: Roots, reg: Registry, refs: Ref[], scanProble
     }
   }
   for (const it of reg.items.values()) {
-    if (["br", "nfr", "adr"].includes(it.kind) && !named.has(it.id)) warnings.push(at(reg.path, 0, `${it.id} is named nowhere`));
+    if (["br", "nfr", "adr"].includes(it.kind) && it.status !== "retired" && !named.has(it.id)) warnings.push(at(reg.path, 0, `${it.id} is named nowhere`));
   }
 
   return { errors: dedupe(errors), warnings: dedupe(warnings) };

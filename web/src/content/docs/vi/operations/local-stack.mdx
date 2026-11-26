@@ -1,33 +1,142 @@
 ---
 title: Stack local
-description: Các container server cần khi dev và khi chạy test, và cách bật tắt chúng.
+description: Cách cả hệ thống chạy trên một máy từ file Compose của repo umbrella, cách chạy riêng server cho ứng dụng Android, và cách nạp seed pack vào database dev.
 group: Vận hành
 order: 2
 groupOrder: 1
 audience: [developers]
 type: reference
-readingTime: 2
-updated: 2026-11-04
-related: ["/vi/get-started/quick-start", "/vi/operations/testing", "/vi/operations/configuration"]
+readingTime: 7
+updated: 2026-11-27
+related: ["/vi/get-started/quick-start", "/vi/operations/testing", "/vi/operations/configuration", "/vi/operations/monitoring"]
 ---
 
-Server chạy trực tiếp trên host bằng `go run`, còn các dependency chạy trong Docker. Có hai stack, mỗi stack một file Compose trong `server/`: một cho dev, một cho test. Hai stack dùng cổng và tên project Compose khác nhau, nên chạy test không bao giờ đụng vào dữ liệu dev.
+`docker-compose.yml` của repo umbrella chạy cả hệ thống trên một máy, và `Makefile` của nó điều khiển việc này. File chứa ba stack dưới dạng profile Compose: `dev`, `prod` và `test`. Mỗi stack có network, Postgres, Restate, RustFS và volume riêng, nên các stack không bao giờ dùng chung dữ liệu và chạy cùng lúc được. Hệ thống thật sự chạy trên cluster trong `infra/`; file này dựng lại nó ở local.
 
-| Container | Dev | Test |
-|---|---|---|
-| Postgres 18 dạng ParadeDB, có full-text search và vector | 56432, dữ liệu giữ trong volume | 56433, dữ liệu trên tmpfs |
-| Restate, server durable execution | ingress 56580, admin 56570 | ingress 56581, admin 56571 |
-| RustFS, object store tương thích S3 để chứa ảnh | 56490 | 56491, dữ liệu trên tmpfs |
-| Image otel-lgtm của Grafana, cho log, trace và metric | Grafana ở 56300, OTLP ở 56318 | không dùng |
+| Lệnh | Làm gì |
+|---|---|
+| `make dev` | Bật stack dev ở chế độ nền: mọi thứ chạy từ mã nguồn, có live reload. |
+| `make prod` | Bật stack prod: các image mà cluster chạy, build ở local. |
+| `make test` | Chạy test Go của server trong stack test và thoát với kết quả của chúng. |
+| `make down` | Tắt mọi stack và giữ nguyên dữ liệu. |
 
-Restate chạy trên network của host và bind mọi cổng vào 127.0.0.1. Nó phải gọi được endpoint của server trên host, mà tường lửa trên máy dev chặn traffic từ container vào host. Các container còn lại publish cổng như bình thường.
+`docker compose --profile <stack> down -v` xóa dữ liệu và các khóa của một stack.
 
-Container observability nằm sau profile Compose `obs`. `.env.example` đã bật profile này bằng `COMPOSE_PROFILES=obs`.
+## Host
 
-## Bật và tắt
+Stack dev và prod mỗi stack nằm sau một Caddy định tuyến theo host, giống ingress của cluster. Trình duyệt phân giải `*.localhost` về 127.0.0.1, và mọi host dùng chung site `shopnexus.localhost`, nên cookie SameSite của trang điều hành tới được API như trên cluster.
 
-`make run` bật stack dev và đợi tới khi các container healthy. Sau đó nó chạy migration, tạo bucket với tiền tố `media/` cho đọc public, rồi khởi động server.
+| Host | Phục vụ gì |
+|---|---|
+| `shopnexus.localhost` | Website, kèm ảnh đã đổi kích thước dưới `/_img/` |
+| `api.shopnexus.localhost` | HTTP API của server |
+| `media.shopnexus.localhost` | Bucket media của object store, không có gì khác |
+| `docs.shopnexus.localhost` | Bộ tài liệu này |
+| `console.shopnexus.localhost` | Trang điều hành của nhân viên |
+| `grafana.shopnexus.localhost` | Grafana, đăng nhập sẵn với quyền admin |
+| `restate.shopnexus.localhost` | Giao diện admin của Restate |
+| `db.shopnexus.localhost` | pgweb trên database của stack |
+| `s3.shopnexus.localhost` | Console của RustFS |
 
-`make test` bật stack test và tạo lại Restate mỗi lần chạy, vì journal của Restate nằm trên tmpfs và phình ra sau mỗi lần.
+Dev trả lời ở cổng 56481 và prod ở 56480, ví dụ `http://api.shopnexus.localhost:56481`. Bifrost và agent của trang điều hành không có host, vì chỉ server và agent gọi tới chúng.
 
-`make down` tắt cả hai. Database dev vẫn còn trong volume. Stack test để dữ liệu trên tmpfs nên tắt là mất.
+## Một stack chạy những gì
+
+| Thành phần | Là gì |
+|---|---|
+| Postgres | ParadeDB trên Postgres 18. Nó cũng chứa database riêng của Bifrost. |
+| Restate | Server durable execution. Nó ký mọi lần gọi tới server bằng identity key của stack. |
+| RustFS | Object store tương thích S3 để chứa ảnh và video. |
+| imgproxy | Đổi kích thước ảnh từ RustFS cho website, đứng sau một cache nginx giữ lại mỗi câu trả lời. |
+| Bifrost | Gateway mà mọi lần gọi mô hình của server và agent đều đi qua. |
+| Grafana | Image otel-lgtm: log, trace và metric từ server, cùng các dashboard và luật cảnh báo của cluster. Ở đây cảnh báo không gửi cho ai. |
+| Server | Một process chứa mọi module, kể cả module ai và các mô hình của nó. |
+| Website, trang điều hành, tài liệu | Ba ứng dụng web. |
+| Agent của trang điều hành | Runtime mà server giao các lượt chạy của agent trên trang điều hành (`agent-dev` hoặc `agent-prod`), build từ submodule của agent. Nó không giữ trạng thái và gọi cổng MCP của server. |
+
+Trước khi server khởi động, các job chạy một lần chuẩn bị stack:
+
+- Lần khởi động đầu ghi các khóa của server vào volume khóa của stack: khóa JWT, khóa của trang điều hành, khóa OTP, khóa token của hãng vận chuyển, hai token của agent và identity key của Restate. Mật khẩu admin và khóa mã hóa của Bifrost cũng nằm ở đó. Khóa nào đã có thì được giữ nguyên.
+- Database của Bifrost được tạo, migration được áp dụng và bucket của object store được chuẩn bị.
+- File mô hình của module ai được tải vào volume mô hình của stack, khoảng 5 GB ở lần đầu. File nào đã có thì được giữ nguyên.
+
+### Dev và prod
+
+Dev mount mã nguồn của từng repo vào container và tải lại mỗi khi lưu file. Server chạy dưới air, tool này build lại khi có thay đổi ở file `.go` hoặc `.sql` và áp dụng migration trước mỗi lần khởi động. Website, trang điều hành và tài liệu chạy dev server của chúng, còn agent chạy dưới `node --watch`. Một ứng dụng web cài package khi lock file của nó thay đổi, nên hãy khởi động lại service sau khi lock file đổi. Tài liệu có cả tab Developers nội bộ, trừ khi `DOCS_INTERNAL=false`.
+
+Prod build Dockerfile của từng repo rồi chạy kết quả, nên nó cho thấy cluster sẽ chạy gì, không có live reload.
+
+### Thiết lập
+
+Compose đọc chính các file dùng chung mà chart của cluster đọc: `infra/stack/env/server.env`, `agent.env`, `bifrost.env`, `imgproxy.env` và `lgtm.env`. Chỉ những gì khác biệt ở local mới nằm trong file Compose: địa chỉ của từng stack, `APP_ENV=dev`, bật số test của PNV, thông báo đẩy và mail ghi ra log, cùng GHTK và GHN giả, mà endpoint dev của chúng cho phép chuyển trạng thái vận đơn bằng tay. Trang [Cấu hình](/vi/operations/configuration) liệt kê các biến của server.
+
+Bifrost cần khóa của các mô hình upstream, `LLM_UPSTREAM_API_KEY` và `OPENROUTER_API_KEY`. Đặt chúng trong `infra/stack/secrets/compose.env`, file này không được commit. Thiếu chúng thì mọi lần gọi mô hình đều lỗi: tìm kiếm quay về đọc nguyên văn các từ, còn bước đọc tin đăng và các lượt chạy agent trên trang điều hành đều lỗi.
+
+### Test
+
+`make test` chạy `go test -race ./...` trong một container dùng chung network Restate của stack test, với Postgres, Restate và RustFS trên tmpfs. Stack test vẫn chạy để dùng cho lần sau, và `docker compose --profile test down` làm trống nó. Trang [Test](/vi/operations/testing) nói về chính các test.
+
+## Chạy riêng server
+
+Bản debug của ứng dụng Android gọi server trên máy tính ở `127.0.0.1:8080`, mà stack dev không mở cổng này. Để dùng với ứng dụng, chạy server trên host từ `server/`:
+
+```bash title="Terminal"
+make models   # một lần: file mô hình của module ai vào tmp/models
+make run      # các container riêng của server, migration, rồi server
+```
+
+`make run` ghi `.env` từ `.env.example` ở lần chạy đầu và thêm các khóa được sinh ra. Nó bật file Compose riêng của repo server: Postgres ở 56432, Restate ở 56580 (ingress) và 56570 (admin), RustFS ở 56490, và Grafana ở 56300 dưới profile `obs`, mà `.env.example` đã bật. Restate chạy trên network của host và bind 127.0.0.1, để gọi được server trên host. Sau đó server áp dụng migration, chuẩn bị bucket và khởi động ở cổng 8080.
+
+Server chạy riêng vẫn cần một gateway. Nó gọi Bifrost của stack dev, mà `make dev` mở ở `127.0.0.1:56482`. Chép mật khẩu admin của Bifrost, từ repo umbrella, vào `server/.env` dưới tên `GATEWAY_ADMIN_PASSWORD`:
+
+```bash title="Terminal"
+docker compose exec server-dev grep GATEWAY_ADMIN_PASSWORD /keys/.env
+```
+
+`run.sh` của ứng dụng chuyển tiếp cổng 8080 và 56490 từ điện thoại sang máy tính bằng `adb reverse`. `make down` trong `server/` tắt các container này và giữ nguyên database.
+
+## Dữ liệu dev
+
+Một database dev mới thì trống. Seed pack nạp vào đó một sàn mẫu: người dùng, tin đăng, ảnh, món hàng đã bán kèm đánh giá, lượt theo dõi và vector tìm kiếm. Một pack là một thư mục gồm các file thường (JSON lines, ảnh JPEG và mảng vector float16), build một lần từ một nguồn và nạp bao nhiêu lần cũng được.
+
+| Pack | Chứa gì |
+|---|---|
+| `demo` | 12 người dùng, 44 tin đăng, 4 món đã bán và 5 lượt theo dõi, 2,1 MB, build từ fixture của ứng dụng và commit cùng server |
+| `vn-catalog` | khoảng 110.000 tin đăng, build từ database dev cũ của ShopNexus, chỉ dùng nội bộ; một mẫu như `vn-catalog-10k` nạp nhanh hơn |
+
+Các lệnh dưới đây chạy từ `server/`, nhắm vào server của `make run`. Với stack dev của repo umbrella, chạy chúng bên trong container server của nó, ví dụ `docker compose exec server-dev go run ./cmd/devseed`.
+
+### Lệnh seedpack
+
+`go run ./cmd/seedpack` có năm lệnh con. `--help` trên mỗi lệnh liệt kê các flag của nó.
+
+| Lệnh | Làm gì |
+|---|---|
+| `build <source>` | tạo pack từ một nguồn: `fixtures` hoặc `legacy` |
+| `embed` | điền vector tìm kiếm của pack bằng các mô hình của stack; lần chạy bị dừng sẽ chạy tiếp được |
+| `verify` | kiểm tra file, dòng và vector của pack mà không cần mạng |
+| `load` | ghi pack vào stack; hiện kế hoạch và hỏi trước (`--dry-run`, `--yes`) |
+| `wipe` | xóa người dùng của một pack và mọi thứ tham chiếu tới họ, rồi xóa ảnh của họ |
+
+`load`, `wipe` và `embed` từ chối mọi `APP_ENV` khác `dev`. `load` nhận một thư mục, URL của một file `.tar` (tải một lần vào `~/.cache/shopnexus/seedpacks`) hoặc tên một pack. Nó có thể nạp một phần: N tin đăng đầu tiên, vài danh mục hoặc tỉnh, N người bán đầu tiên, hoặc một phần các món đã bán.
+
+### Cách một lần nạp ghi dữ liệu
+
+Một lần nạp đi qua chính các luật của server, không insert thẳng, nên các dòng trông như được dùng thật:
+
+- mỗi người dùng đăng ký bằng một số điện thoại;
+- mỗi ảnh thành một lượt upload đã xử lý, có thumbnail trong object store;
+- mỗi tin đăng được tạo và đăng lên;
+- mỗi món đã bán thành một deal đã chốt giá và một đơn COD mà GHTK đã gửi và giao, người mua đã xác nhận, với tin đăng được giữ chỗ cho đơn đó rồi chuyển sang đã bán;
+- đánh giá và trả lời đánh giá được ghi theo đúng thứ tự đã đăng;
+- vector tìm kiếm được chép từ pack khi khớp với các mô hình của stack; `--vectors recompute` để server tự tính và `--vectors none` bỏ qua chúng.
+
+Một lần nạp không phát event nào, trừ các event đánh giá mà việc ghi đánh giá phát ra. Không có gì khác phản ứng, nên không thông báo nào được gửi.
+
+ID của mỗi dòng được suy ra từ tên pack, khóa của dòng và ngày của chính dòng đó. Vì vậy lần nạp thứ hai bỏ qua những gì đã có, và các danh sách sắp theo ID vẫn giữ ngày của pack.
+
+### Kịch bản demo
+
+`go run ./cmd/devseed`, khi server dev đang chạy, nạp pack `demo` rồi chạy một kịch bản ngắn qua HTTP API: mỗi người bán liên kết GHTK trên hãng giả, người dùng lưu tin đăng, một người theo dõi người khác, hai người trò chuyện, một người trả giá, và một đơn COD được tạo rồi gửi đi. Nó đăng nhập từng người bằng một verifier nhận chính số điện thoại làm token. Lần chạy thứ hai chỉ ghi những gì còn thiếu.
+
+Người dùng demo dùng các số từ +84900199001 tới +84900199012. Để đăng nhập bằng một số trong đó trên ứng dụng Android, thêm số vào danh sách số test của Firebase Phone Number Verification; bản debug đọc test token từ `fpnv.testToken` trong `local.properties` của ứng dụng.

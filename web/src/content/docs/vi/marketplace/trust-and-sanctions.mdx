@@ -1,45 +1,64 @@
 ---
 title: Uy tín và chế tài
-description: Các chỉ số ShopNexus theo dõi cho buyer và seller, các bậc mất quyền khi vượt ngưỡng, và hạn mức đơn COD đang mở.
+description: Các số liệu hệ thống hiện cho người mua và người bán, các hạn mức chung cho mọi tài khoản, cảnh báo lừa đảo trong cuộc trò chuyện, và những gì việc tạm khóa tài khoản lấy đi.
 group: Mô hình sàn
 order: 6
 groupOrder: 1
 audience: [everyone]
 type: concept
-readingTime: 2
-updated: 2026-11-04
+readingTime: 3
+updated: 2026-11-27
 related: ["/vi/marketplace/after-delivery", "/vi/marketplace/moderation", "/vi/architecture/trust"]
 ---
 
-Sàn không phân xử, nên uy tín là thống kê. Ở quy mô một vụ bạn không biết ai đúng, ở quy mô năm mươi vụ thì con số tự nói.
+Hệ thống không phân xử vụ nào, nên uy tín là một bộ dữ kiện mà mọi người thấy trước khi vào deal. Không có điểm, bậc hay huy hiệu nào để kiếm hoặc để mua.
 
-## Chỉ số theo dõi
+## Mọi người thấy gì
 
-- Với buyer: <Term id="refusal-rate">tỉ lệ từ chối nhận</Term>, tính theo các đơn seller báo bị hoàn.
-- Với seller: tỉ lệ từ chối ghi nhận sự cố.
-- Với seller: số ghi nhận còn treo, chưa trả lời.
+Trên một tin đăng và trên trang của người bán:
 
-App cho mỗi người xem các chỉ số này trong 90 ngày gần nhất.
+- Điểm đánh giá khi bán: số sao trung bình và số lượng đánh giá.
+- Số món người bán đã bán, trong ứng dụng hoặc tự đánh dấu đã bán.
+- Người bán thường trả lời nhanh cỡ nào, khi họ đã trả lời ít nhất 5 người trong 30 ngày gần nhất.
+- Số điện thoại của người bán đã xác minh hay chưa. Bản thân số điện thoại không bao giờ hiện ra.
 
-## Các bậc chế tài
+Khi người mua trả giá, người bán thấy điểm đánh giá khi mua của chính người mua đó.
 
-Vượt ngưỡng thì mất quyền theo thứ tự:
+## Đánh giá
 
-1. Hạ hiển thị tin.
-2. Giới hạn số đơn COD.
-3. Mất quyền COD.
-4. Khóa tài khoản.
+Sau khi đơn hoàn tất hoặc giao không thành, người mua và người bán đánh giá nhau một lần. Đánh giá được ẩn cho tới khi cả hai đã viết, hoặc tới 7 ngày sau khi đơn kết thúc, để không bên nào đáp lại số sao của bên kia. Khi còn ẩn, người viết sửa hoặc xóa được. Người được đánh giá trả lời được một lần, và sau đó đánh giá là cố định.
 
-Tất cả tự động theo thống kê. Chế tài chỉ lấy đi quyền, vì sàn không cầm tiền để phạt. Gói seller không mua được quyền COD hay bậc uy tín, những thứ đó chỉ đến từ lịch sử giao dịch.
+## Uy tín của bạn
 
-Ngưỡng cụ thể chưa chốt. Trong thiết kế này bộ chỉ số và ngưỡng gánh vai trò quan tòa, nên đây là phần cần bàn kỹ tiếp.
+**Uy tín của bạn** cho mỗi người xem số liệu của chính mình:
 
-## Hạn mức COD cho buyer mới
+- Điểm đánh giá khi bán và khi mua.
+- Số món đã bán, số người theo dõi và ngày tham gia.
+- Tỉ lệ trả lời: mức độ thường xuyên họ trả lời trong 24 giờ khi có người viết về tin của họ, khi đã có ít nhất 5 cuộc trò chuyện như vậy được tính.
+- Ở vai người mua, số đơn COD trong 90 ngày gần nhất và số đơn giao không thành.
 
-Buyer từ chối nhận thì seller chịu phí ship hai chiều, nên tỉ lệ từ chối nhận là thứ duy nhất giữ buyer đặt nghiêm túc. Vì vậy buyer mới chỉ có một số ít đơn COD đang chờ giao cùng lúc, và theo mô hình thì hạn mức tăng dần theo số đơn đã nhận. Hiện server áp một mức cố định: mỗi buyer tối đa 3 đơn đang chờ gửi hoặc đang giao.
+## Hạn mức cho mọi người
 
-## Bán ngoài app
+Mọi tài khoản có cùng hạn mức. Gói người bán trả phí không nâng được hạn mức.
 
-Món bán ngoài app thì seller ghi qua **Đánh dấu đã bán**. Đơn đó vẫn được tính vào số "Đã bán" và vào uy tín của seller.
+- Tối đa 20 tin cùng lúc, tính cả tin đang bán, đang xử lý, đang ẩn, bị từ chối hoặc đang giữ cho một đơn.
+- Tối đa 3 đơn COD đang mở ở vai người mua, đang chờ hoặc đang trên đường giao.
 
-Tài khoản bị tạm khóa thì không đăng tin, không trả giá, không đặt COD được, nhưng vẫn hoàn tất hoặc hủy được đơn đang dở.
+Người mua từ chối nhận thì người bán trả phí vận chuyển cả chiều đi và chiều về. Hạn mức 3 đơn đang mở giữ rủi ro đó ở mức nhỏ cho người bán.
+
+## Cảnh báo lừa đảo
+
+Hệ thống đọc các cuộc trò chuyện để tìm dấu hiệu lừa đảo thường gặp, như đòi trả tiền trước, đòi chuyển ra ngoài ứng dụng, một liên kết lạ, đòi mã OTP hoặc số thẻ, hay bằng chứng chuyển khoản giả. Khi người kia có một dấu hiệu như vậy, ứng dụng cảnh báo bạn ngay dưới tin nhắn của họ. Cảnh báo có thể thêm rằng tài khoản của họ còn mới, hoặc giá thấp hơn nhiều so với các tin tương tự. Số điện thoại, số tài khoản ngân hàng, email và liên kết được che trước khi bước kiểm tra đọc cuộc trò chuyện.
+
+Bạn bỏ qua được một cảnh báo. Cảnh báo chỉ quay lại khi có dấu hiệu mới. Người bị cảnh báo không bao giờ thấy cảnh báo đó.
+
+## Chế tài
+
+Không có chế tài tự động. Nhân viên xử lý theo báo cáo vi phạm, và chỉ với hàng cấm hoặc hàng giả, lừa đảo có tổ chức và yêu cầu từ cơ quan chức năng (xem [Kiểm duyệt](/vi/marketplace/moderation)). Nhân viên có thể:
+
+- Ẩn một tin đăng. Người bán không hiện tin lại được cho tới khi nhân viên gỡ lệnh ẩn.
+- Tạm khóa tài khoản, kèm lý do và có thể kèm ngày kết thúc.
+
+Tài khoản đang bị tạm khóa không đăng nhập lại được và không ghi được gì mới: không đăng tin, nhắn tin, trả giá, yêu cầu COD, đánh giá, báo cáo vi phạm, theo dõi hay sửa hồ sơ. Tài khoản đó vẫn rút giá đề nghị, từ chối, hủy đơn đang dở, và gửi hoặc trả lời phiếu hỗ trợ được.
+
+Chế tài chỉ lấy đi quyền, vì hệ thống không giữ tiền để phạt ai.

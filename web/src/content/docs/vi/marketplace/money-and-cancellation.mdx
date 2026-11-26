@@ -1,34 +1,32 @@
 ---
 title: Tiền và hủy đơn
-description: Tiền chỉ chảy theo sự kiện quan sát được. Ai trả phí ship, lúc nào hủy được đơn, và sau khi buyer đã trả tiền thì sao.
+description: Tiền chỉ đổi tay theo những sự kiện ai cũng thấy được. Ai trả phí vận chuyển, lúc nào hủy được đơn, và sau khi người mua đã trả tiền thì sao.
 group: Mô hình sàn
 order: 4
 groupOrder: 1
 audience: [everyone]
 type: concept
 readingTime: 2
-updated: 2026-11-04
+updated: 2026-11-27
 related: ["/vi/marketplace/cod-deal", "/vi/marketplace/after-delivery", "/vi/marketplace/revenue"]
 ---
 
-Tiền chỉ chảy theo sự kiện hai bên đều thấy: shipper tới cửa, tiền COD về tài khoản seller, hàng quay về. Buyer không trả gì trong app. Không cọc, không ví, không credit, nên sàn không nợ ai khoản hoàn nào.
+Tiền chỉ đổi tay theo những sự kiện cả hai bên đều thấy: shipper tới cửa, tiền COD về tới người bán, bưu kiện quay về. Người mua không trả gì trong ứng dụng, nên hệ thống không bao giờ nợ ai khoản hoàn tiền nào.
 
-## Phí ship
+## Phí vận chuyển
 
-Vận đơn để người nhận trả phí ship. Ở cửa, sau khi xem hàng, buyer trả shipper tiền hàng cùng phí ship chiều đi. ShopNexus không thu đồng phí ship nào, vì vận đơn nằm trên tài khoản hãng của seller.
-
-ShopNexus không đặt hạn gửi hàng, vì hạn đó thuộc hệ thống COD của hãng.
+Hệ thống tạo vận đơn trên tài khoản hãng của chính người bán, đặt để người nhận trả phí vận chuyển. Ở cửa, sau khi xem món hàng, người mua trả shipper tiền hàng cùng phí vận chuyển một lần. Đơn hiện phí ngay khi hãng báo. Hệ thống không lấy phần nào của phí này.
 
 ## Hủy đơn
 
-Trước khi seller nhập vận đơn, buyer hoặc seller đều hủy được đơn, và lúc đó chưa ai trả gì. Nhập vận đơn rồi thì không hủy được nữa, nên buyer không thể hủy ngang khi seller đã giao hàng cho hãng.
+Người mua hoặc người bán đều hủy được đơn cho tới khi người bán gửi hàng. Lúc đó chưa ai trả gì. Khi người bán đã gửi hàng, không bên nào hủy được nữa, nên người mua không thể hủy ngang khi người bán đã giao bưu kiện cho hãng.
 
-## Từ chối nhận
+Có hai thời hạn tự hủy đơn: người bán không gửi hàng trong 3 ngày, và bưu kiện mà hãng chưa lấy sau 3 ngày kể từ lúc người bán gửi. Trang [Giao dịch COD](/vi/marketplace/cod-deal#thời-hạn) liệt kê các thời hạn này.
 
-Refund thực chất là "từ chối nhận". Buyer từ chối trước khi trả tiền thì hàng quay về và buyer không mất đồng nào. Hãng tính phí ship chiều đi và chiều về vào tài khoản của seller.
+## Từ chối nhận ở cửa
+
+Từ chối nhận bưu kiện mới là cách hoàn tiền thật sự. Người mua từ chối trước khi trả tiền thì không mất gì, và bưu kiện quay về người bán. Hãng tính phí vận chuyển chiều đi và chiều về vào tài khoản của người bán.
 
 <Callout type="warning">
-Buyer đã trả tiền cho shipper thì ShopNexus không có cơ chế đòi lại, và app nói rõ điều đó trước khi buyer trả. Nếu hàng có vấn đề, buyer mở ghi nhận trong chat (xem [Sau khi nhận hàng](/vi/marketplace/after-delivery)).
+Người mua đã trả tiền cho shipper thì hệ thống không có cách nào đòi lại. Ứng dụng nói rõ điều này trước khi người mua trả. Mọi khoản hoàn tiền sau đó là chuyện giữa hai người, bằng chuyển khoản của chính họ (xem [Sau khi nhận hàng](/vi/marketplace/after-delivery)).
 </Callout>
-
-Thanh toán tạm giữ qua đơn vị có giấy phép cho nhóm hàng giá cao được để dành cho sau này, hiện chưa làm.

@@ -1,55 +1,67 @@
 ---
 title: Giao dịch COD
-description: Đường giao dịch duy nhất trong app, từ lúc chốt giá tới khi seller báo đã giao hoặc bị hoàn.
+description: Đường giao dịch duy nhất trong ứng dụng, từ lúc chốt giá tới khi hãng vận chuyển giao bưu kiện và người mua đồng kiểm ở cửa.
 group: Mô hình sàn
 order: 3
 groupOrder: 1
 audience: [everyone]
 type: concept
 readingTime: 3
-updated: 2026-11-04
-related: ["/vi/marketplace/money-and-cancellation", "/vi/marketplace/listings", "/vi/architecture/deal"]
+updated: 2026-11-27
+related: ["/vi/marketplace/money-and-cancellation", "/vi/marketplace/listings", "/vi/architecture/deal", "/vi/architecture/shipping"]
 ---
 
-Một deal là buyer và seller thương lượng giá cho một tin. Buyer đồng ý giá niêm yết hoặc trả giá, tối thiểu bằng nửa giá niêm yết; seller trả giá lại được. Nhiều buyer có thể cùng chốt giá trên một tin, và chốt giá không giữ chỗ món hàng.
+Một deal là người mua và người bán chốt giá cho một tin đăng. Người mua có thể mua với giá niêm yết bằng **Mua ngay**, hoặc trả giá với giá đề nghị ít nhất bằng một nửa giá niêm yết, và người bán có thể phản giá. Nhiều người mua có thể cùng chốt giá trên một tin, và chốt giá không giữ chỗ món hàng.
+
+Bưu kiện đi bằng GHTK hoặc GHN, trên tài khoản hãng của chính người bán, mà người bán liên kết một lần trong phần thiết lập COD. Hãng thu tiền của người mua và trả cho người bán. ShopNexus không bao giờ giữ số tiền đó.
 
 ## Các bước
 
 <Steps>
-<Step title="Buyer đặt COD">
-Buyer bấm **Đặt COD** trong chat và chọn một địa chỉ trong sổ địa chỉ của mình. Đơn chuyển sang chờ gửi. Khi seller chưa gửi, buyer khác vẫn đặt COD được cho cùng tin.
+<Step title="Người mua yêu cầu COD">
+Người mua bấm **Mua ngay**, hoặc **Chọn giao COD** trên một mức giá đã chốt, chọn một địa chỉ trong sổ địa chỉ và gửi yêu cầu. Đơn lúc này chờ người bán. Khi người bán chưa gửi hàng, người mua khác vẫn yêu cầu COD được trên cùng tin.
 </Step>
 
-<Step title="Seller gửi hàng">
-Seller tạo vận đơn trên app của hãng bằng tài khoản đứng tên mình, để người nhận trả phí ship. Sau đó seller nhập hãng, mã vận đơn và phí ship vào ShopNexus. Đơn chuyển sang đang giao, tin bị giữ chỗ, và các đơn COD khác trên tin bị hủy với dòng "Người bán đã gửi cho người khác". Buyer thấy phí ship từ lúc này.
+<Step title="Người bán gửi hàng">
+Người bán chọn hãng, dịch vụ, cân nặng và nơi shipper lấy bưu kiện. Hệ thống tạo vận đơn trên tài khoản hãng của người bán, thu tiền hàng khi giao và để người nhận trả phí vận chuyển. Tin được giữ chỗ cho người mua này, và mọi đơn đang chờ của người mua khác trên tin bị hủy với dòng "Người bán đã gửi cho người khác".
 </Step>
 
-<Step title="Buyer đồng kiểm ở cửa">
-Shipper tới, buyer xem hàng. Ưng thì trả shipper tiền hàng cùng phí ship. Không ưng thì từ chối nhận và không mất đồng nào. Shipper báo kết quả cho hãng, buyer không phải bấm gì trong app.
+<Step title="Hãng giao hàng">
+Hãng lấy bưu kiện và báo từng bước, màn đơn hiện các bước đó. Người mua thấy phí vận chuyển ngay khi hãng báo.
 </Step>
 
-<Step title="Seller báo kết quả">
-ShopNexus không theo dõi bưu kiện. Tiền COD về thì seller bấm **Đã giao xong**, tin được tính là đã bán cho buyer đó. Hàng quay về thì seller bấm **Hàng bị hoàn**, tin được mở bán lại.
+<Step title="Người mua đồng kiểm ở cửa">
+Shipper tới và người mua xem món hàng. Đúng như tin thì họ trả shipper tiền hàng cùng phí vận chuyển. Không đúng thì họ từ chối nhận và không trả gì, hãng trả bưu kiện về cho người bán.
+</Step>
+
+<Step title="Đơn đóng lại">
+Người mua bấm **Đã nhận hàng**, hoặc đơn tự hoàn tất 3 ngày sau khi hãng báo đã giao. Khi đó tin được tính là đã bán cho người mua này. Bưu kiện bị từ chối hoặc bị hoàn thì đơn giao không thành, và tin được mở bán lại.
 </Step>
 </Steps>
 
 ```mermaid title="Trạng thái đơn"
 stateDiagram-v2
-  [*] --> requested: buyer đặt COD
-  requested --> shipped: seller nhập vận đơn
-  requested --> cancelled: một bên hủy
-  shipped --> delivered: seller báo đã giao
-  shipped --> returned: seller báo bị hoàn
+  [*] --> pending: người mua yêu cầu COD
+  pending --> shipped: người bán gửi hàng
+  pending --> cancelled: hủy trước khi gửi
+  shipped --> cancelled: hãng không bao giờ lấy hàng
+  shipped --> completed: người mua đã nhận
+  shipped --> failed: bị từ chối hoặc bị hoàn
 ```
 
-Đơn đã giao thì deal kết thúc. Đơn bị hoàn hoặc bị hủy thì deal quay lại thương lượng.
+Đơn hoàn tất thì deal kết thúc. Sau khi đơn giao không thành hoặc bị hủy, deal quay lại trả giá.
 
-## Hẹn gặp xem hàng
+## Thời hạn
 
-Hai bên muốn gặp xem hàng thì tự hẹn trong tin nhắn, app không có bước nào cho buổi gặp, vì sàn không giữ tiền, không kiểm được hàng và không biết lúc nào giao xong. Khi tin nhắn nhắc một địa điểm, app gắn nút mở bản đồ.
+- Hai bên đều hủy được đơn cho tới khi người bán gửi hàng.
+- Người bán không gửi hàng trong 3 ngày thì mất đơn: đơn bị hủy.
+- Bưu kiện mà hãng chưa lấy sau 3 ngày kể từ lúc người bán gửi thì bị hủy, vận đơn cũng vậy.
+- Khi người bán đang vắng mặt, người mua không trả giá, chấp nhận giá hay yêu cầu COD được; các đơn đã đặt vẫn đi tiếp.
 
-Hàng bán ngoài app vẫn được ghi qua **Đánh dấu đã bán** để tính vào uy tín.
+## Bán ngoài ứng dụng
 
-## Giới hạn mỗi buyer
+Món bán ngoài ứng dụng được ghi lại bằng **Đánh dấu đã bán**, nên vẫn được tính vào lịch sử của người bán.
 
-Mỗi buyer có tối đa 3 đơn COD đang chờ gửi hoặc đang giao cùng lúc. Lý do nằm ở trang [Uy tín và chế tài](/vi/marketplace/trust-and-sanctions).
+## Giới hạn mỗi người mua
+
+Mỗi người mua có tối đa 3 đơn COD đang chờ hoặc đã gửi cùng lúc; trang [Uy tín và chế tài](/vi/marketplace/trust-and-sanctions) giải thích lý do.

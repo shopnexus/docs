@@ -1,27 +1,35 @@
 ---
 title: Configuration
-description: Every setting comes from an environment variable with no default. How to set them up, and what each group covers.
+description: The server reads every setting from an environment variable with no default. Where each place sets them, and what each group covers.
 group: Operations
 order: 3
 groupOrder: 1
 audience: [developers]
 type: reference
-readingTime: 3
-updated: 2026-11-04
-related: ["/en/operations/local-stack", "/en/get-started/troubleshooting"]
+readingTime: 4
+updated: 2026-11-27
+related: ["/en/operations/local-stack", "/en/operations/cluster/secrets", "/en/get-started/troubleshooting"]
 ---
 
 ## No defaults
 
-No setting has a default, in the Go code, the Compose files, the Makefile or the test helpers. Every variable must be set. At start the server checks them all and exits with one line per variable that is missing, empty or invalid.
+No server setting has a default, in the Go code, the Compose files, the Makefile or the test helpers. The one exception is `SERVER_ROLE`, which is `all` when unset. At start the server checks every variable and exits with one line per variable that is missing, empty or invalid.
 
-Some variables mean something when empty: no OTLP export, no previous JWT key, no trusted proxies, pushes written to the log. They are still set, to the empty string, in `.env.example` and in every environment.
+Some variables mean something when empty: no OTLP export, no previous JWT key, no trusted proxies, pushes written to the log. They are still set, to the empty string, everywhere.
 
-## Setting up
+## Where they are set
 
-`server/.env.example` lists every variable with development values. The first `make run` copies it to `.env` and then appends the generated keys: the JWT signing key, the console key and Restate's identity key. The server reads `.env` at start, and a variable already set in the process environment wins over the file.
+| Where | How |
+|---|---|
+| The server alone (`make run` in `server/`) | `server/.env.example` lists every variable with development values. The first `make run` copies it to `.env`, later runs add the variables the example gained, and each run fills in the generated keys. A variable already set in the process environment wins over the file. |
+| The umbrella's Compose stacks | `infra/stack/env/server.env` holds what is the same in every stack. The Compose file adds what differs locally, and the stack's keys volume holds the generated keys. |
+| The cluster | The chart reads the same `server.env` into a ConfigMap and adds each stack's own values. Keys and credentials come from [Sealed Secrets](/en/operations/cluster/secrets). |
 
-Two values are left for you: `LLM_API_KEY` and `LLM_MODEL`. If you add a variable to the code, add it to `.env.example` in the same change.
+A variable is either in `server.env` or in the per-stack settings, never both: `infra/check.sh` and the chart's render fail when a key is in both places. A new variable goes into `.env.example` and into one of those places in the same change.
+
+The generated keys are the JWT signing key, the console key, the OTP key, the carrier token key, the two console agent tokens and Restate's identity key. A key already set stays.
+
+On the server alone, `GATEWAY_ADMIN_PASSWORD` is left for you to copy from the dev stack (see [Local stack](/en/operations/local-stack#the-server-alone)).
 
 Tests read their own file, `.env.test`, which points at the test stack. Its variables have a `TEST_` prefix.
 
@@ -29,16 +37,29 @@ Tests read their own file, `.env.test`, which points at the test stack. Its vari
 
 | Group | What it sets |
 |---|---|
-| Runtime | `APP_ENV` (dev, test or prod), the HTTP address, log level and format, trusted proxy ranges |
-| Database | the Postgres connection URL |
-| Restate | ingress and admin URLs, where the server serves its endpoint, a service name prefix, the identity key |
-| Tokens | JWT issuer, audience, signing key and an optional previous key during a key change |
-| Console | the console key and the one origin CORS allows for the console |
-| Object store | the RustFS endpoint, the public endpoint phones reach, credentials, bucket and the base URL for media |
-| Firebase | the project, the key URLs for phone tokens, whether PNV test numbers pass, push credentials |
-| Search model | base URL, key and model name of an OpenAI-compatible API |
+| Runtime | `APP_ENV` (dev, test or prod), `SERVER_ROLE` (all, api or ai), the HTTP address, log level and format, trusted proxy ranges |
+| Database | the Postgres URL, the pool size and the statement timeout |
+| Restate | ingress and admin URLs, where the server serves its endpoint, a service name prefix, whether the server registers itself, the identity key |
+| Keys | JWT issuer, audience, signing key and an optional previous key during a key change; the console, OTP and carrier token keys |
+| Origins and hosts | the console's, the website's and the docs' origins, the dashboard hosts, the IndexNow key, the GeoIP database |
+| Object store | the RustFS endpoint, the public endpoint clients reach, region, credentials, bucket and the base URL for media |
+| Gateway and vectors | Bifrost's URL and admin account, reasoning effort, the text and photo embedding models with their versions and similarity floors |
+| Module ai | the speech, voice detection and photo embedding models, and the limits on threads, audio length, frames and image size |
+| Assist and trust | timeouts of listing reads and scam checks, Chợ Tốt's gateway and CDN, whether chat messages go to the scam check |
+| Console agent | the agent's address, the token the server sends it, and the MCP server's address and token |
+| Carriers | `CARRIER_GHTK` and `CARRIER_GHN` (live, fake or off), how often shipments are read, and each carrier's API settings, set only when it is live |
+| Firebase and Google | the project, the key URLs for phone and Google tokens, whether PNV test numbers pass, push credentials |
+| Email | `EMAIL_SENDER` (log or resend), the Resend key and the sender address |
 | Telemetry | the OTLP endpoint and the service name |
 
 ## Production
 
-`APP_ENV=prod` adds rules: the Restate identity key must be set, PNV test numbers must be off, and push credentials must be present.
+`APP_ENV=prod` refuses development settings at start:
+
+- an empty `RESTATE_IDENTITY_KEY`;
+- `PNV_TEST_NUMBERS=true`, so PNV's test numbers would sign in;
+- an empty `FCM_CREDENTIALS`, so pushes would only be logged;
+- `EMAIL_SENDER=log`, so mail would only be logged;
+- a carrier set to `fake`, whose dev endpoint would let anyone move a shipment.
+
+In every environment the server also refuses to start while migrations are pending.

@@ -1,61 +1,68 @@
 ---
 title: Quick start
-description: Run the server and its stack on your machine, put the Android app on a phone, and preview these docs.
+description: Run the whole system on your machine with Docker Compose, put the Android app on a phone, and preview these docs.
 group: Get started
 order: 2
 groupOrder: 1
 audience: [developers]
 type: tutorial
 readingTime: 4
-updated: 2026-11-04
+updated: 2026-11-27
 related: ["/en/get-started/troubleshooting", "/en/operations/local-stack", "/en/operations/configuration"]
 ---
 
-<Prereqs time="15 min" who="Developers">
-- Go 1.27 and Docker with Compose, for the server.
-- JDK 21, the Android SDK with platform 36, and a phone on Android 12 or later (or an API 36 emulator), for the app.
-- Bun, for the docs.
+<Prereqs time="30 min" who="Developers">
+- Docker with Compose, and a GitHub account with access to the private `clients` repository.
+- For the Android app: JDK 21, the Android SDK with platform 36, and a phone on Android 12 or later (or an emulator). Go 1.27, to run the server on the host for it.
+- Bun, to preview the docs on their own.
 </Prereqs>
 
-## The server
+## The whole system
 
 <Steps>
-<Step title="Start everything">
-From `server/`:
-
+<Step title="Clone">
 ```bash title="Terminal"
-make run
+git clone --recurse-submodules https://github.com/shopnexus/shopnexus.git
+cd shopnexus
+```
+</Step>
+
+<Step title="Add the model keys">
+Every model call goes through the stack's Bifrost, which needs the upstream keys. Create `infra/stack/secrets/compose.env` with `LLM_UPSTREAM_API_KEY` and `OPENROUTER_API_KEY`. The file is not committed. Without the keys every model call fails: search reads only the raw words, and listing reads and the console agent fail.
+</Step>
+
+<Step title="Start the dev stack">
+```bash title="Terminal"
+make dev
 ```
 
-The first run copies `.env.example` to `.env` and adds fresh signing keys. Every run then starts the development stack, applies migrations, prepares the object store bucket and starts the server on port 8080.
+The first start builds the images, writes the stack's keys and fetches about 5 GB of model files, so it takes a while. Later starts reuse all of it. The server, website, console, docs and agent then reload from their source on save.
 </Step>
 
-<Step title="Fill in the model settings">
-Search reads queries through a language model, and `.env.example` leaves `LLM_API_KEY` and `LLM_MODEL` empty. Until you set them in `.env`, the server refuses to start and names every variable it is missing.
+<Step title="Open it">
+The website is at `http://shopnexus.localhost:56481`, the API at `http://api.shopnexus.localhost:56481` and the console at `http://console.shopnexus.localhost:56481`. `GET /healthz` on the API answers as soon as the process runs, and `GET /readyz` also checks Postgres and Restate. [Local stack](/en/operations/local-stack) lists every host.
 </Step>
 
-<Step title="Check it is up">
-`GET /healthz` answers as soon as the process runs. `GET /readyz` also checks Postgres and Restate.
-</Step>
-
-<Step title="Create a console admin">
-The API cannot create admins. Run `go run ./cmd/console create-admin --email <email> --name <name>`, and it prints a temporary password.
+<Step title="Fill it and sign in to the console">
+The database starts empty. `docker compose exec server-dev go run ./cmd/devseed` loads a small demo marketplace. The API cannot create staff accounts: `docker compose exec server-dev go run ./cmd/console create-admin --email <email> --name <name>` creates an admin and prints a temporary password.
 </Step>
 </Steps>
 
-`make down` stops the stacks and keeps the development database.
+`make down` stops the stacks and keeps their data. `make prod` runs the images the cluster runs instead, on port 56480, and `make test` runs the server's tests.
 
 ## The Android app
 
-From `app/`, with a phone connected over adb:
+From `clients/app-android/`, with a phone connected over adb:
 
 ```bash title="Terminal"
 ./run.sh        # install the debug build and open it
 ./run.sh -w     # reinstall and reopen after every saved change
 ```
 
-The script picks a real phone over an emulator. To use an emulator, set `ANDROID_SERIAL` to its serial. The app runs on fake data with a simulated seller and carrier, so it does not need the server. In a debug build, a long press on the location pill on Home opens the debug panel, where you can jump a deal to any state or reset the data.
+The script picks a real phone over an emulator; set `ANDROID_SERIAL` to use an emulator. The default `live` flavor calls a server on the computer at `127.0.0.1:8080`, which the dev stack does not publish: run the server alone with `make run` in `server/` (see [The server alone](/en/operations/local-stack#the-server-alone)). `run.sh` forwards the ports to the phone.
+
+`FLAVOR=demo ./run.sh` runs offline on sample data and a simulated seller and carrier. In its debug build, a long press on a title or on Home's location pill opens a debug panel.
 
 ## These docs
 
-From `docs/web`, run `bun install`, then `bun run dev` to get a live preview at `http://localhost:4321`. Search only works after one `bun run build`, because the build writes the search index.
+The dev stack serves them at `http://docs.shopnexus.localhost:56481`. On their own, from `docs/web`, run `bun install`, then `bun run dev` for a live preview at `http://localhost:4321`. Search only works after one `bun run build`, because the build writes the search index.

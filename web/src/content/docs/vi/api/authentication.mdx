@@ -1,50 +1,59 @@
 ---
 title: Xác thực
-description: Cách app đăng nhập bằng số điện thoại đã được Firebase xác minh, gửi access token và refresh.
+description: Cách client đăng nhập bằng số điện thoại, Google hoặc mã OTP gửi qua email, gửi access token, refresh và xác thực lại.
 group: API
 order: 2
 groupOrder: 1
 audience: [developers]
 type: how-to
 readingTime: 3
-updated: 2026-11-04
-related: ["/vi/architecture/sign-in", "/vi/architecture/sessions", "/vi/api/errors"]
+updated: 2026-11-27
+related: ["/vi/architecture/sign-in", "/vi/architecture/sessions", "/vi/api/errors", "/vi/api/idempotency"]
 ---
 
-Khách hàng đăng nhập bằng số điện thoại đã được Firebase xác minh. Server không tự gửi SMS. Nhân viên đăng nhập console theo đường riêng, bằng cookie phiên; xem ở [Nhân viên](/vi/architecture/console).
+Người dùng đăng nhập bằng số điện thoại, tài khoản Google hoặc mã OTP gửi qua email. Lần đăng nhập đầu tiên sẽ tạo tài khoản. Nhân viên thì đăng nhập bằng cookie phiên; xem [Trang điều hành](/vi/architecture/console).
 
 ## Đăng nhập
 
-App xác minh số qua Firebase, hoặc bằng mã SMS của Firebase Authentication, hoặc bằng SIM qua Phone Number Verification. Sau đó app gửi token Firebase trả về lên `POST /v1/auth/sign-in`, kèm header `Idempotency-Key` và tên thiết bị (không bắt buộc) để hiện trong danh sách thiết bị:
+Gửi một bằng chứng lên `POST /v1/auth/sign-in`, kèm `Idempotency-Key` và tên thiết bị (không bắt buộc):
 
 ```json title="POST /v1/auth/sign-in"
-{ "phone_token": "eyJhbGciOi...", "device_name": "Pixel 8" }
+{ "phone_token": "eyJhbGciOi...", "device_name": "Pixel 9" }
 ```
 
-Lần xác minh phải chưa quá năm phút. Lần đầu đăng nhập bằng một số sẽ tạo tài khoản, khi đó `account.is_new` là true để app hỏi thông tin hồ sơ. Có token rồi thì app đăng xuất khỏi Firebase.
+- `phone_token`: token Firebase trả về sau khi xác minh bằng mã SMS hoặc bằng SIM. Có token rồi thì đăng xuất khỏi Firebase.
+- `google_token`: ID token lấy từ Android Credential Manager.
+- `email_code`: `{challenge_id, code}`. Lấy challenge trước bằng `POST /v1/auth/email-codes {"email": "…"}`.
 
-Kết quả gồm access token, thời điểm hết hạn của nó và refresh token. Token không qua được bước kiểm tra trả 401 `invalid_phone_token`, số ngoài Việt Nam trả 422 `invalid_phone`, còn 503 `unavailable` nghĩa là server chưa lấy được khóa của Firebase, app gửi lại với chính token đó.
+Kết quả gồm `access_token`, `access_token_expires_at`, `refresh_token` và `account`. `account.is_new` nghĩa là lần đăng nhập này vừa tạo tài khoản, nên hỏi thông tin hồ sơ.
+
+| Kết quả | Cần làm gì |
+|---|---|
+| 401 `invalid_phone_token`, `invalid_google_token` | lấy token mới (token sống 5 phút) |
+| 422 `invalid_phone` | số không phải số di động Việt Nam |
+| 422 `invalid_code` | cho người dùng nhập lại; xem `details.attempts_left` |
+| 422 `code_expired`, `code_locked` | xin mã OTP mới |
+| 429 `otp_too_soon`, `otp_limit` | chờ `details.retry_after` giây |
+| 503 `unavailable` | gửi lại với chính token đó |
 
 ## Gọi API
-
-Gửi access token ở mọi lời gọi cần đăng nhập:
 
 ```http
 Authorization: Bearer <access_token>
 ```
 
-Access token sống 15 phút. Thiếu token hoặc token sai đều trả 401.
+Access token sống 15 phút. Trên lời gọi dùng bearer, 401 luôn nói về bearer (`unauthenticated`, `invalid_token`, `session_revoked`, `session_expired`); bằng chứng sai trên lời gọi như vậy trả 422. 403 `phone_required` nghĩa là lời gọi cần số điện thoại; thêm số bằng `POST /v1/accounts/me/identities`.
 
 ## Refresh
 
-`POST /v1/auth/refresh` với refresh token trả về một cặp token mới. Mỗi refresh token chỉ dùng được một lần, nên app phải giữ token mới. Gửi lại token cũ, hoặc hai lần refresh cùng một token, bị coi là replay và phiên bị đăng xuất.
+`POST /v1/auth/refresh {"refresh_token": "…"}` trả về một cặp token mới. Mỗi refresh token chỉ dùng được một lần. Dùng lại token cũ, hoặc hai lần refresh cùng một token, sẽ đăng xuất phiên. Vì vậy hãy refresh theo kiểu single flight, khi access token còn dưới một phút hoặc khi gặp 401 đầu tiên, và cho các request khác chờ. Ứng dụng lưu refresh token đã mã hóa bằng một khóa trong Keystore.
 
-Vì vậy app refresh theo kiểu single flight: refresh khi access token còn dưới một phút, hoặc khi gặp 401 đầu tiên, các request khác chờ rồi gửi lại với token mới. Refresh token được lưu mã hóa bằng khóa trong Keystore.
+Khi gặp `session_revoked`, `session_expired` hoặc `invalid_refresh_token`, đưa người dùng về màn đăng nhập. `account_suspended` nghĩa là tài khoản đang bị tạm khóa.
 
-Phiên hết hạn sau 60 ngày kể từ lúc đăng nhập, hoặc sau 30 ngày không dùng. Khi refresh trả `session_revoked` hay `session_expired`, app đưa người dùng về màn đăng nhập.
+## Xác thực lại
+
+428 `reauth_required` nghĩa là lời gọi cần một lần đăng nhập trong 15 phút gần nhất. Gửi bằng chứng mới lên `POST /v1/auth/sessions/current/reauthenticate`, thay access token bằng token nó trả về, giữ nguyên refresh token, rồi gọi lại. Bằng chứng của một địa chỉ khác trả 403 `wrong_account`. Đừng bao giờ gọi sign-in cho việc này: địa chỉ chưa biết sẽ tạo ra một tài khoản mới.
 
 ## Đăng xuất và thiết bị
 
-- `POST /v1/auth/logout` kết thúc phiên hiện tại. Access token vẫn chạy tới khi hết hạn, nên app tự bỏ nó đi.
-- `GET /v1/auth/sessions` liệt kê các thiết bị đang đăng nhập, `DELETE /v1/auth/sessions/{id}` đăng xuất một thiết bị.
-- `POST /v1/auth/logout-all` đăng xuất mọi thiết bị và cần lần đăng nhập trong 15 phút gần nhất, nếu không sẽ trả 428 `reauth_required`.
+`DELETE /v1/auth/sessions/current` kết thúc phiên này; bỏ access token đi. `GET /v1/auth/sessions` liệt kê các thiết bị, `DELETE /v1/auth/sessions/{id}` đăng xuất một thiết bị, và `DELETE /v1/auth/sessions/others` đăng xuất các thiết bị còn lại sau một lần đăng nhập gần đây.

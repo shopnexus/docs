@@ -6,9 +6,9 @@ order: 3
 groupOrder: 1
 audience: [developers]
 type: reference
-readingTime: 2
-updated: 2026-11-04
-related: ["/vi/api", "/vi/api/authentication"]
+readingTime: 3
+updated: 2026-11-27
+related: ["/vi/api", "/vi/api/authentication", "/vi/api/idempotency"]
 ---
 
 Mọi response lỗi có chung một dạng body:
@@ -18,42 +18,54 @@ Mọi response lỗi có chung một dạng body:
   "error": {
     "code": "invalid_request",
     "message": "request does not match the API description",
-    "fields": { "phone_token": "required" },
+    "fields": { "title": "maxLength" },
+    "field_codes": { "title": "too_long" },
     "trace_id": "4bf92f3577b34da6..."
   }
 }
 ```
 
-- `code` cố định, dạng `snake_case`. App map nó sang câu tiếng Việt của mình.
-- `message` là tiếng Anh, dành cho developer, không hiện cho người dùng.
-- `fields` có khi request sai hình dạng, mỗi trường sai một mục, key là đường dẫn JSON của trường. Giá trị là luật bị vi phạm, ví dụ `required`, `minLength`, `additionalProperties`.
-- `details` chứa giá trị mà client cần dùng, ví dụ `retry_after` tính bằng giây.
-- `trace_id` trùng với header `Trace-Id` của response. Khi báo lỗi thì gửi kèm nó, từ đó tìm ra request trong log và trace.
+- `code` cố định, dạng `snake_case`. Client map nó sang câu chữ của mình theo ngôn ngữ của người dùng.
+- `message` là tiếng Anh, dành cho developer. Không bao giờ hiện nó cho người dùng.
+- `fields` có ở lỗi validate, mỗi trường sai một mục, key là đường dẫn JSON của trường. Giá trị nói vấn đề bằng tiếng Anh.
+- `field_codes` có cùng các key và nêu mỗi vấn đề bằng một mã: `required`, `too_short`, `too_long`, `too_few`, `too_many`, `out_of_range`, `off_step`, `invalid`, `not_allowed`, `unknown`, `duplicate`, `one_of`, `missing_specs` hoặc `in_use`. Có thể sẽ có thêm mã; gặp mã lạ thì đọc như `invalid`.
+- `details` chứa giá trị mà client dựa vào để hành động. Mô tả lỗi của mỗi operation nêu những giá trị mà các mã của nó gửi.
+- `trace_id` trùng với header `Trace-Id` của response. Gửi kèm nó khi báo lỗi; từ đó tìm ra request trong log và trace. <Req id="NFR-OBS-01" />
+
+## Details
+
+| Trường | Gửi kèm | Ý nghĩa |
+|---|---|---|
+| `retry_after` | `rate_limited`, `otp_too_soon`, `otp_limit`, `login_locked` | Số giây phải chờ, làm tròn lên |
+| `attempts_left` | `invalid_code` | Số lần đoán mã OTP còn lại. Khi còn 1, đoán sai sẽ trả `code_locked` |
+| `reason` | `carrier_refused` | Câu hãng vận chuyển trả lời, giữ nguyên lời và ngôn ngữ của hãng |
+| `missing_spec_keys` | `invalid_listing` với `field_codes.specs` = `missing_specs` | Các thông số danh mục yêu cầu mà tin đăng còn thiếu, theo thứ tự của danh mục |
+| `profile` | `code_not_found` | Trang cá nhân Chợ Tốt mà server đọc được, gồm tên và ảnh đại diện |
 
 ## Status code
 
 | Status | Ý nghĩa | Mã thường gặp |
 |---|---|---|
-| 400 | Request không khớp spec | `invalid_request`, `malformed_json` |
-| 401 | Không có thông tin đăng nhập hợp lệ | `unauthenticated`, `invalid_token`, `invalid_refresh_token`, `session_revoked`, `session_expired`, `invalid_phone_token` |
-| 403 | Tài khoản bị khóa | `account_suspended` |
+| 400 | Request không khớp spec | `invalid_request`, `malformed_json`, `invalid_cursor` |
+| 401 | Không có thông tin đăng nhập hợp lệ | `unauthenticated`, `invalid_token`, `invalid_refresh_token`, `session_revoked`, `session_expired` |
+| 403 | Tài khoản đang bị tạm khóa, hoặc vai trò trên trang điều hành không đủ | `account_suspended`, `console_forbidden` |
 | 404 | Không có tài nguyên này với người gọi | `listing_not_found`, `deal_not_found`, ... |
-| 409 | Lần ghi đụng với lần ghi khác | `try_again` |
+| 409 | Lần ghi đụng với lần ghi khác | `try_again`, `deal_changed` |
 | 413 | Body quá 1 MB | `body_too_large` |
-| 422 | Đúng hình dạng nhưng vi phạm một luật | mỗi luật một mã, ví dụ `invalid_phone` |
+| 422 | Đúng hình dạng nhưng bị một luật từ chối | mỗi luật một mã, ví dụ `invalid_phone` |
 | 428 | Người gọi phải làm một việc trước | `reauth_required` |
-| 429 | Bị giới hạn tần suất | xem `details.retry_after` |
+| 429 | Bị giới hạn tần suất | `rate_limited`, xem `details.retry_after` |
 | 500 | Lỗi ngoài dự kiến | `internal` |
-| 503 | Một dịch vụ mà request cần đang không chạy | `unavailable` |
+| 503 | Một dịch vụ mà request cần đang không chạy; hãy thử lại | `unavailable`, `search_unavailable`, `carrier_unavailable`, `chotot_unavailable`, `agent_unavailable` |
 
 Tài nguyên mà người gọi không được xem cũng trả 404, giống như tài nguyên không tồn tại. Ví dụ phiên của tài khoản khác là 404.
 
 `try_again` dùng chung cho mọi module: lần ghi thua một lần ghi khác vào cùng bản ghi, gửi lại là an toàn. Mỗi operation trong spec liệt kê các mã nó có thể trả, nên xem operation trước khi xử lý một mã.
 
-Nguyên nhân thật của lỗi 500 chỉ nằm trong log server, không bao giờ nằm trong body.
+Nguyên nhân thật của lỗi 500 chỉ nằm trong log server, không bao giờ nằm trong body. Lỗi phát sinh bên trong một durable flow tới client với cùng mã, fields và details như từ một lời gọi thường.
 
 ## Mã lỗi theo ca sử dụng
 
-Luồng ngoại lệ nào kết thúc bằng một mã lỗi thì ghi mã đó trong registry. Bảng dưới sinh từ các mã đó; mã không có ở đây là mã dùng chung cho mọi module hoặc chưa được truy vết tới ca sử dụng nào.
+Mỗi luồng ngoại lệ của một ca sử dụng kết thúc bằng mã lỗi thì ghi mã đó trong registry. Bảng dưới sinh từ danh sách đó; mã không có ở đây là mã dùng chung cho mọi module hoặc chưa được truy vết tới ca sử dụng nào.
 
 <ReqTable kind="errors" />

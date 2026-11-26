@@ -7,7 +7,7 @@ groupOrder: 2
 audience: [admins, developers]
 type: concept
 readingTime: 9
-updated: 2026-11-26
+updated: 2026-11-27
 related: ["/en/operations/cluster", "/en/operations/cluster/bootstrap", "/en/operations/cluster/data", "/en/operations/cluster/runbook"]
 ---
 
@@ -48,6 +48,7 @@ ACME_EMAIL=you@example.com k3d cluster create --config infra/cluster/k3d-direct.
 - The resolver uses Let's Encrypt's production directory. To try the setup against the staging directory, whose rate limits are higher and whose certificates browsers reject, add `caServer: https://acme-staging-v02.api.letsencrypt.org/directory` under `acme` in `k3d-direct.yaml` before you create the cluster.
 - The `web` entrypoint redirects to `websecure` with `permanent: true`. Plain HTTP gets a 301.
 - Access logs are on (`accessLog.enabled: true`).
+- `providers.kubernetesCRD.allowCrossNamespace: true` lets the dashboards' route reach Restate's admin UI and Argo CD in their own namespaces.
 </Tab>
 <Tab>
 Use `behind-proxy` when a proxy on the host already holds 80 and 443. The author's server runs this mode behind a Caddy shared with other projects.
@@ -59,13 +60,14 @@ k3d cluster create --config infra/cluster/k3d-behind-proxy.yaml
 - The config maps port `127.0.0.1:18080:80` with the node filter `loadbalancer`. Only the host itself can reach port 18080.
 - The outer proxy terminates TLS, redirects plain HTTP (Caddy answers 308) and sends HTTP to `127.0.0.1:18080`. On the author's server that proxy configuration is `conf.d/shopnexus.caddy`, which lists the hosts of both stacks.
 - Traefik's `web` entrypoint trusts `X-Forwarded-*` headers from `10.0.0.0/8`, `172.16.0.0/12` and `192.168.0.0/16`, which covers the k3d Docker network. Traefik passes the client address from the outer proxy's `X-Forwarded-For` on to the pods.
-- Traefik does no TLS and no redirect in this mode.
+- Traefik does no TLS and no redirect in this mode. Its access log is JSON and keeps only the `User-Agent`, `X-Forwarded-For` and `Referer` headers, so cookies and `Authorization` stay out of it.
+- Cross-namespace references are allowed, as in `direct`.
 </Tab>
 </Tabs>
 
 ### Ingress manifests in both modes
 
-The chart's Ingress, `shopnexus` in `infra/stack/templates/ingress.yaml`, names hosts and Services and has no `tls` section. In `direct`, TLS is set on Traefik's `websecure` entrypoint (`tls.enabled: true`, `certResolver: le`), so every route on that entrypoint gets a certificate for its host. In `behind-proxy`, TLS ends before the cluster. The chart renders the same manifests for either mode, and `infra/check.sh` fails if the Ingress ever gains a `tls` key.
+The chart's Ingresses (`shopnexus` and `private` in `infra/stack/templates/ingress.yaml`, and the dashboards' `IngressRoute`) name hosts and Services and have no `tls` section. In `direct`, TLS is set on Traefik's `websecure` entrypoint (`tls.enabled: true`, `certResolver: le`), so every route on that entrypoint gets a certificate for its host. In `behind-proxy`, TLS ends before the cluster. The chart renders the same manifests for either mode, and the chart's tests, which `infra/check.sh` runs, fail if an Ingress ever gains a `tls` key.
 
 The server trusts `X-Forwarded-For` from `TRUSTED_PROXIES`, set to the pod network `10.42.0.0/16`, which is where Traefik's requests come from.
 
@@ -75,27 +77,32 @@ The helper `sn.host` builds every host from `domain`: an empty prefix gives the 
 
 | Host | Service | Port | prod | dev |
 |---|---|---|---|---|
-| `<domain>` | `website` | 3000 | `shopnexus.id.vn` | `dev.shopnexus.id.vn` |
+| `<domain>` | `website`; `/_img` to `imgproxy-cache` | 3000 | `shopnexus.id.vn` | `dev.shopnexus.id.vn` |
 | `api.<domain>` | `server-api` | 8080 | `api.shopnexus.id.vn` | `api.dev.shopnexus.id.vn` |
-| `media.<domain>` | `rustfs` | 9000 | `media.shopnexus.id.vn` | `media.dev.shopnexus.id.vn` |
+| `media.<domain>` | `rustfs`, only `/shopnexus/` | 9000 | `media.shopnexus.id.vn` | `media.dev.shopnexus.id.vn` |
 | `docs.<domain>` | `docs` | 80 | `docs.shopnexus.id.vn` | `docs.dev.shopnexus.id.vn` |
 | `console.<domain>` | `console` | 80 | `console.shopnexus.id.vn` | `console.dev.shopnexus.id.vn` |
 
-Every path (`/`, `pathType: Prefix`) of a host goes to the one Service. `infra/stack/tests/web_test.yaml`, which `infra/check.sh` runs, compares the rendered host lists of both stacks with these values.
+The API and the console carry `X-Robots-Tag: noindex`, and every host does while the stack's `indexed` is false. The media host sends only the bucket's path to RustFS, so its admin API and other buckets stay off the internet.
+
+The dashboards sit on hosts of their own behind the console's sign-in: `grafana.`, `restate.`, `bifrost.`, `s3.` (RustFS's web console) and `db.` (pgweb), plus `argocd.` on the stack with `argocdDashboard: true`, which is prod. Traefik asks the server (`forwardAuth`) before each request. [Monitoring](/en/operations/monitoring) describes them.
+
+An alias domain in `aliasDomains` serves the website, API, media and docs again with `noindex`, and redirects its console and dashboard hosts to the main domain, since the server accepts one console origin. `infra/stack/tests/web_test.yaml` and `aliases_test.yaml`, which `infra/check.sh` runs, check the rendered hosts of both stacks.
 
 ## Traefik chart 41
 
-k3s `v1.37.1-k3s1`, the image in both k3d configs, bundles Traefik chart 41.4.0. Its values schema refuses keys it does not know. The first draft of the direct Traefik config used older keys (`ports.web.redirections`, `ports.websecure.tls`, `logs`). The chart rejected them, and k3s ran Traefik with its default values (no ACME, no redirect, no access log) without an error on any resource.
+k3s `v1.37.1-k3s1`, the image in both k3d configs, bundles Traefik chart 41.4.0. Its values schema refuses keys it does not know, and then k3s runs Traefik with its default values (no ACME, no redirect, no access log) without an error on any resource. The keys in use are `ports.web.http.redirections`, `ports.websecure.http.tls`, `accessLog.enabled` and `certificatesResolvers.le.acme.tlsChallenge`.
 
-The keys now in use are `ports.web.http.redirections`, `ports.websecure.http.tls`, `accessLog.enabled` and `certificatesResolvers.le.acme.tlsChallenge`. `infra/check.sh` takes the Traefik config out of each k3d config, renders it with `helm template` against chart 41.4.0 and looks for the resulting Traefik arguments:
+`infra/check.sh` takes the Traefik config out of each k3d config, renders it with `helm template` against chart 41.4.0 and looks for the resulting Traefik arguments:
 
 - direct: `externalTrafficPolicy: Local`, `--entryPoints.websecure.http.tls.certResolver=le`, `--entryPoints.web.http.redirections.entryPoint.to=:443`, `--certificatesresolvers.le.acme.tlsChallenge=true`, `--accesslog=true`;
-- behind-proxy: `--entryPoints.web.forwardedHeaders.trustedIPs=10.0.0.0/8,172.16.0.0/12,192.168.0.0/16`, and no redirection.
+- behind-proxy: `--entryPoints.web.forwardedHeaders.trustedIPs=10.0.0.0/8,172.16.0.0/12,192.168.0.0/16`, `--accesslog=true`, and no redirection;
+- both: `--providers.kubernetescrd.allowCrossNamespace=true`.
 
 The check also pins the k3s image to `rancher/k3s:v1.37.1-k3s1`. A k3s upgrade that brings a different Traefik chart fails the check until the Traefik configs are rendered against the new chart.
 
 <Callout type="warning" title="Client addresses in direct mode">
-On the local k3d cluster, the serverlb route showed Traefik a pod address (`10.42.x`) and then the serverlb's own (`172.24.0.6`). With `@server:0:direct` and `externalTrafficPolicy: Local`, a request from the same machine still shows the Docker gateway, because Docker's userland proxy handles it. A request from another machine could not be tested, since the laptop's firewall blocked it. Whether `direct` keeps the address of an external client is checked on the first `direct` deployment; until then, logs may show the gateway address. `behind-proxy` is unaffected, because Caddy sets `X-Forwarded-For`.
+With `@server:0:direct` and `externalTrafficPolicy: Local`, a request from the same machine still shows the Docker gateway, because Docker's userland proxy handles it. Whether `direct` keeps the address of an external client has not been checked, so logs may show the gateway address. `behind-proxy` is unaffected, because Caddy sets `X-Forwarded-For`.
 </Callout>
 
 ## Traffic inside the cluster
@@ -107,8 +114,13 @@ flowchart TB
   T["Traefik"] --> W["website :3000"]
   T --> SA["server-api :8080"]
   T --> RF["rustfs :9000"]
+  T --> IC["imgproxy-cache :80"]
+  IC --> IP["imgproxy :8080"] --> RF
   W -->|"API_URL"| SA
-  SA --> S1["server pods<br/>all versions"]
+  SA --> S1["server pods<br/>current version"]
+  AG["agent :3000"] -->|"server-mcp :9090"| S1
+  S1 -->|"AGENT_BASE_URL"| AG
+  S1 -->|"OTLP :4318"| LG["lgtm"]
   S1 -->|"DATABASE_URL"| PG["postgres-rw"]
   S1 -->|"http://rustfs:9000"| RF
   S1 -->|"http://bifrost:8080/v1"| LL["bifrost"]
@@ -120,22 +132,29 @@ flowchart TB
 
 - The server's `RestateDeployment` gives each pod template its own ReplicaSet and its own Service, and registers that Service with Restate. A config change or a reseal changes the template's checksums, so it starts a new version. The operator keeps an old version until its invocations finish.
 - Restate invokes the server on the per-version Service, port 9080 (`restate`). An invocation that started on one version stays on it.
-- `server-api` selects `app.kubernetes.io/name: server` and so spans every version. Public API traffic goes to any ready server pod.
+- `server-api` and `server-mcp` select the current version only, by the label `shopnexus.id.vn/version`. They are in sync wave 3, which waits for the new version's pods to be ready, so API traffic moves in one step and a draining version only finishes its invocations.
+- The server's other pods call module ai in `server-ai` through Restate, never directly.
 - The server reaches Restate's ingress at `http://restate.restate-<stack>:8080` and its admin API at `:9070`. `RestateCluster` lives in its own namespace, `restate-dev` or `restate-prod`.
 
 `useHttp11: true` makes Restate call the endpoint over HTTP/1.1. With HTTP/2, Restate would hold one long-lived connection and multiplex invocations over it, and an L4 Service balances connections, so every invocation could land on the same pod. Over HTTP/1.1, each invocation is a request of its own and the spread over pods is even.
 
 ## NetworkPolicy
 
-`infra/stack/templates/networkpolicy.yaml` puts these policies, among others, in each stack namespace. `default-deny-ingress` selects every pod and admits nothing, and each of the others admits one source, or for `bifrost-egress` limits where Bifrost may connect.
+`infra/stack/templates/networkpolicy.yaml` puts these policies in each stack namespace. `default-deny-ingress` selects every pod and admits nothing, and each of the others admits some sources, or for `bifrost-egress` limits where Bifrost may connect.
 
 | Policy | Pods it selects | Admits traffic from |
 |---|---|---|
 | `default-deny-ingress` | every pod | nothing |
 | `from-stack` | every pod but `server`, `server-ai`, `agent`, `pgweb`, `imgproxy`, `lgtm` and `bifrost` | any pod in the same namespace |
 | `from-traefik` | `website`, `docs`, `console`, `rustfs`, `lgtm`, `bifrost`, `pgweb`, `imgproxy-cache` | pods `app.kubernetes.io/name: traefik` in `kube-system` |
+| `to-server` | `server` | 8080 from the stack and Traefik; 9080 from the stack and `restate-<stack>`; 9090 from `agent` only |
+| `to-server-ai` | `server-ai` | 9080 from the stack and `restate-<stack>` |
+| `to-agent` | `agent` | 3000 from `server` only |
+| `to-lgtm` | `lgtm` | OTLP on 4318 from the stack; Grafana only through Traefik |
+| `to-imgproxy` | `imgproxy` | 8080 from `imgproxy-cache` only |
 | `from-cnpg` | `cnpg.io/cluster: postgres` | the namespace `cnpg-system` (the CloudNativePG operator) |
-| `from-restate` | `server`, `rustfs` | the namespace `restate-<stack>` |
+| `from-restate` | `rustfs` | the namespace `restate-<stack>`, for snapshots |
+| `from-monitoring` | the Postgres pods | the cluster's Prometheus, on the exporter port 9187 |
 | `to-bifrost` | `bifrost` | the server, the console agent and the cluster's Prometheus, on 8080 |
 | `bifrost-egress` | `bifrost` (egress) | DNS, Postgres, the upstream's port, and 443 to public addresses |
 
@@ -161,10 +180,10 @@ flowchart TB
     DEV["any pod"]
   end
   TR -->|"from-traefik"| WEB
-  TR -->|"from-traefik"| SRV
+  TR -->|"to-server"| SRV
   TR -->|"from-traefik"| RFS
   OP -->|"from-cnpg"| PG
-  RS -->|"from-restate"| SRV
+  RS -->|"to-server"| SRV
   RS -->|"from-restate"| RFS
   SRV -->|"from-stack"| PG
   SRV -->|"to-bifrost"| LLM
@@ -175,17 +194,18 @@ flowchart TB
 
 The restate-operator writes the policies for the Restate namespace from the `RestateCluster`:
 
-- `spec.security.networkPeers.ingress` and `.admin` admit traffic to Restate's ingress and admin ports only from pods `app.kubernetes.io/name: server` in the stack's namespace.
-- Restate pods may connect to pods that carry the label `allow.restate.dev/restate-<stack>: "true"`. The server's pod template and the `rustfs` StatefulSet carry it, for invocations and snapshots.
+- `spec.security.networkPeers.ingress` admits traffic to Restate's ingress port only from the stack's server pods; `.admin` admits the server, `server-ai` and Traefik, for the admin UI at `restate.<domain>`; `.node` admits the cluster's Prometheus.
+- Restate pods may connect to pods that carry the label `allow.restate.dev/restate-<stack>: "true"`. The server, `server-ai` and `rustfs` carry it, for invocations and snapshots.
 
 <KeyRules>
 - `from-stack` has no `namespaceSelector`, so it admits pods of its own namespace only.
-- No policy admits traffic from `shopnexus-dev` into `shopnexus-prod` or the reverse, and each stack's `from-restate` names only its own `restate-<stack>` namespace.
+- No policy admits traffic from `shopnexus-dev` into `shopnexus-prod` or the reverse, and each stack's policies name only its own `restate-<stack>` namespace.
+- Grafana and pgweb trust the console's gate, so only Traefik reaches them.
 - Egress is open but for Bifrost. The server calls Firebase and FCM outside the cluster; Bifrost reaches only the upstream and public addresses on 443 ([Bifrost gateway](/en/operations/cluster/llm-gateway#network)).
 - `from-stack` leaves Bifrost out. Only the server and the console agent reach it, and every model call carries a virtual key.
 </KeyRules>
 
-The failover drill in the [Runbook](/en/operations/cluster/runbook#failover-drills) connects from a `shopnexus-dev` pod to `postgres-rw.shopnexus-prod`. The NetworkPolicy drops the packets, so the connection times out. The drill is planned for the live server and has not run yet.
+The failover drill in the [Runbook](/en/operations/cluster/runbook#failover-drills) connects from a `shopnexus-dev` pod to `postgres-rw.shopnexus-prod`. The NetworkPolicy drops the packets, so the connection times out.
 
 ## DNS records
 
@@ -194,8 +214,8 @@ Point these A records at the machine. With prod on `shopnexus.id.vn`, the four r
 | Name | Covers |
 |---|---|
 | `@` | `shopnexus.id.vn` (prod website) |
-| `*` | `api.`, `media.`, `docs.`, `console.` of prod |
-| `*.dev` | `api.`, `media.`, `docs.`, `console.` of dev |
+| `*` | every host below `shopnexus.id.vn`, the dashboard hosts included |
+| `*.dev` | every host below `dev.shopnexus.id.vn` |
 | `dev` | `dev.shopnexus.id.vn` (dev website) |
 
 <Callout type="warning" title="The dev record">
@@ -204,6 +224,6 @@ A `*` wildcard answers only for names that do not exist in the zone. Creating `*
 
 ## Website and console API addresses
 
-The website is Astro with server-side rendering, and it calls the API while it renders a page. It reads `API_URL` at runtime (`astro:env/server`), and the image sets `API_URL=http://server-api:8080/v1` in `website/Dockerfile`. A short Service name resolves in the pod's own namespace, so the same image calls the dev server in `shopnexus-dev` and the prod server in `shopnexus-prod`. That call stays inside the cluster and is admitted by `from-stack`.
+The website is Astro with server-side rendering, and it calls the API while it renders a page. It reads `API_URL` at runtime, and its image sets `API_URL=http://server-api:8080`. A short Service name resolves in the pod's own namespace, so the same image calls the dev server in `shopnexus-dev` and the prod server in `shopnexus-prod`. That call stays inside the cluster and is admitted by `from-stack`.
 
-The console is a static app that calls the API from the browser. `console/src/lib/api.ts` takes the page's own host, drops a leading `console.` and puts `api.` in front: a page on `console.shopnexus.id.vn` calls `https://api.shopnexus.id.vn/v1`, and one on `console.dev.shopnexus.id.vn` calls `https://api.dev.shopnexus.id.vn/v1`. `VITE_API_URL` overrides this for local development. Requests carry cookies (`credentials: 'include'`), and the server accepts them from `CONSOLE_ORIGIN`, which the chart sets to `https://console.<domain>`.
+The console is a static app that calls the API from the browser. The console takes the page's own host, drops a leading `console.` and puts `api.` in front: a page on `console.shopnexus.id.vn` calls `https://api.shopnexus.id.vn/v1`, and one on `console.dev.shopnexus.id.vn` calls `https://api.dev.shopnexus.id.vn/v1`. `VITE_API_URL` overrides this for local development. Requests carry cookies (`credentials: 'include'`), and the server accepts them from `CONSOLE_ORIGIN`, which the chart sets to `https://console.<domain>`.

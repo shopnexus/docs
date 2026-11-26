@@ -11,7 +11,7 @@ updated: 2026-11-27
 related: ["/en/architecture/assist", "/en/architecture/search-and-discovery", "/en/architecture/trust", "/en/operations/cluster/llm-gateway", "/en/agent/setup", "/en/agent/limits"]
 ---
 
-The server uses two kinds of model. Remote models (chat models and the text embedding model) are reached only through Bifrost, the stack's AI gateway. Self-hosted models (speech to text, photo vectors and video frames) run on CPU inside the server binary as module ai. Nothing in the server calls a model provider directly.
+The server uses two kinds of model. Remote models (chat models and the text embedding model) are reached only through Bifrost, the stack's AI gateway. Self-hosted models (speech to text, photo vectors and video frames) run on CPU inside the server binary as module ai. Nothing in the server calls a model provider directly. <Req id="ADR-0004" />
 
 ## Who calls what
 

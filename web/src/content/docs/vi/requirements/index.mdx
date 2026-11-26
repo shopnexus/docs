@@ -7,11 +7,11 @@ groupOrder: 1
 audience: [everyone]
 type: overview
 readingTime: 2
-updated: 2026-11-16
+updated: 2026-11-27
 related: ["/vi/requirements/use-cases", "/vi/requirements/rules"]
 ---
 
-Các mã nằm trong một file, `docs/registry/requirements.yaml`. Báo cáo đồ án và các trang này đọc file đó; `make trace` ở repo gốc kiểm tra code, test và đặc tả API của server theo file đó.
+Các mã nằm trong một file, `docs/registry/requirements.yaml`. Báo cáo đồ án và các trang này đọc file đó, và `make trace` ở repo umbrella kiểm tra code, test, đặc tả API của server và bộ tài liệu này chỉ ghi những mã có trong file.
 
 ## Mã
 
@@ -20,10 +20,10 @@ Các mã nằm trong một file, `docs/registry/requirements.yaml`. Báo cáo đ
 | Ca sử dụng | `UC-<nhóm>-nn` | <Req id="UC-DEAL-02" /> |
 | Yêu cầu chức năng | `FR-<nhóm>-nn` | <Req id="FR-DEAL-02" /> |
 | Quy tắc nghiệp vụ | `BR-<nhóm>-nn` | <Req id="BR-DEAL-03" /> |
-| Yêu cầu phi chức năng | `NFR-<thuộc tính>-nn` | <Req id="NFR-CONC-01" /> |
+| Yêu cầu chất lượng | `NFR-<thuộc tính>-nn` | <Req id="NFR-CONC-01" /> |
 | Quyết định kiến trúc | `ADR-nnnn` | <Req id="ADR-0002" /> |
 
-Các nhóm gồm `ACC` tài khoản, `LST` tin đăng, `DSC` khám phá, `DEAL` trò chuyện và giao dịch, `TRS` uy tín sau giao dịch, `MOD` vận hành và `SHR` ca dùng chung. Luồng được đánh số trong từng ca: `A1`, `A2`… là luồng thay thế, vẫn đạt mục tiêu; `E1`, `E2`… là luồng ngoại lệ, dừng mà không đạt mục tiêu. Một mã không bao giờ được cấp hai lần; mã bỏ đi được đánh dấu đã bỏ.
+Các nhóm gồm `ACC` tài khoản, `LST` tin đăng, `DSC` khám phá, `DEAL` trò chuyện và giao dịch, `TRS` uy tín sau giao dịch, `MOD` vận hành và `SHR` các ca sử dụng mà ca khác gọi tới. Luồng được đánh số trong từng ca: `A1`, `A2`… là luồng thay thế, vẫn đạt mục tiêu; `E1`, `E2`… là luồng ngoại lệ, dừng mà không đạt mục tiêu. Một mã không bao giờ được cấp hai lần; mã bỏ đi được đánh dấu đã bỏ.
 
 ## Mức truy vết
 

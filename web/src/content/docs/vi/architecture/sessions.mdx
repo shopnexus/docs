@@ -1,41 +1,70 @@
 ---
 title: Phiên đăng nhập
-description: Access token, refresh token, xoay vòng và phát hiện dùng lại token, khóa ký, đăng xuất và danh sách thiết bị.
+description: Access token và refresh token, xoay vòng refresh và phát hiện dùng lại, khóa ký, xác thực lại, đăng xuất và danh sách thiết bị.
 group: Định danh và truy cập
 order: 2
 groupOrder: 3
 audience: [developers]
 type: concept
-readingTime: 3
-updated: 2026-11-04
-related: ["/vi/architecture/sign-in", "/vi/api/authentication"]
+readingTime: 4
+updated: 2026-11-27
+related: ["/vi/architecture/sign-in", "/vi/api/authentication", "/vi/architecture/notifications"]
 ---
 
-Mỗi phiên là một thiết bị đã đăng nhập. Đăng nhập tạo phiên, sau đó app giữ hai token: access token ngắn hạn và refresh token dài hạn. Refresh, đăng xuất và danh sách thiết bị chạy thẳng trên database, không qua Restate, nên Restate có sập thì vẫn chạy.
+Mỗi phiên đăng nhập là một thiết bị đã đăng nhập <Req id="UC-ACC-02" />. [Đăng nhập](/vi/architecture/sign-in) tạo phiên và đưa cho ứng dụng một access token ngắn hạn cùng một refresh token dài hạn. Refresh, đăng xuất và danh sách thiết bị chạy thẳng trên Postgres, ngoài Restate.
 
 ## Access token
 
-Access token là JWT ký bằng Ed25519, sống 15 phút. Trong token có ID tài khoản, ID phiên và thời điểm đăng nhập, không có số điện thoại hay tên. Middleware chỉ kiểm tra chữ ký và hạn, không đọc database. Vì vậy người bị khóa vẫn đọc được tối đa 15 phút; các thao tác ghi thì tải tài khoản và kiểm tra trạng thái.
+Access token là JWT ký bằng Ed25519, sống 15 phút <Req id="NFR-SEC-01" />. Trong token có ID tài khoản, ID phiên và thời điểm đăng nhập gần nhất, không có tên hay số điện thoại. Middleware chỉ kiểm tra chữ ký và hạn, không đọc database.
 
-## Refresh và xoay vòng
+Vì vậy người bị tạm khóa hoặc đã xóa tài khoản vẫn đọc được tối đa 15 phút. Mọi thao tác ghi đều kiểm tra trạng thái tài khoản: bị tạm khóa trả 403 `account_suspended`, đã xóa trả 401 `session_revoked`.
 
-Refresh token là chuỗi ngẫu nhiên, server chỉ lưu hash. Phiên hết hạn sau 60 ngày kể từ lúc đăng nhập, hoặc sau 30 ngày không dùng.
+Header của token có ID khóa, chỉ ra khóa đã ký. Trong lúc đổi khóa, khóa trước vẫn xác minh được, nên đổi khóa không đăng xuất ai.
 
-Mỗi lần refresh, token được thay mới và server giữ lại hash của token cũ. Nếu client gửi lên đúng token cũ đó thì có người đang dùng lại nó, server thu hồi cả phiên và trả `session_revoked`. Hai lượt refresh cùng token chạy song song cũng bị tính là dùng lại. Token lạ trả `invalid_refresh_token`; tài khoản bị khóa thì phiên bị thu hồi và nhận `account_suspended`.
+## Refresh
+
+Server chỉ lưu hash của refresh token. Phiên kết thúc 60 ngày sau lần đăng nhập, hoặc sau 30 ngày không dùng. Mỗi lần refresh, token được thay mới và server giữ hash trước để phát hiện dùng lại.
 
 ```mermaid title="Refresh"
-flowchart LR
+flowchart TD
   T[Token gửi lên] --> C{Khớp hash hiện tại?}
-  C -- có --> R[Xoay vòng, trả token mới]
-  C -- không --> P{Khớp hash cũ?}
-  P -- có --> X[Thu hồi phiên]
+  C -- không --> P{Khớp hash trước?}
+  P -- có --> X[Dùng lại: thu hồi, session_revoked]
   P -- không --> I[invalid_refresh_token]
+  C -- có --> U{Phiên và tài khoản}
+  U -- đã thu hồi hoặc hết hạn --> Q[session_revoked / session_expired]
+  U -- bị tạm khóa --> S[Thu hồi, account_suspended]
+  U -- đã xóa --> D[Thu hồi, session_revoked]
+  U -- bình thường --> R[Xoay vòng và lưu]
+  R -- xung đột --> K[Đăng xuất hoặc lượt refresh song song thắng: session_revoked]
+  R -- đã lưu --> A[Token mới]
 ```
 
-## Khóa ký
+- Hai lượt refresh chạy song song với cùng một token bị tính là dùng lại: lượt thua thu hồi phiên.
+- Phiên bị thu hồi vì tạm khóa vẫn trả `account_suspended` cho token hiện tại của nó trong suốt thời gian tạm khóa. Nhờ vậy client lỡ mất câu trả lời đầu vẫn biết lý do.
+- Phiên bị thu hồi giữ lý do của lần thu hồi đầu tiên: `sign_out`, `reuse`, `suspended` hoặc `deleted`.
 
-Server ký bằng một khóa hiện tại, ID của khóa nằm trong header token. Khi đổi khóa, cấu hình giữ thêm ID và public key của khóa trước, token ký bằng khóa nào trong hai khóa đều qua, nên đổi khóa không đăng xuất ai. Ngoài lúc đổi khóa thì hai biến của khóa trước để trống. Hai biến này phải đặt cùng nhau, và ID khóa trước phải khác ID khóa hiện tại.
+## Xác thực lại
+
+Đăng xuất các thiết bị khác, thêm định danh, gửi mã OTP để thêm email và xóa tài khoản cần một lần đăng nhập trong vòng 15 phút, nếu không thì trả 428 `reauth_required`. `POST /v1/auth/sessions/current/reauthenticate` làm mới mốc đó mà không tạo hay đổi tài khoản nào.
+
+1. Tài khoản phải ghi được và phiên phải còn dùng được.
+2. Bằng chứng được kiểm tra như lúc đăng nhập. Mã OTP qua email lấy từ endpoint gửi mã đăng nhập, cùng quota và số lượt đoán của nó.
+3. Bằng chứng của tài khoản khác, hoặc của một địa chỉ không tài khoản nào giữ, trả 403 `wrong_account`. Như vậy câu trả lời không để lộ ai đã đăng ký <Req id="BR-ACC-02" />.
+4. Thời điểm đăng nhập của phiên được dời tới lúc bằng chứng được kiểm tra, nếu lúc đó phiên vẫn còn sống.
+5. Câu trả lời là một access token mới cho cùng phiên. Refresh token giữ nguyên.
+
+Hai lựa chọn giữ cho bước này an toàn khi đứng cạnh refresh. Thứ nhất, nếu xoay vòng refresh token ở đây, ứng dụng lỡ mất câu trả lời sẽ cầm một token trông như bị dùng lại. Thứ hai, lệnh cập nhật không đụng tới phiên bản ghi của phiên, vì refresh coi xung đột phiên bản là token bị dùng lại; ngược lại, refresh không bao giờ ghi thời điểm đăng nhập. Request gửi lại với cùng key chứng minh tại thời điểm của lần kiểm tra đầu, nên một mã OTP chỉ làm mới mốc đăng nhập một lần.
 
 ## Đăng xuất và thiết bị
 
-Đăng xuất thu hồi phiên hiện tại. Access token vẫn dùng được đến khi hết hạn, tức tối đa 15 phút. Người dùng xem được danh sách thiết bị đang đăng nhập và đăng xuất từng cái; phiên của tài khoản khác trả về như không tồn tại. Đăng xuất mọi thiết bị đòi hỏi lần đăng nhập gần nhất trong vòng 15 phút, nếu không server trả `reauth_required`.
+Danh sách thiết bị và các thao tác đăng xuất dùng chung một resource <Req id="FR-ACC-02" />:
+
+| Endpoint | Làm gì |
+|---|---|
+| `GET /v1/auth/sessions` | các thiết bị đang hoạt động, mới nhất trước |
+| `DELETE /v1/auth/sessions/current` | đăng xuất phiên này |
+| `DELETE /v1/auth/sessions/others` | đăng xuất mọi phiên khác; cần một lần đăng nhập gần đây |
+| `DELETE /v1/auth/sessions/{id}` | đăng xuất một thiết bị; phiên của tài khoản khác trả 404 |
+
+Access token của phiên đã đăng xuất vẫn dùng được tới khi hết hạn. Đăng xuất các thiết bị khác là một lệnh cập nhật hàng loạt, và push token của chúng ngừng ở lần gửi thông báo đẩy kế tiếp (xem [Thông báo](/vi/architecture/notifications)).

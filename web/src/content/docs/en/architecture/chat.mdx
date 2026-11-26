@@ -46,7 +46,7 @@ Sending in an existing conversation (`POST /v1/conversations/{id}/messages`) ski
 
 ### Blocks
 
-Blocks live in the account module, because both chat and deal check them <Req id="FR-ACC-03" />. `POST /v1/blocks`, `GET /v1/blocks` and `DELETE /v1/blocks/{account_id}` add, page and remove them. Blocking oneself is `invalid_block`, and ShopNexus cannot be blocked (`account_is_system`). Blocking again changes nothing.
+Blocks live in the account module, because both chat and deal check them <Req id="FR-ACC-06" />. `POST /v1/blocks`, `GET /v1/blocks` and `DELETE /v1/blocks/{account_id}` add, page and remove them. Blocking oneself is `invalid_block`, and ShopNexus cannot be blocked (`account_is_system`). Blocking again changes nothing.
 
 A block changes what each side sees:
 

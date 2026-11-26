@@ -115,14 +115,14 @@ stateDiagram-v2
 
 Each action locks the account and writes its audit entry (`report.dismiss`, `report.resolve`, `report.reopen`) in the same transaction. A retried dismiss or resolve that finds the case already closed with the same outcome answers that case instead of 409. The ShopNexus system account cannot be a case (`account_is_system`).
 
-The console agent can read a case and propose actions, but a staff member clicks every change (<Req id="BR-MOD-03" />).
+The console agent can read a case and answer questions about it; it changes nothing, and a staff member clicks every change (<Req id="BR-MOD-03" />).
 
 ### Sanctions
 
-A case is closed as actioned after staff act on the account in the console:
+Staff act on the account in the console, then close the case with resolve. The actions below do not close it on their own:
 
 - **Hide a listing.** A hidden-by-staff listing is held: the seller cannot show it again (`listing_held`), and an edit or "unmark sold" leaves it hidden. Only staff lift the hold.
-- **Suspend the account**, with a reason and an optional end. A suspended account cannot post, offer, accept, ask for COD, review or report, but can still withdraw, decline and cancel (<Req id="BR-MOD-02" />).
+- **Suspend the account**, with a reason and an optional end. A suspended account cannot sign in, refresh its session or write anything new (listings, messages, offers, COD requests, reviews, reports, follows, profile changes). It can still withdraw, decline, cancel, and open or answer a support ticket (<Req id="BR-MOD-02" />).
 
 Both are audited. Staff take on only banned and fake goods, organised scams and requests from authorities; price and condition stay between the two people (<Req id="BR-MOD-01" />). There are no automatic sanctions.
 

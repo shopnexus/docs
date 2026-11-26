@@ -21,6 +21,8 @@ const counts = (id: string) => {
   const c = trace.coverage[id];
   return c && (c.code || c.tests) ? `${c.code} / ${c.tests}` : "";
 };
+// A retired use case has no row to link to.
+const live = (id: string) => registry.uc.find((u) => u.id === id)?.status !== "retired";
 // Only a finished use case is held to its exception flows.
 const exc = (id: string) => {
   if (registry.uc.find((u) => u.id === id)?.status !== "done") return "";
@@ -135,7 +137,7 @@ const exc = (id: string) => {
                 {kind === "fr" && (
                   <td>
 <div class="req-chips">
-                    {(e.uc ?? []).map((id) => (
+                    {(e.uc ?? []).filter(live).map((id) => (
                       <Req id={id} />
                     ))}
                   </div>

@@ -20,7 +20,7 @@ trước (`ChatQuote`, `ShippingQuote`); file `paths/` được chép thẳng v�
 
 - Mã trong code, test, `x-uc` của OpenAPI, Typst hay trang MDX không có trong registry.
 - Mã cũ còn được dùng (mã nằm trong `was` của một mục).
-- Mã của mục đã bỏ (`status: retired`).
+- Mã của mục đã bỏ (`status: retired`), trừ trong báo cáo Typst.
 - Luồng không có trong UC, ví dụ `UC-DEAL-02 E12`.
 - Dấu luồng hay dấu bước (`// E2`, `// 1.`) nằm ngoài hàm có ghi UC.
 - Registry trỏ tới mã không có, trùng mã, hay chữ có dấu phẩy mà không đặt trong ngoặc kép.
@@ -33,6 +33,7 @@ trước (`ChatQuote`, `ShippingQuote`); file `paths/` được chép thẳng v�
 - Luồng ngoại lệ của UC `done` chưa có test.
 - UC `untraced` hay `planned` mà code đã ghi mã.
 - BR, NFR, ADR không được nhắc ở đâu.
+- Báo cáo Typst còn nhắc mã hay luồng đã bỏ: báo cáo đi sau trang web, sửa khi viết lại chương đó.
 - Mọi mục `gaps` của UC: chỗ code đang khác đặc tả.
 
 ## Cách code ghi mã

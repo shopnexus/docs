@@ -1,51 +1,76 @@
 ---
 title: Đăng nhập
-description: Người dùng đăng nhập bằng số điện thoại đã được Firebase xác minh, và server tìm hoặc tạo tài khoản ra sao.
+description: Người dùng đăng nhập hoặc đăng ký bằng số điện thoại, tài khoản Google hay mã OTP gửi qua email, cách thêm định danh thứ hai, và thao tác nào cần số điện thoại.
 group: Định danh và truy cập
 order: 1
 groupOrder: 3
 audience: [developers]
 type: concept
-readingTime: 3
-updated: 2026-11-04
-related: ["/vi/architecture/sessions", "/vi/architecture/console", "/vi/api/authentication"]
+readingTime: 4
+updated: 2026-11-27
+related: ["/vi/architecture/sessions", "/vi/architecture/account", "/vi/api/authentication", "/vi/architecture/console"]
 ---
 
-Tài khoản người dùng nào cũng có số điện thoại, và số điện thoại là cách đăng nhập duy nhất. Server không tự gửi mã. App xác minh số qua Firebase rồi gửi lên server token mà Firebase trả về.
+Người dùng đăng nhập, hoặc đăng ký ở lần dùng đầu, bằng một bằng chứng gửi tới `POST /v1/auth/sign-in` <Req id="FR-ACC-01" />. Nhân viên đăng nhập riêng; xem [Trang điều hành](/vi/architecture/console).
 
-## Xác minh số điện thoại
+## Định danh và bằng chứng
 
-Firebase có hai cách. Phone Number Verification (PNV) đọc số từ SIM qua nhà mạng. Firebase Authentication gửi mã SMS. Đến tháng 9/2026 PNV chưa hỗ trợ nhà mạng Việt Nam nào, nên người dùng trong nước hiện đi đường SMS. Khi Google thêm nhà mạng, app đã cài dùng được ngay mà không cần cập nhật, còn server thì đã nhận token PNV từ trước.
+Một tài khoản có định danh số điện thoại, định danh email, hoặc cả hai, mỗi loại tối đa một. Một số điện thoại hay một địa chỉ email chỉ thuộc một tài khoản. Tài khoản không bao giờ được gộp, và không endpoint nào đổi hay xóa định danh.
 
-```mermaid title="Đăng nhập bằng số điện thoại"
+| Bằng chứng | Chứng minh | Nguồn |
+|---|---|---|
+| `phone_token` | một số điện thoại | Firebase: mã SMS, hoặc Phone Number Verification đọc từ SIM |
+| `google_token` | một địa chỉ email | Google ID token từ Android Credential Manager |
+| `email_code` | một địa chỉ email | ID của challenge và mã OTP sáu chữ số server đã gửi qua email |
+
+Google không phải một loại định danh. Token Google cho một địa chỉ mà định danh email đang giữ sẽ đăng nhập vào tài khoản đó.
+
+## Flow
+
+Token và mã OTP không bao giờ vào Restate, vì journal của Restate đọc được qua admin API. Phía HTTP kiểm tra token rồi chỉ chuyển tiếp địa chỉ đã được chứng minh. Với mã OTP, phía HTTP chuyển ID của challenge và một hash có khóa của địa chỉ cùng mã.
+
+```mermaid title="Đăng nhập"
 sequenceDiagram
-  participant App
-  participant Firebase
-  participant Server
-  participant SignIn as SignIn (Restate)
-  App->>Firebase: xác minh số (SIM hoặc mã SMS)
-  Firebase-->>App: token đã ký
-  App->>Server: POST /v1/auth/sign-in
-  Server->>Server: kiểm tra token, lấy số +84
-  Server->>SignIn: chỉ gửi số điện thoại
-  SignIn-->>Server: tài khoản và ID phiên
-  Server-->>App: access token và refresh token
+  participant App as Ứng dụng
+  participant API as HTTP handler
+  participant Flow as SignIn (Restate)
+  App->>API: bằng chứng + Idempotency-Key
+  API->>API: kiểm tra token, hoặc hash mã OTP
+  API->>Flow: địa chỉ đã chứng minh
+  Flow->>Flow: chấm lần đoán mã
+  Flow->>Flow: tìm định danh, hoặc tạo tài khoản + định danh
+  Flow-->>API: tài khoản
+  API->>API: tạo phiên cho (tài khoản, key)
+  API-->>App: token, account.is_new
 ```
 
-## Server kiểm tra gì
+1. Mã OTP bị từ chối khi challenge của nó không tồn tại, không phải challenge mới nhất của địa chỉ, dành cho việc thêm định danh, đã hết hạn hoặc hết lượt đoán. Lượt đoán đã tính được lưu lại.
+2. Định danh đã có được đánh dấu vừa dùng. Tài khoản đang bị tạm khóa thì flow dừng với `account_suspended`.
+3. Địa chỉ mới được tạo tài khoản và định danh trong cùng một transaction. Nếu một lượt đăng ký khác đã chiếm giá trị đó trước, không gì được ghi và câu trả lời là `try_again`.
+4. Phía HTTP tạo [phiên đăng nhập](/vi/architecture/sessions). `account.is_new` báo cho ứng dụng hỏi thông tin hồ sơ.
 
-Issuer của token quyết định bộ public key, thuật toán và audience cần khớp. Lần xác minh phải diễn ra trong vòng 5 phút. Trong khoảng đó cùng một token đăng nhập lại được; team chọn cách này thay vì bắt token chỉ dùng một lần. Số ngoài Việt Nam bị từ chối với `invalid_phone`, mọi lỗi kiểm tra khác trả `invalid_phone_token`, và log ghi rõ bước nào hỏng.
+Request gửi lại với cùng key và bằng chứng hợp lệ sẽ thấy phiên đã được tạo và nhận token mới cho phiên đó. Nếu phiên đã bị đăng xuất từ lúc ấy, câu trả lời là `session_revoked`. Request gửi lại bằng mã OTP thấy mã đã bị chính lần thử đầu dùng mất, và vẫn chứng minh được lại. Một mã OTP khác thì nhận `code_expired`.
 
-Server lấy key của từng issuer từ bộ key công khai của nó và cache lại. Nếu chưa lấy được key lần nào, endpoint trả `unavailable` để app thử lại, thay vì bắt người dùng xin mã mới. Endpoint không có quota riêng vì Firebase đã giới hạn số lần xin mã.
+## Kiểm tra token
 
-## Tìm hoặc tạo tài khoản
+Issuer của token quyết định bộ key, thuật toán và audience. Lần xác minh phải diễn ra trong vòng 5 phút (cho phép lệch đồng hồ 30 giây). Trong khoảng đó, cùng một token đăng nhập lại được. Kiểm tra thất bại trả 401 `invalid_phone_token` hoặc `invalid_google_token`, và số ngoài Việt Nam trả 422 `invalid_phone`.
 
-Token chỉ nằm ở HTTP handler. Flow bền vững <Term id="sign-in-flow">SignIn</Term> chỉ nhận số đã xác minh, vì journal của Restate đọc được qua admin API.
+Key của nhà cung cấp được cache và lấy lại tối đa một lần mỗi phút. Nếu chưa lấy được key lần nào, đăng nhập trả 503 `unavailable`, để ứng dụng thử lại thay vì xin mã mới.
 
-Flow tìm identity theo số điện thoại. Tài khoản đã có và đang hoạt động thì được đánh dấu vừa dùng. Tài khoản bị khóa thì dừng ở đây. Số mới thì flow tạo tài khoản trước, rồi tạo identity. Nếu giữa hai bước đó có lượt đăng ký khác chiếm mất số, flow xóa tài khoản vừa tạo và app nhận `try_again`.
+## Mã OTP qua email
 
-Khóa của invocation ghép số điện thoại với idempotency key của request. Request gửi lại kèm token hợp lệ cho cùng số sẽ nhận lại đúng [phiên](/vi/architecture/sessions) cũ, với refresh token mới.
+`POST /v1/auth/email-codes` gửi mã OTP để đăng nhập. `POST /v1/accounts/me/email-codes` gửi mã OTP để thêm email vào tài khoản của người gọi. Câu trả lời như nhau dù có tài khoản nào giữ địa chỉ đó hay không <Req id="BR-ACC-02" />.
 
-## Email và OTP
+- Giới hạn: 20 mã mỗi giờ cho một địa chỉ client, và mỗi email một mã mỗi 45 giây, 5 mã mỗi giờ (`otp_too_soon`, `otp_limit`).
+- Mã OTP sống 5 phút và nhận 5 lượt đoán: sai thì `invalid_code` kèm `attempts_left`, hết lượt thì `code_locked`. Mã mới thay mã cũ (`code_expired`).
+- Mã OTP được suy ra từ challenge nên không lưu ở đâu cả, và email được gửi với challenge làm idempotency key. Một bước hay một request chạy lại chỉ gửi một email và không tốn thêm quota <Req id="NFR-DUR-01" />.
 
-Đăng nhập bằng email, mã OTP do server gửi và quota của chúng đã bị bỏ từ 2026-10-28. Migration đã xóa các tài khoản chỉ có email, và database giờ chỉ nhận identity loại phone. Nhân viên vẫn đăng nhập bằng email, qua một luồng riêng ở trang [Nhân viên](/vi/architecture/console).
+## Thêm định danh
+
+`POST /v1/accounts/me/identities` nhận bằng chứng của loại định danh mà tài khoản còn thiếu. Loại đã có trả 409 `identity_kind_taken`. Giá trị mà tài khoản khác đang giữ trả 409 `identity_taken`. Request gửi lại trả về danh sách định danh.
+
+Thêm định danh và gửi mã OTP để thêm email cần một lần đăng nhập trong vòng 15 phút (428 `reauth_required`, xem [xác thực lại](/vi/architecture/sessions#xác-thực-lại)). Lý do là định danh được thêm bằng một access token bị lộ sẽ cho người giữ token vào tài khoản mãi mãi. Ở các lệnh gọi này, bằng chứng sai trả 422 chứ không phải 401: 401 trên một lệnh gọi có bearer luôn nói về chính bearer đó.
+
+## Thao tác nào cần số điện thoại
+
+Đăng tin, mở một deal và mở một cuộc trò chuyện cần định danh số điện thoại, nếu không thì trả 403 `phone_required` <Req id="BR-ACC-03" />. Trả lời tin nhắn, yêu cầu COD và mọi thao tác khác thì không cần. Số điện thoại của địa chỉ giao hàng không phải định danh.

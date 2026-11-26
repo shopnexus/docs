@@ -68,8 +68,9 @@ sequenceDiagram
 The checks run in order (<Req id="BR-LST-02" />, <Req id="BR-LST-03" />):
 
 1. A suspended account is refused.
-2. 20 listings in processing, active, hidden, reserved or rejected is `listing_cap_reached`.
-3. Fields: title 1–70 characters, price in whole đồng from 10,000 to 1,000,000,000, description up to 1,500 characters, 1–10 photos with the first as cover, up to 20 specs including the subcategory's required ones. `invalid_listing` lists every bad field at once.
+2. An account without a phone number is `phone_required` (<Req id="BR-ACC-03" />).
+3. 20 listings in processing, active, hidden, reserved or rejected is `listing_cap_reached`.
+4. Fields: title 1–70 characters, price in whole đồng from 10,000 to 1,000,000,000, description up to 1,500 characters, 1–10 photos with the first as cover, up to 20 specs including the subcategory's required ones. `invalid_listing` lists every bad field at once.
 
 A per-seller lock around the insert stops two racing posts from both taking the last slot. The cap is checked before any photo is attached; if attaching fails, the flow deletes the row.
 

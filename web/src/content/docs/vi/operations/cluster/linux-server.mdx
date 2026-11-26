@@ -7,7 +7,7 @@ groupOrder: 2
 audience: [admins]
 type: how-to
 readingTime: 6
-updated: 2026-11-23
+updated: 2026-11-27
 related: ["/vi/operations/cluster/bootstrap", "/vi/operations/cluster/networking", "/vi/operations/cluster/runbook"]
 ---
 
@@ -64,10 +64,10 @@ Mỗi rule có counter đếm số gói nó đã drop.
 
 Muốn đổi giới hạn thì sửa `web-guard.nft` rồi chạy lại `install.sh`. `sudo systemctl stop web-guard` gỡ bảng tới lần khởi động sau, còn `sudo systemctl disable --now web-guard` gỡ hẳn.
 
-Rule đã được thử trong một network namespace dùng xong bỏ ngày 2026-11-23, với giới hạn hạ xuống 5 mỗi giây, burst 10, và 20 kết nối đang mở. Trong 60 kết nối mở liên tiếp từ một địa chỉ, 20 kết nối được nhận. Rule đếm kết nối drop 32 gói SYN, rule tốc độ drop 8 gói, và khi đã có 20 kết nối mở thì mọi kết nối mới đều bị drop.
+Rule đã được thử trong một network namespace dùng xong bỏ, với giới hạn hạ xuống 5 mỗi giây, burst 10, và 20 kết nối đang mở. Trong 60 kết nối mở liên tiếp từ một địa chỉ, 20 kết nối được nhận. Rule đếm kết nối drop 32 gói SYN, rule tốc độ drop 8 gói, và khi đã có 20 kết nối mở thì mọi kết nối mới đều bị drop.
 
 ## Những gì máy chủ không chặn được
 
 - Đợt tấn công lớn hơn băng thông đường mạng nhà làm nghẽn đường truyền trước khi gói tới được nftables. Chỉ nhà mạng, hoặc một proxy đặt trước đường truyền, mới drop được traffic đó.
 - Router nhà giữ một mục NAT cho mỗi kết nối IPv4 nó chuyển tiếp, và SYN flood có thể làm đầy bảng NAT trước khi máy chủ thấy gì. Ở chế độ bridge, khi máy chủ tự quay PPPoE, nftables là lớp lọc đầu tiên.
-- HTTP flood từ nhiều địa chỉ nằm dưới giới hạn theo từng địa chỉ. Server giới hạn search của khách ở 2 lần mỗi giây cho mỗi địa chỉ, burst 30, và 200 lần gọi model mỗi ngày cho mỗi tài khoản; mỗi process của server đếm riêng.
+- HTTP flood từ nhiều địa chỉ nằm dưới giới hạn theo từng địa chỉ. Rate limit của chính server đếm theo địa chỉ và theo tài khoản, chia thành các bậc ([API](/vi/api)), và mỗi process của server đếm riêng.

@@ -7,7 +7,7 @@ groupOrder: 1
 audience: [developers]
 type: reference
 readingTime: 3
-updated: 2026-11-04
+updated: 2026-11-27
 related: ["/en/get-started/quick-start", "/en/operations/configuration", "/en/api/errors"]
 ---
 
@@ -15,19 +15,25 @@ related: ["/en/get-started/quick-start", "/en/operations/configuration", "/en/ap
 
 <AccordionGroup>
 <Accordion title="The server exits and lists variables" open>
-No setting has a default. The server checks every variable at start and exits with one line per variable that is missing, empty or invalid. Add them to `.env`. A fresh `.env` from `make run` still needs `LLM_API_KEY` and `LLM_MODEL`.
+No setting has a default. The server checks every variable at start and exits with one line per variable that is missing, empty or invalid. In the Compose stacks, look at the server container's log (`docker compose logs server-dev`). For the server alone, add them to `server/.env`; a fresh one still needs `GATEWAY_ADMIN_PASSWORD` from the dev stack.
+</Accordion>
+<Accordion title="The server will not start: migrations are pending">
+The server refuses to start while a migration is not applied. In the Compose stacks a job applies them before the server, and the dev server applies them before each restart. For the server alone, `make run` applies them.
 </Accordion>
 <Accordion title='"restate not reachable yet" and then a failed start'>
-At start the server registers its endpoint with Restate's admin API and retries for about 30 seconds. If Restate never answers, check that its container is running. Restate uses the host network and binds to 127.0.0.1, because the development machine's firewall drops traffic from containers to the host.
+At start the server registers its endpoint with Restate's admin API and retries for about 30 seconds. If Restate never answers, check that its container is running. For the server alone, Restate uses the host network and binds to 127.0.0.1, because the development machine's firewall drops traffic from containers to the host.
 </Accordion>
 <Accordion title="Restate rejects calls to the server, or the server refuses them">
-Restate signs every request with the key in `.restate/identity.pem`, and the server accepts only requests signed with that key. `make run` keeps the file and the public key in `.env` in step. If you replace one by hand, delete the `RESTATE_IDENTITY_KEY` line in `.env` and run `make run` again.
+Restate signs every request with the stack's identity key, and the server accepts only requests signed with it. In the Compose stacks both read the key from the stack's keys volume. For the server alone, `make run` keeps `.restate/identity.pem` and `RESTATE_IDENTITY_KEY` in `.env` in step; if you replace one by hand, delete the `RESTATE_IDENTITY_KEY` line and run `make run` again.
+</Accordion>
+<Accordion title="Search ignores the meaning of a query, or listing reads fail">
+Model calls go through the stack's Bifrost, which needs `LLM_UPSTREAM_API_KEY` and `OPENROUTER_API_KEY` in `infra/stack/secrets/compose.env`. Restart Bifrost after adding them.
 </Accordion>
 <Accordion title="The server will not start with APP_ENV=prod">
-Production refuses a few development settings: PNV test numbers (`PNV_TEST_NUMBERS=true`), an empty `FCM_CREDENTIALS`, which writes pushes to the log, and a missing `RESTATE_IDENTITY_KEY`.
+Production refuses development settings: PNV test numbers, an empty `FCM_CREDENTIALS`, mail to the log, a fake carrier and a missing `RESTATE_IDENTITY_KEY`. [Configuration](/en/operations/configuration#production) lists them.
 </Accordion>
 <Accordion title="A port is already taken">
-The development stack uses ports in the 564xx and 565xx range, and the test stack uses the same ports plus one, so the two can run together. Stop whatever else is listening on those ports.
+The Compose stacks publish only Caddy, on 56481 (dev) and 56480 (prod), and the dev stack's Bifrost on 56482. The server alone uses ports in the 564xx and 565xx range, and its test stack the same ports plus one. Stop whatever else is listening on those ports.
 </Accordion>
 </AccordionGroup>
 
@@ -35,7 +41,7 @@ The development stack uses ports in the 564xx and 565xx range, and the test stac
 
 <AccordionGroup>
 <Accordion title="A single package fails to connect">
-`go test` on one package needs the test stack, and only `make test` starts it. Run `make test` once. The stack then stays up until `make down`.
+`go test` on one package needs the server repo's test stack, which `make test` in `server/` starts. Run it once, and the stack stays up until `make down`. The umbrella's `make test` uses a test stack with no host ports, so its tests run only inside its container.
 </Accordion>
 </AccordionGroup>
 
@@ -46,10 +52,10 @@ The development stack uses ports in the 564xx and 565xx range, and the test stac
 The script ignores emulators unless you choose one. Set `ANDROID_SERIAL` to the emulator's serial from `adb devices`.
 </Accordion>
 <Accordion title="The build cannot find the Android SDK">
-Set `ANDROID_HOME`, or put `sdk.dir` in `app/local.properties`. The build needs platform 36 and JDK 21. Gradle comes with the repository, so you don't need a system install.
+Set `ANDROID_HOME`, or put `sdk.dir` in `clients/app-android/local.properties`. The build needs platform 36 and JDK 21. Gradle comes with the repository, so you don't need a system install.
 </Accordion>
-<Accordion title="The app shows data the server does not have">
-The app still runs on fixtures and a simulated seller, and it does not call the server yet.
+<Accordion title="The live app cannot reach the server">
+A debug build calls `127.0.0.1:8080` on the phone, and `run.sh` forwards it and port 56490 to the computer with `adb reverse`. The server must run on the host (`make run` in `server/`), since the dev stack publishes no port 8080. `-Pshopnexus.apiUrl=<url>` points a debug build at another server.
 </Accordion>
 </AccordionGroup>
 
@@ -60,10 +66,10 @@ The app still runs on fixtures and a simulated seller, and it does not call the 
 Every response carries a `Trace-Id` header, and every error body has a `trace_id`. Search the logs or Grafana for that id.
 </Accordion>
 <Accordion title="Sign-in answers 401 invalid_phone_token">
-The phone token failed a check, and the server log names which one. The verification must be at most five minutes old. In development, PNV test numbers pass only with `PNV_TEST_NUMBERS=true`.
+The phone token failed a check, and the server log names which one. The verification must be at most five minutes old. In development, PNV test numbers pass only with `PNV_TEST_NUMBERS=true`, which the Compose stacks and the dev cluster set.
 </Accordion>
 <Accordion title="Photo uploads work on the machine but fail from a phone">
-Upload URLs are signed for `OBJECT_STORE_PUBLIC_ENDPOINT`, and the signature covers the host. Set it to an address the phone can reach, such as this machine's LAN IP, and keep port 56490.
+Upload URLs are signed for `OBJECT_STORE_PUBLIC_ENDPOINT`, and the signature covers the host. The phone must reach that exact address: `run.sh` forwards port 56490 for the server alone, or set the endpoint to an address the phone can reach, such as this machine's LAN IP, and keep the port.
 </Accordion>
 </AccordionGroup>
 

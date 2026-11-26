@@ -1,24 +1,33 @@
 ---
 title: Kiểm duyệt
-description: Ba nhóm việc người thật xử lý, và vì sao khối lượng không tăng theo số đơn.
+description: Mọi người báo cáo vi phạm được những gì, nhân viên xử lý những loại việc nào, và vì sao số việc không tăng khi số đơn tăng.
 group: Mô hình sàn
 order: 7
 groupOrder: 1
 audience: [everyone]
 type: concept
-readingTime: 1
-updated: 2026-11-04
-related: ["/vi/marketplace/trust-and-sanctions", "/vi/architecture/console"]
+readingTime: 2
+updated: 2026-11-27
+related: ["/vi/marketplace/trust-and-sanctions", "/vi/architecture/trust", "/vi/architecture/console"]
 ---
 
-Người thật chỉ đụng vào ba việc:
+Nhân viên chỉ xử lý các việc sau:
 
-- Hàng cấm và hàng giả bị báo cáo.
+- Tin đăng bán hàng cấm hoặc hàng giả bị báo cáo.
 - Lừa đảo có dấu hiệu tổ chức.
 - Yêu cầu hợp lệ từ cơ quan chức năng.
+- Phiếu hỗ trợ.
 
-Khối lượng ba nhóm này không tăng theo số đơn. Những chuyện còn lại, từ buyer từ chối nhận tới seller từ chối ghi nhận, đều đi vào thống kê ở trang [Uy tín và chế tài](/vi/marketplace/trust-and-sanctions). Seller báo sai về đơn hàng thì bị báo cáo như một người dùng, cũng theo cách đó.
+Số việc này không tăng theo số đơn. Giá và tình trạng là chuyện giữa người mua và người bán. Một bưu kiện bị từ chối hay một câu trả lời chậm đi vào các [số liệu](/vi/marketplace/trust-and-sanctions) mà mọi người thấy, không thành một việc phải xử lý.
 
-Moderator và admin làm việc trên một web console riêng, bằng tài khoản nhân viên tách khỏi tài khoản khách. Họ tạm khóa được tài khoản khách kèm lý do và thời hạn, và mỗi thao tác đều được ghi vào nhật ký.
+## Báo cáo vi phạm
 
-Phần báo cáo người dùng đã có trong thiết kế nhưng server chưa làm.
+Bất kỳ ai đã đăng nhập đều báo cáo vi phạm được một tin đăng hoặc một tài khoản, kèm lý do (hàng cấm, hàng giả, lừa đảo hoặc khác) và một ghi chú ngắn. Báo cáo một tài khoản có thể kèm cuộc trò chuyện với người đó, để nhân viên đọc. Muốn người đó thôi nhắn trong lúc bạn báo cáo thì hãy chặn họ trước; cuộc trò chuyện vẫn được giữ cho báo cáo.
+
+Bạn có một báo cáo đang mở cho mỗi tin đăng hoặc tài khoản. Báo cáo lại thì báo cáo của bạn được cập nhật. Bạn hoàn tác được một báo cáo, và xem được các báo cáo của mình cùng việc mỗi cái còn mở hay đã xử lý.
+
+## Nhân viên xử lý báo cáo thế nào
+
+Nhân viên làm việc trên một trang điều hành riêng, bằng tài khoản của riêng họ. Các báo cáo về một người gom thành một ca. Nhân viên đọc ca, rồi hoặc bác bỏ vì không vi phạm, hoặc hành động: ẩn một tin, hoặc tạm khóa tài khoản kèm lý do và ngày kết thúc nếu chỉ tạm thời. Ca đã đóng có thể mở lại, và báo cáo tiếp theo về người đó mở một ca mới.
+
+Trợ lý AI của trang điều hành đọc được một ca và trả lời câu hỏi về ca đó, nhưng chỉ nhân viên mới thay đổi được. Mọi thao tác đều được giữ trong nhật ký kiểm toán.

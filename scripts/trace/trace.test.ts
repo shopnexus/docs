@@ -112,8 +112,14 @@ describe("check", () => {
   });
 
   test("a retired id is an error", async () => {
-    const { errors } = await run({ "docs/typst/ch3.typ": "UC-DEAL-01 BR-DEAL-01 UC-DEAL-02\n" });
+    const { errors } = await run({ "docs/web/src/content/docs/en/a.mdx": "UC-DEAL-01 BR-DEAL-01 UC-DEAL-02\n" });
     expect(errors).toContain("UC-DEAL-02 is retired");
+  });
+
+  test("a retired id in a Typst report only warns", async () => {
+    const { errors, warnings } = await run({ "docs/typst/ch3.typ": "UC-DEAL-01 BR-DEAL-01 UC-DEAL-02\n" });
+    expect(errors).not.toContain("UC-DEAL-02 is retired");
+    expect(warnings).toContain("UC-DEAL-02 is retired");
   });
 
   test("a flow the UC lacks is an error", async () => {

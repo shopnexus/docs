@@ -1,36 +1,99 @@
 ---
 title: Local stack
-description: The containers the server needs in development and in tests, how they start and stop, and how to fill the development database with seed packs.
+description: How the whole system runs on one machine from the umbrella repo's Compose file, how the server runs alone for the Android app, and how to fill a development database with seed packs.
 group: Operations
 order: 2
 groupOrder: 1
 audience: [developers]
 type: reference
-readingTime: 5
+readingTime: 7
 updated: 2026-11-27
-related: ["/en/get-started/quick-start", "/en/operations/testing", "/en/operations/configuration"]
+related: ["/en/get-started/quick-start", "/en/operations/testing", "/en/operations/configuration", "/en/operations/monitoring"]
 ---
 
-The server runs on the host with `go run`, and its dependencies run in Docker. There are two stacks, each defined in its own Compose file under `server/`: one for development and one for tests. They use separate ports and separate Compose project names, so a test run never touches development data.
+The umbrella repo's `docker-compose.yml` runs the whole system on one machine, and its `Makefile` drives it. The file holds three stacks as Compose profiles: `dev`, `prod` and `test`. Each has its own network, Postgres, Restate, RustFS and volumes, so the stacks never share data and can run at the same time. The cluster in `infra/` is where the system really runs; this file mirrors it locally.
 
-| Container | Development | Tests |
-|---|---|---|
-| Postgres 18 as ParadeDB, with full-text search and vectors | 56432, data kept in a volume | 56433, data in tmpfs |
-| Restate, the durable execution server | ingress 56580, admin 56570 | ingress 56581, admin 56571 |
-| RustFS, the S3-compatible store for photos | 56490 | 56491, data in tmpfs |
-| Grafana's otel-lgtm image, for logs, traces and metrics | Grafana on 56300, OTLP on 56318 | not used |
+| Command | What it does |
+|---|---|
+| `make dev` | Starts the dev stack in the background: everything from the source, with live reload. |
+| `make prod` | Starts the prod stack: the images the cluster runs, built locally. |
+| `make test` | Runs the server's Go tests in the test stack and exits with their status. |
+| `make down` | Stops every stack and keeps its data. |
 
-Restate runs on the host network and binds every port to 127.0.0.1. It has to call the server's endpoint on the host, and the development machine's firewall drops traffic from containers to the host. Every other container publishes its ports the usual way.
+`docker compose --profile <stack> down -v` deletes a stack's data and its keys.
 
-The observability container sits behind the `obs` Compose profile. `.env.example` turns that profile on with `COMPOSE_PROFILES=obs`.
+## Hosts
 
-## Start and stop
+The dev and prod stacks each sit behind one Caddy that routes by host, as the cluster's ingress does. Browsers resolve `*.localhost` to 127.0.0.1, and every host shares the site `shopnexus.localhost`, so the console's SameSite cookie reaches the API as it does in the cluster.
 
-`make run` starts the development stack and waits for it to be healthy. It then applies migrations, creates the bucket with a public-read `media/` prefix, and starts the server.
+| Host | What it serves |
+|---|---|
+| `shopnexus.localhost` | The website, with resized photos under `/_img/` |
+| `api.shopnexus.localhost` | The server's HTTP API |
+| `media.shopnexus.localhost` | The media bucket of the object store, and nothing else |
+| `docs.shopnexus.localhost` | These docs |
+| `console.shopnexus.localhost` | The staff console |
+| `grafana.shopnexus.localhost` | Grafana, signed in as an admin |
+| `restate.shopnexus.localhost` | Restate's admin UI |
+| `db.shopnexus.localhost` | pgweb on the stack's database |
+| `s3.shopnexus.localhost` | RustFS's console |
 
-`make test` starts the test stack and recreates Restate on every run, because Restate's journal lives in tmpfs and grows with each run.
+Dev answers on port 56481 and prod on 56480, for example `http://api.shopnexus.localhost:56481`. Bifrost and the console agent have no host, because only the server and the agent call them.
 
-`make down` stops both. The development database stays in its volume. The test stack keeps its data in tmpfs, so stopping it wipes the data.
+## What a stack runs
+
+| Part | What it is |
+|---|---|
+| Postgres | ParadeDB on Postgres 18. It also holds Bifrost's own database. |
+| Restate | The durable execution server. It signs every call to the server with the stack's identity key. |
+| RustFS | The S3-compatible store for photos and videos. |
+| imgproxy | Resizes photos for the website from RustFS, behind an nginx cache that keeps each answer. |
+| Bifrost | The gateway every model call of the server and the agent goes through. |
+| Grafana | The otel-lgtm image: logs, traces and metrics from the server, with the cluster's dashboards and alert rules. Alerts here notify no one. |
+| Server | One process with every module, including module ai and its models. |
+| Website, console, docs | The three web apps. |
+| Console agent | The runtime the server hands console agent runs to (`agent-dev` or `agent-prod`), built from the agent's submodule. It keeps no state and calls the server's MCP port. |
+
+Before the server starts, one-off jobs prepare the stack:
+
+- The first start writes the server's keys into the stack's keys volume: the JWT key, the console key, the OTP key, the carrier token key, the two agent tokens and Restate's identity key. Bifrost's admin password and encryption key join them. Keys already there stay.
+- Bifrost's database is created, migrations apply and the object store's bucket is prepared.
+- Module ai's model files are fetched into the stack's models volume, about 5 GB the first time. Files already there stay.
+
+### Dev and prod
+
+Dev mounts each repo's source into its container and reloads on save. The server runs under air, which rebuilds on a `.go` or `.sql` change and applies migrations before each start. The website, console and docs run their dev servers, and the agent runs under `node --watch`. A web app installs its packages when its lock file changed, so restart the service after a lock file changes. The docs include the internal Developers tab unless `DOCS_INTERNAL=false`.
+
+Prod builds each repo's Dockerfile and runs the result, so it shows what the cluster would run without live reload.
+
+### Settings
+
+Compose reads the same shared files the cluster's chart reads: `infra/stack/env/server.env`, `agent.env`, `bifrost.env`, `imgproxy.env` and `lgtm.env`. Only what differs locally sits in the Compose file: each stack's addresses, `APP_ENV=dev`, PNV test numbers on, pushes and mail written to the log, and the fake GHTK and GHN, whose dev endpoint moves a shipment by hand. The [Configuration](/en/operations/configuration) page lists the server's variables.
+
+Bifrost needs the upstream model keys, `LLM_UPSTREAM_API_KEY` and `OPENROUTER_API_KEY`. Put them in `infra/stack/secrets/compose.env`, which is not committed. Without them every model call fails: search falls back to the raw words, and listing reads and console agent runs fail.
+
+### Tests
+
+`make test` runs `go test -race ./...` in a container that shares the test stack's Restate network, against Postgres, Restate and RustFS on tmpfs. The test stack stays up for the next run, and `docker compose --profile test down` empties it. [Testing](/en/operations/testing) covers the tests themselves.
+
+## The server alone
+
+The Android app's debug build calls a server on the computer at `127.0.0.1:8080`, which the dev stack does not publish. For the app, run the server on the host from `server/`:
+
+```bash title="Terminal"
+make models   # once: module ai's model files into tmp/models
+make run      # the server's own containers, migrations, then the server
+```
+
+`make run` writes `.env` from `.env.example` on the first run and adds the generated keys. It starts the server repo's own Compose file: Postgres on 56432, Restate on 56580 (ingress) and 56570 (admin), RustFS on 56490, and Grafana on 56300 under the `obs` profile, which `.env.example` turns on. Restate runs on the host network and binds to 127.0.0.1, so it can reach the server on the host. The server then applies migrations, prepares the bucket and starts on port 8080.
+
+The server alone still needs a gateway. It calls the dev stack's Bifrost, which `make dev` publishes on `127.0.0.1:56482`. Copy its admin password, from the umbrella, into `server/.env` as `GATEWAY_ADMIN_PASSWORD`:
+
+```bash title="Terminal"
+docker compose exec server-dev grep GATEWAY_ADMIN_PASSWORD /keys/.env
+```
+
+The app's `run.sh` forwards ports 8080 and 56490 from the phone to the computer with `adb reverse`. `make down` in `server/` stops these containers and keeps the database.
 
 ## Development data
 
@@ -39,11 +102,13 @@ A fresh development database is empty. Seed packs fill it with a marketplace: pe
 | Pack | What it holds |
 |---|---|
 | `demo` | 12 people, 44 listings, 4 sold items and 5 follows, 2.1 MB, built from the app's fixtures and committed with the server |
-| `vn-catalog` | about 110,000 listings, built from the old ShopNexus development database; a sample such as `vn-catalog-10k` loads faster |
+| `vn-catalog` | about 110,000 listings, built from the old ShopNexus development database, for internal use only; a sample such as `vn-catalog-10k` loads faster |
+
+The commands below run from `server/` against `make run`'s server. For the umbrella's dev stack, run them inside its server container, for example `docker compose exec server-dev go run ./cmd/devseed`.
 
 ### The seedpack command
 
-`go run ./cmd/seedpack` in `server/` has five subcommands. `--help` on each lists its flags.
+`go run ./cmd/seedpack` has five subcommands. `--help` on each lists its flags.
 
 | Command | What it does |
 |---|---|
@@ -53,7 +118,7 @@ A fresh development database is empty. Seed packs fill it with a marketplace: pe
 | `load` | writes a pack into the stack; shows the plan and asks first (`--dry-run`, `--yes`) |
 | `wipe` | deletes one pack's people and everything that refers to them, then their photos |
 
-`load`, `wipe` and `embed` read the server's `.env` and refuse any `APP_ENV` but `dev`. `load` takes a directory, a URL of a `.tar` (downloaded once into `~/.cache/shopnexus/seedpacks`) or a pack name. It can load a subset: the first N listings, some categories or provinces, the first N sellers, or a share of the sold items.
+`load`, `wipe` and `embed` refuse any `APP_ENV` but `dev`. `load` takes a directory, a URL of a `.tar` (downloaded once into `~/.cache/shopnexus/seedpacks`) or a pack name. It can load a subset: the first N listings, some categories or provinces, the first N sellers, or a share of the sold items.
 
 ### How a load writes
 
@@ -74,4 +139,4 @@ Every row's ID is derived from the pack's name, the row's key and the row's own 
 
 `go run ./cmd/devseed`, with the development server running, loads the `demo` pack and then plays a short scenario through the HTTP API: each seller links GHTK on the fake carrier, people save listings, one follows another, two chat, one makes an offer, and one COD order is placed and shipped. It signs each person in with a verifier that accepts the phone number as its own token. A second run writes only what is missing.
 
-The demo people use the numbers +84900199001 to +84900199012. To sign in as one on the Android app, add the number as a Firebase Auth test number.
+The demo people use the numbers +84900199001 to +84900199012. To sign in as one on the Android app, add the number to the test numbers of Firebase Phone Number Verification; a debug build reads the test token from `fpnv.testToken` in the app's `local.properties`.

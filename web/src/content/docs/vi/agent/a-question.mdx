@@ -1,22 +1,22 @@
 ---
 title: Một câu hỏi chạy thế nào
-description: Từ lúc moderator bấm gửi tới dòng cuối cùng của agent, ai gọi ai, cái gì được lưu và một đoạn chạy kết thúc theo những cách nào.
+description: Từ lúc điều phối viên bấm gửi tới dòng cuối cùng của agent, ai gọi ai, cái gì được lưu và một đoạn chạy kết thúc theo những cách nào.
 group: Một lượt chạy
 groupOrder: 2
 order: 1
 audience: [developers]
 type: concept
-readingTime: 5
-updated: 2026-11-26
+readingTime: 6
+updated: 2026-11-27
 related: ["/vi/agent/control", "/vi/agent/limits", "/vi/api/live-updates"]
 ---
 
-Một câu hỏi là một lượt (turn). Một lượt chạy thành một hay nhiều đoạn (segment): mỗi lần tạm dừng rồi chạy tiếp, hay hỏi lại moderator rồi chạy tiếp, server mở một đoạn mới trên agent, nối từ checkpoint của đoạn trước. Agent không có database; checkpoint nằm ở server, trong cột `state` của lượt.
+Một câu hỏi là một lượt (turn). Một lượt chạy thành một hay nhiều đoạn (segment): mỗi lần lượt bị tạm dừng rồi chạy tiếp, hay hỏi lại điều phối viên rồi chạy tiếp, server mở một đoạn mới trên agent từ checkpoint của đoạn trước. Agent không có database; checkpoint nằm ở server, trong cột `state` của lượt.
 
 <Sequence
   caption="Đủ các bước của một đoạn chạy, kể cả lệnh điều khiển."
   actors={[
-    { id: "console", label: "Console", icon: "ri:computer-line", note: "Trình duyệt của moderator" },
+    { id: "console", label: "Trang điều hành", icon: "ri:computer-line", note: "Trình duyệt của điều phối viên" },
     { id: "server", label: "Server", icon: "ri:server-line", note: "Module agent, cổng API và cổng MCP" },
     { id: "agent", label: "Agent", icon: "ri:robot-2-line", note: "Service NestJS nội bộ" },
     { id: "llm", label: "Bifrost", icon: "ri:sparkling-2-line", note: "Cổng model của stack" },
@@ -25,10 +25,10 @@ Một câu hỏi là một lượt (turn). Một lượt chạy thành một hay
     { from: "console", to: "server", label: "Gửi câu hỏi", detail: "`POST …/turns`" },
     { from: "server", to: "agent", label: "Mở một đoạn chạy", detail: "`POST /runs`, mode `new`" },
     { from: "agent", to: "llm", label: "Gọi model", detail: "virtual key của lượt chạy, `provider/model`" },
-    { from: "llm", to: "agent", label: "Model trả lời, có thể xin gọi tool", back: true },
-    { from: "agent", to: "server", label: "Gọi tool qua MCP", detail: "`/mcp`, kèm id của moderator" },
-    { from: "agent", to: "server", label: "Trả từng dòng NDJSON", detail: "event, tool call, checkpoint, tài liệu", back: true },
-    { from: "server", to: "console", label: "Phát event qua SSE", detail: "`GET …/events`", back: true },
+    { from: "llm", to: "agent", label: "Trả lời, có thể xin gọi tool", back: true },
+    { from: "agent", to: "server", label: "Gọi tool qua MCP", detail: "`/mcp`, kèm id của điều phối viên" },
+    { from: "agent", to: "server", label: "Trả từng dòng NDJSON", detail: "event, lần gọi tool, checkpoint, tài liệu", back: true },
+    { from: "server", to: "console", label: "Gửi event qua SSE", detail: "`GET …/events`", back: true },
     { from: "console", to: "server", label: "Tạm dừng hoặc chỉnh hướng", detail: "`POST …/pause`, `…/steer`" },
     { from: "agent", to: "server", label: "Hỏi lệnh điều khiển mỗi giây", detail: "`GET …/control`" },
     { from: "agent", to: "server", label: "Dòng end khép đoạn", detail: "trạng thái, câu trả lời, nguồn, chi phí", back: true },
@@ -39,44 +39,54 @@ Một câu hỏi là một lượt (turn). Một lượt chạy thành một hay
 
 <Steps>
 <Step title="Server nhận câu hỏi">
-Server kiểm phiên console, đọc agent được chọn trong `ai_agents` (mặc định là Console assistant), kiểm ngân sách tháng, giới hạn 30 câu hỏi và cập nhật mỗi phút cho mỗi moderator, rồi làm sạch câu hỏi: bỏ ký tự điều khiển, ký tự độ rộng 0 và thẻ HTML. Câu hỏi quá 2000 ký tự bị từ chối với `agent_input_rejected`. Lượt mở ở trạng thái `running` dưới khoá dòng của cuộc chat, và console nhận `202 {conversation_id, turn_id}`.
+Server kiểm phiên đăng nhập trang điều hành và đọc agent được chọn (mặc định là Console assistant): agent không tồn tại thì trả `404 ai_agent_not_found`, agent đã tắt thì `409 ai_agent_disabled`. Server kiểm giới hạn 30 câu hỏi và cập nhật mỗi phút cho mỗi điều phối viên, rồi làm sạch câu hỏi: bỏ ký tự điều khiển, ký tự độ rộng 0 và thẻ HTML. Câu hỏi quá 2000 ký tự bị từ chối với `agent_input_rejected`. Các bản ghi điều phối viên nhắc tới bằng `@` đi kèm câu hỏi: tối đa 10, mỗi bản ghi một lần. Lượt mở ở trạng thái `running` dưới khóa dòng của cuộc trò chuyện, mỗi cuộc trò chuyện chỉ có một lượt chưa xong, và trang điều hành nhận `202 {conversation_id, turn_id}`.
 </Step>
 
 <Step title="Server mở một đoạn chạy">
-Server gửi `POST /runs` tới agent với `AGENT_SERVICE_TOKEN`: câu hỏi, moderator và vai trò, bản ghi đang mở, 20 lượt đã xong gần nhất làm lịch sử, `agent_config` (hướng dẫn, danh sách tool, giới hạn) và `gateway` (virtual key, model, model dự phòng và giá). Server chờ agent trả trạng thái tối đa 10 giây; khác 200 thì lượt mới bị bỏ và console nhận `503 agent_unavailable`.
+Server gửi `POST /runs` tới agent kèm service token: câu hỏi, điều phối viên và vai trò của họ, bản ghi của cuộc trò chuyện, 20 lượt đã xong gần nhất làm lịch sử, các tài liệu của cuộc trò chuyện, `agent_config` (hướng dẫn, danh sách tool, giới hạn) và `gateway` (virtual key, model, model dự phòng và giá). Server cũng gửi `mentions`: các bản ghi được nhắc tới ở bất kỳ đâu trong cuộc trò chuyện, của lượt này trước, tối đa 20, chỉ gồm loại và id. Nhãn ở lại server, nên prompt của agent chỉ chứa giá trị do server nắm, không bao giờ có chữ một người đã gõ.
+
+Server chờ trạng thái tối đa 10 giây. Khác 200 thì lượt mới bị xóa và trang điều hành nhận `503 agent_unavailable`. Tiêu đề và thời điểm hoạt động cuối của cuộc trò chuyện chỉ đổi khi lượt chạy đã bắt đầu, nên một lần mở thất bại để cuộc trò chuyện nguyên như cũ.
 </Step>
 
 <Step title="Agent mở MCP và chạy vòng lặp">
-Agent mở một client MCP mới cho đoạn chạy và chỉ giữ tool có `readOnlyHint` nằm trong danh sách của agent. Model mở bước bằng `begin_step`, gọi tool, đóng bước bằng `end_step` với một dòng tóm tắt, và trả lời bằng `answer`. Trước mỗi lần gọi model, agent ghi checkpoint và đọc các lệnh điều khiển đang chờ.
+Agent mở một client MCP mới cho đoạn chạy và chỉ giữ các tool có `readOnlyHint` và nằm trong danh sách của agent. Model mở một bước bằng `begin_step`, gọi tool, đóng bước bằng `end_step` kèm một dòng tóm tắt, và trả lời bằng `answer`. Trước mỗi lần gọi model, agent ghi một checkpoint và đọc các lệnh điều khiển đang chờ.
 </Step>
 
 <Step title="Từng dòng chảy về server">
-Agent ghi mỗi việc thành một dòng JSON và flush ngay. Server đọc stream ở chế độ nền: dòng `event` được lưu với số thứ tự kế tiếp rồi báo cho các stream đang mở qua `pg_notify`; `checkpoint` lưu trạng thái để chạy tiếp; `tool_call` cập nhật dòng của lần gọi tool; `document` lưu phiên bản mới của tài liệu.
+Agent ghi mỗi việc nó làm thành một dòng JSON và flush ngay. Server đọc stream ở chế độ nền trên cùng replica, mỗi dòng trong một transaction riêng. Dòng `event` được lưu với số thứ tự kế tiếp của lượt và báo cho các stream đang mở qua `pg_notify`. Dòng `checkpoint` lưu trạng thái để chạy tiếp. Dòng `tool_call` cập nhật dòng của lần gọi tool và không bao giờ đưa một lần gọi đã xong về trạng thái trước. Dòng `document` lưu một phiên bản mới của tài liệu.
+
+Một dòng chỉ được ghi khi lượt vẫn đang `running` trong cùng đoạn chạy. Dòng đến muộn từ một đoạn server đã đóng bị bỏ, nên nó không ghi được vào một lượt đã chạy tiếp sau đó. Server ngừng đọc 60 giây sau thời hạn của đoạn.
 </Step>
 
-<Step title="Console vẽ lượt chạy">
-Console mở `GET /v1/console/agent/turns/{id}/events`. Server phát lại các event đã lưu rồi gửi tiếp event mới, mỗi event có `id` là số thứ tự. Mở lại trang thì console xin từ số thứ tự cuối nó đã thấy, qua `Last-Event-ID`. Khi moderator đóng tab, server đóng stream và lượt vẫn chạy trên agent.
+<Step title="Trang điều hành vẽ lượt chạy">
+Trang điều hành mở `GET /v1/console/agent/turns/{id}/events`. Server phát lại các event đã lưu, rồi gửi event mới khi được báo, mỗi event có `id` là số thứ tự của nó. Trang được tải lại thì xin từ số thứ tự cuối nó đã thấy, qua `Last-Event-ID`. Cứ 15 giây không có event, server gửi một tín hiệu giữ kết nối và đọc lại bảng, phòng khi bỏ lỡ một lần báo.
+
+Stream kết thúc sau `turn.finished`, `turn.paused` hoặc `clarify`, hoặc 10 giây sau khi lượt ngừng chạy mà không có gì mới. Sau Continue, một câu trả lời hay một cập nhật cho lượt đang tạm dừng, trang điều hành mở lại stream từ số thứ tự cuối của nó. Khi điều phối viên đóng tab, server đóng stream và lượt vẫn chạy tiếp trên agent.
 </Step>
 
 <Step title="Dòng end khép đoạn">
-Dòng cuối mang trạng thái, câu trả lời, các khối, nguồn, chi phí, checkpoint và event đóng. Server ghi tất cả trong một transaction. Stream đứt mà không có dòng `end` thì lượt đóng `failed` với `agent_stuck`.
+Dòng cuối mang trạng thái, câu trả lời, các khối của nó, nguồn, chi phí, checkpoint và event đóng. Server ghi tất cả trong một transaction. Stream kết thúc mà không có dòng `end` thì lượt đóng `failed` với `agent_stuck`.
 </Step>
 </Steps>
+
+## Thử lại
+
+Mở một cuộc trò chuyện không gắn bản ghi, gửi câu hỏi, gửi cập nhật và lưu skill đều nhận header `Idempotency-Key` không bắt buộc. Key mà điều phối viên đã dùng thì trả về đúng thứ đã tạo lần đầu, và không có lượt chạy thứ hai. Key được giữ cùng dòng mới trước khi lượt chạy bắt đầu, nên một lần thử lại chạy song song sẽ thấy dòng đầu tiên. Lượt chạy mở thất bại thì xóa lượt của nó hoặc trả lại cập nhật của nó, và key được giải phóng.
 
 ## Cách một đoạn kết thúc
 
 <Statuses
   items={[
-    { name: "SUCCEEDED", tone: "brand", desc: "Model trả lời, qua `answer` hoặc bằng chữ thường." },
-    { name: "PAUSED", tone: "info", desc: "Pause, Stop now, lượt đã bị xoá hoặc server đóng request." },
-    { name: "AWAITING_INPUT", tone: "feature", desc: "Model gọi `ask_user` và chờ moderator." },
-    { name: "FAILED", tone: "neutral", desc: "Model hay MCP lỗi, hết lượt gọi model, hết ngân sách." },
+    { name: "SUCCEEDED", tone: "brand", desc: "Model đã trả lời, qua `answer` hoặc bằng chữ thường." },
+    { name: "PAUSED", tone: "info", desc: "Pause, Stop now, lượt đã bị xóa, hoặc server đóng request." },
+    { name: "AWAITING_INPUT", tone: "feature", desc: "Model gọi `ask_user` và chờ điều phối viên." },
+    { name: "FAILED", tone: "neutral", desc: "Model hoặc MCP lỗi, hết số lần gọi model, hoặc hết ngân sách." },
     { name: "TIMED_OUT", tone: "neutral", desc: "Qua thời hạn của đoạn, mặc định 60 giây." },
   ]}
 />
 
-`PAUSED` và `AWAITING_INPUT` chưa khép lượt: moderator chạy tiếp, trả lời hoặc kết thúc. Lượt `FAILED` hay `TIMED_OUT` chạy tiếp được trong một số trường hợp, liệt kê ở [Giới hạn và lỗi](/vi/agent/limits).
+`PAUSED` và `AWAITING_INPUT` để lượt còn mở: điều phối viên chạy tiếp, trả lời hoặc kết thúc nó. Lượt `FAILED` hay `TIMED_OUT` chạy tiếp được trong một số trường hợp, liệt kê ở [Giới hạn và lỗi](/vi/agent/limits).
 
-## Server dọn lượt bị treo
+## Lượt bị treo
 
-Mỗi replica của server giữ một `LISTEN agent_turn` để báo các stream của lượt. Lúc khởi động và mỗi phút, server đóng các lượt còn `running` quá 30 giây sau thời hạn với `agent_stuck`, kể cả lượt của một replica đã sập giữa chừng.
+Mỗi replica của server giữ một `LISTEN agent_turn` để báo cho các stream đang mở của lượt. Lúc khởi động và mỗi phút, server đóng các lượt còn `running` quá 30 giây sau thời hạn với `agent_stuck`, kể cả lượt của một replica đã sập giữa chừng.

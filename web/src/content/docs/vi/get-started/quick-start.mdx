@@ -1,61 +1,68 @@
 ---
 title: Bắt đầu nhanh
-description: Chạy server và stack của nó trên máy, cài app Android lên điện thoại, và xem trước bộ tài liệu này.
+description: Chạy toàn bộ hệ thống trên máy bằng Docker Compose, cài ứng dụng Android lên điện thoại, và xem trước bộ tài liệu này.
 group: Bắt đầu
 order: 2
 groupOrder: 1
 audience: [developers]
 type: tutorial
 readingTime: 4
-updated: 2026-11-04
+updated: 2026-11-27
 related: ["/vi/get-started/troubleshooting", "/vi/operations/local-stack", "/vi/operations/configuration"]
 ---
 
-<Prereqs time="15 phút" who="Lập trình viên">
-- Go 1.27 và Docker có Compose, để chạy server.
-- JDK 21, Android SDK có platform 36, và một điện thoại Android 12 trở lên (hoặc emulator API 36), để chạy app.
-- Bun, để chạy tài liệu.
+<Prereqs time="30 phút" who="Lập trình viên">
+- Docker có Compose, và một tài khoản GitHub có quyền vào repository riêng tư `clients`.
+- Cho ứng dụng Android: JDK 21, Android SDK có platform 36, và một điện thoại Android 12 trở lên (hoặc emulator). Thêm Go 1.27 để chạy server trên máy cho ứng dụng gọi.
+- Bun, để xem trước tài liệu khi chạy riêng.
 </Prereqs>
 
-## Server
+## Toàn bộ hệ thống
 
 <Steps>
-<Step title="Chạy toàn bộ">
-Trong thư mục `server/`:
-
+<Step title="Clone">
 ```bash title="Terminal"
-make run
+git clone --recurse-submodules https://github.com/shopnexus/shopnexus.git
+cd shopnexus
+```
+</Step>
+
+<Step title="Thêm khóa cho mô hình">
+Mọi lần gọi mô hình đều đi qua Bifrost của stack, và Bifrost cần các khóa upstream. Tạo file `infra/stack/secrets/compose.env` có `LLM_UPSTREAM_API_KEY` và `OPENROUTER_API_KEY`. File này không được commit. Thiếu khóa thì mọi lần gọi mô hình đều lỗi: tìm kiếm chỉ đọc nguyên văn các từ, còn bước đọc tin đăng và trợ lý AI trên trang điều hành đều lỗi.
+</Step>
+
+<Step title="Bật stack dev">
+```bash title="Terminal"
+make dev
 ```
 
-Lần đầu, lệnh này chép `.env.example` thành `.env` và sinh thêm các khóa ký. Những lần sau, mỗi lần chạy nó bật stack dev, chạy migration, chuẩn bị bucket cho object store rồi khởi động server ở cổng 8080.
+Lần đầu, lệnh này build các image, ghi các khóa của stack và tải khoảng 5 GB file mô hình, nên sẽ mất một lúc. Những lần sau dùng lại tất cả. Sau đó server, website, trang điều hành, tài liệu và agent tự tải lại từ mã nguồn mỗi khi lưu file.
 </Step>
 
-<Step title="Điền cấu hình model">
-Phần tìm kiếm dùng một language model để đọc câu truy vấn, và `.env.example` để trống `LLM_API_KEY` với `LLM_MODEL`. Chưa điền hai biến này vào `.env` thì server không chạy. Server sẽ liệt kê đúng tên những biến còn thiếu.
+<Step title="Mở hệ thống">
+Website ở `http://shopnexus.localhost:56481`, API ở `http://api.shopnexus.localhost:56481` và trang điều hành ở `http://console.shopnexus.localhost:56481`. `GET /healthz` trên API trả lời ngay khi process chạy, còn `GET /readyz` kiểm tra thêm Postgres và Restate. Trang [Stack local](/vi/operations/local-stack) liệt kê mọi host.
 </Step>
 
-<Step title="Kiểm tra server">
-`GET /healthz` trả lời ngay khi process chạy. `GET /readyz` kiểm tra thêm Postgres và Restate.
-</Step>
-
-<Step title="Tạo admin cho console">
-API không có cách tạo admin. Chạy `go run ./cmd/console create-admin --email <email> --name <tên>`, lệnh sẽ in ra mật khẩu tạm.
+<Step title="Nạp dữ liệu và đăng nhập trang điều hành">
+Database lúc đầu trống. `docker compose exec server-dev go run ./cmd/devseed` nạp một sàn mẫu nhỏ. API không tạo được tài khoản nhân viên: `docker compose exec server-dev go run ./cmd/console create-admin --email <email> --name <tên>` tạo một quản trị viên và in ra mật khẩu tạm.
 </Step>
 </Steps>
 
-`make down` tắt các stack nhưng giữ nguyên database dev.
+`make down` tắt các stack và giữ nguyên dữ liệu. `make prod` chạy đúng các image mà cụm máy chủ chạy, ở cổng 56480, còn `make test` chạy test của server.
 
-## App Android
+## Ứng dụng Android
 
-Trong thư mục `app/`, với điện thoại đã cắm qua adb:
+Trong thư mục `clients/app-android/`, với điện thoại đã kết nối qua adb:
 
 ```bash title="Terminal"
-./run.sh        # cài bản debug rồi mở app
+./run.sh        # cài bản debug rồi mở ứng dụng
 ./run.sh -w     # cài lại và mở lại sau mỗi lần lưu file
 ```
 
-Script ưu tiên điện thoại thật hơn emulator. Muốn dùng emulator thì đặt `ANDROID_SERIAL` bằng serial của nó. App chạy bằng dữ liệu giả, có người bán và hãng vận chuyển giả lập, nên không cần server. Ở bản debug, nhấn giữ nút vị trí trên trang chủ để mở debug panel. Ở đó có thể nhảy đơn sang bất kỳ trạng thái nào hoặc reset dữ liệu.
+Script ưu tiên điện thoại thật hơn emulator. Muốn dùng emulator thì đặt `ANDROID_SERIAL`. Flavor mặc định `live` gọi server trên máy tính ở `127.0.0.1:8080`, mà stack dev không mở cổng này: hãy chạy riêng server bằng `make run` trong `server/` (xem [Chạy riêng server](/vi/operations/local-stack#chạy-riêng-server)). `run.sh` chuyển tiếp các cổng sang điện thoại.
+
+`FLAVOR=demo ./run.sh` chạy offline bằng dữ liệu mẫu, có người bán và hãng vận chuyển giả lập. Ở bản debug, nhấn giữ một tiêu đề hoặc nút vị trí trên trang chủ để mở debug panel.
 
 ## Tài liệu này
 
-Trong `docs/web`, chạy `bun install` rồi `bun run dev` để xem trước tại `http://localhost:4321`. Tìm kiếm chỉ chạy sau khi đã `bun run build` một lần, vì bước build mới tạo chỉ mục tìm kiếm.
+Stack dev phục vụ tài liệu ở `http://docs.shopnexus.localhost:56481`. Khi chạy riêng, trong `docs/web`, chạy `bun install` rồi `bun run dev` để xem trước tại `http://localhost:4321`. Tìm kiếm chỉ chạy sau khi đã `bun run build` một lần, vì bước build mới ghi chỉ mục tìm kiếm.

@@ -165,7 +165,7 @@ A pickup timeout leaves the order cancelled even when the carrier already has th
 
 ## Carrier reports
 
-Every carrier report, from a webhook, the poll or the dev endpoint, goes through one entry point with the carrier, the tracking code, the status, its time and the newest fee. It moves every shipped order with that code and changes nothing on a closed order; an unknown code is 404 `shipment_not_found`. How statuses map to the order is on [Shipping](/en/architecture/shipping#tracking).
+Every carrier report, from a webhook, the poll or the dev endpoint, goes through one entry point with the carrier, the tracking code, the status, its time and the newest fee. It moves every shipped order with that code and changes nothing on a closed order. An unknown code changes nothing: the webhook still answers 200, and only the dev endpoint answers 404 `shipment_not_found`. How statuses map to the order is on [Shipping](/en/architecture/shipping#tracking).
 
 - A report no newer than the stored one changes nothing, so a late webhook never lands an older status last. A newer report of the same status moves only the time, with no move or event.
 - A carrier failure or return fails the order at once and releases the listing (<Req id="BR-DEAL-08" />).

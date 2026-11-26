@@ -1,0 +1,110 @@
+---
+title: Vận chuyển
+description: Người bán liên kết tài khoản GHTK hoặc GHN của chính mình thế nào, server tạo và theo dõi vận đơn COD ở đó ra sao, địa chỉ lấy hàng đã lưu, và các màn đơn.
+group: Module của sàn
+order: 9
+groupOrder: 4
+audience: [developers]
+type: concept
+readingTime: 7
+updated: 2026-11-27
+related: ["/vi/architecture/deal", "/vi/marketplace/cod-deal", "/vi/architecture/account", "/vi/architecture/screens", "/vi/architecture/durable-flows"]
+---
+
+Mọi vận đơn đều đi trên tài khoản GHTK hoặc GHN của chính người bán. Hệ thống không bao giờ gửi hàng bằng tài khoản của mình và không bao giờ đụng tới tiền COD: hãng thu tiền của người mua và trả cho người bán (<Req id="BR-DEAL-05" />).
+
+Module shipping giữ tài khoản hãng của người bán, một client cho mỗi hãng, webhook của các hãng, dòng thời gian theo dõi và địa chỉ lấy hàng đã lưu của người bán. Deal gọi shipping để tạo, theo dõi và hủy vận đơn. Shipping không bao giờ import deal; nó lấy vài dữ liệu cần đọc qua một interface do chính nó khai báo. Trạng thái và timer của đơn nằm ở trang [Deal](/vi/architecture/deal).
+
+## Liên kết tài khoản hãng
+
+Người bán liên kết GHTK và GHN, mỗi hãng tối đa một tài khoản (<Req id="FR-ACC-05" />). API dùng lại tài khoản người bán đã có ở hãng; nó không tạo tài khoản nào.
+
+| Hãng | Người bán đưa gì | Hệ thống giữ gì |
+|---|---|---|
+| GHTK | Email và mật khẩu | Token của shop, đổi ngay qua endpoint đối tác của GHTK. Mật khẩu không đi xa hơn. |
+| GHN, bằng token | Token và ShopId | Token, sau khi ShopId là một shop của token đó. |
+| GHN, bằng số điện thoại | Số điện thoại, rồi mã OTP GHN nhắn tới số đó | Một shop GHN có ShopNexus làm nhân viên. API affiliate của GHN tạo shop mới, hoặc nối lại shop mới nhất của số điện thoại đó mà ShopNexus đã là nhân viên, nên liên kết lại không tạo shop thứ hai. |
+
+Mã OTP được gửi qua `POST /v1/carrier-accounts/ghn/otp`, theo giới hạn tần suất dành cho mã. Đăng nhập sai thì trả `carrier_login_failed`, mã sai hoặc hết hạn thì trả `carrier_otp_invalid`.
+
+Token được niêm phong bằng một key riêng và một nonce mới cho mỗi lần niêm phong, không bao giờ được trả về hay ghi log (<Req id="NFR-PRIV-01" />). Token niêm phong bằng key của môi trường khác thì không mở được: lệnh gọi lỗi, lỗi không mang token, và liên kết lại sẽ thay token.
+
+### Gỡ liên kết và đổi shop
+
+Gỡ liên kết trả 409 `shipments_open` khi người bán còn một đơn shipped ở hãng đó. Liên kết một shop khác ở hãng đó cũng vậy: token của shop mới không biết các bưu kiện đang mở, nên lượt poll và các mốc quá hạn sẽ đọc chúng là đã mất trong khi bưu kiện COD vẫn đang đi. Liên kết lại cùng shop thì luôn được.
+
+Liên kết, gỡ liên kết và lần lưu gửi đơn cùng lấy một khóa theo người bán và hãng, và đơn lưu shop nơi vận đơn được tạo. Một lần gỡ liên kết rơi vào lúc đang tạo vận đơn thì hoặc thấy đơn shipped và từ chối, hoặc làm lần lưu gửi đơn từ chối với `carrier_not_linked`. Xóa tài khoản thì bỏ các tài khoản hãng của nó.
+
+### Hãng theo từng stack
+
+Mỗi stack chạy mỗi hãng ở chế độ `live`, `fake` hoặc `off`. `GET /v1/carrier-accounts` trả các hãng stack đang chạy dưới dạng `linkable`, và client chỉ đưa ra các hãng đó. Tạo vận đơn ở hãng đang off thì trả 503 `carrier_unavailable`, sau các bước kiểm tra đơn, và tin được trả lại. Gỡ liên kết không cần client, nên tài khoản ở hãng đã tắt vẫn bỏ được.
+
+Hãng fake dùng cho phát triển. Nó liên kết mọi tài khoản trừ mật khẩu hoặc token `wrong`, nhắn mã tới mọi số điện thoại trừ số kết thúc bằng `0000`, nhận mọi mã trừ `wrong`, và webhook của nó nhận secret `dev`. Với hãng fake, `POST /v1/dev/shipments/{code}/status` chuyển bưu kiện giả một bước, như hãng sẽ báo. Production từ chối `fake`.
+
+## Tạo vận đơn
+
+Người bán gửi `POST /v1/orders/{order_id}/shipment` với một bản nháp: hãng, dịch vụ (`standard` hoặc `express`), khối lượng (1 tới 20.000 g) và cách hãng lấy bưu kiện (`home`, hoặc `post_office` chỉ ở GHTK). `GET /v1/shipments/quote` xem trước phí. Mọi luật ngoài schema đều trả 422 `invalid_shipment` kèm các trường.
+
+Địa chỉ lấy hàng đến từ một trong ba nguồn, mỗi request đúng một nguồn:
+
+- một điểm lấy hàng của hãng trên tài khoản người bán (`GET /v1/carrier-accounts/{carrier}/pickups`);
+- một địa chỉ của người bán;
+- địa chỉ lấy hàng đã lưu (`saved_pickup: true`), được xác định trước khi giữ chỗ tin. Chưa lưu địa chỉ nào thì request trả `pickup_not_configured`.
+
+Không gửi nguồn nào thì dùng điểm mặc định của hãng. Đơn chép địa chỉ lấy hàng, nên sửa sau đó không đổi đơn.
+
+Vận đơn thu giá món hàng dưới dạng COD và để người nhận trả phí vận chuyển. Ở GHN, vận đơn còn đánh dấu bưu kiện cho xem hàng nhưng không cho thử (<Req id="BR-DEAL-02" />). Mã tham chiếu đơn ở hãng là mã đơn của hệ thống, nên lần tạo thử lại tìm được vận đơn đầu tiên thay vì tạo vận đơn thứ hai.
+
+Phí là phí mới nhất của hãng, và là null khi hãng chưa báo phí. Phí lấy từ câu trả lời khi tạo vận đơn nếu có, rồi từ phí mới nhất mà mỗi lần cập nhật và poll mang về.
+
+### Từ chối
+
+| Mã | Ý nghĩa |
+|---|---|
+| 422 `carrier_refused` | Hãng từ chối request (số điện thoại, khối lượng, địa chỉ lấy hàng hãng không phục vụ). `details.reason` chứa lời của hãng. |
+| 422 `carrier_address_unknown` | Hãng không biết địa chỉ này. |
+| 409 `carrier_relink_needed` | Token đã lưu không còn mở được; người bán liên kết lại. |
+| 409 `carrier_not_linked` | Người bán chưa có tài khoản ở hãng đó. |
+| 503 `carrier_unavailable` | Stack đang tắt hãng đó. |
+
+Đây là các lần từ chối, không phải sự cố, nên bước durable gặp chúng thì kết thúc request thay vì thử lại. Flow gửi đơn trả lại tin ở mỗi trường hợp.
+
+## Theo dõi
+
+Trạng thái của mỗi hãng ánh xạ sang một bước chung (từ `ready_to_pick` tới `delivered`, rồi `returning`, `returned`, `cancelled`, `lost`), và mỗi bước ánh xạ sang một trong bốn trạng thái vận đơn mà đơn hiện ra.
+
+| Trạng thái vận đơn | Các bước | Ảnh hưởng tới đơn |
+|---|---|---|
+| `pending_pickup` | Chờ shipper | Không có. Timer lấy hàng chạy. |
+| `in_transit` | Đã lấy hàng, đang đi, một lần giao không thành | Bắt đầu timer vận chuyển. Hãng giao lại sau lần giao không thành. |
+| `delivered` | Đã giao | Bắt đầu timer hoàn tất 3 ngày. |
+| `failed` | Đang hoàn, đã hoàn | Đơn giao không thành và tin được nhả. |
+| (không có) | Đã hủy, thất lạc | Báo là thất lạc: đơn đã lấy hàng thì giao không thành, đơn đang chờ lấy hàng thì để tới khi quá hạn. |
+
+### Cập nhật trạng thái
+
+Cập nhật tới theo hai đường (<Req id="FR-DEAL-04" />):
+
+- **Webhook** tại `POST /v1/carriers/{ghtk|ghn}/webhook/{secret}`. Secret trong đường dẫn là bước kiểm tra duy nhất, so sánh trong thời gian cố định; sai thì trả 404. Khi đã khớp thì trả 200, kể cả với mã lạ hay body không đọc được, vì GHTK gửi lại với mọi câu trả lời khác và lượt poll bù cho cập nhật bị mất.
+- **Lượt poll** mỗi 2 giờ trong lúc đơn ở shipped. Nó đọc bưu kiện qua tài khoản người bán, giữ lịch sử và phí của hãng trong dòng thời gian, và chuyển đơn khi trạng thái hoặc phí khác đi.
+
+Shipping giữ mọi thứ hãng báo trong `shipment_events`, theo hãng và mã vận đơn: các bước với trạng thái gốc của hãng, lý do, bưu cục, shipper và ảnh giao hàng, cùng các thay đổi về khối lượng, phí, tiền COD và tiền trả người bán. Event lặp lại một event đã giữ thì bị bỏ dưới khóa của bưu kiện, nên webhook và poll đọc cùng một trạng thái chỉ giữ một dòng.
+
+Event của webhook được giữ cả khi chưa có đơn nào mang mã đó. Một `ready_to_pick` tới sớm có thể chạy đua với lần lưu vận đơn, và poll của GHTK chỉ trả trạng thái hiện tại, nên nếu không giữ thì bước đó sẽ mất. Chỉ việc chuyển đơn phải chờ; cập nhật tiếp theo sẽ chuyển nó.
+
+Mỗi cập nhật của một mã đã biết gửi cho các đơn của nó bước mới nhất trong dòng thời gian, thời điểm của bước đó và phí mới nhất, bất kể cập nhật này thêm gì. Một lần gửi lại không giữ thêm gì vẫn chuyển được đơn có lần chuyển đầu bị lỗi, và bước tới muộn không đổi gì (<Req id="NFR-IDEM-01" />).
+
+## Địa chỉ lấy hàng đã lưu
+
+`PUT /v1/me/shipping-settings` thay `{pickup: null | {address_id, phone}}`: một địa chỉ của người bán và một số điện thoại liên hệ, số này không cần xác minh riêng. Pickup null thì xóa thiết lập, và xóa địa chỉ cũng xóa thiết lập. Địa chỉ phải là của người gọi. Sửa địa chỉ chỉ đổi các vận đơn sau; vận đơn đã tạo giữ bản chép của mình.
+
+Địa chỉ lấy hàng đã lưu được xác định lúc dùng, với tên hiện tại của người bán, số điện thoại đã lưu và địa chỉ hiện tại. Báo phí đọc nó ở mỗi request. Request tạo vận đơn thử lại khi vận đơn đã tạo xong thì trả lời từ đơn, kể cả khi thiết lập đã bị xóa sau đó.
+
+## Màn đơn
+
+Ứng dụng đọc đơn qua các endpoint màn, ghép nhiều module trong một câu trả lời.
+
+- **`GET /v1/screens/order/{order_id}`**: đơn, deal hiện tại, bên kia dưới dạng người công khai, đánh giá của cả hai bên cho đơn này, và với người mua là phiếu hỗ trợ trên đơn. Đơn có thể là một đơn trước trên deal; nó giữ trạng thái riêng. Màn mang dòng thời gian theo dõi, mới nhất trước; người mua chỉ nhận các bước.
+- **`GET /v1/screens/orders?role=buying|selling`**: danh sách đơn, mới nhất trước, phân trang theo đơn. Mỗi dòng gồm đơn, bên kia và đánh giá của chính người gọi. Phía mua còn đếm các đơn COD đang mở so với giới hạn 3; phía bán đếm các đơn pending đang chờ người bán tạo vận đơn.
+- **`GET /v1/screens/cod-setup`**: tài khoản, địa chỉ, địa chỉ lấy hàng đã lưu và các hãng đã liên kết của người bán, kèm tập `linkable`.
+- **`GET /v1/screens/cod-checkout/{deal_id}?address_id=`**: chỉ người mua. Deal, người bán, địa chỉ được chọn hoặc mặc định, giới hạn COD `{used, max}` và `shipping_estimate`. Ước tính này luôn là null: báo phí cần khối lượng bưu kiện và hãng của người bán, mà màn thanh toán không có. Sổ địa chỉ rỗng thì địa chỉ là null; địa chỉ của người khác trả `address_not_found`, deal của người khác trả `deal_not_found`. Lần đọc không ghi gì và không gọi hãng nào.

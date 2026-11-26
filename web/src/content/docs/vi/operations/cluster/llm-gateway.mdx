@@ -7,13 +7,13 @@ groupOrder: 2
 audience: [admins, developers]
 type: concept
 readingTime: 9
-updated: 2026-11-26
-related: ["/vi/operations/cluster/secrets", "/vi/operations/cluster/data", "/vi/operations/cluster/runbook", "/vi/agent/setup", "/vi/architecture/search-and-discovery"]
+updated: 2026-11-27
+related: ["/vi/architecture/ai", "/vi/operations/cluster/secrets", "/vi/operations/cluster/data", "/vi/operations/cluster/runbook", "/vi/agent/setup", "/vi/architecture/search-and-discovery"]
 ---
 
-Tìm kiếm hỏi một mô hình ngôn ngữ xem câu truy vấn có nghĩa gì, một lượt đọc tin biến video hay ảnh của người bán thành bản nháp, một lượt kiểm tra lừa đảo đọc một cuộc trò chuyện, và console agent trả lời điều phối viên. Không bên nào tự gọi nhà cung cấp mô hình. Mỗi stack chạy Bifrost (`maximhq/bifrost:v2.6.0`), một cổng có API tương thích OpenAI, dưới dạng Service `bifrost` ở cổng 8080. Bản thiết kế nằm ở `docs/superpowers/specs/2026-11-26-bifrost-gateway-design.md`.
+Tìm kiếm hỏi một mô hình ngôn ngữ xem câu truy vấn có nghĩa gì, một lượt đọc tin biến video hay ảnh của người bán thành bản nháp, một lượt kiểm tra lừa đảo đọc một cuộc trò chuyện, và console agent trả lời điều phối viên. Không bên nào tự gọi nhà cung cấp mô hình. Mỗi stack chạy Bifrost (`maximhq/bifrost:v2.6.0`), một cổng có API tương thích OpenAI, dưới dạng Service `bifrost` ở cổng 8080.
 
-Bifrost thay LiteLLM từ ngày 2026-11-26. LiteLLM chiếm tới 1 GiB, mất khoảng 45 giây mới sẵn sàng, và đến từ chuỗi cung ứng Python và PyPI. Bifrost là một file chạy Go duy nhất: trong lần thử ngày 2026-11-26 nó dùng 260 tới 440 MiB và khởi động trong 1 tới 2 giây, hoặc 20 giây trên database rỗng khi đang chạy migration.
+Bifrost là một file chạy Go duy nhất: nó dùng khoảng 260 tới 440 MiB và khởi động trong 1 tới 2 giây, hoặc khoảng 20 giây trên database rỗng khi đang chạy migration.
 
 Chuyển giọng nói thành văn bản, vector ảnh và khung hình video không đi qua Bifrost. Đó là phân hệ ai của server, chạy trong `server-ai` và được gọi qua Restate.
 
@@ -89,11 +89,11 @@ Annotation của pod mang checksum của `config.json`, `start.sh`, `env/bifrost
 
 ## Key và ngân sách
 
-Bộ đối soát của server ghi các đối tượng quản trị của Bifrost. Nó chạy khi server khởi động và sau mỗi lần ghi cài đặt AI, dưới một advisory lock của Postgres, nên hai replica không bao giờ cùng tạo một key hai lần.
+Bộ đối soát của server ghi các đối tượng quản trị của Bifrost. Nó chạy khi server khởi động (thử lại tới khi thành công), sau mỗi lần ghi cài đặt AI, mỗi 5 phút, và khi một bên gọi không tìm thấy key của mình. Nó giữ một advisory lock của Postgres, nên hai replica không bao giờ cùng tạo một key hai lần. Thiết kế nằm ở trang [Lớp AI](/vi/architecture/ai).
 
 <Steps>
 <Step title="Liệt kê những gì server sở hữu">
-Nó liệt kê các team, virtual key và giá ghi đè mang `metadata.owner = "server"`.
+Nó liệt kê các team, các virtual key mang `metadata.owner = "server"` và các giá ghi đè tên `server:<provider>/<model>`.
 </Step>
 <Step title="Ghi từng agent">
 Mỗi agent một team, đặt tên theo slug của agent, mang ngân sách tháng. Mỗi bên gọi một virtual key, nằm dưới team của agent, mang giới hạn tốc độ của bên gọi và `allowed_models`: đúng mô hình và các mô hình dự phòng của agent. Một key bị lộ không gọi được gì khác.
@@ -102,20 +102,20 @@ Mỗi agent một team, đặt tên theo slug của agent, mang ngân sách thá
 Mỗi dòng của `ai_model_prices` thành một giá ghi đè cho nhà cung cấp và mô hình của nó.
 </Step>
 <Step title="Dọn dẹp">
-Nó xóa các đối tượng của server mà không agent hay giá nào còn nêu, và tắt key của các agent đang tắt.
+Nó xóa các key và giá ghi đè của server mà không bên gọi hay giá nào còn nêu, và tắt key của các agent đang tắt. Team không bao giờ bị xóa, cũng như agent.
 </Step>
 <Step title="Nạp key">
 Nó đọc giá trị của mọi key thuộc server vào bộ nhớ của server.
 </Step>
 </Steps>
 
-Bifrost sinh giá trị key. Không key nào của bên gọi được lưu trong git, trong Secret hay trong database của server. Server đưa key cho các phân hệ của nó từ bộ nhớ, và khi gặp 401 thì nạp lại key từ Bifrost một lần trước khi báo lỗi. Console agent nhận key, mô hình, mô hình dự phòng và giá trong mỗi request chạy; xem [Agent và cấu hình](/vi/agent/setup).
+Bifrost sinh giá trị key. Không key nào của bên gọi được lưu trong git, trong Secret hay trong database của server. Server đưa key cho các module của nó từ bộ nhớ. Khi Bifrost từ chối một key vì không biết, đã tắt hoặc không được dùng mô hình đó, server đọc lại các key (nhiều nhất mỗi 10 s) và thử lại một lần nếu key đã đổi. 401 hay 403 của chính nhà cung cấp thì được trả thẳng ra. Console agent nhận key, mô hình, mô hình dự phòng và giá trong mỗi request chạy; xem [Agent và cấu hình](/vi/agent/setup).
 
 UI của Bifrost hiện team và key của server. Một chỉnh sửa làm ở đó bị ghi đè ở lần đối soát tiếp theo.
 
 ## Giá và mức chi
 
-`ai_model_prices` giữ giá của mọi mô hình mà agent dùng, bằng USD cho mỗi token vào và ra, tạo sẵn theo giá niêm yết, nên ngân sách tính bằng đô la. Bộ chọn mô hình trong console điền sẵn giá từ danh mục của Bifrost. Bifrost tính chi phí mỗi lời gọi theo các giá này và trừ vào team của bên gọi.
+`ai_model_prices` giữ giá của mọi mô hình mà agent dùng, bằng USD cho mỗi token vào, ra, đọc cache và ghi cache, tạo sẵn theo giá niêm yết, nên ngân sách tính bằng đô la. Bộ chọn mô hình trong console điền sẵn giá từ danh mục của Bifrost. Bifrost tính chi phí mỗi lời gọi theo các giá này và trừ vào team của bên gọi.
 
 Console đọc mức chi theo agent và theo ngày từ log của Bifrost và hiện nó ở trang Overview. Số tổng của Bifrost chậm hơn thời gian thực tối đa một phút. Ngân sách của mỗi agent nằm trên trang của chính agent đó.
 

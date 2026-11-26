@@ -240,6 +240,9 @@
     "/v1/auth/sign-in": {
       "post": {
         "operationId": "signIn",
+        "x-uc": [
+          "UC-ACC-01"
+        ],
         "x-rate-limit": "auth",
         "summary": "Sign in, or sign up on first use, with a phone number Firebase verified, a Google account or an email code.",
         "description": "phone_token is what Firebase returned for the number: the ID token of\nFirebase Authentication after an SMS code, or the Phone Number\nVerification token of the SIM. google_token is the Google ID token\nCredential Manager returned; it proves the account's email, and an\nemail identity with that address is the same account. email_code is\nthe code sendEmailCode mailed. A token must be at most 5 minutes old.\nA repeated Idempotency-Key with a proof of the same address returns\nthe first sign-in's session with a new refresh token.\n",
@@ -320,6 +323,9 @@
     "/v1/auth/email-codes": {
       "post": {
         "operationId": "sendEmailCode",
+        "x-uc": [
+          "UC-ACC-01"
+        ],
         "x-rate-limit": "code",
         "summary": "Mail a six-digit code to sign in, or sign up on first use, with an email address.",
         "description": "The reply is the same whether or not an account holds the address.\nThe code lasts 5 minutes and takes 5 guesses. Limits: one code per\naddress per 45 seconds, five per address per hour, twenty per client\naddress per hour.\n",
@@ -384,6 +390,9 @@
     "/v1/auth/refresh": {
       "post": {
         "operationId": "refreshSession",
+        "x-uc": [
+          "UC-ACC-02"
+        ],
         "summary": "Rotate the refresh token and get a new access token.",
         "description": "A refresh token works once. Presenting it again, or two refreshes\nracing with one token, signs the session out. A refresh for a\nsuspended account signs the session out with account_suspended, and\nthe same token answers account_suspended again while the suspension\nlasts; after it ends, session_revoked.\n",
         "tags": [
@@ -425,6 +434,9 @@
     "/v1/auth/sessions": {
       "get": {
         "operationId": "listSessions",
+        "x-uc": [
+          "UC-ACC-02"
+        ],
         "summary": "List signed-in devices, newest first.",
         "tags": [
           "auth"
@@ -465,6 +477,9 @@
     "/v1/auth/sessions/current": {
       "delete": {
         "operationId": "deleteCurrentSession",
+        "x-uc": [
+          "UC-ACC-02"
+        ],
         "summary": "Sign out the session this request was made with.",
         "description": "The access token keeps working until it expires, at most 15 minutes; the app discards it.",
         "tags": [
@@ -488,6 +503,9 @@
     "/v1/auth/sessions/current/reauthenticate": {
       "post": {
         "operationId": "reauthenticateSession",
+        "x-uc": [
+          "UC-ACC-02"
+        ],
         "x-rate-limit": "auth",
         "summary": "Prove again that the caller holds the account, for the calls that need a sign-in within 15 minutes.",
         "description": "Takes a proof as signIn does: a phone_token, a google_token or an\nemail_code from sendEmailCode. The proof must name a phone number or\nan email address of the caller's account. A proof of another account,\nor of an address no account holds, is wrong_account, and no account\nis created or changed. The session's sign-in time becomes the time the\nproof was checked. The reply is a new access token that carries it;\nthe refresh token stays as it was, and the tokens it refreshes carry\nthe new time too. A repeated Idempotency-Key with a proof of the same\naddress answers as the first request did and keeps the first\nrequest's sign-in time.\n",
@@ -584,6 +602,9 @@
     "/v1/auth/sessions/others": {
       "delete": {
         "operationId": "deleteOtherSessions",
+        "x-uc": [
+          "UC-ACC-02"
+        ],
         "summary": "Sign out every session of the account but the one this request was made with.",
         "description": "Needs a sign-in within the last 15 minutes. The signed-out devices'\nrefresh tokens answer session_revoked, and their push tokens get no\nmore pushes.\n",
         "tags": [
@@ -610,6 +631,9 @@
     "/v1/auth/sessions/{id}": {
       "delete": {
         "operationId": "deleteSession",
+        "x-uc": [
+          "UC-ACC-02"
+        ],
         "summary": "Sign one device out.",
         "tags": [
           "auth"
@@ -649,6 +673,9 @@
     "/v1/accounts/me": {
       "get": {
         "operationId": "getMyAccount",
+        "x-uc": [
+          "UC-ACC-06"
+        ],
         "summary": "Read the caller's account.",
         "tags": [
           "account"
@@ -679,6 +706,9 @@
       },
       "patch": {
         "operationId": "updateMyAccount",
+        "x-uc": [
+          "UC-ACC-06"
+        ],
         "summary": "Change the display name, the bio, the avatar or away mode.",
         "description": "A new avatar is processed before the reply, which carries its URL.\naway_until sets or clears away mode (tạm nghỉ): until then, buyers\ncannot make an offer, accept a price or ask for COD on the caller's\nlistings (409 seller_away), while chat, the caller's own moves and\norders already placed go on.\n",
         "tags": [
@@ -739,6 +769,9 @@
       },
       "delete": {
         "operationId": "deleteMyAccount",
+        "x-uc": [
+          "UC-ACC-09"
+        ],
         "summary": "Delete the caller's account.",
         "description": "Needs a sign-in within 15 minutes. The account's listings, profile,\nsign-in methods, addresses, saves, search history, blocks, follows and\nnotifications go, and its sessions end. The row stays without a name,\nbio or avatar for the orders, reviews and messages that name it, where\nother people see the account as deleted. A phone of the account signs\nup again as a new account. The recipients of the orders it bought are\nblanked a year later.\n",
         "tags": [
@@ -778,6 +811,9 @@
     "/v1/accounts/me/email-codes": {
       "post": {
         "operationId": "sendMyEmailCode",
+        "x-uc": [
+          "UC-ACC-08"
+        ],
         "x-rate-limit": "code",
         "summary": "Mail a six-digit code that adds this email address to the caller's account.",
         "description": "The code works only for the caller's account, through\nPOST /v1/accounts/me/identities. Needs a sign-in within 15 minutes.\nLimits as for sendEmailCode.\n",
@@ -856,6 +892,9 @@
     "/v1/accounts/me/identities": {
       "post": {
         "operationId": "addMyIdentity",
+        "x-uc": [
+          "UC-ACC-08"
+        ],
         "summary": "Add the phone or email the caller's account lacks.",
         "description": "A phone_token adds a phone to an account that has only an email;\ngoogle_token or email_code (from sendMyEmailCode) adds an email to an\naccount that has only a phone. Needs a sign-in within 15 minutes: a\nsign-in method is never removed, so one added with a leaked access\ntoken would let its holder in for good.\n",
         "tags": [
@@ -937,6 +976,9 @@
     "/v1/blocks": {
       "post": {
         "operationId": "blockAccount",
+        "x-uc": [
+          "UC-ACC-05"
+        ],
         "summary": "Block an account.",
         "description": "Neither the caller nor the account may then message the other, open a\nconversation with them or open a deal on their listings. Blocking\nagain changes nothing; running deals and orders stay as they are.\n",
         "tags": [
@@ -1001,6 +1043,9 @@
       },
       "get": {
         "operationId": "listBlocks",
+        "x-uc": [
+          "UC-ACC-05"
+        ],
         "summary": "List the accounts the caller blocks, newest block first.",
         "tags": [
           "account"
@@ -1041,6 +1086,9 @@
     "/v1/blocks/{account_id}": {
       "delete": {
         "operationId": "unblockAccount",
+        "x-uc": [
+          "UC-ACC-05"
+        ],
         "summary": "Lift a block; an absent one is fine.",
         "tags": [
           "account"
@@ -1077,6 +1125,9 @@
     "/v1/follows": {
       "post": {
         "operationId": "followAccount",
+        "x-uc": [
+          "UC-DSC-04"
+        ],
         "summary": "Follow an account.",
         "description": "The caller hears when the account first publishes a listing.\nFollowing again changes nothing. A block between the two, either way,\nrefuses a follow, and blocking deletes the follows between them.\n",
         "tags": [
@@ -1151,6 +1202,9 @@
       },
       "get": {
         "operationId": "listFollows",
+        "x-uc": [
+          "UC-DSC-04"
+        ],
         "summary": "List the accounts the caller follows, newest follow first.",
         "tags": [
           "account"
@@ -1191,6 +1245,9 @@
     "/v1/follows/{account_id}": {
       "delete": {
         "operationId": "unfollowAccount",
+        "x-uc": [
+          "UC-DSC-04"
+        ],
         "summary": "Stop following an account; an absent follow is fine.",
         "tags": [
           "account"
@@ -1227,6 +1284,9 @@
     "/v1/addresses": {
       "get": {
         "operationId": "listAddresses",
+        "x-uc": [
+          "UC-ACC-07"
+        ],
         "summary": "List the caller's addresses, the default first, then the newest.",
         "tags": [
           "account"
@@ -1254,6 +1314,9 @@
       },
       "post": {
         "operationId": "createAddress",
+        "x-uc": [
+          "UC-ACC-07"
+        ],
         "summary": "Add an address; the first becomes the default.",
         "description": "With is_default true the address becomes the default in the same\nrequest. A repeated Idempotency-Key returns the address its first\nrequest added, as it is now, and changes nothing, the default\nincluded.\n",
         "tags": [
@@ -1322,6 +1385,9 @@
     "/v1/addresses/{id}": {
       "put": {
         "operationId": "updateAddress",
+        "x-uc": [
+          "UC-ACC-07"
+        ],
         "summary": "Replace an address of the caller's.",
         "description": "With is_default true the address also becomes the default; without\nit the default stays where it is. Orders already requested to the\naddress keep the copy they took.\n",
         "tags": [
@@ -1404,6 +1470,9 @@
       },
       "delete": {
         "operationId": "deleteAddress",
+        "x-uc": [
+          "UC-ACC-07"
+        ],
         "summary": "Delete an address of the caller's.",
         "description": "When it was the default, the newest remaining address becomes the\ndefault. Orders already requested to it keep the copy they took.\n",
         "tags": [
@@ -1451,6 +1520,9 @@
     "/v1/addresses/{id}/default": {
       "post": {
         "operationId": "setDefaultAddress",
+        "x-uc": [
+          "UC-ACC-07"
+        ],
         "summary": "Make an address of the caller's the default.",
         "tags": [
           "account"
@@ -1497,6 +1569,9 @@
     "/v1/uploads": {
       "post": {
         "operationId": "createUpload",
+        "x-uc": [
+          "UC-SHR-01"
+        ],
         "summary": "Get a presigned URL to upload one photo or video to.",
         "description": "The app PUTs the file to `url` with `headers` before `expires_at`;\nthe URL fixes the content type and length. Attach a photo to a\nlisting, or read a video with POST /v1/listing-reads, within 24 hours,\nor the upload is deleted.\n",
         "tags": [
@@ -1809,6 +1884,9 @@
     "/v1/me/chotot": {
       "get": {
         "operationId": "getChotot",
+        "x-uc": [
+          "UC-LST-04"
+        ],
         "summary": "The caller's linked Chợ Tốt profile, if any.",
         "tags": [
           "chotot"
@@ -1836,6 +1914,9 @@
       },
       "put": {
         "operationId": "linkChotot",
+        "x-uc": [
+          "UC-LST-04"
+        ],
         "x-rate-limit": "costly",
         "summary": "Link the Chợ Tốt profile whose bio holds the caller's code.",
         "description": "Reads the profile from Chợ Tốt and links it when its \"Giới thiệu về\ntrang\" holds the caller's live code, case, spaces and dashes aside.\nThe code is used up; the seller may then take it out of the bio.\n\nA profile maps to one ShopNexus account. Linking one that another\naccount linked moves it here, since the code proves who holds it, and\nthat account's link is removed; its imported listings stay and stop\nfollowing Chợ Tốt. Linking another profile replaces the caller's.\nLinking the same profile again keeps its settings. Listings already on\nChợ Tốt at linking are not imported on their own: only newer ones are,\nwhile auto_import is on.\n\nChecks, in order: invalid_profile_url, code_expired (no live code),\nchotot_profile_not_found, chotot_unavailable, code_not_found.\n",
@@ -1908,6 +1989,9 @@
       },
       "patch": {
         "operationId": "updateChotot",
+        "x-uc": [
+          "UC-LST-04"
+        ],
         "summary": "Change the link's settings.",
         "tags": [
           "chotot"
@@ -1958,6 +2042,9 @@
       },
       "delete": {
         "operationId": "unlinkChotot",
+        "x-uc": [
+          "UC-LST-04"
+        ],
         "summary": "Unlink the caller's Chợ Tốt profile.",
         "description": "Imported listings stay on ShopNexus and stop following Chợ Tốt. Also 204 when none is linked.",
         "tags": [
@@ -1981,6 +2068,9 @@
     "/v1/me/chotot/codes": {
       "post": {
         "operationId": "createChototCode",
+        "x-uc": [
+          "UC-LST-04"
+        ],
         "summary": "The code that links the caller's Chợ Tốt profile.",
         "description": "The live code when the caller has one, otherwise a new one for 30\nminutes. The seller puts it in their profile's \"Giới thiệu về trang\"\nand sends the profile's address with PUT /v1/me/chotot.\n",
         "tags": [
@@ -2011,6 +2101,9 @@
     "/v1/me/chotot/ads": {
       "get": {
         "operationId": "listChototAds",
+        "x-uc": [
+          "UC-LST-04"
+        ],
         "x-rate-limit": "costly",
         "summary": "The linked profile's listings on sale on Chợ Tốt, each with what it is on ShopNexus.",
         "description": "Reads Chợ Tốt each call. The app polls it after POST\n/v1/me/chotot/imports until no listing is importing; the imports with\nreview or a draft are what needs the seller (\"Cần bạn xem\").\n",
@@ -2062,6 +2155,9 @@
     "/v1/me/chotot/ads/{list_id}/listing": {
       "post": {
         "operationId": "postChototDraft",
+        "x-uc": [
+          "UC-LST-04"
+        ],
         "summary": "Post an imported listing that waits as a draft, with the fields the seller filled.",
         "description": "The body is the whole listing, as for POST /v1/listings; the draft's\nphotos are the caller's uploads. A listing already posted answers its\nimport as it is. Refusals are those of POST /v1/listings.\n",
         "tags": [
@@ -2157,6 +2253,9 @@
     "/v1/me/chotot/imports": {
       "post": {
         "operationId": "importChototAds",
+        "x-uc": [
+          "UC-LST-04"
+        ],
         "x-rate-limit": "costly",
         "summary": "Bring the chosen Chợ Tốt listings over as listings.",
         "description": "Starts one import per listing and answers at once. An import reads\nthe listing from Chợ Tốt, checks it is the linked profile's, fills the\ntitle, description, category, condition and specs as a link read\ndoes, copies its photos (copied: true), takes the commune of the\ncaller's default address (or of their newest listing), and posts it\nlike POST /v1/listings. Each listing is imported once per account:\na listing already listed, a draft or one still importing answers as\nit is, so a retried request needs no Idempotency-Key. A listing of\nanother profile is skipped as not_yours.\n",
@@ -2367,7 +2466,7 @@
           "UC-LST-02"
         ],
         "summary": "Replace a listing's content.",
-        "description": "The body is the whole listing, as when posting. Photos not in the\nlisting yet take it back to processing until they are processed; an\nedit of a rejected listing does too. Sold listings cannot be edited.\n",
+        "description": "The body is the whole listing, as when posting. Photos not in the\nlisting yet take it back to processing until they are processed; an\nedit of a rejected listing does too. Sold listings cannot be edited.\nIt takes no Idempotency-Key: a retry writes the same content again.\n",
         "tags": [
           "catalog"
         ],
@@ -2377,9 +2476,6 @@
           }
         ],
         "parameters": [
-          {
-            "$ref": "#/components/parameters/IdempotencyKey"
-          },
           {
             "name": "id",
             "in": "path",
@@ -3436,6 +3532,37 @@
         }
       }
     },
+    "/v1/sitemap/categories": {
+      "get": {
+        "operationId": "listSitemapCategories",
+        "summary": "The subcategories with a page of their own on the website.",
+        "description": "Each subcategory with at least 5 listings on sale (active), with the\nlatest change to one of them, by code. The website lists their pages\nin its sitemap and links to them; a subcategory with fewer makes a\nthin page. Public, and cacheable for an hour.\n",
+        "tags": [
+          "catalog",
+          "internal"
+        ],
+        "responses": {
+          "200": {
+            "description": "The subcategories.",
+            "headers": {
+              "Cache-Control": {
+                "description": "public, max-age=3600",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SitemapCategoryList"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/sitemap/indexnow": {
       "get": {
         "operationId": "getIndexNowKey",
@@ -4133,7 +4260,7 @@
             }
           },
           "409": {
-            "description": "The deal is sold or has an open order, or the caller is the seller (move_not_allowed); the price is not the one on offer (price_changed); the listing is not on sale (listing_unavailable); the saved pickup is absent (pickup_not_configured); the seller is in away mode (seller_away); the buyer has 3 open orders (cod_limit_reached); or the deal changed meanwhile (deal_changed).",
+            "description": "The deal is sold or has an open order, or the caller is the seller (move_not_allowed); the price is not the one on offer (price_changed); the listing is not on sale (listing_unavailable); the seller is in away mode (seller_away); the buyer has 3 open orders (cod_limit_reached); or the deal changed meanwhile (deal_changed).",
             "content": {
               "application/json": {
                 "schema": {
@@ -4692,6 +4819,9 @@
     "/v1/me/shipping-settings": {
       "put": {
         "operationId": "putShippingSettings",
+        "x-uc": [
+          "UC-ACC-04"
+        ],
         "summary": "Replace the caller's pickup preference.",
         "tags": [
           "shipping"
@@ -4803,6 +4933,9 @@
     "/v1/carrier-accounts": {
       "get": {
         "operationId": "listCarrierAccounts",
+        "x-uc": [
+          "UC-ACC-04"
+        ],
         "summary": "The carrier accounts the caller linked, and the carriers they can link.",
         "tags": [
           "shipping"
@@ -4843,6 +4976,9 @@
       ],
       "put": {
         "operationId": "linkCarrierAccount",
+        "x-uc": [
+          "UC-ACC-04"
+        ],
         "summary": "Link the caller's account at a carrier, or replace the one linked.",
         "description": "GHTK: the seller's email and password, exchanged at once for the\nshop's token through GHTK's partner API; the password is not stored.\nGHN: the seller's token and ShopId, checked against GHN's shop list;\nor the phone and the code from POST .../otp, with which GHN makes the\nseller a shop that ShopNexus is staff of, so no token is kept.\nThe token is stored encrypted and never returned.\n",
         "tags": [
@@ -4904,6 +5040,9 @@
       },
       "delete": {
         "operationId": "unlinkCarrierAccount",
+        "x-uc": [
+          "UC-ACC-04"
+        ],
         "summary": "Unlink the caller's account at a carrier.",
         "tags": [
           "shipping"
@@ -4956,6 +5095,9 @@
     "/v1/carrier-accounts/{carrier}/otp": {
       "post": {
         "operationId": "sendCarrierOTP",
+        "x-uc": [
+          "UC-ACC-04"
+        ],
         "x-rate-limit": "code",
         "summary": "Have GHN text the code that links the seller's GHN account.",
         "tags": [
@@ -5097,6 +5239,9 @@
     "/v1/shipments/quote": {
       "get": {
         "operationId": "quoteShipment",
+        "x-uc": [
+          "UC-DEAL-04"
+        ],
         "x-rate-limit": "costly",
         "summary": "The carrier's fee for a linked shipment of a pending order, read-only.",
         "description": "The seller, before making a linked shipment. The fee depends on the\norder's recipient, the pickup and the weight. Give carrier_pickup_id\nor address_id or saved_pickup=true, exclusively, or none for the carrier's default pickup point.\n",
@@ -5719,8 +5864,11 @@
     "/v1/conversations": {
       "post": {
         "operationId": "openConversation",
+        "x-uc": [
+          "UC-DEAL-01"
+        ],
         "summary": "Open the conversation with a listing's seller, or reuse the pair's, and send the first message.",
-        "description": "One conversation per pair of people, whatever their roles. Checks, in\norder: account_suspended, the listing exists, own_listing,\nlisting_unavailable, blocked, then the message.\n",
+        "description": "One conversation per pair of people, whatever their roles. Checks, in\norder: account_suspended, phone_required, the listing exists,\nown_listing, listing_unavailable, blocked, then the message.\n",
         "tags": [
           "chat"
         ],
@@ -5865,6 +6013,9 @@
       },
       "post": {
         "operationId": "sendMessage",
+        "x-uc": [
+          "UC-DEAL-01"
+        ],
         "summary": "Send a message.",
         "description": "A photo message is processing until its photos are processed; only\nthe sender sees it until it is sent. A suspended account may still\nwrite in a support chat. Deal messages come from moves on the deals,\nnever from this endpoint.\n",
         "tags": [
@@ -5962,6 +6113,9 @@
     "/v1/conversations/{id}/read": {
       "post": {
         "operationId": "readConversation",
+        "x-uc": [
+          "UC-DEAL-01"
+        ],
         "summary": "Mark the conversation read up to a message.",
         "description": "A message older than the caller's marker moves nothing. Every read\nclears the caller's unread mark (POST /v1/conversations/{id}/unread).\n",
         "tags": [
@@ -6019,6 +6173,9 @@
     "/v1/conversations/{id}/unread": {
       "post": {
         "operationId": "markConversationUnread",
+        "x-uc": [
+          "UC-DEAL-01"
+        ],
         "summary": "Mark a conversation unread until the caller reads it.",
         "description": "The conversation counts at least 1 in the inbox row's unread and in\nGET /v1/me/unread. POST /v1/conversations/{id}/read clears the mark.\nThe read marker, and what the other member sees as read, stay.\n",
         "tags": [
@@ -6076,7 +6233,10 @@
     "/v1/conversations/{id}/archive": {
       "post": {
         "operationId": "archiveConversation",
-        "summary": "Archive a conversation; the next message brings it back.",
+        "x-uc": [
+          "UC-DEAL-01"
+        ],
+        "summary": "Archive a conversation; the next message someone writes brings it back, a deal's move does not.",
         "tags": [
           "chat"
         ],
@@ -6132,6 +6292,9 @@
     "/v1/conversations/{id}/unarchive": {
       "post": {
         "operationId": "unarchiveConversation",
+        "x-uc": [
+          "UC-DEAL-01"
+        ],
         "summary": "Unarchive a conversation.",
         "tags": [
           "chat"
@@ -6174,6 +6337,125 @@
           },
           "409": {
             "description": "A support chat cannot be archived or marked (conversation_is_support).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/conversations/{id}/ignore": {
+      "post": {
+        "operationId": "ignoreConversation",
+        "x-uc": [
+          "UC-DEAL-01"
+        ],
+        "summary": "Ignore a conversation; the other member is not told.",
+        "description": "The conversation lists only under GET /v1/screens/inbox?ignored=true, counts as unread nowhere, and its\nmessages, offers and counters push nothing. Order moves still tell the caller. Writing to it, or\nunignore, ends this.\n",
+        "tags": [
+          "chat"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Ignored."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "description": "No such conversation of the caller's (conversation_not_found).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A support chat cannot be archived, ignored or marked (conversation_is_support).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/conversations/{id}/unignore": {
+      "post": {
+        "operationId": "unignoreConversation",
+        "x-uc": [
+          "UC-DEAL-01"
+        ],
+        "summary": "Hear of an ignored conversation again.",
+        "tags": [
+          "chat"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Heard of again."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "description": "No such conversation of the caller's (conversation_not_found).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A support chat cannot be archived, ignored or marked (conversation_is_support).",
             "content": {
               "application/json": {
                 "schema": {
@@ -6307,6 +6589,9 @@
       },
       "put": {
         "operationId": "putQuickReplies",
+        "x-uc": [
+          "UC-DEAL-01"
+        ],
         "summary": "Replace the caller's quick replies.",
         "description": "The list replaces the saved one whole, in the order given; an empty\nlist saves no answer, and the defaults do not come back. The last PUT\nwins.\n",
         "tags": [
@@ -6371,7 +6656,15 @@
           {
             "name": "archived",
             "in": "query",
-            "description": "true lists the archived conversations; false or absent, the others.",
+            "description": "true lists the archived conversations; false or absent, the others. An ignored one is in neither.",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "ignored",
+            "in": "query",
+            "description": "true lists the ignored conversations, whatever archived says.",
             "schema": {
               "type": "boolean"
             }
@@ -6418,6 +6711,9 @@
     "/v1/screens/inbox/search": {
       "get": {
         "operationId": "searchInbox",
+        "x-uc": [
+          "UC-DEAL-01"
+        ],
         "summary": "Search the caller's conversations and messages.",
         "description": "q is split into words, lowercase with accents folded (đ as d); every\nword but the last matches a whole word, the last the start of one.\nthreads are the conversations whose other member's name, or the title\nof a listing a message names, holds every word: up to 20, newest\nmessage first, on the first page only (an empty array on later\npages). messages are the sent messages whose text holds every word,\nnewest first; cursor and next_cursor page them. Archived\nconversations are searched; conversations with someone the caller\nblocks are not.\n",
         "tags": [
@@ -6555,7 +6851,10 @@
     "/v1/screens/home": {
       "get": {
         "operationId": "getHomeScreen",
-        "summary": "The Home view, the category tree with counts, the first page of the nearby feed, Dành cho bạn and Vì bạn đã xem gần đây.",
+        "x-uc": [
+          "UC-DSC-05"
+        ],
+        "summary": "The Home view, the category tree, the first page of the nearby feed, Dành cho bạn and Vì bạn đã xem gần đây.",
         "description": "nearby is the first page of GET /v1/search with sort=nearby and the\nsame position and radius_km; its next_cursor pages on there. Without\nradius_km the feed keeps within 50 km. Without a position nearby has\nno items, and the app asks for a position to fill it. for_you and\nviewed are one page each, with no cursor. Their cards carry\ndistance_km with a position, and saved for a signed-in reader.\n",
         "tags": [
           "screen"
@@ -6757,6 +7056,9 @@
     "/v1/screens/seller/{id}": {
       "get": {
         "operationId": "getSellerScreen",
+        "x-uc": [
+          "UC-DSC-04"
+        ],
         "summary": "The seller view, a seller's profile with the first page of their listings and reviews.",
         "description": "More listings come from GET /v1/sellers/{id}/listings and more\nreviews from GET /v1/sellers/{id}/reviews, with the view's\nnext_cursor. A signed-in reader who is not the seller also gets\n`viewer`. The listings are search cards: each has saved for a\nsigned-in reader and, with a position, distance_km, measured as\nGET /v1/search measures it; send the same position to load more. A\nsigned-in reader never sees the listings they hid.\n",
         "tags": [
@@ -6858,6 +7160,9 @@
     "/v1/screens/reputation": {
       "get": {
         "operationId": "getReputationScreen",
+        "x-uc": [
+          "UC-TRS-04"
+        ],
         "summary": "The Uy tín của bạn view, the figures the server holds about the caller and the caps in use.",
         "tags": [
           "screen"
@@ -6887,6 +7192,9 @@
     "/v1/orders/{order_id}/review": {
       "put": {
         "operationId": "putReview",
+        "x-uc": [
+          "UC-TRS-01"
+        ],
         "summary": "Review the other party to an order, or edit the review.",
         "description": "The buyer reviews the seller (role seller) and the seller the buyer\n(role buyer). A first review needs the order completed or failed. It\nstays hidden from the other party and the public until they review\ntoo or 7 days after the order closed. A review changes, and a deleted\none is posted again, only while it is hidden, within 7 days of its\nfirst submission; once it shows, neither side changes it.\n",
         "tags": [
@@ -6979,6 +7287,9 @@
       },
       "delete": {
         "operationId": "deleteReview",
+        "x-uc": [
+          "UC-TRS-01"
+        ],
         "summary": "Delete the caller's review of an order within its 7 days.",
         "tags": [
           "trust"
@@ -7035,6 +7346,9 @@
     "/v1/sellers/{id}/reviews": {
       "get": {
         "operationId": "listSellerReviews",
+        "x-uc": [
+          "UC-DSC-04"
+        ],
         "summary": "A seller's visible reviews, newest first; the same as /v1/accounts/{id}/reviews?role=seller.",
         "description": "A signed-in reader gets helpful.marked on each review they may mark.",
         "tags": [
@@ -7093,6 +7407,9 @@
     "/v1/accounts/{id}/reviews": {
       "get": {
         "operationId": "listAccountReviews",
+        "x-uc": [
+          "UC-DSC-04"
+        ],
         "summary": "A person's visible reviews in one role, newest first.",
         "description": "A signed-in reader gets helpful.marked on each review they may mark.",
         "tags": [
@@ -7160,6 +7477,9 @@
     "/v1/reviews/{id}/reply": {
       "post": {
         "operationId": "replyReview",
+        "x-uc": [
+          "UC-TRS-01"
+        ],
         "summary": "The reviewed person's one reply, which closes the review.",
         "description": "Only the subject replies, once, to a review they can see. After it the\nreviewer can no longer edit or delete the review.\n",
         "tags": [
@@ -7254,6 +7574,9 @@
     "/v1/reviews/{id}/helpful": {
       "put": {
         "operationId": "markReviewHelpful",
+        "x-uc": [
+          "UC-TRS-05"
+        ],
         "summary": "Mark a visible review helpful; marking it again changes nothing.",
         "description": "Anyone signed in but the review's reviewer and its subject. The count\nshows in Review.helpful.\n",
         "tags": [
@@ -7319,6 +7642,9 @@
       },
       "delete": {
         "operationId": "unmarkReviewHelpful",
+        "x-uc": [
+          "UC-TRS-05"
+        ],
         "summary": "Take back the caller's helpful mark; an absent one is fine.",
         "tags": [
           "trust"
@@ -7355,6 +7681,9 @@
     "/v1/reports": {
       "get": {
         "operationId": "listMyReports",
+        "x-uc": [
+          "UC-MOD-01"
+        ],
         "summary": "List the caller's reports, newest first.",
         "description": "Every report the caller made, withdrawn and resolved ones included,\npaged by report ID. DELETE /v1/reports/{id} withdraws an open one.\n",
         "tags": [
@@ -7394,6 +7723,9 @@
       },
       "post": {
         "operationId": "createReport",
+        "x-uc": [
+          "UC-MOD-01"
+        ],
         "summary": "Report a listing or an account.",
         "description": "Exactly one of listing_id and account_id. A report of a listing is\nalso about its seller, whom account_id names in the answer. The\ncaller has one open report per target: reporting it again replaces\nthe reason and note and answers 200.\n",
         "tags": [
@@ -7480,6 +7812,9 @@
     "/v1/reports/{id}": {
       "delete": {
         "operationId": "withdrawReport",
+        "x-uc": [
+          "UC-MOD-01"
+        ],
         "summary": "Withdraw one of the caller's reports; a withdrawn one is fine.",
         "tags": [
           "trust"
@@ -7526,6 +7861,9 @@
     "/v1/sellers/{id}/listings": {
       "get": {
         "operationId": "listSellerListings",
+        "x-uc": [
+          "UC-DSC-04"
+        ],
         "summary": "A seller's listings that anyone sees, active and reserved, newest first, as search cards.",
         "description": "The seller view's load more, with the view's next_cursor. Each card\nhas saved for a signed-in caller and, with a position, distance_km,\nmeasured as GET /v1/search measures it. A signed-in caller never sees\nthe listings they hid.\n",
         "tags": [
@@ -7603,8 +7941,14 @@
     "/v1/search": {
       "get": {
         "operationId": "search",
+        "x-uc": [
+          "UC-DSC-01",
+          "UC-DSC-02",
+          "UC-DSC-03",
+          "UC-DSC-05"
+        ],
         "summary": "Search active listings; without q, browse them.",
-        "description": "Three ways to search, all under the person's filters and sorts. With q\nfrom a signed-in caller a model reads the query; BM25 on its words, its\nVietnamese rewrite against listing text vectors and its English\ndescription against listing photos are fused by weighted RRF. A guest's\nq searches its raw words through BM25 alone, on the listing text with\ndiacritics folded away and one edit allowed in long words; a caller's\nq past 200 model reads that UTC day adds their text vector. Neither\nhas chips. A guest's\naddress makes 2 searches with q a second, in bursts of 30; past them\n429. With photo, the photo against listing photos\nalone. With like, the listing's title, text vector and photos. Without\nany, the call browses, newest first by default, and category alone is the\ncategory page. sort=nearby is the \"Gần bạn\" feed, which Home's first page\ncomes from. A model that fails leaves the lists it feeds out; q then\nsearches its raw words, with no chips. A signed-in caller's first page\nwith q is kept in the search history, and a signed-in caller never sees\nthe listings they hid nor those of an account on either side of their\nblocks. With watch, a watch of the caller's runs its query and filters.\nphoto and watch need a signed-in caller. province keeps the listings of\none province, in the results and in counts, and goes with every other\nfilter.\n",
+        "description": "Three ways to search, all under the person's filters and sorts. With q\nfrom a signed-in caller a model reads the query; BM25 on its words, its\nVietnamese rewrite against listing text vectors and its English\ndescription against listing photos are fused by weighted RRF. A guest's\nq searches its raw words through BM25 alone, on the listing text with\ndiacritics folded away and one edit allowed in long words; a caller's\nq past 200 model reads that UTC day adds their text vector. Neither\nhas chips. A guest's\naddress makes 2 searches with q a second, in bursts of 30; past them\n429. With photo, the photo against listing photos\nalone. With like, the listing's title, text vector and photos. Without\nany, the call browses, newest first by default, and category alone is the\ncategory page. sort=nearby is the \"Gần bạn\" feed, which Home's first page\ncomes from. A model that fails leaves the lists it feeds out; q then\nsearches its raw words, with no chips. A signed-in caller's first page\nwith q is kept in the search history, and a signed-in caller never sees\nthe listings they hid nor those of an account on either side of their\nblocks. With watch, a watch of the caller's runs its query and filters.\nphoto and watch need a signed-in caller. province keeps the listings of\none province and goes with every other\nfilter. seller keeps one seller's listings, the search of a seller's\npage; it goes with every filter but watch, and its pages enter no\nsearch history and carry no watch_id, since neither holds a seller.\n",
         "tags": [
           "discovery"
         ],
@@ -7638,6 +7982,15 @@
             "schema": {
               "type": "string",
               "pattern": "^[0-9]{2}$"
+            }
+          },
+          {
+            "name": "seller",
+            "in": "query",
+            "description": "An account ID; keeps that seller's listings. An unknown seller, or one on either side of the caller's blocks, finds none.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
             }
           },
           {
@@ -7758,7 +8111,7 @@
             }
           },
           "400": {
-            "description": "A malformed parameter, position_required, invalid_position, invalid_province, invalid_cursor, invalid_price_range, or search_conflict: photo with q or like, sort=nearby with q, photo or like, or watch with any parameter but cursor, limit, sort and off.",
+            "description": "A malformed parameter, position_required, invalid_position, invalid_province, invalid_cursor, invalid_price_range, or search_conflict: photo with q or like, sort=nearby with q, photo or like, or watch with any parameter but cursor, limit, sort and off, seller included.",
             "content": {
               "application/json": {
                 "schema": {
@@ -7847,6 +8200,9 @@
     "/v1/search/history": {
       "get": {
         "operationId": "getSearchHistory",
+        "x-uc": [
+          "UC-DSC-01"
+        ],
         "summary": "The caller's last 10 text searches, newest first.",
         "tags": [
           "discovery"
@@ -7874,6 +8230,9 @@
       },
       "delete": {
         "operationId": "clearSearchHistory",
+        "x-uc": [
+          "UC-DSC-01"
+        ],
         "summary": "Empty the caller's search history.",
         "tags": [
           "discovery"
@@ -7896,6 +8255,9 @@
     "/v1/search/history/{id}": {
       "delete": {
         "operationId": "deleteSearchHistoryItem",
+        "x-uc": [
+          "UC-DSC-01"
+        ],
         "summary": "Forget one search; an unknown one is fine.",
         "tags": [
           "discovery"
@@ -7932,6 +8294,9 @@
     "/v1/search/watches": {
       "post": {
         "operationId": "createSearchWatch",
+        "x-uc": [
+          "UC-DSC-03"
+        ],
         "summary": "Follow a text search with its filters; the same words again replace the filters.",
         "description": "One watch per query, folded as the search history folds it. A GPS\npoint is turned into its nearest commune and not kept. A sweep every 30\nminutes counts the new listings holding every word of the query or of a\nphrase the model read from it, under the filters, and tells the caller\nwhile the watch is not muted.\n",
         "tags": [
@@ -8000,6 +8365,9 @@
       },
       "get": {
         "operationId": "listSearchWatches",
+        "x-uc": [
+          "UC-DSC-03"
+        ],
         "summary": "The caller's watches, newest first.",
         "tags": [
           "discovery"
@@ -8029,6 +8397,9 @@
     "/v1/search/watches/{id}": {
       "delete": {
         "operationId": "deleteSearchWatch",
+        "x-uc": [
+          "UC-DSC-03"
+        ],
         "summary": "Stop following a search; an unknown watch is fine.",
         "tags": [
           "discovery"
@@ -8059,6 +8430,9 @@
     "/v1/search/watches/{id}/mute": {
       "post": {
         "operationId": "muteSearchWatch",
+        "x-uc": [
+          "UC-DSC-03"
+        ],
         "summary": "Keep counting the watch's new listings without telling the caller.",
         "tags": [
           "discovery"
@@ -8099,6 +8473,9 @@
     "/v1/search/watches/{id}/unmute": {
       "post": {
         "operationId": "unmuteSearchWatch",
+        "x-uc": [
+          "UC-DSC-03"
+        ],
         "summary": "Tell the caller of the watch's new listings again.",
         "tags": [
           "discovery"
@@ -8139,6 +8516,9 @@
     "/v1/saved": {
       "get": {
         "operationId": "listSaved",
+        "x-uc": [
+          "UC-DSC-03"
+        ],
         "summary": "List the caller's saved listings, those still on sale first.",
         "description": "The saves of listings that are not sold, hidden or deleted come first,\nthen the others, each group newest save first. A listing that sells\nbetween two pages moves to the end, so the later pages may show it\nagain or skip a save that moved up.\n",
         "tags": [
@@ -8180,6 +8560,9 @@
     "/v1/saved/{listing_id}": {
       "put": {
         "operationId": "saveListing",
+        "x-uc": [
+          "UC-DSC-03"
+        ],
         "summary": "Save someone else's listing on sale or being shipped; saving again changes nothing.",
         "tags": [
           "discovery"
@@ -8234,6 +8617,9 @@
       },
       "delete": {
         "operationId": "unsaveListing",
+        "x-uc": [
+          "UC-DSC-03"
+        ],
         "summary": "Forget a saved listing; an absent one is fine.",
         "tags": [
           "discovery"
@@ -8270,6 +8656,9 @@
     "/v1/saved/{listing_id}/alert": {
       "put": {
         "operationId": "setSavedAlert",
+        "x-uc": [
+          "UC-DSC-03"
+        ],
         "summary": "Hear when the listing's price falls below a level; a listing not saved is saved first.",
         "description": "The caller hears at each new low below the level. A price back at or above it starts over, and setting a level forgets the price last told.",
         "tags": [
@@ -8335,6 +8724,9 @@
       },
       "delete": {
         "operationId": "clearSavedAlert",
+        "x-uc": [
+          "UC-DSC-03"
+        ],
         "summary": "Remove the save's own level; the save stays, and a listing not saved is fine.",
         "description": "Without a level of its own, a save tells at each new low below its saved price.",
         "tags": [
@@ -8372,6 +8764,9 @@
     "/v1/hidden/{listing_id}": {
       "put": {
         "operationId": "hideFromSearch",
+        "x-uc": [
+          "UC-DSC-02"
+        ],
         "summary": "Leave someone else's listing out of the caller's searches, Home and the nearby feed; hiding again makes it the newest hide.",
         "description": "The caller keeps the 1,000 newest hides; one more shows the oldest again. Saved listings, the seller page and the listing itself still show it.",
         "tags": [
@@ -8427,6 +8822,9 @@
       },
       "delete": {
         "operationId": "unhideFromSearch",
+        "x-uc": [
+          "UC-DSC-02"
+        ],
         "summary": "Show a hidden listing again; a listing not hidden is fine.",
         "tags": [
           "discovery"
@@ -8500,6 +8898,9 @@
     "/v1/support/tickets": {
       "get": {
         "operationId": "listMyTickets",
+        "x-uc": [
+          "UC-MOD-09"
+        ],
         "summary": "The caller's tickets, open ones first, each newest activity first.",
         "tags": [
           "support"
@@ -8527,6 +8928,9 @@
       },
       "post": {
         "operationId": "openTicket",
+        "x-uc": [
+          "UC-MOD-09"
+        ],
         "summary": "Open a ticket and its chat with ShopNexus.",
         "description": "not_received needs order_id, an order of the caller's as buyer that is\nshipped or was completed by the system less than 7 days ago; an order\nthat has its ticket returns that ticket with 200. carrier_request needs\ncarrier_name. other needs body. At most 10 new tickets in 24 hours. A\nrepeated Idempotency-Key returns the ticket its first request opened. A\nsuspended account may open one.\n",
         "tags": [
@@ -8625,6 +9029,9 @@
     "/v1/support/summary": {
       "get": {
         "operationId": "getSupportSummary",
+        "x-uc": [
+          "UC-MOD-09"
+        ],
         "summary": "Open tickets and unread replies, for Tôi and Trợ giúp.",
         "tags": [
           "support"
@@ -8654,6 +9061,9 @@
     "/v1/support/orders/{order_id}/ticket": {
       "get": {
         "operationId": "getOrderTicket",
+        "x-uc": [
+          "UC-MOD-09"
+        ],
         "summary": "The ticket of one of the caller's orders, for \"Xem yêu cầu\".",
         "tags": [
           "support"
@@ -8704,6 +9114,9 @@
     "/v1/feedback": {
       "get": {
         "operationId": "listMyFeedback",
+        "x-uc": [
+          "UC-MOD-11"
+        ],
         "summary": "The caller's feedback, newest first.",
         "tags": [
           "feedback"
@@ -8731,6 +9144,9 @@
       },
       "post": {
         "operationId": "sendFeedback",
+        "x-uc": [
+          "UC-MOD-11"
+        ],
         "summary": "Send feedback to ShopNexus.",
         "description": "Feedback needs no answer, unlike a ticket. It needs a mood or a text.\nAt most 20 in 24 hours. A repeated Idempotency-Key returns the feedback\nits first request made. A suspended account may send feedback.\n",
         "tags": [
@@ -8814,6 +9230,9 @@
       ],
       "post": {
         "operationId": "consoleLogin",
+        "x-uc": [
+          "UC-MOD-10"
+        ],
         "x-rate-limit": "auth",
         "summary": "Sign a console member in.",
         "description": "Every call sends the email and password. The first sign-in takes up to\nthree calls: one that answers password_change_required, one with\nnew_password that answers totp_enrollment_required (the console then\ncalls totp-enrollment), and one with the new password and a code.\nLater sign-ins send the password and a code together.\n\nAn unknown email, a wrong password and a disabled member all get\ninvalid_credentials. Each call counts toward the email's lock until the\npassword proves right; a wrong code counts too. Five failures on one\nemail lock it for 15 minutes, whether or not a member has the email.\nSuccess sets the console_session cookie.\n",
@@ -8875,6 +9294,9 @@
       ],
       "post": {
         "operationId": "consoleLoginTotpEnrollment",
+        "x-uc": [
+          "UC-MOD-10"
+        ],
         "x-rate-limit": "auth",
         "summary": "Start TOTP enrollment during the first sign-in.",
         "description": "Only a member without TOTP may call it; a second call replaces the\nsecret of the first. The password counts toward the email's lock as in\nlogin.\n",
@@ -8923,6 +9345,9 @@
       ],
       "post": {
         "operationId": "consoleLogout",
+        "x-uc": [
+          "UC-MOD-10"
+        ],
         "summary": "Sign this session out and clear the cookie.",
         "tags": [
           "console",
@@ -8951,6 +9376,9 @@
       ],
       "get": {
         "operationId": "getConsoleMe",
+        "x-uc": [
+          "UC-MOD-10"
+        ],
         "summary": "The signed-in console member.",
         "tags": [
           "console",
@@ -8986,6 +9414,9 @@
       ],
       "put": {
         "operationId": "changeConsolePassword",
+        "x-uc": [
+          "UC-MOD-10"
+        ],
         "summary": "Change the password and end every session of the member, this one included.",
         "tags": [
           "console",
@@ -9027,6 +9458,9 @@
       ],
       "get": {
         "operationId": "listConsoleMembers",
+        "x-uc": [
+          "UC-MOD-04"
+        ],
         "summary": "Console members, newest first. Admins only.",
         "tags": [
           "console",
@@ -9066,6 +9500,9 @@
       },
       "post": {
         "operationId": "createConsoleMember",
+        "x-uc": [
+          "UC-MOD-04"
+        ],
         "summary": "Create a moderator with a temporary password. Admins only.",
         "tags": [
           "console",
@@ -9117,6 +9554,9 @@
       ],
       "patch": {
         "operationId": "renameConsoleMember",
+        "x-uc": [
+          "UC-MOD-04"
+        ],
         "summary": "Rename a moderator. Admins only.",
         "tags": [
           "console",
@@ -9173,6 +9613,9 @@
       ],
       "post": {
         "operationId": "disableConsoleMember",
+        "x-uc": [
+          "UC-MOD-04"
+        ],
         "summary": "Disable a moderator and end their sessions. Admins only.",
         "tags": [
           "console",
@@ -9216,6 +9659,9 @@
       ],
       "post": {
         "operationId": "enableConsoleMember",
+        "x-uc": [
+          "UC-MOD-04"
+        ],
         "summary": "Enable a disabled moderator. Admins only.",
         "tags": [
           "console",
@@ -9259,6 +9705,9 @@
       ],
       "post": {
         "operationId": "unlockConsoleMember",
+        "x-uc": [
+          "UC-MOD-04"
+        ],
         "summary": "Clear the sign-in lock on a moderator's email. Admins only.",
         "tags": [
           "console",
@@ -9302,6 +9751,9 @@
       ],
       "post": {
         "operationId": "resetConsoleMemberPassword",
+        "x-uc": [
+          "UC-MOD-04"
+        ],
         "summary": "Give a moderator a temporary password and end their sessions. Admins only.",
         "tags": [
           "console",
@@ -9345,6 +9797,9 @@
       ],
       "post": {
         "operationId": "resetConsoleMemberTotp",
+        "x-uc": [
+          "UC-MOD-04"
+        ],
         "summary": "Remove a moderator's TOTP and end their sessions. Admins only.",
         "tags": [
           "console",
@@ -9388,6 +9843,9 @@
       ],
       "get": {
         "operationId": "listConsoleAccounts",
+        "x-uc": [
+          "UC-MOD-02"
+        ],
         "summary": "Customer accounts, newest first, or the one q names.",
         "description": "q matches an account ID, an email address or a phone number in any common form, exactly. status=suspended lists only the accounts whose suspension is in force now, the one that ends soonest first and those without an end last, and returns their count as total; with q as well, the account q names only if it is suspended.",
         "tags": [
@@ -9454,6 +9912,9 @@
       ],
       "get": {
         "operationId": "listConsoleTickets",
+        "x-uc": [
+          "UC-MOD-09"
+        ],
         "summary": "The ticket queue, newest activity first.",
         "tags": [
           "console",
@@ -9503,6 +9964,9 @@
       ],
       "get": {
         "operationId": "getConsoleTicket",
+        "x-uc": [
+          "UC-MOD-09"
+        ],
         "summary": "One ticket with its person, order, other tickets and first page of messages.",
         "tags": [
           "console",
@@ -9553,6 +10017,9 @@
       ],
       "get": {
         "operationId": "listConsoleTicketMessages",
+        "x-uc": [
+          "UC-MOD-09"
+        ],
         "summary": "Older messages of a ticket's chat, newest first.",
         "tags": [
           "console",
@@ -9609,6 +10076,9 @@
       ],
       "post": {
         "operationId": "replyConsoleTicket",
+        "x-uc": [
+          "UC-MOD-09"
+        ],
         "summary": "Reply in a ticket's chat as ShopNexus.",
         "tags": [
           "console",
@@ -9682,6 +10152,9 @@
       ],
       "post": {
         "operationId": "resolveConsoleTicket",
+        "x-uc": [
+          "UC-MOD-09"
+        ],
         "summary": "Mark a ticket resolved; a carrier request sends \"Đã ghi nhận hãng <name>.\" in its chat.",
         "tags": [
           "console",
@@ -9732,6 +10205,9 @@
       ],
       "post": {
         "operationId": "reopenConsoleTicket",
+        "x-uc": [
+          "UC-MOD-09"
+        ],
         "summary": "Open a resolved ticket again.",
         "tags": [
           "console",
@@ -9782,6 +10258,9 @@
       ],
       "get": {
         "operationId": "getConsoleSupportSummary",
+        "x-uc": [
+          "UC-MOD-09"
+        ],
         "summary": "The open count for the drawer.",
         "tags": [
           "console",
@@ -9817,6 +10296,9 @@
       ],
       "get": {
         "operationId": "listConsoleFeedback",
+        "x-uc": [
+          "UC-MOD-11"
+        ],
         "summary": "Feedback, newest first.",
         "tags": [
           "console",
@@ -9866,6 +10348,9 @@
       ],
       "get": {
         "operationId": "listConsoleFeedbackGroups",
+        "x-uc": [
+          "UC-MOD-11"
+        ],
         "summary": "Feedback groups, largest first, with their figures.",
         "tags": [
           "console",
@@ -9906,6 +10391,9 @@
       ],
       "get": {
         "operationId": "getConsoleFeedbackSummary",
+        "x-uc": [
+          "UC-MOD-11"
+        ],
         "summary": "What was sent in the last 30 days.",
         "tags": [
           "console",
@@ -9941,6 +10429,9 @@
       ],
       "get": {
         "operationId": "getConsoleFeedback",
+        "x-uc": [
+          "UC-MOD-11"
+        ],
         "summary": "A feedback with the rest of its group.",
         "tags": [
           "console",
@@ -9991,6 +10482,9 @@
       ],
       "post": {
         "operationId": "setConsoleFeedbackStatus",
+        "x-uc": [
+          "UC-MOD-11"
+        ],
         "summary": "Set the status of a feedback's whole group.",
         "description": "Sets the status, note and version of the feedback, its group's root and\nevery feedback joined to it. A note or version left out or blank is\ncleared. A move to in_progress or shipped tells each owner whose status\nchanged.\n",
         "tags": [
@@ -10062,6 +10556,9 @@
       ],
       "post": {
         "operationId": "replyConsoleFeedback",
+        "x-uc": [
+          "UC-MOD-11"
+        ],
         "summary": "Set ShopNexus's one reply to a feedback.",
         "description": "A second call replaces the text. Only the first tells the owner.",
         "tags": [
@@ -10136,6 +10633,9 @@
       ],
       "put": {
         "operationId": "heartConsoleFeedback",
+        "x-uc": [
+          "UC-MOD-11"
+        ],
         "summary": "Heart a feedback.",
         "tags": [
           "console",
@@ -10174,6 +10674,9 @@
       },
       "delete": {
         "operationId": "unheartConsoleFeedback",
+        "x-uc": [
+          "UC-MOD-11"
+        ],
         "summary": "Take a feedback's heart back.",
         "tags": [
           "console",
@@ -10219,6 +10722,9 @@
       ],
       "post": {
         "operationId": "joinConsoleFeedback",
+        "x-uc": [
+          "UC-MOD-11"
+        ],
         "summary": "Join a feedback to another's group.",
         "description": "Groups are flat: each feedback points at its group's root. Joining a\nroot moves the feedback joined to it too. The moved feedback take the\ngroup's status, note and version.\n",
         "tags": [
@@ -10290,6 +10796,9 @@
       ],
       "get": {
         "operationId": "listConsoleReportCases",
+        "x-uc": [
+          "UC-MOD-02"
+        ],
         "summary": "Report cases, open or resolved, newest first.",
         "description": "An open case is an account's reports not withdrawn and not resolved, ordered by its latest report, and total counts the open cases. A resolved case is the reports one resolution closed, ordered by the resolution's time; it has no total.",
         "tags": [
@@ -10356,6 +10865,9 @@
       ],
       "get": {
         "operationId": "getConsoleReportCase",
+        "x-uc": [
+          "UC-MOD-02"
+        ],
         "summary": "An account's open report case or, without one, its latest resolved case.",
         "tags": [
           "console",
@@ -10422,6 +10934,9 @@
       ],
       "post": {
         "operationId": "dismissConsoleReportCase",
+        "x-uc": [
+          "UC-MOD-02"
+        ],
         "summary": "Close the account's open case as dismissed (\"Không vi phạm\").",
         "description": "Records report.dismiss.",
         "tags": [
@@ -10479,6 +10994,9 @@
       ],
       "post": {
         "operationId": "resolveConsoleReportCase",
+        "x-uc": [
+          "UC-MOD-02"
+        ],
         "summary": "Close the account's open case as actioned.",
         "description": "The console calls it after its hides or suspension succeed. Records report.resolve.",
         "tags": [
@@ -10536,6 +11054,9 @@
       ],
       "post": {
         "operationId": "reopenConsoleReportCase",
+        "x-uc": [
+          "UC-MOD-02"
+        ],
         "summary": "Undo the account's latest resolution.",
         "description": "Its reports join the account's open case, with any newer reports; a report whose reporter has reported the same target again since stays out, the newer one standing for it. Records report.reopen.",
         "tags": [
@@ -10703,6 +11224,9 @@
       ],
       "post": {
         "operationId": "hideConsoleListing",
+        "x-uc": [
+          "UC-MOD-02"
+        ],
         "summary": "Hide a listing as ShopNexus.",
         "description": "An active listing, or one its seller hid, goes hidden, and its seller cannot put it back on sale until a member unhides it. Records listing.hide.",
         "tags": [
@@ -10770,6 +11294,9 @@
       ],
       "post": {
         "operationId": "unhideConsoleListing",
+        "x-uc": [
+          "UC-MOD-02"
+        ],
         "summary": "Lift ShopNexus's hide of a listing.",
         "description": "The listing goes back on sale when it is still hidden. Records listing.unhide.",
         "tags": [
@@ -10837,6 +11364,9 @@
       ],
       "get": {
         "operationId": "getConsoleAccount",
+        "x-uc": [
+          "UC-MOD-02"
+        ],
         "summary": "One customer account with its identities and console history.",
         "tags": [
           "console",
@@ -10877,6 +11407,9 @@
       ],
       "post": {
         "operationId": "suspendConsoleAccount",
+        "x-uc": [
+          "UC-MOD-02"
+        ],
         "summary": "Suspend a customer account.",
         "tags": [
           "console",
@@ -10940,6 +11473,9 @@
       ],
       "post": {
         "operationId": "unsuspendConsoleAccount",
+        "x-uc": [
+          "UC-MOD-02"
+        ],
         "summary": "Lift a customer account's suspension.",
         "tags": [
           "console",
@@ -10990,6 +11526,9 @@
       ],
       "get": {
         "operationId": "listConsoleActions",
+        "x-uc": [
+          "UC-MOD-05"
+        ],
         "summary": "The audit log, newest first. Admins only.",
         "tags": [
           "console",
@@ -11426,7 +11965,7 @@
             }
           },
           "429": {
-            "description": "The agent's budget is spent (agent_budget), and the rest of the console works without it; or the member asked too much in a short time (agent_rate_limited).",
+            "description": "The member asked too much in a short time (agent_rate_limited). A spent monthly budget ends the run instead, with the status budget.",
             "content": {
               "application/json": {
                 "schema": {
@@ -11494,6 +12033,9 @@
       ],
       "get": {
         "operationId": "streamConsoleAgentTurnEvents",
+        "x-uc": [
+          "UC-MOD-08"
+        ],
         "summary": "A turn's run as server-sent events, replayed after Last-Event-ID and then live.",
         "description": "text/event-stream. Each event has `id:` its seq and `data:` one\nAgentRunEvent as JSON; a comment line keeps the connection open. The\nagent replays the turn's events after the given seq from its database\nand then follows the run live, so a closed tab reconnects with\nLast-Event-ID, or with after in the query on a page load. The server\ncopies the stream event by event and sets no deadline. The stream ends\nafter turn.finished, turn.paused or clarify; after Continue, answers or\nan update to a paused turn the console opens it again from its last\nseq. Closing the stream ends the server's read, not the run.\n",
         "tags": [
@@ -11556,6 +12098,9 @@
       ],
       "post": {
         "operationId": "pauseConsoleAgentTurn",
+        "x-uc": [
+          "UC-MOD-08"
+        ],
         "summary": "Pause a run before its next model call.",
         "description": "The model call in flight and the tools it asked for finish, so no tool is cut halfway. The turn goes paused (turn.pausing, then turn.paused) and keeps its state, so any agent replica can continue it.",
         "tags": [
@@ -11601,6 +12146,9 @@
       ],
       "post": {
         "operationId": "stopConsoleAgentTurn",
+        "x-uc": [
+          "UC-MOD-08"
+        ],
         "summary": "Stop a run now.",
         "description": "Ends the model call in flight at once (Stop now). The turn goes paused with reason stop_now and keeps what it wrote; it can be continued.",
         "tags": [
@@ -11646,6 +12194,9 @@
       ],
       "post": {
         "operationId": "continueConsoleAgentTurn",
+        "x-uc": [
+          "UC-MOD-08"
+        ],
         "summary": "Continue a paused, failed, timed out or stopped turn.",
         "description": "Resumes the same turn with no new message, its counters carried on (turn.resumed with by continue). A spent budget or a guardrail block cannot be continued.",
         "tags": [
@@ -11694,6 +12245,9 @@
       ],
       "post": {
         "operationId": "endConsoleAgentTurn",
+        "x-uc": [
+          "UC-MOD-08"
+        ],
         "summary": "End a paused turn.",
         "description": "A paused turn, or one awaiting input, ends cancelled and writes nothing more.",
         "tags": [
@@ -11739,6 +12293,9 @@
       ],
       "post": {
         "operationId": "steerConsoleAgentTurn",
+        "x-uc": [
+          "UC-MOD-08"
+        ],
         "summary": "Steer a run, or continue a paused one with a message.",
         "description": "The text waits on the turn's control stream and the run reads it\nbefore its next model call (steer.read names the step). Sent to a\npaused turn it continues the run (turn.resumed with by steer). An\nupdate that carries an attachment, a skill or another agent is a new\nquestion instead. A repeated Idempotency-Key answers the steer its\nfirst call sent and sends nothing.\n",
         "tags": [
@@ -11805,6 +12362,9 @@
       ],
       "post": {
         "operationId": "answerConsoleAgentTurn",
+        "x-uc": [
+          "UC-MOD-08"
+        ],
         "summary": "Answer the clarifying questions a turn waits on.",
         "description": "The turn is awaiting_input after a clarify event; the answers go to the run and it goes on.",
         "tags": [
@@ -12279,7 +12839,11 @@
       ],
       "get": {
         "operationId": "listAIProviders",
-        "summary": "The providers, each with its models. Admins only.",
+        "x-uc": [
+          "UC-MOD-12"
+        ],
+        "summary": "The providers Bifrost runs, each with its status over the last hour. Admins only.",
+        "description": "Read-only: a new provider or key is an infra change. status is unknown with no request in the last hour; down when Bifrost marks the provider's status error, or when at least half of at least 5 requests failed; degraded when at least 5% of at least 20 requests failed; else ok.",
         "tags": [
           "console",
           "internal"
@@ -12310,252 +12874,24 @@
             "$ref": "#/components/responses/AIGatewayUnavailable"
           }
         }
-      },
-      "post": {
-        "operationId": "createAIProvider",
-        "summary": "Add a provider: a LiteLLM credential with its key. Admins only; each change is a console action.",
-        "description": "A provider in sync mode lists its models at once. The key goes to LiteLLM only.",
-        "tags": [
-          "console",
-          "internal"
-        ],
-        "security": [
-          {
-            "consoleAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AIProviderNew"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Done.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AIProvider"
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/ConsoleForbidden"
-          },
-          "409": {
-            "description": "A provider has this id already (ai_provider_exists).",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "422": {
-            "$ref": "#/components/responses/AISettingsRefused"
-          },
-          "503": {
-            "$ref": "#/components/responses/AIGatewayUnavailable"
-          }
-        }
       }
     },
-    "/v1/console/settings/providers/health": {
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/ConsoleCSRF"
-        }
-      ],
-      "get": {
-        "operationId": "getAIProviderHealth",
-        "summary": "Each provider's last 24 hours in LiteLLM's logs. Admins only.",
-        "description": "Requests served, their share of all, the share that succeeded, the median duration and the last error. LiteLLM shows no cooldowns, so cooling_until is left out.",
-        "tags": [
-          "console",
-          "internal"
-        ],
-        "security": [
-          {
-            "consoleAuth": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Done.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AIProviderHealthList"
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/ConsoleForbidden"
-          },
-          "503": {
-            "$ref": "#/components/responses/AIGatewayUnavailable"
-          }
-        }
-      }
-    },
-    "/v1/console/settings/providers/{id}": {
+    "/v1/console/settings/providers/{name}/models": {
       "parameters": [
         {
           "$ref": "#/components/parameters/ConsoleCSRF"
         },
         {
-          "$ref": "#/components/parameters/AIProviderID"
-        }
-      ],
-      "patch": {
-        "operationId": "updateAIProvider",
-        "summary": "Change a provider's name, base URL, key, weight, order or mode. Admins only; each change is a console action.",
-        "description": "A new weight or order is written onto each agent alias deployment on the provider; sync mode lists its models at once.",
-        "tags": [
-          "console",
-          "internal"
-        ],
-        "security": [
-          {
-            "consoleAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AIProviderPatch"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Done.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AIProvider"
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/ConsoleForbidden"
-          },
-          "404": {
-            "description": "No such provider (ai_provider_not_found).",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "An agent's model has no other provider (ai_provider_in_use); pick another model for the agent first.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "422": {
-            "$ref": "#/components/responses/AISettingsRefused"
-          },
-          "503": {
-            "$ref": "#/components/responses/AIGatewayUnavailable"
-          }
-        }
-      },
-      "delete": {
-        "operationId": "deleteAIProvider",
-        "summary": "Delete a provider and its deployments. Admins only; each change is a console action.",
-        "tags": [
-          "console",
-          "internal"
-        ],
-        "security": [
-          {
-            "consoleAuth": []
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Done."
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/ConsoleForbidden"
-          },
-          "404": {
-            "description": "No such provider (ai_provider_not_found).",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "An agent's model has no other provider (ai_provider_in_use); pick another model for the agent first.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "503": {
-            "$ref": "#/components/responses/AIGatewayUnavailable"
-          }
-        }
-      }
-    },
-    "/v1/console/settings/providers/{id}/models": {
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/ConsoleCSRF"
-        },
-        {
-          "$ref": "#/components/parameters/AIProviderID"
+          "$ref": "#/components/parameters/AIProviderName"
         }
       ],
       "get": {
         "operationId": "listAIProviderModels",
-        "summary": "The models a provider lists, each marked added when it is in the provider's list. Admins only.",
-        "description": "From the provider's lister in LiteLLM, which every provider has; tags, price and context come from the server's tags and LiteLLM's model info.",
+        "x-uc": [
+          "UC-MOD-12"
+        ],
+        "summary": "A provider's catalog in Bifrost, each model with its list price. Admins only.",
+        "description": "The model picker reads it; a model's list price is where its price starts.",
         "tags": [
           "console",
           "internal"
@@ -12583,203 +12919,7 @@
             "$ref": "#/components/responses/ConsoleForbidden"
           },
           "404": {
-            "description": "No such provider (ai_provider_not_found).",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "503": {
-            "$ref": "#/components/responses/AIGatewayUnavailable"
-          }
-        }
-      },
-      "post": {
-        "operationId": "addAIProviderModel",
-        "summary": "Add a model to a provider's list. Admins only; each change is a console action.",
-        "description": "The aliases of agents on the model gain a deployment on the provider.",
-        "tags": [
-          "console",
-          "internal"
-        ],
-        "security": [
-          {
-            "consoleAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AIProviderModelNew"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Done.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AIProvider"
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/ConsoleForbidden"
-          },
-          "404": {
-            "description": "No such provider (ai_provider_not_found).",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "422": {
-            "$ref": "#/components/responses/AISettingsRefused"
-          },
-          "503": {
-            "$ref": "#/components/responses/AIGatewayUnavailable"
-          }
-        }
-      },
-      "delete": {
-        "operationId": "removeAIProviderModel",
-        "summary": "Take a model out of a provider's list. Admins only; each change is a console action.",
-        "tags": [
-          "console",
-          "internal"
-        ],
-        "security": [
-          {
-            "consoleAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "model",
-            "in": "query",
-            "required": true,
-            "description": "The model, which may hold a slash (baai/bge-m3).",
-            "schema": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 200
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Done.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AIProvider"
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/ConsoleForbidden"
-          },
-          "404": {
-            "description": "No such provider (ai_provider_not_found) or model on it (ai_model_not_found).",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "An agent's model has no other provider (ai_provider_in_use); pick another model for the agent first.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "503": {
-            "$ref": "#/components/responses/AIGatewayUnavailable"
-          }
-        }
-      }
-    },
-    "/v1/console/settings/providers/{id}/test": {
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/ConsoleCSRF"
-        },
-        {
-          "$ref": "#/components/parameters/AIProviderID"
-        }
-      ],
-      "post": {
-        "operationId": "testAIProvider",
-        "summary": "Call one of a provider's models once through LiteLLM. Admins only.",
-        "description": "ok false with the provider error when the call fails; nothing changes.",
-        "tags": [
-          "console",
-          "internal"
-        ],
-        "security": [
-          {
-            "consoleAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AIProviderTestRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Done.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AIProviderTest"
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/ConsoleForbidden"
-          },
-          "404": {
-            "description": "No such provider (ai_provider_not_found).",
+            "description": "Bifrost runs no such provider (ai_provider_not_found).",
             "content": {
               "application/json": {
                 "schema": {
@@ -12802,7 +12942,10 @@
       ],
       "get": {
         "operationId": "listAIModels",
-        "summary": "Every model a provider serves or an agent runs on, with tags, providers, price and agents. Admins only.",
+        "x-uc": [
+          "UC-MOD-12"
+        ],
+        "summary": "Every model an agent uses, or that has a price or tags, with its price and its catalog's. Admins only.",
         "tags": [
           "console",
           "internal"
@@ -12843,8 +12986,11 @@
       ],
       "put": {
         "operationId": "setAIModelTags",
+        "x-uc": [
+          "UC-MOD-12"
+        ],
         "summary": "Replace a model's tags. Admins only; each change is a console action.",
-        "description": "An agent that requires a tag the model loses keeps running on it.",
+        "description": "The model is in the body, as its id may hold a slash. An agent that requires a tag the model loses keeps running on it.",
         "tags": [
           "console",
           "internal"
@@ -12859,7 +13005,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/AIModelTagsRequest"
+                "$ref": "#/components/schemas/AIModelTags"
               }
             }
           }
@@ -12890,6 +13036,77 @@
         }
       }
     },
+    "/v1/console/settings/models/price": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/ConsoleCSRF"
+        }
+      ],
+      "put": {
+        "operationId": "setAIModelPrice",
+        "x-uc": [
+          "UC-MOD-12"
+        ],
+        "summary": "Set a model's price, new or over the old. Admins only; each change is a console action.",
+        "description": "One price per model, shared by the agents that use it. Bifrost logs each call's cost with it, which the agents' budgets and spend count. The model is in the body, as its id may hold a slash.",
+        "tags": [
+          "console",
+          "internal"
+        ],
+        "security": [
+          {
+            "consoleAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AIModelPrice"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Done.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AIModelPrice"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/ConsoleForbidden"
+          },
+          "404": {
+            "description": "Bifrost runs no such provider (ai_provider_not_found).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "$ref": "#/components/responses/AISettingsRefused"
+          },
+          "503": {
+            "$ref": "#/components/responses/AIGatewayUnavailable"
+          }
+        }
+      }
+    },
     "/v1/console/settings/agents": {
       "parameters": [
         {
@@ -12898,7 +13115,11 @@
       ],
       "get": {
         "operationId": "listAIAgents",
-        "summary": "The app agents and the console agents. Admins only.",
+        "x-uc": [
+          "UC-MOD-12"
+        ],
+        "summary": "The app agents and the console agents, each with this month's spend. Admins only.",
+        "description": "When Bifrost cannot be read, budget_spent_usd and budget_resets_at are null and the rest answers.",
         "tags": [
           "console",
           "internal"
@@ -12929,8 +13150,11 @@
       },
       "post": {
         "operationId": "createAIAgent",
+        "x-uc": [
+          "UC-MOD-12"
+        ],
         "summary": "Make a console agent. Admins only; each change is a console action.",
-        "description": "The model must carry the required tags. The agent is saved first; then the alias gets one deployment per provider of the model and joins the agent service's key. After 503 the same create again answers the saved agent and writes LiteLLM.",
+        "description": "The model and each fallback must have a price and carry the required tags; an agent that requires Embedding takes no fallback. The agent gets one caller named after its slug. The agent is saved first, then written into Bifrost; after 503 the same create again answers the saved agent.",
         "tags": [
           "console",
           "internal"
@@ -12970,18 +13194,8 @@
           "403": {
             "$ref": "#/components/responses/ConsoleForbidden"
           },
-          "404": {
-            "description": "No provider has this model (ai_model_not_found).",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
           "409": {
-            "description": "Another agent has this name or alias (ai_agent_taken), or the agent changed meanwhile (try_again).",
+            "description": "Another agent or caller has this name or slug (ai_agent_taken).",
             "content": {
               "application/json": {
                 "schema": {
@@ -13007,8 +13221,11 @@
       ],
       "get": {
         "operationId": "getAIAgentUsage",
+        "x-uc": [
+          "UC-MOD-12"
+        ],
         "summary": "Each agent's requests by day over a range. Admins only.",
-        "description": "A console agent's are its turns from the agent service; an app agent's its alias's requests in LiteLLM.",
+        "description": "A console agent's are its turns; an app agent's are its team's requests in Bifrost.",
         "tags": [
           "console",
           "internal"
@@ -13051,14 +13268,7 @@
             "$ref": "#/components/responses/ConsoleForbidden"
           },
           "503": {
-            "description": "LiteLLM (ai_gateway_unavailable) or the agent (agent_unavailable) cannot be reached.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
+            "$ref": "#/components/responses/AIGatewayUnavailable"
           }
         }
       }
@@ -13074,8 +13284,11 @@
       ],
       "patch": {
         "operationId": "updateAIAgent",
+        "x-uc": [
+          "UC-MOD-12"
+        ],
         "summary": "Change an agent. Admins only; each change is a console action.",
-        "description": "The agent is saved first; then a new model rewrites the alias's deployments, so the code that calls it needs no deploy, and a budget goes to LiteLLM. After 503 the same change again writes LiteLLM. New instructions are a new version.",
+        "description": "The agent is saved first; a new model, fallbacks, budget, callers' limits or on/off is then written into Bifrost, so the code that calls the agent needs no deploy. After 503 the change is saved and Bifrost takes it within 5 minutes. New instructions are a new version.",
         "tags": [
           "console",
           "internal"
@@ -13126,7 +13339,7 @@
             }
           },
           "409": {
-            "description": "Another agent has this name or alias (ai_agent_taken), or the agent changed meanwhile (try_again).",
+            "description": "Another agent has this name (ai_agent_taken), or the agent changed meanwhile (try_again).",
             "content": {
               "application/json": {
                 "schema": {
@@ -13155,6 +13368,9 @@
       ],
       "get": {
         "operationId": "listAIAgentVersions",
+        "x-uc": [
+          "UC-MOD-12"
+        ],
         "summary": "An agent's instructions, newest first. Admins only.",
         "tags": [
           "console",
@@ -13195,196 +13411,6 @@
         }
       }
     },
-    "/v1/console/settings/rotation": {
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/ConsoleCSRF"
-        }
-      ],
-      "get": {
-        "operationId": "getAIRotation",
-        "summary": "LiteLLM's router settings. Admins only.",
-        "tags": [
-          "console",
-          "internal"
-        ],
-        "security": [
-          {
-            "consoleAuth": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Done.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AIRotation"
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/ConsoleForbidden"
-          },
-          "503": {
-            "$ref": "#/components/responses/AIGatewayUnavailable"
-          }
-        }
-      },
-      "patch": {
-        "operationId": "updateAIRotation",
-        "summary": "Change LiteLLM's router settings. Admins only; each change is a console action.",
-        "tags": [
-          "console",
-          "internal"
-        ],
-        "security": [
-          {
-            "consoleAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AIRotationPatch"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Done.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AIRotation"
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/ConsoleForbidden"
-          },
-          "503": {
-            "$ref": "#/components/responses/AIGatewayUnavailable"
-          }
-        }
-      }
-    },
-    "/v1/console/settings/budgets": {
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/ConsoleCSRF"
-        }
-      ],
-      "get": {
-        "operationId": "getAIBudgets",
-        "summary": "Each agent's monthly budget and spend, and the members' daily budget. Admins only.",
-        "tags": [
-          "console",
-          "internal"
-        ],
-        "security": [
-          {
-            "consoleAuth": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Done.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AIBudgets"
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/ConsoleForbidden"
-          },
-          "503": {
-            "$ref": "#/components/responses/AIGatewayUnavailable"
-          }
-        }
-      },
-      "patch": {
-        "operationId": "updateAIBudgets",
-        "summary": "Set agents' monthly budgets and the members' daily budget. Admins only; each change is a console action.",
-        "description": "An app agent's budget is its LiteLLM keys'; a console agent's is its alias's budget on the agent service's key; a member's is a LiteLLM end-user budget of one day. The settings are saved before LiteLLM takes them, so after 503 the same change again writes them to LiteLLM.",
-        "tags": [
-          "console",
-          "internal"
-        ],
-        "security": [
-          {
-            "consoleAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AIBudgetsPatch"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Done.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AIBudgets"
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/ConsoleForbidden"
-          },
-          "404": {
-            "description": "No such agent (ai_agent_not_found) or console member (member_not_found).",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "409": {
-            "$ref": "#/components/responses/Conflict"
-          },
-          "503": {
-            "$ref": "#/components/responses/AIGatewayUnavailable"
-          }
-        }
-      }
-    },
     "/v1/console/settings/spend": {
       "parameters": [
         {
@@ -13393,7 +13419,11 @@
       ],
       "get": {
         "operationId": "getAISpend",
-        "summary": "LiteLLM's spend by day, in all and by agent, over a range ending today. Admins only.",
+        "x-uc": [
+          "UC-MOD-12"
+        ],
+        "summary": "The spend of each UTC day from from to to, in all and by agent, as Bifrost logged it. Admins only.",
+        "description": "At most 366 days (else ai_spend_range_invalid). Bifrost's totals trail real time by up to lag_s seconds.",
         "tags": [
           "console",
           "internal"
@@ -13405,16 +13435,21 @@
         ],
         "parameters": [
           {
-            "name": "range",
+            "name": "from",
             "in": "query",
+            "required": true,
             "schema": {
               "type": "string",
-              "enum": [
-                "7d",
-                "30d",
-                "90d"
-              ],
-              "default": "30d"
+              "format": "date"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
             }
           }
         ],
@@ -13429,11 +13464,24 @@
               }
             }
           },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
           },
           "403": {
             "$ref": "#/components/responses/ConsoleForbidden"
+          },
+          "422": {
+            "description": "to is before from, or the range is longer than 366 days (ai_spend_range_invalid).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           },
           "503": {
             "$ref": "#/components/responses/AIGatewayUnavailable"
@@ -13449,6 +13497,9 @@
       ],
       "get": {
         "operationId": "getAITools",
+        "x-uc": [
+          "UC-MOD-12"
+        ],
         "summary": "The agent's tool calls over a range, each tool with its title. Admins only.",
         "tags": [
           "console",
@@ -13502,6 +13553,9 @@
       ],
       "get": {
         "operationId": "getAIGuardrails",
+        "x-uc": [
+          "UC-MOD-12"
+        ],
         "summary": "The agent's guardrail notices over a range. Admins only.",
         "tags": [
           "console",
@@ -13555,6 +13609,9 @@
       ],
       "get": {
         "operationId": "listDashboardFloors",
+        "x-uc": [
+          "UC-MOD-10"
+        ],
         "summary": "The ops dashboards and the lowest role that opens each. Admins only.",
         "description": "Moderators read the same list on GET /v1/console/me.",
         "tags": [
@@ -13587,6 +13644,9 @@
       },
       "patch": {
         "operationId": "setDashboardFloors",
+        "x-uc": [
+          "UC-MOD-10"
+        ],
         "summary": "Change dashboards' floors. Admins only; each change is a console action.",
         "description": "The ticket and the dashboards' forwardAuth check read the new floor at once, so a dashboard session of a member below it is refused on its next request.",
         "tags": [
@@ -13639,6 +13699,9 @@
       ],
       "post": {
         "operationId": "createConsoleDashboardTicket",
+        "x-uc": [
+          "UC-MOD-10"
+        ],
         "summary": "A one-time ticket that opens an ops dashboard on its own host.",
         "description": "The console asks for a ticket, then sends the browser to callback_url,\nwhere the server turns the ticket into the dashboard's cookie. A\nticket opens the dashboard once, within 60 seconds, and only while\nthis session lives. Grafana takes a moderator; the other dashboards\ntake an admin. A dashboard that DASHBOARD_HOSTS gives no host is\ndashboard_not_configured.\n",
         "tags": [
@@ -13689,6 +13752,9 @@
     "/v1/console/dashboard-auth": {
       "get": {
         "operationId": "authorizeConsoleDashboard",
+        "x-uc": [
+          "UC-MOD-10"
+        ],
         "x-rate-limit": "exempt",
         "summary": "Traefik's forwardAuth check in front of every ops dashboard.",
         "description": "Traefik calls it with the dashboard request's Cookie and its\nX-Forwarded-* headers; no console header. X-Forwarded-Host names the\ndashboard through DASHBOARD_HOSTS, and the console_dashboard cookie\nmust belong to that dashboard and to a console session that still\nlives, of a member whose role opens the dashboard. Without such a\ncookie a GET is sent to the console, which asks for a ticket; any\nother method gets 401. Traefik copies X-Console-Email and X-Console-Role\nonto the request it lets through and drops a client's own.\n",
@@ -13775,6 +13841,9 @@
     "/_dashboard/callback": {
       "get": {
         "operationId": "openConsoleDashboard",
+        "x-uc": [
+          "UC-MOD-10"
+        ],
         "summary": "Turn a dashboard ticket into the dashboard's cookie.",
         "description": "Served on each dashboard's own host, where the Ingress routes\n/_dashboard to the server without forwardAuth. The request's Host\nnames the dashboard. The ticket must be unused, unexpired, for this\ndashboard and of a console session that still lives; it is spent here.\nThe answer sets console_dashboard (Secure, HttpOnly, SameSite=Lax,\nPath=/, no Domain, so only this host gets it) for as long as the\nconsole session has left, and redirects to rd when rd is a path on\nthis host, to / otherwise.\n",
         "tags": [
@@ -14056,6 +14125,7 @@
               "ai.provider_delete",
               "ai.provider_models",
               "ai.model_tags",
+              "ai.model_price",
               "ai.agent_create",
               "ai.agent_update",
               "ai.rotation",
@@ -14595,7 +14665,7 @@
       },
       "AgentRunEvent": {
         "type": "object",
-        "description": "The data of one server-sent event of a run, `{seq, type, at, ...}`;\nthe event's `id:` is its seq, counted from 1 per turn. The fields\nbeside seq, type and at are those of the type:\n\n- turn.started: agent {id, name}, model (the alias), deadline_s\n- turn.resumed: by (continue, steer, input)\n- step.started: step_id, title\n- step.finished: step_id, summary, duration_ms\n- tool.started: call_id, step_id, tool, label, input (cut at 2000\n  characters)\n- tool.retry: call_id, attempt, error, next_in_ms, timeout_ms\n- tool.finished: call_id, status (success, failed, skipped),\n  duration_ms, timing {queued, server, db, return}, result_summary,\n  source_ids, sources\n- model.switched: from_provider, to_provider, reason\n- thinking: summary, duration_ms\n- text.delta: delta\n- block: block, one AgentBlock\n- clarify: questions [{id, label, kind: single|multi, options: [{id,\n  label, hint?}], default?}]; the turn waits\n- usage: input_tokens (uncached), output_tokens, cache_read_tokens?,\n  cache_write_tokens?, cost_usd, provider, first_token_ms\n- steer.read: steer_id, step_id (or null), step_number\n- turn.pausing, turn.paused: steps_done, reason (member, stop_now)\n- rate.waiting: until\n- context.compacting: before_tokens\n- context.compacted: summary, before_tokens, after_tokens\n- context.meter: used_tokens, window_tokens\n- guardrail: rule (loop_stopped, rate_limited), detail\n- turn.finished: status (SUCCEEDED, FAILED, CANCELLED, TIMED_OUT,\n  BUDGET), outcome (null on success), failure (the error code),\n  continuable, sources\n\nThe stream ends after turn.finished, turn.paused or clarify; after\nContinue, answers or an update to a paused turn the console opens it\nagain with its last seq. Tool inputs and outputs in full are not in the\nevents; GET /v1/console/agent/tool-calls/{id} serves them.\n",
+        "description": "The data of one server-sent event of a run, `{seq, type, at, ...}`;\nthe event's `id:` is its seq, counted from 1 per turn. The fields\nbeside seq, type and at are those of the type:\n\n- turn.started: agent {id, name}, model (provider/model), deadline_s\n- turn.resumed: by (continue, steer, input)\n- step.started: step_id, title\n- step.finished: step_id, summary, duration_ms\n- tool.started: call_id, step_id, tool, label, input (cut at 2000\n  characters)\n- tool.retry: call_id, attempt, error, next_in_ms, timeout_ms\n- tool.finished: call_id, status (success, failed, skipped),\n  duration_ms, timing {queued, server, db, return}, result_summary,\n  source_ids, sources\n- model.switched: from_model, to_model (provider/model), reason\n  (fallback when Bifrost tried the next model, changed when an admin\n  gave the agent another model)\n- thinking: summary, duration_ms\n- text.delta: delta\n- block: block, one AgentBlock\n- clarify: questions [{id, label, kind: single|multi, options: [{id,\n  label, hint?}], default?}]; the turn waits\n- usage: input_tokens (uncached), output_tokens, cache_read_tokens?,\n  cache_write_tokens?, cost_usd, provider (Bifrost's provider name),\n  first_token_ms\n- steer.read: steer_id, step_id (or null), step_number\n- turn.pausing, turn.paused: steps_done, reason (member, stop_now)\n- rate.waiting: until\n- context.compacting: before_tokens\n- context.compacted: summary, before_tokens, after_tokens\n- context.meter: used_tokens, window_tokens\n- guardrail: rule (loop_stopped, rate_limited), detail\n- turn.finished: status (SUCCEEDED, FAILED, CANCELLED, TIMED_OUT,\n  BUDGET), outcome (null on success), failure (the error code),\n  continuable, sources\n\nThe stream ends after turn.finished, turn.paused or clarify; after\nContinue, answers or an update to a paused turn the console opens it\nagain with its last seq. Tool inputs and outputs in full are not in the\nevents; GET /v1/console/agent/tool-calls/{id} serves them.\n",
         "required": [
           "seq",
           "type",
@@ -15231,7 +15301,8 @@
             "type": "integer"
           },
           "provider": {
-            "type": "string"
+            "type": "string",
+            "description": "The provider in Bifrost that served the call, such as upstream or openrouter."
           }
         }
       },
@@ -15242,14 +15313,19 @@
           "id",
           "kind",
           "name",
-          "alias",
+          "slug",
           "icon",
           "purpose",
           "required_tags",
           "model",
+          "fallbacks",
           "instructions_version",
           "tools",
           "limits",
+          "monthly_budget_usd",
+          "budget_spent_usd",
+          "budget_resets_at",
+          "callers",
           "enabled",
           "updated_at"
         ],
@@ -15269,9 +15345,9 @@
           "name": {
             "type": "string"
           },
-          "alias": {
+          "slug": {
             "type": "string",
-            "description": "The model name sent to LiteLLM; shown nowhere else."
+            "description": "The agent's stable name, its team's in Bifrost; set once."
           },
           "icon": {
             "type": "string"
@@ -15286,7 +15362,14 @@
             }
           },
           "model": {
-            "type": "string"
+            "$ref": "#/components/schemas/AIModelRef"
+          },
+          "fallbacks": {
+            "type": "array",
+            "description": "The models Bifrost tries in order when the model fails.",
+            "items": {
+              "$ref": "#/components/schemas/AIModelRef"
+            }
           },
           "instructions": {
             "type": "string",
@@ -15306,7 +15389,32 @@
             "$ref": "#/components/schemas/AIAgentLimits"
           },
           "monthly_budget_usd": {
-            "type": "number"
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "The agent's budget per UTC month; null for none."
+          },
+          "budget_spent_usd": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "This month's spend, as Bifrost counts it; null with no budget or when Bifrost cannot be read."
+          },
+          "budget_resets_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "The 1st of next month (UTC), when the spend starts again; null as budget_spent_usd is."
+          },
+          "callers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AIAgentCaller"
+            }
           },
           "enabled": {
             "type": "boolean"
@@ -15321,36 +15429,33 @@
           }
         }
       },
-      "AIAgentBudget": {
+      "AIAgentCaller": {
         "type": "object",
         "additionalProperties": false,
+        "description": "One virtual key of an agent, named after the code that calls it, with its rate limits per minute; null is no limit.",
         "required": [
-          "agent_id",
           "name",
-          "kind",
-          "spent_usd"
+          "requests_per_min",
+          "tokens_per_min"
         ],
         "properties": {
-          "agent_id": {
-            "type": "string",
-            "format": "uuid"
-          },
           "name": {
-            "type": "string"
-          },
-          "kind": {
             "type": "string",
-            "enum": [
-              "app",
-              "console"
-            ]
+            "pattern": "^[a-z0-9][a-z0-9-]{1,62}$"
           },
-          "monthly_budget_usd": {
-            "type": "number"
+          "requests_per_min": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 1
           },
-          "spent_usd": {
-            "type": "number",
-            "description": "Spent in the budget's current period, as LiteLLM counts it."
+          "tokens_per_min": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 1
           }
         }
       },
@@ -15408,9 +15513,10 @@
       "AIAgentNew": {
         "type": "object",
         "additionalProperties": false,
+        "description": "A console agent; its one caller is named after its slug.",
         "required": [
           "name",
-          "alias",
+          "slug",
           "model"
         ],
         "properties": {
@@ -15419,7 +15525,7 @@
             "minLength": 1,
             "maxLength": 80
           },
-          "alias": {
+          "slug": {
             "type": "string",
             "pattern": "^[a-z0-9][a-z0-9-]{1,62}$"
           },
@@ -15439,9 +15545,14 @@
             }
           },
           "model": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 200
+            "$ref": "#/components/schemas/AIModelRef"
+          },
+          "fallbacks": {
+            "type": "array",
+            "maxItems": 5,
+            "items": {
+              "$ref": "#/components/schemas/AIModelRef"
+            }
           },
           "instructions": {
             "type": "string",
@@ -15459,7 +15570,7 @@
           },
           "monthly_budget_usd": {
             "type": "number",
-            "minimum": 0
+            "exclusiveMinimum": 0
           },
           "enabled": {
             "type": "boolean"
@@ -15470,7 +15581,7 @@
         "type": "object",
         "additionalProperties": false,
         "minProperties": 1,
-        "description": "An app agent takes model, limits and monthly_budget_usd only (else ai_agent_app_fixed).",
+        "description": "An app agent takes model, fallbacks, limits, monthly_budget_usd and callers only (else ai_agent_app_fixed).",
         "properties": {
           "name": {
             "type": "string",
@@ -15493,9 +15604,14 @@
             }
           },
           "model": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 200
+            "$ref": "#/components/schemas/AIModelRef"
+          },
+          "fallbacks": {
+            "type": "array",
+            "maxItems": 5,
+            "items": {
+              "$ref": "#/components/schemas/AIModelRef"
+            }
           },
           "instructions": {
             "type": "string",
@@ -15516,8 +15632,16 @@
               "number",
               "null"
             ],
-            "minimum": 0,
+            "exclusiveMinimum": 0,
             "description": "null takes the budget away."
+          },
+          "callers": {
+            "type": "array",
+            "maxItems": 20,
+            "description": "Every caller of the agent, each once, with its new rate limits; only the limits change (else ai_agent_invalid).",
+            "items": {
+              "$ref": "#/components/schemas/AIAgentCaller"
+            }
           },
           "enabled": {
             "type": "boolean"
@@ -15618,137 +15742,6 @@
           }
         }
       },
-      "AIBudgets": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "agents"
-        ],
-        "properties": {
-          "agents": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AIAgentBudget"
-            }
-          },
-          "monthly_cap_usd": {
-            "type": "number",
-            "description": "The cap on the month's spend of every agent (UTC month)."
-          },
-          "month_spent_usd": {
-            "type": "number"
-          },
-          "alert_pct": {
-            "type": "integer"
-          },
-          "on_cap": {
-            "type": "string",
-            "description": "stop_agents refuses console turns once the month's spend reaches the cap; alert_only only alerts.",
-            "enum": [
-              "stop_agents",
-              "alert_only"
-            ]
-          },
-          "alerting": {
-            "type": "boolean",
-            "description": "The month's spend is at or past alert_pct of the cap."
-          },
-          "capped": {
-            "type": "boolean",
-            "description": "The month's spend is at or past the cap."
-          },
-          "member_daily_usd": {
-            "$ref": "#/components/schemas/AIRoleBudgets"
-          },
-          "overrides": {
-            "type": "array",
-            "description": "Members with a daily budget of their own, in place of their role's.",
-            "items": {
-              "$ref": "#/components/schemas/AIMemberBudget"
-            }
-          }
-        }
-      },
-      "AIBudgetsPatch": {
-        "type": "object",
-        "additionalProperties": false,
-        "minProperties": 1,
-        "properties": {
-          "agents": {
-            "type": "array",
-            "maxItems": 50,
-            "items": {
-              "type": "object",
-              "additionalProperties": false,
-              "required": [
-                "agent_id",
-                "monthly_budget_usd"
-              ],
-              "properties": {
-                "agent_id": {
-                  "type": "string",
-                  "format": "uuid"
-                },
-                "monthly_budget_usd": {
-                  "type": [
-                    "number",
-                    "null"
-                  ],
-                  "minimum": 0
-                }
-              }
-            }
-          },
-          "monthly_cap_usd": {
-            "type": [
-              "number",
-              "null"
-            ],
-            "minimum": 0
-          },
-          "alert_pct": {
-            "type": "integer",
-            "minimum": 1,
-            "maximum": 100
-          },
-          "on_cap": {
-            "type": "string",
-            "enum": [
-              "stop_agents",
-              "alert_only"
-            ]
-          },
-          "member_daily_usd": {
-            "type": "object",
-            "additionalProperties": false,
-            "description": "A role's daily budget; null or 0 takes it away.",
-            "properties": {
-              "moderator": {
-                "type": [
-                  "number",
-                  "null"
-                ],
-                "minimum": 0
-              },
-              "admin": {
-                "type": [
-                  "number",
-                  "null"
-                ],
-                "minimum": 0
-              }
-            }
-          },
-          "overrides": {
-            "type": "array",
-            "description": "Every member's own daily budget; replaces the list.",
-            "maxItems": 200,
-            "items": {
-              "$ref": "#/components/schemas/AIMemberBudget"
-            }
-          }
-        }
-      },
       "AIDayCount": {
         "type": "object",
         "additionalProperties": false,
@@ -15827,35 +15820,22 @@
           }
         }
       },
-      "AIMemberBudget": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "member_id",
-          "daily_usd"
-        ],
-        "properties": {
-          "member_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "daily_usd": {
-            "type": "number",
-            "minimum": 0
-          }
-        }
-      },
       "AIModel": {
         "type": "object",
         "additionalProperties": false,
         "required": [
-          "model",
+          "provider",
+          "model_id",
           "tags",
-          "providers",
+          "price",
+          "catalog_price",
           "agents"
         ],
         "properties": {
-          "model": {
+          "provider": {
+            "type": "string"
+          },
+          "model_id": {
             "type": "string"
           },
           "tags": {
@@ -15864,28 +15844,34 @@
               "type": "string"
             }
           },
-          "providers": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AINamed"
-            }
+          "price": {
+            "description": "The model's price; null until an admin sets one, and an agent cannot run on it before.",
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AIPrice"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "catalog_price": {
+            "description": "The list price of the provider's catalog in Bifrost; null where the catalog has none.",
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AIPrice"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "agents": {
             "type": "array",
-            "description": "The agents that run on the model.",
+            "description": "The agents that use the model, as their model or a fallback.",
             "items": {
               "$ref": "#/components/schemas/AIAgentRef"
             }
-          },
-          "input_cost_per_mtok": {
-            "type": "number"
-          },
-          "output_cost_per_mtok": {
-            "type": "number"
-          },
-          "context_tokens": {
-            "type": "integer",
-            "description": "The input tokens LiteLLM's model info gives the model."
           }
         }
       },
@@ -15912,38 +15898,88 @@
           }
         }
       },
+      "AIModelPrice": {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "A model's price in USD per token; a negative one is refused (ai_price_invalid).",
+        "required": [
+          "provider",
+          "model_id",
+          "input",
+          "output"
+        ],
+        "properties": {
+          "provider": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 63
+          },
+          "model_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "input": {
+            "type": "number"
+          },
+          "output": {
+            "type": "number"
+          },
+          "cache_read": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Null or left out is the input price."
+          },
+          "cache_write": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Null or left out is the input price."
+          }
+        }
+      },
+      "AIModelRef": {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "A provider's model, which callers send Bifrost as provider/model_id.",
+        "required": [
+          "provider",
+          "model_id"
+        ],
+        "properties": {
+          "provider": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 63
+          },
+          "model_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        }
+      },
       "AIModelTags": {
         "type": "object",
         "additionalProperties": false,
         "required": [
-          "model",
+          "provider",
+          "model_id",
           "tags"
         ],
         "properties": {
-          "model": {
-            "type": "string"
-          },
-          "tags": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        }
-      },
-      "AIModelTagsRequest": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "model",
-          "tags"
-        ],
-        "properties": {
-          "model": {
+          "provider": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 200,
-            "description": "The model, which may hold a slash (baai/bge-m3)."
+            "maxLength": 63
+          },
+          "model_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
           },
           "tags": {
             "type": "array",
@@ -15954,129 +15990,78 @@
           }
         }
       },
-      "AINamed": {
+      "AIPrice": {
         "type": "object",
         "additionalProperties": false,
+        "description": "USD per token. A null cache price is the input price.",
         "required": [
-          "id",
-          "name"
+          "input",
+          "output",
+          "cache_read",
+          "cache_write"
         ],
         "properties": {
-          "id": {
-            "type": "string"
+          "input": {
+            "type": "number"
           },
-          "name": {
-            "type": "string"
+          "output": {
+            "type": "number"
+          },
+          "cache_read": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "cache_write": {
+            "type": [
+              "number",
+              "null"
+            ]
           }
         }
       },
       "AIProvider": {
         "type": "object",
         "additionalProperties": false,
-        "description": "A provider, a LiteLLM credential. Each of its models is a deployment of every agent alias that runs on it, with the provider's weight and order.",
+        "description": "A provider Bifrost runs from its config.json; a new one or a new key is an infra change.",
         "required": [
-          "id",
           "name",
           "kind",
-          "weight",
-          "order",
-          "mode",
-          "enabled",
-          "models"
+          "status",
+          "error_share_1h",
+          "requests_1h",
+          "model_count"
         ],
         "properties": {
-          "id": {
-            "type": "string",
-            "description": "The LiteLLM credential name."
-          },
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "The provider's name in Bifrost, the prefix of its models (upstream/claude-sonnet-5-5)."
           },
           "kind": {
             "type": "string",
-            "description": "LiteLLM's provider route, such as openai, anthropic or openrouter."
+            "description": "A built-in provider's name, such as openrouter, or custom."
           },
-          "base_url": {
-            "type": "string"
-          },
-          "key_hint": {
+          "base_host": {
             "type": "string",
-            "description": "The key as LiteLLM shows it, masked. The key itself never comes back."
+            "description": "The host of the provider's base URL, when it has one."
           },
-          "weight": {
+          "status": {
+            "$ref": "#/components/schemas/AIProviderStatus"
+          },
+          "error_share_1h": {
             "type": "number",
             "minimum": 0,
-            "description": "The provider's share of calls among providers of the same order."
+            "maximum": 1,
+            "description": "The share of the last hour's requests that failed."
           },
-          "order": {
+          "requests_1h": {
             "type": "integer",
-            "minimum": 1,
-            "description": "Lower is tried first; a higher order is the fallback."
+            "description": "The requests of the last hour."
           },
-          "mode": {
-            "$ref": "#/components/schemas/AIProviderMode"
-          },
-          "enabled": {
-            "type": "boolean",
-            "description": "The provider serves the agents' aliases; a provider turned off keeps its models and serves none."
-          },
-          "models": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "synced_at": {
-            "type": "string",
-            "format": "date-time",
-            "description": "The last sync, for a provider in sync mode."
-          }
-        }
-      },
-      "AIProviderHealthList": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "items"
-        ],
-        "properties": {
-          "items": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "additionalProperties": false,
-              "required": [
-                "id",
-                "requests_24h",
-                "share_pct",
-                "success_pct",
-                "p50_ms"
-              ],
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "requests_24h": {
-                  "type": "integer"
-                },
-                "share_pct": {
-                  "type": "number"
-                },
-                "success_pct": {
-                  "type": "number"
-                },
-                "p50_ms": {
-                  "type": "integer"
-                },
-                "cooling_until": {
-                  "type": "string",
-                  "format": "date-time"
-                },
-                "last_error": {
-                  "type": "string"
-                }
-              }
-            }
+          "model_count": {
+            "type": "integer",
+            "description": "The models of the provider's catalog in Bifrost."
           }
         }
       },
@@ -16095,13 +16080,24 @@
           }
         }
       },
-      "AIProviderMode": {
-        "type": "string",
-        "description": "pick keeps the models an admin added; sync lists the provider's models every 6 hours and adds the new ones, with no tags.",
-        "enum": [
-          "pick",
-          "sync"
-        ]
+      "AIProviderModel": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "model_id"
+        ],
+        "properties": {
+          "model_id": {
+            "type": "string",
+            "description": "The model as the provider names it, without the provider's prefix."
+          },
+          "catalog_price": {
+            "$ref": "#/components/schemas/AIPrice"
+          },
+          "max_input_tokens": {
+            "type": "integer"
+          }
+        }
       },
       "AIProviderModelList": {
         "type": "object",
@@ -16113,301 +16109,39 @@
           "items": {
             "type": "array",
             "items": {
-              "type": "object",
-              "additionalProperties": false,
-              "required": [
-                "model",
-                "added"
-              ],
-              "properties": {
-                "model": {
-                  "type": "string"
-                },
-                "tags": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "input_cost_per_mtok": {
-                  "type": "number"
-                },
-                "output_cost_per_mtok": {
-                  "type": "number"
-                },
-                "context_tokens": {
-                  "type": "integer"
-                },
-                "added": {
-                  "type": "boolean",
-                  "description": "The model is in the provider's list."
-                }
-              }
+              "$ref": "#/components/schemas/AIProviderModel"
             }
           }
         }
       },
-      "AIProviderModelNew": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "model"
-        ],
-        "properties": {
-          "model": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 200,
-            "description": "The model as the provider names it, without LiteLLM's route."
-          },
-          "input_cost_per_mtok": {
-            "type": "number",
-            "minimum": 0,
-            "description": "USD per million input tokens, for LiteLLM's spend."
-          },
-          "output_cost_per_mtok": {
-            "type": "number",
-            "minimum": 0
-          }
-        }
-      },
-      "AIProviderNew": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "id",
-          "kind",
-          "api_key"
-        ],
-        "properties": {
-          "id": {
-            "type": "string",
-            "pattern": "^[a-z0-9][a-z0-9-]{1,40}$"
-          },
-          "name": {
-            "type": "string",
-            "maxLength": 100
-          },
-          "kind": {
-            "type": "string",
-            "pattern": "^[a-z][a-z0-9_]{1,30}$"
-          },
-          "base_url": {
-            "type": "string",
-            "format": "uri",
-            "maxLength": 500
-          },
-          "api_key": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 1000,
-            "writeOnly": true
-          },
-          "weight": {
-            "type": "number",
-            "minimum": 0
-          },
-          "order": {
-            "type": "integer",
-            "minimum": 1
-          },
-          "mode": {
-            "$ref": "#/components/schemas/AIProviderMode"
-          }
-        }
-      },
-      "AIProviderPatch": {
-        "type": "object",
-        "additionalProperties": false,
-        "minProperties": 1,
-        "properties": {
-          "name": {
-            "type": "string",
-            "maxLength": 100
-          },
-          "base_url": {
-            "type": "string",
-            "maxLength": 500
-          },
-          "api_key": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 1000,
-            "writeOnly": true
-          },
-          "weight": {
-            "type": "number",
-            "minimum": 0
-          },
-          "order": {
-            "type": "integer",
-            "minimum": 1
-          },
-          "mode": {
-            "$ref": "#/components/schemas/AIProviderMode"
-          },
-          "enabled": {
-            "type": "boolean",
-            "description": "false takes the provider out of every alias (ai_provider_in_use when it is an agent's model's only one)."
-          }
-        }
-      },
-      "AIProviderTest": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "ok",
-          "latency_ms"
-        ],
-        "properties": {
-          "ok": {
-            "type": "boolean"
-          },
-          "model": {
-            "type": "string"
-          },
-          "error": {
-            "type": "string",
-            "description": "The provider's error as LiteLLM gives it."
-          },
-          "latency_ms": {
-            "type": "integer"
-          }
-        }
-      },
-      "AIProviderTestRequest": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "model": {
-            "type": "string",
-            "maxLength": 200,
-            "description": "The model to call; the first of the provider's list when left out."
-          }
-        }
-      },
-      "AIRoleBudgets": {
-        "type": "object",
-        "additionalProperties": false,
-        "description": "The daily budget of a moderator and of an admin through the console agents; none when left out.",
-        "properties": {
-          "moderator": {
-            "type": "number"
-          },
-          "admin": {
-            "type": "number"
-          }
-        }
-      },
-      "AIRotation": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "routing_strategy",
-          "num_retries",
-          "allowed_fails",
-          "cooldown_s",
-          "timeout_s"
-        ],
-        "properties": {
-          "routing_strategy": {
-            "type": "string"
-          },
-          "num_retries": {
-            "type": "integer"
-          },
-          "allowed_fails": {
-            "type": "integer",
-            "description": "Failures in a minute before a deployment cools down."
-          },
-          "cooldown_s": {
-            "type": "number"
-          },
-          "timeout_s": {
-            "type": "number"
-          }
-        }
-      },
-      "AIRotationPatch": {
-        "type": "object",
-        "additionalProperties": false,
-        "minProperties": 1,
-        "properties": {
-          "routing_strategy": {
-            "$ref": "#/components/schemas/AIRoutingStrategy"
-          },
-          "num_retries": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 10
-          },
-          "allowed_fails": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 100
-          },
-          "cooldown_s": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 3600
-          },
-          "timeout_s": {
-            "type": "number",
-            "minimum": 1,
-            "maximum": 600
-          }
-        }
-      },
-      "AIRoutingStrategy": {
+      "AIProviderStatus": {
         "type": "string",
-        "description": "LiteLLM's routing strategy. simple-shuffle picks by the providers' weights.",
+        "description": "unknown with no request in the last hour; down when Bifrost marks the provider's status error, or when error_share_1h is at least 0.5 over at least 5 requests; degraded when it is at least 0.05 over at least 20 requests; else ok.",
         "enum": [
-          "simple-shuffle",
-          "least-busy",
-          "latency-based-routing",
-          "usage-based-routing-v2"
+          "ok",
+          "degraded",
+          "down",
+          "unknown"
         ]
       },
       "AISpend": {
         "type": "object",
         "additionalProperties": false,
         "required": [
-          "range",
-          "start",
-          "end",
-          "total_usd",
           "days",
-          "members"
+          "lag_s"
         ],
         "properties": {
-          "range": {
-            "type": "string",
-            "enum": [
-              "7d",
-              "30d",
-              "90d"
-            ]
-          },
-          "start": {
-            "type": "string",
-            "format": "date"
-          },
-          "end": {
-            "type": "string",
-            "format": "date"
-          },
-          "total_usd": {
-            "type": "number"
-          },
           "days": {
             "type": "array",
+            "description": "Each UTC day from from to to, oldest first.",
             "items": {
               "type": "object",
               "additionalProperties": false,
               "required": [
                 "date",
                 "total_usd",
-                "agents"
+                "by_agent"
               ],
               "properties": {
                 "date": {
@@ -16415,59 +16149,22 @@
                   "format": "date"
                 },
                 "total_usd": {
-                  "type": "number"
+                  "type": "number",
+                  "description": "Every call's cost, an agent's or not."
                 },
-                "agents": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "required": [
-                      "agent_id",
-                      "usd"
-                    ],
-                    "properties": {
-                      "agent_id": {
-                        "type": "string",
-                        "format": "uuid"
-                      },
-                      "usd": {
-                        "type": "number"
-                      }
-                    }
+                "by_agent": {
+                  "type": "object",
+                  "description": "Each agent's cost, by its slug.",
+                  "additionalProperties": {
+                    "type": "number"
                   }
                 }
               }
             }
           },
-          "members": {
-            "type": "array",
-            "description": "Each member's spend through the console agents (LiteLLM's end users) and questions, most spent first.",
-            "items": {
-              "type": "object",
-              "additionalProperties": false,
-              "required": [
-                "member_id",
-                "display_name",
-                "usd",
-                "requests"
-              ],
-              "properties": {
-                "member_id": {
-                  "type": "string",
-                  "format": "uuid"
-                },
-                "display_name": {
-                  "type": "string"
-                },
-                "usd": {
-                  "type": "number"
-                },
-                "requests": {
-                  "type": "integer"
-                }
-              }
-            }
+          "lag_s": {
+            "type": "integer",
+            "description": "How many seconds Bifrost's totals may trail real time."
           }
         }
       },
@@ -16903,22 +16600,6 @@
           }
         }
       },
-      "CategoryCount": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "category",
-          "count"
-        ],
-        "properties": {
-          "category": {
-            "type": "string"
-          },
-          "count": {
-            "type": "integer"
-          }
-        }
-      },
       "CategoryGuess": {
         "type": "object",
         "additionalProperties": false,
@@ -17043,6 +16724,7 @@
           "id",
           "other",
           "archived",
+          "ignored",
           "blocked",
           "deals",
           "messages"
@@ -17057,6 +16739,10 @@
           },
           "archived": {
             "type": "boolean"
+          },
+          "ignored": {
+            "type": "boolean",
+            "description": "The caller ignores the conversation."
           },
           "blocked": {
             "type": "boolean",
@@ -18841,7 +18527,8 @@
         "required": [
           "id",
           "other",
-          "archived"
+          "archived",
+          "ignored"
         ],
         "properties": {
           "id": {
@@ -18853,6 +18540,10 @@
           },
           "archived": {
             "type": "boolean"
+          },
+          "ignored": {
+            "type": "boolean",
+            "description": "The caller ignores the conversation."
           },
           "other_read_message_id": {
             "type": "string",
@@ -18938,7 +18629,7 @@
             "enum": [
               "grafana",
               "restate",
-              "litellm",
+              "bifrost",
               "s3",
               "db",
               "argocd"
@@ -18994,7 +18685,7 @@
                   "enum": [
                     "grafana",
                     "restate",
-                    "litellm",
+                    "bifrost",
                     "s3",
                     "db",
                     "argocd"
@@ -19042,7 +18733,7 @@
             "enum": [
               "grafana",
               "restate",
-              "litellm",
+              "bifrost",
               "s3",
               "argocd",
               "db"
@@ -20099,7 +19790,6 @@
         "required": [
           "code",
           "display_name",
-          "count",
           "children"
         ],
         "description": "A root of the category tree.",
@@ -20109,10 +19799,6 @@
           },
           "display_name": {
             "type": "string"
-          },
-          "count": {
-            "type": "integer",
-            "description": "Active listings under the root."
           },
           "children": {
             "type": "array",
@@ -20149,7 +19835,7 @@
           "for_you": {
             "type": "array",
             "maxItems": 20,
-            "description": "Dành cho bạn, active listings nationwide. A signed-in reader's\nlistings come first from the subcategories of their signals of the\nlast 30 days: the newest 100 listings they saved, the newest 100\nthey opened, and those of their last 10 searches that fall in the\nwindow and named a subcategory. The listings are ordered by the\nweight of their subcategory, then newest first. The newest listings\nof any other subcategory follow. A signed-out reader, or one with no\nsignal, gets the newest listings. Each listing appears at most once,\nand the reader's own listings, those they hid and those of the\naccounts on either side of their blocks are left out.\n",
+            "description": "Dành cho bạn, active listings nationwide. A signed-in reader's\nlistings come first from the subcategories of their signals of the\nlast 30 days: the newest 100 listings they saved, the newest 100\nthey opened, and those of their last 10 searches that fall in the\nwindow and named a subcategory, the 5 subcategories weighing most.\nThe listings are ordered by the weight of their subcategory, then\nnewest first. The newest listings\nof any other subcategory follow. A signed-out reader, or one with no\nsignal, gets the newest listings. Each listing appears at most once,\nand the reader's own listings, those they hid and those of the\naccounts on either side of their blocks are left out.\n",
             "items": {
               "$ref": "#/components/schemas/SearchItem"
             }
@@ -20165,8 +19851,7 @@
         "additionalProperties": false,
         "required": [
           "code",
-          "display_name",
-          "count"
+          "display_name"
         ],
         "description": "A subcategory under a root of the category tree.",
         "properties": {
@@ -20175,10 +19860,6 @@
           },
           "display_name": {
             "type": "string"
-          },
-          "count": {
-            "type": "integer",
-            "description": "Active listings in the subcategory."
           }
         }
       },
@@ -20249,6 +19930,7 @@
           "last_message",
           "unread",
           "archived",
+          "ignored",
           "other_active_deals"
         ],
         "description": "deal is the pair's deal the row is about, absent when the two have none:\nthe newest, by last move, of those where it is the caller's turn, else\nthe newest negotiating or agreed one, else the newest. order_status is\nthat of the deal's newest order. scam_warning is absent when the caller\nhas no warning in the conversation.\n",
@@ -20268,6 +19950,9 @@
             "description": "The other member's sent messages after the caller's read marker; at least 1 while the caller's unread mark is set."
           },
           "archived": {
+            "type": "boolean"
+          },
+          "ignored": {
             "type": "boolean"
           },
           "deal": {
@@ -22379,15 +22064,14 @@
           "source": {
             "type": "string",
             "enum": [
-              "market",
-              "model"
+              "market"
             ],
-            "description": "market is similar listings on the platform; model is the AI's own guess."
+            "description": "Similar listings on the platform; the only source today."
           },
           "sample_size": {
             "type": "integer",
             "minimum": 0,
-            "description": "Listings behind a market range; 0 for model."
+            "description": "Listings behind the range."
           }
         }
       },
@@ -24208,14 +23892,7 @@
           "watch_id": {
             "type": "string",
             "format": "uuid",
-            "description": "The caller's watch of this query; absent signed out or when there is none."
-          },
-          "counts": {
-            "type": "array",
-            "description": "With a root category filter, the matches per subcategory, under every other filter, province included.",
-            "items": {
-              "$ref": "#/components/schemas/CategoryCount"
-            }
+            "description": "The caller's watch of this query; absent signed out, with seller, or when there is none."
           }
         }
       },
@@ -24996,6 +24673,41 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/SitemapArea"
+            }
+          }
+        }
+      },
+      "SitemapCategory": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "category_code",
+          "updated_at"
+        ],
+        "description": "A subcategory with at least 5 listings on sale.",
+        "properties": {
+          "category_code": {
+            "type": "string",
+            "description": "A subcategory code from GET /v1/categories."
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The latest change to one of its listings on sale."
+          }
+        }
+      },
+      "SitemapCategoryList": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SitemapCategory"
             }
           }
         }
@@ -25949,7 +25661,7 @@
         }
       },
       "AIGatewayUnavailable": {
-        "description": "LiteLLM cannot be reached (ai_gateway_unavailable); the settings stay as they were.",
+        "description": "Bifrost cannot be reached (ai_gateway_unavailable). A change is saved and goes to Bifrost when it is back, within 5 minutes.",
         "content": {
           "application/json": {
             "schema": {
@@ -25959,7 +25671,7 @@
         }
       },
       "AISettingsRefused": {
-        "description": "A rule refuses the change: ai_provider_invalid, ai_model_lacks_tags, ai_tag_unknown, ai_agent_invalid, ai_agent_app_fixed, ai_rotation_invalid, or LiteLLM refused it (ai_gateway_refused).",
+        "description": "A rule refuses the change: ai_model_unpriced (the model or a fallback has no price), ai_model_lacks_tags (it lacks a required tag), ai_tag_unknown, ai_agent_invalid (such as a caller not the agent's, or a fallback for an Embedding agent), ai_agent_app_fixed, ai_price_invalid, or Bifrost refused it (ai_gateway_refused).",
         "content": {
           "application/json": {
             "schema": {
@@ -26124,14 +25836,14 @@
           "format": "uuid"
         }
       },
-      "AIProviderID": {
-        "name": "id",
+      "AIProviderName": {
+        "name": "name",
         "in": "path",
         "required": true,
-        "description": "The provider's id, its LiteLLM credential name.",
+        "description": "The provider's name in Bifrost's config.json, such as upstream or openrouter.",
         "schema": {
           "type": "string",
-          "pattern": "^[a-z0-9][a-z0-9-]{1,40}$"
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,62}$"
         }
       },
       "ConsoleAccountID": {

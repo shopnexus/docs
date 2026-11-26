@@ -1,35 +1,40 @@
 ---
 title: Tin đăng
-description: Tin đăng là tập cam kết của seller, có AI điền giúp, và không có phần khai vết.
+description: Một tin đăng chứa gì, AI giúp viết tin thế nào, vì sao tin không có phần khai vết, và các giới hạn trên tin của người bán.
 group: Mô hình sàn
 order: 2
 groupOrder: 1
 audience: [everyone]
 type: concept
 readingTime: 2
-updated: 2026-11-04
+updated: 2026-11-27
 related: ["/vi/marketplace/cod-deal", "/vi/marketplace/after-delivery", "/vi/architecture/catalog"]
 ---
 
-Mỗi tin là một món, một giá, bán giữa hai người và trả tiền khi nhận hàng. Tin đăng là tập cam kết mà buyer kiểm được ở cửa, ghi thành từng trường thay vì một đoạn văn.
+Một tin đăng là một món hàng với một giá, do một người bán cho một người khác và trả tiền khi nhận hàng. Những gì tin ghi là những gì người mua kiểm tra ở cửa.
 
-## Tin cam kết những gì
+## Tin đăng chứa gì
 
-- Tình trạng theo thang chuẩn: Mới, Như mới, Đã dùng.
-- <Term id="listing-claims">Tin ghi</Term>: các thông tin seller ghi trong tin, kiểu "Pin 88%", "Máy zin, chưa sửa", "Bản VN/A". App không gợi ý buyer kiểm gì lúc đồng kiểm, vì seller có thể ghi sai và buyer có thể dựa vào danh sách đó để ăn vạ.
-- Ảnh, chụp bằng camera trong app hoặc chọn từ thư viện. Form đếm riêng số ảnh chụp trong app ("2/3 ảnh chụp trong app").
-- Giá tính bằng đồng chẵn, từ 10.000 ₫ đến 1.000.000.000 ₫. Mức trần chặn giá gõ dư số 0.
+- Tiêu đề, danh mục và các thông số mà danh mục yêu cầu, như dung lượng hay kích cỡ.
+- Tình trạng theo thang cố định: Mới, Như mới hoặc Đã dùng.
+- Tối đa 10 ảnh, ảnh đầu tiên làm ảnh bìa. Mỗi ảnh cho biết nó được chụp trong ứng dụng, chọn từ thư viện hay chuyển sang từ một tin trước đó.
+- Giá niêm yết tính bằng đồng chẵn, từ 10.000 ₫ đến 1.000.000.000 ₫. Mức trần chặn giá gõ dư số 0. Người bán chọn có cho người mua trả giá hay không.
+- Nơi có món hàng: vị trí của người bán làm mờ còn khoảng 1 km khi họ cho phép, nếu không thì là tâm phường/xã của họ. Người mua thấy phường/xã, không bao giờ thấy địa chỉ.
 
-## AI điền giúp
+## AI giúp viết tin
 
-Seller bắt đầu từ ảnh hoặc một video ngắn, AI điền tiêu đề, danh mục, thông số và mô tả. Video cho AI nhiều thông tin hơn, vì seller nói được mức pin hay giá. Seller nói gì trong video thì mô tả giữ nguyên, kể cả vết xước, vì đó là lời của chính seller.
+Người bán có thể bắt đầu từ một ảnh hoặc một video ngắn. AI viết tiêu đề và mô tả, còn hệ thống đoán danh mục. Tình trạng, thông số và giá vẫn do người bán điền. Video cho AI nhiều thông tin hơn, vì người bán nói được đã dùng món hàng bao lâu và đi kèm những gì. Mô tả chỉ nhắc lại những gì người bán đã nói hoặc ảnh cho thấy. Người bán có tin trên Chợ Tốt có thể liên kết trang cá nhân đó một lần và chuyển các tin sang cùng ảnh.
 
-Nháp nằm trên máy cho tới khi đủ thông tin. Tin mới qua bước xử lý ảnh rồi mới hiện công khai.
+Ở bước giá, ứng dụng cho thấy các món tương tự đã bán với giá bao nhiêu và bán nhanh thế nào. Người bán kiểm tra bản nháp rồi đăng; không gì được đăng nếu người bán chưa đồng ý.
+
+Bản nháp được giữ 30 ngày và hiện trên các thiết bị khác của người bán. Trước lần đăng đầu, người bán thiết lập COD: địa chỉ lấy hàng và một tài khoản hãng vận chuyển đã liên kết.
 
 ## Không có phần khai vết
 
-Tin không có phần khai vết, và AI không chỉ ra vết nào. Mỗi người đánh giá vết trên đồ cũ một khác, nên vết đã khai không phải dữ kiện đáng tin. Vết do AI nêu ra còn dễ thành cớ để buyer ăn vạ sau khi mua, khiến seller bỏ sàn. Buyer tự xem tình trạng khi đồng kiểm ở cửa, trước lúc trả tiền. Quyết định này chốt ngày 2026-10-27.
+Tin đăng không có phần để người bán khai vết, và AI không bao giờ chỉ ra vết xước hay vết móp. Mỗi người đánh giá độ cũ của đồ đã dùng một khác, nên vết đã khai không phải dữ kiện đáng tin. Vết do AI nêu ra còn cho người mua cớ để bắt lỗi người bán sau khi mua, khiến người bán rời đi. Người mua thấy tình trạng thật ở cửa, trước khi trả tiền.
 
-## Giới hạn
+## Sau khi đăng
 
-Mỗi seller có tối đa 20 tin cùng lúc ở trạng thái đang xử lý, đang bán, đang ẩn hoặc bị từ chối. Khi hàng của một tin đang trên đường giao, tin bị giữ chỗ: buyer khác không tìm thấy nó nữa, và seller không sửa, ẩn hay xóa được.
+Tin mới, hoặc tin đã sửa có ảnh mới, được xử lý trước rồi mới hiện công khai. Ảnh xử lý lỗi thì tin bị từ chối cho tới khi người bán sửa.
+
+Mỗi người bán có tối đa 20 tin cùng lúc ở trạng thái đang xử lý, đang bán, đang ẩn, bị từ chối hoặc đang giữ chỗ. Khi bưu kiện của một tin đang trên đường giao, tin ở trạng thái đang giữ chỗ: tin vẫn hiện, và người bán không sửa, ẩn hay xóa được. Món bán ngoài ứng dụng được ghi lại bằng **Đánh dấu đã bán**.

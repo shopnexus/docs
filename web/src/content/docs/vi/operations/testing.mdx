@@ -1,32 +1,85 @@
 ---
 title: Test
-description: Test của server được tổ chức thế nào, chạy trên gì, và app được kiểm tra ra sao.
+description: Stack test của server, các loại test và mỗi loại chứng minh điều gì, cách chạy chúng, CI kiểm tra gì, và ứng dụng Android được kiểm tra ra sao.
 group: Vận hành
 order: 5
 groupOrder: 1
 audience: [developers]
 type: reference
-readingTime: 2
-updated: 2026-11-04
-related: ["/vi/operations/local-stack", "/vi/architecture/durable-flows"]
+readingTime: 5
+updated: 2026-11-27
+related: ["/vi/operations/local-stack", "/vi/architecture/durable-flows", "/vi/architecture/data"]
 ---
 
-## Server
+## Không dùng fake cho database
 
-`make test` bật stack test, chạy toàn bộ test với race detector, rồi chạy golangci-lint. Bước lint cũng kiểm tra format bằng gofumpt. Sau một lần chạy, stack vẫn bật, nên `go test` cho từng package chạy được luôn. `go test -short` chỉ chạy những test không cần database.
+Server không có fake trong bộ nhớ. Thứ gì đụng tới store đều được test trên Postgres, và mỗi test có một bản clone riêng từ database mẫu đã migrate. Một fake sẽ phải bắt chước hành vi của Postgres, như timestamp tới micro giây, cách xử lý xung đột và ràng buộc unique, rồi lại cần test riêng để chứng minh nó bắt chước đúng.
 
-Không có fake trong bộ nhớ. Thứ gì đụng tới store đều test trên Postgres, mỗi test có một bản clone riêng từ database mẫu đã migrate. Một fake sẽ phải bắt chước hành vi của Postgres, rồi lại cần test riêng để chứng minh nó bắt chước đúng.
+`go test -short` chỉ chạy những test không cần database.
+
+## Stack test
+
+Test chạy trên Postgres (ParadeDB), Restate và RustFS riêng, tách khỏi stack dev, nên một lần chạy test không bao giờ đụng tới dữ liệu dev. Postgres và RustFS giữ dữ liệu trên tmpfs, nên tắt stack là dữ liệu mất. Test chỉ nhận database test, `server_test` ở cổng 56433, và từ chối clone hay xóa bất cứ thứ gì ở nơi khác.
+
+| Container | Cổng |
+|---|---|
+| Postgres | 56433 |
+| Restate | ingress 56581, admin 56571 |
+| RustFS | 56491 |
+
+Restate ký mọi request tới một endpoint test bằng identity key của stack, và test đọc nửa public của khóa đó, giống server ở production. Các package test dùng chung một server Restate, nên mỗi test đăng ký service của nó dưới một tiền tố tên mới và gỡ chúng khi kết thúc.
+
+## Chạy test
+
+Có hai cách chạy.
+
+- **Từ repo server**: `make test` bật stack trong `server/docker-compose.test.yml`, tạo lại Restate (journal của nó phình ra sau mỗi lần chạy), chạy mọi test với race detector, rồi chạy golangci-lint, bước này cũng chạy `go vet` và kiểm tra format gofumpt. Stack vẫn bật, nên sau đó chạy thẳng `go test ./internal/<module>/...` được. `make down` tắt nó.
+- **Từ repo umbrella**: `make test` chạy `docker compose --profile test run --rm --build tests`, cùng các test đó trong một container dùng chung network của Restate, với profile `test` của file compose. Postgres của nó không mở cổng ra host, nên test chỉ chạy bên trong container đó. `make down` ở thư mục gốc tắt nó.
+
+<Callout type="warning">
+Stack test là một bộ container cho mỗi máy, dùng chung cho mọi checkout và worktree. Tạo lại nó trong lúc một lần chạy khác đang diễn ra sẽ làm hỏng lần chạy đó. "Connection refused" trên các cổng của stack, Restate trả 401 khi đăng ký, hoặc Restate load shedding thường có nghĩa là stack đã bị tạo lại hoặc quá tải, không phải bug. Hãy chạy lại riêng các package lỗi trên một stack mới trước khi coi lỗi là thật, và giữ số package chạy song song ở mức thấp (`go test -p 2`) khi nhiều lần chạy dùng chung stack.
+</Callout>
+
+## Các loại test
 
 | Tầng | Test thế nào |
 |---|---|
-| Entity | unit test không cần database; luật nghiệp vụ nằm ở đây |
-| Repository và service | trên Postgres, với đồng hồ đứng yên |
-| Handler Restate | chạy với Restate của stack test, endpoint mở ngay trong process, đồng hồ chỉnh tay; có wrapper làm một bước commit xong rồi lỗi một lần, để chứng minh retry không tạo bản trùng |
-| HTTP | test middleware trong process; các endpoint chạy trong bộ e2e |
-| E2E | cả server chạy trong process với Postgres và Restate, token số điện thoại do một issuer test ký, push bị một sender giả bắt lại |
+| Entity | unit test, không cần database. Luật nghiệp vụ nằm ở đây. |
+| Repository | trên Postgres, kể cả bước kiểm tra ghi lạc quan: lần ghi cũ bị xung đột, lưu lại cùng một thay đổi thì thành công, và hai thay đổi mới liên tiếp đều thành công. |
+| Service | trên Postgres, qua các repository thật của module và một đồng hồ đứng yên. Mỗi test chỉ đặt các dependency mà method của nó dùng, và bọc một repository khi cần một xung đột hoặc một lỗi. |
+| HTTP | test middleware trong process; chính các endpoint chạy trong bộ end-to-end. |
+| Flow Restate | chạy với Restate của stack test, endpoint mở ngay trong process và đồng hồ chỉnh bằng tay. Các test này giữ luật nghiệp vụ của flow, vì flow nằm trong handler của nó. |
+| End to end | cả server chạy trong process (HTTP và endpoint Restate) với stack test. |
 
-Bộ e2e trong `server/e2e` còn đối chiếu các route với spec OpenAPI. Mọi test đều chạy song song và linter bắt buộc điều đó. Test nào thay đổi trạng thái chung của process thì chạy riêng và ghi rõ lý do.
+### Retry
 
-## App Android
+Một [durable flow](/vi/architecture/durable-flows) phải sống sót qua một bước đã commit rồi mới lỗi. Một wrapper của store làm một bước commit xong rồi lỗi một lần với lỗi có thể retry. Restate retry bước đó, và test kiểm tra không dòng nào bị trùng, không tin nhắn nào bị đếm hai lần và bước bù trừ chạy nhiều nhất một lần.
 
-`./gradlew check` chạy unit test, test UI bằng Robolectric, Android Lint, detekt, ktlint và một bước kiểm tra không màn hình nào dùng màu thô. `./gradlew spotlessApply` sửa format.
+### End to end
+
+Bộ end-to-end chạy server thật, chỉ thay thế thế giới bên ngoài:
+
+- token đăng nhập bằng số điện thoại và token Google do các issuer test ký;
+- email rơi vào một hộp thư mà test đọc được, và thông báo đẩy bị một sender giả bắt lại;
+- các khóa xác minh số điện thoại không truy cập được, nên đường đó trả 503.
+
+Mọi lần gọi đi qua một helper kiểm tra response, kể cả status, so với spec OpenAPI. Cuối lần chạy, test lỗi nếu có status mà spec khai báo cho một operation nhưng chưa từng xuất hiện, nên mọi lỗi được ghi trong tài liệu đều có test.
+
+### Mặc định chạy song song
+
+Mọi test và subtest đều chạy song song, và linter bắt buộc điều đó. Test nào thay đổi trạng thái chung của process, như biến môi trường hay tracer toàn cục, thì chạy riêng và ghi lý do trong phần miễn trừ lint của nó.
+
+## Ngoài `make test`
+
+- `make search-eval` chạy bộ mẫu tìm kiếm với các mô hình thật và in recall@10 và nDCG@10 cho từng câu truy vấn. Nó cần các mô hình (`make models`) và một API key của mô hình.
+- `make loadtest` chạy load test k6 trong `server/loadtest` với một server đang chạy. `make loadtest-sessions` đăng nhập trước các phiên mà nó dùng. README của nó liệt kê các profile.
+
+## CI
+
+Mỗi lần push hoặc pull request trên server chạy một job kiểm tra: golangci-lint, `go vet`, govulncheck, và sqlfluff trên các migration mà lần push thêm vào. Image chỉ được build sau khi job này qua. Test cần stack test, nên không nằm trong CI; hãy chạy chúng trước khi push.
+
+Repo umbrella thêm hai bước kiểm tra xuyên repo. Job hợp đồng API kiểm tra các type sinh ra của website khớp với OpenAPI của server ở các commit đã ghim. `make trace` kiểm tra code server, test, OpenAPI và tài liệu chỉ nhắc tới các ID yêu cầu có thật.
+
+## Ứng dụng Android
+
+`./gradlew check` trong `clients/app-android` chạy unit test và test ViewModel, vài test UI bằng Robolectric, Android Lint, detekt, ktlint và một bước kiểm tra không màn hình nào dùng màu thô. `./gradlew spotlessApply` sửa format.

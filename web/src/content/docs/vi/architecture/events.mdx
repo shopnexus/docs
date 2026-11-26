@@ -6,42 +6,63 @@ groupOrder: 2
 order: 3
 audience: [developers]
 type: concept
-readingTime: 3
-updated: 2026-11-04
-related: ["/vi/architecture/durable-flows", "/vi/architecture/modules"]
+readingTime: 4
+updated: 2026-11-27
+related: ["/vi/architecture/durable-flows", "/vi/architecture/modules", "/vi/architecture/notifications"]
 ---
 
-Module báo một thay đổi bằng event, module nào quan tâm thì subscribe theo loại event. Module thay đổi dữ liệu không biết ai sẽ phản ứng. Mọi subscriber đều là module của cùng một server nên không cần broker: outbox là một bảng Postgres, `events`, còn Restate lo việc chuyển.
+Module báo một thay đổi bằng event, và module nào quan tâm thì subscribe theo loại event. Module thay đổi dữ liệu không bao giờ biết ai sẽ phản ứng. Mọi subscriber đều là module của cùng một server, nên không cần broker: outbox là một bảng Postgres, `events`, còn Restate lo việc chuyển. <Req id="NFR-MSG-01" />
 
 ```mermaid title="Từ một lần ghi tới subscriber"
 flowchart LR
-  repo[Repository ghi] -->|cùng transaction| table[(bảng events)]
-  table --> bus[Event bus]
+  repo[Một thay đổi được lưu] -->|cùng commit| table[(bảng events)]
+  table -->|thức dậy khi commit,<br/>và mỗi giây| bus[Event bus]
   bus -->|mỗi event ID một lần| deliver[Restate: deliver]
   deliver --> w1[worker của deal]
   deliver --> w2[worker của notification]
+  deliver --> w3[các worker khác]
 ```
 
 ## Phát event
 
-Repository ghi event của một thay đổi trong chính transaction của thay đổi đó. Lần ghi thua race thì không để lại event nào, còn commit thì luôn kèm event của nó. Event rất mỏng: một loại như `listing.sold`, ID của thứ vừa đổi, và với vài loại thì thêm vài trường mà subscriber cần, như thời điểm hết hạn khóa tài khoản.
+Một thay đổi và các event của nó được ghi trong một commit. Lần ghi thua cuộc đua không để lại event nào, còn commit thì luôn để lại event của nó. Event có ID đã tồn tại thì không được ghi lại, nên bước durable thử lại lần lưu của nó chỉ ghi một event.
 
-Các loại đang dùng đến từ account (updated, suspended, unsuspended), catalog (tin đăng published, updated, hidden, unhidden, sold, unsold, deleted, reserved, released, rejected), deal (`deal.moved`), chat (`message.sent`) và trust (`review.posted`).
+Event rất mỏng: một loại có dạng `aggregate.past_tense`, ID của thứ vừa đổi, và với vài loại thì thêm các trường mà subscriber cần, như thời điểm hết hạn tạm khóa.
+
+| Module | Loại |
+|---|---|
+| account | `account.updated`, `account.suspended`, `account.unsuspended`, `account.deleted` |
+| catalog | `listing.published`, `listing.updated`, `listing.hidden`, `listing.unhidden`, `listing.sold`, `listing.unsold`, `listing.reserved`, `listing.released`, `listing.rejected`, `listing.deleted` |
+| deal | `deal.moved` |
+| chat | `message.sent` |
+| trust | `review.posted`, `review.replied` |
+| discovery | `saved.price_dropped`, `search_watch.matched` |
+| feedback | `feedback.moved`, `feedback.replied` |
+| chotot | `chotot_link.imported`, `chotot_import.sold` |
 
 ## Subscriber
 
 | Module | Nghe | Làm gì |
 |---|---|---|
-| deal | tin đăng updated, hidden, sold, deleted | Bỏ giá đang mở và hủy yêu cầu trên tin đã đóng hoặc đổi giá |
-| notification | bước deal, tin nhắn, tin đăng published hoặc rejected, đánh giá, khóa tài khoản | Ghi thông báo và gửi push |
+| deal | tin đăng updated, hidden, sold, deleted | Đưa các deal đang mở về đúng trạng thái: bỏ giá hoặc hủy yêu cầu trên tin đăng đã đổi hoặc đã đóng |
+| deal | `deal.moved` | Đăng lượt chuyển vào cuộc trò chuyện của hai bên |
+| catalog | tin đăng deleted; tin đăng thay đổi | Nhả ảnh của tin đăng đã xóa; xếp thay đổi vào hàng đợi cho IndexNow |
+| discovery | tin đăng published, updated | Ghi lại lần công khai đầu tiên cho theo dõi tìm kiếm, và kiểm tra tin đã lưu có giảm giá không |
+| trust | `message.sent` | Chạy kiểm tra lừa đảo trên cuộc trò chuyện |
+| support | `message.sent` | Chuyển trạng thái phiếu hỗ trợ của cuộc trò chuyện hỗ trợ: tin nhắn của người dùng mở lại phiếu, câu trả lời của nhân viên đánh dấu phiếu đã trả lời |
+| chotot | tin đăng sold, updated, deleted | Nhắc người bán ẩn tin trên Chợ Tốt, hoặc cập nhật hay bỏ theo dõi tin đã nhập |
+| notification | lượt chuyển của deal, tin nhắn, tin đăng published hoặc rejected, đánh giá và trả lời đánh giá, tạm khóa tài khoản, giảm giá, khớp theo dõi tìm kiếm, góp ý, nhập tin từ Chợ Tốt | Ghi thông báo và gửi thông báo đẩy và email |
+| mọi module có dữ liệu về một người | `account.deleted` | Xóa hoặc kết thúc những gì nó giữ của tài khoản đó |
 
-Subscriber đọc trạng thái hiện tại qua service của module nguồn. Vì vậy thứ tự, độ trễ hay event tới hai lần đều không làm đổi kết quả.
+Subscriber đọc trạng thái hiện tại qua service của module nguồn. Vì vậy thứ tự, độ trễ hay event tới hai lần đều không làm đổi kết quả. Subscriber nào tự ghi thứ của riêng mình thì suy ID từ ID của event, nên lần chuyển thứ hai không ghi thêm gì.
 
 ## Chuyển event
 
-Bus chạy trong server. Nó thức dậy khi Postgres báo có commit, và cứ mỗi giây một lần, lấy tối đa 100 hàng đang chờ rồi đưa từng hàng cho Restate với event ID làm idempotency key. Sau đó Restate mở cho mỗi subscriber một lần gọi riêng và thử lại riêng lần đó tới khi thành công, nên một subscriber lỗi không chặn subscriber khác hay event khác.
+Bus chạy trong server. Nó thức dậy khi Postgres báo có commit, và thêm mỗi giây một lần. Mỗi vòng lấy tối đa 100 hàng đang chờ và đưa từng hàng cho Restate với event ID làm idempotency key. Sau đó Restate mở cho mỗi subscriber một lần gọi riêng và thử lại riêng lần đó tới khi thành công. Một subscriber lỗi không chặn subscriber khác hay event khác.
 
 - Event tới service Restate của bus ít nhất một lần, và Restate bỏ event ID lặp lại trong 24 giờ.
-- Event bị ingress từ chối sẽ lùi thời gian thử lại, từ 1 giây tới tối đa một giờ.
+- Event không có subscriber nào được đánh dấu xong mà không gửi.
+- Event bị ingress từ chối chờ 1 giây, rồi 2, 4 và cứ thế, tối đa một giờ. Lỗi khác thì kết thúc vòng, và vòng sau gửi lại phần còn lại.
+- Trong lúc deploy cuốn chiếu, lần chuyển tới subscriber mà Restate chưa biết được thử lại có backoff tới khi phiên bản mới được đăng ký.
 - Khi Restate ngừng, event nằm chờ trong bảng và API vẫn chạy.
 - Hàng đã chuyển bị xóa sau 7 ngày. Không có replay lịch sử; subscriber cần dựng lại dữ liệu thì tự chạy một job đọc các bảng hiện tại.

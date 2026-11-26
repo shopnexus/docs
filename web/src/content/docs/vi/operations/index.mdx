@@ -7,39 +7,39 @@ groupOrder: 1
 audience: [developers, admins]
 type: overview
 readingTime: 4
-updated: 2026-11-26
+updated: 2026-11-27
 related: ["/vi/operations/cluster", "/vi/operations/cluster/bootstrap", "/vi/operations/cluster/releases", "/vi/operations/configuration", "/vi/operations/local-stack"]
 ---
 
-Server, website, tài liệu và console chạy trên một cluster k3d, chia thành hai stack là dev và prod. Mỗi stack có namespace riêng và có Postgres, Restate, RustFS và Bifrost, cổng tới các mô hình ở xa, của riêng nó. Mọi thứ cluster cần đều nằm trong `infra/` ở repo tổng. App Android được build và cài bằng Gradle, không thuộc cluster.
+Server, website, tài liệu, trang điều hành và agent của trang điều hành chạy trên một cluster k3d, chia thành hai stack là dev và prod. Mỗi stack có namespace riêng và có Postgres, Restate, RustFS và Bifrost, cổng tới các mô hình ở xa, của riêng nó. Mọi thứ cluster cần đều nằm trong `infra/` ở repo umbrella. Ứng dụng Android được build bằng Gradle và không thuộc cluster; flavor live của nó gọi API của dev.
 
 | Stack | Tên miền | Namespace | Theo dõi |
 |---|---|---|---|
 | dev | `dev.shopnexus.id.vn` | `shopnexus-dev` | `:main`, theo digest |
-| prod | `shopnexus.id.vn` | `shopnexus-prod` | một bản phát hành của repo tổng, `vX.Y.Z` |
+| prod | `shopnexus.id.vn` | `shopnexus-prod` | một bản phát hành của repo umbrella, `vX.Y.Z` |
 
-Mỗi stack phục vụ website trên tên miền của nó và bốn host bên dưới: `api.` cho server, `media.` cho object store, `docs.` cho tài liệu và `console.` cho console.
+Mỗi stack phục vụ website trên tên miền của nó và bốn host bên dưới: `api.` cho server, `media.` cho object store, `docs.` cho tài liệu và `console.` cho trang điều hành. Các dashboard của nhân viên có host riêng (xem [Giám sát](/vi/operations/monitoring)).
 
-Hệ thống đã được build và kiểm tra trên một cluster k3d chạy cục bộ. Việc dựng nó trên server của tác giả và chạy các bài diễn tập failover là bước tiếp theo, nên các host public ở trên chưa hoạt động.
+Cluster chạy trên [máy chủ Linux](/vi/operations/cluster/linux-server) của tác giả. Prod chạy từ bản phát hành đầu tiên trở đi; trước đó, stack dev cũng trả lời trên `shopnexus.id.vn`.
 
 ## Từ git push tới pod
 
 ```mermaid title="Từ git push tới pod đang chạy"
 flowchart TB
-  push[git push lên main] --> ci[GitHub Actions build.yml]
+  push[git push lên main] --> ci[GitHub Actions trong từng repo]
   ci --> ghcr["GHCR ghcr.io/shopnexus/*<br/>:main và sha-#lt;commit#gt;"]
   ghcr --> iu[Argo CD Image Updater]
   iu --> argo[Argo CD]
-  rel["release.yml của repo tổng<br/>X.Y.Z, tag vX.Y.Z"] --> argo
+  rel["release.yml của repo umbrella<br/>X.Y.Z, tag vX.Y.Z"] --> argo
   argo --> devns[shopnexus-dev]
   argo --> prodns[shopnexus-prod]
   devns --> traefik[Traefik]
   prodns --> traefik
 ```
 
-Repo của từng thành phần (`server`, `website`, `docs`, `console`) có một file `.github/workflows/build.yml`. Mỗi lần push lên `main`, workflow build image rồi đẩy lên GHCR với hai tag `main` và `sha-<commit>`. Khi phát hành lên prod, workflow Release của repo tổng thêm tag `X.Y.Z` vào image `sha-<commit>` của các commit mà submodule của nó trỏ tới. Các package để public, vì cluster kéo image về mà không có credential.
+Mỗi lần push lên `main` của `server`, `docs` hay agent sẽ build image của repo đó, còn push lên `clients` build image website hoặc trang điều hành khi thư mục của nó thay đổi. Mỗi image lên GHCR với hai tag `main` và `sha-<commit>`: `ghcr.io/shopnexus/server`, `docs` và `agent`, cùng `ghcr.io/shopnexus/clients/website` và `console`. Khi phát hành lên prod, workflow Release của repo umbrella tìm image của từng commit mà các submodule trỏ tới và gắn tag `X.Y.Z` cho nó. Các package để public, vì cluster kéo image về mà không có credential.
 
-Argo CD Image Updater theo dõi GHCR cho dev. Nó theo digest của `:main`, ghi tag mới thành một tham số Helm trên `stack-dev`, rồi Argo CD sync chart trong `infra/stack` vào `shopnexus-dev`. Prod không dùng Image Updater: workflow Release ghi phiên bản vào `infra/` và gắn tag `vX.Y.Z` cho repo tổng, rồi `stack-prod` render `infra/stack` ở tag đó. CI không bao giờ kết nối tới cluster. Traefik, đi kèm k3s, định tuyến mỗi request theo header `Host` tới các Service của stack.
+Argo CD Image Updater theo dõi GHCR cho dev. Nó theo digest của `:main`, ghi tag mới thành một tham số Helm trên `stack-dev`, rồi Argo CD sync chart trong `infra/stack` vào `shopnexus-dev`. Prod không dùng Image Updater: workflow Release ghi digest của từng image vào `infra/stack/values-prod.yaml`, gắn tag `vX.Y.Z` cho repo umbrella, rồi `stack-prod` render `infra/stack` ở tag đó. `infra/RELEASING.md` là quy trình phát hành, gồm cả hotfix và rollback. CI không bao giờ kết nối tới cluster. Traefik, đi kèm k3s, định tuyến mỗi request theo header `Host` tới các Service của stack.
 
 ## Cluster
 
@@ -48,7 +48,7 @@ Argo CD Image Updater theo dõi GHCR cho dev. Nó theo digest của `:main`, ghi
   <Card title="Dựng một cluster" href="/vi/operations/cluster/bootstrap" icon="ri:rocket-line">Fork, đặt tên miền, tạo cluster bằng k3d, seal secret, push.</Card>
   <Card title="Biên và mạng" href="/vi/operations/cluster/networking" icon="ri:global-line">Hai chế độ biên, TLS, các host và NetworkPolicy.</Card>
   <Card title="Postgres, Restate và RustFS" href="/vi/operations/cluster/data" icon="ri:database-2-line">Các workload có trạng thái, operator và storage của chúng.</Card>
-  <Card title="Phát hành" href="/vi/operations/cluster/releases" icon="ri:price-tag-3-line">dev theo main và prod chạy một bản phát hành của repo tổng thế nào.</Card>
+  <Card title="Phát hành" href="/vi/operations/cluster/releases" icon="ri:price-tag-3-line">dev theo main và prod chạy một bản phát hành của repo umbrella thế nào.</Card>
   <Card title="Secret" href="/vi/operations/cluster/secrets" icon="ri:key-2-line">Sealed Secrets, lệnh seal và khóa cần sao lưu.</Card>
   <Card title="Cổng Bifrost" href="/vi/operations/cluster/llm-gateway" icon="ri:robot-2-line">Bifrost trong mỗi stack: nhà cung cấp, agent, key và ngân sách theo tháng.</Card>
   <Card title="Runbook và xử lý sự cố" href="/vi/operations/cluster/runbook" icon="ri:first-aid-kit-line">Lệnh hằng ngày, bài diễn tập và cách sửa các lỗi đã biết.</Card>
@@ -63,7 +63,9 @@ Tài liệu có thêm một bản triển khai bên ngoài cluster. Mỗi lần 
 Server từ chối khởi động với `APP_ENV=prod` khi:
 
 - `RESTATE_IDENTITY_KEY` để trống;
-- `FCM_CREDENTIALS` để trống, khi đó push chỉ được ghi log;
-- `PNV_TEST_NUMBERS=true`, khi đó số test của PNV đăng nhập được.
+- `FCM_CREDENTIALS` để trống, khi đó thông báo đẩy chỉ được ghi log;
+- `EMAIL_SENDER=log`, khi đó mail chỉ được ghi log;
+- `PNV_TEST_NUMBERS=true`, khi đó số test của PNV đăng nhập được;
+- `CARRIER_GHTK` hoặc `CARRIER_GHN` là `fake`.
 
-Ở mọi môi trường, server cũng từ chối khởi động khi còn migration chưa chạy, vì vậy Job `migrate` chạy trước server trong mỗi stack. Chart đặt `APP_ENV` theo `appEnv` trong file values, đặt `PNV_TEST_NUMBERS=false` trong `values-prod.yaml` và `LOG_FORMAT=json` ở cả hai stack; các biến khác của server nằm ở trang [Cấu hình](/vi/operations/configuration).
+Ở mọi môi trường, server cũng từ chối khởi động khi còn migration chưa chạy, vì vậy Job `migrate` chạy trước server trong mỗi stack. Chart đặt `APP_ENV` theo `appEnv` trong file values và `LOG_FORMAT=json` ở cả hai stack. File values của mỗi stack đặt số test, cách gửi mail và chế độ của từng hãng vận chuyển: dev chạy hãng giả, số test và mail ra log, còn prod tắt số test và gửi mail qua Resend. Các biến khác của server nằm ở trang [Cấu hình](/vi/operations/configuration).

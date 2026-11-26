@@ -1,35 +1,40 @@
 ---
 title: Listings
-description: A listing is a set of commitments the seller makes, written with help from the model, with no section for declared marks.
+description: What a listing holds, how AI helps write it, why it has no section for declared marks, and the limits on a seller's listings.
 group: Marketplace
 order: 2
 groupOrder: 1
 audience: [everyone]
 type: concept
 readingTime: 2
-updated: 2026-11-04
+updated: 2026-11-27
 related: ["/en/marketplace/cod-deal", "/en/marketplace/after-delivery", "/en/architecture/catalog"]
 ---
 
-A listing is one item at one price, sold by one person to another and paid for on delivery. It is a set of commitments the buyer can check at the door, written as fields instead of a block of free text.
+A listing is one item at one price, sold by one person to another and paid for on delivery. What it says is what the buyer checks at the door.
 
-## What a listing commits to
+## What a listing holds
 
+- A title, a category and the specs its category asks for, such as storage or size.
 - A condition on a fixed scale: Mới (new), Như mới (like new) or Đã dùng (used).
-- <Term id="listing-claims">Tin ghi</Term>, the facts the seller states, such as "Pin 88%", "Máy zin, chưa sửa" or "Bản VN/A". At the door the buyer can open them with a note on how to check each one.
-- Photos, taken with the in-app camera or picked from the library. The form counts the ones taken in the app ("2/3 ảnh chụp trong app").
-- A price in whole đồng, from 10.000 ₫ to 1.000.000.000 ₫. The ceiling catches a price typed with extra zeros.
+- Up to 10 photos, the first one the cover. Each photo shows whether it was taken in the app, picked from the library or brought over from an earlier listing.
+- A price in whole đồng, from 10.000 ₫ to 1.000.000.000 ₫. The ceiling catches a price typed with extra zeros. The seller chooses whether buyers may make offers.
+- Where the item is: the seller's position blurred to about 1 km when they allow it, otherwise the centre of their commune. Buyers see the commune, never an address.
 
-## Help from the model
+## Help from AI
 
-The seller starts from photos or a short video, and the model fills in the title, category, specs and description. A video gives it more to work with, since the seller can say the battery level or the price out loud. Whatever the seller says in the video stays in the description, scratches included, because those are the seller's own words.
+The seller can start from a photo or a short video, and AI writes the title and description while the system guesses the category. Condition, specs and price stay the seller's to fill. A video gives AI more to work with, since the seller can say out loud how long they used the item and what it comes with. The description only restates what the seller said or what the photo shows. A seller with listings on Chợ Tốt can link that profile once and bring the listings over with their photos.
 
-The draft stays on the phone until it is complete. A new listing goes through photo processing and then becomes public.
+On the price step, the app shows what similar items sold for and how fast. The seller checks the draft and posts it; nothing is published without them.
+
+A draft is kept for 30 days and shows on the seller's other devices. Before the first post, the seller sets up COD: their pickup address and a linked carrier account.
 
 ## No declared marks
 
-A listing has no section where the seller declares marks, and the model never points out a scratch or dent. People judge wear on used goods differently, so a declared mark is not a reliable fact. A mark named by the model would also give a buyer grounds to complain after the sale, which drives sellers away. The buyer sees the real condition at the door, before paying. This was decided on 2026-10-27.
+A listing has no section where the seller declares marks, and AI never points out a scratch or dent. People judge wear on used goods differently, so a declared mark is not a reliable fact. A mark named by AI would also give a buyer grounds to complain after the sale, which drives sellers away. The buyer sees the real condition at the door, before paying.
 
-## Limits
+## After posting
 
-A seller can have up to 20 listings at once that are processing, active, hidden or rejected. While a parcel for a listing is on its way, the listing is reserved: other buyers no longer find it in search, and the seller cannot edit, hide or delete it.
+A new or edited listing with new photos is processed first and then becomes public. A photo that fails processing rejects the listing until the seller fixes it.
+
+A seller can have up to 20 listings at once that are processing, on sale, hidden, rejected or reserved. While a parcel for a listing is on its way, the listing is reserved: it stays visible, and the seller cannot edit, hide or delete it. A sale made outside the app is recorded with **Đánh dấu đã bán**.

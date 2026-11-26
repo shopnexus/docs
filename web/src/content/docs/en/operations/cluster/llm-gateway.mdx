@@ -11,9 +11,9 @@ updated: 2026-11-27
 related: ["/en/architecture/ai", "/en/operations/cluster/secrets", "/en/operations/cluster/data", "/en/operations/cluster/runbook", "/en/agent/setup", "/en/architecture/search-and-discovery"]
 ---
 
-Search asks a language model what a query means, a listing read turns a seller's video or photo into a draft, a scam check reads a chat, and the console agent answers moderators. None of them calls a model provider itself. Each stack runs Bifrost (`maximhq/bifrost:v2.6.0`), a gateway with an OpenAI-compatible API, as the Service `bifrost` on port 8080. The design is in `docs/superpowers/specs/2026-11-26-bifrost-gateway-design.md`.
+Search asks a language model what a query means, a listing read turns a seller's video or photo into a draft, a scam check reads a chat, and the console agent answers moderators. None of them calls a model provider itself. Each stack runs Bifrost (`maximhq/bifrost:v2.6.0`), a gateway with an OpenAI-compatible API, as the Service `bifrost` on port 8080.
 
-Bifrost replaced LiteLLM on 2026-11-26. LiteLLM took up to 1 GiB and about 45 s to get ready, and came from the Python and PyPI supply chain. Bifrost is one Go binary: in a test on 2026-11-26 it used 260 to 440 MiB and started in 1 to 2 s, or 20 s on an empty database while it ran its migrations.
+Bifrost is one Go binary: it uses about 260 to 440 MiB and starts in 1 to 2 s, or about 20 s on an empty database while it runs its migrations.
 
 Speech to text, photo vectors and video frames do not go through Bifrost. They are the server's module ai, which runs in `server-ai` and is called through Restate.
 

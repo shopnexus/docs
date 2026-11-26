@@ -1,13 +1,13 @@
 ---
 title: Xử lý sự cố
-description: Những lỗi hay gặp khi chạy server, app Android hay tài liệu, hoặc khi gọi API, và cách sửa.
+description: Những lỗi hay gặp khi chạy server, ứng dụng Android hay tài liệu, hoặc khi gọi API, và cách sửa.
 group: Bắt đầu
 order: 4
 groupOrder: 1
 audience: [developers]
 type: reference
 readingTime: 3
-updated: 2026-11-04
+updated: 2026-11-27
 related: ["/vi/get-started/quick-start", "/vi/operations/configuration", "/vi/api/errors"]
 ---
 
@@ -15,19 +15,25 @@ related: ["/vi/get-started/quick-start", "/vi/operations/configuration", "/vi/ap
 
 <AccordionGroup>
 <Accordion title="Server thoát và in ra danh sách biến" open>
-Không biến cấu hình nào có giá trị mặc định. Lúc khởi động, server kiểm tra hết các biến và thoát, mỗi biến thiếu, rỗng hoặc sai giá trị là một dòng. Thêm chúng vào `.env`. File `.env` mới do `make run` tạo vẫn còn thiếu `LLM_API_KEY` và `LLM_MODEL`.
+Không thiết lập nào có giá trị mặc định. Lúc khởi động, server kiểm tra mọi biến và thoát, mỗi biến thiếu, rỗng hoặc sai là một dòng. Trong các stack Compose, xem log của container server (`docker compose logs server-dev`). Khi chạy riêng server, thêm các biến vào `server/.env`; một file mới vẫn cần `GATEWAY_ADMIN_PASSWORD` lấy từ stack dev.
+</Accordion>
+<Accordion title="Server không khởi động: còn migration chưa chạy">
+Server từ chối khởi động khi còn migration chưa được áp dụng. Trong các stack Compose, một job áp dụng migration trước khi server chạy, và server dev áp dụng chúng trước mỗi lần khởi động lại. Khi chạy riêng server, `make run` áp dụng chúng.
 </Accordion>
 <Accordion title='"restate not reachable yet" rồi khởi động thất bại'>
-Khi khởi động, server đăng ký endpoint của mình với admin API của Restate và thử lại trong khoảng 30 giây. Nếu Restate không trả lời, kiểm tra container của nó có đang chạy không. Restate chạy trên network của host và chỉ bind 127.0.0.1, vì tường lửa trên máy dev chặn traffic từ container vào host.
+Khi khởi động, server đăng ký endpoint của mình với admin API của Restate và thử lại trong khoảng 30 giây. Nếu Restate không bao giờ trả lời, kiểm tra container của nó có đang chạy không. Khi chạy riêng server, Restate dùng network của host và bind 127.0.0.1, vì tường lửa trên máy dev chặn traffic từ container vào host.
 </Accordion>
-<Accordion title="Restate gọi server bị từ chối">
-Restate ký mọi request bằng khóa trong `.restate/identity.pem`, và server chỉ nhận request ký bằng khóa đó. `make run` giữ file này khớp với public key trong `.env`. Nếu đã thay một trong hai bằng tay, xóa dòng `RESTATE_IDENTITY_KEY` trong `.env` rồi chạy lại `make run`.
+<Accordion title="Restate gọi server bị từ chối, hoặc server từ chối nhận">
+Restate ký mọi request bằng khóa định danh của stack, và server chỉ nhận request ký bằng khóa đó. Trong các stack Compose, cả hai đọc khóa từ volume khóa của stack. Khi chạy riêng server, `make run` giữ `.restate/identity.pem` và `RESTATE_IDENTITY_KEY` trong `.env` khớp nhau; nếu bạn thay một trong hai bằng tay, xóa dòng `RESTATE_IDENTITY_KEY` rồi chạy lại `make run`.
 </Accordion>
-<Accordion title="Server không chạy với APP_ENV=prod">
-Môi trường production không nhận vài thiết lập chỉ dành cho dev: số test của PNV (`PNV_TEST_NUMBERS=true`), `FCM_CREDENTIALS` để trống (push chỉ ghi ra log), và thiếu `RESTATE_IDENTITY_KEY`.
+<Accordion title="Tìm kiếm bỏ qua ý nghĩa câu truy vấn, hoặc bước đọc tin đăng bị lỗi">
+Các lần gọi mô hình đi qua Bifrost của stack, và Bifrost cần `LLM_UPSTREAM_API_KEY` và `OPENROUTER_API_KEY` trong `infra/stack/secrets/compose.env`. Khởi động lại Bifrost sau khi thêm khóa.
+</Accordion>
+<Accordion title="Server không khởi động với APP_ENV=prod">
+Production từ chối các thiết lập dành cho dev: số test của PNV, `FCM_CREDENTIALS` để trống, gửi mail ra log, hãng vận chuyển giả và thiếu `RESTATE_IDENTITY_KEY`. Trang [Cấu hình](/vi/operations/configuration#production) liệt kê đủ.
 </Accordion>
 <Accordion title="Cổng đã bị chiếm">
-Stack dev dùng các cổng trong dải 564xx và 565xx, stack test dùng cổng cao hơn một đơn vị để hai stack chạy cùng lúc được. Thứ gì đang chiếm các cổng đó thì phải dời đi.
+Các stack Compose chỉ mở cổng của Caddy, 56481 (dev) và 56480 (prod), cùng Bifrost của stack dev ở 56482. Server chạy riêng dùng các cổng trong dải 564xx và 565xx, còn stack test của nó dùng các cổng đó cộng một. Hãy tắt thứ khác đang chiếm các cổng này.
 </Accordion>
 </AccordionGroup>
 
@@ -35,21 +41,21 @@ Stack dev dùng các cổng trong dải 564xx và 565xx, stack test dùng cổng
 
 <AccordionGroup>
 <Accordion title="Chạy test một package thì không kết nối được">
-`go test` cho một package cần stack test, mà chỉ `make test` mới bật stack này. Chạy `make test` một lần, sau đó stack chạy tiếp cho tới khi `make down`.
+`go test` cho một package cần stack test của repo server, do `make test` trong `server/` bật lên. Chạy nó một lần, sau đó stack chạy tiếp cho tới khi `make down`. `make test` của repo umbrella dùng một stack test không mở cổng ra host, nên test của nó chỉ chạy bên trong container.
 </Accordion>
 </AccordionGroup>
 
-## App Android
+## Ứng dụng Android
 
 <AccordionGroup>
 <Accordion title="run.sh báo không có điện thoại">
-Script bỏ qua emulator trừ khi bạn chỉ định. Đặt `ANDROID_SERIAL` bằng serial của emulator, lấy từ `adb devices`.
+Script bỏ qua emulator trừ khi bạn chọn một cái. Đặt `ANDROID_SERIAL` bằng serial của emulator, lấy từ `adb devices`.
 </Accordion>
 <Accordion title="Build không tìm thấy Android SDK">
-Đặt `ANDROID_HOME`, hoặc ghi `sdk.dir` vào `app/local.properties`. Build cần platform 36 và JDK 21. Gradle wrapper đã có trong repo, không cần cài Gradle riêng.
+Đặt `ANDROID_HOME`, hoặc ghi `sdk.dir` vào `clients/app-android/local.properties`. Build cần platform 36 và JDK 21. Gradle đi kèm repository, nên không cần cài lên hệ thống.
 </Accordion>
-<Accordion title="App hiện dữ liệu mà server không có">
-App vẫn chạy bằng fixture và người bán giả lập, chưa gọi server.
+<Accordion title="Ứng dụng bản live không gọi được server">
+Bản debug gọi `127.0.0.1:8080` trên điện thoại, và `run.sh` chuyển tiếp cổng này cùng cổng 56490 sang máy tính bằng `adb reverse`. Server phải chạy trên host (`make run` trong `server/`), vì stack dev không mở cổng 8080. `-Pshopnexus.apiUrl=<url>` trỏ bản debug sang một server khác.
 </Accordion>
 </AccordionGroup>
 
@@ -60,10 +66,10 @@ App vẫn chạy bằng fixture và người bán giả lập, chưa gọi serve
 Response nào cũng có header `Trace-Id`, và body lỗi nào cũng có `trace_id`. Tìm id đó trong log hoặc Grafana.
 </Accordion>
 <Accordion title="Đăng nhập trả 401 invalid_phone_token">
-Token số điện thoại không qua một bước kiểm tra, và log của server ghi rõ bước nào. Lần xác minh phải trong vòng năm phút. Ở dev, số test của PNV chỉ qua được khi `PNV_TEST_NUMBERS=true`.
+Token số điện thoại không qua một bước kiểm tra, và log của server ghi rõ bước nào. Lần xác minh phải trong vòng năm phút. Ở dev, số test của PNV chỉ qua được khi `PNV_TEST_NUMBERS=true`, mà các stack Compose và cụm dev đều đặt.
 </Accordion>
 <Accordion title="Upload ảnh chạy trên máy nhưng lỗi trên điện thoại">
-URL upload được ký cho `OBJECT_STORE_PUBLIC_ENDPOINT`, và chữ ký tính cả host. Đặt biến này thành địa chỉ điện thoại truy cập được, ví dụ IP LAN của máy, giữ cổng 56490.
+URL upload được ký cho `OBJECT_STORE_PUBLIC_ENDPOINT`, và chữ ký tính cả host. Điện thoại phải truy cập đúng địa chỉ đó: khi chạy riêng server, `run.sh` chuyển tiếp cổng 56490; hoặc đặt endpoint thành địa chỉ điện thoại truy cập được, ví dụ IP LAN của máy này, và giữ nguyên cổng.
 </Accordion>
 </AccordionGroup>
 
@@ -71,6 +77,6 @@ URL upload được ký cho `OBJECT_STORE_PUBLIC_ENDPOINT`, và chữ ký tính 
 
 <AccordionGroup>
 <Accordion title="Tìm kiếm không ra gì khi chạy dev server">
-Tìm kiếm đọc một chỉ mục mà chỉ `bun run build` mới tạo ra. Build một lần rồi chạy lại `bun run dev`.
+Tìm kiếm đọc một chỉ mục mà chỉ `bun run build` mới ghi ra. Build một lần rồi chạy lại `bun run dev`.
 </Accordion>
 </AccordionGroup>

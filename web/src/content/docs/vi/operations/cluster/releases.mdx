@@ -1,26 +1,26 @@
 ---
 title: Phát hành
-description: Một commit trong repo thành phần tới dev như thế nào, và một bản phát hành của repo tổng quyết định prod chạy gì ra sao. Tag image, Image Updater cho dev, workflow Release, việc giữ image, và các bước để đưa lên dev, phát hành, rollback và xem phiên bản đang chạy.
+description: Một commit tới dev như thế nào, và một bản phát hành của repo umbrella quyết định prod chạy gì ra sao. Tag image, Image Updater cho dev, workflow Release, việc giữ image, và các bước để đưa lên dev, phát hành, hotfix, rollback và xem phiên bản đang chạy.
 group: Cụm máy chủ
 order: 5
 groupOrder: 2
 audience: [developers, admins]
 type: how-to
-readingTime: 11
-updated: 2026-11-26
+readingTime: 10
+updated: 2026-11-27
 related: ["/vi/operations/cluster", "/vi/operations/cluster/bootstrap", "/vi/operations/cluster/data", "/vi/operations/cluster/secrets", "/vi/operations/cluster/runbook"]
 ---
 
-Năm repo thành phần build image cho chart của stack: `server`, `website`, `docs`, `console` và `agent`. Một lần push lên `main` trong repo thành phần sẽ tới dev: Argo CD Image Updater thấy digest mới của `:main` và ghi nó lên `stack-dev`. Prod chạy một bản phát hành của repo tổng. Workflow Release (`.github/workflows/release.yml` trong `shopnexus/shopnexus`) lấy các commit mà submodule của repo tổng trỏ tới trên `main`, gắn tag `X.Y.Z` cho image của chúng, ghi bản phát hành vào `infra/`, rồi gắn tag `vX.Y.Z` cho repo tổng. Mọi image trong một bản phát hành prod có cùng một phiên bản.
+Chart của stack chạy năm image do bốn repo build: `server`, `docs`, repo của agent trên trang điều hành, và `clients`, repo build website và trang điều hành. Một lần push lên `main` sẽ tới dev: Argo CD Image Updater thấy digest mới của `:main` và ghi nó lên `stack-dev`. Prod chạy một bản phát hành của repo umbrella. Workflow Release (`.github/workflows/release.yml` trong `shopnexus/shopnexus`) tìm image mà CI đã build cho từng thành phần ở commit repo umbrella trỏ tới, gắn tag `X.Y.Z` cho nó, ghim digest của nó trong `infra/`, rồi gắn tag `vX.Y.Z` cho repo umbrella. Quy trình, hotfix và rollback cũng nằm trong `infra/RELEASING.md`.
 
 ```mermaid title="Từ commit tới pod"
 flowchart TB
-  repo["repo thành phần<br/>server, website, docs, console, agent"] -->|"push lên main"| build["build.yml<br/>GitHub Actions"]
-  build -->|"main, sha-#lt;commit#gt;"| ghcr[("GHCR<br/>ghcr.io/shopnexus/*")]
+  repo["server, docs, agent, clients"] -->|"push lên main"| build["CI build<br/>GitHub Actions"]
+  build -->|"main, sha-#lt;commit#gt;"| ghcr[("GHCR")]
   iu["Image Updater<br/>ImageUpdater shopnexus"] -->|"digest của :main"| ghcr
   iu -->|"ghi Helm parameter"| dev["stack-dev"]
-  rel["release.yml<br/>repo tổng"] -->|"thêm X.Y.Z vào sha-#lt;commit#gt;"| ghcr
-  rel -->|"commit release X.Y.Z, tag vX.Y.Z"| main["main của repo tổng"]
+  rel["release.yml<br/>repo umbrella"] -->|"thêm X.Y.Z"| ghcr
+  rel -->|"ghim digest, commit release X.Y.Z, tag vX.Y.Z"| main["main của repo umbrella"]
   main --> root["Application root"]
   root -->|"apply infra/argocd"| prod["stack-prod ở vX.Y.Z"]
   root -.->|"bỏ qua spec.source.helm.parameters"| dev
@@ -28,38 +28,39 @@ flowchart TB
   prod --> prodns["shopnexus-prod"]
 ```
 
-## Tag image
+## Image và tag
 
-Mỗi repo thành phần có cùng một file `.github/workflows/build.yml`. Workflow chạy khi có push lên `main` và khi chạy tay (`workflow_dispatch`), build `Dockerfile` của repo một lần, và push `ghcr.io/shopnexus/<repo>` với hai tag. Tag phiên bản chỉ đến từ workflow Release của repo tổng, workflow này thêm tag vào một image CI đã build, không build lại.
-
-| Ai | Khi nào | Tag |
+| Image | Build bởi | Khi nào |
 |---|---|---|
-| `build.yml` trong repo thành phần | push lên `main` | `main` và `sha-<sha đầy đủ của commit>` |
-| `release.yml` trong repo tổng | một lần chạy workflow Release | `X.Y.Z`, trên image `sha-<commit>` của commit mà repo tổng trỏ tới |
+| `ghcr.io/shopnexus/server` | `build.yml` trong `server` | mỗi lần push lên `main` |
+| `ghcr.io/shopnexus/docs` | `build.yml` trong `docs` | mỗi lần push lên `main` |
+| `ghcr.io/shopnexus/agent` | `build.yml` trong repo của agent trên trang điều hành | mỗi lần push lên `main` |
+| `ghcr.io/shopnexus/clients/website` | `website.yml` trong `clients` | một lần push lên `main` có đổi `website/` hoặc `brand/web/` |
+| `ghcr.io/shopnexus/clients/console` | `console.yml` trong `clients` | một lần push lên `main` có đổi `console/` |
 
-Một tag `vX.Y.Z` trong repo thành phần không build gì và không tới prod. Các lần build của cùng một ref dùng chung một concurrency group, và lần push mới hơn hủy lần build đang chạy. Cluster pull image không cần credential, nên các package trên GHCR phải để public.
+Mỗi lần build chạy một lần và push hai tag, `main` và `sha-<sha đầy đủ của commit>`. Tag phiên bản `X.Y.Z` chỉ đến từ workflow Release của repo umbrella, workflow này thêm tag vào một image CI đã build, không build lại. Một tag trong repo thành phần không build gì và không tới prod. Các lần build của cùng một ref dùng chung một concurrency group, và lần push mới hơn hủy lần build đang chạy. Cluster pull image không cần credential, nên các package trên GHCR phải để public.
 
 ## Giữ image
 
-`build.yml` có một job `cleanup` chạy sau `build`, dùng `dataaxiom/ghcr-cleanup-action` v1.2.2. Nó giữ `main` và mọi tag `X.Y.Z`, giữ 10 image có tag khác mới nhất (các bản build `sha-<commit>`), và xóa image không có tag và image dở dang.
+Mỗi workflow build có một job `cleanup` chạy sau bước build, dùng `dataaxiom/ghcr-cleanup-action` v1.2.2. Nó giữ `main` và mọi tag `X.Y.Z`, giữ 10 image có tag khác mới nhất (các bản build `sha-<commit>`), và xóa image không có tag và image dở dang.
 
-Mọi image prod từng chạy đều mang một tag `X.Y.Z`, nên cleanup không xóa nó. Với mỗi repo, một bản phát hành phải chọn một commit nằm trong 10 bản build mới nhất của repo đó; với commit cũ hơn, image `sha-<commit>` đã bị xóa và workflow Release dừng lại.
+Mọi image prod từng chạy đều mang một tag `X.Y.Z`, nên cleanup không xóa nó. Một bản phát hành có đổi một image phải chọn một commit nằm trong 10 bản build mới nhất của image đó; với commit cũ hơn, image `sha-<commit>` đã bị xóa và workflow Release dừng lại. Image nào không đổi thì giữ digest mà prod đang chạy.
 
 ## Image Updater
 
-`infra/argocd/stacks.yaml` chứa một resource `ImageUpdater` tên `shopnexus` trong namespace `argocd`. Nó chỉ có mục cho `stack-dev`; prod không có mục nào. Chart Image Updater là 1.4.0, do Application `image-updater` trong `infra/platform/image-updater.yaml` cài.
+`infra/argocd/stacks.yaml` chứa một resource `ImageUpdater` tên `shopnexus` trong namespace `argocd`. Nó chỉ có mục cho `stack-dev`; prod không có mục nào. Chart Image Updater là 1.4.0, do Application `image-updater` cài.
 
 | Application | Image được theo dõi | `updateStrategy` | Helm parameter được ghi |
 |---|---|---|---|
-| `stack-dev` | `ghcr.io/shopnexus/<thành phần>:main` cho `server`, `website`, `docs`, `console` và `agent` | `digest` | `images.<thành phần>.repository`, `images.<thành phần>.tag` |
+| `stack-dev` | tag `:main` của năm image ở trên | `digest` | `images.<thành phần>.repository`, `images.<thành phần>.tag` |
 
-Nó đổi khi digest đằng sau `:main` thay đổi và ghi tag dưới dạng `main@sha256:…`. Các image khác trong `values.yaml` (Postgres, Restate, RustFS, Bifrost) được ghim ở đó và chỉ đổi qua commit.
+Nó đổi khi digest đằng sau `:main` thay đổi và ghi tag dưới dạng `main@sha256:…`. Các image khác trong `values.yaml` (Postgres, Restate, RustFS, Bifrost, imgproxy, Grafana và các image còn lại) được ghim ở đó và chỉ đổi qua commit.
 
 ## Parameter và Application root
 
-Argo CD ưu tiên Helm parameter hơn file values. Trên `stack-dev`, khi Image Updater đã ghi `images.server.tag`, các dòng `images.*.tag` trong `values-dev.yaml` không còn quyết định cái gì chạy. Prod không có parameter, nên các tag trong `values-prod.yaml` ở tag phát hành quyết định `stack-prod` chạy gì.
+Argo CD ưu tiên Helm parameter hơn file values. Trên `stack-dev`, khi Image Updater đã ghi `images.server.tag`, các dòng `images.*.tag` trong các file values không còn quyết định cái gì chạy. Prod không có parameter, nên các digest trong `values-prod.yaml` ở tag phát hành quyết định `stack-prod` chạy gì.
 
-Bản thân các Application của stack là resource của app-of-apps `root` (`infra/argocd/root.yaml`), vốn đồng bộ `infra/platform` và `infra/argocd` từ `main` của repo tổng với `selfHeal: true`. Self-heal sẽ đưa mỗi Application về đúng định nghĩa trong git và xóa các parameter trên `stack-dev`. Hai thiết lập trong `root` giữ chúng lại:
+Bản thân các Application của stack là resource của app-of-apps `root` (`infra/argocd/root.yaml`), vốn đồng bộ `infra/platform` và `infra/argocd` từ `main` của repo umbrella với `selfHeal: true`. Self-heal sẽ đưa mỗi Application về đúng định nghĩa trong git và xóa các parameter trên `stack-dev`. Hai thiết lập trong `root` giữ chúng lại:
 
 ```yaml title="infra/argocd/root.yaml"
 ignoreDifferences:
@@ -75,24 +76,21 @@ syncPolicy:
 
 ## Thiết lập Argo CD
 
-Ở lần khởi động đầu, k3s cài chart `argo-cd` 10.11.7 (Argo CD v3.5.7) từ `infra/cluster/argocd.yaml` và apply `root.yaml` một lần; file cấu hình k3d liệt kê cả hai file. Từ đó Argo CD quản lý `root` từ git. Khi node server khởi động lại, k3s apply lại bản `root.yaml` nó giữ, và self-heal đưa bản trong git trở lại trong vòng vài phút.
-
 | Thiết lập | Ở đâu | Tác dụng |
 |---|---|---|
 | `automated: { prune: true, selfHeal: true }` | mọi Application | commit được apply mà không cần bấm, resource bị xóa khỏi git thì bị xóa khỏi cluster, và sửa tay trong cluster bị hoàn lại |
 | `retry: { limit: -1, backoff: { duration: 30s, factor: 2, maxDuration: 5m } }` | mọi Application | lần sync lỗi được thử lại mãi, lúc đầu cách 30 giây, tối đa cách 5 phút |
 | sync wave | Application platform ở wave 0; `stack-dev`, `stack-prod` và `ImageUpdater` ở wave 1 | các stack khởi động sau các operator |
-| health check Lua cho `argoproj.io/Application` | phần values trong `argocd.yaml` | `root` đọc health của từng Application con, nên wave 1 chờ các Application platform Healthy |
+| health check Lua cho `argoproj.io/Application` | `infra/cluster/argocd.yaml` | wave 1 của `root` chờ các Application platform Healthy |
+| health check Lua cho `RestateDeployment` | `infra/cluster/argocd.yaml` | wave 3 của một stack chờ các pod của phiên bản server mới sẵn sàng |
 
-Argo CD thôi đánh giá health của resource Application từ phiên bản 1.8. Không có check Lua, `root` sẽ coi các Application platform là healthy ngay lập tức, và các stack sẽ khởi động trước khi CloudNativePG, Sealed Secrets và restate-operator có CRD. `ImageUpdater` mang `SkipDryRunOnMissingResource=true`, vì CRD của nó đến cùng Application `image-updater` trong cùng lần sync.
-
-Bên trong một stack, mỗi lần sync chạy lại các wave của chart, kể cả các Job Sync hook `migrate`, `objectstore-init` và `objectstore-init-snapshots` (wave 1). Vì thế một image server mới chạy migration của nó trước khi các pod server mới khởi động. Bảng đầy đủ các wave, từ -1 tới 2, nằm ở trang [Postgres, Restate và RustFS](/vi/operations/cluster/data#sync-wave-và-job).
+`ImageUpdater` mang `SkipDryRunOnMissingResource=true`, vì CRD của nó đến cùng Application `image-updater` trong cùng lần sync. Bên trong một stack, mỗi lần sync chạy lại các wave của chart, kể cả các Job Sync hook `migrate`, `objectstore-init` và `objectstore-init-snapshots` (wave 1). Vì thế một image server mới chạy migration của nó trước khi các pod server mới khởi động; bảng đầy đủ các wave nằm ở trang [Postgres, Restate và RustFS](/vi/operations/cluster/data#sync-wave-và-job).
 
 ## Đưa lên dev
 
 <Steps>
 <Step title="Push lên main">
-Merge hoặc push lên `main` trong repo thành phần, ví dụ `server`. `build.yml` build image và push `ghcr.io/shopnexus/server:main` cùng `sha-<sha>`.
+Merge hoặc push lên `main` trong repo thành phần, ví dụ `server`. CI build image và push `:main` cùng `:sha-<sha>`.
 
 ```bash title="Terminal"
 gh run watch --repo shopnexus/server
@@ -109,53 +107,64 @@ kubectl -n argocd get application stack-dev \
 </Step>
 
 <Step title="Theo dõi rollout">
-Argo CD đồng bộ `stack-dev`. `migrate` chạy với image mới, rồi restate-operator khởi động một phiên bản server mới bên cạnh phiên bản cũ, và phiên bản cũ chạy tiếp cho tới khi các invocation Restate của nó xong. Website, docs và console là Deployment thường và thay từng pod một.
+Argo CD đồng bộ `stack-dev`. `migrate` chạy với image mới, rồi restate-operator khởi động một phiên bản server mới bên cạnh phiên bản cũ. Khi các pod của nó sẵn sàng, `server-api` chuyển sang nó, còn phiên bản cũ chạy tiếp cho tới khi các invocation Restate của nó xong. Website, tài liệu và trang điều hành là Deployment thường và thay từng pod một.
 
 ```bash title="Terminal"
 kubectl -n shopnexus-dev get rs -l app.kubernetes.io/name=server
 ```
 
-Bạn sẽ thấy một ReplicaSet mới có pod ready, và ReplicaSet cũ về 0 khi các invocation của nó xong. Trang [dữ liệu](/vi/operations/cluster/data) mô tả cách restate-operator rút một phiên bản.
+Bạn sẽ thấy một ReplicaSet mới có pod ready, và ReplicaSet cũ về 0 khi các invocation của nó xong.
 </Step>
 </Steps>
 
 ## Phát hành lên prod
 
-Một bản phát hành lấy cả năm repo cùng lúc, ở các commit mà submodule của repo tổng trỏ tới trên `main`. Phiên bản có dạng `X.Y.Z`, không có `v`, và phải cao hơn tag `vX.Y.Z` cao nhất của repo tổng.
+Một bản phát hành là một phiên bản `X.Y.Z` cho mọi thứ trên cluster, không có `v`, cao hơn tag `vX.Y.Z` cao nhất của repo umbrella. Bản minor đưa ra những gì `main` đang có, bản patch là hotfix, còn bản major đánh dấu một cột mốc hoặc một thay đổi mà các phiên bản ứng dụng cũ không theo được.
 
 <Steps>
 <Step title="Nâng các submodule">
-Trong repo tổng, chuyển năm submodule tới các commit dev đã chạy, tức là đầu nhánh `main` của từng repo khi lần build của repo đó đã xong. Commit và push lên `main` của repo tổng.
+Trong repo umbrella, chuyển các submodule tới các commit dev đã chạy, tức là đầu nhánh `main` của chúng khi từng lần build đã xong. Commit và push lên `main` của repo umbrella.
 
 ```bash title="Terminal"
 git switch main && git pull
-git submodule update --remote server website docs console agent
-git add server website docs console agent
-git commit -m "bump the components for 0.2.0"
+git submodule update --remote
+git commit -am "bump the components for 0.2.0"
 git push origin main
 ```
 </Step>
 
+<Step title="Đọc kế hoạch">
+`infra/release-plan.sh` in ra, với từng image, commit prod đang chạy và commit mà bản phát hành sẽ chạy. Server, tài liệu và agent ở commit của submodule tương ứng; website và trang điều hành ở commit `clients` gần nhất có đổi thư mục của chúng.
+
+```text
+| image   | prod now | this release |                   |
+| server  | 13aa05d9 | 13aa05d9     | unchanged         |
+| website | 991ff690 | f9cc614f     | rolls (2 commits) |
+```
+
+Nếu nó hiện thứ bạn không định đưa ra, hãy dừng lại và sửa `main` trước.
+</Step>
+
 <Step title="Chạy workflow Release">
-Chạy nó từ terminal, hoặc từ tab Actions của repo tổng: <UI>Release</UI>, rồi <UI>Run workflow</UI> với phiên bản.
+Chạy nó từ terminal, hoặc từ tab Actions của repo umbrella: <UI>Release</UI>, rồi <UI>Run workflow</UI> với phiên bản.
 
 ```bash title="Terminal"
 gh workflow run release.yml -R shopnexus/shopnexus -f version=0.2.0
 gh run watch -R shopnexus/shopnexus
 ```
 
-Workflow kiểm tra phiên bản có dạng `X.Y.Z`, `v0.2.0` chưa tồn tại và phiên bản cao hơn bản phát hành trước. Sau đó nó kiểm tra `ghcr.io/shopnexus/<repo>:sha-<commit>` có đủ cho cả năm repo rồi mới gắn tag cho image nào, nên một bản phát hành được gắn tag trọn vẹn hoặc không gắn gì. Nó thêm tag `0.2.0` vào từng image, ghi bản phát hành vào hai file, commit `release 0.2.0` trên `main`, gắn tag `v0.2.0` cho commit đó và push cả hai.
+Workflow kiểm tra phiên bản, rồi chạy kế hoạch và tìm digest của từng image trên GHCR. Thiếu một image là bản phát hành dừng trước khi gắn tag cho bất cứ thứ gì. Nó gắn tag `0.2.0` cho mọi image, ghi bản phát hành vào hai file, commit `release 0.2.0` trên `main`, gắn tag `v0.2.0` cho commit đó và push cả hai.
 
 | File | Workflow ghi gì |
 |---|---|
-| `infra/stack/values-prod.yaml` | `images.<thành phần>.tag: 0.2.0` cho `server`, `website`, `docs`, `console` và `agent` |
+| `infra/stack/values-prod.yaml` | `tag: <digest>, commit: <sha>` cho từng image trong năm image |
 | `infra/argocd/stacks.yaml` | `targetRevision: v0.2.0` trên `stack-prod` |
 
-Chạy `git pull` trong bản checkout repo tổng của bạn sau đó, vì workflow đã commit lên `main`.
+Chạy `git pull` trong bản checkout repo umbrella của bạn sau đó, vì workflow đã commit lên `main`.
 </Step>
 
 <Step title="Theo dõi stack-prod sync">
-`root` apply `stacks.yaml` mới từ `main`. Sau đó `stack-prod` render `infra/stack` ở tag `v0.2.0`, nên chart và `values-prod.yaml` là của bản phát hành.
+`root` apply `stacks.yaml` mới từ `main`. Sau đó `stack-prod` render `infra/stack` ở tag `v0.2.0`, nên chart và `values-prod.yaml` là của bản phát hành. Image nào có digest không đổi thì render ra cùng manifest, và các pod của nó tiếp tục chạy.
 
 ```bash title="Terminal"
 kubectl -n argocd annotate application root argocd.argoproj.io/refresh=normal
@@ -174,43 +183,24 @@ Prod chạy ba pod server cho mỗi phiên bản. Bạn sẽ thấy ReplicaSet m
 </Step>
 </Steps>
 
-```mermaid title="Một lần phát hành lên prod"
-sequenceDiagram
-  participant Rel as release.yml
-  participant GHCR
-  participant Git as main của repo tổng
-  participant Root as root
-  participant Argo as stack-prod
-  participant Op as restate-operator
-  participant Restate
-  Note over Rel: chạy với phiên bản 0.2.0
-  Rel->>GHCR: kiểm tra sha-#lt;commit#gt; của từng repo
-  Rel->>GHCR: gắn tag 0.2.0 cho từng image
-  Rel->>Git: commit release 0.2.0, tag v0.2.0
-  Root->>Git: đọc infra/argocd
-  Root->>Argo: targetRevision v0.2.0
-  Argo->>Argo: wave 1, Job migrate
-  Argo->>Op: wave 2, pod template mới
-  Op->>Op: ReplicaSet và Service 0.2.0
-  Op->>Restate: đăng ký 0.2.0
-  Restate->>Op: 0.1.0 đã hết invocation
-  Op->>Op: đưa 0.1.0 về 0
-```
+Một bản phát hành cũng đưa ra mọi thay đổi ở `infra/` đã vào `main` kể từ bản trước, vì `stack-prod` chuyển sang tag mới của repo umbrella, cùng một lần chạy mới của các job migration.
 
 <Callout type="warning" title="Migration chạy trước">
-Job `migrate` áp các migration của phiên bản mới trong lúc các pod server cũ vẫn phục vụ request, và rollback không hoàn tác chúng. Một migration phải chạy được với phiên bản đứng trước nó.
+Job `migrate` áp các migration của phiên bản mới trong lúc các pod server cũ vẫn phục vụ request, và rollback không hoàn tác chúng. Một migration phải chạy được với phiên bản đứng trước nó, và API giữ tương thích ngược: thêm field hoặc endpoint trước, chuyển các client sang dùng nó, rồi gỡ cái cũ ở một bản phát hành sau.
 </Callout>
 
 <Callout type="note" title="Bản phát hành đầu tiên">
-Trước bản phát hành đầu tiên, các file ghi `0.1.0` và tag `v0.1.0`, và `v0.1.0` chưa tồn tại. `stack-prod` không render được cho tới khi lần chạy đầu của workflow Release tạo ra tag đó.
+Trước bản phát hành đầu tiên, `values-prod.yaml` ghi `0.1.0` cho mọi image và `stack-prod` ghi tag `v0.1.0`, tag này chưa tồn tại, nên `stack-prod` không render được. Hãy seal secret của prod (`go -C infra run ./cmd/seal prod`) trước lần chạy đầu của workflow Release.
 </Callout>
+
+### Hotfix
+
+Sửa bug trên `main` của thành phần, kiểm tra trên dev, nâng submodule đó trong repo umbrella rồi push. `infra/release-plan.sh` chỉ nên hiện image đó được thay. Phát hành phiên bản patch kế tiếp.
 
 ## Rollback prod
 
-Revert commit phát hành trên `main` của repo tổng. Bản revert đưa `values-prod.yaml` và `stacks.yaml` về bản phát hành trước, nên `stack-prod` quay về `vX.Y.Z` trước đó. Image `X.Y.Z` của nó vẫn còn trên GHCR, vì cleanup giữ mọi tag phiên bản.
+Revert commit phát hành trên `main` của repo umbrella rồi push. Bản revert đưa `values-prod.yaml` và `stacks.yaml` về bản phát hành trước, nên `stack-prod` quay về `vX.Y.Z` trước đó cùng các digest của nó. Các image đó vẫn còn trên GHCR, vì cleanup giữ mọi tag phiên bản.
 
-<Steps>
-<Step title="Revert commit phát hành">
 ```bash title="Terminal"
 git switch main && git pull
 git log --oneline --grep '^release ' -2
@@ -218,20 +208,14 @@ git revert <commit của release 0.2.0>
 infra/check.sh
 git push origin main
 ```
-</Step>
-
-<Step title="Theo dõi sync">
-`root` apply các Application đã revert từ `main`, rồi `stack-prod` sync bản phát hành trước. Dùng các lệnh ở bước "Theo dõi stack-prod sync" phía trên.
-</Step>
-</Steps>
 
 Bản revert giữ nguyên con trỏ submodule và tag `v0.2.0`. Bản phát hành tiếp theo phải cao hơn `0.2.0`, vì workflow so phiên bản với tag `vX.Y.Z` cao nhất.
 
 ## Đổi một giá trị cấu hình
 
-Thiết lập không bí mật nằm trong `infra/stack/values.yaml` và hai file của từng stack. Secret đi qua lệnh seal, `infra/cmd/seal` ([Secret](/vi/operations/cluster/secrets)).
+Thiết lập không bí mật nằm trong `infra/stack/values.yaml`, hai file của từng stack và các file dùng chung `infra/stack/env/*.env`. Secret đi qua lệnh seal ([Secret](/vi/operations/cluster/secrets)).
 
-`stack-dev` render `infra/stack` ở `main` của repo tổng, nên dev nhận thay đổi khi push. `stack-prod` render nó ở tag phát hành, nên một thay đổi ở `values.yaml`, `values-prod.yaml` hay chart chỉ tới prod cùng bản phát hành tiếp theo. Định nghĩa các Application trong `infra/argocd` đến từ `main` qua `root` và tới cả hai stack khi push.
+`stack-dev` render `infra/stack` ở `main` của repo umbrella, nên dev nhận thay đổi khi push. `stack-prod` render nó ở tag phát hành, nên một thay đổi ở chart hoặc values của nó chỉ tới prod cùng bản phát hành tiếp theo. Định nghĩa các Application trong `infra/argocd` đến từ `main` qua `root` và tới cả hai stack khi push.
 
 <Steps>
 <Step title="Sửa file values">
@@ -243,11 +227,11 @@ Thiết lập không bí mật nằm trong `infra/stack/values.yaml` và hai fil
 infra/check.sh
 ```
 
-Script render chart cho cả hai stack và kiểm tra kết quả. Nó cần `helm`, `yq` và `kubeconform`, và CI chạy nó cho mọi pull request đụng tới `infra/`.
+Script render chart cho cả hai stack và kiểm tra kết quả. Nó cần `helm`, `yq` và `kubeconform`, và CI chạy nó cho mọi thay đổi trong `infra/`.
 </Step>
 
-<Step title="Push lên repo tổng">
-Commit và push lên `main`. Argo CD đọc repo hai tới ba phút một lần (`timeout.reconciliation` 120 giây cộng tối đa 60 giây jitter, mặc định của chart). Để đồng bộ ngay:
+<Step title="Push lên repo umbrella">
+Commit và push lên `main`. Argo CD đọc repo hai tới ba phút một lần. Để đồng bộ ngay:
 
 ```bash title="Terminal"
 kubectl -n argocd annotate application stack-dev argocd.argoproj.io/refresh=normal
@@ -273,7 +257,7 @@ Bản phát hành `stack-prod` đang chạy:
 kubectl -n argocd get application stack-prod -o jsonpath='{.spec.source.targetRevision}{"\n"}'
 ```
 
-Tag image của bản phát hành đó, đọc từ git:
+Digest và commit của từng image trong bản phát hành đó, đọc từ git:
 
 ```bash title="Terminal"
 git show v0.2.0:infra/stack/values-prod.yaml | yq '.images'
@@ -285,34 +269,17 @@ Image và digest mà từng pod chạy:
 kubectl -n shopnexus-prod get pods \
   -o custom-columns='POD:.metadata.name,IMAGE:.spec.containers[0].image,DIGEST:.status.containerStatuses[0].imageID'
 ```
-
-Các phiên bản server mà restate-operator giữ, cùng số pod:
-
-```bash title="Terminal"
-kubectl -n shopnexus-prod get rs -l app.kubernetes.io/name=server
-```
 </Tab>
 <Tab>
-Forward cổng của Argo CD server và đọc mật khẩu admin ban đầu:
-
-```bash title="Terminal"
-kubectl -n argocd port-forward svc/argocd-server 8080:443
-kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d
-```
-
-Mở `https://localhost:8080`, chấp nhận chứng chỉ tự ký, và đăng nhập là `admin` với mật khẩu đó. Mở Application `stack-prod`, rồi <UI>App Details</UI>, nơi hiện target revision `vX.Y.Z`. Cây resource hiện từng ReplicaSet cùng các pod và image của chúng.
+Mở `https://argocd.<tên miền prod>`, nằm sau bước đăng nhập của trang điều hành, hoặc forward cổng của nó bằng `kubectl -n argocd port-forward svc/argocd-server 8080:80` rồi mở `http://localhost:8080`. Mở Application `stack-prod`, rồi <UI>App Details</UI>, nơi hiện target revision `vX.Y.Z`. Cây resource hiện từng ReplicaSet cùng các pod và image của chúng.
 </Tab>
 </Tabs>
 
-<Callout type="note" title="Health của server trong Argo CD">
-Argo CD không có health check cho `RestateDeployment`, nên một server bị crash-loop vẫn hiện Healthy trong Argo CD. Sau mỗi lần phát hành, hãy xem pod bằng `kubectl`.
-</Callout>
-
 <KeyRules>
-- Dev đi theo `:main` bằng digest. Prod chạy một bản phát hành của repo tổng, `vX.Y.Z`, và mọi image trong đó có tag `X.Y.Z`.
-- Một bản phát hành lấy các commit mà submodule của repo tổng trỏ tới trên `main`. Nâng chúng tới những gì dev đã chạy trước khi chạy workflow Release.
+- Dev đi theo `:main` bằng digest. Prod chạy một bản phát hành của repo umbrella, `vX.Y.Z`, với mọi image được ghim theo digest và gắn tag `X.Y.Z`.
+- `main` luôn phát hành được: những gì đã merge đều đã chạy trên dev và đưa ra được.
+- Đọc `infra/release-plan.sh` trước khi chạy workflow Release.
 - Các dòng prod trong `values-prod.yaml` và `stacks.yaml` chỉ đổi qua một bản phát hành hoặc qua việc revert một bản.
-- Một bản phát hành chỉ chọn được commit nằm trong 10 bản build mới nhất của mỗi repo.
 - Mọi migration chạy được với phiên bản server đứng trước nó.
 - Mọi thay đổi cho cluster đi qua git. Sửa tay bị self-heal hoàn lại.
 </KeyRules>
@@ -320,20 +287,20 @@ Argo CD không có health check cho `RestateDeployment`, nên một server bị 
 ## Xử lý sự cố
 
 <AccordionGroup>
-<Accordion title="Workflow Release báo sha-<commit> does not exist">
-Submodule trỏ tới một commit chưa có image trên GHCR. Hoặc `build.yml` của repo chưa build commit đó, hoặc cleanup đã xóa image vì nó cũ hơn 10 bản build mới nhất. Chờ lần build, hoặc nâng submodule tới một commit mới hơn, push, rồi chạy lại workflow. Lúc đó chưa image nào bị gắn tag, vì workflow kiểm tra đủ năm image rồi mới gắn tag cho image nào.
+<Accordion title="Workflow Release lỗi vì một image không tồn tại">
+Kế hoạch nêu một commit chưa có image `sha-<commit>` trên GHCR. Hoặc CI chưa build commit đó, hoặc cleanup đã xóa image vì nó cũ hơn 10 bản build mới nhất. Chờ lần build, hoặc nâng submodule tới một commit mới hơn, push, rồi chạy lại workflow. Lúc đó chưa image nào bị gắn tag.
 </Accordion>
 
 <Accordion title="Workflow Release không gắn tag được cho image">
-`GITHUB_TOKEN` của workflow chỉ ghi được một package khi package đó cấp quyền ghi cho repo tổng. Đây là bước làm một lần trên giao diện GitHub cho từng package trong năm package `server`, `website`, `docs`, `console` và `agent`: mở phần cài đặt của package, rồi <UI>Manage Actions access</UI>, thêm `shopnexus/shopnexus` và cho nó vai trò Write.
+`GITHUB_TOKEN` của workflow chỉ ghi được một package khi package đó cấp quyền ghi cho repo umbrella. Đây là bước làm một lần trên giao diện GitHub cho từng package trong năm package: mở phần cài đặt của package, rồi <UI>Manage Actions access</UI>, thêm `shopnexus/shopnexus` và cho nó vai trò Write. Workflow cũng đọc repo riêng tư `clients` bằng deploy key trong secret `CLIENTS_DEPLOY_KEY`.
 </Accordion>
 
 <Accordion title="Workflow Release từ chối phiên bản">
-Phiên bản phải có dạng `X.Y.Z` không có `v`, tag `vX.Y.Z` của nó chưa tồn tại, và nó phải cao hơn tag `vX.Y.Z` cao nhất của repo tổng, kể cả một bản phát hành đã bị revert.
+Phiên bản phải có dạng `X.Y.Z` không có `v`, tag `vX.Y.Z` của nó chưa tồn tại, và nó phải cao hơn tag `vX.Y.Z` cao nhất của repo umbrella, kể cả một bản phát hành đã bị revert.
 </Accordion>
 
 <Accordion title="Prod chạy tag khác với values-prod.yaml">
-Kiểm tra `stack-prod` có Helm parameter không, vì parameter thắng file values. Một cluster từng chạy cách cũ, khi Image Updater ghi tag cho prod, có thể vẫn giữ chúng, và `root` không xóa chúng. Xóa chúng:
+Kiểm tra `stack-prod` có Helm parameter không, vì parameter thắng file values, và xóa chúng:
 
 ```bash title="Terminal"
 kubectl -n argocd patch application stack-prod --type json \

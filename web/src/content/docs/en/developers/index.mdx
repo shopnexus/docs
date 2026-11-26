@@ -7,7 +7,7 @@ groupOrder: 1
 audience: [developers]
 type: reference
 readingTime: 3
-updated: 2026-11-04
+updated: 2026-11-27
 internal: true
 related: ["/en/get-started/quick-start"]
 ---
@@ -25,14 +25,20 @@ A page lives at `src/content/docs/<en|vi>/<tab>/<slug>.mdx` and is served at `/<
 | `group`, `groupOrder`, `order` | Place the page in the left nav. |
 | `audience`, `type` | The badges under the title. |
 | `related` | Fills the Related rail. |
+| `readingTime`, `updated` | The reading time and the date of the last real change. |
 | `toc: false` | Hides the page outline. |
+| `wide: true` | Drops the left nav, the outline and the visible header, for an embedded app. |
 | `internal: true` | Keeps the page out of the public build. |
 
 `src/content.config.ts` validates every field. A Vietnamese page that does not exist yet renders the English one under `/vi/...` with a "not translated yet" banner.
 
 ## Components
 
-MDX components need no import: `Callout`, `Steps`/`Step`, `Shot`, `Tabs`/`Tab`, `Cards`/`Card`, `Prereqs`, `KeyRules`, `Accordion`/`AccordionGroup`, `UI`, `Term`, `Kbd` and `Glossary`. Glossary terms are in `src/data/glossary.ts`.
+MDX components need no import: `Callout`, `Steps`/`Step`, `Shot`, `Tabs`/`Tab`, `Cards`/`Card`, `Prereqs`, `KeyRules`, `Accordion`/`AccordionGroup`, `UI`, `Term`, `Kbd`, `Glossary`, `Req`, `ReqTable`, `UseCases`, `ApiPlayground`, `Sequence`, `DoDont`, `Statuses` and `RunPreview`. Glossary terms are in `src/data/glossary.ts`.
+
+- `<Req id="BR-ACC-01" />` links one requirement ID and fails the build on an ID the registry does not have. Run `make trace` in the umbrella after naming a new one.
+- `<Sequence actors={[…]} steps={[…]} />` draws a sequence diagram in HTML, one column per actor and one numbered arrow per step. Below 640px it becomes a numbered list.
+- `<ApiPlayground />` is the API reference over `public/openapi.json`, which `make trace` bundles from the server's spec.
 
 ## Diagrams
 

@@ -7,7 +7,7 @@ groupOrder: 2
 audience: [admins, developers]
 type: reference
 readingTime: 9
-updated: 2026-11-26
+updated: 2026-11-27
 related: ["/en/operations/cluster/bootstrap", "/en/operations/cluster/networking", "/en/operations/cluster/data", "/en/operations/cluster/secrets", "/en/operations/cluster/llm-gateway"]
 ---
 
@@ -54,7 +54,7 @@ kubectl -n shopnexus-dev get cluster postgres
 kubectl -n shopnexus-dev get rs
 ```
 
-Every Application should be `Synced` and `Healthy`. `kubectl get rs` shows one ReplicaSet per server version: restate-operator keeps an old version until its invocations finish. Argo CD shows a crash-looping server as Healthy, because it has no health check for `RestateDeployment`, so read the pods.
+Every Application should be `Synced` and `Healthy`. `kubectl get rs` shows one ReplicaSet per server version: restate-operator keeps an old version until its invocations finish. A sync that hangs in wave 2 usually waits for a server version whose pods never get ready, so read the pods.
 
 After a push, Argo CD polls the repository. To make it read `main` now:
 
@@ -83,18 +83,17 @@ kubectl -n shopnexus-dev logs postgres-1 --tail=200
 
 The server logs JSON. CNPG names the Postgres pods `postgres-1`, `postgres-2`; the current primary is in `kubectl -n shopnexus-dev get cluster postgres -o jsonpath='{.status.currentPrimary}'`. The Sync hook Jobs `migrate`, `objectstore-init` and `objectstore-init-snapshots` stay until the next sync replaces them.
 
-## Port-forwards
+## Dashboards and port-forwards
 
-None of these have an Ingress. Each command holds the terminal; open the address in a browser or with `curl` from a second one.
+Grafana, Restate's admin UI, Bifrost, RustFS's web console and pgweb have hosts of their own in each stack (`grafana.`, `restate.`, `bifrost.`, `s3.` and `db.<domain>`), and Argo CD has `argocd.<prod domain>`. All sit behind the console's sign-in ([Monitoring](/en/operations/monitoring)). When the console or the server is down, forward a port instead. Each command holds the terminal; open the address in a browser or with `curl` from a second one.
 
 <Tabs labels={["Argo CD", "Restate admin", "Bifrost"]}>
 <Tab>
 ```bash
-kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d; echo
-kubectl -n argocd port-forward svc/argocd-server 8080:443
+kubectl -n argocd port-forward svc/argocd-server 8080:80
 ```
 
-Open `https://localhost:8080`, accept the self-signed certificate, and sign in as `admin` with the printed password.
+Open `http://localhost:8080`. Argo CD asks for no sign-in of its own, because only the console's gate and a port-forward reach it.
 </Tab>
 <Tab>
 ```bash
@@ -118,7 +117,7 @@ Open `http://localhost:8080` and sign in as `admin` with the printed password. T
 
 ### After the switch to Bifrost
 
-The first sync of a stack with Bifrost removes LiteLLM's Deployment, Job and Secrets. CNPG keeps the `litellm` database and role, because it never drops what the chart stops declaring. Drop them once, after `bifrost` is ready:
+A stack that ran LiteLLM before Bifrost keeps its `litellm` database and role, because CNPG never drops what the chart stops declaring. Drop them once, after `bifrost` is ready:
 
 ```bash
 kubectl -n shopnexus-dev rollout status deploy/bifrost
@@ -130,16 +129,16 @@ LiteLLM's spend history goes with the database. Then check that the server recon
 
 ### Bifrost's encryption key
 
-`BIFROST_ENCRYPTION_KEY` encrypts what Bifrost stores. A new one makes that data unreadable, so it never changes once a stack has data. Dev's key and admin password were sealed on the cluster host. Before you run `seal dev` from any other checkout, copy them from the cluster into your `infra/stack/secrets/dev.env`:
+`BIFROST_ENCRYPTION_KEY` encrypts what Bifrost stores. A new one makes that data unreadable, so it never changes once a stack has data. Before you run the seal command from a checkout other than the one that sealed the stack, copy them from the cluster into your `infra/stack/secrets/<stack>.env`:
 
 ```bash
 for k in BIFROST_ENCRYPTION_KEY BIFROST_ADMIN_PASSWORD; do
-  printf '%s=%s\n' "$k" "$(kubectl -n shopnexus-dev get secret bifrost-secrets -o jsonpath="{.data.$k}" | base64 -d)"
+  printf '%s=%s\n' "$k" "$(kubectl -n shopnexus-<stack> get secret bifrost-secrets -o jsonpath="{.data.$k}" | base64 -d)"
 done
-printf 'BIFROST_DB_PASSWORD=%s\n' "$(kubectl -n shopnexus-dev get secret bifrost-db -o jsonpath='{.data.password}' | base64 -d)"
+printf 'BIFROST_DB_PASSWORD=%s\n' "$(kubectl -n shopnexus-<stack> get secret bifrost-db -o jsonpath='{.data.password}' | base64 -d)"
 ```
 
-Replace those lines in `dev.env` with the output. A new database password would do no harm, but copying it keeps the role unchanged. The seal command keeps every value already in `dev.env`, so the reseal leaves Bifrost's data readable.
+Replace those lines in that stack's `.env` with the output. A new database password would do no harm, but copying it keeps the role unchanged. The seal command keeps every value already in `<stack>.env`, so the reseal leaves Bifrost's data readable.
 
 ## Console admins
 
@@ -162,7 +161,7 @@ Every command except `create-admin` also works on a moderator, and each change i
 
 ## Failover drills
 
-The drills come from the plan's Task 17. They have not been run on the author's server yet. Record each run (date, command, what you saw) in `infra/drills.md`. The Postgres and agent drills run against prod, the isolation drill probes prod from dev, and the release and upload drills use dev.
+Run the drills after a bring-up and after a change to the edge or the data services. The Postgres and agent drills run against prod, the isolation drill probes prod from dev, and the release and upload drills use dev.
 
 <Steps>
 <Step title="Postgres primary">
@@ -224,7 +223,7 @@ free -g | sed -n 2p
 docker stats --no-stream --format "{{.Name}} {{.MemUsage}}" | grep k3d-shopnexus
 ```
 
-Record the available memory and the use of each k3d node in `infra/drills.md`. The spec estimates the two stacks at 6 to 8 GB, and this drill measures it.
+Compare the available memory and the use of each k3d node with the last run.
 </Step>
 </Steps>
 
@@ -241,7 +240,7 @@ In direct mode there is no HTTP to HTTPS redirect and no Let's Encrypt certifica
 CNPG reads the Postgres major version from the image tag, and ParadeDB's tags such as `0.26.4-pg18` do not parse. The chart works around it with an `ImageCatalog` that states major 18, so keep `major: 18` in `postgres.yaml` in step with the tag in `images.postgres`. CNPG also assumes uid 26, its own images' user, while the ParadeDB image runs Postgres as uid 999; the chart sets `postgresUID: 999` and `postgresGID: 999`. A permission error on the data directory after an image change means the new image uses another uid: read it with `docker run --rm --entrypoint id paradedb/paradedb:0.26.4-pg18`, with the new tag.
 </Accordion>
 <Accordion title="The server never becomes ready">
-`/readyz` answers 503 and the server logs `not ready` with `check restate: ...`. Readiness pings Postgres and Restate's admin API at `http://restate.restate-dev:9070`. restate-operator admits traffic to Restate's ingress and admin ports only from the peers in `spec.security.networkPeers` of the `RestateCluster`, which the chart sets to the server pods of the stack namespace. Check that the Restate pods run (`kubectl -n restate-dev get pods`) and that the operator's policies name the server (`kubectl -n restate-dev get networkpolicy -o yaml`). Restate can call back only pods labelled `allow.restate.dev/restate-dev: "true"`, which the server's pod template carries.
+`/readyz` answers 503 and the server logs `not ready` with `check restate: ...`. Readiness pings Postgres and Restate's admin API at `http://restate.restate-dev:9070`. restate-operator admits traffic to Restate's ingress and admin ports only from the peers in `spec.security.networkPeers` of the `RestateCluster`, which the chart sets to the server and `server-ai` pods of the stack namespace. Check that the Restate pods run (`kubectl -n restate-dev get pods`) and that the operator's policies name the server (`kubectl -n restate-dev get networkpolicy -o yaml`). Restate can call back only pods labelled `allow.restate.dev/restate-dev: "true"`, which the server's pod template carries.
 </Accordion>
 <Accordion title="The seal command stops on a missing restate.pem, or Restate's calls are refused">
 The seal command keeps Restate's signing key in `infra/stack/secrets/<stack>.restate.pem` and its public half in `RESTATE_IDENTITY_KEY` in `<stack>.env`. When the `.env` has the public key but the `.pem` is gone, the seal command stops with `restore dev.restate.pem from the backup`. Restore the file from the backup. A new pair would make Restate sign its requests with a key the running server does not know: the server refuses those requests, and durable flows stop while Restate retries them. A deliberate rotation deletes both the line and the `.pem` and restarts the Restate pods afterwards; [Secrets](/en/operations/cluster/secrets#the-restate-key) has the steps.
@@ -256,9 +255,9 @@ The server has no defaults. At start it exits with one line per variable that is
 In direct mode Traefik's log shows ACME errors about rate limits. Let's Encrypt's production endpoint limits how many certificates a domain gets per week, and repeated bring-ups use them up. Traefik uses the production endpoint by default. For repeated test bring-ups, add `caServer: https://acme-staging-v02.api.letsencrypt.org/directory` under `acme` in `infra/cluster/k3d-direct.yaml` before you create the cluster, and run the smoke test with `--insecure`. Behind a proxy, the proxy holds the certificates and this does not apply.
 </Accordion>
 <Accordion title="The host runs out of memory">
-Pods are `OOMKilled` or `Pending`, or the host swaps. The spec estimates both stacks at 6 to 8 GB, and the author's server already used 17 of 19 GB before them. Scale dev to zero when it is not in use: in `infra/stack/values-dev.yaml`, set `replicas.server`, `replicas.website`, `replicas.docs` and `replicas.console` to 0 and keep `postgres.instances: 1` and `restate.replicas: 1`, then commit and push. `kubectl scale` does not last, because Argo CD's self-heal puts the replica count from git back. Another fallback in the spec is a cluster with two agents.
+Pods are `OOMKilled` or `Pending`, or the host swaps. `server-ai` is the largest pod, 6Gi requested in prod. Scale dev down when it is not in use: in `infra/stack/values-dev.yaml`, set `replicas.server`, `replicas.website`, `replicas.docs`, `replicas.console` and `replicas.agent` to 0, then commit and push. `server-ai`, Bifrost, imgproxy, Grafana, pgweb and the data services keep one pod each. `kubectl scale` does not last, because Argo CD's self-heal puts the replica count from git back. Another fallback is a cluster with two agents.
 </Accordion>
 <Accordion title="Pods cannot pull ghcr.io/shopnexus images">
-Pods are in `ImagePullBackOff` and `kubectl describe pod` shows an unauthorized or denied error from `ghcr.io`. The cluster pulls without credentials, so every package it uses must be public: `server`, `website`, `docs` and `console` under `ghcr.io/shopnexus`. On GitHub, open the package, then <UI>Package settings</UI>, then <UI>Change visibility</UI>. A fork that pushes to another owner also changes the image names in `infra/stack/values.yaml` and `infra/argocd/stacks.yaml`.
+Pods are in `ImagePullBackOff` and `kubectl describe pod` shows an unauthorized or denied error from `ghcr.io`. The cluster pulls without credentials, so every package it uses must be public: `ghcr.io/shopnexus/server`, `docs` and `agent`, and `ghcr.io/shopnexus/clients/website` and `clients/console`. On GitHub, open the package, then <UI>Package settings</UI>, then <UI>Change visibility</UI>. A fork that pushes to another owner also changes the image names in the values files and `infra/argocd/stacks.yaml`.
 </Accordion>
 </AccordionGroup>
