@@ -19,11 +19,17 @@ The agent writes its answer as Markdown, and the console renders it. The server 
 |---|---|---|
 | Text and tables | Markdown | Rendered text and tables. |
 | A record | `[its name](kind:id)`, the kind being `account`, `ticket`, `order`, `listing` or `report` | A chip that previews the record on hover and opens it on a click. |
-| A diagram | a ` ```mermaid ` block | The diagram, drawn in the console's colours. |
+| A diagram | a ` ```mermaid ` block, a flowchart drawn top to bottom with at most about 12 short nodes | The diagram, drawn in the console's colours. One too wide for the column scrolls sideways and opens full size. |
 | A chart | a ` ```vega-lite ` block of Vega-Lite JSON, data inline and no styling | The chart, styled by the console. |
 | Quick replies | a ` ```options ` block at the end, one reply per line | A button per reply; the one picked comes back as the member's next message. |
 
 A record of another kind, such as a feedback item, is named in words.
+
+## Diagrams
+
+The chat column is about 700 px wide. A flowchart drawn left to right with nested groups comes out two or three times wider than that, and shrunk to fit, its text is too small to read; mermaid's layout is not the cause. So the conventions ask for a flowchart drawn top to bottom, with at most about 12 nodes of two or three words, details in the text rather than in a node, one level of subgraph at most, and labels only on edges that need them.
+
+The console never shrinks a diagram below three quarters of its size: a wider one scrolls sideways. A diagram that does not fit at full size has a button that opens it full size.
 
 ## Plain words
 
