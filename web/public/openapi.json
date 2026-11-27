@@ -3047,7 +3047,7 @@
           "UC-LST-03"
         ],
         "summary": "Buy a boost package for one of the caller's listings.",
-        "description": "Opens a payment of the package's price and returns the boost,\nawaiting payment, with the gateway's payment_url; the package starts\nwhen the gateway confirms the payment, at most 15 minutes later.\nChecks, in order: payment_unavailable; unknown_boost_package;\naccount_suspended; phone_required; listing_not_found (no such\nlisting, another seller's, or deleted); listing_not_boostable (not on\nsale: processing, hidden, held by a moderator, rejected, reserved or\nsold); boost_active (a package runs on the listing).\n\nA boost of the same package awaiting payment on the listing is\nanswered as it is (200), so the seller picks the payment up again. A\nboost of another package awaiting payment is cancelled and replaced;\nshould its payment still land, it is refunded in full.\n",
+        "description": "Opens a payment of the package's price and returns the boost,\nawaiting payment, with the gateway's payment_url; the package starts\nwhen the gateway confirms the payment, at most 15 minutes later.\nChecks, in order: payment_unavailable; unknown_boost_package;\naccount_suspended; phone_required; listing_not_found (no such\nlisting, another seller's, or deleted); listing_not_boostable (not on\nsale: processing, hidden, held by a moderator, rejected, reserved or\nsold); boost_active (a package runs on the listing); boost_pending\n(another package awaits payment on the listing).\n\nA boost of the same package awaiting payment on the listing is\nanswered as it is (200), so the seller picks the payment up again. A\nboost of another package awaiting payment refuses the purchase until\nit is paid or lapses. Nothing is refunded: once paid, the package\nruns its days, and a day the listing is not on sale is not moved up.\n",
         "tags": [
           "boost"
         ],
@@ -3119,7 +3119,7 @@
             }
           },
           "409": {
-            "description": "The listing is not on sale (listing_not_boostable), or a package runs on it (boost_active, with details.boost_id).",
+            "description": "The listing is not on sale (listing_not_boostable), a package runs on it (boost_active, with details.boost_id), or another package awaits payment on it (boost_pending, with details.boost_id).",
             "content": {
               "application/json": {
                 "schema": {
@@ -3241,7 +3241,7 @@
         ],
         "x-rate-limit": "exempt",
         "summary": "VNPay's payment notification (IPN).",
-        "description": "VNPay calls it server to server with the payment's vnp_ parameters.\nThe server checks vnp_SecureHash, finds the payment by vnp_TxnRef,\nchecks vnp_Amount, then records the result once: vnp_ResponseCode and\nvnp_TransactionStatus 00 mark it paid, anything else failed. A\nsuccess after the payment failed or expired still marks it paid, and\nthe purchase it was for is refunded. The answer is always 200 with\nVNPay's RspCode; VNPay sends again on 99 and on any answer it cannot\nread.\n",
+        "description": "VNPay calls it server to server with the payment's vnp_ parameters.\nThe server checks vnp_SecureHash, finds the payment by vnp_TxnRef,\nchecks vnp_Amount, then records the result once: vnp_ResponseCode and\nvnp_TransactionStatus 00 mark it paid, anything else failed. A\nsuccess after the payment failed or expired still marks it paid and\nstarts the package; VNPay's page refuses payment after vnp_ExpireDate,\nthe payment's expires_at, so it should not happen. The answer is\nalways 200 with VNPay's RspCode; VNPay sends again on 99 and on any\nanswer it cannot read.\n",
         "tags": [
           "payment",
           "internal"
@@ -3297,7 +3297,7 @@
             }
           },
           "404": {
-            "description": "No such payment, or one no longer pending (payment_not_found).",
+            "description": "No such payment, one no longer pending, or one past its expires_at (payment_not_found).",
             "content": {
               "application/json": {
                 "schema": {
@@ -3345,7 +3345,7 @@
             "$ref": "#/components/responses/BadRequest"
           },
           "404": {
-            "description": "No such payment, or one no longer pending (payment_not_found).",
+            "description": "No such payment, one no longer pending, or one past its expires_at (payment_not_found).",
             "content": {
               "application/json": {
                 "schema": {
@@ -16123,7 +16123,7 @@
           "started_at": {
             "type": "string",
             "format": "date-time",
-            "description": "When the payment landed and the first move up happened."
+            "description": "When the payment landed; the package's days count from it. The first move up happens then if the listing is on sale."
           },
           "ends_at": {
             "type": "string",
@@ -16149,11 +16149,6 @@
             "type": "string",
             "format": "date-time",
             "description": "When the package ended, or the purchase closed without starting."
-          },
-          "refunded_at": {
-            "type": "string",
-            "format": "date-time",
-            "description": "When the gateway confirmed the refund."
           },
           "created_at": {
             "type": "string",
@@ -16236,12 +16231,9 @@
           "active",
           "ended",
           "failed",
-          "expired",
-          "cancelled",
-          "refunding",
-          "refunded"
+          "expired"
         ],
-        "description": "awaiting_payment: the seller has 15 minutes to pay at payment_url.\nactive: paid and running. ended: the package ran its days. failed:\nthe gateway refused or the seller cancelled the payment. expired: not\npaid within 15 minutes. cancelled: a newer purchase for the listing\nreplaced it before it was paid. refunding: paid, but the package could\nnot start (the listing was no longer on sale, or the purchase was\nalready closed), so the full amount goes back; refunded: it went back.\n"
+        "description": "awaiting_payment: the seller has 15 minutes to pay at payment_url.\nactive: paid and running. ended: the package ran its days. failed:\nthe gateway refused or the seller cancelled the payment. expired: not\npaid within 15 minutes. Nothing is ever refunded: a payment that lands\nstarts its package, whether the listing is on sale then or not.\n"
       },
       "BumpedAt": {
         "type": "string",
@@ -18291,9 +18283,7 @@
               "pending",
               "paid",
               "failed",
-              "expired",
-              "refunding",
-              "refunded"
+              "expired"
             ]
           },
           "gateway_ref": {
@@ -18324,10 +18314,6 @@
             "type": "string",
             "format": "date-time",
             "description": "When it failed or expired."
-          },
-          "refunded_at": {
-            "type": "string",
-            "format": "date-time"
           }
         }
       },
@@ -19301,7 +19287,7 @@
                   "boost_id": {
                     "type": "string",
                     "format": "uuid",
-                    "description": "The boost that runs on the listing, sent with boost_active."
+                    "description": "The boost that runs on the listing (boost_active) or awaits payment on it (boost_pending)."
                   }
                 }
               },
@@ -21341,7 +21327,6 @@
               "boost_started",
               "boost_failed",
               "boost_expired",
-              "boost_refunded",
               "boost_ended"
             ]
           },

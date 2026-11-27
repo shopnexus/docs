@@ -1,7 +1,7 @@
 {
   "server": {
     "repo": "https://github.com/shopnexus/server",
-    "commit": "263a60f0b2224ae13a55e78e2d7e56348fe60252"
+    "commit": "33164179975e1b93e5a7fd2a3dabb660baa396af"
   },
   "refs": {
     "UC-MOD-08": [
@@ -1810,6 +1810,338 @@
         "file": "server/internal/trust/service/service.go",
         "line": 72,
         "kind": "code",
+        "flows": []
+      }
+    ],
+    "UC-LST-03": [
+      {
+        "file": "server/e2e/boost_test.go",
+        "line": 123,
+        "kind": "test",
+        "flows": [
+          "A1",
+          "A2",
+          "E7"
+        ]
+      },
+      {
+        "file": "server/e2e/boost_test.go",
+        "line": 164,
+        "kind": "test",
+        "flows": [
+          "A1",
+          "A2"
+        ]
+      },
+      {
+        "file": "server/e2e/boost_test.go",
+        "line": 197,
+        "kind": "test",
+        "flows": [
+          "E7"
+        ]
+      },
+      {
+        "file": "server/e2e/boost_test.go",
+        "line": 211,
+        "kind": "test",
+        "flows": [
+          "E9"
+        ]
+      },
+      {
+        "file": "server/e2e/boost_test.go",
+        "line": 245,
+        "kind": "test",
+        "flows": [
+          "A5",
+          "E8",
+          "E10"
+        ]
+      },
+      {
+        "file": "server/e2e/boost_test.go",
+        "line": 252,
+        "kind": "test",
+        "flows": [
+          "E8"
+        ]
+      },
+      {
+        "file": "server/e2e/boost_test.go",
+        "line": 258,
+        "kind": "test",
+        "flows": [
+          "E10"
+        ]
+      },
+      {
+        "file": "server/e2e/boost_test.go",
+        "line": 265,
+        "kind": "test",
+        "flows": [
+          "A5"
+        ]
+      },
+      {
+        "file": "server/e2e/boost_test.go",
+        "line": 277,
+        "kind": "test",
+        "flows": [
+          "E2",
+          "E3",
+          "E4",
+          "E5",
+          "E6"
+        ]
+      },
+      {
+        "file": "server/e2e/boost_test.go",
+        "line": 337,
+        "kind": "test",
+        "flows": [
+          "E1"
+        ]
+      },
+      {
+        "file": "server/internal/boost/service/boost_buy.go",
+        "line": 16,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/boost/service/boost_buy.go",
+        "line": 20,
+        "kind": "code",
+        "flows": [
+          "E1"
+        ]
+      },
+      {
+        "file": "server/internal/boost/service/boost_buy.go",
+        "line": 24,
+        "kind": "code",
+        "flows": [
+          "E2"
+        ]
+      },
+      {
+        "file": "server/internal/boost/service/boost_buy.go",
+        "line": 29,
+        "kind": "code",
+        "flows": [
+          "A1"
+        ]
+      },
+      {
+        "file": "server/internal/boost/service/boost_buy.go",
+        "line": 93,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/boost/service/boost_payment.go",
+        "line": 17,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/boost/service/boost_payment.go",
+        "line": 36,
+        "kind": "code",
+        "flows": [
+          "A4"
+        ]
+      },
+      {
+        "file": "server/internal/boost/service/boost_payment.go",
+        "line": 75,
+        "kind": "code",
+        "flows": [
+          "A3"
+        ]
+      },
+      {
+        "file": "server/internal/boost/service/boost_test.go",
+        "line": 36,
+        "kind": "test",
+        "flows": [
+          "A6"
+        ]
+      },
+      {
+        "file": "server/internal/boost/service/boost_test.go",
+        "line": 103,
+        "kind": "test",
+        "flows": [
+          "A6"
+        ]
+      },
+      {
+        "file": "server/internal/boost/service/boost_test.go",
+        "line": 203,
+        "kind": "test",
+        "flows": [
+          "A4",
+          "A5"
+        ]
+      },
+      {
+        "file": "server/internal/boost/service/boost_test.go",
+        "line": 262,
+        "kind": "test",
+        "flows": [
+          "A5"
+        ]
+      },
+      {
+        "file": "server/internal/boost/service/boost_test.go",
+        "line": 272,
+        "kind": "test",
+        "flows": [
+          "A4"
+        ]
+      },
+      {
+        "file": "server/internal/boost/service/boost_tick_durable.go",
+        "line": 34,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/boost/service/service.go",
+        "line": 84,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/notification/domain/notice.go",
+        "line": 63,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/payment/service/payment_flows_durable.go",
+        "line": 38,
+        "kind": "code",
+        "flows": [
+          "A3"
+        ]
+      },
+      {
+        "file": "server/internal/payment/service/payment_notify.go",
+        "line": 23,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/payment/service/payment_open.go",
+        "line": 15,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/payment/service/payment_return.go",
+        "line": 22,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/payment/service/payment_test.go",
+        "line": 92,
+        "kind": "test",
+        "flows": [
+          "A3"
+        ]
+      },
+      {
+        "file": "server/internal/payment/service/payment_test.go",
+        "line": 122,
+        "kind": "test",
+        "flows": [
+          "A4",
+          "A7",
+          "E9"
+        ]
+      },
+      {
+        "file": "server/internal/payment/service/payment_test.go",
+        "line": 135,
+        "kind": "test",
+        "flows": [
+          "E9"
+        ]
+      },
+      {
+        "file": "server/internal/payment/service/payment_test.go",
+        "line": 138,
+        "kind": "test",
+        "flows": [
+          "A4"
+        ]
+      },
+      {
+        "file": "server/internal/payment/service/payment_test.go",
+        "line": 147,
+        "kind": "test",
+        "flows": [
+          "A7"
+        ]
+      },
+      {
+        "file": "server/internal/payment/service/payment_test.go",
+        "line": 165,
+        "kind": "test",
+        "flows": [
+          "A4"
+        ]
+      },
+      {
+        "file": "server/api/paths/boost.yaml",
+        "line": 4,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/boost.yaml",
+        "line": 22,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/boost.yaml",
+        "line": 101,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/boost.yaml",
+        "line": 144,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/boost.yaml",
+        "line": 165,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/boost.yaml",
+        "line": 189,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/boost.yaml",
+        "line": 221,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/boost.yaml",
+        "line": 244,
+        "kind": "api",
         "flows": []
       }
     ],
@@ -4690,7 +5022,7 @@
       },
       {
         "file": "server/internal/screen/service/service.go",
-        "line": 72,
+        "line": 73,
         "kind": "code",
         "flows": []
       },
@@ -6378,7 +6710,7 @@
       },
       {
         "file": "server/internal/notification/worker/worker.go",
-        "line": 454,
+        "line": 503,
         "kind": "code",
         "flows": []
       },
@@ -7414,7 +7746,7 @@
       },
       {
         "file": "server/internal/catalog/service/service.go",
-        "line": 181,
+        "line": 185,
         "kind": "code",
         "flows": [
           "A1"
@@ -7528,6 +7860,40 @@
         "file": "server/internal/catalog/service/listing_test.go",
         "line": 611,
         "kind": "test",
+        "flows": []
+      }
+    ],
+    "BR-LST-05": [
+      {
+        "file": "server/internal/boost/domain/boost.go",
+        "line": 23,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/boost/domain/boost.go",
+        "line": 26,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/boost/service/boost_buy.go",
+        "line": 113,
+        "kind": "code",
+        "flows": []
+      }
+    ],
+    "BR-LST-07": [
+      {
+        "file": "server/internal/boost/domain/boost.go",
+        "line": 68,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/boost/service/boost_payment.go",
+        "line": 18,
+        "kind": "code",
         "flows": []
       }
     ],
@@ -10523,7 +10889,7 @@
       },
       {
         "file": "server/internal/notification/worker/worker.go",
-        "line": 81,
+        "line": 85,
         "kind": "code",
         "flows": [
           "A4"
@@ -10531,19 +10897,19 @@
       },
       {
         "file": "server/internal/notification/worker/worker.go",
-        "line": 84,
+        "line": 88,
         "kind": "code",
         "flows": []
       },
       {
         "file": "server/internal/notification/worker/worker.go",
-        "line": 120,
+        "line": 124,
         "kind": "code",
         "flows": []
       },
       {
         "file": "server/internal/notification/worker/worker.go",
-        "line": 217,
+        "line": 221,
         "kind": "code",
         "flows": [
           "A5"
@@ -10551,7 +10917,7 @@
       },
       {
         "file": "server/internal/notification/worker/worker.go",
-        "line": 225,
+        "line": 229,
         "kind": "code",
         "flows": [
           "A5"
@@ -10559,7 +10925,7 @@
       },
       {
         "file": "server/internal/notification/worker/worker.go",
-        "line": 238,
+        "line": 242,
         "kind": "code",
         "flows": [
           "A5"
@@ -10567,7 +10933,7 @@
       },
       {
         "file": "server/internal/notification/worker/worker.go",
-        "line": 245,
+        "line": 249,
         "kind": "code",
         "flows": [
           "A5"
@@ -10575,7 +10941,7 @@
       },
       {
         "file": "server/internal/notification/worker/worker.go",
-        "line": 392,
+        "line": 441,
         "kind": "code",
         "flows": [
           "A3"
@@ -10583,7 +10949,7 @@
       },
       {
         "file": "server/internal/notification/worker/worker.go",
-        "line": 397,
+        "line": 446,
         "kind": "code",
         "flows": [
           "A3"
@@ -10591,7 +10957,7 @@
       },
       {
         "file": "server/internal/notification/worker/worker.go",
-        "line": 408,
+        "line": 457,
         "kind": "code",
         "flows": [
           "A3"
@@ -10599,13 +10965,13 @@
       },
       {
         "file": "server/internal/notification/worker/worker.go",
-        "line": 431,
+        "line": 480,
         "kind": "code",
         "flows": []
       },
       {
         "file": "server/internal/notification/worker/worker.go",
-        "line": 439,
+        "line": 488,
         "kind": "code",
         "flows": [
           "A2"
@@ -10613,19 +10979,19 @@
       },
       {
         "file": "server/internal/notification/worker/worker.go",
-        "line": 454,
+        "line": 503,
         "kind": "code",
         "flows": []
       },
       {
         "file": "server/internal/notification/worker/worker.go",
-        "line": 458,
+        "line": 507,
         "kind": "code",
         "flows": []
       },
       {
         "file": "server/internal/notification/worker/worker.go",
-        "line": 470,
+        "line": 519,
         "kind": "code",
         "flows": [
           "A6"
@@ -10633,19 +10999,19 @@
       },
       {
         "file": "server/internal/notification/worker/worker.go",
-        "line": 475,
+        "line": 524,
         "kind": "code",
         "flows": []
       },
       {
         "file": "server/internal/notification/worker/worker.go",
-        "line": 491,
+        "line": 540,
         "kind": "code",
         "flows": []
       },
       {
         "file": "server/internal/notification/worker/worker.go",
-        "line": 515,
+        "line": 564,
         "kind": "code",
         "flows": [
           "A12"
@@ -10653,7 +11019,7 @@
       },
       {
         "file": "server/internal/notification/worker/worker.go",
-        "line": 522,
+        "line": 571,
         "kind": "code",
         "flows": [
           "A12"
@@ -10661,13 +11027,13 @@
       },
       {
         "file": "server/internal/notification/worker/worker.go",
-        "line": 551,
+        "line": 600,
         "kind": "code",
         "flows": []
       },
       {
         "file": "server/internal/notification/worker/worker.go",
-        "line": 558,
+        "line": 607,
         "kind": "code",
         "flows": [
           "A9"
@@ -10675,7 +11041,7 @@
       },
       {
         "file": "server/internal/notification/worker/worker.go",
-        "line": 583,
+        "line": 632,
         "kind": "code",
         "flows": [
           "A10"
@@ -10683,7 +11049,7 @@
       },
       {
         "file": "server/internal/notification/worker/worker.go",
-        "line": 605,
+        "line": 654,
         "kind": "code",
         "flows": [
           "A10"
@@ -10691,7 +11057,7 @@
       },
       {
         "file": "server/internal/notification/worker/worker.go",
-        "line": 611,
+        "line": 660,
         "kind": "code",
         "flows": [
           "A11"
@@ -10890,7 +11256,7 @@
       },
       {
         "file": "server/internal/notification/worker/worker.go",
-        "line": 551,
+        "line": 600,
         "kind": "code",
         "flows": []
       }
@@ -10904,7 +11270,7 @@
       },
       {
         "file": "server/internal/screen/service/service.go",
-        "line": 72,
+        "line": 73,
         "kind": "code",
         "flows": []
       }
@@ -11345,9 +11711,27 @@
       }
     },
     "UC-LST-03": {
-      "code": 0,
-      "tests": 0,
-      "flows": {}
+      "code": 15,
+      "tests": 21,
+      "flows": {
+        "A1": true,
+        "A2": true,
+        "A3": true,
+        "A4": true,
+        "A5": true,
+        "A6": true,
+        "A7": true,
+        "E1": true,
+        "E2": true,
+        "E3": true,
+        "E4": true,
+        "E5": true,
+        "E6": true,
+        "E7": true,
+        "E8": true,
+        "E9": true,
+        "E10": true
+      }
     },
     "UC-LST-04": {
       "code": 36,
