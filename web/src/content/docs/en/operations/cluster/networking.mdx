@@ -141,7 +141,7 @@ flowchart TB
 
 ## NetworkPolicy
 
-`infra/stack/templates/networkpolicy.yaml` puts these policies in each stack namespace. `default-deny-ingress` selects every pod and admits nothing, and each of the others admits some sources, or for `bifrost-egress` limits where Bifrost may connect.
+`infra/stack/templates/networkpolicy.yaml` puts these policies in each stack namespace. `default-deny-ingress` selects every pod and admits nothing, and each of the others admits some sources, or for `bifrost-egress` and `agent-egress` limits where Bifrost and the agent runtime may connect.
 
 | Policy | Pods it selects | Admits traffic from |
 |---|---|---|
@@ -159,6 +159,7 @@ flowchart TB
 | `from-monitoring` | the Postgres pods | the cluster's Prometheus, on the exporter port 9187 |
 | `to-bifrost` | `bifrost` | the server, the agent and the cluster's Prometheus, on 8080 |
 | `bifrost-egress` | `bifrost` (egress) | DNS, Postgres, the upstream's port, and 443 to public addresses |
+| `agent-egress` | `agent` (egress) | DNS, 8080 of `server`, `bifrost` and `package-proxy`, and 9000 of `rustfs`. The sandbox has no network of its own; this keeps a turn that got out of it into the runtime away from Postgres, Restate, the dashboards and the Kubernetes API |
 
 ```mermaid title="Allowed flows into shopnexus-prod"
 flowchart TB

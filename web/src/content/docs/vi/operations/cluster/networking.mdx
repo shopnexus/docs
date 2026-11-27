@@ -141,7 +141,7 @@ flowchart TB
 
 ## NetworkPolicy
 
-`infra/stack/templates/networkpolicy.yaml` đặt các policy sau trong mỗi namespace của stack. `default-deny-ingress` chọn mọi pod và không cho gì vào, còn mỗi policy kia mở cho một vài nguồn, riêng `bifrost-egress` giới hạn nơi Bifrost được kết nối tới.
+`infra/stack/templates/networkpolicy.yaml` đặt các policy sau trong mỗi namespace của stack. `default-deny-ingress` chọn mọi pod và không cho gì vào, còn mỗi policy kia mở cho một vài nguồn, riêng `bifrost-egress` và `agent-egress` giới hạn nơi Bifrost và agent runtime được kết nối tới.
 
 | Policy | Pod được chọn | Cho phép lưu lượng từ |
 |---|---|---|
@@ -159,6 +159,7 @@ flowchart TB
 | `from-monitoring` | các pod Postgres | Prometheus của cluster, ở cổng exporter 9187 |
 | `to-bifrost` | `bifrost` | server, agent và Prometheus của cluster, ở cổng 8080 |
 | `bifrost-egress` | `bifrost` (egress) | DNS, Postgres, cổng của upstream, và 443 tới địa chỉ công khai |
+| `agent-egress` | `agent` (egress) | DNS, cổng 8080 của `server`, `bifrost` và `package-proxy`, và cổng 9000 của `rustfs`. Sandbox vốn không có mạng; policy này giữ cho một lượt đã thoát khỏi sandbox vào runtime vẫn không tới được Postgres, Restate, các dashboard và Kubernetes API |
 
 ```mermaid title="Các luồng được phép vào shopnexus-prod"
 flowchart TB
