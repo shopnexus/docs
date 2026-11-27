@@ -17,7 +17,7 @@ The server runs every query, so the limits and the masking live in one place, an
 
 ## Who may ask
 
-Only an admin's turn reads monitoring. The server checks the member behind the turn, so a moderator's question gets 403 `console_forbidden`, and the agent tells the moderator it cannot look. An admin turns the capability off for an agent in its settings like any other.
+Only an admin's turn reads monitoring. The four operations are marked for admins in the API description, so a moderator's turn leaves them out: its prompt does not list them and the server refuses them with 403 `agent_operation_forbidden`, though the agent holds the capability. A turn keeps the member's role from the start of its run. An admin turns the capability off for an agent in its settings like any other.
 
 ## The flow
 
