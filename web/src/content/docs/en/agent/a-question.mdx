@@ -106,4 +106,4 @@ Opening a chat and sending a question take an optional `Idempotency-Key` header.
 
 ## Lost turns
 
-Each server replica follows the runs it started. When a replica stops, it cancels them; the runtime ends each run as its stream closes, and the turn fails with "the server stopped while the turn ran". At start and every minute, the server fails turns still running a minute past their deadline, such as those of a replica that died. Either way the finished steps stay, and the turn can be resumed.
+Each server replica follows the runs it started. When a replica stops, it cancels them; the runtime ends each run as its stream closes, and the turn fails with "the server stopped while the turn ran". Every minute, the server fails turns still running a minute past their deadline, such as those of a replica that died. Either way the finished steps stay, and the turn can be resumed.

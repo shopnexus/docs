@@ -70,6 +70,10 @@ A few internal flows do keep a Restate key, because the key is the natural ID of
 
 Embedding a listing runs one run per listing at a time, and a new request queues behind the run in progress. A burst of edits therefore embeds the newest content once, and the later runs find nothing left to do. When the gateway reports a spent budget, the run ends without the vector and tries again 6 hours later.
 
+## Periodic jobs
+
+A job that runs on a schedule and touches the database, such as closing the agent's lost turns or reconciling Bifrost, has no timer of its own in a replica. Every replica sends it to Restate keyed by its period, such as `turns-every-<minute>`, so Restate runs it once per period, on the newest server version. After a deploy the old version only finishes the invocations it started, and never starts a job on a schema its code does not know.
+
 ## Running Restate
 
 The server registers its endpoint with Restate at start. In the cluster an operator registers each server version instead and keeps the old version running until its invocations finish, so a run never replays on code it did not start on. Restate signs every request to the endpoint, and in production the server runs only signed requests.
