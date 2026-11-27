@@ -1070,7 +1070,7 @@ uc:
     actors: [admin]
     fr: [FR-MOD-06]
     nfr: [NFR-CONC-01]
-    api: ["GET /v1/console/settings/providers", "GET /v1/console/settings/providers/{name}/models", "GET /v1/console/settings/models", "PUT /v1/console/settings/models/tags", "PUT /v1/console/settings/models/price", "GET /v1/console/settings/agents", "POST /v1/console/settings/agents", "GET /v1/console/settings/agents/usage", "PATCH /v1/console/settings/agents/{id}", "GET /v1/console/settings/agents/{id}/versions", "GET /v1/console/settings/spend"]
+    api: ["GET /v1/console/settings/providers", "GET /v1/console/settings/providers/{name}/models", "GET /v1/console/settings/models", "PUT /v1/console/settings/models/tags", "PUT /v1/console/settings/models/price", "GET /v1/console/settings/agents", "POST /v1/console/settings/agents", "GET /v1/console/settings/agents/usage", "GET /v1/console/settings/agents/activity", "PATCH /v1/console/settings/agents/{id}", "GET /v1/console/settings/agents/{id}/versions", "GET /v1/console/settings/spend"]
     pre: "Quản trị viên đã đăng nhập trang điều hành (UC-MOD-10). Nhà cung cấp mô hình và khóa API do hạ tầng cấu hình trong cổng AI."
     post: "Chính sách AI mới được lưu, ghi nhật ký (UC-SHR-02) và ghi vào cổng AI; mọi phần của máy chủ và trợ lý AI dùng nó từ lần gọi kế tiếp."
     main:
@@ -1082,7 +1082,7 @@ uc:
       A1: { at: 2, text: "Quản trị viên tạo một agent mới cho trang điều hành; agent có một bên gọi cùng tên. Gửi lại cùng yêu cầu tạo thì hệ thống dùng agent đã tạo." }
       A2: { at: 4, text: "Cổng AI không trả lời: thay đổi vẫn được lưu và lần đồng bộ định kỳ (5 phút) áp dụng sau.", error: ai_gateway_unavailable }
       A3: { at: 3, text: "Quản trị viên sửa chỉ dẫn của agent trang điều hành: hệ thống lưu thành phiên bản mới, xem lại được các phiên bản cũ." }
-      A4: { at: 1, text: "Quản trị viên xem chi tiêu theo ngày và theo agent, số lượt gọi, các công cụ trợ lý AI đã dùng và các lần bị chặn." }
+      A4: { at: 1, text: "Quản trị viên xem chi tiêu theo ngày và theo agent, số lượt gọi, các lệnh API mỗi agent đã gọi (số lần chờ duyệt, số lần lỗi) và các lần bị chặn: lượt lặp, hết ngân sách, giới hạn tốc độ." }
     exc:
       E1: { at: 3, text: "Mô hình hoặc mô hình dự phòng chưa có giá", error: ai_model_unpriced }
       E2: { at: 3, text: "Mô hình thiếu thẻ mà agent cần", error: ai_model_lacks_tags }

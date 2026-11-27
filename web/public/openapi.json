@@ -13053,6 +13053,67 @@
         }
       }
     },
+    "/v1/console/settings/agents/activity": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/ConsoleCSRF"
+        }
+      ],
+      "get": {
+        "operationId": "getAIAgentActivity",
+        "x-capability": "none",
+        "x-uc": [
+          "UC-MOD-12"
+        ],
+        "summary": "What the console agents did over a range. Admins only.",
+        "description": "Each agent's API calls by operation (how many waited for approval,\nhow many failed, how long they took), its turns by how they ended\n(stop: loop, context_full, length, deadline, budget), its approvals\nby status, and how often the rate limit refused a member's message.\n",
+        "tags": [
+          "console",
+          "internal"
+        ],
+        "security": [
+          {
+            "consoleAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "range",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "7d",
+                "30d",
+                "90d"
+              ],
+              "default": "7d"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Done.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AIAgentActivity"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/ConsoleForbidden"
+          }
+        }
+      }
+    },
     "/v1/console/settings/agents/{id}": {
       "parameters": [
         {
@@ -14399,7 +14460,7 @@
       },
       "AgentRunEvent": {
         "type": "object",
-        "description": "The data of one server-sent event of a turn, `{seq, type, at, ...}`;\nthe event's `id:` is its seq, counted from 1 per turn. The fields\nbeside seq, type and at are those of the type:\n\n- turn.started: agent {id, name}, model\n- turn.resumed: by, the member who resumed it\n- text.delta, reasoning.delta: delta, the model's text as it streams\n- tool.started: call_id, tool, input\n- tool.finished: call_id, tool, output (what the model reads),\n  is_error\n- step: messages, the AgentMessages the step added to the\n  conversation (the model's message, its commands' outputs, and the\n  steers it read)\n- step.failed: error; the text streamed since the last step is void\n- approval: approval, an AgentApproval asked for or decided\n- turn.pausing: by\n- turn.paused: usage\n- turn.finished: status, stop, error, usage\n\nThe stream ends after turn.paused or turn.finished.\n",
+        "description": "The data of one server-sent event of a turn, `{seq, type, at, ...}`;\nthe event's `id:` is its seq, counted from 1 per turn. The fields\nbeside seq, type and at are those of the type:\n\n- turn.started: agent {id, name}, model\n- turn.resumed: by, the member who resumed it\n- text.delta, reasoning.delta: delta, the model's text as it streams\n- tool.started: call_id, tool, input\n- tool.finished: call_id, tool, output (what the model reads),\n  is_error\n- step: messages, the AgentMessages the step added to the\n  conversation (the model's message, its commands' outputs, and the\n  steers it read)\n- step.failed: error; the text streamed since the last step is void\n- approval: approval, an AgentApproval asked for or decided\n- steer: text, by; a member's steer the runtime took, which a later\n  step carries as a user message once the model reads it. A turn that\n  ends without such a step did not read it\n- turn.pausing: by\n- turn.paused: usage\n- turn.finished: status, stop, error, usage\n\nThe stream ends after turn.paused or turn.finished.\n",
         "required": [
           "seq",
           "type",
@@ -14422,6 +14483,7 @@
               "step",
               "step.failed",
               "approval",
+              "steer",
               "turn.pausing",
               "turn.paused",
               "turn.finished"
@@ -14496,7 +14558,7 @@
           },
           "stop": {
             "type": "string",
-            "description": "Why the run ended without an error, as the runtime says: done,\nlength (the answer hit the output limit), deadline, paused, stopped,\nloop (the same calls gave the same results three steps running),\ncontext_full.\n"
+            "description": "Why the run ended without an error, as the runtime says: done,\nlength (the answer hit the output limit), deadline, paused, stopped,\nloop (the same calls gave the same results three steps running),\ncontext_full, or budget (the model gateway refused: the agent's\nbudget is spent, and the turn failed).\n"
           },
           "error": {
             "type": "string",
@@ -14709,6 +14771,133 @@
           "updated_at": {
             "type": "string",
             "format": "date-time"
+          }
+        }
+      },
+      "AIAgentActivity": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "range",
+          "calls",
+          "turns",
+          "approvals",
+          "rate_limited"
+        ],
+        "properties": {
+          "range": {
+            "type": "string",
+            "enum": [
+              "7d",
+              "30d",
+              "90d"
+            ]
+          },
+          "calls": {
+            "type": "array",
+            "description": "Most called first.",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "agent_id",
+                "operation",
+                "calls",
+                "held",
+                "errors",
+                "avg_ms",
+                "last_called_at"
+              ],
+              "properties": {
+                "agent_id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "operation": {
+                  "type": "string"
+                },
+                "calls": {
+                  "type": "integer"
+                },
+                "held": {
+                  "type": "integer",
+                  "description": "The calls answered 202, changes that waited for approval."
+                },
+                "errors": {
+                  "type": "integer",
+                  "description": "The calls answered 4xx or 5xx."
+                },
+                "avg_ms": {
+                  "type": "integer"
+                },
+                "last_called_at": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          },
+          "turns": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "agent_id",
+                "status",
+                "turns"
+              ],
+              "properties": {
+                "agent_id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "status": {
+                  "$ref": "#/components/schemas/AgentTurnStatus"
+                },
+                "stop": {
+                  "type": "string",
+                  "description": "Why the run ended, as AgentTurn's stop; absent while running and for a failed run."
+                },
+                "turns": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "approvals": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "agent_id",
+                "status",
+                "approvals"
+              ],
+              "properties": {
+                "agent_id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "pending",
+                    "approved",
+                    "rejected",
+                    "failed"
+                  ]
+                },
+                "approvals": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "rate_limited": {
+            "type": "integer",
+            "description": "The members' messages and steers the rate limit refused."
           }
         }
       },

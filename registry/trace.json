@@ -1,7 +1,7 @@
 {
   "server": {
     "repo": "https://github.com/shopnexus/server",
-    "commit": "53812e9ea616058c4647cd9d2cd0be918ed6009c"
+    "commit": "263a60f0b2224ae13a55e78e2d7e56348fe60252"
   },
   "refs": {
     "UC-MOD-08": [
@@ -12,6 +12,7 @@
         "flows": [
           "A5",
           "A6",
+          "E1",
           "E2",
           "E4",
           "E6",
@@ -20,7 +21,7 @@
       },
       {
         "file": "server/e2e/agent_test.go",
-        "line": 310,
+        "line": 324,
         "kind": "test",
         "flows": [
           "A2",
@@ -30,7 +31,7 @@
       },
       {
         "file": "server/e2e/agent_test.go",
-        "line": 470,
+        "line": 514,
         "kind": "test",
         "flows": [
           "A1",
@@ -40,7 +41,7 @@
       },
       {
         "file": "server/e2e/agent_test.go",
-        "line": 525,
+        "line": 571,
         "kind": "test",
         "flows": [
           "E5"
@@ -285,6 +286,22 @@
     ],
     "UC-MOD-12": [
       {
+        "file": "server/e2e/agent_test.go",
+        "line": 324,
+        "kind": "test",
+        "flows": [
+          "A4"
+        ]
+      },
+      {
+        "file": "server/e2e/agent_test.go",
+        "line": 571,
+        "kind": "test",
+        "flows": [
+          "A4"
+        ]
+      },
+      {
         "file": "server/e2e/ai_settings_test.go",
         "line": 73,
         "kind": "test",
@@ -300,7 +317,7 @@
       },
       {
         "file": "server/e2e/ai_settings_test.go",
-        "line": 337,
+        "line": 338,
         "kind": "test",
         "flows": [
           "A2"
@@ -381,6 +398,14 @@
       {
         "file": "server/internal/agent/service/service.go",
         "line": 178,
+        "kind": "code",
+        "flows": [
+          "A4"
+        ]
+      },
+      {
+        "file": "server/internal/agent/service/service.go",
+        "line": 183,
         "kind": "code",
         "flows": [
           "A4"
@@ -553,13 +578,19 @@
       },
       {
         "file": "server/api/paths/ai_settings.yaml",
-        "line": 322,
+        "line": 321,
         "kind": "api",
         "flows": []
       },
       {
         "file": "server/api/paths/ai_settings.yaml",
-        "line": 350,
+        "line": 358,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/ai_settings.yaml",
+        "line": 386,
         "kind": "api",
         "flows": []
       }
@@ -3136,13 +3167,13 @@
       },
       {
         "file": "server/api/paths/ai_settings.yaml",
-        "line": 396,
+        "line": 432,
         "kind": "api",
         "flows": []
       },
       {
         "file": "server/api/paths/ai_settings.yaml",
-        "line": 416,
+        "line": 452,
         "kind": "api",
         "flows": []
       },
@@ -6493,7 +6524,7 @@
       },
       {
         "file": "server/internal/agent/service/service.go",
-        "line": 190,
+        "line": 195,
         "kind": "code",
         "flows": []
       }
@@ -11672,7 +11703,7 @@
         "A4": true,
         "A5": true,
         "A6": true,
-        "E1": false,
+        "E1": true,
         "E2": true,
         "E3": true,
         "E4": true,
@@ -11728,8 +11759,8 @@
       }
     },
     "UC-MOD-12": {
-      "code": 20,
-      "tests": 8,
+      "code": 21,
+      "tests": 10,
       "flows": {
         "A1": true,
         "A2": true,
