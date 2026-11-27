@@ -79,7 +79,7 @@ syncPolicy:
 | Thiết lập | Ở đâu | Tác dụng |
 |---|---|---|
 | `automated: { prune: true, selfHeal: true }` | mọi Application | commit được apply mà không cần bấm, resource bị xóa khỏi git thì bị xóa khỏi cluster, và sửa tay trong cluster bị hoàn lại |
-| `retry: { limit: -1, backoff: { duration: 30s, factor: 2, maxDuration: 5m } }` | mọi Application | lần sync lỗi được thử lại mãi, lúc đầu cách 30 giây, tối đa cách 5 phút |
+| `retry: { limit: -1, refresh: true, backoff: { duration: 30s, factor: 2, maxDuration: 5m } }` | mọi Application | lần sync lỗi được thử lại mãi, lúc đầu cách 30 giây, tối đa cách 5 phút, mỗi lần trên commit mới nhất, nên bản sửa đẩy lên sau lần lỗi vẫn được áp dụng |
 | sync wave | Application platform ở wave 0; `stack-dev`, `stack-prod` và `ImageUpdater` ở wave 1 | các stack khởi động sau các operator |
 | health check Lua cho `argoproj.io/Application` | `infra/cluster/argocd.yaml` | wave 1 của `root` chờ các Application platform Healthy |
 | health check Lua cho `RestateDeployment` | `infra/cluster/argocd.yaml` | wave 3 của một stack chờ các pod của phiên bản server mới sẵn sàng |

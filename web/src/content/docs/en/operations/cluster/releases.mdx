@@ -79,7 +79,7 @@ syncPolicy:
 | Setting | Where | Effect |
 |---|---|---|
 | `automated: { prune: true, selfHeal: true }` | every Application | a commit is applied without a click, a resource removed from git is deleted, and a hand edit in the cluster is reverted |
-| `retry: { limit: -1, backoff: { duration: 30s, factor: 2, maxDuration: 5m } }` | every Application | a failed sync is retried forever, 30 s apart at first and at most 5 min apart |
+| `retry: { limit: -1, refresh: true, backoff: { duration: 30s, factor: 2, maxDuration: 5m } }` | every Application | a failed sync is retried forever, 30 s apart at first and at most 5 min apart, each time on the newest commit, so a fix pushed after the failure lands |
 | sync waves | platform Applications wave 0, `stack-dev`, `stack-prod` and the `ImageUpdater` wave 1 | the stacks start after the operators |
 | Lua health check for `argoproj.io/Application` | `infra/cluster/argocd.yaml` | wave 1 of `root` waits for the platform Applications to be Healthy |
 | Lua health check for `RestateDeployment` | `infra/cluster/argocd.yaml` | a stack's wave 3 waits for the new server version's pods to be ready |
