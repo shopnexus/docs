@@ -51,6 +51,16 @@
       "description": "Link the caller's Chợ Tốt profile, bring its listings over, and keep the copies in step with Chợ Tốt."
     },
     {
+      "name": "boost",
+      "x-displayName": "Boosts",
+      "description": "Packages that move one of the seller's listings to the top of the newest order every day, paid once through the payment gateway."
+    },
+    {
+      "name": "payment",
+      "x-displayName": "Payments",
+      "description": "The payment gateway's return page and notifications, and the fake gateway's page on the dev stacks."
+    },
+    {
       "name": "discovery",
       "x-displayName": "Search and saved listings",
       "description": "Search and browse listings, saved listings, recent searches and a seller's public listings."
@@ -139,7 +149,8 @@
         "catalog",
         "assist",
         "chotot",
-        "discovery"
+        "discovery",
+        "boost"
       ]
     },
     {
@@ -147,7 +158,8 @@
       "tags": [
         "chat",
         "deal",
-        "shipping"
+        "shipping",
+        "payment"
       ]
     },
     {
@@ -2998,6 +3010,349 @@
           },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/v1/boost-packages": {
+      "get": {
+        "operationId": "listBoostPackages",
+        "x-uc": [
+          "UC-LST-03"
+        ],
+        "summary": "The boost packages and their prices.",
+        "description": "A boost moves one of the seller's listings to the top of the newest\norder at once and again every 24 hours until the package ends. Only\nthe newest order moves: relevance, nearest and price sorts do not.\n",
+        "tags": [
+          "boost"
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "The packages, shortest first.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BoostPackageList"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/boosts": {
+      "post": {
+        "operationId": "createBoost",
+        "x-uc": [
+          "UC-LST-03"
+        ],
+        "summary": "Buy a boost package for one of the caller's listings.",
+        "description": "Opens a payment of the package's price and returns the boost,\nawaiting payment, with the gateway's payment_url; the package starts\nwhen the gateway confirms the payment, at most 15 minutes later.\nChecks, in order: payment_unavailable; unknown_boost_package;\naccount_suspended; phone_required; listing_not_found (no such\nlisting, another seller's, or deleted); listing_not_boostable (not on\nsale: processing, hidden, held by a moderator, rejected, reserved or\nsold); boost_active (a package runs on the listing).\n\nA boost of the same package awaiting payment on the listing is\nanswered as it is (200), so the seller picks the payment up again. A\nboost of another package awaiting payment is cancelled and replaced;\nshould its payment still land, it is refunded in full.\n",
+        "tags": [
+          "boost"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BoostInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The boost a repeated key made, or the listing's boost of the same package still awaiting payment, as it is now.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Boost"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "A new boost, awaiting payment.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Boost"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "The account is suspended (account_suspended), or has no phone to sign in with (phone_required).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such listing of the caller's (listing_not_found).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The listing is not on sale (listing_not_boostable), or a package runs on it (boost_active, with details.boost_id).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "No package has that id (unknown_boost_package).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "This server takes no payments (payment_unavailable).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/boosts/{id}": {
+      "get": {
+        "operationId": "getBoost",
+        "x-uc": [
+          "UC-LST-03"
+        ],
+        "summary": "One of the caller's boosts.",
+        "description": "The app reads it after the payment page closes, until the status\nleaves awaiting_payment: the gateway's confirmation can come a few\nseconds after the browser returns.\n",
+        "tags": [
+          "boost"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The boost.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Boost"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "description": "No such boost of the caller's (boost_not_found).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/payments/vnpay/return": {
+      "get": {
+        "operationId": "vnpayReturn",
+        "x-uc": [
+          "UC-LST-03"
+        ],
+        "x-rate-limit": "exempt",
+        "summary": "Where VNPay sends the payer's browser back.",
+        "description": "VNPay's vnp_ReturnUrl, with the payment's vnp_ parameters and\nvnp_SecureHash. A valid signature on a pending payment that VNPay\ncalls paid makes the server ask VNPay itself (querydr); the redirect\nalone never marks a payment paid. The answer is a small page in the\nrequest's language that tells the result and opens the app at\nshopnexus://boost/{boost_id}, with a button for a browser that does\nnot follow it. A bad signature or an unknown payment gets a page that\nsays so.\n",
+        "tags": [
+          "payment",
+          "internal"
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "The result page.",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/payments/vnpay/ipn": {
+      "get": {
+        "operationId": "vnpayNotify",
+        "x-uc": [
+          "UC-LST-03"
+        ],
+        "x-rate-limit": "exempt",
+        "summary": "VNPay's payment notification (IPN).",
+        "description": "VNPay calls it server to server with the payment's vnp_ parameters.\nThe server checks vnp_SecureHash, finds the payment by vnp_TxnRef,\nchecks vnp_Amount, then records the result once: vnp_ResponseCode and\nvnp_TransactionStatus 00 mark it paid, anything else failed. A\nsuccess after the payment failed or expired still marks it paid, and\nthe purchase it was for is refunded. The answer is always 200 with\nVNPay's RspCode; VNPay sends again on 99 and on any answer it cannot\nread.\n",
+        "tags": [
+          "payment",
+          "internal"
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "VNPay's answer.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentNotifyAnswer"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/dev/payments/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "getDevPayment",
+        "x-uc": [
+          "UC-LST-03"
+        ],
+        "summary": "The fake gateway's payment page.",
+        "description": "Served only while the payment gateway is the fake, as on the dev and\ntest stacks; production does not serve it. A plain page with the\namount and two buttons, Pay and Cancel, which post to the same path.\n",
+        "tags": [
+          "payment",
+          "internal"
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "The page.",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such payment, or one no longer pending (payment_not_found).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "payDevPayment",
+        "x-uc": [
+          "UC-LST-03"
+        ],
+        "summary": "Pay or cancel a payment at the fake gateway.",
+        "description": "Does what VNPay does once the payer acts: calls the server's IPN with\nthe result signed as VNPay signs it (00 for pay, 24 for cancel), then\nsends the browser to the return page with the same parameters.\n",
+        "tags": [
+          "payment",
+          "internal"
+        ],
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/DevPaymentInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "303": {
+            "description": "To the return page. Location is /v1/payments/vnpay/return with the signed vnp_ parameters.",
+            "headers": {
+              "Location": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "404": {
+            "description": "No such payment, or one no longer pending (payment_not_found).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           }
         }
       }
@@ -11281,6 +11636,63 @@
         }
       }
     },
+    "/v1/console/listings/{id}/boosts": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/ConsoleCSRF"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "listConsoleListingBoosts",
+        "x-capability": "listings.read",
+        "x-uc": [
+          "UC-LST-03"
+        ],
+        "summary": "A listing's boosts and their payments, newest first.",
+        "description": "Every purchase of a package for the listing, whatever became of it, with its payment as the gateway reported it.",
+        "tags": [
+          "console",
+          "internal"
+        ],
+        "security": [
+          {
+            "consoleAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Cursor"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A page of boosts; none for a listing never boosted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsoleBoostList"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
     "/v1/console/listings/{id}/hide": {
       "parameters": [
         {
@@ -15660,6 +16072,182 @@
           }
         }
       },
+      "Boost": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "listing_id",
+          "package",
+          "days",
+          "price",
+          "status",
+          "bumps",
+          "created_at"
+        ],
+        "description": "One purchase of a package for one listing.",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "listing_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "package": {
+            "type": "string"
+          },
+          "days": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "price": {
+            "type": "integer",
+            "format": "int64",
+            "description": "In đồng, as charged."
+          },
+          "status": {
+            "$ref": "#/components/schemas/BoostStatus"
+          },
+          "payment_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "The gateway's payment page; present while awaiting_payment. Open it\nin a browser tab. Once paid or cancelled the gateway sends the\nbrowser to the server's return page, which opens\nshopnexus://boost/{id}; the app then reads this boost again. Only\nthe server's own check with the gateway moves the status, never the\nredirect.\n"
+          },
+          "payment_expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Present while awaiting_payment; the payment expires then."
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the payment landed and the first move up happened."
+          },
+          "ends_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When an active package ends; started_at plus its days."
+          },
+          "next_bump_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The next move up of an active package; absent after the last one."
+          },
+          "last_bump_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The latest move up the package made; a day the listing was not on sale makes none."
+          },
+          "bumps": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "How many times the package moved the listing up."
+          },
+          "ended_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the package ended, or the purchase closed without starting."
+          },
+          "refunded_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the gateway confirmed the refund."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "BoostInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "listing_id",
+          "package"
+        ],
+        "properties": {
+          "listing_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "package": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 16,
+            "description": "The id of one of GET /v1/boost-packages's items."
+          }
+        }
+      },
+      "BoostPackage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "days",
+          "price"
+        ],
+        "description": "A package a seller buys for one of their listings.",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The package's code, such as 3d; POST /v1/boosts names it.",
+            "example": "3d"
+          },
+          "days": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "How long the package runs; the listing moves up once at the start and again every 24 hours."
+          },
+          "price": {
+            "type": "integer",
+            "format": "int64",
+            "description": "In đồng, paid once through the payment gateway."
+          }
+        }
+      },
+      "BoostPackageList": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "available"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BoostPackage"
+            },
+            "description": "Shortest first."
+          },
+          "available": {
+            "type": "boolean",
+            "description": "False when this server takes no payments; POST /v1/boosts then answers payment_unavailable."
+          }
+        }
+      },
+      "BoostStatus": {
+        "type": "string",
+        "enum": [
+          "awaiting_payment",
+          "active",
+          "ended",
+          "failed",
+          "expired",
+          "cancelled",
+          "refunding",
+          "refunded"
+        ],
+        "description": "awaiting_payment: the seller has 15 minutes to pay at payment_url.\nactive: paid and running. ended: the package ran its days. failed:\nthe gateway refused or the seller cancelled the payment. expired: not\npaid within 15 minutes. cancelled: a newer purchase for the listing\nreplaced it before it was paid. refunding: paid, but the package could\nnot start (the listing was no longer on sale, or the purchase was\nalready closed), so the full amount goes back; refunded: it went back.\n"
+      },
+      "BumpedAt": {
+        "type": "string",
+        "format": "date-time",
+        "description": "When a boost last moved the listing to the top of the newest order;\nabsent for a listing never boosted. The newest order sorts by the later\nof this and published_at, so a card that shows a time shows the\noriginal posted time with a small \"Được đẩy\" mark.\n"
+      },
       "BuyerFigures": {
         "type": "object",
         "additionalProperties": false,
@@ -16976,6 +17564,43 @@
           }
         }
       },
+      "ConsoleBoost": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "boost",
+          "payment"
+        ],
+        "description": "A boost of a listing with its payment, as staff read them.",
+        "properties": {
+          "boost": {
+            "$ref": "#/components/schemas/Boost"
+          },
+          "payment": {
+            "$ref": "#/components/schemas/ConsolePayment"
+          }
+        }
+      },
+      "ConsoleBoostList": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ConsoleBoost"
+            }
+          },
+          "next_cursor": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Present when more boosts follow; pass it as cursor."
+          }
+        }
+      },
       "ConsoleFeedback": {
         "type": "object",
         "additionalProperties": false,
@@ -17632,6 +18257,80 @@
           }
         }
       },
+      "ConsolePayment": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "gateway",
+          "amount",
+          "status",
+          "created_at",
+          "expires_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Also the order reference the gateway shows (vnp_TxnRef), without its hyphens."
+          },
+          "gateway": {
+            "type": "string",
+            "enum": [
+              "vnpay",
+              "fake"
+            ]
+          },
+          "amount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "paid",
+              "failed",
+              "expired",
+              "refunding",
+              "refunded"
+            ]
+          },
+          "gateway_ref": {
+            "type": "string",
+            "description": "The gateway's transaction number, once it reported one."
+          },
+          "bank_code": {
+            "type": "string",
+            "description": "The bank or method the payer used, as the gateway names it."
+          },
+          "result_code": {
+            "type": "string",
+            "description": "The gateway's response code of the payment result, such as 00 or 24."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "paid_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "closed_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When it failed or expired."
+          },
+          "refunded_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "ConsolePersonStatus": {
         "type": "string",
         "enum": [
@@ -18241,6 +18940,22 @@
           }
         }
       },
+      "DevPaymentInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "result"
+        ],
+        "properties": {
+          "result": {
+            "type": "string",
+            "enum": [
+              "pay",
+              "cancel"
+            ]
+          }
+        }
+      },
       "DevShipmentReport": {
         "type": "object",
         "additionalProperties": false,
@@ -18582,6 +19297,11 @@
                         ]
                       }
                     }
+                  },
+                  "boost_id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "The boost that runs on the listing, sent with boost_active."
                   }
                 }
               },
@@ -19426,7 +20146,10 @@
           "published_at": {
             "type": "string",
             "format": "date-time",
-            "description": "When the listing first went on sale."
+            "description": "When the listing first went on sale; a boost never changes it."
+          },
+          "bumped_at": {
+            "$ref": "#/components/schemas/BumpedAt"
           },
           "sold_at": {
             "type": "string",
@@ -19819,6 +20542,14 @@
           },
           "viewer": {
             "$ref": "#/components/schemas/ListingViewer"
+          },
+          "boost": {
+            "$ref": "#/components/schemas/Boost",
+            "description": "The listing's boost awaiting payment or running, sent to its seller only; absent when none."
+          },
+          "boostable": {
+            "type": "boolean",
+            "description": "Sent to the seller only: whether POST /v1/boosts would sell a\npackage for the listing now. True when the listing is on sale,\nhas no boost awaiting payment or running, the account may write and\nhas a phone, and the server takes payments.\n"
           }
         }
       },
@@ -20528,6 +21259,14 @@
           "from_chotot": {
             "type": "boolean",
             "description": "The listing was brought over from the seller's Chợ Tốt profile."
+          },
+          "boost": {
+            "$ref": "#/components/schemas/Boost",
+            "description": "The listing's boost awaiting payment or running; absent when none."
+          },
+          "boostable": {
+            "type": "boolean",
+            "description": "Whether POST /v1/boosts would sell a package for the listing now:\nit is on sale, has no boost awaiting payment or running, the\naccount may write and has a phone, and the server takes payments.\n"
           }
         }
       },
@@ -20598,7 +21337,12 @@
               "feedback_replied",
               "chotot_imported",
               "chotot_sold_here",
-              "parcel_lost"
+              "parcel_lost",
+              "boost_started",
+              "boost_failed",
+              "boost_expired",
+              "boost_refunded",
+              "boost_ended"
             ]
           },
           "text": {
@@ -21163,6 +21907,32 @@
           "buyer",
           "seller"
         ]
+      },
+      "PaymentNotifyAnswer": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "RspCode",
+          "Message"
+        ],
+        "description": "The answer VNPay expects from an IPN.",
+        "properties": {
+          "RspCode": {
+            "type": "string",
+            "enum": [
+              "00",
+              "01",
+              "02",
+              "04",
+              "97",
+              "99"
+            ],
+            "description": "00 recorded; 01 no such payment; 02 already recorded; 04 the amount\ndiffers; 97 the signature does not check; 99 another error, which\nVNPay sends again.\n"
+          },
+          "Message": {
+            "type": "string"
+          }
+        }
       },
       "Person": {
         "type": "object",
@@ -23089,6 +23859,14 @@
             "type": "integer",
             "minimum": 0,
             "description": "Whole kilometres from the caller's position, 0 under 1 km; absent without a position."
+          },
+          "published_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the listing first went on sale."
+          },
+          "bumped_at": {
+            "$ref": "#/components/schemas/BumpedAt"
           },
           "saved": {
             "type": "boolean",
