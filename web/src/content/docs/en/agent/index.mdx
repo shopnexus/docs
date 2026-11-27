@@ -1,6 +1,6 @@
 ---
 title: What the agent does
-description: The console's AI assistant reads tickets, report cases and accounts through tools, works in steps and answers with numbered sources. Moderators read the answer, decide and act themselves.
+description: The console's AI assistant works in a sandbox and calls the console API through the shopnexus command, as the member who asked. It reads what its capabilities and the member's role allow, and every change it asks for waits for a member's approval.
 group: Overview
 groupOrder: 1
 order: 1
@@ -8,80 +8,88 @@ audience: [developers, admins]
 type: overview
 readingTime: 5
 updated: 2026-11-27
-related: ["/en/agent/a-question", "/en/architecture/console", "/en/marketplace/moderation"]
+related: ["/en/agent/a-question", "/en/agent/tools", "/en/agent/approvals", "/en/architecture/console"]
 ---
 
-A moderator opens an account, a report case or a ticket in the console, or a chat of their own, and asks the agent a question in plain words. Typing `@` mentions a record (a ticket, an account, an order, a listing, a report case or a document) so the agent knows which one the question is about. The agent picks tools to read the data, splits the work into named steps and answers with text, key figures, tables or charts. Each claim in the answer carries a number such as <span class="run-cite">1</span> that points to the record it came from.
+A console member opens an account, a ticket or a chat of their own and asks the agent a question in plain words. The agent works in a sandbox of its own. It reads and changes ShopNexus through the console's own API, with a command-line tool called `shopnexus`, as the member who asked. It answers in Markdown: text, tables, record chips, diagrams, charts and quick replies. <Req id="UC-MOD-08" />
 
 <DoDont
   doTitle="The agent can"
   dontTitle="Outside the agent's reach"
   do={[
-    "Read tickets, report cases, accounts, orders, listings and the console's audit log",
-    "Count, summarise and compare a listing's price with similar listings",
-    "Write documents with versions inside the chat",
-    "Ask the moderator back when a question is unclear",
+    "Read tickets, accounts, report cases, orders, listings and feedback, and for an admin the audit log and the system's health",
+    "Ask for a change, such as suspending an account or replying on a ticket, which waits for a member's approval",
+    "Work through data with bash, jq, Python or Node in a workspace that lasts the conversation",
+    "Draw tables, diagrams and charts, and offer quick replies as buttons",
   ]}
   dont={[
-    "Suspending, hiding or messaging: the moderator does these in the console",
-    "Following text users wrote in messages, notes or listing descriptions",
-    "Requests from outside: only the server can call it, on the internal network",
-    "Storage: the server keeps every chat, run and tool call",
+    "Making a change by itself: a change runs only when a member approves it",
+    "An operation its agent holds no capability for, or one the member's role may not use",
+    "The network: its sandbox reaches only the server's API and a package mirror",
+    "Secrets: the turn's token stays outside the sandbox",
   ]}
 />
 
-The read-only rule is <Req id="BR-MOD-03" />. The agent has no tool that changes data, so a prompt injection hidden in a user's message can at worst produce a wrong proposal, which a moderator then reviews.
+The agent changes nothing on its own. Every change it asks for becomes an approval request in the chat. A member approves it, and only then does the request run, as that member, into the audit log under their name. <Req id="BR-MOD-03" /> An instruction hidden in a user's message can at worst make the agent ask for a wrong change, which a member then reads and rejects.
 
-## The four parts
+## The parts
 
-The console calls only the server. The server starts each run segment on the agent. The agent calls the model through Bifrost, with the virtual key and model the server sends in each run, and reads data through the MCP server that the server opens on a port of its own. Everything the agent does flows back to the server as lines; the server stores them and sends them on to the console.
+The console calls only the server. The server opens a turn and hands it to the agent runtime, a service of its own on the internal network. The runtime calls the model through Bifrost with the agent's key, and runs the model's commands in a sandbox. A `shopnexus` command reaches the server's API through a socket the runtime serves, which adds the turn's token. Everything the runtime does streams back to the server, which stores it and sends it on to the console.
 
 <Sequence
   caption="One question through the four parts. Dashed arrows are data flowing back."
   actors={[
-    { id: "console", label: "Console", icon: "ri:computer-line", note: "The moderator asks and watches each step" },
-    { id: "server", label: "Server", icon: "ri:server-line", note: "Checks the session, stores the turn, sends events" },
-    { id: "agent", label: "Agent", icon: "ri:robot-2-line", note: "The model loop, with no database" },
+    { id: "console", label: "Console", icon: "ri:computer-line", note: "The member asks and watches the work" },
+    { id: "server", label: "Server", icon: "ri:server-line", note: "Owns the chat, the turn and its token" },
+    { id: "agent", label: "Runtime", icon: "ri:robot-2-line", note: "The model loop and its sandbox" },
     { id: "llm", label: "Bifrost", icon: "ri:sparkling-2-line", note: "Routes to the model, enforces the budget" },
   ]}
   steps={[
     { from: "console", to: "server", label: "Send the question", detail: "`POST …/turns` answers 202 at once" },
-    { from: "server", to: "agent", label: "Start a segment", detail: "`POST /runs` with the agent's config" },
-    { from: "agent", to: "llm", label: "Call the model", detail: "`user` is the moderator's id" },
-    { from: "agent", to: "server", label: "Read data through MCP", detail: "read-only tools, the member checked on each call" },
-    { from: "agent", to: "server", label: "Stream NDJSON lines", detail: "events, tool calls, checkpoints, `end`", back: true },
-    { from: "server", to: "console", label: "Send events over SSE", detail: "closing the tab leaves the run going", back: true },
+    { from: "server", to: "agent", label: "Start the turn", detail: "instructions, history, token, model, deadline" },
+    { from: "agent", to: "llm", label: "Call the model", detail: "the agent's virtual key" },
+    { from: "agent", to: "server", label: "Run shopnexus commands", detail: "the console API, with the turn's token" },
+    { from: "agent", to: "server", label: "Stream the run", detail: "text, commands, steps, the result", back: true },
+    { from: "server", to: "console", label: "Send events over SSE", detail: "closing the tab leaves the turn running", back: true },
   ]}
 />
 
-The agent is a NestJS service of its own in the `shopnexus/agent` repo, running a Strands loop on the model the server names, through Bifrost. The decision to run it apart and have it read through the server's MCP is <Req id="ADR-0003" />.
+The runtime keeps nothing between turns but the conversation's workspace. The server owns the history and sends it whole with each turn. [The runtime and its sandbox](/en/agent/runtime) covers the inside.
 
-## The moderator's screen
+## What a turn may call
 
-A run shows up as it happens: each step with a one-line summary, each tool call with its timing, then the answer and its sources. While it runs, the moderator presses **Pause** (or Esc), or types a line to steer the agent.
+A turn may call a console operation when two things hold:
 
-<RunPreview caption="A finished run on a report case. The data is an example." />
+- **The agent holds its capability.** Each console operation names one in the API spec, such as `tickets.read` or `accounts.suspend`. An admin picks an agent's capabilities in the AI settings.
+- **The member may use it.** Every call runs as the member who asked, so their role and the handler's own checks apply. An admin's turn reads monitoring; a moderator's turn does not even see those commands.
 
-<Callout type="note">
-When the agent proposes suspending an account, the moderator presses the console's suspend button as always. The action goes through the console's endpoint and into the audit log under the moderator's name.
-</Callout>
+[Commands and capabilities](/en/agent/tools) lists them and says how the server checks each call.
+
+## The member's screen
+
+A turn shows up as it happens. Above the answer the console lists the commands the agent ran, each named by what it does, and folds them into one line when the turn ends. A change the agent asks for shows as a card with **Approve** and **Reject**.
+
+While the turn runs, the send button is **Pause** (Esc pauses too), and pressed again it is **Stop now**. Typing a line while it runs steers the agent. A paused, stopped or broken turn offers **Resume**. [Pause, stop, steer and resume](/en/agent/control) covers each.
 
 ## Chats
 
 A chat holds questions and their answers, and it comes in two kinds.
 
-- **Shared.** An account or a ticket can have one chat, shared by every moderator who opens it, so the next shift sees what was asked; each question shows who asked it. The first moderator to ask makes it. The console opens an account's shared chat from the account, its report case and its feedback; a report case is about an account, so it has no chat of its own. Only an admin renames or deletes a shared chat.
-- **Own.** A chat with no record belongs to the moderator who opened it, and nobody else sees it. A record's page, such as a ticket, an order or a listing, lists the moderator's own chats that mention it and opens a new one with the record already mentioned. The moderator renames or deletes their own chats; an admin can too.
+- **Shared.** An account or a ticket has one chat, shared by every member who opens it, so the next shift sees what was asked. The first member to ask makes it. An account's report case and its feedback open the account's chat. Only an admin renames or deletes a shared chat (`403 agent_forbidden` otherwise).
+- **Own.** A chat with no record belongs to the member who opened it, and nobody else sees it. An order's or a listing's **Ask the agent** opens a new one with the record already named. The member renames or deletes their own chats; an admin can too.
 
-A chat with an unfinished turn (running, paused or waiting for answers) cannot be deleted (`409 agent_turn_in_progress`). A chat with no activity for 180 days is deleted with everything in it, and the next question about the same record starts a fresh one. Use cases: <Req id="UC-MOD-06" />, <Req id="UC-MOD-07" />, <Req id="UC-MOD-08" />.
+A chat with a turn running cannot be deleted (`409 agent_turn_in_progress`). A chat with no activity for 180 days is deleted with everything in it. <Req id="NFR-PRIV-02" />
 
 ## Pages in this tab
 
 <Cards cols={2}>
-  <Card title="How a question runs" href="/en/agent/a-question" icon="ri:route-line">From pressing send to the last line, step by step.</Card>
-  <Card title="Controlling a run" href="/en/agent/control" icon="ri:pause-circle-line">Pause, steer, answer the agent's questions, continue.</Card>
-  <Card title="Answers and sources" href="/en/agent/answers" icon="ri:double-quotes-l">Answer blocks, source numbers, documents and skills.</Card>
-  <Card title="Tools and data access" href="/en/agent/tools" icon="ri:tools-line">16 read-only tools, who reads what, which reads are recorded.</Card>
-  <Card title="Limits and failures" href="/en/agent/limits" icon="ri:timer-line">Deadline, budget, context and which runs can continue.</Card>
-  <Card title="Agents and configuration" href="/en/agent/setup" icon="ri:settings-3-line">Console agents, environment variables, a local run.</Card>
+  <Card title="How a turn runs" href="/en/agent/a-question" icon="ri:route-line">From pressing send to the last event, step by step.</Card>
+  <Card title="Pause, stop, steer and resume" href="/en/agent/control" icon="ri:pause-circle-line">The controls of a running turn and how a turn goes on.</Card>
+  <Card title="Changes and approvals" href="/en/agent/approvals" icon="ri:shield-check-line">How a change waits, who approves it and what the agent learns.</Card>
+  <Card title="Answers in the console" href="/en/agent/answers" icon="ri:chat-quote-line">Markdown, record chips, diagrams, charts and quick replies.</Card>
+  <Card title="System health questions" href="/en/agent/monitoring" icon="ri:pulse-line">Metrics and logs, through the server, for admins.</Card>
+  <Card title="Commands and capabilities" href="/en/agent/tools" icon="ri:terminal-box-line">The shopnexus command, the gate on every call, what is recorded.</Card>
+  <Card title="The runtime and its sandbox" href="/en/agent/runtime" icon="ri:box-3-line">What the model reads, the sandbox, the workspace, the network.</Card>
+  <Card title="Limits and failures" href="/en/agent/limits" icon="ri:timer-line">Deadline, budget, rate limits and how each turn ends.</Card>
+  <Card title="Agents and settings" href="/en/agent/setup" icon="ri:settings-3-line">Console agents, their model, capabilities, instructions and budget.</Card>
 </Cards>

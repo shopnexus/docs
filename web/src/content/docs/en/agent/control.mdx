@@ -1,56 +1,55 @@
 ---
-title: Controlling a run
-description: Pause, Stop now, updates sent while a run goes, answers to the agent's questions and continuing a stopped turn.
-group: A run
+title: Pause, stop, steer and resume
+description: The controls of a running turn, what each does on the runtime, how a member's message reaches a turn that is still working, and how a turn that ended goes on.
+group: A turn
 groupOrder: 2
 order: 2
 audience: [developers]
 type: concept
 readingTime: 4
 updated: 2026-11-27
-related: ["/en/agent/a-question", "/en/agent/limits"]
+related: ["/en/agent/a-question", "/en/agent/approvals", "/en/agent/limits"]
 ---
 
-While a turn runs, the ask box's send button becomes **Pause** (Esc pauses too); once pressed, it becomes **Stop now** until the run has stopped. A paused turn shows "Paused after 3 steps" with **End** and **Continue**. Typing in the ask box while the turn runs sends an update. Each control is a request to the server, which writes it to `agent_turn_inputs` with a rising sequence number, under the turn's row lock so inputs commit in order and a poll never skips one. The agent reads them about once a second through `GET /agent/turns/{id}/control?after=<seq>` on the MCP port, with the MCP token. The answer lists the new inputs and whether the turn is still running; a turn that is gone or has ended answers `running: false`, and the agent stops.
+While a turn runs, the ask box's send button becomes **Pause**, and Esc pauses too. Once pressed it becomes **Stop now** until the turn has ended. Typing a line while the turn runs sends it to the turn as a steer. A turn that paused or was stopped shows how many commands it ran, with **Resume**. <Req id="UC-MOD-08" /> <Req id="FR-MOD-03" />
+
+Every control goes to the server, which passes it to the runtime for the turn running in that chat. The control names the turn, so one meant for a turn that already ended never reaches the next. Any member who may open the chat may control its turn.
 
 ```mermaid title="The states of a turn"
 stateDiagram-v2
   [*] --> running: question sent
-  running --> succeeded: answered
-  running --> paused: Pause, Stop now
-  running --> awaiting_input: agent asks back
+  running --> succeeded: the run ended
+  running --> paused: Pause
+  running --> stopped: Stop now
   running --> failed: error, budget spent
   running --> timed_out: deadline passed
-  paused --> running: Continue, an update
-  awaiting_input --> running: moderator answers
-  paused --> cancelled: End
-  awaiting_input --> cancelled: End
-  failed --> running: Continue
-  timed_out --> running: Continue
+  paused --> running: Resume
+  stopped --> running: Resume
+  failed --> running: Resume
+  timed_out --> running: Resume
 ```
 
 ## Controls
 
 | Control | Endpoint | Effect |
 |---|---|---|
-| **Pause** | `POST …/turns/{id}/pause` | Takes effect before the next model call. The call in flight and the tools it asked for finish, so every tool call keeps its result. |
-| **Stop now** | `POST …/turns/{id}/stop` | Aborts the model call in flight at once; the segment ends `PAUSED` with reason `stop_now`. An MCP call already running on the server runs to its end. |
-| Typing in the ask box | `POST …/turns/{id}/steer {text}` | Adds a message "Update from the member: …" before the next model call. A paused turn continues at once. |
-| **Continue** | `POST …/turns/{id}/continue` | Resumes a paused turn, or a failed turn that can continue, under the same id and with no new message. |
-| **End** | `POST …/turns/{id}/end` | Cancels a paused turn or one waiting for answers; the turn becomes `cancelled`. |
+| **Pause** | `POST …/turns/{id}/pause` | The runtime checks before each model call, so the commands running finish first and every command keeps its result. The turn ends `paused`. |
+| **Stop now** | `POST …/turns/{id}/stop` | At once: the model call in flight is cut and the commands running are killed. The model reads that a staff member stopped the turn. It ends `stopped`. |
+| Typing while it runs | `POST …/turns/{id}/steer {text}` | The message joins the history before the next model call. |
+| **Resume** | `POST …/turns/{id}/resume` | Runs the chat's latest turn again from the history it left. |
 
-Pause and Stop now need a `running` turn; a control the turn's state does not take is `409 agent_turn_state`. A control sent before a segment started has a sequence number at or below `control_after`, so that segment does not receive it.
+Pause, Stop now and steer need a running turn. Resume needs the chat's latest turn, not running. A control the turn's state does not take, or one that reaches the runtime after the turn ended there, is `409 agent_turn_state`.
 
-## Updates while running
+## Steering
 
-An update counts against the same limit as questions, 30 a minute per moderator. Each update shows as waiting until the agent reads it. On reading it, the agent writes a `steer.read` event naming the open step, and the console shows before which step the update was read. An update received but not yet given to the model stays in the checkpoint's `pending_steers`, so the next segment still reads it, each `steer_id` exactly once. An update the turn finished without reading can be sent again as a new question.
+A steer has at most 4000 characters and counts against the same limit as questions: 30 a minute per member. The model reads it as a user message with the context "Written while you worked", which names the writer when another member sent it. The turn's stream shows the steer at once, and the console marks it sent until a step carries it.
 
-## Questions from the agent
+A steer that arrives while the model is writing its answer is not lost: the turn goes on, and the model is called again with it. Once an answer finds no steer waiting, the turn takes no more. A turn that ends another way (stopped, past its deadline, an error) drops the steers still waiting; the console shows that no step carried them, and the member can send the text again as a question.
 
-When a question is unclear, the model calls `ask_user` with questions, each with options to pick one or several of. The segment ends `AWAITING_INPUT`, and the `clarify` event carries the questions. The moderator answers through `POST …/turns/{id}/input {answers}`, which maps each question's id to one option's id or a list of them. The server checks the answers against `pending_ask` in the checkpoint: every answer must name a question and its options, a single-choice question takes one, and at least one is given, or the answer is `agent_answers_invalid`. It then starts a `resume` segment with the answers written out as text.
+## Resume
 
-## Continuing
+Resume runs the latest turn again under the same id, as if it had never stopped. The server mints a new token and a new deadline, and the turn takes the agent's capabilities as they are now. When a member decided changes the agent asked for since the turn ended, a message saying what became of each joins the history first. The runtime then goes on from the history as stored, which may end with commands' results the model has not read yet. The stream sends `turn.resumed` with the member who pressed it.
 
-A `resume` segment starts from the checkpoint: the Strands messages as they stood, plus an "interrupted" result for any tool call left without one. The server sets the turn `running` under its row lock with a new segment start, then starts the segment and writes `turn.resumed {by}`, where `by` is `continue`, `steer` or `input`. If the agent refuses the segment, the turn goes back to the state it was in. The console reopens the stream from the last sequence number it saw.
+If the runtime refuses the resumed run, the turn goes back to the state it was in.
 
-Continue works on a paused turn, and on a failed or timed out turn that is the chat's latest, wrote something, and failed with a code that allows it; see [Limits and failures](/en/agent/limits#error-codes).
+Resume is also how a turn goes on after its approvals were decided: approving a change does not wake the turn by itself. A new question works as well, since its context carries the decisions too.

@@ -1,0 +1,80 @@
+---
+title: Changes and approvals
+description: A change the agent asks for never runs on its own. It waits in the chat until a member approves it, then runs as that member through the same API, and the agent learns what became of it.
+group: A turn
+groupOrder: 2
+order: 3
+audience: [developers, admins]
+type: concept
+readingTime: 4
+updated: 2026-11-27
+related: ["/en/agent/tools", "/en/agent/control", "/en/architecture/console"]
+---
+
+Any console operation that is not a GET changes something: suspending an account, replying on a ticket, hiding a listing. When the agent calls one, it does not run. It becomes an approval request in the chat, and a member approves or rejects it. <Req id="BR-MOD-03" /> <Req id="UC-MOD-08" />
+
+```mermaid title="A change, from the agent's call to the member's decision"
+sequenceDiagram
+  participant R as Runtime
+  participant S as Server
+  participant C as Console
+  participant M as Member
+  R->>S: shopnexus suspendAccount id=… --body …
+  S->>S: capability, spec, the member's role
+  S-->>R: 202 {approval_id, status: pending}
+  S-->>C: approval event: a card in the chat
+  M->>C: Approve
+  C->>S: POST …/approvals/{id}/approve
+  S->>S: run the stored request as the approver
+  S-->>C: approval event: approved or failed
+  Note over R,S: the next question or a resume tells the agent
+```
+
+## The steps
+
+<Steps>
+<Step title="The agent asks">
+The command list marks each change `[approval]`. The agent calls it like any other command. The server checks it as it checks every call ([Commands and capabilities](/en/agent/tools#the-gate)): the agent holds the capability, the request fits the API spec, and the member is active and their role may use the route. A request that fails a check is refused there, and no approval is made.
+</Step>
+
+<Step title="The server holds it">
+The server stores the request as it would have run: the method, the path with its query, the body, and the content type, idempotency key and version headers. The approval's id is the request's idempotency key when the agent sent none, so running it twice is the same request. The agent gets `202 {approval_id, status: "pending"}`, and the turn's stream sends an `approval` event.
+</Step>
+
+<Step title="The agent goes on">
+A held change is not done, and later reads do not show it. The runtime's instructions tell the model to gather what it needs first, ask for its changes together near the end, and tell the member which ones wait for them. That is advice, not a rule: the model may ask for a change at any point.
+</Step>
+
+<Step title="A member decides">
+The chat shows the turn's changes in one card. Each row reads like the operation's summary with the record it touches, and a change that takes something away reads red. A member presses **Approve** or **Reject** on a row, or **Approve all** for the pending ones in order. Any member who may open the chat may decide, not only the one who asked. A decision locks the approval, so two members never both run it; the second gets `409 agent_approval_decided`.
+</Step>
+
+<Step title="The request runs as the approver">
+Approving runs the stored request through the server's whole API, with the approver's session. Their role, the rate limits and the handler's checks apply to them, and the audit log names them. A 2xx answer makes the approval `approved`. Any other answer makes it `failed` and keeps the status and the answer, so a moderator who approves a change only an admin may make sees it fail. Rejecting runs nothing.
+</Step>
+</Steps>
+
+Approving does not depend on the turn: the turn may have ended long before, and the approval waits until someone decides it. It goes only when its chat is deleted.
+
+## What the agent learns
+
+The agent hears of decisions in two ways:
+
+- **In the next message.** The next question, or a resume, carries a context listing the changes decided since the agent last worked: each operation and path with `approved`, `rejected` or `failed`, and for a failed one the status and the first 300 characters of the answer. Each decision is told once.
+- **When it looks.** `shopnexus listAgentApprovals` lists the chat's approvals with their status, during the turn.
+
+Approving does not resume the turn. A member who wants the agent to go on presses **Resume** or asks again ([Pause, stop, steer and resume](/en/agent/control#resume)).
+
+## Endpoints
+
+| Endpoint | What it does |
+|---|---|
+| `GET /v1/console/agent/approvals` | Lists the approvals of the chats the member may open, newest first, at most 100; filters by chat and status. A turn sees only its own chat's. |
+| `POST /v1/console/agent/approvals/{id}/approve` | Runs the stored request as the caller and returns the approval with the result. |
+| `POST /v1/console/agent/approvals/{id}/reject` | Rejects it; nothing runs. |
+
+An approval of a chat the member may not open is `404 agent_approval_not_found`. Only a member decides: a turn's token may list approvals but not approve or reject them.
+
+## Why it is safe
+
+The model reads text that users wrote, and some of it may try to give it orders. The bounds on what follows from that are, in order: the agent's capabilities name the operations it may ask for at all; the member's role limits those further; and a change still needs a member who reads the card and approves it. The model's sandbox has no other way to change anything ([The runtime and its sandbox](/en/agent/runtime#ways-out)).

@@ -33,7 +33,7 @@ The server is one binary made of modules. <Req id="ADR-0005" /> The modules foll
 | support | Support tickets, answered in a chat with ShopNexus |
 | feedback | What people tell ShopNexus without asking for an answer |
 | console | Moderator and admin accounts, their sessions and roles, and the console's API |
-| agent | The console agent's conversations and runs, its MCP endpoint, and the AI settings |
+| agent | The console agent's conversations and turns, the gate its turns call the API through, the approvals of its changes, and the AI settings |
 | ai | The models the server runs itself: speech to text, photo vectors, video frames |
 | erasure | Deleting an account |
 | beacon | Script errors, page speed and other reports from the clients, as metrics and logs |
@@ -78,4 +78,4 @@ A test refuses an import against the layer order or these rules. Because every c
 
 ## One binary, two roles
 
-The same binary runs in two roles. The API role serves HTTP, the Restate endpoint and MCP, and loads no model. The ai role serves only module ai's models and opens no database. Locally one process does both. In the cluster the ai role is its own deployment, so a model's memory and start time never hold up the API. The modules reach module ai through Restate, so they do not know where it runs.
+The same binary runs in two roles. The API role serves HTTP and the Restate endpoint, and loads no model. The ai role serves only module ai's models and opens no database. Locally one process does both. In the cluster the ai role is its own deployment, so a model's memory and start time never hold up the API. The modules reach module ai through Restate, so they do not know where it runs.

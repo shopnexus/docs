@@ -75,7 +75,7 @@ Each row is one workload that the chart in `infra/stack` renders into a stack na
 
 | Component | Kind | Port | dev | prod |
 |---|---|---|---|---|
-| `server` | `RestateDeployment` | 8080 HTTP, 9080 Restate, 9090 MCP | 1 | 3 |
+| `server` | `RestateDeployment` | 8080 HTTP, 9080 Restate | 1 | 3 |
 | `server-ai` | `RestateDeployment` | 9080 Restate | 1, 2Gi, no SigLIP 2 | 1, 6Gi |
 | `agent` | `Deployment` | 3000 | 1 | 1 |
 | `website` | `Deployment` | 3000 | 1 | 2 |
@@ -90,7 +90,7 @@ Each row is one workload that the chart in `infra/stack` renders into a stack na
 | `pgweb` | `Deployment` | 8081 | 1 | 1 |
 
 - `server` runs with `SERVER_ROLE=api`. Speech, photo vectors and video frames run in `server-ai`, the same image with `SERVER_ROLE=ai`, which the other pods call through Restate. Its model files are on the volume `models`.
-- `agent` is the console agent, built from the agent repository as `ghcr.io/shopnexus/agent`. It has no host: only the server calls it, and it calls only the server's MCP port.
+- `agent` is the console agent, built from the agent repository as `ghcr.io/shopnexus/agent`. It has no host: only the server calls it, and it calls the server's API, Bifrost, the package proxy and RustFS.
 - `bifrost` is the stack's gateway to the remote models ([Bifrost gateway](/en/operations/cluster/llm-gateway)).
 - `imgproxy` resizes photos from RustFS, and `imgproxy-cache` (nginx) keeps each answer. The website's host sends `/_img` to the cache.
 - `lgtm` is Grafana with Loki, Tempo and Prometheus, and receives the server's telemetry. `pgweb` reads the stack's database. Both sit behind the console's sign-in ([Monitoring](/en/operations/monitoring)).

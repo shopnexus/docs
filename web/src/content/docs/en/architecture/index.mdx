@@ -13,7 +13,7 @@ related: ["/en/architecture/modules", "/en/architecture/durable-flows", "/en/arc
 
 ShopNexus has three clients and one Go server. The Android app and the website are for buyers and sellers. The console is the web app moderators and admins work in. All three call the same HTTP API.
 
-The server is a modular monolith: one binary, cut into modules that each own their tables and expose a service the others call. It serves the HTTP API on port 8080, the endpoint Restate calls on port 9080, and an MCP endpoint on port 9090 for the console agent.
+The server is a modular monolith: one binary, cut into modules that each own their tables and expose a service the others call. It serves the HTTP API on port 8080 and the endpoint Restate calls on port 9080.
 
 ```mermaid title="The whole system"
 flowchart LR
@@ -26,7 +26,7 @@ flowchart LR
   server <-->|durable flows, events| restate[Restate]
   server --> rustfs
   server -->|every model call| bifrost[Bifrost gateway]
-  agent[Console agent] -->|reads through MCP| server
+  agent[Console agent] -->|calls the console API| server
   server -->|runs| agent
   agent --> bifrost
   bifrost --> llm[Model providers]
@@ -52,7 +52,7 @@ Every model call goes through Bifrost, the stack's AI gateway. The server gives 
 
 Some models run inside the server itself, in module ai: speech to text, photo vectors and the frames cut from a video. In the cluster they run in a second deployment of the same binary that serves only module ai, so the API pods load no model.
 
-The console agent is a separate service. The server starts its runs, and the agent reads data back through the server's MCP endpoint, so it never touches the database.
+The console agent is a separate service. The server starts its turns, and the agent calls the console API with each turn's token, as the member who asked, so it never touches the database ([What the agent does](/en/agent)).
 
 ## When a part is down
 

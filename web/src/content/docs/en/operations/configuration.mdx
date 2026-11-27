@@ -27,7 +27,7 @@ Some variables mean something when empty: no OTLP export, no previous JWT key, n
 
 A variable is either in `server.env` or in the per-stack settings, never both: `infra/check.sh` and the chart's render fail when a key is in both places. A new variable goes into `.env.example` and into one of those places in the same change.
 
-The generated keys are the JWT signing key, the console key, the OTP key, the carrier token key, the two console agent tokens and Restate's identity key. A key already set stays.
+The generated keys are the JWT signing key, the console key, the OTP key, the carrier token key, the console agent's key and Restate's identity key. A key already set stays.
 
 On the server alone, `GATEWAY_ADMIN_PASSWORD` is left for you to copy from the dev stack (see [Local stack](/en/operations/local-stack#the-server-alone)).
 
@@ -46,7 +46,7 @@ Tests read their own file, `.env.test`, which points at the test stack. Its vari
 | Gateway and vectors | Bifrost's URL and admin account, reasoning effort, the text and photo embedding models with their versions and similarity floors |
 | Module ai | the speech, voice detection and photo embedding models, and the limits on threads, audio length, frames and image size |
 | Assist and trust | timeouts of listing reads and scam checks, Chợ Tốt's gateway and CDN, whether chat messages go to the scam check |
-| Console agent | the agent's address, the token the server sends it, and the MCP server's address and token |
+| Console agent | the agent runtime's address and the key the server sends it |
 | Carriers | `CARRIER_GHTK` and `CARRIER_GHN` (live, fake or off), how often shipments are read, and each carrier's API settings, set only when it is live |
 | Payments | `PAYMENT_VNPAY` (live, fake or off), the server's public origin `API_PUBLIC_URL`, VNPay's terminal settings, set only when it is live, and the boost packages `BOOST_PACKAGES` |
 | Firebase and Google | the project, the key URLs for phone and Google tokens, whether PNV test numbers pass, push credentials |

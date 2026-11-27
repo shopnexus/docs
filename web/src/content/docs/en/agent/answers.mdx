@@ -1,63 +1,43 @@
 ---
-title: Answers and sources
-description: Answers are built from schema-checked blocks, each claim cites a record a tool returned, with versioned documents and shared skills.
+title: Answers in the console
+description: The agent answers in Markdown that the console renders, with record chips, mermaid diagrams, Vega-Lite charts and quick replies, above a folded list of the commands it ran.
 group: Results
 groupOrder: 3
 order: 1
 audience: [developers]
 type: reference
-readingTime: 4
+readingTime: 3
 updated: 2026-11-27
-related: ["/en/agent/tools", "/en/agent/a-question"]
+related: ["/en/agent/a-question", "/en/agent/tools", "/en/agent/monitoring"]
 ---
 
-The model builds its answer through output tools, and the agent checks each tool's arguments against a schema. Invalid arguments go back to the model as a tool error for it to fix.
+The agent writes its answer as Markdown, and the console renders it. The server puts the console's conventions into every console agent's system prompt, after the agent's own instructions. They are the console's contract with the model, so an admin's instructions cannot drop them, and they read the same on every turn, which keeps them in the model's prompt cache.
 
-| Output tool | Used for |
-|---|---|
-| `begin_step(title)`, `end_step(summary)` | Opening and closing a step. Tool calls between the two belong to the step. In a turn without steps the console shows tool calls as a flat list. |
-| `answer(blocks)` | The final answer, made of the blocks below. Text the model writes outside `answer` becomes one `text` block. |
-| `write_document {title, sections, document_id?}` | A new document, or a new version of a document already in the same chat. |
-| `ask_user {questions}` | Questions back to the moderator; see [Controlling a run](/en/agent/control). |
+## What an answer may hold
 
-## Answer blocks
-
-An answer has 1 to 20 blocks.
-
-| Block | Content | Limits |
+| In the answer | Written as | The console shows |
 |---|---|---|
-| `text` | Markdown, with source numbers `[n]` | |
-| `figures` | Key figures, each with a label | 2 to 4 |
-| `table` | `columns` and `rows` | 12 columns, 20 rows, each as wide as the columns; longer tables go in a document |
-| `chart` | `bar`, `stacked_bar` or `line`, with `labels` and `series` | each series as long as `labels` |
-| `document_ref` | A document and version in the same chat | |
-| `follow_ups` | Suggested next questions | at most 3 |
+| Text and tables | Markdown | Rendered text and tables. |
+| A record | `[its name](kind:id)`, the kind being `account`, `ticket`, `order`, `listing` or `report` | A chip that previews the record on hover and opens it on a click. |
+| A diagram | a ` ```mermaid ` block | The diagram, drawn in the console's colours. |
+| A chart | a ` ```vega-lite ` block of Vega-Lite JSON, data inline and no styling | The chart, styled by the console. |
+| Quick replies | a ` ```options ` block at the end, one reply per line | A button per reply; the one picked comes back as the member's next message. |
 
-## Source numbers
+A record of another kind, such as a feedback item, is named in words.
 
-Every record a successful MCP call returns becomes a numbered source, in the order results arrive. The agent recognises a record by its shape in the result:
+## Plain words
 
-| Kind | Recognised by | Example label |
-|---|---|---|
-| `account` | has `display_name` | "Minh Tuấn", meta "Seller · 7d22e9 · active" |
-| `ticket` | has `kind` and `opened_at` | "Lan's ticket" |
-| `report` | a report case, or each report in it | "Report case: Minh Tuấn" |
-| `order` | has `code` or `listing_title` | "Order: iPhone 13 Pro" |
-| `listing` | has `title` | the listing's title |
-| `log` | a console action, with `action` and `target_kind` | "suspend by Lan" |
-| `member` | a moderator named in an action | the moderator's name |
-| `data` | a result with no record: a count, a price guide, an empty list | "Reports, last 7 days" |
+The console shows the member the commands the agent ran, so the answer need not. The conventions ask the model to say in plain words what it looked at or did, as a colleague would, without command names or ids.
 
-Each source keeps up to four facts (status, price, dates, counts) and a quote of up to 200 characters from what users wrote. A label is never an id; a bare `*_id` is no source, since it has no name.
+## The work above the answer
 
-At the top of each tool result the agent lists the numbers and labels for the model to cite. A record seen again keeps its number; a fuller reading of it (from a `*_get` tool, say) replaces its label and facts. An `[n]` that names no source is dropped from the answer. The source list at the end holds the sources the answer cites, or all of them when it cites none.
+While a turn runs, the console lists what the agent does: each command it ran, named by its operation's summary, and the text it wrote between them. Once the turn ends, the list folds into one line, such as "Worked for 38 s · 8 commands", and opens on a click. Before the first event arrives, the console shows one word that changes slowly, with a clock after three seconds.
 
-## Documents
+A change the agent asked for shows as a card under the answer, with **Approve** and **Reject** ([Changes and approvals](/en/agent/approvals)). A turn that did not simply answer shows how it ended, and **Resume** when it can go on ([Limits and failures](/en/agent/limits#how-a-turn-ends)).
 
-`write_document` creates version 1 of a document, or the next version of a document in the same chat. A document's sections are `markdown`, `table` and `chart`. The console opens documents in a panel of their own with every version; **Copy as Markdown** copies the content, and the browser prints it. Deleting a chat deletes its turns, events and documents.
+## What a member writes
 
-## Skills
-
-A skill is a saved prompt with a name, a unique slug and up to 20 variables, stored in `agent_skills` and shared with every moderator. Its name has 1 to 80 characters and its prompt up to 8000. Typing `/` in the ask box lists them; the skill's prompt is added to that turn's system prompt.
-
-A moderator can change or delete only the skills they made (`403 agent_forbidden` otherwise); an admin can change any. An edit carries the version it started from, so two people editing the same skill do not overwrite each other: the later save gets `409 try_again`, and a save to a deleted skill gets `404`.
+- **`@` names a record.** Typing `@` opens a menu of tickets, accounts, orders, listings and report cases. The record goes into the question as `[Name](kind:id)`, the same form the agent writes, and shows as a chip.
+- **`/` runs a page's command.** A page may offer commands in its ask box. A ticket's chat has `/reply`, which asks the agent for a reply and puts it in the ticket's reply box, and `/summary`, which asks for a handoff summary. A command only writes a question for the agent; it calls nothing by itself.
+- **Starters.** A record's empty chat offers a few questions to start with.
+- **The agent picker.** Beside send, a member picks which console agent answers ([Agents and settings](/en/agent/setup)).

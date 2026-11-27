@@ -109,7 +109,7 @@ It reads every server-owned key's value into the server's memory.
 </Step>
 </Steps>
 
-Bifrost generates the key values. No caller key is stored in git, in a Secret or in the server's database. The server hands its own modules their key from memory. When Bifrost refuses a key as unknown, disabled or not allowed the model, the server reads the keys again (at most every 10 s) and retries once if the key changed. A provider's own 401 or 403 passes through. The console agent gets its key, model, fallbacks and prices in each run request; see [Agents and configuration](/en/agent/setup).
+Bifrost generates the key values. No caller key is stored in git, in a Secret or in the server's database. The server hands its own modules their key from memory. When Bifrost refuses a key as unknown, disabled or not allowed the model, the server reads the keys again (at most every 10 s) and retries once if the key changed. A provider's own 401 or 403 passes through. The console agent's runtime gets the agent's model and key with each turn; see [Agents and settings](/en/agent/setup#what-a-turn-takes).
 
 Bifrost's own UI shows the server's teams and keys. An edit made there is overwritten at the next reconcile.
 
@@ -121,8 +121,8 @@ The console reads spend by agent and by day from Bifrost's logs and shows it on 
 
 ## When a budget or a limit runs out
 
-- A spent monthly budget: Bifrost answers 402 with `X-Bifrost-Error-Type: policy_budget_exceeded`. The console agent ends the segment with `agent_budget` ([Limits and failures](/en/agent/limits)).
-- A caller over its rate limit: Bifrost answers 429 with `policy_rate_limited` and sends no Retry-After. The console agent waits for the window named in the message, or 60 s.
+- A spent monthly budget: Bifrost answers 402 with `X-Bifrost-Error-Type: policy_budget_exceeded`. The console agent's turn ends `failed` with the stop reason `budget` ([Limits and failures](/en/agent/limits#budgets)).
+- A caller over its rate limit: Bifrost answers 429 with `policy_rate_limited` and sends no Retry-After. The console agent's runtime tries the call twice more, one and two seconds apart, then fails the turn.
 - A spent OpenRouter credit: the upstream's 402 comes through.
 
 The server's search does not fail when the model does. `Search` in `server/internal/discovery/service/search.go` gives the model 4 seconds. On any error it logs `the model did not read the query` at warn level with the error and searches the raw words alone. The page then has no chips and no boosts for category, price, place or freshness. A query the model read in the last 7 days comes from the server's cache and keeps its understanding.

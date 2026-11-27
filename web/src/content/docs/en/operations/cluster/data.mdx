@@ -138,7 +138,7 @@ The server runs as a `RestateDeployment` named `server` (`restate.dev/v1beta1`),
 - The operator registers each version with the cluster named in `restate.register.cluster` (`restate-<stack>`), with `useHttp11: true`. Each invocation is then its own HTTP request, so a Service spreads invocations evenly over the pods.
 - An invocation that started on one version finishes on that version and never replays on another.
 - Once a version is drained, the operator waits `drainDelaySeconds` (default 300 s; the chart does not set it) and then removes the version and scales its ReplicaSet to zero. `revisionHistoryLimit` (default 10) old ReplicaSets are kept.
-- API traffic goes through the Service `server-api` on port 8080, and the agent reaches the MCP server through `server-mcp` on 9090. Both select the current version only, by its label `shopnexus.id.vn/version`, and sit in wave 3, which waits until the new version's pods are ready. A draining version only finishes its Restate invocations.
+- API traffic, the agent runtime's included, goes through the Service `server-api` on port 8080. It selects the current version only, by its label `shopnexus.id.vn/version`, and sits in wave 3, which waits until the new version's pods are ready. A draining version only finishes its Restate invocations.
 
 Run locally, the server registers itself with Restate at start, with `force: true`. Under the operator that registration would overwrite the operator's, so the stack sets `RESTATE_REGISTER: "false"` in the ConfigMap `server-env`. The server then only serves its endpoint on `0.0.0.0:9080` and logs that registration is left to restate-operator.
 

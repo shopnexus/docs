@@ -54,6 +54,6 @@ The spec marks each one.
 | Chat and help | `POST /v1/conversations`, `POST /v1/conversations/{id}/messages`, `POST /v1/support/tickets`, `POST /v1/feedback`, `POST /v1/addresses` |
 | Console | a staff reply to a support ticket |
 
-Two deal endpoints take the key as optional, because app versions from before send none: `POST /v1/deals/{id}/cod` and `POST /v1/orders/{order_id}/cancel`. Without a key every request moves on its own. The console agent's creates (a conversation, a question, a steer, a skill) take it as optional too.
+Two deal endpoints take the key as optional, because app versions from before send none: `POST /v1/deals/{id}/cod` and `POST /v1/orders/{order_id}/cancel`. Without a key every request moves on its own. The console agent's creates (a conversation, a question) take it as optional too.
 
 `PUT /v1/listings/{id}` takes no key: an edit writes the whole listing, so a retry writes the same content again. Endpoints without the header dedupe by what they write, such as one save per person and listing.

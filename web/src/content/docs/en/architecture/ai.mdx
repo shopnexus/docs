@@ -119,4 +119,4 @@ A spent budget, or a spent provider credit, is Bifrost's 402. For the server's c
 | Price guide | A failed vector model leaves its side out of the comparison. |
 | Listing reads | Up to 3 attempts a step within the 2-minute deadline, then `unavailable`. A refused request is `unavailable` at once. |
 | Scam check | A refusal, or a classify step past 3 attempts and 10 minutes, skips the check. |
-| Console assistant | Each run gets the key, model, fallbacks and prices from the server; an agent with an unpriced model is refused. A spent budget ends the run and the console says the month's budget is spent ([Limits and failures](/en/agent/limits)). |
+| Console assistant | Each turn gets the agent's model and virtual key from the server and calls that model alone; an agent with an unpriced model is refused when saved. A spent budget ends the turn and the console says the month's budget is spent ([Limits and failures](/en/agent/limits#budgets)). |

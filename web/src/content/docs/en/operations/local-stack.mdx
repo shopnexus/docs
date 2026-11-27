@@ -52,7 +52,7 @@ Dev answers on port 56481 and prod on 56480, for example `http://api.shopnexus.l
 | Grafana | The otel-lgtm image: logs, traces and metrics from the server, with the cluster's dashboards and alert rules. Alerts here notify no one. |
 | Server | One process with every module, including module ai and its models. |
 | Website, console, docs | The three web apps. |
-| Console agent | The runtime the server hands console agent runs to (`agent-dev` or `agent-prod`), built from the agent's submodule. It keeps no state and calls the server's MCP port. |
+| Console agent | The runtime the server hands console agent runs to (`agent-dev` or `agent-prod`), built from the agent's submodule. It keeps no state but each chat's workspace in RustFS, installs packages through `package-proxy-dev` or `package-proxy-prod`, and calls the server's API with each turn's token. |
 
 Before the server starts, one-off jobs prepare the stack:
 

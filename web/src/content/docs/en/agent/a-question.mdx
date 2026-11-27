@@ -1,92 +1,109 @@
 ---
-title: How a question runs
-description: From the moderator pressing send to the agent's last line, who calls whom, what is stored and the ways a segment ends.
-group: A run
+title: How a turn runs
+description: From the member pressing send to the turn's last event, who calls whom, what is stored, what the console receives and the states a turn ends in.
+group: A turn
 groupOrder: 2
 order: 1
 audience: [developers]
 type: concept
 readingTime: 6
 updated: 2026-11-27
-related: ["/en/agent/control", "/en/agent/limits", "/en/api/live-updates"]
+related: ["/en/agent/control", "/en/agent/runtime", "/en/agent/limits", "/en/api/live-updates"]
 ---
 
-A question is a turn. A turn runs as one or more segments: each time it is paused and continued, or asks the moderator and goes on, the server starts a new segment on the agent from the previous segment's checkpoint. The agent has no database; the checkpoint lives on the server, in the turn's `state` column.
+A question opens a turn. A turn is one run of the agent over the chat's history, and resuming it runs it again where it ended. The server stores every message and every event. The runtime keeps nothing of a turn but the chat's workspace. <Req id="UC-MOD-08" />
 
-<Sequence
-  caption="Every step of a segment, control included."
-  actors={[
-    { id: "console", label: "Console", icon: "ri:computer-line", note: "The moderator's browser" },
-    { id: "server", label: "Server", icon: "ri:server-line", note: "Module agent, the API port and the MCP port" },
-    { id: "agent", label: "Agent", icon: "ri:robot-2-line", note: "Internal NestJS service" },
-    { id: "llm", label: "Bifrost", icon: "ri:sparkling-2-line", note: "The stack's model gateway" },
-  ]}
-  steps={[
-    { from: "console", to: "server", label: "Send the question", detail: "`POST …/turns`" },
-    { from: "server", to: "agent", label: "Start a segment", detail: "`POST /runs`, mode `new`" },
-    { from: "agent", to: "llm", label: "Call the model", detail: "the run's virtual key, `provider/model`" },
-    { from: "llm", to: "agent", label: "Answer, maybe asking for tools", back: true },
-    { from: "agent", to: "server", label: "Call a tool through MCP", detail: "`/mcp`, with the moderator's id" },
-    { from: "agent", to: "server", label: "Stream NDJSON lines", detail: "events, tool calls, checkpoints, documents", back: true },
-    { from: "server", to: "console", label: "Send events over SSE", detail: "`GET …/events`", back: true },
-    { from: "console", to: "server", label: "Pause or steer", detail: "`POST …/pause`, `…/steer`" },
-    { from: "agent", to: "server", label: "Poll control every second", detail: "`GET …/control`" },
-    { from: "agent", to: "server", label: "The end line closes the segment", detail: "status, answer, sources, cost", back: true },
-  ]}
-/>
+```mermaid title="One turn, from the question to its result"
+sequenceDiagram
+  participant C as Console
+  participant S as Server
+  participant R as Runtime
+  participant B as Bifrost
+  C->>S: POST …/conversations/{id}/turns
+  S->>S: check, open the turn running, mint its token
+  S->>R: POST /v1/turns (instructions, history, token, model, key, deadline)
+  S-->>C: 202 {conversation_id, turn_id}
+  C->>S: GET …/turns/{id}/events
+  loop until the model answers
+    R->>B: call the model
+    R->>S: shopnexus commands, with the turn's token
+    R-->>S: events and each step's messages
+    S-->>C: events over SSE
+  end
+  R-->>S: result (stop, error, usage)
+  S-->>C: turn.finished
+```
 
 ## Steps
 
 <Steps>
 <Step title="The server takes the question">
-The server checks the console session and reads the chosen console agent (the Console assistant by default): an unknown one is `404 ai_agent_not_found`, one turned off `409 ai_agent_disabled`. It checks the limit of 30 questions and updates a minute per moderator, then cleans the question of control characters, zero-width characters and HTML tags. A question over 2000 characters is refused with `agent_input_rejected`. The records the moderator mentioned with `@` come along: at most 10, each once. The turn opens `running` under the conversation's row lock, one unfinished turn per chat, and the console gets `202 {conversation_id, turn_id}`.
+The server checks the console session and reads the picked console agent, the Console assistant when none is picked. It checks that the member may open the chat and that they sent at most 30 questions and steers in the last minute. It cleans the question of control and zero-width characters; a question empty after that is refused. A question has at most 8000 characters. It then reads the agent's route in Bifrost: its model and its virtual key. [Limits and failures](/en/agent/limits#before-the-turn-opens) lists each refusal.
 </Step>
 
-<Step title="The server starts a segment">
-The server sends `POST /runs` to the agent with the service token: the question, the moderator and their role, the chat's record, the last 20 finished turns as history, the chat's documents, `agent_config` (instructions, tool list, limits) and `gateway` (the virtual key, model, fallbacks and prices). It also sends `mentions`: the records mentioned anywhere in the chat, this turn's first, at most 20, as kind and id only. Labels stay on the server, so the agent's prompt holds only values the server owns, never text a person typed.
-
-The server waits at most 10 seconds for the status. Anything but 200 deletes the new turn and the console gets `503 agent_unavailable`; the chat's title and last activity change only once a run has started, so a failed start leaves the chat as it was.
+<Step title="The turn opens">
+The turn opens `running`, under the chat's lock, so a chat has at most one running turn. It holds the member who asked, the agent and its model, a copy of the agent's capabilities, and a deadline (60 seconds unless the agent sets another). The server mints a turn token for it and stores only its hash. The token works while the turn runs and until its deadline passes.
 </Step>
 
-<Step title="The agent opens MCP and runs the loop">
-The agent opens a new MCP client for the segment and keeps only tools that carry `readOnlyHint` and are on the agent's list. The model opens a step with `begin_step`, calls tools, closes the step with `end_step` and a one-line summary, and answers with `answer`. Before each model call the agent writes a checkpoint and reads the control messages waiting for it.
+<Step title="The server writes the message">
+The question joins the history with a context the model reads in front of it: the time, and on the chat's first turn or when another member asks, the member's name, role and id. The first turn also names the record the chat is about. When changes the agent asked for were decided since its last turn, the context says what became of each ([Changes and approvals](/en/agent/approvals#what-the-agent-learns)). The context is stored with the message, so every later turn reads the same text.
 </Step>
 
-<Step title="Lines flow back to the server">
-The agent writes each thing it does as one JSON line and flushes it. The server reads the stream in the background on the same replica, each line in its own transaction: an `event` line is stored with the turn's next sequence number and rung to open streams through `pg_notify`; `checkpoint` stores the state to resume from; `tool_call` updates the tool call's row and never moves a finished call back; `document` stores a new version of a document.
+<Step title="The server starts the run">
+The server sends the runtime the chat's id, the turn's id, the system prompt, the whole history, the token, the model, the key and the deadline. The system prompt is the agent's instructions, the console's conventions and the list of commands the turn may call ([Commands and capabilities](/en/agent/tools#the-command-list)).
 
-A line is written only while the turn is still `running` in the same segment. A late line from a segment the server already closed is dropped, so it cannot write into a turn that has since resumed. The server stops reading 60 seconds past the segment's deadline.
+If the runtime refuses the run or cannot be reached, the server deletes the turn and the console gets `503 agent_unavailable`. Once the runtime takes it, the question is stored and the console gets `202 {conversation_id, turn_id}`.
 </Step>
 
-<Step title="The console draws the run">
-The console opens `GET /v1/console/agent/turns/{id}/events`. The server replays the stored events, then sends new ones as they are rung, each with its sequence number as `id`. A reloaded page asks from the last number it saw through `Last-Event-ID`. Every 15 seconds without an event the server sends a keep-alive and reads the table again, in case a ring was missed.
-
-The stream ends after `turn.finished`, `turn.paused` or `clarify`, or 10 seconds after the turn stopped running with nothing new. After Continue, an answer or an update to a paused turn, the console opens it again from its last number. When the moderator closes the tab, the server closes the stream and the turn goes on running on the agent.
+<Step title="The runtime runs the loop">
+The runtime restores the chat's workspace, starts the sandbox and calls the model. It runs the commands the model asks for and calls the model again with their results, until the model answers without a command. There is no step limit: the deadline and a loop check end a runaway turn. [The runtime and its sandbox](/en/agent/runtime) covers this part.
 </Step>
 
-<Step title="The end line closes the segment">
-The last line carries the status, the answer, its blocks, sources, cost, the checkpoint and the closing event. The server writes them all in one transaction. A stream that ends without an `end` line closes the turn `failed` with `agent_stuck`.
+<Step title="The run streams back">
+The runtime streams the run to the server as server-sent events: text and reasoning as they arrive, each command and its result, and each finished step with the messages it added. The server stores a step's messages in the history as it comes, so a turn that breaks later keeps every finished step. It stores each event for the console too, gathering text for 200 ms into one event so a fast model does not write a row per token.
+</Step>
+
+<Step title="The console follows">
+The console opens `GET /v1/console/agent/turns/{id}/events`. The server replays the stored events, then sends new ones as they come, each with its sequence number as the event's id. A reloaded page asks from the last number it saw with `Last-Event-ID`. After 15 quiet seconds the server sends a keep-alive and reads the table again, in case a notice was missed. The stream ends after `turn.finished` or `turn.paused`, or 10 seconds after the turn stopped running with nothing new. Closing the tab ends only the stream; the turn goes on.
+</Step>
+
+<Step title="The result closes the turn">
+The runtime's last event carries why the run stopped, any error, and the tokens used (input, output and cached). The server writes the turn's status from it and sends `turn.paused` or `turn.finished`. A stream that ends without a result fails the turn.
 </Step>
 </Steps>
 
-## Retries
+## The events
 
-Opening a chat without a record, sending a question, sending an update and saving a skill take an optional `Idempotency-Key` header. A key the moderator already used answers with what it made the first time, and no second run starts. The key is claimed with the new row before the run starts, so a racing retry finds the first row. A run that fails to start deletes its turn or puts back its update, which frees the key.
+| Event | Sent when |
+|---|---|
+| `turn.started` | The run started, with the agent and the model. |
+| `turn.resumed` | A member resumed the turn; `by` names them. |
+| `text.delta`, `reasoning.delta` | The model writes its answer or its reasoning. |
+| `tool.started`, `tool.finished` | A command starts and ends, with its input, its output and whether it failed. |
+| `step`, `step.failed` | A step ended, with the messages it added, or a model call failed. |
+| `approval` | The agent asked for a change, or a member decided one. |
+| `steer` | A member wrote to the running turn. |
+| `turn.pausing` | A member pressed Pause. |
+| `turn.paused`, `turn.finished` | The run ended, with the status, the stop reason, any error and the usage. |
 
-## How a segment ends
+## How a turn ends
 
 <Statuses
   items={[
-    { name: "SUCCEEDED", tone: "brand", desc: "The model answered, through `answer` or as plain text." },
-    { name: "PAUSED", tone: "info", desc: "Pause, Stop now, the turn was deleted, or the server closed the request." },
-    { name: "AWAITING_INPUT", tone: "feature", desc: "The model called `ask_user` and waits for the moderator." },
-    { name: "FAILED", tone: "neutral", desc: "The model or MCP failed, model calls ran out, or the budget is spent." },
-    { name: "TIMED_OUT", tone: "neutral", desc: "The segment's deadline passed, 60 seconds by default." },
+    { name: "SUCCEEDED", tone: "brand", desc: "The run ended without an error. The stop reason says whether the model answered, its answer was cut short, it went round in circles or the chat is full." },
+    { name: "PAUSED", tone: "info", desc: "A member pressed Pause; the commands running finished first." },
+    { name: "STOPPED", tone: "info", desc: "A member pressed Stop now; the model call and the commands were cut." },
+    { name: "FAILED", tone: "neutral", desc: "A model call failed, the budget is spent, the runtime's stream broke or the server lost it." },
+    { name: "TIMED_OUT", tone: "neutral", desc: "The turn's deadline passed; the finished steps stay." },
   ]}
 />
 
-`PAUSED` and `AWAITING_INPUT` leave the turn open: the moderator continues, answers or ends it. A `FAILED` or `TIMED_OUT` turn can be continued in some cases, listed in [Limits and failures](/en/agent/limits).
+The chat takes a new question once its turn is no longer running. The latest turn of a chat can be resumed; [Pause, stop, steer and resume](/en/agent/control#resume) says how, and [Limits and failures](/en/agent/limits#how-a-turn-ends) which endings the console offers it for.
 
-## Stuck turns
+## Retries
 
-Each server replica holds one `LISTEN agent_turn` that rings the turn's open streams. At start and every minute, the server closes turns still `running` 30 seconds past their deadline with `agent_stuck`, including turns of a replica that died midway.
+Opening a chat and sending a question take an optional `Idempotency-Key` header. A key the member already used answers with what its first call made, and no second run starts. Two racing requests with the same key both get the first one's turn. <Req id="NFR-IDEM-01" />
+
+## Lost turns
+
+Each server replica follows the runs it started. When a replica stops, it cancels them; the runtime ends each run as its stream closes, and the turn fails with "the server stopped while the turn ran". At start and every minute, the server fails turns still running a minute past their deadline, such as those of a replica that died. Either way the finished steps stay, and the turn can be resumed.

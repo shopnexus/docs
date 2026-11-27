@@ -1,84 +1,111 @@
 ---
-title: Tools and data access
-description: The MCP server's sixteen read-only tools, how the server checks the moderator on every call, which reads of personal data are recorded and how long tool results are kept.
+title: Commands and capabilities
+description: The model's three tools, the shopnexus command that calls the console API, the capabilities and roles that decide which operations a turn may call, the gate on every call and what is recorded.
 group: Inside
 groupOrder: 4
 order: 1
-audience: [developers]
+audience: [developers, admins]
 type: reference
 readingTime: 6
 updated: 2026-11-27
-related: ["/en/agent/answers", "/en/architecture/console"]
+related: ["/en/agent/approvals", "/en/agent/runtime", "/en/agent/setup", "/en/api/playground"]
 ---
 
-The agent reads data only through the server's MCP server. It serves Streamable HTTP at `/mcp` on a port of its own, apart from the API port and never behind the ingress, so nothing outside the internal network reaches it. It keeps no session: every POST is one request with its own checks, answered as JSON. A port already in use stops the server from starting, and on shutdown the server waits at most 10 seconds for calls in flight.
+The model has three tools, all inside its sandbox: `bash` runs a command, `write` writes a whole file and `edit` replaces one exact piece of a file. It reaches ShopNexus through one of the commands bash runs, `shopnexus`, which calls the console's REST API. The agent has no API of its own: it uses the same endpoints, checks and audit log as the console. <Req id="UC-MOD-08" />
 
-## Checks on every call
+## The shopnexus command
+
+Each command is a console operation, named by its `operationId` without "Console": `listConsoleTickets` is `shopnexus listTickets`.
+
+```bash
+shopnexus listFeedback kind=bug limit=10          # parameters are name=value
+shopnexus getAccount id=0193e…                    # path parameters too
+shopnexus replyTicket id=0193e… --body '{"body":"…"}'
+shopnexus help listFeedback                       # the values and fields
+shopnexus listTickets status=open | jq '.items | length'
+```
+
+A parameter is always `name=value`, never a `--flag`. `--body` takes JSON, or `@file` for a file in the workspace. A command prints the answer's JSON body, so the model can pipe it through `jq` or `rg`. An error answer goes to stderr with its status and the server's error body, and the command exits 1. A parameter the command lacks, or a required one left out, is refused before any call.
+
+The command asks the server for the operations its turn may call, so a change to the API needs no new build of it. It holds no token: it talks to a socket the runtime serves, which adds the turn's token ([The runtime and its sandbox](/en/agent/runtime#ways-out)).
+
+## The command list
+
+The system prompt lists every command the turn may call, so the model needs no call to learn them. Each line has the command, its parameters (`?` marks an optional one), `--body` when it takes a body, `[approval]` when it is a change, and the operation's summary:
+
+```text
+listTickets status kind? cursor? limit?: The ticket queue, newest activity first.
+suspendAccount id --body: [approval] Suspend a customer account.
+```
+
+A parameter's allowed values and a body's fields stay behind `shopnexus help`. The list follows the agent's capabilities and the member's role, so it reads the same on every turn of the same agent for the same role, which keeps it in the prompt cache.
+
+## Capabilities
+
+Every console operation in the API spec names a capability in `x-capability`:
+
+- `none`: no agent ever calls it. Sign-in, members, the AI settings and the agent's own chats, turns and decisions are `none`.
+- `turn`: every turn may call it: listing its own commands and its chat's approvals.
+- anything else: the agents that hold that capability.
+
+| Capability | Grants |
+|---|---|
+| `tickets.read` | The ticket queue, a ticket with its person, order and messages, the open count |
+| `tickets.reply` | Replying in a ticket's chat as ShopNexus |
+| `tickets.resolve` | Resolving and reopening a ticket |
+| `accounts.read` | Customer accounts, one account with its identities and console history |
+| `accounts.suspend` | Suspending an account and lifting the suspension |
+| `reports.read` | Report cases, an account's case |
+| `reports.resolve` | Dismissing, resolving and reopening an account's case |
+| `orders.read` | One order with its listing, parties, shipment and tickets |
+| `listings.read` | One listing with its seller, hold, reports and price guide, and its boosts |
+| `listings.hide` | Hiding a listing as ShopNexus and lifting the hide |
+| `feedback.read` | Feedback, a feedback item with its group, groups and the 30-day figures |
+| `feedback.triage` | A group's status, hearts, joining a feedback item to a group |
+| `feedback.reply` | ShopNexus's one reply to a feedback item |
+| `audit.read` | The console's audit log (admins only) |
+| `monitoring.read` | The system's health, metrics and logs (admins only, [System health questions](/en/agent/monitoring)) |
+
+An admin picks an agent's capabilities in the AI settings ([Agents and settings](/en/agent/setup)). A capability that grants a change still makes only approval requests. The playground's spec shows each operation's capability.
+
+## Roles
+
+A turn runs as the member who asked, so what the member's role may not do, their turn may not either. The spec marks the operations only an admin may use with `x-role: admin`: today the audit log and monitoring. A moderator's turn leaves them out. They are not in its command list, `shopnexus` does not offer them, and the gate refuses them. The route's own role check would refuse them anyway, so the filter keeps the model from offering what the console would refuse.
+
+A turn keeps the role its member had when its run started. A resume by the same member takes their role as it is then; a resume by another member keeps the turn member's role, since the turn still works for them.
+
+## The gate
+
+Every request with a turn token passes the same checks, in order:
 
 <Steps>
-<Step title="Token">
-Each call carries the MCP token as a bearer token, compared in constant time. A wrong token is 401 before any MCP handling, and the server logs `security: agent MCP call refused` without the token.
+<Step title="The token">
+The token must belong to a turn that is running and not past its deadline, or the call is `401 agent_token_invalid`. It is the request's only credential: the server drops any cookie that came with it.
 </Step>
-<Step title="Moderator">
-The `X-Console-Member` header carries the id of the moderator who asked. The server reads the member again on every call, so a moderator disabled between two tool calls gets nothing from the second; an unknown or disabled member is 401 too. Every role may use every tool; a tool meant for admins alone would check the role itself.
+<Step title="The operation">
+The route must be an operation the turn's capabilities grant, and for a moderator not an admin-only one, or the call is `403 agent_operation_forbidden`. The gate looks at the operation, never at its parameters.
 </Step>
-<Step title="Tool">
-A tool is a thin adapter over a module's published service; no tool reads a table. A refusal reaches the agent as a tool error with its code; any other failure reaches it as `internal error` and is logged.
+<Step title="The spec">
+The request is validated against the API spec, as any request is. A bad parameter or body is `400 invalid_request` with the fields at fault, which the model reads and fixes.
+</Step>
+<Step title="The member">
+The console's guard reads the member again on every call. A member who is no longer active gets nothing, and one whose role is below the route's gets `403 console_forbidden`. The call counts against the member's own rate limit.
+</Step>
+<Step title="The handler">
+A GET runs as the member, so the handler's own checks apply: a record the member may not see is `404`, as in the console. Any other method becomes an approval request instead ([Changes and approvals](/en/agent/approvals)).
 </Step>
 </Steps>
 
-Every tool declares `readOnlyHint` and an input and output schema. A value from a fixed set (a ticket's status or kind, a case's status, an entity) is an enum in the input schema, taken from the owning module. A result arrives as structured content and as its JSON in one text block; ids sit under keys `id`, `*_id`, `ids` or `*_ids`, which is how the agent finds a source, and the tool's title is the label of its chip in the console.
+## What is recorded
 
-On the agent's side, only tools with `readOnlyHint` that are on the console agent's tool list reach the model. Each call has a time limit (`tool_timeout_s`, 20 seconds by default) and is tried up to `tool_attempts` times (3 by default) on a timeout or a dropped connection, waiting half a second before the second try and twice as long before each next one, at most 4 seconds.
+Every call with a turn token is recorded with its turn, the operation, the method, the path with its query, the status it answered and how long it took. The AI settings count them per agent and operation: calls, changes held for approval, errors and the average time. <Req id="NFR-PRIV-02" />
 
-## Tool list
-
-Tools that read one record take its id. List tools take `cursor` and `limit` (1 to 50, 20 by default) and answer `{items, next_cursor}`; the agent passes `next_cursor` back for the next page.
-
-| Tool | Reads | Recorded read |
-|---|---|---|
-| `count` | Counts by status of accounts, listings, orders, tickets or report cases, since a date or for all time, with the total; ShopNexus's own account is left out | no |
-| `lookup` | Which record an id names: an account, a report case, an order, a listing or a ticket, with the tool that reads it | no |
-| `ticket_get` | A ticket, its person, its order, the first page of its chat and the person's other tickets | the ticket, its person |
-| `ticket_messages` | A page of a ticket's chat, newest first | the ticket |
-| `tickets_list` | The support queue: open or resolved tickets, with each chat's last line | the tickets and their persons |
-| `tickets_of_account` | The newest 50 tickets an account opened, or on orders it sold | the account and the tickets |
-| `account_get` | Status, age, whether it has a phone and an email (never the values), listings, orders as buyer, its suspensions; reports are left to `report_case_get` | no |
-| `accounts_list` | The newest accounts, those suspended now, or the account an id or a phone number names | no |
-| `orders_of_account` | An account's orders as buyer or as seller | no |
-| `listings_of_account` | A seller's listings on sale or sold | no |
-| `console_actions` | The console's audit log by record, by moderator or all, without IPs | no |
-| `order_get` | An order, its parties, listing, price, status and the carrier's status now, read from the seller's carrier account; no recipient or pickup address; it does not read the parcel's event timeline or proof of delivery | no |
-| `listing_get` | A listing in any status but deleted, as its seller sees it | no |
-| `price_guide` | A listing's price against the median and size of a sample of similar listings; it takes a listing, since the sample needs the listing's vectors | no |
-| `report_cases_list` | The report queue: open or resolved cases | no |
-| `report_case_get` | An account's report case: reasons, listings reported, every report with its note, the resolution | the account, the reports, the reporters |
-
-## Personal data reads
-
-Each time a tool returns personal data (what a person wrote, messages, a ticket's person, reporters), it first writes a row to `console_agent_reads`: the moderator, the tool, the kind of subject (ticket or account), the ids it read and the time. The requirement is <Req id="NFR-PRIV-02" />. The console has no page that lists these rows yet.
-
-## What is kept, and for how long
-
-A sweep runs when the server starts and every hour, a batch of rows at a time:
+The console's order and listing pages record a read too. They show what people wrote (tickets' last lines, reports), so each opening records the member, the record's kind and the ids it read.
 
 | What | Kept | Then |
 |---|---|---|
-| A read record | 90 days | deleted |
-| A tool call's result | 90 days | blanked; the call keeps its tool, input, status and timing, and a later run's history shows "Result no longer kept" |
-| A chat | 180 days after its last activity | deleted with its turns, tool calls, events, inputs and documents |
+| A recorded call, a recorded read, a rate limit refusal | 90 days | deleted |
+| A command's output in the history | 90 days | blanked; the step keeps the command |
+| A chat | 180 days after its last activity | deleted with its messages, turns, events, approvals and calls |
 
-Every write to a turn moves the chat's last activity first, and the delete skips a chat a write holds, so a running chat is never swept. When a user deletes their account, the server blanks the tool results in the chat about that account; the turns and the read record stay, as the console's audit log does.
-
-## The order and listing pages
-
-The console's order page (`GET /v1/console/orders/{id}`) and listing page (`GET /v1/console/listings/{id}`) are served next to the tools, for any moderator. Each reads the same facts as `order_get` or `listing_get`, through the same services, and adds what a moderator needs on one screen:
-
-- **Order:** the buyer and the seller, the seller's sold listings and rating, the category's name, and the tickets about this order.
-- **Listing:** the seller's counts, the member who hid it when it is hidden, the reports about it, and the price guide when the sample is not empty.
-
-The tickets' last lines and the reports are what people wrote, so a page that shows any of them records the read, as a tool does. Neither page shows the parcel's event timeline or a reason for a hold. An unknown order is `404 order_not_found`, and an unknown or deleted listing `404 listing_not_found`.
-
-## Text from users
-
-The MCP server's instructions and the agent's system prompt both state that text users wrote (messages, notes, listing descriptions) is quoted as data only. The agent has no write tool, so an instruction hidden in that text changes no data.
+When a user deletes their account, the server blanks the command outputs in the chat about that account. The questions, the answers and the recorded calls stay, as the console's audit log does. A sweep runs when the server starts and every hour.

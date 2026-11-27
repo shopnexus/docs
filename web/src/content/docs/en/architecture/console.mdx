@@ -23,7 +23,7 @@ There are two roles, and an admin can do everything a moderator can. Each consol
 | Support tickets | Read the queue and a ticket's chat, reply, resolve, reopen | |
 | Report cases | Read, dismiss, resolve, reopen; hide and unhide a listing | |
 | Feedback | Read, group, reply, set the status | |
-| Console agent | Ask, read every shared chat, manage their own chats and skills | Rename or delete any chat, change any skill, AI settings |
+| Console agent | Ask, read every shared chat, manage their own chats, approve or reject the changes the agent asks for | Rename or delete any chat, AI settings; an admin's turns also read the audit log and monitoring |
 | Members | Change their own password | Create, rename, disable, enable, unlock, reset a moderator's password or TOTP |
 | Audit log | | Read it |
 | Ops dashboards | Those whose floor is moderator (Grafana by default) | The rest, and set each dashboard's floor |
@@ -109,7 +109,7 @@ A dashboard session ends with the console session it came from. The check runs o
 
 Every member's write is a row in `console_actions`, written in the same transaction as the change, so a change never lands without its row. That covers suspensions, member changes, ticket replies and status changes, report case decisions, listing hides, feedback, AI settings and dashboard floors. A row names the member (or the command-line tool), the action, the target, the member's IP address and details the action does not say, such as a suspension's reason and end. Adding an action means adding it to the API's list of actions as well.
 
-Finished sign-ins are rows in the sessions table; refused ones are in the security log. What the console agent reads for a member is recorded apart, in [the read record](/en/agent/tools#personal-data-reads).
+Finished sign-ins are rows in the sessions table; refused ones are in the security log. What the console agent calls for a member is recorded apart, in [the agent's call record](/en/agent/tools#what-is-recorded).
 
 ## Secrets at rest
 
