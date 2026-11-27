@@ -72,7 +72,7 @@ Each part comes from its own queries, and the summary lists the PromQL and LogQL
 | Series | at most 100 per answer; the rest are cut and `truncated` is set |
 | Log lines | 100 by default, at most 500; `truncated` says more matched |
 | Log range | 1 hour when the query gives none |
-| Metric list | at most 100 names per answer |
+| Metric list | at most 300 metrics per answer, a histogram once |
 | Query time | 15 seconds; a query that runs longer is refused with a message to narrow it |
 | Query text | at most 4,000 characters |
 

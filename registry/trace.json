@@ -1,7 +1,7 @@
 {
   "server": {
     "repo": "https://github.com/shopnexus/server",
-    "commit": "be11d062fd3abcee1d50d6d6be5cbe91c136cde7"
+    "commit": "92f1d6485f9525066bf138f7f1bb2d5e1b519f6d"
   },
   "refs": {
     "UC-MOD-08": [
@@ -628,7 +628,7 @@
       },
       {
         "file": "server/e2e/monitoring_test.go",
-        "line": 112,
+        "line": 113,
         "kind": "test",
         "flows": [
           "E1",
@@ -638,7 +638,7 @@
       },
       {
         "file": "server/e2e/monitoring_test.go",
-        "line": 124,
+        "line": 125,
         "kind": "test",
         "flows": [
           "E1"
@@ -646,7 +646,7 @@
       },
       {
         "file": "server/e2e/monitoring_test.go",
-        "line": 129,
+        "line": 130,
         "kind": "test",
         "flows": [
           "E2"
@@ -654,7 +654,7 @@
       },
       {
         "file": "server/e2e/monitoring_test.go",
-        "line": 133,
+        "line": 134,
         "kind": "test",
         "flows": [
           "E3"
@@ -662,7 +662,7 @@
       },
       {
         "file": "server/e2e/monitoring_test.go",
-        "line": 142,
+        "line": 143,
         "kind": "test",
         "flows": [
           "E2"
@@ -729,7 +729,7 @@
       },
       {
         "file": "server/internal/monitoring/service/metrics_list.go",
-        "line": 16,
+        "line": 21,
         "kind": "code",
         "flows": [
           "A1"
@@ -737,7 +737,7 @@
       },
       {
         "file": "server/internal/monitoring/service/metrics_list.go",
-        "line": 18,
+        "line": 23,
         "kind": "code",
         "flows": [
           "A1"
@@ -783,13 +783,13 @@
       },
       {
         "file": "server/internal/monitoring/service/service_test.go",
-        "line": 129,
+        "line": 139,
         "kind": "test",
         "flows": []
       },
       {
         "file": "server/internal/monitoring/service/service_test.go",
-        "line": 164,
+        "line": 174,
         "kind": "test",
         "flows": [
           "A2",
@@ -798,19 +798,19 @@
       },
       {
         "file": "server/internal/monitoring/service/service_test.go",
-        "line": 183,
+        "line": 193,
         "kind": "test",
         "flows": []
       },
       {
         "file": "server/internal/monitoring/service/service_test.go",
-        "line": 209,
+        "line": 219,
         "kind": "test",
         "flows": []
       },
       {
         "file": "server/internal/monitoring/service/service_test.go",
-        "line": 237,
+        "line": 247,
         "kind": "test",
         "flows": [
           "A1"
@@ -830,13 +830,13 @@
       },
       {
         "file": "server/api/paths/monitoring.yaml",
-        "line": 87,
+        "line": 89,
         "kind": "api",
         "flows": []
       },
       {
         "file": "server/api/paths/monitoring.yaml",
-        "line": 132,
+        "line": 134,
         "kind": "api",
         "flows": []
       }
@@ -7108,7 +7108,7 @@
       },
       {
         "file": "server/internal/monitoring/domain/domain.go",
-        "line": 151,
+        "line": 155,
         "kind": "code",
         "flows": []
       },
@@ -7138,7 +7138,7 @@
       },
       {
         "file": "server/internal/monitoring/service/service_test.go",
-        "line": 209,
+        "line": 219,
         "kind": "test",
         "flows": []
       }
