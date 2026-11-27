@@ -63,7 +63,7 @@ sections:
         vi: { use: [mô hình ngôn ngữ lớn (LLM)], avoid: [mô hình AI] }
         en: { use: [large language model (LLM)] }
       - meaning: "một phần nghiệp vụ trong máy chủ: Tài khoản, Tin đăng, Khám phá, Trò chuyện, Giao dịch, Vận chuyển, Uy tín, Thông báo, Vận hành và hỗ trợ, Media"
-        vi: { use: [phân hệ], avoid: [module, mô-đun, dịch vụ nghiệp vụ] }
+        vi: { use: [module], avoid: [phân hệ, mô-đun, dịch vụ nghiệp vụ] }
         en: { use: [module] }
       - meaning: "chương trình chạy riêng hoặc bên ngoài máy chủ: trợ lý AI, Bifrost, Restate, hãng vận chuyển, dịch vụ giả lập hãng"
         vi: { use: [dịch vụ], avoid: [service] }

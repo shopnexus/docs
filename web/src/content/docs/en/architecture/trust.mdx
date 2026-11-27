@@ -17,7 +17,7 @@ A suspended account cannot write, delete or mark a review, and cannot report. It
 
 ## Reviews
 
-Both sides of an order review each other once the order is `completed` or `failed` (<Req id="FR-TRS-01" />, <Req id="BR-TRS-04" />). An order in any other state is `order_not_delivered`. A review rates a person, not a listing:
+Both sides of an order review each other once the order is `completed` or `failed` (<Req id="FR-TRS-01" />, <Req id="BR-TRS-04" />). An order in any other state is `order_not_delivered`, and so is a failed order whose shipment is `lost`: the carrier lost the parcel, which is neither side's doing. A review rates a person, not a listing:
 
 - `role` is the side its subject was on: `seller` (the buyer wrote it) or `buyer` (the seller wrote it).
 - 1 to 5 stars and up to 500 characters of text.
@@ -72,7 +72,7 @@ Each figure answers a question a buyer or seller asks before a deal (<Req id="FR
 | Reply rate | Reputation view | See below. Absent with fewer than 5 threads counted. |
 | Reply time | Listing and seller views | See below. Absent with fewer than 5 answers in 30 days, or when the median is over a day. |
 | Phone verified | Listing and seller views | The seller signs in with a phone number, which sign-in verified. The number is never shown. |
-| COD orders and failed ones, last 90 days | Reputation view | The caller as a buyer. |
+| COD orders and failed ones, last 90 days | Reputation view | The caller as a buyer. A failed order whose parcel the carrier lost is not counted as failed. |
 | Caps | Reputation view | Listings on sale against 20, open COD orders as buyer against 3. |
 
 **Reply rate.** It counts threads that someone else started about one of the caller's listings, where the first message is from the last 90 days and is either answered or more than 24 hours old. A thread is in time when the caller answered within 24 hours. The rate is the percent in time, rounded down, with the count. It is computed on read.

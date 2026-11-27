@@ -141,7 +141,7 @@ Một lượt lưu báo ở mỗi mức thấp mới dưới mức của nó, v�
 
 ## Theo dõi tìm kiếm
 
-Một lượt theo dõi đi theo một `q` cùng bộ lọc (danh mục, khoảng giá, tình trạng, chỉ tin cho trả giá) và một nơi chốn. `POST /v1/search/watches` tạo một lượt (201), hoặc, với cùng các từ đã gộp, cập nhật bộ lọc, giữ ID, đặt lại số đếm và trả 200. Mỗi tài khoản có tối đa 20 lượt theo dõi (`watch_limit_reached`). Lượt theo dõi giữ một phường/xã, không bao giờ giữ một điểm: điểm GPS được đổi thành phường/xã gần nhất. Nó lưu các cụm từ mà mô hình đọc ra lúc tạo, nên lượt quét không gọi mô hình.
+Một lượt theo dõi đi theo một `q` cùng bộ lọc (danh mục, khoảng giá, tình trạng, chỉ tin cho trả giá) và một nơi chốn. `POST /v1/search/watches` tạo một lượt (201), hoặc, với cùng các từ đã gộp, cập nhật bộ lọc, giữ ID, đặt lại số đếm và trả 200. Mỗi tài khoản có tối đa 20 lượt theo dõi (`watch_limit_reached`). Lượt theo dõi giữ một phường/xã, không bao giờ giữ một điểm: điểm GPS được đổi thành phường/xã gần nhất. Nó lưu các cụm từ mà mô hình đọc ra lúc tạo, nên lượt quét không gọi mô hình. <Req id="UC-DSC-06" />
 
 Discovery ghi lần đăng đầu tiên của mỗi tin vào bảng tin mới tới, đánh số theo thứ tự, và xóa các dòng cũ hơn 2 ngày. Nó không quét theo thời điểm đăng, vì thời điểm đó được đặt trước khi ảnh xử lý xong và một tin tới muộn sẽ bị sót. Mỗi lượt theo dõi có một lượt quét durable đọc bảng tin mới tới:
 

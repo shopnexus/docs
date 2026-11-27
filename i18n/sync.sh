@@ -7,8 +7,8 @@ root=$(cd "$here/../.." && pwd)
 src="$here/format-cases.json"
 for dst in \
   "$root/server/internal/platform/locale/testdata/format-cases.json" \
-  "$root/app/core/model/src/test/resources/format-cases.json" \
-  "$root/website/src/i18n/format-cases.json"; do
+  "$root/clients/app-android/core/model/src/test/resources/format-cases.json" \
+  "$root/clients/website/src/i18n/format-cases.json"; do
   if [ "${1:-}" = "--check" ]; then
     cmp -s "$src" "$dst" || { echo "differs: $dst"; exit 1; }
   else

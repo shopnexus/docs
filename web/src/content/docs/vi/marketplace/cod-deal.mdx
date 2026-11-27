@@ -36,6 +36,8 @@ Shipper tới và người mua xem món hàng. Đúng như tin thì họ trả s
 
 <Step title="Đơn đóng lại">
 Người mua bấm **Đã nhận hàng**, hoặc đơn tự hoàn tất 3 ngày sau khi hãng báo đã giao. Khi đó tin được tính là đã bán cho người mua này. Bưu kiện bị từ chối hoặc bị hoàn thì đơn giao không thành, và tin được mở bán lại.
+
+Nếu hãng làm thất lạc bưu kiện sau khi lấy hàng, đơn cũng giao không thành, nhưng đó là lỗi của hãng. Đơn không tính cho bên nào và không được đánh giá. Người bán không còn hàng nên tin bị ẩn; khi có hàng, người bán tự hiện lại tin. Người bán yêu cầu hãng bồi thường trên tài khoản GHTK hoặc GHN của mình, còn người mua không phải trả gì.
 </Step>
 </Steps>
 
@@ -46,7 +48,7 @@ stateDiagram-v2
   pending --> cancelled: hủy trước khi gửi
   shipped --> cancelled: hãng không bao giờ lấy hàng
   shipped --> completed: người mua đã nhận
-  shipped --> failed: bị từ chối hoặc bị hoàn
+  shipped --> failed: bị từ chối, bị hoàn hoặc thất lạc
 ```
 
 Đơn hoàn tất thì deal kết thúc. Sau khi đơn giao không thành hoặc bị hủy, deal quay lại trả giá.

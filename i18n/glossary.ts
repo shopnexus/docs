@@ -29,10 +29,15 @@ type Text = { file: string; where: string | number; text: string };
 const root = resolve(process.argv[2] ?? join(import.meta.dir, "../.."));
 const glossaryFile = join(root, "docs/i18n/glossary.yaml");
 const checkouts: Record<Product, string> = {
-  app: join(root, process.env.TERMS_APP ?? "app"),
-  website: join(root, process.env.TERMS_WEBSITE ?? "website"),
+  app: join(root, process.env.TERMS_APP ?? "clients/app-android"),
+  website: join(root, process.env.TERMS_WEBSITE ?? "clients/website"),
   server: join(root, process.env.TERMS_SERVER ?? "server"),
 };
+
+// A missing checkout would scan nothing and pass.
+for (const [p, dir] of Object.entries(checkouts)) {
+  if (!existsSync(dir)) throw new Error(`${p}: no checkout at ${dir}`);
+}
 
 const g = Bun.YAML.parse(readFileSync(glossaryFile, "utf8")) as Glossary;
 const words = (t: Term, lang: Lang) => t[lang] as Words | undefined;

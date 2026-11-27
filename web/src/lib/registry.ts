@@ -186,7 +186,7 @@ export const REQ_STRINGS = {
     refs: "Code / test",
     flowsTested: "Luồng E có test",
     attr: "Thuộc tính",
-    module: "Phân hệ",
+    module: "Module",
     ucs: "Ca sử dụng",
   },
 } as const;

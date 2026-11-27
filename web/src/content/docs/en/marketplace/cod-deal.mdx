@@ -36,6 +36,8 @@ The shipper arrives and the buyer looks at the item. If it is right, they pay th
 
 <Step title="The order closes">
 The buyer taps **Đã nhận hàng**, or the order completes on its own 3 days after the carrier reports it delivered. The listing is then sold to that buyer. A refused or returned parcel fails the order, and the listing goes on sale again.
+
+If the carrier loses the parcel after the pickup, the order fails too, but it is the carrier's fault. It counts against neither side and takes no review. The seller no longer has the item, so the listing is hidden; they show it again once they have one. The seller claims compensation from the carrier on their own GHTK or GHN account, and the buyer pays nothing.
 </Step>
 </Steps>
 
@@ -46,7 +48,7 @@ stateDiagram-v2
   pending --> cancelled: cancelled before shipping
   shipped --> cancelled: carrier never picked it up
   shipped --> completed: buyer received it
-  shipped --> failed: refused or returned
+  shipped --> failed: refused, returned or lost
 ```
 
 A completed order closes the deal. After a failure or a cancel, the deal goes back to negotiating.

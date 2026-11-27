@@ -36,6 +36,7 @@ stateDiagram-v2
   hidden --> active
   active --> reserved: order shipped
   reserved --> active: order returned
+  reserved --> hidden: carrier lost the parcel
   reserved --> sold: order delivered
   active --> sold: marked sold
   hidden --> sold: marked sold
@@ -95,7 +96,7 @@ A listing remembers its last price change after it first went on sale. A drop of
 
 ## Reservation and sale
 
-The [deal module](/en/architecture/deal) reserves a listing for one order while the parcel travels. Reserve, release and sell name the order, so a durable flow can repeat them safely. They emit `listing.reserved`, `listing.released` and `listing.sold`. A reserved listing counts toward the cap; the seller cannot hide, edit, mark sold or delete it.
+The [deal module](/en/architecture/deal) reserves a listing for one order while the parcel travels. Reserve, release and sell name the order, so a durable flow can repeat them safely. They emit `listing.reserved`, `listing.released` and `listing.sold`. When the carrier loses the parcel, the release leaves the listing hidden by its seller, with `listing.hidden`, since the seller no longer has the item; a normal unhide puts it back on sale. A reserved listing counts toward the cap; the seller cannot hide, edit, mark sold or delete it.
 
 `unmark-sold` undoes only a sale marked by hand; undoing an order's sale is `listing_state_conflict`, so an item cannot sell twice. Unmarking counts toward the cap. Hide, unhide, mark sold, unmark sold and delete still work for a suspended account.
 

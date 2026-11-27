@@ -11,7 +11,7 @@ updated: 2026-11-27
 related: ["/vi/architecture/events", "/vi/architecture/chat", "/vi/api/live-updates", "/vi/architecture/sessions", "/vi/architecture/deal", "/vi/architecture/trust"]
 ---
 
-Module notification báo cho người dùng về deal, đơn, tin đăng, đánh giá, tìm kiếm đã lưu và tài khoản của họ <Req id="FR-SHR-02" />. Nó tới người dùng theo ba đường:
+Module notification báo cho người dùng về deal, đơn, tin đăng, đánh giá, tìm kiếm đã lưu và tài khoản của họ <Req id="FR-SHR-02" />. Mọi ca sử dụng cần báo cho ai đó đều gọi chung một luồng này <Req id="UC-SHR-03" />. Nó tới người dùng theo ba đường:
 
 - **Danh sách**: các thông báo trong màn thông báo của ứng dụng, kèm số chưa đọc.
 - **Thông báo đẩy**: Firebase Cloud Messaging tới điện thoại Android và tới trình duyệt trên website.
@@ -48,6 +48,7 @@ Mỗi bước được ghi journal, nên server sập thì chạy tiếp sau bư
 | `deal.moved`: chấp nhận giá, từ chối, hủy | bên kia | `agreed`, `declined`, `agreement_cancelled` | offers | không |
 | `deal.moved`: đổi giá, tắt trả giá, tin đóng | người mua | `offer_voided` | offers | không |
 | `deal.moved`: yêu cầu COD, đã gửi, hoàn tất, giao không thành, đã hủy | bên kia; thêm người bán khi hệ thống hoàn tất đơn, giao không thành hoặc một mốc quá hạn hủy đơn | `cod_requested`, `shipped`, `completed`, `failed`, `order_cancelled` | orders | khi `order_emails` bật |
+| `deal.moved`: giao không thành vì thất lạc | cả hai bên: người bán được nhắc yêu cầu bồi thường trên tài khoản hãng của mình, người mua được báo không phải trả gì | `parcel_lost` | orders | khi `order_emails` bật |
 | `message.sent` | thành viên kia | chỉ đẩy, không vào danh sách | messages | không |
 | `listing.published` | người bán | `listing_live` | không có | không |
 | `listing.published`, lần đầu | từng người theo dõi | `followed_listing` | followed | không |
@@ -92,7 +93,7 @@ Thông báo về cùng một thứ được gộp theo một key, để danh sá
 | tìm kiếm đã lưu | kết quả khớp tìm kiếm đã lưu |
 | tin đã lưu | giảm giá |
 
-Thông báo mới thay thông báo **chưa đọc** có cùng key của người nhận, giữ ID của nó và đẩy nó lên đầu. Thông báo đã đọc thì giữ nguyên, và thông báo mới bắt đầu một dòng mới. Mỗi key có tối đa một thông báo chưa đọc.
+Thông báo mới thay thông báo **chưa đọc** có cùng key của người nhận, giữ ID của nó và đẩy nó lên đầu. Thông báo đã đọc thì giữ nguyên, và thông báo mới bắt đầu một dòng mới. Mỗi key có tối đa một thông báo chưa đọc <Req id="BR-SHR-02" />.
 
 Hai trường hợp chạy đua được chặn:
 
@@ -143,14 +144,14 @@ Không có credential FCM thì server chỉ ghi log thay cho thông báo đẩy,
 | `order_emails` | bật | email cho thông báo về đơn |
 | giờ yên lặng `{on, from, to}` | bật, 22:00 tới 07:00 | không đẩy trong khung giờ này |
 
-- Công tắc tắt chỉ chặn thông báo đẩy. Thông báo vẫn vào danh sách. Vì tin nhắn không bao giờ vào danh sách, tin nhắn khi `messages` tắt không tới điện thoại nào.
+- Công tắc tắt chỉ chặn thông báo đẩy. Thông báo vẫn vào danh sách <Req id="BR-SHR-01" />. Vì tin nhắn không bao giờ vào danh sách, tin nhắn khi `messages` tắt không tới điện thoại nào.
 - Thông báo không có công tắc (tin đã lên hoặc bị từ chối, tạm khóa, góp ý, Chợ Tốt) luôn được đẩy, theo giờ yên lặng. Thông báo đẩy của tìm kiếm đã lưu theo chuông riêng của từng tìm kiếm.
 - Giờ yên lặng dùng giờ Việt Nam, dạng HH:MM, và có thể qua nửa đêm. Thông báo đẩy bị giờ yên lặng chặn thì bị bỏ, không hoãn; thông báo vẫn ở trong danh sách. `from` bằng `to` thì trả 400 `invalid_quiet_hours`.
 - Tài khoản chưa từng lưu cài đặt thì đọc được giá trị mặc định, và việc đọc không lưu gì.
 
 ## Email
 
-Chỉ hai nhóm được gửi email. Thông báo về đơn (yêu cầu COD, đã gửi, hoàn tất, giao không thành, đã hủy) được gửi email khi `order_emails` bật. Thông báo tạm khóa luôn được gửi email. Mọi thông báo khác chỉ có ý nghĩa trong vài phút, và gửi email cho chúng sẽ khiến nhà cung cấp email xếp thư của hệ thống, kể cả mã OTP đăng nhập, vào thư rác.
+Chỉ hai nhóm được gửi email. Thông báo về đơn (yêu cầu COD, đã gửi, hoàn tất, giao không thành, thất lạc, đã hủy) được gửi email khi `order_emails` bật. Thông báo tạm khóa luôn được gửi email. Mọi thông báo khác chỉ có ý nghĩa trong vài phút, và gửi email cho chúng sẽ khiến nhà cung cấp email xếp thư của hệ thống, kể cả mã OTP đăng nhập, vào thư rác.
 
 Email bỏ qua công tắc đẩy và giờ yên lặng. Tài khoản không có địa chỉ email (chỉ có số điện thoại, hoặc đã bị xóa dữ liệu) không nhận email. Lần gửi chạy trong một bước riêng khóa theo event, người nhận và thông báo, nên chỉ gửi một lần; bị từ chối thì ghi log và bỏ, lỗi khác thử lại trong một giờ. Email quảng cáo, nếu sau này có, phải mặc định tắt và xin đồng ý.
 

@@ -69,7 +69,7 @@ The app stores the last seq it handled and passes it as `since` next time.
 | `deal` | `deal_id` | each save of a deal: a move, a COD order, any change to its order | buyer and seller |
 | `notification` | `notification_id` | a notice is added, or an unread one is bumped | its recipient |
 | `scam_warning` | `conversation_id` | a scam warning is raised, grows or is dismissed | the warned member |
-| `listing_read` | `listing_read_id` | an AI read of a video, photo or link starts or saves a step | the account reading |
+| `listing_read` | `listing_read_id` | an AI read of a video or photo starts or saves a step | the account reading |
 | `ticket` | `conversation_id` | a support ticket is created, gets its first message, is resolved or reopened | the ticket's owner |
 
 Opening a deal logs nothing; its first update comes with the first move.

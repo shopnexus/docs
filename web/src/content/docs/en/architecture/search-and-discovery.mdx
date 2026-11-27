@@ -141,7 +141,7 @@ A save tells at each new low below its level, and only then. Discovery hears `li
 
 ## Search watches
 
-A watch follows a `q` with its filters (category, price range, conditions, offers only) and a place. `POST /v1/search/watches` creates one (201), or, for the same folded words, updates the filters, keeps the ID, resets the count and answers 200. An account has at most 20 watches (`watch_limit_reached`). A watch keeps a commune, never a point: a GPS point is turned into the nearest commune. It stores the phrases the model read when it was made, so a sweep calls no model.
+A watch follows a `q` with its filters (category, price range, conditions, offers only) and a place. `POST /v1/search/watches` creates one (201), or, for the same folded words, updates the filters, keeps the ID, resets the count and answers 200. An account has at most 20 watches (`watch_limit_reached`). A watch keeps a commune, never a point: a GPS point is turned into the nearest commune. It stores the phrases the model read when it was made, so a sweep calls no model. <Req id="UC-DSC-06" />
 
 Discovery logs each listing's first publication in an arrivals table, numbered in order, and deletes arrivals older than 2 days. It does not sweep by publish time, because that time is set before the photos are processed and a late listing would be missed. A durable sweep per watch reads the arrivals:
 

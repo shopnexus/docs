@@ -89,10 +89,10 @@ stateDiagram-v2
   pending --> cancelled: either side, seller timeout, shipped to another, listing closed
   shipped --> cancelled: pickup timeout
   shipped --> completed: buyer confirms, or 3 days after delivered
-  shipped --> failed: carrier fails, returns or loses the parcel
+  shipped --> failed: carrier returns or loses the parcel
 ```
 
-A completed order makes the deal sold. A failure or a cancel sends the deal back to negotiating without its agreed price. After the shipment the seller has no move on the order; the carrier's reports and the buyer move it. The order shows `completed_by`, the buyer or the system.
+A completed order makes the deal sold. A failure or a cancel sends the deal back to negotiating without its agreed price. A parcel the carrier lost after the pickup fails the order with the shipment `lost`: the carrier's fault, so it counts in neither side's figures, takes no review, and the listing goes hidden for its seller instead of back on sale. Hiding it withdraws open prices on the listing as any hide does, and the seller unhides it once they have the item. After the shipment the seller has no move on the order; the carrier's reports and the buyer move it. The order shows `completed_by`, the buyer or the system.
 
 Cancel reasons are `buyer`, `seller`, `seller_timeout`, `pickup_timeout`, `shipped_to_another` and `listing_closed`. A shipped order is cancelled only by the pickup timeout (<Req id="BR-DEAL-07" />).
 
@@ -158,7 +158,7 @@ The timers are delayed Restate sends. Each names its order, reads the deal when 
 | Seller | COD request | 3 days | Cancels a still pending order with `seller_timeout`. |
 | Pickup | Shipment | 3 days | Reads the carrier first. Picked up since: moves the order on. Still waiting: cancels with `pickup_timeout`, releases the listing, then calls the parcel off at the carrier. |
 | Complete | Delivered report | 3 days | Completes the order as the system (<Req id="BR-DEAL-11" />). |
-| Transit | Parcel in transit | 30 days | Reads the carrier. Gone, cancelled or lost fails the order. A new status moves it and the timer waits again. |
+| Transit | Parcel in transit | 30 days | Reads the carrier. Gone, cancelled or lost fails the order with the shipment `lost` and hides the listing. A new status moves it and the timer waits again. |
 | Poll | Shipment | every 2 hours | Reads the carrier while the order is shipped. See [Shipping](/en/architecture/shipping). |
 
 A pickup timeout leaves the order cancelled even when the carrier already has the parcel or no longer knows it. The order shows the next deadline as `due_at`: the seller timer while pending, the pickup timer while the parcel waits for pickup, and the complete timer once delivered. It is computed, not stored.
@@ -168,5 +168,5 @@ A pickup timeout leaves the order cancelled even when the carrier already has th
 Every carrier report, from a webhook, the poll or the dev endpoint, goes through one entry point with the carrier, the tracking code, the status, its time and the newest fee. It moves every shipped order with that code and changes nothing on a closed order. An unknown code changes nothing: the webhook still answers 200, and only the dev endpoint answers 404 `shipment_not_found`. How statuses map to the order is on [Shipping](/en/architecture/shipping#tracking).
 
 - A report no newer than the stored one changes nothing, so a late webhook never lands an older status last. A newer report of the same status moves only the time, with no move or event.
-- A carrier failure or return fails the order at once and releases the listing (<Req id="BR-DEAL-08" />).
+- A carrier failure or return fails the order at once and releases the listing (<Req id="BR-DEAL-08" />). A parcel lost after the pickup fails it with the shipment `lost` and hides the listing (<Req id="BR-DEAL-11" />).
 - A report's fee replaces the order's fee without a move, unless the report is older than the stored one. A closed order keeps its fee.

@@ -11,7 +11,7 @@ updated: 2026-11-27
 related: ["/en/architecture/events", "/en/architecture/chat", "/en/api/live-updates", "/en/architecture/sessions", "/en/architecture/deal", "/en/architecture/trust"]
 ---
 
-The notification module tells people about their deals, orders, listings, reviews, searches and account <Req id="FR-SHR-02" />. It reaches them three ways:
+The notification module tells people about their deals, orders, listings, reviews, searches and account <Req id="FR-SHR-02" />. Every use case that tells someone something includes this one shared flow <Req id="UC-SHR-03" />. It reaches them three ways:
 
 - **The list**: the notices in the app's notification screen, with an unread count.
 - **Push**: Firebase Cloud Messaging to Android phones and to browsers on the website.
@@ -48,6 +48,7 @@ Each step is journaled, so a crash resumes after the last finished step and repe
 | `deal.moved`: accept, decline, cancel | the other side | `agreed`, `declined`, `agreement_cancelled` | offers | no |
 | `deal.moved`: price changed, offers closed, listing closed | the buyer | `offer_voided` | offers | no |
 | `deal.moved`: COD request, shipped, completed, failed, cancelled | the other side; also the seller when the system completes the order, delivery fails or a deadline cancels it | `cod_requested`, `shipped`, `completed`, `failed`, `order_cancelled` | orders | while `order_emails` is on |
+| `deal.moved`: failed with the parcel lost | both sides: the seller to claim compensation on their own carrier account, the buyer that they pay nothing | `parcel_lost` | orders | while `order_emails` is on |
 | `message.sent` | the other member | push only, never listed | messages | no |
 | `listing.published` | the seller | `listing_live` | none | no |
 | `listing.published`, first time | each follower | `followed_listing` | followed | no |
@@ -92,7 +93,7 @@ Notices about one thing collapse on a key, so the list does not fill with stale 
 | the saved search | watch matches |
 | the saved listing | price drops |
 
-A new notice replaces the recipient's **unread** notice with the same key, keeps its ID and moves it to the top. A notice already read stays, and the new one starts a fresh row. At most one unread notice per key exists.
+A new notice replaces the recipient's **unread** notice with the same key, keeps its ID and moves it to the top. A notice already read stays, and the new one starts a fresh row. At most one unread notice per key exists <Req id="BR-SHR-02" />.
 
 Two races are guarded:
 
@@ -143,14 +144,14 @@ Without FCM credentials the server only logs pushes, and production refuses to s
 | `order_emails` | on | mail for order notices |
 | quiet hours `{on, from, to}` | on, 22:00 to 07:00 | no push inside the window |
 
-- A switch that is off stops the push only. The notice is still listed. Since chat messages are never listed, a message with `messages` off reaches no phone.
+- A switch that is off stops the push only. The notice is still listed <Req id="BR-SHR-01" />. Since chat messages are never listed, a message with `messages` off reaches no phone.
 - Notices with no switch (listing live or rejected, suspension, feedback, Chợ Tốt) always push, subject to quiet hours. Search watch pushes follow each watch's own bell.
 - Quiet hours use Vietnam time, as HH:MM, and may cross midnight. A push held back by quiet hours is dropped, not delayed; the notice stays in the list. `from` equal to `to` is 400 `invalid_quiet_hours`.
 - An account that never saved settings reads the defaults, and reading them saves nothing.
 
 ## Mail
 
-Only two groups are mailed. Order notices (COD requested, shipped, completed, failed, cancelled) are mailed while `order_emails` is on. Suspension notices are always mailed. Every other notice matters for minutes only, and mailing it would teach mail providers to file ShopNexus mail, sign-in codes included, as spam.
+Only two groups are mailed. Order notices (COD requested, shipped, completed, failed, parcel lost, cancelled) are mailed while `order_emails` is on. Suspension notices are always mailed. Every other notice matters for minutes only, and mailing it would teach mail providers to file ShopNexus mail, sign-in codes included, as spam.
 
 Mail ignores the push switches and quiet hours. An account without an email address (phone only, or erased) gets no mail. The send runs in its own step keyed by event, recipient and notice, so it is sent once; a refusal is logged and dropped, other failures retry for an hour. Advertising mail, if it ever comes, must start switched off and ask for consent.
 

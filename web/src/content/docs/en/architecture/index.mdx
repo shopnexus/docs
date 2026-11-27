@@ -47,7 +47,7 @@ Postgres with ParadeDB holds every table, the full-text index search runs on, an
 
 ## Models
 
-Every model call goes through Bifrost, the stack's AI gateway. The server gives each of its callers a virtual key with a budget, and Bifrost routes each call to a provider with fallbacks. Search reads a query with a language model and embeds text. The assist module reads a seller's photo, video or Chợ Tốt link into a listing draft.
+Every model call goes through Bifrost, the stack's AI gateway. The server gives each of its callers a virtual key with a budget, and Bifrost routes each call to a provider with fallbacks. Search reads a query with a language model and embeds text. The assist module reads a seller's photo or video into a listing draft, and drafts the listings brought over from Chợ Tốt.
 
 Some models run inside the server itself, in module ai: speech to text, photo vectors and the frames cut from a video. In the cluster they run in a second deployment of the same binary that serves only module ai, so the API pods load no model.
 

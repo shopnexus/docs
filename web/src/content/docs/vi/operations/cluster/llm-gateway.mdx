@@ -15,7 +15,7 @@ Tìm kiếm hỏi một mô hình ngôn ngữ xem câu truy vấn có nghĩa gì
 
 Bifrost là một file chạy Go duy nhất: nó dùng khoảng 260 tới 440 MiB và khởi động trong 1 tới 2 giây, hoặc khoảng 20 giây trên database rỗng khi đang chạy migration.
 
-Chuyển giọng nói thành văn bản, vector ảnh và khung hình video không đi qua Bifrost. Đó là phân hệ ai của server, chạy trong `server-ai` và được gọi qua Restate.
+Chuyển giọng nói thành văn bản, vector ảnh và khung hình video không đi qua Bifrost. Đó là module ai của server, chạy trong `server-ai` và được gọi qua Restate.
 
 ## Agent
 
@@ -25,7 +25,7 @@ Một agent là một mục đích gọi mô hình. Bảng `ai_agents` của ser
 |---|---|---|---|
 | `console-agent` | `upstream/claude-sonnet-5-5` | `console-agent` | console agent |
 | `scam-check` | `upstream/claude-haiku-5-5` | `server-trust` | kiểm tra một khung chat xem có lừa đảo không |
-| `listing-read` | `upstream/claude-haiku-5-5` | `server-assist` | đọc video, ảnh hoặc tin Chợ Tốt của người bán thành bản nháp |
+| `listing-read` | `upstream/claude-haiku-5-5` | `server-assist` | đọc video hoặc ảnh của người bán thành bản nháp, và điền các tin nhập từ Chợ Tốt |
 | `search` | `openrouter/google/gemini-2.5-flash` | `server-search` | đọc câu truy vấn tìm kiếm |
 | `embed-text` | `openrouter/baai/bge-m3`, chỉ DeepInfra | `server-embed-index`, `server-embed-search` | vector chữ của tin đăng và câu truy vấn |
 

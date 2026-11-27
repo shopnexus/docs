@@ -89,10 +89,10 @@ stateDiagram-v2
   pending --> cancelled: một trong hai bên, người bán quá hạn, gửi cho người khác, tin đóng
   shipped --> cancelled: quá hạn lấy hàng
   shipped --> completed: người mua xác nhận, hoặc 3 ngày sau khi đã giao
-  shipped --> failed: hãng giao không thành, hoàn hoặc làm mất bưu kiện
+  shipped --> failed: hãng hoàn hoặc làm mất bưu kiện
 ```
 
-Đơn hoàn tất làm deal thành sold. Đơn giao không thành hoặc bị hủy đưa deal về negotiating, không còn giá đã chốt. Sau khi tạo vận đơn, người bán không còn lượt nào trên đơn; cập nhật của hãng và người mua chuyển trạng thái đơn. Đơn hiện `completed_by`: người mua hoặc hệ thống.
+Đơn hoàn tất làm deal thành sold. Đơn giao không thành hoặc bị hủy đưa deal về negotiating, không còn giá đã chốt. Bưu kiện bị hãng làm thất lạc sau khi lấy hàng thì đơn giao không thành với vận đơn `lost`: lỗi của hãng, nên không tính vào số liệu của bên nào, không được đánh giá, và tin bị ẩn cho người bán thay vì mở bán lại. Ẩn tin rút các giá đang mở trên tin như mọi lần ẩn, và người bán hiện lại tin khi có hàng. Sau khi tạo vận đơn, người bán không còn lượt nào trên đơn; cập nhật của hãng và người mua chuyển trạng thái đơn. Đơn hiện `completed_by`: người mua hoặc hệ thống.
 
 Lý do hủy là `buyer`, `seller`, `seller_timeout`, `pickup_timeout`, `shipped_to_another` và `listing_closed`. Đơn đã gửi chỉ bị hủy bởi quá hạn lấy hàng (<Req id="BR-DEAL-07" />).
 
@@ -158,7 +158,7 @@ Các timer là lệnh gửi trễ của Restate. Mỗi timer ghi tên đơn củ
 | Người bán | Yêu cầu COD | 3 ngày | Hủy đơn còn pending với `seller_timeout`. |
 | Lấy hàng | Tạo vận đơn | 3 ngày | Đọc hãng trước. Đã lấy hàng: chuyển đơn đi tiếp. Vẫn chờ: hủy với `pickup_timeout`, nhả tin, rồi gọi hủy bưu kiện ở hãng. |
 | Hoàn tất | Cập nhật đã giao | 3 ngày | Hoàn tất đơn với tư cách hệ thống (<Req id="BR-DEAL-11" />). |
-| Vận chuyển | Bưu kiện đang đi | 30 ngày | Đọc hãng. Mất dấu, đã hủy hoặc thất lạc thì đơn giao không thành. Trạng thái mới thì chuyển đơn và timer chờ tiếp. |
+| Vận chuyển | Bưu kiện đang đi | 30 ngày | Đọc hãng. Mất dấu, đã hủy hoặc thất lạc thì đơn giao không thành với vận đơn `lost` và tin bị ẩn. Trạng thái mới thì chuyển đơn và timer chờ tiếp. |
 | Poll | Tạo vận đơn | mỗi 2 giờ | Đọc hãng trong lúc đơn ở shipped. Xem [Vận chuyển](/vi/architecture/shipping). |
 
 Quá hạn lấy hàng để đơn ở cancelled ngay cả khi hãng đã có bưu kiện hoặc không còn biết bưu kiện đó. Đơn hiện hạn kế tiếp dưới dạng `due_at`: timer người bán khi pending, timer lấy hàng khi bưu kiện chờ lấy, và timer hoàn tất khi đã giao. Giá trị này được tính, không lưu.
@@ -168,5 +168,5 @@ Quá hạn lấy hàng để đơn ở cancelled ngay cả khi hãng đã có b�
 Mọi cập nhật của hãng, từ webhook, lượt poll hay endpoint dev, đều đi qua một cửa vào duy nhất với hãng, mã vận đơn, trạng thái, thời điểm của nó và phí mới nhất. Nó chuyển mọi đơn shipped có mã đó và không đổi gì trên đơn đã đóng. Mã lạ thì không đổi gì: webhook vẫn trả 200, chỉ endpoint dev trả 404 `shipment_not_found`. Cách ánh xạ trạng thái sang đơn nằm ở trang [Vận chuyển](/vi/architecture/shipping#theo-dõi).
 
 - Cập nhật không mới hơn bản đã lưu thì không đổi gì, nên webhook tới muộn không bao giờ đặt trạng thái cũ hơn vào cuối. Cập nhật mới hơn mà cùng trạng thái thì chỉ dời thời điểm, không có lượt hay event.
-- Hãng giao không thành hoặc hoàn hàng thì đơn giao không thành ngay và tin được nhả (<Req id="BR-DEAL-08" />).
+- Hãng giao không thành hoặc hoàn hàng thì đơn giao không thành ngay và tin được nhả (<Req id="BR-DEAL-08" />). Bưu kiện thất lạc sau khi lấy hàng thì đơn giao không thành với vận đơn `lost` và tin bị ẩn (<Req id="BR-DEAL-11" />).
 - Phí trong cập nhật thay phí của đơn mà không tạo lượt, trừ khi cập nhật cũ hơn bản đã lưu. Đơn đã đóng giữ nguyên phí.

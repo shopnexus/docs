@@ -11,7 +11,7 @@ updated: 2026-11-27
 related: ["/en/architecture/catalog", "/en/architecture/listings-lifecycle", "/en/architecture/assist", "/en/operations/configuration"]
 ---
 
-The media module owns uploads: listing, message and review photos, avatars, and the videos and copied photos of the AI listing reads. Media reads no other module's tables; each holder names its uploads.
+The media module owns uploads: listing, message and review photos, avatars, the videos and frames of the AI listing reads, and photos copied from Chợ Tốt. Media reads no other module's tables; each holder names its uploads.
 
 ## Object store
 
@@ -75,7 +75,7 @@ A holder releases uploads it no longer shows: photos an edit dropped, or a delet
 
 ## Server-made photos and videos
 
-The server can write a photo itself and insert a waiting upload for the seller, which a listing then attaches like any other. Its origin is `app`, `frame` (from a video), `link` (copied from another site; the listing marks it copied) or `listing` (copied from the seller's own listing).
+The server can write a photo itself and insert a waiting upload for the seller, which a listing then attaches like any other. Its origin is `app`, `frame` (from a video), `link` (copied from Chợ Tốt by an import; the listing marks it copied) or `listing` (copied from the seller's own listing).
 
 A video serves only an AI video read. Attach, square and search refuse it with `invalid_upload`. The read holds it, then consumes it, which deletes the object. See [Assist](/en/architecture/assist).
 

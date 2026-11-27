@@ -71,7 +71,7 @@ Phí là phí mới nhất của hãng, và là null khi hãng chưa báo phí. 
 
 ## Theo dõi
 
-Trạng thái của mỗi hãng ánh xạ sang một bước chung (từ `ready_to_pick` tới `delivered`, rồi `returning`, `returned`, `cancelled`, `lost`), và mỗi bước ánh xạ sang một trong bốn trạng thái vận đơn mà đơn hiện ra.
+Trạng thái của mỗi hãng ánh xạ sang một bước chung (từ `ready_to_pick` tới `delivered`, rồi `returning`, `returned`, `cancelled`, `lost`), và mỗi bước ánh xạ sang một trong năm trạng thái vận đơn mà đơn hiện ra.
 
 | Trạng thái vận đơn | Các bước | Ảnh hưởng tới đơn |
 |---|---|---|
@@ -79,7 +79,7 @@ Trạng thái của mỗi hãng ánh xạ sang một bước chung (từ `ready_
 | `in_transit` | Đã lấy hàng, đang đi, một lần giao không thành | Bắt đầu timer vận chuyển. Hãng giao lại sau lần giao không thành. |
 | `delivered` | Đã giao | Bắt đầu timer hoàn tất 3 ngày. |
 | `failed` | Đang hoàn, đã hoàn | Đơn giao không thành và tin được nhả. |
-| (không có) | Đã hủy, thất lạc | Báo là thất lạc: đơn đã lấy hàng thì giao không thành, đơn đang chờ lấy hàng thì để tới khi quá hạn. |
+| `lost` | Đã hủy, thất lạc | Đơn đã lấy hàng thì giao không thành và tin bị ẩn cho người bán; đơn đang chờ lấy hàng thì để tới khi quá hạn. Timer vận chuyển cũng ghi trạng thái này. |
 
 ### Cập nhật trạng thái
 

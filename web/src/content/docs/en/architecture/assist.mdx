@@ -1,31 +1,31 @@
 ---
 title: Listing reads and price guide
-description: How the server reads a seller's video, photo or Chợ Tốt listing into a listing draft, prices any draft from similar listings, and links a Chợ Tốt profile to import its listings.
+description: How the server reads a seller's video or photo into a listing draft, prices any draft from similar listings, and links a Chợ Tốt profile to import its listings.
 group: Marketplace modules
 order: 10
 groupOrder: 4
 audience: [developers]
 type: concept
-readingTime: 9
+readingTime: 8
 updated: 2026-11-27
 related: ["/en/architecture/catalog", "/en/architecture/media", "/en/architecture/ai", "/en/architecture/durable-flows", "/en/architecture/search-and-discovery"]
 ---
 
-The assist module holds what AI does for the person using the app. It reads what a seller already has (a video, one photo or their listing on Chợ Tốt) into a listing draft, and it prices a draft on request. The seller always checks the draft and posts it with the normal listing post, so a read never publishes anything. This is the AI part of <Req id="UC-LST-01" /> and <Req id="FR-LST-01" />. Scam detection is moderation and lives in [trust](/en/architecture/trust).
+The assist module holds what AI does for the person using the app. It reads what a seller already has (a video or one photo) into a listing draft, and it prices a draft on request. The seller always checks the draft and posts it with the normal listing post, so a read never publishes anything. This is the AI part of <Req id="UC-LST-01" /> and <Req id="FR-LST-01" />. Scam detection is moderation and lives in [trust](/en/architecture/trust).
 
 Which model runs each step, and what happens when one fails or runs out of budget, is on [AI layer](/en/architecture/ai).
 
 ## Starting a read
 
-The client sends `POST /v1/listing-reads` with exactly one source, `video`, `photo` or `link`, and an `Idempotency-Key`. The server answers 202 with the read in the state `reading`, and a background flow does the rest. No source or two sources is `invalid_request` 400. The app starts photo and video reads; it brings Chợ Tốt listings over through the profile link at the end of this page, and the single link read stays in the API.
+The client sends `POST /v1/listing-reads` with exactly one source, `video` or `photo`, and an `Idempotency-Key`. The server answers 202 with the read in the state `reading`, and a background flow does the rest. No source or two sources is `invalid_request` 400. Chợ Tốt listings come over through the profile link at the end of this page.
 
 Every start runs the same checks:
 
 - A suspended account is refused, and so is one without a phone (`phone_required`, <Req id="BR-ACC-03" />). A read exists to post a listing, so it follows the same rule.
-- Each account has a cap per source in 24 hours: 30 video reads, 60 photo reads and 30 link reads. Over the cap is `read_limit_reached` 429. The count runs under a lock on the account and the source, so parallel starts cannot pass it.
+- Each account has a cap per source in 24 hours: 30 video reads and 60 photo reads. Over the cap is `read_limit_reached` 429. The count runs under a lock on the account and the source, so parallel starts cannot pass it.
 - A repeated `Idempotency-Key` answers the first read.
 
-`GET /v1/listing-reads/{id}` gives one view for every source; another account's read or an expired one is `listing_read_not_found` 404. Each save sends the account a `listing_read` update so open screens reload. The row is deleted 24 hours after the start, and frames or photo copies the seller did not post expire with their uploads.
+`GET /v1/listing-reads/{id}` gives one view for every source; another account's read or an expired one is `listing_read_not_found` 404. Each save sends the account a `listing_read` update so open screens reload. The row is deleted 24 hours after the start, and frames the seller did not post expire with their uploads.
 
 ```mermaid title="Listing read states"
 stateDiagram-v2
@@ -40,15 +40,14 @@ stateDiagram-v2
 |---|---|---|
 | `unreadable` | video, photo | No picture could be read, or the photo is no longer a waiting upload. |
 | `video_too_short`, `video_too_long` | video | Under 3 s or over 35 s. |
-| `listing_not_found` | link | Chợ Tốt has no such listing on sale, or none of its photos could be copied. |
-| `no_item` | all | The model found no single item for sale; its reason, a Vietnamese sentence, goes to the seller. |
-| `unavailable` | all | The models or Chợ Tốt did not answer in time. The seller can try again. |
+| `no_item` | video, photo | The model found no single item for sale; its reason, a Vietnamese sentence, goes to the seller. |
+| `unavailable` | video, photo | The models did not answer in time. The seller can try again. |
 
 ## Deadline and retries
 
 Each read has 2 minutes from its start. Every model step gets at most 3 attempts within the time left, and the flow saves the read after each step. A step that runs out of time, or would start after the deadline, fails the read with `unavailable`. A model that refuses the request itself (a 4xx other than a spent budget or a rate limit) fails it with `unavailable` at once. An answer that is not the expected JSON counts as a model error and is retried.
 
-Where a step reads private input (a transcript, a Chợ Tốt listing), the fetch and the model call run in one step, so only the result enters the flow's journal.
+Where a step reads private input (a transcript), the fetch and the model call run in one step, so only the result enters the flow's journal.
 
 ## Video read
 
@@ -86,17 +85,6 @@ A phone's transcript is at most 1,000 characters and is taken as the seller's ow
 ## Photo read
 
 The photo read reads one photo, the app's cover: one image, no speech to text. The start checks that it is the caller's own waiting photo upload (else `invalid_upload` 422). The read holds nothing, because the listing post uses the photo. One model step at 768 px fills the draft, which keeps that photo and cuts the description at 300 characters. The description says only what the photo shows and never names a brand or a fault. A photo no longer waiting when the step runs is `unreadable`, without calling the model.
-
-## Link read
-
-The link read turns the seller's own Chợ Tốt listing into a draft. The server reads only Chợ Tốt, through its public API, and takes the seller's word that the listing is theirs.
-
-The link is checked before the account: at most 2,048 characters; not an http or https URL is `not_a_link` 422; another site than `chotot.com` and its subdomains, or no listing ID in the last path segment, is `unsupported_source` 422. Nothing is fetched until the run.
-
-1. **Read.** The server fetches the listing and decodes only the subject, body, price, category name, photo URLs and item parameters, never the seller's name, phone, address or coordinates. The model gets the text without photos. The price is the listing's own, kept between 10,000 and 1,000,000,000 đồng. Anything that still looks like a Vietnamese phone number is removed and the read is marked `contact_removed`; while streaming, a number still being written is hidden too.
-2. **Copy.** The first 10 photos are copied into the seller's uploads. A photo is fetched only from Chợ Tốt's image host, without redirects, at most 15 MB, and only if its first bytes say JPEG, PNG or WebP. A missing or non-image photo is skipped; one the host does not answer gets two tries.
-
-A listing gone or not on sale is `listing_not_found`; Chợ Tốt not answering is `unavailable`. With no photo copied, the step runs again if a photo merely did not arrive; photos on another host fail the read `unavailable`; otherwise it is `listing_not_found`.
 
 ## Watching a read
 
@@ -151,7 +139,14 @@ sequenceDiagram
 
 `POST /v1/me/chotot/imports` takes 1 to 20 listing IDs and answers 202; the app polls the seller's listings. One row per account and Chợ Tốt listing is the dedupe key, so a retry needs no `Idempotency-Key`: a listed import, a draft under 30 days, an unsupported one or one importing under an hour answers as it is; a skipped or stale one starts again.
 
-Each import checks that the link still names its profile (`not_yours`) and that the seller may post (status, phone, cap). It then fills the draft as a link read does, with three attempts, taking the condition from Chợ Tốt's "Tình trạng" or else `used` marked for review. The commune is the seller's default address, else their newest listing's. It copies the photos and posts through catalog with the import's ID as the idempotency key.
+Each import checks that the link still names its profile (`not_yours`) and that the seller may post (status, phone, cap). It then fills the draft:
+
+- The server decodes only the listing's subject, body, price, category name, photo URLs and item parameters, never the seller's name, phone, address or coordinates. Fetching the listing and the model call run in one step, so the listing's text never enters the flow's journal.
+- The model writes the title and description from the text alone, with three attempts. Anything that still looks like a Vietnamese phone number is taken out of the description.
+- The price is the listing's own, kept between 10,000 and 1,000,000,000 đồng. The condition comes from Chợ Tốt's "Tình trạng", or else is `used` marked for review. The item parameters become the category's specs.
+- The commune is the seller's default address, else their newest listing's.
+
+It then copies the first 10 photos into the seller's uploads. A photo is fetched only from Chợ Tốt's image host, without redirects, at most 15 MB, and only if its first bytes say JPEG, PNG or WebP. A missing or non-image photo is skipped; one the host does not answer gets two tries. Last, it posts through catalog with the import's ID as the idempotency key.
 
 A post refused as `invalid_listing` keeps the import as a draft with the fields to review, its photos kept for 30 days; the seller finishes it with `POST /v1/me/chotot/ads/{list_id}/listing`. Any other refusal skips it.
 

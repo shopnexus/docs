@@ -47,7 +47,7 @@ Postgres bản ParadeDB chứa mọi bảng, index full-text mà tìm kiếm dù
 
 ## Mô hình
 
-Mọi lời gọi mô hình đều đi qua Bifrost, AI gateway của stack. Server cấp cho mỗi bên gọi của nó một virtual key có ngân sách, và Bifrost chuyển mỗi lời gọi tới một nhà cung cấp, có phương án dự phòng. Tìm kiếm dùng mô hình ngôn ngữ để đọc câu tìm kiếm và để embed văn bản. Module assist đọc ảnh, video hoặc liên kết Chợ Tốt của người bán thành bản nháp tin đăng.
+Mọi lời gọi mô hình đều đi qua Bifrost, AI gateway của stack. Server cấp cho mỗi bên gọi của nó một virtual key có ngân sách, và Bifrost chuyển mỗi lời gọi tới một nhà cung cấp, có phương án dự phòng. Tìm kiếm dùng mô hình ngôn ngữ để đọc câu tìm kiếm và để embed văn bản. Module assist đọc ảnh hoặc video của người bán thành bản nháp tin đăng, và viết bản nháp cho các tin đưa sang từ Chợ Tốt.
 
 Một số mô hình chạy ngay trong server, ở module ai: chuyển giọng nói thành văn bản, vector ảnh và các khung hình cắt từ video. Trong cụm máy chủ, chúng chạy trong một deployment thứ hai của cùng binary, chỉ phục vụ module ai, nên các pod API không nạp mô hình nào.
 

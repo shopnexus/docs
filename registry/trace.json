@@ -1,7 +1,7 @@
 {
   "server": {
     "repo": "https://github.com/shopnexus/server",
-    "commit": "e39ee7b26c2ac4401a4b480359bb06fa12097730"
+    "commit": "32b66ed77883c5f12bae26c75acbc8bc0c3b55be"
   },
   "refs": {
     "UC-MOD-08": [
@@ -763,6 +763,585 @@
         "flows": []
       }
     ],
+    "UC-DEAL-01": [
+      {
+        "file": "server/e2e/chat_test.go",
+        "line": 184,
+        "kind": "test",
+        "flows": [
+          "A3"
+        ]
+      },
+      {
+        "file": "server/internal/chat/domain/chat_test.go",
+        "line": 29,
+        "kind": "test",
+        "flows": [
+          "E7"
+        ]
+      },
+      {
+        "file": "server/internal/chat/service/chat_test.go",
+        "line": 20,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/chat/service/chat_test.go",
+        "line": 59,
+        "kind": "test",
+        "flows": [
+          "E1",
+          "E2",
+          "E3",
+          "E4",
+          "E5"
+        ]
+      },
+      {
+        "file": "server/internal/chat/service/chat_test.go",
+        "line": 102,
+        "kind": "test",
+        "flows": [
+          "E1",
+          "E7"
+        ]
+      },
+      {
+        "file": "server/internal/chat/service/chat_test.go",
+        "line": 150,
+        "kind": "test",
+        "flows": [
+          "A3"
+        ]
+      },
+      {
+        "file": "server/internal/chat/service/chat_test.go",
+        "line": 183,
+        "kind": "test",
+        "flows": [
+          "A3"
+        ]
+      },
+      {
+        "file": "server/internal/chat/service/chat_test.go",
+        "line": 212,
+        "kind": "test",
+        "flows": [
+          "A3"
+        ]
+      },
+      {
+        "file": "server/internal/chat/service/chat_test.go",
+        "line": 327,
+        "kind": "test",
+        "flows": [
+          "A3"
+        ]
+      },
+      {
+        "file": "server/internal/chat/service/chat_test.go",
+        "line": 351,
+        "kind": "test",
+        "flows": [
+          "E2"
+        ]
+      },
+      {
+        "file": "server/internal/chat/service/conversation_read.go",
+        "line": 14,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/chat/service/conversation_read.go",
+        "line": 35,
+        "kind": "code",
+        "flows": [
+          "A3"
+        ]
+      },
+      {
+        "file": "server/internal/chat/service/conversation_read.go",
+        "line": 50,
+        "kind": "code",
+        "flows": [
+          "A3"
+        ]
+      },
+      {
+        "file": "server/internal/chat/service/conversation_read.go",
+        "line": 65,
+        "kind": "code",
+        "flows": [
+          "A3"
+        ]
+      },
+      {
+        "file": "server/internal/chat/service/conversation_read.go",
+        "line": 80,
+        "kind": "code",
+        "flows": [
+          "A3"
+        ]
+      },
+      {
+        "file": "server/internal/chat/service/conversation_read.go",
+        "line": 85,
+        "kind": "code",
+        "flows": [
+          "A3"
+        ]
+      },
+      {
+        "file": "server/internal/chat/service/deal_move.go",
+        "line": 33,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/chat/service/deal_move_test.go",
+        "line": 107,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/chat/service/deal_move_test.go",
+        "line": 192,
+        "kind": "test",
+        "flows": [
+          "A3"
+        ]
+      },
+      {
+        "file": "server/internal/chat/service/deal_move_test.go",
+        "line": 233,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/chat/service/erasure_test.go",
+        "line": 19,
+        "kind": "test",
+        "flows": [
+          "E6"
+        ]
+      },
+      {
+        "file": "server/internal/chat/service/flow_test.go",
+        "line": 21,
+        "kind": "test",
+        "flows": [
+          "A1"
+        ]
+      },
+      {
+        "file": "server/internal/chat/service/flow_test.go",
+        "line": 44,
+        "kind": "test",
+        "flows": [
+          "A1"
+        ]
+      },
+      {
+        "file": "server/internal/chat/service/flow_test.go",
+        "line": 63,
+        "kind": "test",
+        "flows": [
+          "E8"
+        ]
+      },
+      {
+        "file": "server/internal/chat/service/flow_test.go",
+        "line": 79,
+        "kind": "test",
+        "flows": [
+          "A2"
+        ]
+      },
+      {
+        "file": "server/internal/chat/service/flow_test.go",
+        "line": 119,
+        "kind": "test",
+        "flows": [
+          "A2"
+        ]
+      },
+      {
+        "file": "server/internal/chat/service/message_publish_durable.go",
+        "line": 32,
+        "kind": "code",
+        "flows": [
+          "A1"
+        ]
+      },
+      {
+        "file": "server/internal/chat/service/message_send.go",
+        "line": 13,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/chat/service/message_send.go",
+        "line": 18,
+        "kind": "code",
+        "flows": [
+          "E7"
+        ]
+      },
+      {
+        "file": "server/internal/chat/service/message_send.go",
+        "line": 22,
+        "kind": "code",
+        "flows": [
+          "A2"
+        ]
+      },
+      {
+        "file": "server/internal/chat/service/message_send.go",
+        "line": 39,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/chat/service/message_send.go",
+        "line": 43,
+        "kind": "code",
+        "flows": [
+          "E7"
+        ]
+      },
+      {
+        "file": "server/internal/chat/service/message_send.go",
+        "line": 48,
+        "kind": "code",
+        "flows": [
+          "A2"
+        ]
+      },
+      {
+        "file": "server/internal/chat/service/message_send_durable.go",
+        "line": 74,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/chat/service/message_send_durable.go",
+        "line": 142,
+        "kind": "code",
+        "flows": [
+          "E3"
+        ]
+      },
+      {
+        "file": "server/internal/chat/service/message_send_durable.go",
+        "line": 145,
+        "kind": "code",
+        "flows": [
+          "E2"
+        ]
+      },
+      {
+        "file": "server/internal/chat/service/message_send_durable.go",
+        "line": 150,
+        "kind": "code",
+        "flows": [
+          "E4"
+        ]
+      },
+      {
+        "file": "server/internal/chat/service/message_send_durable.go",
+        "line": 153,
+        "kind": "code",
+        "flows": [
+          "E5"
+        ]
+      },
+      {
+        "file": "server/internal/chat/service/message_send_durable.go",
+        "line": 158,
+        "kind": "code",
+        "flows": [
+          "E7"
+        ]
+      },
+      {
+        "file": "server/internal/chat/service/message_send_durable.go",
+        "line": 163,
+        "kind": "code",
+        "flows": [
+          "E1"
+        ]
+      },
+      {
+        "file": "server/internal/chat/service/message_send_durable.go",
+        "line": 166,
+        "kind": "code",
+        "flows": [
+          "E6"
+        ]
+      },
+      {
+        "file": "server/internal/chat/service/message_send_durable.go",
+        "line": 190,
+        "kind": "code",
+        "flows": [
+          "A2"
+        ]
+      },
+      {
+        "file": "server/internal/chat/service/message_send_durable.go",
+        "line": 201,
+        "kind": "code",
+        "flows": [
+          "A1"
+        ]
+      },
+      {
+        "file": "server/internal/chat/service/message_send_durable.go",
+        "line": 210,
+        "kind": "code",
+        "flows": [
+          "E8"
+        ]
+      },
+      {
+        "file": "server/internal/chat/service/quick_replies.go",
+        "line": 12,
+        "kind": "code",
+        "flows": [
+          "A5"
+        ]
+      },
+      {
+        "file": "server/internal/chat/service/quick_replies.go",
+        "line": 24,
+        "kind": "code",
+        "flows": [
+          "A5"
+        ]
+      },
+      {
+        "file": "server/internal/chat/service/quick_replies_test.go",
+        "line": 21,
+        "kind": "test",
+        "flows": [
+          "A5"
+        ]
+      },
+      {
+        "file": "server/internal/chat/service/search.go",
+        "line": 18,
+        "kind": "code",
+        "flows": [
+          "A4"
+        ]
+      },
+      {
+        "file": "server/internal/chat/service/search_test.go",
+        "line": 14,
+        "kind": "test",
+        "flows": [
+          "A4"
+        ]
+      },
+      {
+        "file": "server/internal/chat/service/search_test.go",
+        "line": 35,
+        "kind": "test",
+        "flows": [
+          "A4"
+        ]
+      },
+      {
+        "file": "server/internal/chat/service/service.go",
+        "line": 34,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/chat/service/service.go",
+        "line": 40,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/chat/service/service.go",
+        "line": 45,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/chat/service/service.go",
+        "line": 50,
+        "kind": "code",
+        "flows": [
+          "A3"
+        ]
+      },
+      {
+        "file": "server/internal/chat/service/service.go",
+        "line": 55,
+        "kind": "code",
+        "flows": [
+          "A3"
+        ]
+      },
+      {
+        "file": "server/internal/chat/service/service.go",
+        "line": 59,
+        "kind": "code",
+        "flows": [
+          "A3"
+        ]
+      },
+      {
+        "file": "server/internal/chat/service/service.go",
+        "line": 65,
+        "kind": "code",
+        "flows": [
+          "A3"
+        ]
+      },
+      {
+        "file": "server/internal/chat/service/service.go",
+        "line": 69,
+        "kind": "code",
+        "flows": [
+          "A3"
+        ]
+      },
+      {
+        "file": "server/internal/chat/service/service.go",
+        "line": 95,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/chat/service/service.go",
+        "line": 142,
+        "kind": "code",
+        "flows": [
+          "A4"
+        ]
+      },
+      {
+        "file": "server/internal/chat/service/service.go",
+        "line": 147,
+        "kind": "code",
+        "flows": [
+          "A5"
+        ]
+      },
+      {
+        "file": "server/internal/chat/service/service.go",
+        "line": 152,
+        "kind": "code",
+        "flows": [
+          "A5"
+        ]
+      },
+      {
+        "file": "server/internal/chat/service/support_test.go",
+        "line": 25,
+        "kind": "test",
+        "flows": [
+          "E7"
+        ]
+      },
+      {
+        "file": "server/internal/chat/service/support_test.go",
+        "line": 74,
+        "kind": "test",
+        "flows": [
+          "E3"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/moves_post.go",
+        "line": 15,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/moves_post_test.go",
+        "line": 20,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/moves_post_test.go",
+        "line": 49,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/service.go",
+        "line": 60,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/chat.yaml",
+        "line": 4,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/chat.yaml",
+        "line": 94,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/chat.yaml",
+        "line": 156,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/chat.yaml",
+        "line": 193,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/chat.yaml",
+        "line": 231,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/chat.yaml",
+        "line": 265,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/chat.yaml",
+        "line": 299,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/chat.yaml",
+        "line": 337,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/chat.yaml",
+        "line": 418,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/screen_inbox.yaml",
+        "line": 42,
+        "kind": "api",
+        "flows": []
+      }
+    ],
     "UC-MOD-02": [
       {
         "file": "server/e2e/console_accounts_test.go",
@@ -1058,19 +1637,19 @@
       },
       {
         "file": "server/internal/trust/service/review.go",
-        "line": 31,
+        "line": 32,
         "kind": "code",
         "flows": []
       },
       {
         "file": "server/internal/trust/service/review.go",
-        "line": 143,
+        "line": 145,
         "kind": "code",
         "flows": []
       },
       {
         "file": "server/internal/trust/service/review.go",
-        "line": 191,
+        "line": 193,
         "kind": "code",
         "flows": []
       },
@@ -1697,7 +2276,7 @@
       },
       {
         "file": "server/e2e/console_members_test.go",
-        "line": 60,
+        "line": 69,
         "kind": "test",
         "flows": [
           "E1",
@@ -2072,13 +2651,13 @@
       },
       {
         "file": "server/api/paths/trust.yaml",
-        "line": 100,
+        "line": 101,
         "kind": "api",
         "flows": []
       },
       {
         "file": "server/api/paths/trust.yaml",
-        "line": 134,
+        "line": 135,
         "kind": "api",
         "flows": []
       }
@@ -2493,19 +3072,19 @@
       },
       {
         "file": "server/api/paths/trust.yaml",
-        "line": 297,
+        "line": 304,
         "kind": "api",
         "flows": []
       },
       {
         "file": "server/api/paths/trust.yaml",
-        "line": 321,
+        "line": 328,
         "kind": "api",
         "flows": []
       },
       {
         "file": "server/api/paths/trust.yaml",
-        "line": 377,
+        "line": 384,
         "kind": "api",
         "flows": []
       }
@@ -2597,13 +3176,13 @@
       },
       {
         "file": "server/internal/trust/service/review.go",
-        "line": 23,
+        "line": 24,
         "kind": "code",
         "flows": []
       },
       {
         "file": "server/internal/trust/service/review.go",
-        "line": 31,
+        "line": 32,
         "kind": "code",
         "flows": [
           "E1"
@@ -2611,7 +3190,7 @@
       },
       {
         "file": "server/internal/trust/service/review.go",
-        "line": 39,
+        "line": 40,
         "kind": "code",
         "flows": [
           "E4"
@@ -2619,7 +3198,7 @@
       },
       {
         "file": "server/internal/trust/service/review.go",
-        "line": 49,
+        "line": 50,
         "kind": "code",
         "flows": [
           "E5"
@@ -2627,7 +3206,7 @@
       },
       {
         "file": "server/internal/trust/service/review.go",
-        "line": 56,
+        "line": 58,
         "kind": "code",
         "flows": [
           "A2"
@@ -2635,7 +3214,7 @@
       },
       {
         "file": "server/internal/trust/service/review.go",
-        "line": 59,
+        "line": 61,
         "kind": "code",
         "flows": [
           "A1",
@@ -2645,7 +3224,7 @@
       },
       {
         "file": "server/internal/trust/service/review.go",
-        "line": 79,
+        "line": 81,
         "kind": "code",
         "flows": [
           "E3"
@@ -2653,13 +3232,13 @@
       },
       {
         "file": "server/internal/trust/service/review.go",
-        "line": 97,
+        "line": 99,
         "kind": "code",
         "flows": []
       },
       {
         "file": "server/internal/trust/service/review.go",
-        "line": 115,
+        "line": 117,
         "kind": "code",
         "flows": [
           "E9"
@@ -2667,7 +3246,7 @@
       },
       {
         "file": "server/internal/trust/service/review.go",
-        "line": 138,
+        "line": 140,
         "kind": "code",
         "flows": [
           "A1"
@@ -2675,7 +3254,7 @@
       },
       {
         "file": "server/internal/trust/service/review.go",
-        "line": 143,
+        "line": 145,
         "kind": "code",
         "flows": [
           "E1"
@@ -2683,7 +3262,7 @@
       },
       {
         "file": "server/internal/trust/service/review.go",
-        "line": 151,
+        "line": 153,
         "kind": "code",
         "flows": [
           "E4"
@@ -2691,7 +3270,7 @@
       },
       {
         "file": "server/internal/trust/service/review.go",
-        "line": 157,
+        "line": 159,
         "kind": "code",
         "flows": [
           "E8"
@@ -2699,7 +3278,7 @@
       },
       {
         "file": "server/internal/trust/service/review.go",
-        "line": 164,
+        "line": 166,
         "kind": "code",
         "flows": [
           "A2"
@@ -2707,7 +3286,7 @@
       },
       {
         "file": "server/internal/trust/service/review.go",
-        "line": 168,
+        "line": 170,
         "kind": "code",
         "flows": [
           "A1",
@@ -2717,7 +3296,7 @@
       },
       {
         "file": "server/internal/trust/service/review.go",
-        "line": 173,
+        "line": 175,
         "kind": "code",
         "flows": [
           "E9"
@@ -2725,13 +3304,13 @@
       },
       {
         "file": "server/internal/trust/service/review.go",
-        "line": 186,
+        "line": 188,
         "kind": "code",
         "flows": []
       },
       {
         "file": "server/internal/trust/service/review.go",
-        "line": 191,
+        "line": 193,
         "kind": "code",
         "flows": [
           "E1"
@@ -2739,7 +3318,7 @@
       },
       {
         "file": "server/internal/trust/service/review.go",
-        "line": 200,
+        "line": 202,
         "kind": "code",
         "flows": [
           "E12"
@@ -2747,7 +3326,7 @@
       },
       {
         "file": "server/internal/trust/service/review.go",
-        "line": 207,
+        "line": 209,
         "kind": "code",
         "flows": [
           "E2",
@@ -2758,7 +3337,7 @@
       },
       {
         "file": "server/internal/trust/service/review.go",
-        "line": 209,
+        "line": 211,
         "kind": "code",
         "flows": [
           "A2"
@@ -2766,7 +3345,7 @@
       },
       {
         "file": "server/internal/trust/service/review.go",
-        "line": 216,
+        "line": 218,
         "kind": "code",
         "flows": [
           "E9"
@@ -2781,8 +3360,16 @@
         ]
       },
       {
+        "file": "server/internal/trust/service/review_race_test.go",
+        "line": 58,
+        "kind": "test",
+        "flows": [
+          "E9"
+        ]
+      },
+      {
         "file": "server/internal/trust/service/review_test.go",
-        "line": 16,
+        "line": 17,
         "kind": "test",
         "flows": [
           "A1",
@@ -2793,7 +3380,7 @@
       },
       {
         "file": "server/internal/trust/service/review_test.go",
-        "line": 74,
+        "line": 75,
         "kind": "test",
         "flows": [
           "A2",
@@ -2804,7 +3391,7 @@
       },
       {
         "file": "server/internal/trust/service/review_test.go",
-        "line": 137,
+        "line": 138,
         "kind": "test",
         "flows": [
           "E7",
@@ -2815,7 +3402,7 @@
       },
       {
         "file": "server/internal/trust/service/review_test.go",
-        "line": 200,
+        "line": 201,
         "kind": "test",
         "flows": [
           "E1",
@@ -2826,9 +3413,17 @@
       },
       {
         "file": "server/internal/trust/service/review_test.go",
-        "line": 254,
+        "line": 255,
         "kind": "test",
         "flows": []
+      },
+      {
+        "file": "server/internal/trust/service/review_test.go",
+        "line": 280,
+        "kind": "test",
+        "flows": [
+          "E5"
+        ]
       },
       {
         "file": "server/internal/trust/service/service.go",
@@ -2856,13 +3451,120 @@
       },
       {
         "file": "server/api/paths/trust.yaml",
-        "line": 66,
+        "line": 67,
         "kind": "api",
         "flows": []
       },
       {
         "file": "server/api/paths/trust.yaml",
-        "line": 174,
+        "line": 175,
+        "kind": "api",
+        "flows": []
+      }
+    ],
+    "UC-TRS-05": [
+      {
+        "file": "server/e2e/review_test.go",
+        "line": 136,
+        "kind": "test",
+        "flows": [
+          "A1",
+          "E1",
+          "E2",
+          "E3"
+        ]
+      },
+      {
+        "file": "server/internal/trust/service/review_helpful.go",
+        "line": 13,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/trust/service/review_helpful.go",
+        "line": 18,
+        "kind": "code",
+        "flows": [
+          "E1"
+        ]
+      },
+      {
+        "file": "server/internal/trust/service/review_helpful.go",
+        "line": 34,
+        "kind": "code",
+        "flows": [
+          "E2"
+        ]
+      },
+      {
+        "file": "server/internal/trust/service/review_helpful.go",
+        "line": 38,
+        "kind": "code",
+        "flows": [
+          "E3"
+        ]
+      },
+      {
+        "file": "server/internal/trust/service/review_helpful.go",
+        "line": 42,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/trust/service/review_helpful.go",
+        "line": 53,
+        "kind": "code",
+        "flows": [
+          "A1"
+        ]
+      },
+      {
+        "file": "server/internal/trust/service/review_helpful.go",
+        "line": 56,
+        "kind": "code",
+        "flows": [
+          "E1"
+        ]
+      },
+      {
+        "file": "server/internal/trust/service/review_helpful_test.go",
+        "line": 16,
+        "kind": "test",
+        "flows": [
+          "A1",
+          "E2",
+          "E3"
+        ]
+      },
+      {
+        "file": "server/internal/trust/service/review_test.go",
+        "line": 201,
+        "kind": "test",
+        "flows": [
+          "E1"
+        ]
+      },
+      {
+        "file": "server/internal/trust/service/service.go",
+        "line": 59,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/trust/service/service.go",
+        "line": 63,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/trust.yaml",
+        "line": 234,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/trust.yaml",
+        "line": 276,
         "kind": "api",
         "flows": []
       }
@@ -2923,7 +3625,7 @@
       },
       {
         "file": "server/internal/discovery/service/search.go",
-        "line": 129,
+        "line": 130,
         "kind": "code",
         "flows": [
           "E2"
@@ -2931,7 +3633,7 @@
       },
       {
         "file": "server/internal/discovery/service/search.go",
-        "line": 161,
+        "line": 162,
         "kind": "code",
         "flows": [
           "E1"
@@ -2981,14 +3683,20 @@
         ]
       },
       {
+        "file": "server/internal/deal/repository/buyer_pg_test.go",
+        "line": 67,
+        "kind": "test",
+        "flows": []
+      },
+      {
         "file": "server/internal/screen/service/reputation.go",
-        "line": 57,
+        "line": 58,
         "kind": "code",
         "flows": []
       },
       {
         "file": "server/internal/screen/service/reputation.go",
-        "line": 67,
+        "line": 68,
         "kind": "code",
         "flows": [
           "A1"
@@ -2996,7 +3704,7 @@
       },
       {
         "file": "server/internal/screen/service/reputation.go",
-        "line": 84,
+        "line": 85,
         "kind": "code",
         "flows": [
           "A2"
@@ -3004,13 +3712,13 @@
       },
       {
         "file": "server/internal/screen/service/reputation.go",
-        "line": 93,
+        "line": 94,
         "kind": "code",
         "flows": []
       },
       {
         "file": "server/internal/screen/service/reputation.go",
-        "line": 105,
+        "line": 106,
         "kind": "code",
         "flows": [
           "A1"
@@ -3078,7 +3786,7 @@
       },
       {
         "file": "server/internal/discovery/service/search.go",
-        "line": 118,
+        "line": 119,
         "kind": "code",
         "flows": [
           "E2"
@@ -3086,7 +3794,7 @@
       },
       {
         "file": "server/internal/discovery/service/search.go",
-        "line": 125,
+        "line": 126,
         "kind": "code",
         "flows": [
           "E1"
@@ -3094,7 +3802,7 @@
       },
       {
         "file": "server/internal/discovery/service/search.go",
-        "line": 186,
+        "line": 187,
         "kind": "code",
         "flows": [
           "A5"
@@ -3102,7 +3810,7 @@
       },
       {
         "file": "server/internal/discovery/service/search.go",
-        "line": 194,
+        "line": 195,
         "kind": "code",
         "flows": [
           "E3"
@@ -3110,7 +3818,7 @@
       },
       {
         "file": "server/internal/discovery/service/search.go",
-        "line": 209,
+        "line": 210,
         "kind": "code",
         "flows": [
           "E4"
@@ -3118,7 +3826,7 @@
       },
       {
         "file": "server/internal/discovery/service/search.go",
-        "line": 256,
+        "line": 257,
         "kind": "code",
         "flows": [
           "A4"
@@ -3126,7 +3834,7 @@
       },
       {
         "file": "server/internal/discovery/service/search.go",
-        "line": 261,
+        "line": 262,
         "kind": "code",
         "flows": [
           "A1"
@@ -3134,13 +3842,13 @@
       },
       {
         "file": "server/internal/discovery/service/search.go",
-        "line": 284,
+        "line": 285,
         "kind": "code",
         "flows": []
       },
       {
         "file": "server/internal/discovery/service/search.go",
-        "line": 331,
+        "line": 332,
         "kind": "code",
         "flows": [
           "A2"
@@ -3148,13 +3856,13 @@
       },
       {
         "file": "server/internal/discovery/service/search.go",
-        "line": 340,
+        "line": 341,
         "kind": "code",
         "flows": []
       },
       {
         "file": "server/internal/discovery/service/search.go",
-        "line": 359,
+        "line": 360,
         "kind": "code",
         "flows": [
           "A3"
@@ -4370,19 +5078,19 @@
       },
       {
         "file": "server/internal/deal/service/shipment_updated_durable.go",
-        "line": 88,
+        "line": 89,
         "kind": "code",
         "flows": []
       },
       {
         "file": "server/internal/deal/service/shipment_updated_test.go",
-        "line": 22,
+        "line": 23,
         "kind": "test",
         "flows": []
       },
       {
         "file": "server/internal/deal/service/shipping_test.go",
-        "line": 407,
+        "line": 445,
         "kind": "test",
         "flows": []
       },
@@ -4401,6 +5109,12 @@
       {
         "file": "server/internal/media/service/upload_attach.go",
         "line": 48,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/notification/service/service.go",
+        "line": 70,
         "kind": "code",
         "flows": []
       },
@@ -4424,19 +5138,19 @@
       },
       {
         "file": "server/internal/trust/service/review.go",
-        "line": 56,
+        "line": 58,
         "kind": "code",
         "flows": []
       },
       {
         "file": "server/internal/trust/service/review.go",
-        "line": 164,
+        "line": 166,
         "kind": "code",
         "flows": []
       },
       {
         "file": "server/internal/trust/service/review.go",
-        "line": 209,
+        "line": 211,
         "kind": "code",
         "flows": []
       },
@@ -4717,21 +5431,39 @@
         "flows": []
       },
       {
+        "file": "server/internal/discovery/repository/watch_pg_test.go",
+        "line": 70,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/discovery/service/alert_test.go",
+        "line": 71,
+        "kind": "test",
+        "flows": []
+      },
+      {
         "file": "server/internal/trust/service/review.go",
-        "line": 115,
+        "line": 117,
         "kind": "code",
         "flows": []
       },
       {
         "file": "server/internal/trust/service/review.go",
-        "line": 173,
+        "line": 175,
         "kind": "code",
         "flows": []
       },
       {
         "file": "server/internal/trust/service/review.go",
-        "line": 216,
+        "line": 218,
         "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/trust/service/review_race_test.go",
+        "line": 58,
+        "kind": "test",
         "flows": []
       },
       {
@@ -5311,7 +6043,8 @@
         "line": 22,
         "kind": "test",
         "flows": [
-          "E1"
+          "E1",
+          "E2"
         ]
       },
       {
@@ -5405,6 +6138,12 @@
       {
         "file": "server/internal/media/service/media_process_durable.go",
         "line": 81,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/notification/worker/worker.go",
+        "line": 454,
         "kind": "code",
         "flows": []
       },
@@ -5918,7 +6657,7 @@
       },
       {
         "file": "server/internal/assist/service/service.go",
-        "line": 63,
+        "line": 58,
         "kind": "code",
         "flows": []
       },
@@ -6265,54 +7004,6 @@
     ],
     "UC-LST-01": [
       {
-        "file": "server/internal/assist/service/link_read_durable.go",
-        "line": 58,
-        "kind": "code",
-        "flows": [
-          "A2"
-        ]
-      },
-      {
-        "file": "server/internal/assist/service/link_read_durable.go",
-        "line": 74,
-        "kind": "code",
-        "flows": [
-          "A2"
-        ]
-      },
-      {
-        "file": "server/internal/assist/service/link_read_start.go",
-        "line": 10,
-        "kind": "code",
-        "flows": [
-          "A2"
-        ]
-      },
-      {
-        "file": "server/internal/assist/service/link_read_start.go",
-        "line": 14,
-        "kind": "code",
-        "flows": [
-          "E7"
-        ]
-      },
-      {
-        "file": "server/internal/assist/service/link_read_test.go",
-        "line": 27,
-        "kind": "test",
-        "flows": [
-          "A2"
-        ]
-      },
-      {
-        "file": "server/internal/assist/service/link_read_test.go",
-        "line": 152,
-        "kind": "test",
-        "flows": [
-          "E7"
-        ]
-      },
-      {
         "file": "server/internal/assist/service/photo_read_durable.go",
         "line": 42,
         "kind": "code",
@@ -6448,27 +7139,19 @@
       },
       {
         "file": "server/internal/assist/service/service.go",
-        "line": 43,
-        "kind": "code",
-        "flows": [
-          "A2"
-        ]
-      },
-      {
-        "file": "server/internal/assist/service/service.go",
-        "line": 49,
+        "line": 44,
         "kind": "code",
         "flows": []
       },
       {
         "file": "server/internal/assist/service/service.go",
-        "line": 58,
+        "line": 53,
         "kind": "code",
         "flows": []
       },
       {
         "file": "server/internal/assist/service/service.go",
-        "line": 68,
+        "line": 63,
         "kind": "code",
         "flows": [
           "A3"
@@ -6761,7 +7444,7 @@
       },
       {
         "file": "server/internal/catalog/service/listing_test.go",
-        "line": 32,
+        "line": 34,
         "kind": "test",
         "flows": [
           "E1",
@@ -6773,7 +7456,7 @@
       },
       {
         "file": "server/internal/catalog/service/listing_test.go",
-        "line": 85,
+        "line": 87,
         "kind": "test",
         "flows": [
           "A6"
@@ -6781,7 +7464,7 @@
       },
       {
         "file": "server/internal/catalog/service/listing_test.go",
-        "line": 116,
+        "line": 118,
         "kind": "test",
         "flows": [
           "E3"
@@ -6789,7 +7472,7 @@
       },
       {
         "file": "server/internal/catalog/service/listing_test.go",
-        "line": 490,
+        "line": 492,
         "kind": "test",
         "flows": [
           "A5"
@@ -6844,7 +7527,7 @@
       },
       {
         "file": "server/internal/catalog/service/service.go",
-        "line": 177,
+        "line": 181,
         "kind": "code",
         "flows": [
           "A1"
@@ -6858,19 +7541,19 @@
       },
       {
         "file": "server/api/paths/assist.yaml",
-        "line": 66,
+        "line": 62,
         "kind": "api",
         "flows": []
       },
       {
         "file": "server/api/paths/assist.yaml",
-        "line": 98,
+        "line": 94,
         "kind": "api",
         "flows": []
       },
       {
         "file": "server/api/paths/assist.yaml",
-        "line": 142,
+        "line": 138,
         "kind": "api",
         "flows": []
       },
@@ -6953,6 +7636,12 @@
         "line": 95,
         "kind": "code",
         "flows": []
+      },
+      {
+        "file": "server/internal/catalog/service/listing_test.go",
+        "line": 611,
+        "kind": "test",
+        "flows": []
       }
     ],
     "BR-LST-03": [
@@ -6976,7 +7665,7 @@
       },
       {
         "file": "server/internal/catalog/service/listing_test.go",
-        "line": 217,
+        "line": 219,
         "kind": "test",
         "flows": []
       },
@@ -7106,7 +7795,7 @@
       },
       {
         "file": "server/internal/catalog/service/listing_test.go",
-        "line": 150,
+        "line": 152,
         "kind": "test",
         "flows": [
           "E2"
@@ -7114,7 +7803,7 @@
       },
       {
         "file": "server/internal/catalog/service/listing_test.go",
-        "line": 191,
+        "line": 193,
         "kind": "test",
         "flows": [
           "A4"
@@ -7122,7 +7811,7 @@
       },
       {
         "file": "server/internal/catalog/service/listing_test.go",
-        "line": 217,
+        "line": 219,
         "kind": "test",
         "flows": [
           "E3"
@@ -7130,7 +7819,7 @@
       },
       {
         "file": "server/internal/catalog/service/listing_test.go",
-        "line": 241,
+        "line": 243,
         "kind": "test",
         "flows": [
           "A2",
@@ -7140,10 +7829,26 @@
       },
       {
         "file": "server/internal/catalog/service/listing_test.go",
-        "line": 527,
+        "line": 529,
         "kind": "test",
         "flows": [
           "E5"
+        ]
+      },
+      {
+        "file": "server/internal/catalog/service/listing_test.go",
+        "line": 611,
+        "kind": "test",
+        "flows": [
+          "E4"
+        ]
+      },
+      {
+        "file": "server/internal/catalog/service/listing_test.go",
+        "line": 649,
+        "kind": "test",
+        "flows": [
+          "E7"
         ]
       },
       {
@@ -7224,573 +7929,313 @@
         "flows": []
       }
     ],
-    "UC-DEAL-01": [
+    "UC-DEAL-05": [
       {
-        "file": "server/internal/chat/domain/chat_test.go",
-        "line": 29,
+        "file": "server/internal/catalog/domain/listing_test.go",
+        "line": 306,
         "kind": "test",
         "flows": [
-          "E7"
+          "E4"
         ]
       },
       {
-        "file": "server/internal/chat/service/chat_test.go",
-        "line": 20,
-        "kind": "test",
-        "flows": []
-      },
-      {
-        "file": "server/internal/chat/service/chat_test.go",
-        "line": 59,
+        "file": "server/internal/deal/domain/order_test.go",
+        "line": 352,
         "kind": "test",
         "flows": [
-          "E1",
-          "E2",
-          "E3",
-          "E4",
-          "E5"
+          "A1"
         ]
       },
       {
-        "file": "server/internal/chat/service/chat_test.go",
-        "line": 102,
+        "file": "server/internal/deal/domain/order_test.go",
+        "line": 428,
         "kind": "test",
         "flows": [
-          "E1",
-          "E7"
+          "A1"
         ]
       },
       {
-        "file": "server/internal/chat/service/chat_test.go",
-        "line": 150,
+        "file": "server/internal/deal/domain/order_test.go",
+        "line": 496,
         "kind": "test",
         "flows": [
-          "A3"
+          "E4"
         ]
       },
       {
-        "file": "server/internal/chat/service/chat_test.go",
-        "line": 183,
+        "file": "server/internal/deal/domain/order_test.go",
+        "line": 520,
         "kind": "test",
         "flows": [
-          "A3"
+          "E4"
         ]
       },
       {
-        "file": "server/internal/chat/service/chat_test.go",
-        "line": 212,
-        "kind": "test",
-        "flows": [
-          "A3"
-        ]
-      },
-      {
-        "file": "server/internal/chat/service/chat_test.go",
-        "line": 327,
-        "kind": "test",
-        "flows": [
-          "A3"
-        ]
-      },
-      {
-        "file": "server/internal/chat/service/chat_test.go",
-        "line": 351,
+        "file": "server/internal/deal/domain/order_test.go",
+        "line": 640,
         "kind": "test",
         "flows": [
           "E2"
         ]
       },
       {
-        "file": "server/internal/chat/service/conversation_read.go",
-        "line": 14,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/chat/service/conversation_read.go",
-        "line": 35,
-        "kind": "code",
-        "flows": [
-          "A3"
-        ]
-      },
-      {
-        "file": "server/internal/chat/service/conversation_read.go",
-        "line": 50,
-        "kind": "code",
-        "flows": [
-          "A3"
-        ]
-      },
-      {
-        "file": "server/internal/chat/service/conversation_read.go",
-        "line": 65,
-        "kind": "code",
-        "flows": [
-          "A3"
-        ]
-      },
-      {
-        "file": "server/internal/chat/service/conversation_read.go",
-        "line": 80,
-        "kind": "code",
-        "flows": [
-          "A3"
-        ]
-      },
-      {
-        "file": "server/internal/chat/service/conversation_read.go",
-        "line": 85,
-        "kind": "code",
-        "flows": [
-          "A3"
-        ]
-      },
-      {
-        "file": "server/internal/chat/service/deal_move.go",
-        "line": 33,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/chat/service/deal_move_test.go",
-        "line": 107,
-        "kind": "test",
-        "flows": []
-      },
-      {
-        "file": "server/internal/chat/service/deal_move_test.go",
-        "line": 192,
+        "file": "server/internal/deal/repository/buyer_pg_test.go",
+        "line": 67,
         "kind": "test",
         "flows": [
-          "A3"
+          "E4"
         ]
       },
       {
-        "file": "server/internal/chat/service/deal_move_test.go",
-        "line": 233,
-        "kind": "test",
-        "flows": []
-      },
-      {
-        "file": "server/internal/chat/service/erasure_test.go",
-        "line": 19,
-        "kind": "test",
-        "flows": [
-          "E6"
-        ]
-      },
-      {
-        "file": "server/internal/chat/service/flow_test.go",
-        "line": 21,
-        "kind": "test",
-        "flows": [
-          "A1"
-        ]
-      },
-      {
-        "file": "server/internal/chat/service/flow_test.go",
-        "line": 44,
-        "kind": "test",
-        "flows": [
-          "A1"
-        ]
-      },
-      {
-        "file": "server/internal/chat/service/flow_test.go",
-        "line": 63,
-        "kind": "test",
-        "flows": [
-          "E8"
-        ]
-      },
-      {
-        "file": "server/internal/chat/service/flow_test.go",
-        "line": 79,
+        "file": "server/internal/deal/service/flow_test.go",
+        "line": 84,
         "kind": "test",
         "flows": [
           "A2"
         ]
       },
       {
-        "file": "server/internal/chat/service/flow_test.go",
-        "line": 119,
+        "file": "server/internal/deal/service/flow_test.go",
+        "line": 125,
         "kind": "test",
         "flows": [
           "A2"
         ]
       },
       {
-        "file": "server/internal/chat/service/message_publish_durable.go",
+        "file": "server/internal/deal/service/flow_test.go",
+        "line": 224,
+        "kind": "test",
+        "flows": [
+          "E3"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/flow_test.go",
+        "line": 305,
+        "kind": "test",
+        "flows": [
+          "E3"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/order_confirm.go",
+        "line": 8,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/order_confirm_durable.go",
+        "line": 20,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/order_confirm_durable.go",
         "line": 32,
-        "kind": "code",
-        "flows": [
-          "A1"
-        ]
-      },
-      {
-        "file": "server/internal/chat/service/message_send.go",
-        "line": 13,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/chat/service/message_send.go",
-        "line": 18,
-        "kind": "code",
-        "flows": [
-          "E7"
-        ]
-      },
-      {
-        "file": "server/internal/chat/service/message_send.go",
-        "line": 22,
-        "kind": "code",
-        "flows": [
-          "A2"
-        ]
-      },
-      {
-        "file": "server/internal/chat/service/message_send.go",
-        "line": 39,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/chat/service/message_send.go",
-        "line": 43,
-        "kind": "code",
-        "flows": [
-          "E7"
-        ]
-      },
-      {
-        "file": "server/internal/chat/service/message_send.go",
-        "line": 48,
-        "kind": "code",
-        "flows": [
-          "A2"
-        ]
-      },
-      {
-        "file": "server/internal/chat/service/message_send_durable.go",
-        "line": 74,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/chat/service/message_send_durable.go",
-        "line": 142,
         "kind": "code",
         "flows": [
           "E3"
         ]
       },
       {
-        "file": "server/internal/chat/service/message_send_durable.go",
-        "line": 145,
+        "file": "server/internal/deal/service/order_timers_durable.go",
+        "line": 81,
         "kind": "code",
         "flows": [
-          "E2"
+          "A4"
         ]
       },
       {
-        "file": "server/internal/chat/service/message_send_durable.go",
-        "line": 150,
+        "file": "server/internal/deal/service/order_timers_durable.go",
+        "line": 96,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/order_timers_durable.go",
+        "line": 119,
         "kind": "code",
         "flows": [
           "E4"
         ]
       },
       {
-        "file": "server/internal/chat/service/message_send_durable.go",
-        "line": 153,
-        "kind": "code",
-        "flows": [
-          "E5"
-        ]
-      },
-      {
-        "file": "server/internal/chat/service/message_send_durable.go",
-        "line": 158,
-        "kind": "code",
-        "flows": [
-          "E7"
-        ]
-      },
-      {
-        "file": "server/internal/chat/service/message_send_durable.go",
-        "line": 163,
-        "kind": "code",
+        "file": "server/internal/deal/service/order_timers_test.go",
+        "line": 85,
+        "kind": "test",
         "flows": [
           "E1"
         ]
       },
       {
-        "file": "server/internal/chat/service/message_send_durable.go",
-        "line": 166,
-        "kind": "code",
+        "file": "server/internal/deal/service/order_timers_test.go",
+        "line": 117,
+        "kind": "test",
         "flows": [
-          "E6"
+          "A4"
         ]
       },
       {
-        "file": "server/internal/chat/service/message_send_durable.go",
-        "line": 190,
-        "kind": "code",
+        "file": "server/internal/deal/service/order_timers_test.go",
+        "line": 259,
+        "kind": "test",
         "flows": [
-          "A2"
+          "E4"
         ]
       },
       {
-        "file": "server/internal/chat/service/message_send_durable.go",
-        "line": 201,
+        "file": "server/internal/deal/service/service.go",
+        "line": 110,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/service.go",
+        "line": 126,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/shipment_updated.go",
+        "line": 11,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/shipment_updated_durable.go",
+        "line": 49,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/shipment_updated_durable.go",
+        "line": 89,
         "kind": "code",
         "flows": [
           "A1"
         ]
       },
       {
-        "file": "server/internal/chat/service/message_send_durable.go",
-        "line": 210,
+        "file": "server/internal/deal/service/shipment_updated_durable.go",
+        "line": 104,
         "kind": "code",
         "flows": [
-          "E8"
+          "E2"
         ]
       },
       {
-        "file": "server/internal/chat/service/quick_replies.go",
-        "line": 12,
+        "file": "server/internal/deal/service/shipment_updated_durable.go",
+        "line": 109,
         "kind": "code",
         "flows": [
-          "A5"
+          "E4"
         ]
       },
       {
-        "file": "server/internal/chat/service/quick_replies.go",
-        "line": 24,
-        "kind": "code",
-        "flows": [
-          "A5"
-        ]
-      },
-      {
-        "file": "server/internal/chat/service/quick_replies_test.go",
-        "line": 21,
+        "file": "server/internal/deal/service/shipment_updated_test.go",
+        "line": 23,
         "kind": "test",
         "flows": [
-          "A5"
+          "A1",
+          "E2"
         ]
       },
       {
-        "file": "server/internal/chat/service/search.go",
-        "line": 18,
-        "kind": "code",
+        "file": "server/internal/deal/service/shipment_updated_test.go",
+        "line": 99,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/shipment_updated_test.go",
+        "line": 174,
+        "kind": "test",
         "flows": [
-          "A4"
+          "A1"
         ]
       },
       {
-        "file": "server/internal/chat/service/search_test.go",
+        "file": "server/internal/deal/service/shipment_updated_test.go",
+        "line": 207,
+        "kind": "test",
+        "flows": [
+          "E4"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/shipment_updated_test.go",
+        "line": 299,
+        "kind": "test",
+        "flows": [
+          "A1"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/shipping_test.go",
+        "line": 254,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/shipping_test.go",
+        "line": 285,
+        "kind": "test",
+        "flows": [
+          "A1"
+        ]
+      },
+      {
+        "file": "server/internal/notification/domain/parcel_lost_test.go",
         "line": 14,
         "kind": "test",
         "flows": [
-          "A4"
+          "E4"
         ]
       },
       {
-        "file": "server/internal/chat/service/search_test.go",
-        "line": 35,
-        "kind": "test",
-        "flows": [
-          "A4"
-        ]
-      },
-      {
-        "file": "server/internal/chat/service/service.go",
-        "line": 34,
+        "file": "server/internal/shipping/service/service.go",
+        "line": 161,
         "kind": "code",
         "flows": []
       },
       {
-        "file": "server/internal/chat/service/service.go",
-        "line": 40,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/chat/service/service.go",
-        "line": 45,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/chat/service/service.go",
-        "line": 50,
-        "kind": "code",
-        "flows": [
-          "A3"
-        ]
-      },
-      {
-        "file": "server/internal/chat/service/service.go",
-        "line": 55,
-        "kind": "code",
-        "flows": [
-          "A3"
-        ]
-      },
-      {
-        "file": "server/internal/chat/service/service.go",
-        "line": 59,
-        "kind": "code",
-        "flows": [
-          "A3"
-        ]
-      },
-      {
-        "file": "server/internal/chat/service/service.go",
-        "line": 65,
-        "kind": "code",
-        "flows": [
-          "A3"
-        ]
-      },
-      {
-        "file": "server/internal/chat/service/service.go",
-        "line": 69,
-        "kind": "code",
-        "flows": [
-          "A3"
-        ]
-      },
-      {
-        "file": "server/internal/chat/service/service.go",
-        "line": 95,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/chat/service/service.go",
-        "line": 142,
-        "kind": "code",
-        "flows": [
-          "A4"
-        ]
-      },
-      {
-        "file": "server/internal/chat/service/service.go",
-        "line": 147,
-        "kind": "code",
-        "flows": [
-          "A5"
-        ]
-      },
-      {
-        "file": "server/internal/chat/service/service.go",
-        "line": 152,
-        "kind": "code",
-        "flows": [
-          "A5"
-        ]
-      },
-      {
-        "file": "server/internal/chat/service/support_test.go",
-        "line": 25,
-        "kind": "test",
-        "flows": [
-          "E7"
-        ]
-      },
-      {
-        "file": "server/internal/chat/service/support_test.go",
-        "line": 74,
-        "kind": "test",
-        "flows": [
-          "E3"
-        ]
-      },
-      {
-        "file": "server/internal/deal/service/moves_post.go",
-        "line": 15,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/deal/service/moves_post_test.go",
-        "line": 20,
+        "file": "server/internal/shipping/service/service_test.go",
+        "line": 361,
         "kind": "test",
         "flows": []
       },
       {
-        "file": "server/internal/deal/service/moves_post_test.go",
-        "line": 49,
+        "file": "server/internal/shipping/service/service_test.go",
+        "line": 417,
         "kind": "test",
         "flows": []
       },
       {
-        "file": "server/internal/deal/service/service.go",
-        "line": 60,
-        "kind": "code",
-        "flows": []
+        "file": "server/internal/trust/service/review_test.go",
+        "line": 280,
+        "kind": "test",
+        "flows": [
+          "E4"
+        ]
       },
       {
-        "file": "server/api/paths/chat.yaml",
-        "line": 4,
+        "file": "server/migrations/shipment_lost_test.go",
+        "line": 16,
+        "kind": "test",
+        "flows": [
+          "E4"
+        ]
+      },
+      {
+        "file": "server/api/paths/deal.yaml",
+        "line": 489,
         "kind": "api",
         "flows": []
       },
       {
-        "file": "server/api/paths/chat.yaml",
-        "line": 94,
-        "kind": "api",
-        "flows": []
-      },
-      {
-        "file": "server/api/paths/chat.yaml",
-        "line": 156,
-        "kind": "api",
-        "flows": []
-      },
-      {
-        "file": "server/api/paths/chat.yaml",
-        "line": 193,
-        "kind": "api",
-        "flows": []
-      },
-      {
-        "file": "server/api/paths/chat.yaml",
-        "line": 231,
-        "kind": "api",
-        "flows": []
-      },
-      {
-        "file": "server/api/paths/chat.yaml",
-        "line": 265,
-        "kind": "api",
-        "flows": []
-      },
-      {
-        "file": "server/api/paths/chat.yaml",
-        "line": 299,
-        "kind": "api",
-        "flows": []
-      },
-      {
-        "file": "server/api/paths/chat.yaml",
-        "line": 337,
-        "kind": "api",
-        "flows": []
-      },
-      {
-        "file": "server/api/paths/chat.yaml",
-        "line": 418,
-        "kind": "api",
-        "flows": []
-      },
-      {
-        "file": "server/api/paths/screen_inbox.yaml",
-        "line": 42,
+        "file": "server/api/paths/shipping.yaml",
+        "line": 280,
         "kind": "api",
         "flows": []
       }
@@ -8450,7 +8895,7 @@
       },
       {
         "file": "server/internal/deal/service/shipment_updated_test.go",
-        "line": 250,
+        "line": 255,
         "kind": "test",
         "flows": [
           "E3"
@@ -8480,7 +8925,15 @@
       },
       {
         "file": "server/internal/deal/service/shipping_test.go",
-        "line": 407,
+        "line": 414,
+        "kind": "test",
+        "flows": [
+          "E4"
+        ]
+      },
+      {
+        "file": "server/internal/deal/service/shipping_test.go",
+        "line": 445,
         "kind": "test",
         "flows": [
           "A1"
@@ -8707,264 +9160,16 @@
         "flows": []
       }
     ],
-    "UC-DEAL-05": [
-      {
-        "file": "server/internal/deal/domain/order_test.go",
-        "line": 352,
-        "kind": "test",
-        "flows": [
-          "A1"
-        ]
-      },
-      {
-        "file": "server/internal/deal/domain/order_test.go",
-        "line": 428,
-        "kind": "test",
-        "flows": [
-          "A1"
-        ]
-      },
-      {
-        "file": "server/internal/deal/domain/order_test.go",
-        "line": 630,
-        "kind": "test",
-        "flows": [
-          "E2"
-        ]
-      },
-      {
-        "file": "server/internal/deal/service/flow_test.go",
-        "line": 84,
-        "kind": "test",
-        "flows": [
-          "A2"
-        ]
-      },
-      {
-        "file": "server/internal/deal/service/flow_test.go",
-        "line": 125,
-        "kind": "test",
-        "flows": [
-          "A2"
-        ]
-      },
-      {
-        "file": "server/internal/deal/service/flow_test.go",
-        "line": 224,
-        "kind": "test",
-        "flows": [
-          "E3"
-        ]
-      },
-      {
-        "file": "server/internal/deal/service/flow_test.go",
-        "line": 305,
-        "kind": "test",
-        "flows": [
-          "E3"
-        ]
-      },
-      {
-        "file": "server/internal/deal/service/order_confirm.go",
-        "line": 8,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/deal/service/order_confirm_durable.go",
-        "line": 20,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/deal/service/order_confirm_durable.go",
-        "line": 32,
-        "kind": "code",
-        "flows": [
-          "E3"
-        ]
-      },
-      {
-        "file": "server/internal/deal/service/order_timers_durable.go",
-        "line": 81,
-        "kind": "code",
-        "flows": [
-          "A4"
-        ]
-      },
-      {
-        "file": "server/internal/deal/service/order_timers_durable.go",
-        "line": 96,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/deal/service/order_timers_durable.go",
-        "line": 119,
-        "kind": "code",
-        "flows": [
-          "E4"
-        ]
-      },
-      {
-        "file": "server/internal/deal/service/order_timers_test.go",
-        "line": 85,
-        "kind": "test",
-        "flows": [
-          "E1"
-        ]
-      },
-      {
-        "file": "server/internal/deal/service/order_timers_test.go",
-        "line": 117,
-        "kind": "test",
-        "flows": [
-          "A4"
-        ]
-      },
-      {
-        "file": "server/internal/deal/service/order_timers_test.go",
-        "line": 259,
-        "kind": "test",
-        "flows": [
-          "E4"
-        ]
-      },
-      {
-        "file": "server/internal/deal/service/service.go",
-        "line": 110,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/deal/service/service.go",
-        "line": 126,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/deal/service/shipment_updated.go",
-        "line": 11,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/deal/service/shipment_updated_durable.go",
-        "line": 48,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/deal/service/shipment_updated_durable.go",
-        "line": 88,
-        "kind": "code",
-        "flows": [
-          "A1"
-        ]
-      },
-      {
-        "file": "server/internal/deal/service/shipment_updated_durable.go",
-        "line": 103,
-        "kind": "code",
-        "flows": [
-          "E2",
-          "E4"
-        ]
-      },
-      {
-        "file": "server/internal/deal/service/shipment_updated_test.go",
-        "line": 22,
-        "kind": "test",
-        "flows": [
-          "A1",
-          "E2"
-        ]
-      },
-      {
-        "file": "server/internal/deal/service/shipment_updated_test.go",
-        "line": 98,
-        "kind": "test",
-        "flows": []
-      },
-      {
-        "file": "server/internal/deal/service/shipment_updated_test.go",
-        "line": 173,
-        "kind": "test",
-        "flows": [
-          "A1"
-        ]
-      },
-      {
-        "file": "server/internal/deal/service/shipment_updated_test.go",
-        "line": 205,
-        "kind": "test",
-        "flows": [
-          "E4"
-        ]
-      },
-      {
-        "file": "server/internal/deal/service/shipment_updated_test.go",
-        "line": 294,
-        "kind": "test",
-        "flows": [
-          "A1"
-        ]
-      },
-      {
-        "file": "server/internal/deal/service/shipping_test.go",
-        "line": 254,
-        "kind": "test",
-        "flows": []
-      },
-      {
-        "file": "server/internal/deal/service/shipping_test.go",
-        "line": 285,
-        "kind": "test",
-        "flows": [
-          "A1"
-        ]
-      },
-      {
-        "file": "server/internal/shipping/service/service.go",
-        "line": 161,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/shipping/service/service_test.go",
-        "line": 361,
-        "kind": "test",
-        "flows": []
-      },
-      {
-        "file": "server/internal/shipping/service/service_test.go",
-        "line": 417,
-        "kind": "test",
-        "flows": []
-      },
-      {
-        "file": "server/api/paths/deal.yaml",
-        "line": 489,
-        "kind": "api",
-        "flows": []
-      },
-      {
-        "file": "server/api/paths/shipping.yaml",
-        "line": 280,
-        "kind": "api",
-        "flows": []
-      }
-    ],
     "BR-DEAL-08": [
       {
         "file": "server/internal/deal/domain/order_test.go",
-        "line": 630,
+        "line": 640,
         "kind": "test",
         "flows": []
       },
       {
         "file": "server/internal/deal/service/shipment_updated_durable.go",
-        "line": 103,
+        "line": 104,
         "kind": "code",
         "flows": []
       }
@@ -9025,6 +9230,14 @@
         "flows": []
       }
     ],
+    "BR-DEAL-11": [
+      {
+        "file": "server/internal/deal/service/shipment_updated_durable.go",
+        "line": 109,
+        "kind": "code",
+        "flows": []
+      }
+    ],
     "UC-DSC-03": [
       {
         "file": "server/internal/discovery/repository/saved_pg_test.go",
@@ -9032,14 +9245,6 @@
         "kind": "test",
         "flows": [
           "E4"
-        ]
-      },
-      {
-        "file": "server/internal/discovery/repository/watch_pg_test.go",
-        "line": 69,
-        "kind": "test",
-        "flows": [
-          "E5"
         ]
       },
       {
@@ -9078,11 +9283,19 @@
       },
       {
         "file": "server/internal/discovery/service/alert_test.go",
-        "line": 14,
+        "line": 18,
         "kind": "test",
         "flows": [
           "A5",
           "E1"
+        ]
+      },
+      {
+        "file": "server/internal/discovery/service/alert_test.go",
+        "line": 71,
+        "kind": "test",
+        "flows": [
+          "E11"
         ]
       },
       {
@@ -9166,39 +9379,6 @@
         "flows": []
       },
       {
-        "file": "server/internal/discovery/service/search.go",
-        "line": 81,
-        "kind": "code",
-        "flows": [
-          "A3"
-        ]
-      },
-      {
-        "file": "server/internal/discovery/service/search.go",
-        "line": 94,
-        "kind": "code",
-        "flows": [
-          "A3",
-          "E10"
-        ]
-      },
-      {
-        "file": "server/internal/discovery/service/search.go",
-        "line": 104,
-        "kind": "code",
-        "flows": [
-          "E9"
-        ]
-      },
-      {
-        "file": "server/internal/discovery/service/search.go",
-        "line": 370,
-        "kind": "code",
-        "flows": [
-          "A3"
-        ]
-      },
-      {
         "file": "server/internal/discovery/service/service.go",
         "line": 29,
         "kind": "code",
@@ -9218,12 +9398,6 @@
       },
       {
         "file": "server/internal/discovery/service/service.go",
-        "line": 45,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/discovery/service/service.go",
         "line": 77,
         "kind": "code",
         "flows": []
@@ -9237,6 +9411,116 @@
       {
         "file": "server/internal/discovery/service/service.go",
         "line": 87,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/discovery.yaml",
+        "line": 4,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/discovery.yaml",
+        "line": 31,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/discovery.yaml",
+        "line": 64,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/discovery.yaml",
+        "line": 410,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/discovery.yaml",
+        "line": 450,
+        "kind": "api",
+        "flows": []
+      }
+    ],
+    "BR-DSC-03": [
+      {
+        "file": "server/internal/discovery/repository/saved_pg_test.go",
+        "line": 119,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/discovery/repository/watch_pg_test.go",
+        "line": 70,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/discovery/service/search_test.go",
+        "line": 147,
+        "kind": "test",
+        "flows": []
+      }
+    ],
+    "UC-DSC-06": [
+      {
+        "file": "server/internal/discovery/repository/watch_pg_test.go",
+        "line": 28,
+        "kind": "test",
+        "flows": [
+          "A1"
+        ]
+      },
+      {
+        "file": "server/internal/discovery/repository/watch_pg_test.go",
+        "line": 70,
+        "kind": "test",
+        "flows": [
+          "E1"
+        ]
+      },
+      {
+        "file": "server/internal/discovery/service/search.go",
+        "line": 81,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/discovery/service/search.go",
+        "line": 94,
+        "kind": "code",
+        "flows": [
+          "E6"
+        ]
+      },
+      {
+        "file": "server/internal/discovery/service/search.go",
+        "line": 101,
+        "kind": "code",
+        "flows": [
+          "E7"
+        ]
+      },
+      {
+        "file": "server/internal/discovery/service/search.go",
+        "line": 105,
+        "kind": "code",
+        "flows": [
+          "E5"
+        ]
+      },
+      {
+        "file": "server/internal/discovery/service/search.go",
+        "line": 371,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/discovery/service/service.go",
+        "line": 45,
         "kind": "code",
         "flows": []
       },
@@ -9274,16 +9558,14 @@
         "file": "server/internal/discovery/service/watch.go",
         "line": 76,
         "kind": "code",
-        "flows": [
-          "A1"
-        ]
+        "flows": []
       },
       {
         "file": "server/internal/discovery/service/watch.go",
         "line": 81,
         "kind": "code",
         "flows": [
-          "E6"
+          "E2"
         ]
       },
       {
@@ -9291,7 +9573,7 @@
         "line": 85,
         "kind": "code",
         "flows": [
-          "E8"
+          "E4"
         ]
       },
       {
@@ -9299,7 +9581,7 @@
         "line": 102,
         "kind": "code",
         "flows": [
-          "E7"
+          "E3"
         ]
       },
       {
@@ -9307,7 +9589,8 @@
         "line": 126,
         "kind": "code",
         "flows": [
-          "E5"
+          "E1",
+          "A1"
         ]
       },
       {
@@ -9321,7 +9604,7 @@
         "line": 155,
         "kind": "code",
         "flows": [
-          "A4"
+          "A3"
         ]
       },
       {
@@ -9329,7 +9612,7 @@
         "line": 161,
         "kind": "code",
         "flows": [
-          "E9"
+          "E5"
         ]
       },
       {
@@ -9337,20 +9620,24 @@
         "line": 168,
         "kind": "code",
         "flows": [
-          "A5"
+          "A4"
         ]
       },
       {
         "file": "server/internal/discovery/service/watch.go",
         "line": 176,
         "kind": "code",
-        "flows": [
-          "A2"
-        ]
+        "flows": []
       },
       {
         "file": "server/internal/discovery/service/watch.go",
         "line": 195,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/discovery/service/watch.go",
+        "line": 254,
         "kind": "code",
         "flows": [
           "A2"
@@ -9358,19 +9645,16 @@
       },
       {
         "file": "server/internal/discovery/service/watch_test.go",
-        "line": 48,
+        "line": 49,
         "kind": "test",
         "flows": [
-          "A1",
-          "A2",
           "A3",
-          "A4",
-          "A5"
+          "A4"
         ]
       },
       {
         "file": "server/internal/discovery/service/watch_test.go",
-        "line": 120,
+        "line": 121,
         "kind": "test",
         "flows": [
           "A2"
@@ -9378,49 +9662,20 @@
       },
       {
         "file": "server/internal/discovery/service/watch_test.go",
-        "line": 146,
+        "line": 147,
         "kind": "test",
         "flows": [
+          "E2",
+          "E3",
+          "E4",
+          "E5",
           "E6",
-          "E7",
-          "E8",
-          "E9",
-          "E10"
+          "E7"
         ]
       },
       {
         "file": "server/api/paths/discovery.yaml",
-        "line": 4,
-        "kind": "api",
-        "flows": []
-      },
-      {
-        "file": "server/api/paths/discovery.yaml",
-        "line": 31,
-        "kind": "api",
-        "flows": []
-      },
-      {
-        "file": "server/api/paths/discovery.yaml",
-        "line": 64,
-        "kind": "api",
-        "flows": []
-      },
-      {
-        "file": "server/api/paths/discovery.yaml",
         "line": 86,
-        "kind": "api",
-        "flows": []
-      },
-      {
-        "file": "server/api/paths/discovery.yaml",
-        "line": 410,
-        "kind": "api",
-        "flows": []
-      },
-      {
-        "file": "server/api/paths/discovery.yaml",
-        "line": 450,
         "kind": "api",
         "flows": []
       },
@@ -9455,26 +9710,6 @@
         "flows": []
       }
     ],
-    "BR-DSC-03": [
-      {
-        "file": "server/internal/discovery/repository/saved_pg_test.go",
-        "line": 119,
-        "kind": "test",
-        "flows": []
-      },
-      {
-        "file": "server/internal/discovery/repository/watch_pg_test.go",
-        "line": 69,
-        "kind": "test",
-        "flows": []
-      },
-      {
-        "file": "server/internal/discovery/service/search_test.go",
-        "line": 147,
-        "kind": "test",
-        "flows": []
-      }
-    ],
     "BR-DSC-02": [
       {
         "file": "server/internal/discovery/service/for_you_test.go",
@@ -9496,7 +9731,7 @@
       },
       {
         "file": "server/internal/discovery/service/search.go",
-        "line": 178,
+        "line": 179,
         "kind": "code",
         "flows": []
       },
@@ -9565,7 +9800,7 @@
       },
       {
         "file": "server/internal/discovery/service/search.go",
-        "line": 129,
+        "line": 130,
         "kind": "code",
         "flows": [
           "E2"
@@ -9573,7 +9808,7 @@
       },
       {
         "file": "server/internal/discovery/service/search.go",
-        "line": 134,
+        "line": 135,
         "kind": "code",
         "flows": [
           "E3"
@@ -9581,7 +9816,7 @@
       },
       {
         "file": "server/internal/discovery/service/search.go",
-        "line": 148,
+        "line": 149,
         "kind": "code",
         "flows": [
           "E4"
@@ -9589,7 +9824,7 @@
       },
       {
         "file": "server/internal/discovery/service/search.go",
-        "line": 161,
+        "line": 162,
         "kind": "code",
         "flows": [
           "E1"
@@ -9597,7 +9832,7 @@
       },
       {
         "file": "server/internal/discovery/service/search.go",
-        "line": 222,
+        "line": 223,
         "kind": "code",
         "flows": [
           "A1",
@@ -9606,7 +9841,7 @@
       },
       {
         "file": "server/internal/discovery/service/search.go",
-        "line": 341,
+        "line": 342,
         "kind": "code",
         "flows": [
           "A3"
@@ -10000,10 +10235,783 @@
         "flows": []
       }
     ],
+    "UC-SHR-03": [
+      {
+        "file": "server/internal/notification/domain/notice_test.go",
+        "line": 408,
+        "kind": "test",
+        "flows": [
+          "A4"
+        ]
+      },
+      {
+        "file": "server/internal/notification/repository/notice_pg_test.go",
+        "line": 28,
+        "kind": "test",
+        "flows": [
+          "A6"
+        ]
+      },
+      {
+        "file": "server/internal/notification/repository/notice_pg_test.go",
+        "line": 74,
+        "kind": "test",
+        "flows": [
+          "A1"
+        ]
+      },
+      {
+        "file": "server/internal/notification/repository/notice_pg_test.go",
+        "line": 108,
+        "kind": "test",
+        "flows": [
+          "E1",
+          "A13"
+        ]
+      },
+      {
+        "file": "server/internal/notification/repository/notice_pg_test.go",
+        "line": 171,
+        "kind": "test",
+        "flows": [
+          "A7"
+        ]
+      },
+      {
+        "file": "server/internal/notification/repository/notice_pg_test.go",
+        "line": 222,
+        "kind": "test",
+        "flows": [
+          "A13"
+        ]
+      },
+      {
+        "file": "server/internal/notification/repository/notice_pg_test.go",
+        "line": 251,
+        "kind": "test",
+        "flows": [
+          "A14"
+        ]
+      },
+      {
+        "file": "server/internal/notification/repository/notice_pg_test.go",
+        "line": 306,
+        "kind": "test",
+        "flows": [
+          "A6"
+        ]
+      },
+      {
+        "file": "server/internal/notification/repository/notice_pg_test.go",
+        "line": 361,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/notification/repository/notice_pg_test.go",
+        "line": 401,
+        "kind": "test",
+        "flows": [
+          "E4"
+        ]
+      },
+      {
+        "file": "server/internal/notification/repository/settings_pg_test.go",
+        "line": 18,
+        "kind": "test",
+        "flows": [
+          "A8"
+        ]
+      },
+      {
+        "file": "server/internal/notification/repository/settings_pg_test.go",
+        "line": 57,
+        "kind": "test",
+        "flows": [
+          "E4"
+        ]
+      },
+      {
+        "file": "server/internal/notification/service/notices.go",
+        "line": 17,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/notification/service/notices.go",
+        "line": 40,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/notification/service/notices.go",
+        "line": 49,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/notification/service/notices.go",
+        "line": 52,
+        "kind": "code",
+        "flows": [
+          "E1"
+        ]
+      },
+      {
+        "file": "server/internal/notification/service/notices.go",
+        "line": 62,
+        "kind": "code",
+        "flows": [
+          "A13"
+        ]
+      },
+      {
+        "file": "server/internal/notification/service/notices.go",
+        "line": 71,
+        "kind": "code",
+        "flows": [
+          "A14"
+        ]
+      },
+      {
+        "file": "server/internal/notification/service/notices.go",
+        "line": 79,
+        "kind": "code",
+        "flows": [
+          "A7"
+        ]
+      },
+      {
+        "file": "server/internal/notification/service/notices.go",
+        "line": 82,
+        "kind": "code",
+        "flows": [
+          "E2"
+        ]
+      },
+      {
+        "file": "server/internal/notification/service/notices.go",
+        "line": 86,
+        "kind": "code",
+        "flows": [
+          "E4"
+        ]
+      },
+      {
+        "file": "server/internal/notification/service/notices.go",
+        "line": 93,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/notification/service/notices.go",
+        "line": 96,
+        "kind": "code",
+        "flows": [
+          "A1",
+          "A6"
+        ]
+      },
+      {
+        "file": "server/internal/notification/service/notices.go",
+        "line": 105,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/notification/service/notices.go",
+        "line": 114,
+        "kind": "code",
+        "flows": [
+          "A7",
+          "A10"
+        ]
+      },
+      {
+        "file": "server/internal/notification/service/notices_test.go",
+        "line": 23,
+        "kind": "test",
+        "flows": [
+          "E1",
+          "E2",
+          "A7"
+        ]
+      },
+      {
+        "file": "server/internal/notification/service/service.go",
+        "line": 23,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/notification/service/service.go",
+        "line": 27,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/notification/service/service.go",
+        "line": 32,
+        "kind": "code",
+        "flows": [
+          "E1"
+        ]
+      },
+      {
+        "file": "server/internal/notification/service/service.go",
+        "line": 37,
+        "kind": "code",
+        "flows": [
+          "A13"
+        ]
+      },
+      {
+        "file": "server/internal/notification/service/service.go",
+        "line": 42,
+        "kind": "code",
+        "flows": [
+          "A14"
+        ]
+      },
+      {
+        "file": "server/internal/notification/service/service.go",
+        "line": 46,
+        "kind": "code",
+        "flows": [
+          "A7",
+          "E2",
+          "E4"
+        ]
+      },
+      {
+        "file": "server/internal/notification/service/service.go",
+        "line": 51,
+        "kind": "code",
+        "flows": [
+          "A7",
+          "A10"
+        ]
+      },
+      {
+        "file": "server/internal/notification/service/service.go",
+        "line": 56,
+        "kind": "code",
+        "flows": [
+          "A8"
+        ]
+      },
+      {
+        "file": "server/internal/notification/service/service.go",
+        "line": 61,
+        "kind": "code",
+        "flows": [
+          "A8",
+          "E3",
+          "E4"
+        ]
+      },
+      {
+        "file": "server/internal/notification/service/service.go",
+        "line": 70,
+        "kind": "code",
+        "flows": [
+          "A1",
+          "A6"
+        ]
+      },
+      {
+        "file": "server/internal/notification/service/service.go",
+        "line": 74,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/notification/service/settings.go",
+        "line": 11,
+        "kind": "code",
+        "flows": [
+          "A8"
+        ]
+      },
+      {
+        "file": "server/internal/notification/service/settings.go",
+        "line": 20,
+        "kind": "code",
+        "flows": [
+          "A8"
+        ]
+      },
+      {
+        "file": "server/internal/notification/service/settings.go",
+        "line": 22,
+        "kind": "code",
+        "flows": [
+          "E3"
+        ]
+      },
+      {
+        "file": "server/internal/notification/service/settings.go",
+        "line": 26,
+        "kind": "code",
+        "flows": [
+          "E4"
+        ]
+      },
+      {
+        "file": "server/internal/notification/service/settings_test.go",
+        "line": 17,
+        "kind": "test",
+        "flows": [
+          "A8",
+          "E3"
+        ]
+      },
+      {
+        "file": "server/internal/notification/worker/feedback_test.go",
+        "line": 32,
+        "kind": "test",
+        "flows": [
+          "A2"
+        ]
+      },
+      {
+        "file": "server/internal/notification/worker/mail_test.go",
+        "line": 62,
+        "kind": "test",
+        "flows": [
+          "A12"
+        ]
+      },
+      {
+        "file": "server/internal/notification/worker/mail_test.go",
+        "line": 87,
+        "kind": "test",
+        "flows": [
+          "A8"
+        ]
+      },
+      {
+        "file": "server/internal/notification/worker/mail_test.go",
+        "line": 109,
+        "kind": "test",
+        "flows": [
+          "A12"
+        ]
+      },
+      {
+        "file": "server/internal/notification/worker/mail_test.go",
+        "line": 122,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/notification/worker/reviews_test.go",
+        "line": 41,
+        "kind": "test",
+        "flows": [
+          "A5"
+        ]
+      },
+      {
+        "file": "server/internal/notification/worker/settings_test.go",
+        "line": 20,
+        "kind": "test",
+        "flows": [
+          "A9"
+        ]
+      },
+      {
+        "file": "server/internal/notification/worker/settings_test.go",
+        "line": 60,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/notification/worker/settings_test.go",
+        "line": 82,
+        "kind": "test",
+        "flows": [
+          "A9"
+        ]
+      },
+      {
+        "file": "server/internal/notification/worker/worker.go",
+        "line": 81,
+        "kind": "code",
+        "flows": [
+          "A4"
+        ]
+      },
+      {
+        "file": "server/internal/notification/worker/worker.go",
+        "line": 84,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/notification/worker/worker.go",
+        "line": 120,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/notification/worker/worker.go",
+        "line": 217,
+        "kind": "code",
+        "flows": [
+          "A5"
+        ]
+      },
+      {
+        "file": "server/internal/notification/worker/worker.go",
+        "line": 225,
+        "kind": "code",
+        "flows": [
+          "A5"
+        ]
+      },
+      {
+        "file": "server/internal/notification/worker/worker.go",
+        "line": 238,
+        "kind": "code",
+        "flows": [
+          "A5"
+        ]
+      },
+      {
+        "file": "server/internal/notification/worker/worker.go",
+        "line": 245,
+        "kind": "code",
+        "flows": [
+          "A5"
+        ]
+      },
+      {
+        "file": "server/internal/notification/worker/worker.go",
+        "line": 392,
+        "kind": "code",
+        "flows": [
+          "A3"
+        ]
+      },
+      {
+        "file": "server/internal/notification/worker/worker.go",
+        "line": 397,
+        "kind": "code",
+        "flows": [
+          "A3"
+        ]
+      },
+      {
+        "file": "server/internal/notification/worker/worker.go",
+        "line": 408,
+        "kind": "code",
+        "flows": [
+          "A3"
+        ]
+      },
+      {
+        "file": "server/internal/notification/worker/worker.go",
+        "line": 431,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/notification/worker/worker.go",
+        "line": 439,
+        "kind": "code",
+        "flows": [
+          "A2"
+        ]
+      },
+      {
+        "file": "server/internal/notification/worker/worker.go",
+        "line": 454,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/notification/worker/worker.go",
+        "line": 458,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/notification/worker/worker.go",
+        "line": 470,
+        "kind": "code",
+        "flows": [
+          "A6"
+        ]
+      },
+      {
+        "file": "server/internal/notification/worker/worker.go",
+        "line": 475,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/notification/worker/worker.go",
+        "line": 491,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/notification/worker/worker.go",
+        "line": 515,
+        "kind": "code",
+        "flows": [
+          "A12"
+        ]
+      },
+      {
+        "file": "server/internal/notification/worker/worker.go",
+        "line": 522,
+        "kind": "code",
+        "flows": [
+          "A12"
+        ]
+      },
+      {
+        "file": "server/internal/notification/worker/worker.go",
+        "line": 551,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/notification/worker/worker.go",
+        "line": 558,
+        "kind": "code",
+        "flows": [
+          "A9"
+        ]
+      },
+      {
+        "file": "server/internal/notification/worker/worker.go",
+        "line": 583,
+        "kind": "code",
+        "flows": [
+          "A10"
+        ]
+      },
+      {
+        "file": "server/internal/notification/worker/worker.go",
+        "line": 605,
+        "kind": "code",
+        "flows": [
+          "A10"
+        ]
+      },
+      {
+        "file": "server/internal/notification/worker/worker.go",
+        "line": 611,
+        "kind": "code",
+        "flows": [
+          "A11"
+        ]
+      },
+      {
+        "file": "server/internal/notification/worker/worker_test.go",
+        "line": 316,
+        "kind": "test",
+        "flows": [
+          "A1",
+          "A5"
+        ]
+      },
+      {
+        "file": "server/internal/notification/worker/worker_test.go",
+        "line": 401,
+        "kind": "test",
+        "flows": [
+          "A5"
+        ]
+      },
+      {
+        "file": "server/internal/notification/worker/worker_test.go",
+        "line": 433,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/notification/worker/worker_test.go",
+        "line": 589,
+        "kind": "test",
+        "flows": [
+          "A6"
+        ]
+      },
+      {
+        "file": "server/internal/notification/worker/worker_test.go",
+        "line": 632,
+        "kind": "test",
+        "flows": [
+          "A2",
+          "A3"
+        ]
+      },
+      {
+        "file": "server/internal/notification/worker/worker_test.go",
+        "line": 661,
+        "kind": "test",
+        "flows": [
+          "A3"
+        ]
+      },
+      {
+        "file": "server/internal/notification/worker/worker_test.go",
+        "line": 682,
+        "kind": "test",
+        "flows": [
+          "A3"
+        ]
+      },
+      {
+        "file": "server/internal/notification/worker/worker_test.go",
+        "line": 720,
+        "kind": "test",
+        "flows": [
+          "A10",
+          "A11"
+        ]
+      },
+      {
+        "file": "server/internal/notification/worker/worker_test.go",
+        "line": 778,
+        "kind": "test",
+        "flows": [
+          "A2"
+        ]
+      },
+      {
+        "file": "server/api/paths/notification.yaml",
+        "line": 4,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/notification.yaml",
+        "line": 30,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/notification.yaml",
+        "line": 47,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/notification.yaml",
+        "line": 73,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/notification.yaml",
+        "line": 101,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/notification.yaml",
+        "line": 127,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/notification.yaml",
+        "line": 140,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/notification.yaml",
+        "line": 161,
+        "kind": "api",
+        "flows": []
+      }
+    ],
+    "BR-SHR-02": [
+      {
+        "file": "server/internal/notification/repository/notice_pg_test.go",
+        "line": 28,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/notification/repository/notice_pg_test.go",
+        "line": 74,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/notification/repository/notice_pg_test.go",
+        "line": 361,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/notification/service/service.go",
+        "line": 70,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/notification/worker/worker_test.go",
+        "line": 433,
+        "kind": "test",
+        "flows": []
+      }
+    ],
+    "BR-SHR-01": [
+      {
+        "file": "server/internal/notification/service/service.go",
+        "line": 61,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/notification/worker/mail_test.go",
+        "line": 62,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/notification/worker/mail_test.go",
+        "line": 87,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/notification/worker/settings_test.go",
+        "line": 20,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/notification/worker/settings_test.go",
+        "line": 60,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/notification/worker/settings_test.go",
+        "line": 82,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/notification/worker/worker.go",
+        "line": 551,
+        "kind": "code",
+        "flows": []
+      }
+    ],
     "BR-TRS-05": [
       {
         "file": "server/internal/screen/service/reputation.go",
-        "line": 84,
+        "line": 85,
         "kind": "code",
         "flows": []
       },
@@ -10251,102 +11259,6 @@
         "flows": []
       }
     ],
-    "UC-TRS-05": [
-      {
-        "file": "server/internal/trust/service/review_helpful.go",
-        "line": 13,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/trust/service/review_helpful.go",
-        "line": 18,
-        "kind": "code",
-        "flows": [
-          "E1"
-        ]
-      },
-      {
-        "file": "server/internal/trust/service/review_helpful.go",
-        "line": 34,
-        "kind": "code",
-        "flows": [
-          "E2"
-        ]
-      },
-      {
-        "file": "server/internal/trust/service/review_helpful.go",
-        "line": 38,
-        "kind": "code",
-        "flows": [
-          "E3"
-        ]
-      },
-      {
-        "file": "server/internal/trust/service/review_helpful.go",
-        "line": 42,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/trust/service/review_helpful.go",
-        "line": 53,
-        "kind": "code",
-        "flows": [
-          "A1"
-        ]
-      },
-      {
-        "file": "server/internal/trust/service/review_helpful.go",
-        "line": 56,
-        "kind": "code",
-        "flows": [
-          "E1"
-        ]
-      },
-      {
-        "file": "server/internal/trust/service/review_helpful_test.go",
-        "line": 16,
-        "kind": "test",
-        "flows": [
-          "A1",
-          "E2",
-          "E3"
-        ]
-      },
-      {
-        "file": "server/internal/trust/service/review_test.go",
-        "line": 200,
-        "kind": "test",
-        "flows": [
-          "E1"
-        ]
-      },
-      {
-        "file": "server/internal/trust/service/service.go",
-        "line": 59,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/trust/service/service.go",
-        "line": 63,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/api/paths/trust.yaml",
-        "line": 233,
-        "kind": "api",
-        "flows": []
-      },
-      {
-        "file": "server/api/paths/trust.yaml",
-        "line": 275,
-        "kind": "api",
-        "flows": []
-      }
-    ],
     "BR-MOD-01": [
       {
         "file": "server/internal/trust/service/service.go",
@@ -10487,7 +11399,7 @@
         "A1": true,
         "A2": true,
         "E1": true,
-        "E2": false,
+        "E2": true,
         "E3": true,
         "E4": true,
         "E5": true,
@@ -10505,11 +11417,11 @@
       }
     },
     "UC-LST-01": {
-      "code": 52,
-      "tests": 26,
+      "code": 47,
+      "tests": 24,
       "flows": {
         "A1": true,
-        "A2": true,
+        "A2": false,
         "A3": true,
         "A4": true,
         "A5": true,
@@ -10520,14 +11432,14 @@
         "E4": true,
         "E5": true,
         "E6": true,
-        "E7": true,
+        "E7": false,
         "E8": true,
         "E9": true
       }
     },
     "UC-LST-02": {
       "code": 19,
-      "tests": 8,
+      "tests": 10,
       "flows": {
         "A1": false,
         "A2": true,
@@ -10536,10 +11448,10 @@
         "E1": true,
         "E2": true,
         "E3": true,
-        "E4": false,
+        "E4": true,
         "E5": true,
         "E6": true,
-        "E7": false,
+        "E7": true,
         "E8": true
       }
     },
@@ -10602,25 +11514,25 @@
       }
     },
     "UC-DSC-03": {
-      "code": 39,
-      "tests": 10,
+      "code": 18,
+      "tests": 7,
       "flows": {
-        "A1": true,
-        "A2": true,
-        "A3": true,
-        "A4": true,
+        "A1": false,
+        "A2": false,
+        "A3": false,
+        "A4": false,
         "A5": true,
         "E1": true,
         "E2": true,
         "E3": true,
         "E4": true,
-        "E5": true,
-        "E6": true,
-        "E7": true,
-        "E8": true,
-        "E9": true,
-        "E10": true,
-        "E11": false
+        "E5": false,
+        "E6": false,
+        "E7": false,
+        "E8": false,
+        "E9": false,
+        "E10": false,
+        "E11": true
       }
     },
     "UC-DSC-04": {
@@ -10649,9 +11561,26 @@
         "E2": true
       }
     },
+    "UC-DSC-06": {
+      "code": 23,
+      "tests": 5,
+      "flows": {
+        "A1": true,
+        "A2": true,
+        "A3": true,
+        "A4": true,
+        "E1": true,
+        "E2": true,
+        "E3": true,
+        "E4": true,
+        "E5": true,
+        "E6": true,
+        "E7": true
+      }
+    },
     "UC-DEAL-01": {
       "code": 42,
-      "tests": 25,
+      "tests": 26,
       "flows": {
         "A1": true,
         "A2": true,
@@ -10705,7 +11634,7 @@
     },
     "UC-DEAL-04": {
       "code": 16,
-      "tests": 13,
+      "tests": 14,
       "flows": {
         "A1": true,
         "A2": false,
@@ -10713,7 +11642,7 @@
         "E1": false,
         "E2": true,
         "E3": true,
-        "E4": false,
+        "E4": true,
         "E5": true,
         "E6": true,
         "E7": true,
@@ -10723,8 +11652,8 @@
       }
     },
     "UC-DEAL-05": {
-      "code": 13,
-      "tests": 19,
+      "code": 14,
+      "tests": 26,
       "flows": {
         "A1": true,
         "A2": true,
@@ -10748,7 +11677,7 @@
     },
     "UC-TRS-01": {
       "code": 25,
-      "tests": 15,
+      "tests": 17,
       "flows": {
         "A1": true,
         "A2": true,
@@ -10760,7 +11689,7 @@
         "E6": true,
         "E7": true,
         "E8": true,
-        "E9": false,
+        "E9": true,
         "E10": true,
         "E11": true,
         "E12": true
@@ -10778,7 +11707,7 @@
     },
     "UC-TRS-04": {
       "code": 6,
-      "tests": 1,
+      "tests": 2,
       "flows": {
         "A1": true,
         "A2": true
@@ -10786,7 +11715,7 @@
     },
     "UC-TRS-05": {
       "code": 9,
-      "tests": 2,
+      "tests": 3,
       "flows": {
         "A1": true,
         "E1": true,
@@ -10977,6 +11906,30 @@
       "tests": 8,
       "flows": {
         "A1": true
+      }
+    },
+    "UC-SHR-03": {
+      "code": 52,
+      "tests": 32,
+      "flows": {
+        "A1": true,
+        "A2": true,
+        "A3": true,
+        "A4": true,
+        "A5": true,
+        "A6": true,
+        "A7": true,
+        "A8": true,
+        "A9": true,
+        "A10": true,
+        "A11": true,
+        "A12": true,
+        "A13": true,
+        "A14": true,
+        "E1": true,
+        "E2": true,
+        "E3": true,
+        "E4": true
       }
     }
   }

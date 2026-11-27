@@ -71,7 +71,7 @@ These are refusals, not outages, so a durable step that meets one ends the reque
 
 ## Tracking
 
-Each carrier's status maps to a shared step (`ready_to_pick` through `delivered`, then `returning`, `returned`, `cancelled`, `lost`), and each step to one of the four shipment statuses the order shows.
+Each carrier's status maps to a shared step (`ready_to_pick` through `delivered`, then `returning`, `returned`, `cancelled`, `lost`), and each step to one of the five shipment statuses the order shows.
 
 | Shipment status | Steps | Effect on the order |
 |---|---|---|
@@ -79,7 +79,7 @@ Each carrier's status maps to a shared step (`ready_to_pick` through `delivered`
 | `in_transit` | Picked up, moving, a failed delivery attempt | Starts the transit timer. The carrier tries again after a failed attempt. |
 | `delivered` | Delivered | Starts the 3-day complete timer. |
 | `failed` | Returning, returned | Fails the order and releases the listing. |
-| (none) | Cancelled, lost | Reported as lost: fails an order already picked up, leaves one waiting for pickup to its timeout. |
+| `lost` | Cancelled, lost | Fails an order already picked up and hides the listing for its seller; leaves one waiting for pickup to its timeout. The transit timer sets it too. |
 
 ### Reports
 

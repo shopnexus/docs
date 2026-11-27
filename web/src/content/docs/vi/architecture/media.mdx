@@ -11,7 +11,7 @@ updated: 2026-11-27
 related: ["/vi/architecture/catalog", "/vi/architecture/listings-lifecycle", "/vi/architecture/assist", "/vi/operations/configuration"]
 ---
 
-Module media giữ các lượt upload: ảnh tin đăng, ảnh tin nhắn, ảnh đánh giá, ảnh đại diện, cùng video và ảnh chép về cho các lượt AI đọc tin đăng. Media không đọc bảng của module nào khác; mỗi bên giữ upload tự nêu các upload của mình.
+Module media giữ các lượt upload: ảnh tin đăng, ảnh tin nhắn, ảnh đánh giá, ảnh đại diện, video và khung hình của các lượt AI đọc tin đăng, và ảnh chép từ Chợ Tốt. Media không đọc bảng của module nào khác; mỗi bên giữ upload tự nêu các upload của mình.
 
 ## Object store
 
@@ -75,7 +75,7 @@ Bên giữ nhả các upload mà nó không còn hiện: ảnh bị bỏ khi s�
 
 ## Ảnh và video do server tạo
 
-Server có thể tự ghi một ảnh và chèn một upload waiting cho người bán, rồi tin đăng gắn nó như mọi upload khác. Nguồn của nó là `app`, `frame` (từ video), `link` (chép từ trang khác; tin đăng đánh dấu là ảnh chép) hoặc `listing` (chép từ tin đăng khác của chính người bán).
+Server có thể tự ghi một ảnh và chèn một upload waiting cho người bán, rồi tin đăng gắn nó như mọi upload khác. Nguồn của nó là `app`, `frame` (từ video), `link` (chép từ Chợ Tốt khi nhập tin; tin đăng đánh dấu là ảnh chép) hoặc `listing` (chép từ tin đăng khác của chính người bán).
 
 Video chỉ dùng cho lượt AI đọc video. Gắn, dạng square và tìm kiếm đều từ chối video với `invalid_upload`. Lượt đọc giữ video, rồi dùng hết nó, tức là xóa object. Xem [Assist](/vi/architecture/assist).
 

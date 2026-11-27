@@ -43,7 +43,7 @@
     {
       "name": "assist",
       "x-displayName": "Listing assist",
-      "description": "Fill a listing draft from a video, photos or a Chợ Tốt link, and price it against similar listings."
+      "description": "Fill a listing draft from a video or a photo, and price it against similar listings."
     },
     {
       "name": "chotot",
@@ -1619,8 +1619,8 @@
         "x-uc": [
           "UC-LST-01"
         ],
-        "summary": "Read a video, a photo or the seller's Chợ Tốt listing into a listing draft.",
-        "description": "Starts reading what the body names: a video the caller uploaded with\nPOST /v1/uploads, one photo upload of the caller's, or the link to the\nseller's own listing on Chợ Tốt.\nA video may carry the phone's transcript; then the server runs no\nspeech recognition.\nThe answer comes at once with status reading. Each step that finishes\nadds its fields and sends a listing_read update on /v1/ws; the app\nthen reads the read with GET. Checks, in order: for a link not_a_link\nand unsupported_source; then account_suspended, phone_required,\nread_limit_reached (30 video reads, 60 photo reads or 30 link reads in\n24 hours); then invalid_upload for a video or a photo. A link is not\nfetched until the read runs.\n",
+        "summary": "Read a video or a photo into a listing draft.",
+        "description": "Starts reading what the body names: a video the caller uploaded with\nPOST /v1/uploads, or one photo upload of the caller's.\nA video may carry the phone's transcript; then the server runs no\nspeech recognition.\nThe answer comes at once with status reading. Each step that finishes\nadds its fields and sends a listing_read update on /v1/ws; the app\nthen reads the read with GET. Checks, in order: account_suspended,\nphone_required, read_limit_reached (30 video reads or 60 photo reads\nin 24 hours), then invalid_upload.\n",
         "tags": [
           "assist"
         ],
@@ -1672,7 +1672,7 @@
             }
           },
           "422": {
-            "description": "The video is not the caller's, not a video, not uploaded yet, expired or already read (invalid_upload); the\nphoto is not the caller's, not a photo, not uploaded yet, already in a listing or expired (invalid_upload); the\ntext is not an http or https link (not_a_link), or not a link to a listing on chotot.com (unsupported_source).\n",
+            "description": "The video is not the caller's, not a video, not uploaded yet, expired or already read (invalid_upload); the\nphoto is not the caller's, not a photo, not uploaded yet, already in a listing or expired (invalid_upload).\n",
             "content": {
               "application/json": {
                 "schema": {
@@ -2258,7 +2258,7 @@
         ],
         "x-rate-limit": "costly",
         "summary": "Bring the chosen Chợ Tốt listings over as listings.",
-        "description": "Starts one import per listing and answers at once. An import reads\nthe listing from Chợ Tốt, checks it is the linked profile's, fills the\ntitle, description, category, condition and specs as a link read\ndoes, copies its photos (copied: true), takes the commune of the\ncaller's default address (or of their newest listing), and posts it\nlike POST /v1/listings. Each listing is imported once per account:\na listing already listed, a draft or one still importing answers as\nit is, so a retried request needs no Idempotency-Key. A listing of\nanother profile is skipped as not_yours.\n",
+        "description": "Starts one import per listing and answers at once. An import reads\nthe listing from Chợ Tốt, checks it is the linked profile's, has the\nmodel write the title and description, takes the category, condition\nand specs, copies its photos (copied: true), takes the commune of the\ncaller's default address (or of their newest listing), and posts it\nlike POST /v1/listings. Each listing is imported once per account:\na listing already listed, a draft or one still importing answers as\nit is, so a retried request needs no Idempotency-Key. A listing of\nanother profile is skipped as not_yours.\n",
         "tags": [
           "chotot"
         ],
@@ -5432,6 +5432,9 @@
     "/v1/notifications": {
       "get": {
         "operationId": "listNotifications",
+        "x-uc": [
+          "UC-SHR-03"
+        ],
         "summary": "The caller's notices, newest first, with the unread count.",
         "tags": [
           "notification"
@@ -5484,6 +5487,9 @@
     "/v1/notifications/read-all": {
       "post": {
         "operationId": "readAllNotifications",
+        "x-uc": [
+          "UC-SHR-03"
+        ],
         "summary": "Mark every notice of the caller's read.",
         "tags": [
           "notification"
@@ -5513,6 +5519,9 @@
     "/v1/notifications/unread": {
       "post": {
         "operationId": "markNotificationsUnread",
+        "x-uc": [
+          "UC-SHR-03"
+        ],
         "summary": "Mark some of the caller's notices unread.",
         "description": "Serves one notice and the undo of read-all. IDs that are unknown or\nsomeone else's are skipped. Of the read notices that share a collapse\nkey only the newest becomes unread, and none when the key already has\nan unread notice: that notice stands for the key.\n",
         "tags": [
@@ -5549,6 +5558,9 @@
     "/v1/notifications/{id}/read": {
       "post": {
         "operationId": "readNotification",
+        "x-uc": [
+          "UC-SHR-03"
+        ],
         "summary": "Mark one notice read.",
         "tags": [
           "notification"
@@ -5595,6 +5607,9 @@
     "/v1/me/push-token": {
       "put": {
         "operationId": "putPushToken",
+        "x-uc": [
+          "UC-SHR-03"
+        ],
         "summary": "Give the FCM token of the caller's session; it goes when the session ends.",
         "tags": [
           "notification"
@@ -5638,6 +5653,9 @@
       },
       "delete": {
         "operationId": "deletePushToken",
+        "x-uc": [
+          "UC-SHR-03"
+        ],
         "summary": "Forget the push token of the caller's session; absent is fine.",
         "tags": [
           "notification"
@@ -5660,6 +5678,9 @@
     "/v1/me/notification-settings": {
       "get": {
         "operationId": "getNotificationSettings",
+        "x-uc": [
+          "UC-SHR-03"
+        ],
         "summary": "The caller's push settings; an account that never saved any reads the defaults.",
         "description": "The defaults are every switch on and quiet hours on from 22:00 to\n07:00. A switch that is off stops the push of its notices only: they\nare still listed. Chat messages are never listed, so messages off\nmeans nothing about them reaches the phone.\n",
         "tags": [
@@ -5688,6 +5709,9 @@
       },
       "put": {
         "operationId": "putNotificationSettings",
+        "x-uc": [
+          "UC-SHR-03"
+        ],
         "summary": "Replace the caller's push settings.",
         "tags": [
           "notification"
@@ -7196,7 +7220,7 @@
           "UC-TRS-01"
         ],
         "summary": "Review the other party to an order, or edit the review.",
-        "description": "The buyer reviews the seller (role seller) and the seller the buyer\n(role buyer). A first review needs the order completed or failed. It\nstays hidden from the other party and the public until they review\ntoo or 7 days after the order closed. A review changes, and a deleted\none is posted again, only while it is hidden, within 7 days of its\nfirst submission; once it shows, neither side changes it.\n",
+        "description": "The buyer reviews the seller (role seller) and the seller the buyer\n(role buyer). A first review needs the order completed or failed,\nbut not with a parcel the carrier lost. It\nstays hidden from the other party and the public until they review\ntoo or 7 days after the order closed. A review changes, and a deleted\none is posted again, only while it is hidden, within 7 days of its\nfirst submission; once it shows, neither side changes it.\n",
         "tags": [
           "trust"
         ],
@@ -7264,7 +7288,7 @@
             }
           },
           "409": {
-            "description": "The order is not completed or failed yet (order_not_delivered), the review shows or 7 days have passed since the first submission (review_locked), the other party replied (review_closed), or another write of the review came first (try_again).",
+            "description": "The order is not completed or failed yet, or the carrier lost its parcel (order_not_delivered), the review shows or 7 days have passed since the first submission (review_locked), the other party replied (review_closed), or another write of the review came first (try_again).",
             "content": {
               "application/json": {
                 "schema": {
@@ -7674,6 +7698,16 @@
           },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "description": "The account is suspended (account_suspended).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
           }
         }
       }
@@ -7944,8 +7978,8 @@
         "x-uc": [
           "UC-DSC-01",
           "UC-DSC-02",
-          "UC-DSC-03",
-          "UC-DSC-05"
+          "UC-DSC-05",
+          "UC-DSC-06"
         ],
         "summary": "Search active listings; without q, browse them.",
         "description": "Three ways to search, all under the person's filters and sorts. With q\nfrom a signed-in caller a model reads the query; BM25 on its words, its\nVietnamese rewrite against listing text vectors and its English\ndescription against listing photos are fused by weighted RRF. A guest's\nq searches its raw words through BM25 alone, on the listing text with\ndiacritics folded away and one edit allowed in long words; a caller's\nq past 200 model reads that UTC day adds their text vector. Neither\nhas chips. A guest's\naddress makes 2 searches with q a second, in bursts of 30; past them\n429. With photo, the photo against listing photos\nalone. With like, the listing's title, text vector and photos. Without\nany, the call browses, newest first by default, and category alone is the\ncategory page. sort=nearby is the \"Gần bạn\" feed, which Home's first page\ncomes from. A model that fails leaves the lists it feeds out; q then\nsearches its raw words, with no chips. A signed-in caller's first page\nwith q is kept in the search history, and a signed-in caller never sees\nthe listings they hid nor those of an account on either side of their\nblocks. With watch, a watch of the caller's runs its query and filters.\nphoto and watch need a signed-in caller. province keeps the listings of\none province and goes with every other\nfilter. seller keeps one seller's listings, the search of a seller's\npage; it goes with every filter but watch, and its pages enter no\nsearch history and carry no watch_id, since neither holds a seller.\n",
@@ -8295,7 +8329,7 @@
       "post": {
         "operationId": "createSearchWatch",
         "x-uc": [
-          "UC-DSC-03"
+          "UC-DSC-06"
         ],
         "summary": "Follow a text search with its filters; the same words again replace the filters.",
         "description": "One watch per query, folded as the search history folds it. A GPS\npoint is turned into its nearest commune and not kept. A sweep every 30\nminutes counts the new listings holding every word of the query or of a\nphrase the model read from it, under the filters, and tells the caller\nwhile the watch is not muted.\n",
@@ -8366,7 +8400,7 @@
       "get": {
         "operationId": "listSearchWatches",
         "x-uc": [
-          "UC-DSC-03"
+          "UC-DSC-06"
         ],
         "summary": "The caller's watches, newest first.",
         "tags": [
@@ -8398,7 +8432,7 @@
       "delete": {
         "operationId": "deleteSearchWatch",
         "x-uc": [
-          "UC-DSC-03"
+          "UC-DSC-06"
         ],
         "summary": "Stop following a search; an unknown watch is fine.",
         "tags": [
@@ -8431,7 +8465,7 @@
       "post": {
         "operationId": "muteSearchWatch",
         "x-uc": [
-          "UC-DSC-03"
+          "UC-DSC-06"
         ],
         "summary": "Keep counting the watch's new listings without telling the caller.",
         "tags": [
@@ -8474,7 +8508,7 @@
       "post": {
         "operationId": "unmuteSearchWatch",
         "x-uc": [
-          "UC-DSC-03"
+          "UC-DSC-06"
         ],
         "summary": "Tell the caller of the watch's new listings again.",
         "tags": [
@@ -16373,7 +16407,7 @@
           "failed": {
             "type": "integer",
             "minimum": 0,
-            "description": "Of those, the orders whose delivery failed."
+            "description": "Of those, the orders whose delivery failed, but parcels the carrier lost."
           }
         }
       },
@@ -18611,7 +18645,8 @@
           "display_name": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 100
+            "maxLength": 100,
+            "pattern": "\\S"
           }
         }
       },
@@ -20041,33 +20076,6 @@
         ],
         "description": "The carriers with a client. A seller links those the stack runs; one it runs off answers 503 carrier_unavailable. The other carriers in Carrier cannot be linked yet."
       },
-      "LinkSource": {
-        "type": "object",
-        "description": "A link read's listing.",
-        "additionalProperties": false,
-        "required": [
-          "site",
-          "url"
-        ],
-        "properties": {
-          "site": {
-            "type": "string",
-            "enum": [
-              "chotot.com"
-            ]
-          },
-          "url": {
-            "type": "string",
-            "format": "uri",
-            "description": "The old listing, for the seller's \"Từ tin Chợ Tốt của bạn\" line; only the seller sees it."
-          },
-          "photo_count": {
-            "type": "integer",
-            "minimum": 1,
-            "description": "Photos on the old listing; set after the read step."
-          }
-        }
-      },
       "Listing": {
         "type": "object",
         "additionalProperties": false,
@@ -20427,7 +20435,7 @@
           "status",
           "expires_at"
         ],
-        "description": "A read of a seller's video, photo or listing on Chợ Tốt into a listing\ndraft. Fields fill in as its steps finish: photos after the frames step\nof a video or the copy step of a link, draft when the read is done. A\nfield not reached yet is absent, and so is a field of another source. A\nvideo is deleted when its read ends; the read is kept 24 hours. GET\n/v1/listing-reads/{id}/events streams the title and description while\nthe model writes them.\n",
+        "description": "A read of a seller's video or photo into a listing draft. Fields fill\nin as its steps finish: photos after the frames step of a video, draft\nwhen the read is done. A\nfield not reached yet is absent, and so is a field of another source. A\nvideo is deleted when its read ends; the read is kept 24 hours. GET\n/v1/listing-reads/{id}/events streams the title and description while\nthe model writes them.\n",
         "properties": {
           "id": {
             "type": "string",
@@ -20437,8 +20445,7 @@
             "type": "string",
             "enum": [
               "video",
-              "photo",
-              "link"
+              "photo"
             ]
           },
           "status": {
@@ -20455,34 +20462,26 @@
               "unreadable",
               "video_too_short",
               "video_too_long",
-              "listing_not_found",
               "no_item",
               "unavailable"
             ],
-            "description": "Only when status is failed. unreadable: no picture could be read;\nvideo_too_short and video_too_long: under 3 s or over 35 s;\nlisting_not_found: Chợ Tốt has no such listing on sale, or none of\nits photos could be copied; no_item: no single item for sale;\nunavailable: the models or Chợ Tốt did not answer in time, try again.\n"
+            "description": "Only when status is failed. unreadable: no picture could be read;\nvideo_too_short and video_too_long: under 3 s or over 35 s;\nno_item: no single item for sale; unavailable: the models did not\nanswer in time, try again.\n"
           },
           "failure_reason": {
             "type": "string",
             "maxLength": 300,
             "description": "Only when status is failed, and only when there is one: why, in a\nVietnamese sentence for the seller. For no_item it is the model's\nown reason; for unavailable, the error the model gave or what went\nwrong asking it. Show it under the failure's own words.\n"
           },
-          "link": {
-            "$ref": "#/components/schemas/LinkSource"
-          },
           "photos": {
             "type": "array",
-            "maxItems": 10,
-            "description": "A video's clearest frames in time order (at most 8), a link's\ncopies in the old listing's order, or the photo read.\n",
+            "maxItems": 8,
+            "description": "A video's clearest frames in time order (at most 8), or the photo\nread.\n",
             "items": {
               "$ref": "#/components/schemas/ReadPhoto"
             }
           },
           "draft": {
             "$ref": "#/components/schemas/ReadDraft"
-          },
-          "contact_removed": {
-            "type": "boolean",
-            "description": "A link read's; true when a phone number, Zalo or other contact was taken out of the description."
           },
           "expires_at": {
             "type": "string",
@@ -20493,7 +20492,7 @@
       "ListingReadRequest": {
         "type": "object",
         "additionalProperties": false,
-        "description": "What to read, exactly one of video, photo or link, with transcript only beside video.",
+        "description": "What to read, exactly one of video and photo, with transcript only beside video.",
         "oneOf": [
           {
             "required": [
@@ -20503,11 +20502,6 @@
           {
             "required": [
               "photo"
-            ]
-          },
-          {
-            "required": [
-              "link"
             ]
           }
         ],
@@ -20531,11 +20525,6 @@
             "type": "string",
             "format": "uuid",
             "description": "A photo upload of the caller's, uploaded and not yet in a listing:\nthe cover. The read does not take it; post it in the listing.\n"
-          },
-          "link": {
-            "type": "string",
-            "maxLength": 2048,
-            "description": "The link the seller pasted to their own listing on Chợ Tốt."
           }
         }
       },
@@ -21335,7 +21324,8 @@
               "feedback_moved",
               "feedback_replied",
               "chotot_imported",
-              "chotot_sold_here"
+              "chotot_sold_here",
+              "parcel_lost"
             ]
           },
           "text": {
@@ -21801,7 +21791,7 @@
           "failed",
           "cancelled"
         ],
-        "description": "pending: the buyer asked for COD; either side may cancel. shipped: the\nseller created the shipment; the listing is reserved. completed: the\nbuyer confirmed receipt, or 3 days passed after the carrier reported\nthe parcel delivered. failed: the carrier returned the parcel,\nor lost or cancelled it after the pickup, or knew it no more 30 days\ninto transit; the deal negotiates again. cancelled: before the shipment, or\nby the pickup timeout.\n"
+        "description": "pending: the buyer asked for COD; either side may cancel. shipped: the\nseller created the shipment; the listing is reserved. completed: the\nbuyer confirmed receipt, or 3 days passed after the carrier reported\nthe parcel delivered. failed: the carrier returned the parcel, and\nthe listing is back on sale; or it lost or cancelled it after the\npickup, or knew it no more 30 days into transit, which leaves the\nshipment lost and the listing hidden for its seller. Either way the deal\nnegotiates again. cancelled: before the shipment, or by the pickup\ntimeout.\n"
       },
       "OwnReview": {
         "type": "object",
@@ -22509,7 +22499,7 @@
               "null"
             ],
             "format": "int64",
-            "description": "A link read's price on Chợ Tốt; null for the others."
+            "description": "Always null; the seller adds the price."
           },
           "allow_offers": {
             "type": "boolean",
@@ -22518,8 +22508,8 @@
           "photos": {
             "type": "array",
             "minItems": 1,
-            "maxItems": 10,
-            "description": "Upload IDs of the draft's photos, the cover first: a video read's\nsharpest frame then the others in time order (at most 6), a photo\nread's photo, or a link read's copies (at most 10).\n",
+            "maxItems": 6,
+            "description": "Upload IDs of the draft's photos, the cover first: a video read's\nsharpest frame then the others in time order (at most 6), or a\nphoto read's photo.\n",
             "items": {
               "type": "string",
               "format": "uuid"
@@ -22661,7 +22651,8 @@
           "display_name": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 100
+            "maxLength": 100,
+            "pattern": "\\S"
           }
         }
       },
@@ -24414,9 +24405,10 @@
           "pending_pickup",
           "in_transit",
           "delivered",
-          "failed"
+          "failed",
+          "lost"
         ],
-        "description": "Where the parcel is, as its carrier reports it."
+        "description": "Where the parcel is, as its carrier reports it. failed is a parcel\nrefused at the door and on its way back; lost is a parcel the carrier\nlost after the pickup, or no longer knew 30 days after it. Either ends\nthe order failed; a lost one counts against neither side, takes no\nreview, and leaves the listing hidden for its seller.\n"
       },
       "ShipmentStep": {
         "type": "string",
@@ -24435,7 +24427,7 @@
           "cancelled",
           "lost"
         ],
-        "description": "Where the parcel is, in the same words for every carrier, finer than\nShipmentStatus. ready_to_pick, picking and pickup_failed are\npending_pickup; picked, at_hub, transporting, out_for_delivery and\ndelivery_failed are in_transit, since the carrier tries a failed\ndelivery again; delivered is delivered; returning and returned are\nfailed. cancelled and lost move no order.\n"
+        "description": "Where the parcel is, in the same words for every carrier, finer than\nShipmentStatus. ready_to_pick, picking and pickup_failed are\npending_pickup; picked, at_hub, transporting, out_for_delivery and\ndelivery_failed are in_transit, since the carrier tries a failed\ndelivery again; delivered is delivered; returning and returned are\nfailed. cancelled and lost are lost once the parcel was picked up, and\nmove no order before.\n"
       },
       "ShippingQuote": {
         "type": "object",

@@ -165,7 +165,7 @@ uc:
     main:
       1: "Người dùng mở hồ sơ của mình: tên hiển thị, giới thiệu, ảnh đại diện và các phương thức đăng nhập."
       2: "Người dùng sửa tên hiển thị, phần giới thiệu (tối đa 200 ký tự, công khai) hoặc ảnh đại diện."
-      3: "Hệ thống kiểm tra, cắt ảnh đại diện thành hình vuông, lưu và báo cho các phân hệ khác."
+      3: "Hệ thống kiểm tra, cắt ảnh đại diện thành hình vuông, lưu và báo cho các module khác."
     alt:
       A1: { at: 2, text: "Người dùng bật chế độ vắng mặt tới một ngày trong 30 ngày tới, hoặc tắt nó. Khi đang vắng, người mua không trả giá, chấp nhận giá hay yêu cầu COD trên tin của người dùng; tin vẫn hiện khi tìm kiếm." }
       A2: { at: 2, text: "Người dùng gỡ ảnh đại diện." }
@@ -236,9 +236,9 @@ uc:
       1: "Người dùng chọn xóa tài khoản và xác nhận."
       2: "Hệ thống kiểm tra người dùng không còn đơn COD đang chờ gửi hoặc đang giao, ở vai người mua lẫn người bán."
       3: "Hệ thống xóa tài khoản trong một giao dịch: bỏ tên, giới thiệu, ảnh đại diện; xóa phương thức đăng nhập, mã OTP, địa chỉ, lệnh chặn và lượt theo dõi; thu hồi mọi phiên đăng nhập."
-      4: "Mỗi phân hệ dọn dữ liệu của người dùng: tin chưa bán, phiên trả giá đang mở, đơn chờ gửi, tài khoản hãng, tin đã lưu, thông báo, phiếu hỗ trợ đang mở và báo cáo vi phạm chưa xử lý. Một năm sau, tên, số điện thoại và địa chỉ người nhận của các đơn đã mua bị xóa."
+      4: "Mỗi module dọn dữ liệu của người dùng: tin chưa bán, phiên trả giá đang mở, đơn chờ gửi, tài khoản hãng, tin đã lưu, thông báo, phiếu hỗ trợ đang mở và báo cáo vi phạm chưa xử lý. Một năm sau, tên, số điện thoại và địa chỉ người nhận của các đơn đã mua bị xóa."
     alt:
-      A1: { at: 2, text: "Một yêu cầu COD lọt vào sau bước kiểm tra: phân hệ Giao dịch hủy đơn đó ở bước 4." }
+      A1: { at: 2, text: "Một yêu cầu COD lọt vào sau bước kiểm tra: module Giao dịch hủy đơn đó ở bước 4." }
     exc:
       E1: { at: 1, text: "Lần đăng nhập đã quá 15 phút; người dùng xác nhận lại (UC-ACC-02 A2)", br: BR-ACC-04, error: reauth_required }
       E2: { at: 2, text: "Còn đơn COD đang chờ gửi hoặc đang giao", error: orders_open }
@@ -266,7 +266,7 @@ uc:
       5: "Hệ thống lưu tin ở trạng thái đang xử lý, gắn ảnh và chuẩn hóa ảnh (UC-SHR-01); mọi ảnh xong thì tin chuyển sang đang bán."
     alt:
       A1: { at: 2, text: "Lượt đọc không ra kết quả (không đọc được ảnh, video dưới 3 giây hoặc quá 35 giây, không thấy món hàng, AI không trả lời trong 2 phút): người bán tự điền biểu mẫu; hệ thống vẫn đoán danh mục từ tiêu đề và mô tả." }
-      A2: { at: 1, text: "Người bán gửi link tin của mình trên Chợ Tốt: hệ thống đọc tin đó thành biểu mẫu, chép ảnh, bỏ số điện thoại và Zalo trong mô tả." }
+      A2: { status: retired, at: 1, text: "Đọc link một tin Chợ Tốt thành biểu mẫu. Đã bỏ: tin Chợ Tốt sang qua UC-LST-04." }
       A3: { at: 3, text: "Người bán xem gợi ý giá: khoảng giá thị trường từ ít nhất 5 tin tương tự, mức bán nhanh kèm số ngày bán, 12 tin giống nhất kèm khoảng cách và số người đang theo dõi loại hàng này." }
       A4: { at: 3, text: "Người bán lưu nháp và quay lại sau, trên máy này hoặc máy khác; nháp sống 30 ngày từ lần lưu cuối và giữ ảnh đã tải." }
       A5: { at: 1, text: "Người bán đăng lại từ một tin cũ của mình: ảnh của tin đó được chép thành ảnh tải lên mới." }
@@ -277,12 +277,10 @@ uc:
       E3: { at: 5, text: "Có ảnh lỗi: tin chuyển sang bị từ chối kèm lý do; sửa tin hoặc thêm ảnh đưa tin về đang xử lý." }
       E4: { at: 2, text: "Người bán chưa có số điện thoại: từ chối đọc và đăng tin.", br: BR-ACC-03, error: phone_required }
       E5: { at: 4, text: Nội dung tin sai giới hạn, br: BR-LST-03, error: invalid_listing }
-      E6: { at: 2, text: "Người bán đã dùng hết lượt đọc bằng AI trong 24 giờ (30 video, 60 ảnh, 30 link)", error: read_limit_reached }
-      E7: { at: 1, text: Link không phải tin trên Chợ Tốt, error: unsupported_source }
+      E6: { at: 2, text: "Người bán đã dùng hết lượt đọc bằng AI trong 24 giờ (30 video, 60 ảnh)", error: read_limit_reached }
+      E7: { status: retired, at: 1, text: "Link không phải tin trên Chợ Tốt. Đã bỏ cùng A2." }
       E8: { at: 4, text: "Ảnh hoặc video không thuộc người bán, chưa tải xong hoặc đã được dùng", error: invalid_upload }
       E9: { at: 3, text: Người bán đã có 20 nháp, error: draft_limit_reached }
-    gaps:
-      - "Ứng dụng chỉ bắt đầu lượt đọc ảnh và video; lượt đọc một link Chợ Tốt (A2) còn trong API nhưng không màn hình nào dùng, tin Chợ Tốt sang qua UC-LST-04."
   - id: UC-LST-02
     was: [UC-07]
     status: done
@@ -376,7 +374,7 @@ uc:
     alt:
       A1: { at: 2, text: "Mô hình lỗi, quá 4 giây, hoặc người dùng đã dùng hết 200 lượt đọc câu trong ngày: hệ thống tìm bằng từ của câu gốc, không có chip; các trang sau cũng tìm bằng câu gốc." }
       A2: { at: 4, text: "Không có tin phù hợp: trả trang rỗng kèm chip để người dùng nới điều kiện." }
-      A3: { at: 4, text: "Người dùng đã theo dõi câu tìm này: kết quả kèm lượt theo dõi đó (UC-DSC-03)." }
+      A3: { at: 4, text: "Người dùng đã theo dõi câu tìm này: kết quả kèm lượt theo dõi đó (UC-DSC-06)." }
       A4: { at: 1, text: "Khách gõ câu tìm: hệ thống tìm bằng từ của câu gốc, không hỏi mô hình; trang đầu kèm chip xem trước, không áp dụng, khi câu đó đã được đọc trong 7 ngày. Không ghi lịch sử." }
       A5: { at: 1, text: "Người dùng đã đăng nhập chọn một ảnh vừa tải lên: hệ thống tìm tin có ảnh giống món hàng, không có chip và không ghi lịch sử." }
       A6: { at: 1, text: "Người dùng mở lịch sử tìm: hệ thống hiện 10 câu gần nhất; người dùng xóa một câu hoặc xóa hết." }
@@ -418,38 +416,38 @@ uc:
   - id: UC-DSC-03
     was: [UC-11]
     status: done
-    title: { vi: "Lưu tin, theo dõi tìm kiếm và nhận cảnh báo giảm giá", en: "Save listings, watch searches, price-drop alerts" }
+    title: { vi: "Lưu tin và nhận cảnh báo giảm giá", en: "Save listings and get price-drop alerts" }
     actors: [buyer]
     fr: [FR-DSC-03]
-    br: [BR-DSC-02, BR-DSC-03]
-    nfr: [NFR-DUR-01, NFR-CONC-01, NFR-PRIV-01]
-    api: ["GET /v1/saved", "PUT /v1/saved/{listing_id}", "DELETE /v1/saved/{listing_id}", "PUT /v1/saved/{listing_id}/alert", "DELETE /v1/saved/{listing_id}/alert", "POST /v1/search/watches", "GET /v1/search/watches", "DELETE /v1/search/watches/{id}", "POST /v1/search/watches/{id}/mute", "POST /v1/search/watches/{id}/unmute", "GET /v1/search"]
+    br: [BR-DSC-03]
+    nfr: [NFR-CONC-01]
+    api: ["GET /v1/saved", "PUT /v1/saved/{listing_id}", "DELETE /v1/saved/{listing_id}", "PUT /v1/saved/{listing_id}/alert", "DELETE /v1/saved/{listing_id}/alert"]
     pre: Đã đăng nhập.
-    post: "Tin được lưu kèm giá lúc lưu, hoặc câu tìm được theo dõi; người mua được báo khi giá giảm dưới mức đặt hoặc khi có tin mới khớp."
+    post: "Tin được lưu kèm giá lúc lưu và một mức báo giá; người mua được báo mỗi khi giá xuống một mức thấp mới dưới mức đó."
     main:
       1: Người mua lưu một tin đang bán hoặc đang giữ chỗ của người khác; hệ thống ghi giá lúc lưu. Lưu lại lần nữa không đổi gì.
       2: "Người mua đặt mức giá muốn được báo, hoặc để mức mặc định là giá lúc lưu; đặt mức cho tin chưa lưu thì hệ thống lưu tin trước."
       3: "Khi tin được đăng hoặc sửa, hệ thống so giá hiện tại của tin đang bán với mức của từng lượt lưu; giá xuống dưới mức và thấp hơn lần báo trước thì hệ thống báo người mua."
       4: "Người mua xem danh sách tin đã lưu: tin còn bán trước, rồi tin đã bán, đang ẩn hoặc đã xóa; tin đang ẩn hoặc đã xóa chỉ hiện trạng thái."
     alt:
-      A1: { at: 1, text: "Người mua theo dõi một câu tìm với bộ lọc (danh mục, giá, tình trạng, chỉ tin nhận trả giá) và một nơi: hệ thống đổi tọa độ thành phường/xã gần nhất, ghi các cụm từ mô hình đọc được để lần quét không gọi mô hình. Câu tìm đã theo dõi (không phân biệt hoa thường, dấu) thì lượt cũ nhận bộ lọc mới." }
-      A2: { at: 3, text: "Mỗi 30 phút hệ thống quét các tin mới đăng lần đầu, giữ tin khớp bộ lọc, nơi và mọi từ của một cụm từ, bỏ tin của chính người mua, tin đã ẩn và tin của người có chặn; có tin khớp thì cộng số tin mới và báo người mua. Quét đủ 500 tin thì quét tiếp ngay." }
-      A3: { at: 4, text: "Người mua mở một tìm kiếm đã theo dõi: hệ thống chạy lại câu tìm với bộ lọc đã lưu và đưa số tin mới về 0." }
-      A4: { at: 3, text: "Người mua tắt báo của một tìm kiếm đã theo dõi: hệ thống vẫn đếm tin mới nhưng không báo; bật lại thì báo như cũ." }
-      A5: { at: 4, text: "Người mua bỏ lưu tin, bỏ mức báo giá (tin vẫn lưu và báo theo giá lúc lưu) hoặc bỏ theo dõi câu tìm." }
+      A1: { status: retired, at: 1, text: "Chuyển sang UC-DSC-06 (bước 1, 2 và A1)." }
+      A2: { status: retired, at: 3, text: "Chuyển sang UC-DSC-06 (bước 3 và A2)." }
+      A3: { status: retired, at: 4, text: "Chuyển sang UC-DSC-06 (bước 5)." }
+      A4: { status: retired, at: 3, text: "Chuyển sang UC-DSC-06 A3." }
+      A5: { at: 4, text: "Người mua bỏ lưu tin, hoặc bỏ mức báo giá: tin vẫn lưu và báo theo giá lúc lưu. Bỏ theo dõi câu tìm chuyển sang UC-DSC-06 A4." }
     exc:
       E1: { at: 1, text: Tin của chính người mua, error: own_listing }
       E2: { at: 1, text: Tin không còn đang bán hoặc đang giữ chỗ, error: listing_unavailable }
       E3: { at: 1, text: Tin không có, error: listing_not_found }
       E4: { at: 1, text: Đã lưu đủ 500 tin, br: BR-DSC-03, error: saved_limit_reached }
-      E5: { at: 1, text: Đã theo dõi đủ 20 câu tìm, br: BR-DSC-03, error: watch_limit_reached }
-      E6: { at: 1, text: Giá thấp nhất lớn hơn giá cao nhất, error: invalid_price_range }
-      E7: { at: 1, text: Đặt bán kính mà không có nơi, error: position_required }
-      E8: { at: 1, text: Nơi không hợp lệ hoặc ở ngoài Việt Nam, error: invalid_position }
-      E9: { at: 4, text: Tìm kiếm theo dõi không có hoặc của người khác, error: watch_not_found }
-      E10: { at: 4, text: Mở tìm kiếm theo dõi kèm câu tìm hoặc bộ lọc khác, error: search_conflict }
+      E5: { status: retired, at: 1, text: Chuyển sang UC-DSC-06 E1. }
+      E6: { status: retired, at: 1, text: Chuyển sang UC-DSC-06 E2. }
+      E7: { status: retired, at: 1, text: Chuyển sang UC-DSC-06 E3. }
+      E8: { status: retired, at: 1, text: Chuyển sang UC-DSC-06 E4. }
+      E9: { status: retired, at: 4, text: Chuyển sang UC-DSC-06 E5. }
+      E10: { status: retired, at: 4, text: Chuyển sang UC-DSC-06 E6. }
       E11: { at: 2, text: Tin vừa bị bỏ lưu trong lúc đặt mức báo giá, nfr: NFR-CONC-01, error: try_again }
-    notes: Thông báo giảm giá và tin mới khớp đi qua phân hệ Thông báo; người mua tắt thông báo đẩy về giảm giá thì thông báo vẫn được ghi.
+    notes: "Thông báo giảm giá đi qua module Thông báo; người mua tắt thông báo đẩy về giảm giá thì thông báo vẫn được ghi. Theo dõi một câu tìm là UC-DSC-06."
   - id: UC-DSC-04
     was: [UC-12]
     status: done
@@ -500,6 +498,37 @@ uc:
       E1: { at: 1, text: Đặt bán kính mà không có vị trí, error: position_required }
       E2: { at: 1, text: Tọa độ hoặc phường/xã không hợp lệ, error: invalid_position }
     notes: Dành cho bạn và Vì bạn đã xem gần đây bỏ cả tin của chính người xem.
+  - id: UC-DSC-06
+    status: done
+    title: { vi: "Theo dõi tìm kiếm và nhận báo tin mới khớp", en: "Watch a search and hear of new matches" }
+    short: { vi: "Theo dõi tìm kiếm" }
+    actors: [buyer]
+    fr: [FR-DSC-06]
+    br: [BR-DSC-02, BR-DSC-03]
+    nfr: [NFR-DUR-01, NFR-CONC-01, NFR-PRIV-01]
+    api: ["POST /v1/search/watches", "GET /v1/search/watches", "DELETE /v1/search/watches/{id}", "POST /v1/search/watches/{id}/mute", "POST /v1/search/watches/{id}/unmute", "GET /v1/search"]
+    pre: Đã đăng nhập.
+    post: "Câu tìm được theo dõi cùng bộ lọc và một phường/xã; người mua thấy số tin mới khớp và được báo khi có tin mới, trừ khi đã tắt báo."
+    main:
+      1: "Người mua theo dõi một câu tìm với bộ lọc (danh mục, khoảng giá, tình trạng, chỉ tin nhận trả giá) và một nơi, có thể kèm bán kính."
+      2: "Hệ thống đổi tọa độ thành phường/xã gần nhất và không giữ tọa độ, ghi các cụm từ mô hình đọc được để lần quét không gọi mô hình, rồi lưu lượt theo dõi và hẹn lần quét đầu."
+      3: "Mỗi 30 phút hệ thống quét các tin mới đăng lần đầu, giữ tin khớp bộ lọc, nơi và mọi từ của một cụm từ, bỏ tin của chính người mua, tin đã ẩn và tin của người có chặn; có tin khớp thì cộng số tin mới và báo người mua."
+      4: "Người mua xem các tìm kiếm đã theo dõi, mới nhất trước, mỗi cái kèm số tin mới."
+      5: "Người mua mở một tìm kiếm đã theo dõi: hệ thống chạy lại câu tìm với bộ lọc và nơi đã lưu; trang đầu đưa số tin mới về 0."
+    alt:
+      A1: { at: 2, text: "Người mua đã theo dõi câu tìm này (không phân biệt hoa thường và dấu): lượt cũ giữ mã, nhận bộ lọc và nơi mới, số tin mới về 0." }
+      A2: { at: 3, text: "Lần quét đọc đủ 500 tin: hệ thống quét tiếp ngay, không đợi 30 phút." }
+      A3: { at: 3, text: "Người mua tắt báo của một tìm kiếm đã theo dõi: hệ thống vẫn đếm tin mới nhưng không báo; bật lại thì báo như cũ." }
+      A4: { at: 4, text: "Người mua bỏ theo dõi: hệ thống dừng quét; theo dõi lại câu đó là một lượt theo dõi mới." }
+    exc:
+      E1: { at: 2, text: Đã theo dõi đủ 20 câu tìm, br: BR-DSC-03, nfr: NFR-CONC-01, error: watch_limit_reached }
+      E2: { at: 1, text: Giá thấp nhất lớn hơn giá cao nhất, error: invalid_price_range }
+      E3: { at: 1, text: Đặt bán kính mà không có nơi, error: position_required }
+      E4: { at: 2, text: "Nơi không hợp lệ hoặc ở ngoài Việt Nam (không có phường/xã nào trong 30 km quanh tọa độ)", error: invalid_position }
+      E5: { at: 5, text: "Tìm kiếm theo dõi không có hoặc của người khác, khi mở hoặc khi tắt, bật báo", error: watch_not_found }
+      E6: { at: 5, text: Mở tìm kiếm theo dõi kèm câu tìm hoặc bộ lọc khác, error: search_conflict }
+      E7: { at: 5, text: Mở tìm kiếm theo dõi khi chưa đăng nhập, error: unauthenticated }
+    notes: "Lượt theo dõi chỉ giữ phường/xã, không giữ tọa độ (NFR-PRIV-01). Lần quét chạy bền qua sự cố (NFR-DUR-01) và chỉ xét tin đang bán (BR-DSC-02). Thông báo tin mới khớp đi qua module Thông báo, theo công tắc báo của từng lượt theo dõi."
 
   # ---- DEAL ----
   - id: UC-DEAL-01
@@ -517,7 +546,7 @@ uc:
       1: Người dùng mở cuộc trò chuyện từ tin đăng của người khác và viết tin nhắn đầu.
       2: Hệ thống mở cuộc trò chuyện của hai người, hoặc dùng lại cuộc trò chuyện đã có, rồi gửi tin nhắn đầu.
       3: "Hai bên nhắn văn bản, ảnh, có thể trích một tin trước; mỗi lượt trả giá và mỗi bước của đơn hiện thành tin nhắn hệ thống."
-      4: Bên kia nhận tin ngay và nhận thông báo đẩy; khi bên kia đọc, hệ thống ghi đã đọc và người gửi thấy đã xem.
+      4: Bên kia nhận tin ngay và nhận thông báo đẩy (UC-SHR-03); khi bên kia đọc, hệ thống ghi đã đọc và người gửi thấy đã xem.
     alt:
       A1: { at: 3, text: "Tin có ảnh: tin ở trạng thái đang xử lý, chỉ người gửi thấy; ảnh xử lý xong thì tin được gửi, ảnh hỏng thì tin gửi không thành." }
       A2: { at: 3, text: "Ứng dụng gửi lại cùng một yêu cầu: chỉ một tin được gửi.", nfr: NFR-IDEM-01 }
@@ -644,7 +673,7 @@ uc:
     nfr: [NFR-IDEM-01, NFR-DUR-01]
     api: ["POST /v1/orders/{order_id}/confirm", "POST /v1/carriers/{carrier}/webhook/{secret}"]
     pre: "UC-DEAL-04 đã hoàn tất: đơn ở trạng thái đã gửi, vận đơn nằm trên tài khoản GHTK/GHN của người bán."
-    post: "Nhận: đơn hoàn tất, tin và phiên trả giá đã bán. Từ chối hoặc hàng thất lạc: đơn giao không thành, tin về đang bán, phiên trả giá về đang trả giá, số đơn giao không thành của người mua tăng (UC-TRS-04). Cả hai trường hợp, hai bên được đánh giá nhau (UC-TRS-01)."
+    post: "Nhận: đơn hoàn tất, tin và phiên trả giá đã bán. Từ chối: đơn giao không thành, tin về đang bán, phiên trả giá về đang trả giá, số đơn giao không thành của người mua tăng (UC-TRS-04). Hai trường hợp này, hai bên được đánh giá nhau (UC-TRS-01). Hàng thất lạc: đơn giao không thành do hãng, không tính cho bên nào và không được đánh giá; tin bị ẩn, phiên trả giá về đang trả giá."
     main:
       1: Hãng lấy hàng và báo từng bước về hệ thống; hệ thống cũng hỏi lại hãng mỗi 2 giờ. Màn hình đơn hiện các bước và phí vận chuyển, hai bên nhận thông báo.
       2: Shipper mang hàng tới cửa người mua.
@@ -659,7 +688,7 @@ uc:
       E1: { at: 1, text: "Hãng chưa lấy hàng sau 3 ngày: đơn bị hủy, vận đơn trên tài khoản hãng bị hủy theo (UC-DEAL-06 A2)." }
       E2: { at: 3, text: "Người mua không ưng hàng: người mua từ chối nhận, không trả đồng nào; hãng hoàn hàng, đơn giao không thành, hãng tính phí hai chiều vào tài khoản người bán.", br: BR-DEAL-08 }
       E3: { at: 4, text: Đơn không còn ở trạng thái đã gửi hoặc người gọi là người bán, error: move_not_allowed }
-      E4: { at: 1, text: "Hãng làm mất hàng sau khi lấy, hoặc 30 ngày sau khi lấy hàng mà hãng không còn biết vận đơn: đơn giao không thành, tin về đang bán.", br: BR-DEAL-11 }
+      E4: { at: 1, text: "Hãng làm mất hàng sau khi lấy, hoặc 30 ngày sau khi lấy hàng mà hãng không còn biết vận đơn: đơn giao không thành, vận đơn ghi thất lạc. Đơn không tính vào số đơn giao không thành của người mua và không được đánh giá. Tin bị ẩn vì người bán không còn hàng, người bán tự hiện lại khi có hàng. Người bán được báo yêu cầu hãng bồi thường trên tài khoản hãng của mình; người mua được báo không phải trả gì.", br: BR-DEAL-11 }
 
   - id: UC-DEAL-06
     was: [UC-18]
@@ -695,11 +724,11 @@ uc:
     br: [BR-TRS-04, BR-MOD-02]
     nfr: [NFR-IDEM-01, NFR-CONC-01]
     api: ["PUT /v1/orders/{order_id}/review", "DELETE /v1/orders/{order_id}/review", "POST /v1/reviews/{id}/reply"]
-    pre: Đã đăng nhập; người dùng là người mua hoặc người bán của một đơn đã hoàn tất hoặc giao không thành.
+    pre: Đã đăng nhập; người dùng là người mua hoặc người bán của một đơn đã hoàn tất hoặc giao không thành mà không phải do hãng làm thất lạc hàng.
     post: "Đánh giá được lưu và hiện khi bên kia cũng đánh giá hoặc 7 ngày sau khi đơn đóng; người được đánh giá trả lời được một lần."
     main:
       1: "Người dùng chọn 1–5 sao, viết vài dòng, chọn thẻ theo vai của bên kia và thêm tối đa 4 ảnh."
-      2: Hệ thống kiểm tra người dùng là một bên của đơn và đơn đã hoàn tất hoặc giao không thành.
+      2: Hệ thống kiểm tra người dùng là một bên của đơn và đơn đã hoàn tất hoặc giao không thành, không phải do hãng làm thất lạc hàng.
       3: "Hệ thống lưu đánh giá. Đánh giá hiện ngay nếu bên kia đã đánh giá, khi đó cả hai cùng hiện; nếu không, đánh giá ẩn tới 7 ngày sau khi đơn đóng."
       4: Khi đánh giá đã hiện, người được đánh giá trả lời một lần; đánh giá khóa lại.
     alt:
@@ -710,7 +739,7 @@ uc:
       E2: { at: 1, text: "Số sao, nội dung, thẻ hoặc câu trả lời sai quy tắc", br: BR-TRS-04, error: invalid_review }
       E3: { at: 1, text: Ảnh không phải ảnh người dùng tải lên, error: invalid_upload }
       E4: { at: 2, text: Người dùng không phải một bên của đơn, error: order_not_found }
-      E5: { at: 2, text: Đơn chưa hoàn tất hoặc giao không thành, error: order_not_delivered }
+      E5: { at: 2, text: "Đơn chưa hoàn tất hoặc giao không thành, hoặc giao không thành vì hãng làm thất lạc hàng (UC-DEAL-05 E4)", error: order_not_delivered }
       E6: { at: 3, text: Sửa hoặc xóa khi đánh giá đã hiện hoặc đã quá 7 ngày từ lần gửi đầu, br: BR-TRS-04, error: review_locked }
       E7: { at: 3, text: Sửa hoặc xóa khi người được đánh giá đã trả lời, error: review_closed }
       E8: { at: 3, text: Xóa khi chưa có đánh giá, error: review_not_found }
@@ -741,7 +770,7 @@ uc:
     post: Người dùng thấy số liệu uy tín của mình và phần hạn mức đã dùng.
     main:
       1: Người dùng mở màn Uy tín của bạn.
-      2: "Hệ thống đọc sao trung bình khi bán và khi mua, số món đã bán, ngày tham gia, số người theo dõi, tỉ lệ trả lời trong 24 giờ, số đơn COD và số đơn giao không thành khi mua trong 90 ngày."
+      2: "Hệ thống đọc sao trung bình khi bán và khi mua, số món đã bán, ngày tham gia, số người theo dõi, tỉ lệ trả lời trong 24 giờ, số đơn COD và số đơn giao không thành khi mua trong 90 ngày, không tính đơn hãng làm thất lạc hàng."
       3: "Hệ thống đọc hạn mức chung cho mọi tài khoản và phần đã dùng: 20 tin đang bán, 3 đơn COD đang mở khi mua."
       4: Ứng dụng hiện các số liệu và hạn mức.
     alt:
@@ -1024,7 +1053,7 @@ uc:
       1: "Người dùng gửi góp ý: mức hài lòng từ 1 đến 5, loại (lỗi, ý tưởng, khen), nội dung tới 1000 ký tự, tới 3 ảnh chụp màn hình, màn hình đang xem và có cho liên hệ lại không."
       2: "Hệ thống lưu góp ý ở trạng thái đã gửi; người dùng xem lại các góp ý mới nhất của mình."
       3: "Nhân viên đọc góp ý trên trang điều hành, gộp các góp ý trùng vào một nhóm và đặt trạng thái cho cả nhóm (đã xem, đang làm, đã phát hành)."
-      4: "Nhân viên trả lời một lần hoặc thả tim; người dùng nhận thông báo đẩy khi góp ý chuyển sang đang làm, đã phát hành hoặc có câu trả lời."
+      4: "Nhân viên trả lời một lần hoặc thả tim; người dùng nhận thông báo đẩy khi góp ý chuyển sang đang làm, đã phát hành hoặc có câu trả lời (UC-SHR-03)."
     alt:
       A1: { at: 2, text: "Ứng dụng gửi lại cùng một góp ý (cùng khóa): hệ thống trả góp ý đã lưu.", nfr: NFR-IDEM-01 }
       A2: { at: 4, text: "Nhân viên sửa câu trả lời: nội dung mới thay nội dung cũ, không gửi thông báo lần hai." }
@@ -1107,6 +1136,45 @@ uc:
     alt:
       A1: { at: 1, text: "Thao tác thấy thay đổi đã có sẵn (bấm lại hoặc gửi lại): không đổi gì và không ghi dòng thứ hai." }
     notes: "Chi tiết không bao giờ chứa mật khẩu, mã băm hay khóa bí mật. Quản trị viên tra cứu nhật ký ở UC-MOD-05."
+  - id: UC-SHR-03
+    status: done
+    title: { vi: "Thông báo cho người dùng (danh sách trong ứng dụng, thông báo đẩy, email)", en: "Notify people" }
+    short: { vi: "Thông báo" }
+    actors: [sub]
+    fr: [FR-SHR-02]
+    br: [BR-SHR-01, BR-SHR-02]
+    nfr: [NFR-MSG-01, NFR-DUR-01, NFR-IDEM-01]
+    api: ["GET /v1/notifications", "POST /v1/notifications/{id}/read", "POST /v1/notifications/read-all", "POST /v1/notifications/unread", "PUT /v1/me/push-token", "DELETE /v1/me/push-token", "GET /v1/me/notification-settings", "PUT /v1/me/notification-settings"]
+    pre: "Một ca khác vừa ghi một sự kiện: bước của phiên trả giá hay đơn COD, tin nhắn, tin lên sàn hay bị từ chối, đánh giá, tìm kiếm theo dõi có tin mới, tin đã lưu giảm giá, tạm khóa, góp ý hoặc tin Chợ Tốt."
+    post: "Người nhận thấy thông báo trong danh sách cùng số chưa đọc; thông báo đẩy và email tới người nhận khi cài đặt của họ cho phép."
+    main:
+      1: "Hệ thống nhận sự kiện và đọc lại dữ liệu hiện tại của thứ sự kiện nói tới (cuộc giao dịch, tin, đánh giá, tìm kiếm theo dõi, góp ý)."
+      2: "Hệ thống chọn người nhận và loại thông báo: bên kia của bước trả giá hay của đơn, người bán của tin, người theo dõi người bán, người được đánh giá, chủ tìm kiếm theo dõi, người lưu tin, chủ góp ý hoặc chủ tài khoản."
+      3: "Hệ thống ghi thông báo vào danh sách của người nhận. Thông báo về cùng một thứ (một cuộc giao dịch, một tin, một người bán đang theo dõi, một tìm kiếm theo dõi, một tin đã lưu, một góp ý) thay thông báo chưa đọc trước đó, giữ mã của nó và lên đầu danh sách; thông báo trước đã đọc thì thông báo mới thành dòng mới. Ứng dụng đang mở được báo qua luồng cập nhật trực tiếp để làm mới danh sách và số chưa đọc."
+      4: "Hệ thống gửi thông báo đẩy qua Firebase Cloud Messaging tới mọi điện thoại và trình duyệt có phiên đăng nhập còn hiệu lực của người nhận, bằng ngôn ngữ người nhận dùng; thông báo đẩy mới thay mục cũ của cùng thông báo trên khay."
+      5: "Thông báo về đơn COD được gửi thêm email khi người nhận bật email đơn hàng; thông báo tạm khóa và mở khóa tài khoản luôn được gửi email."
+      6: "Người dùng mở danh sách thông báo, mới nhất trước, kèm số chưa đọc; bấm một thông báo thì nó thành đã đọc và ứng dụng mở màn hình nó nói tới (cuộc giao dịch, đơn, tin, tìm kiếm theo dõi, tài khoản, góp ý)."
+    alt:
+      A1: { at: 1, text: "Sự kiện được giao lại: thông báo của sự kiện đó đã ghi, nên không ghi và không gửi thêm gì.", nfr: NFR-IDEM-01 }
+      A2: { at: 1, text: "Thứ sự kiện nói tới không còn (tin đã xóa, tìm kiếm theo dõi đã bỏ, góp ý đã sang trạng thái khác): không báo ai." }
+      A3: { at: 2, text: "Tin nhắn trò chuyện chỉ được đẩy, không ghi vào danh sách vì hộp thư đã có; tin trong cuộc trò chuyện người nhận đã bỏ qua thì không đẩy. Trả lời trong phiếu hỗ trợ chỉ đẩy tới chủ phiếu và mở phiếu." }
+      A4: { at: 2, text: "Giá đề nghị hoặc phản giá tới người đã bỏ qua cuộc trò chuyện với bên kia thì không báo; rút giá không báo ai. Bước của đơn vẫn được báo." }
+      A5: { at: 2, text: "Đánh giá còn ẩn: hệ thống chờ tới khi đánh giá hiện mới báo. Tin đầu tiên lên sàn của người bán: mỗi người theo dõi được báo riêng, chỉ khi tin còn đang bán lúc báo." }
+      A6: { at: 3, text: "Sự kiện đến trễ, sau một thông báo mới hơn về cùng thứ (đã đọc hay chưa): không ghi và không đẩy, để nội dung cũ không quay lại." }
+      A7: { at: 4, text: "Ứng dụng đăng ký mã thiết bị FCM cho phiên đang dùng và gỡ mã khi đăng xuất. Mã đó bị gỡ khỏi phiên khác đang giữ nó, nên điện thoại đăng nhập tài khoản khác thôi nhận thông báo của tài khoản trước." }
+      A8: { at: 4, text: "Người dùng bật tắt từng loại thông báo đẩy (tin nhắn, trả giá, đơn, giảm giá tin đã lưu, tin mới của người bán đang theo dõi, đánh giá), email đơn hàng và giờ yên lặng; tài khoản chưa lưu cài đặt dùng mặc định: bật hết, yên lặng 22:00–07:00 giờ Việt Nam.", br: BR-SHR-01 }
+      A9: { at: 4, text: "Loại thông báo đang tắt, hoặc đang trong giờ yên lặng: không đẩy và cũng không đẩy sau; thông báo vẫn nằm trong danh sách.", br: BR-SHR-01 }
+      A10: { at: 4, text: "Phiên của một thiết bị đã kết thúc, hoặc FCM báo mã thiết bị không còn dùng được: hệ thống xóa mã đó và không gửi tới nó." }
+      A11: { at: 4, text: "FCM quá tải, lỗi máy chủ hoặc lỗi mạng: hệ thống thử lại tới một giờ; lỗi khác thì bỏ lần đẩy đó và ghi nhật ký. Thông báo vẫn nằm trong danh sách." }
+      A12: { at: 5, text: "Người nhận không có email, hoặc dịch vụ thư từ chối địa chỉ: không gửi email, thông báo vẫn nằm trong danh sách. Email không theo công tắc thông báo đẩy hay giờ yên lặng." }
+      A13: { at: 6, text: "Người dùng đánh dấu tất cả đã đọc; hệ thống trả mã các thông báo vừa đổi để ứng dụng hoàn tác." }
+      A14: { at: 6, text: "Người dùng đánh dấu chưa đọc một thông báo, hoặc hoàn tác đánh dấu tất cả, mỗi lần tối đa 500 mã: trong các thông báo về cùng thứ chỉ thông báo mới nhất thành chưa đọc, và không thông báo nào khi thứ đó đã có thông báo chưa đọc; mã lạ hoặc của người khác bị bỏ qua." }
+    exc:
+      E1: { at: 6, text: "Thông báo không có hoặc thuộc người khác", error: notification_not_found }
+      E2: { at: 4, text: "Mã thiết bị rỗng hoặc dài hơn 4096 ký tự", error: invalid_push_token }
+      E3: { at: 4, text: "Giờ yên lặng bắt đầu trùng giờ kết thúc, hoặc không theo dạng HH:MM", br: BR-SHR-01, error: invalid_quiet_hours }
+      E4: { at: 4, text: "Tài khoản vừa bị xóa khi đăng ký mã thiết bị hoặc lưu cài đặt: không lưu gì", error: session_revoked }
+    notes: "Thông báo chỉ lưu loại và tham số, không lưu chữ, nên đọc được bằng tiếng Việt hoặc tiếng Anh. Tìm kiếm theo dõi đẩy theo chuông riêng của từng tìm kiếm. Xóa tài khoản thì thông báo, mã thiết bị và cài đặt của tài khoản bị xóa theo (UC-ACC-09)."
 
 fr:
   - { id: FR-ACC-01, was: [REQ-01], module: Xác thực, uc: [UC-ACC-01], text: { vi: "Đăng nhập bằng số điện thoại (Firebase), tài khoản Google hoặc mã OTP gửi email; lần đầu tự tạo tài khoản" } }
@@ -1117,7 +1185,7 @@ fr:
   - { id: FR-ACC-06, module: Tài khoản, uc: [UC-ACC-05], text: { vi: "Chặn, bỏ chặn và xem danh sách người mình chặn" } }
   - { id: FR-ACC-07, module: Tài khoản, uc: [UC-ACC-07], text: { vi: "Sổ địa chỉ: thêm, sửa, xóa, chọn địa chỉ mặc định; tối đa 10 địa chỉ" } }
   - { id: FR-ACC-08, module: Xác thực, uc: [UC-ACC-08], text: { vi: "Thêm số điện thoại hoặc email vào tài khoản đang có" } }
-  - { id: FR-ACC-09, module: Tài khoản, uc: [UC-ACC-09], text: { vi: "Xóa tài khoản; các phân hệ tự dọn dữ liệu của người dùng" } }
+  - { id: FR-ACC-09, module: Tài khoản, uc: [UC-ACC-09], text: { vi: "Xóa tài khoản; các module tự dọn dữ liệu của người dùng" } }
   - { id: FR-SHR-01, was: [REQ-06], module: Media, uc: [UC-SHR-01], text: { vi: "Tải ảnh lên, chuẩn hóa ảnh, xóa thông tin vị trí chụp" } }
   - { id: FR-LST-01, was: [REQ-07], module: Tin đăng, uc: [UC-LST-01], text: { vi: "Đăng tin từ ảnh hoặc video với AI điền giúp; gợi ý giá từ tin tương tự; nháp đồng bộ giữa các máy; đăng lại từ tin cũ" } }
   - { id: FR-LST-02, was: [REQ-08], module: Tin đăng, uc: [UC-LST-02], text: { vi: "Quản lý tin: sửa, đổi giá, ẩn/hiện, đánh dấu đã bán, xóa" } }
@@ -1125,14 +1193,15 @@ fr:
   - { id: FR-LST-04, module: Tin đăng, uc: [UC-LST-04], text: { vi: "Liên kết trang cá nhân Chợ Tốt bằng mã trong phần giới thiệu; mang tin Chợ Tốt sang; đổi giá và ẩn theo Chợ Tốt; nhắc ẩn tin đã bán" } }
   - { id: FR-DSC-01, was: [REQ-10], module: Khám phá, uc: [UC-DSC-01], text: { vi: "Tìm kiếm bằng câu tự nhiên: AI đọc câu của người đã đăng nhập thành điều kiện và trả chip tắt được; khách tìm bằng từ của câu; tìm bằng ảnh; lịch sử tìm" } }
   - { id: FR-DSC-02, was: [REQ-11], module: Khám phá, uc: [UC-DSC-02], text: { vi: "Tìm theo bộ lọc, duyệt danh mục, xem tin tương tự, ẩn tin khỏi kết quả của mình" } }
-  - { id: FR-DSC-03, was: [REQ-12], module: Khám phá, uc: [UC-DSC-03, UC-DSC-04], text: { vi: "Lưu tin, báo giảm giá dưới mức đặt, theo dõi tìm kiếm, theo dõi người bán" } }
+  - { id: FR-DSC-03, was: [REQ-12], module: Khám phá, uc: [UC-DSC-03, UC-DSC-04], text: { vi: "Lưu tin, báo giảm giá dưới mức đặt, theo dõi người bán" } }
   - { id: FR-DSC-04, module: Khám phá, uc: [UC-DSC-04], text: { vi: "Xem hồ sơ người bán: đánh giá khi bán và khi mua, số liệu, tin đang bán" } }
   - { id: FR-DSC-05, module: Khám phá, uc: [UC-DSC-05], text: { vi: "Trang chủ: tin quanh vị trí, Dành cho bạn theo danh mục con người dùng quan tâm, Vì bạn đã xem gần đây" } }
+  - { id: FR-DSC-06, module: Khám phá, uc: [UC-DSC-06], text: { vi: "Theo dõi tìm kiếm: giữ câu tìm kèm bộ lọc và một phường/xã, quét tin mới mỗi 30 phút, đếm và báo tin mới khớp, tắt báo được" } }
   - { id: FR-DEAL-01, was: [REQ-13], module: Trò chuyện, uc: [UC-DEAL-01], text: { vi: "Một cuộc trò chuyện chung cho hai người; nhắn văn bản, ảnh, trích tin; tin nhắn hệ thống cho lượt trả giá và bước của đơn; đã đọc, chưa đọc, lưu trữ, bỏ qua; tìm trong hộp thư; câu trả lời nhanh; báo đang soạn và cập nhật thời gian thực" } }
   - { id: FR-DEAL-02, was: [REQ-14], module: Giao dịch, uc: [UC-DEAL-02], text: { vi: "Phiên trả giá: giá đề nghị, phản giá, chấp nhận giá, từ chối, rút giá, hủy chốt giá theo BR-DEAL-03; tin đổi giá, tắt trả giá, ẩn, bán hoặc xóa thì giá đang mở bị rút" } }
   - { id: FR-DEAL-03, was: [REQ-15], module: "Giao dịch, Vận chuyển", uc: [UC-DEAL-03, UC-DEAL-04, UC-DEAL-06], text: { vi: "Yêu cầu COD; tạo vận đơn GHTK/GHN trên tài khoản người bán; hủy trước khi gửi" } }
   - { id: FR-DEAL-04, was: [REQ-16], module: "Vận chuyển, Giao dịch", uc: [UC-DEAL-05], text: { vi: "Nhận trạng thái vận đơn từ hãng, hỏi lại mỗi 2 giờ; cập nhật đơn, phiên trả giá, tin đăng; tự hoàn tất, tự hủy và đánh dấu giao không thành theo thời hạn" } }
-  - { id: FR-SHR-02, was: [REQ-21], module: Thông báo, uc: [UC-DEAL-01, UC-DEAL-02, UC-DEAL-03, UC-DEAL-04, UC-DEAL-05, UC-DEAL-06, UC-TRS-01], ucText: UC-DEAL-01 – UC-TRS-01, text: { vi: "Thông báo trong ứng dụng, thông báo đẩy tới điện thoại và trình duyệt, email cho đơn và tài khoản; công tắc theo loại và giờ yên lặng" } }
+  - { id: FR-SHR-02, was: [REQ-21], module: Thông báo, uc: [UC-SHR-03], text: { vi: "Thông báo trong ứng dụng, thông báo đẩy tới điện thoại và trình duyệt, email cho đơn và tài khoản; công tắc theo loại và giờ yên lặng" } }
   - { id: FR-TRS-01, was: [REQ-17], module: Uy tín, uc: [UC-TRS-01, UC-TRS-05], text: { vi: "Đánh giá hai chiều sau đơn bằng sao, thẻ và ảnh, ẩn tới khi cả hai cùng đánh giá; người được đánh giá trả lời một lần; người đọc đánh dấu đánh giá hữu ích" } }
   - { id: FR-TRS-02, was: [REQ-18], status: retired, module: Uy tín, uc: [UC-TRS-02, UC-TRS-03], text: { vi: "Ghi nhận sự cố kèm nhận xét trung lập của AI" } }
   - { id: FR-TRS-03, was: [REQ-19], module: Uy tín, uc: [UC-DSC-04, UC-TRS-04], text: { vi: "Tính số liệu uy tín: sao trung bình khi bán và khi mua, số món đã bán, tỉ lệ trả lời trong 24 giờ, thời gian thường trả lời, số đơn COD và đơn giao không thành trong 90 ngày" } }
@@ -1165,33 +1234,35 @@ br:
   - { id: BR-DEAL-07, was: [BR-10], text: { vi: "Người mua hoặc người bán hủy được đơn khi người bán chưa gửi; người bán không gửi trong 3 ngày thì đơn tự hủy; hãng chưa lấy hàng 3 ngày sau khi gửi thì đơn bị hủy và vận đơn trên tài khoản hãng bị hủy theo." } }
   - { id: BR-DEAL-08, was: [BR-11], text: { vi: "Từ chối nhận tại cửa: người mua không mất tiền; phí hai chiều do hãng tính vào tài khoản người bán; tin đăng mở bán lại." } }
   - { id: BR-DEAL-09, was: [BR-12], text: { vi: "Sau khi người mua đã trả tiền cho shipper, hệ thống không có cơ chế đòi lại; Trợ giúp ghi điều này, màn nhận hàng không nhắc." } }
-  - { id: BR-DEAL-11, text: { vi: "Đơn hoàn tất khi người mua bấm đã nhận hàng, hoặc 3 ngày sau khi hãng báo đã giao. Hãng báo hoàn hàng, làm mất hàng sau khi lấy, hoặc 30 ngày sau khi lấy hàng mà không còn biết vận đơn thì đơn giao không thành; một lần giao không được thì hãng giao lại, đơn vẫn đang giao." } }
+  - { id: BR-DEAL-11, text: { vi: "Đơn hoàn tất khi người mua bấm đã nhận hàng, hoặc 3 ngày sau khi hãng báo đã giao. Hãng báo hoàn hàng, làm mất hàng sau khi lấy, hoặc 30 ngày sau khi lấy hàng mà không còn biết vận đơn thì đơn giao không thành; một lần giao không được thì hãng giao lại, đơn vẫn đang giao. Hàng thất lạc là lỗi của hãng: không tính cho người mua hay người bán, đơn không được đánh giá, tin bị ẩn cho người bán tự hiện lại." } }
   - { id: BR-DEAL-12, status: retired, text: { vi: "Mã vận đơn người bán nhập tay phải thuộc tài khoản GHTK/GHN mà người bán đã liên kết; hãng khác được xin thêm qua phiếu hỗ trợ." } }
   - { id: BR-DEAL-10, was: [BR-13], status: retired, text: { vi: "Món giá trên 5.000.000 đ: ứng dụng gợi ý hẹn gặp xem hàng trước, vẫn cho chọn COD." } }
   - { id: BR-TRS-01, was: [BR-14], status: retired, text: { vi: "Ghi nhận sự cố không được phân xử; người bán trả lời trong 3 ngày bằng tự hoàn hoặc từ chối; ghi nhận bị từ chối hoặc quá hạn hiển thị công khai trên hồ sơ người bán." } }
   - { id: BR-TRS-02, was: [BR-15], status: retired, text: { vi: "Chế tài tự động chỉ xét khi có ≥ 5 đơn COD trong 90 ngày; tỉ lệ từ chối nhận ≥ 20% thì giới hạn còn 1 đơn COD mở, ≥ 35% thì mất quyền COD 30 ngày; mỗi 30 ngày không có lần từ chối nào hồi lại một nấc; đơn tự gửi không tính vào tỉ lệ." } }
   - { id: BR-TRS-03, was: [BR-16], status: retired, text: { vi: "Điểm uy tín 0–1000 tính theo bảng sự kiện; quyền COD và bậc uy tín không mua được bằng gói trả phí." } }
-  - { id: BR-TRS-04, was: [BR-17], text: { vi: "Sau khi đơn hoàn tất hoặc giao không thành, người mua và người bán đánh giá nhau mỗi người một lần (1–5 sao, ≤ 500 ký tự, thẻ theo vai của người được đánh giá, ≤ 4 ảnh); đánh giá ẩn cho đến khi bên kia cũng đánh giá hoặc 7 ngày sau khi đơn đóng; người viết sửa hoặc xóa được khi đánh giá còn ẩn và chưa quá 7 ngày từ lần gửi đầu; người được đánh giá trả lời một lần (≤ 500 ký tự) khi đánh giá đã hiện, sau đó đánh giá khóa lại." } }
+  - { id: BR-TRS-04, was: [BR-17], text: { vi: "Sau khi đơn hoàn tất hoặc giao không thành (trừ khi hãng làm mất hàng), người mua và người bán đánh giá nhau mỗi người một lần (1–5 sao, ≤ 500 ký tự, thẻ theo vai của người được đánh giá, ≤ 4 ảnh); đánh giá ẩn cho đến khi bên kia cũng đánh giá hoặc 7 ngày sau khi đơn đóng; người viết sửa hoặc xóa được khi đánh giá còn ẩn và chưa quá 7 ngày từ lần gửi đầu; người được đánh giá trả lời một lần (≤ 500 ký tự) khi đánh giá đã hiện, sau đó đánh giá khóa lại." } }
   - { id: BR-TRS-05, text: { vi: "Uy tín hiển thị bằng số liệu quan sát được, không có điểm hay bậc; hạn mức như nhau cho mọi tài khoản và không mua được bằng gói trả phí; tỉ lệ trả lời chỉ tính khi có từ 5 cuộc trò chuyện trong 90 ngày." } }
   - { id: BR-TRS-06, text: { vi: "Cảnh báo lừa đảo cần ít nhất một dấu hiệu trong tin nhắn; số điện thoại, số tài khoản, số thẻ, email và link được che trước khi AI đọc; cảnh báo đã tắt hiện lại khi có dấu hiệu mới." } }
   - { id: BR-MOD-01, was: [BR-19], text: { vi: "Nhân viên chỉ xử lý phiếu hỗ trợ, hàng cấm và hàng giả bị báo cáo, lừa đảo có tổ chức và yêu cầu của cơ quan có thẩm quyền; giá và tình trạng hàng là việc giữa hai bên." } }
   - { id: BR-MOD-02, text: { vi: "Tài khoản đang bị tạm khóa không đăng nhập hay làm mới phiên được, nên phiên đang có hết trong tối đa 15 phút. Trong lúc đó tài khoản không ghi được gì mới: đăng hay sửa tin, nhắn tin, trả giá, chấp nhận giá, yêu cầu COD, viết, xóa hay đánh dấu đánh giá, báo cáo hay rút báo cáo, theo dõi, sửa hồ sơ, thêm định danh hay xóa tài khoản. Vẫn được rút giá, từ chối, hủy đơn, gửi phiếu hỗ trợ và nhắn trong phiếu." } }
   - { id: BR-MOD-03, text: { vi: "Trợ lý AI của trang điều hành chỉ đọc và đề xuất; mọi thay đổi do nhân viên bấm và được ghi nhật ký kiểm toán; tin nhắn gửi cho người dùng luôn mang tên chung của hệ thống." } }
   - { id: BR-MOD-04, text: { vi: "Quản trị viên chỉ được tạo và quản lý bằng công cụ dòng lệnh của máy chủ; trang điều hành chỉ quản lý điều phối viên." } }
+  - { id: BR-SHR-01, text: { vi: "Công tắc tắt chỉ chặn thông báo đẩy hoặc email của loại đó; thông báo vẫn nằm trong danh sách. Thông báo về tin lên sàn hay bị từ chối, tài khoản, góp ý và Chợ Tốt không có công tắc; tìm kiếm theo dõi đẩy theo chuông riêng của từng tìm kiếm. Trong giờ yên lặng (giờ Việt Nam, giờ bắt đầu khác giờ kết thúc) không thông báo đẩy nào đi và thông báo bị bỏ chứ không đẩy sau. Email đơn hàng có công tắc riêng, email tạm khóa và mở khóa tài khoản luôn gửi; email không theo giờ yên lặng." } }
+  - { id: BR-SHR-02, text: { vi: "Mỗi người nhận có tối đa một thông báo chưa đọc về một thứ (một cuộc giao dịch, một tin, một người bán đang theo dõi, một tìm kiếm theo dõi, một tin đã lưu, một góp ý); thông báo không được cập nhật trong 90 ngày bị xóa." } }
 
 nfr:
   - { id: NFR-DUR-01, was: [NFR-01], attr: Độ bền, text: { vi: "Máy chủ gặp sự cố giữa một quy trình nhiều bước không để lại dữ liệu dở dang; quy trình chạy tiếp từ bước đã xong và không lặp việc đã làm (không tạo hai vận đơn, không gửi hai email mã OTP)." } }
   - { id: NFR-IDEM-01, was: [NFR-02], attr: Không lặp khi gửi lại, text: { vi: "Một thao tác được ứng dụng gửi lại vì mạng chập chờn cho đúng kết quả của lần đầu; hãng báo trùng một trạng thái thì đơn không đổi trạng thái hai lần." } }
   - { id: NFR-CONC-01, was: [NFR-03], attr: Nhất quán khi đồng thời, text: { vi: "Hai người cùng sửa một dữ liệu thì người sửa sau được báo dữ liệu đã thay đổi thay vì ghi đè; các hạn mức (số đơn COD đang mở, số tin đang bán) vẫn đúng khi nhiều yêu cầu đến cùng lúc." } }
-  - { id: NFR-MSG-01, was: [NFR-04], attr: Không mất thông báo giữa phân hệ, text: { vi: "Thông báo cho các phân hệ khác được ghi cùng lúc với thay đổi dữ liệu; khi phần điều phối quy trình tạm ngừng, thông báo được giữ lại và gửi sau, người dùng vẫn xem được dữ liệu và giữ được phiên đăng nhập." } }
+  - { id: NFR-MSG-01, was: [NFR-04], attr: Không mất thông báo giữa các module, text: { vi: "Thông báo cho các module khác được ghi cùng lúc với thay đổi dữ liệu; khi phần điều phối quy trình tạm ngừng, thông báo được giữ lại và gửi sau, người dùng vẫn xem được dữ liệu và giữ được phiên đăng nhập." } }
   - { id: NFR-PERF-01, was: [NFR-05], attr: Hiệu năng, text: { vi: "95% lượt xem dữ liệu trả về dưới 300 ms; 95% lượt tìm kiếm có câu đã đọc trả về dưới 800 ms; mô hình đọc câu quá 4 giây thì hệ thống tìm bằng câu gốc." } }
   - { id: NFR-SEC-01, was: [NFR-06], attr: An toàn xác thực, text: { vi: "Phiên đăng nhập ngắn hạn sống 15 phút và được làm mới tự động; mã làm mới bị dùng lại thì phiên bị thu hồi; có hạn mức gửi OTP; không lộ việc một số điện thoại hay email đã có tài khoản." } }
   - { id: NFR-PRIV-01, was: [NFR-07], attr: Quyền riêng tư, text: { vi: "Xóa thông tin vị trí chụp khỏi ảnh; vị trí tin theo phường/xã; che số điện thoại, email trong nhật ký; mã hóa khóa kết nối tài khoản hãng vận chuyển của người bán." } }
-  - { id: NFR-OBS-01, was: [NFR-08], attr: Quan trắc, text: { vi: "Mọi yêu cầu được theo vết; thông báo lỗi mang mã tra cứu để đối chiếu nhật ký; có số liệu đăng nhập, gửi OTP và thông báo đã gửi giữa các phân hệ." } }
+  - { id: NFR-OBS-01, was: [NFR-08], attr: Quan trắc, text: { vi: "Mọi yêu cầu được theo vết; thông báo lỗi mang mã tra cứu để đối chiếu nhật ký; có số liệu đăng nhập, gửi OTP và thông báo đã gửi giữa các module." } }
   - { id: NFR-PERF-02, attr: Hiệu năng, text: { vi: "Một lượt hỏi trợ lý AI của trang điều hành trả lời trong 60 giây; quá hạn thì lượt dừng, giữ phần đã làm, nhân viên bấm Tiếp tục để chạy tiếp. Đóng trang thì lượt vẫn chạy trên máy chủ." } }
   - { id: NFR-PRIV-02, attr: Quyền riêng tư, text: { vi: "Mỗi lần trợ lý AI của trang điều hành đọc dữ liệu cá nhân được ghi lại kèm nhân viên đã hỏi; cuộc trò chuyện với trợ lý AI giữ 180 ngày; xóa tài khoản thì xóa các phần trích dữ liệu của tài khoản đó." } }
   - { id: NFR-API-01, was: [NFR-09], attr: Tuân thủ hợp đồng API, text: { vi: "Mọi yêu cầu được kiểm theo đặc tả API; bộ kiểm thử đầu-cuối gặp đủ mọi kết quả trả về đã khai trong đặc tả." } }
-  - { id: NFR-ARCH-01, was: [NFR-10], attr: Khả năng tách phân hệ, text: { vi: "Mỗi phân hệ chỉ cho phân hệ khác dùng qua giao diện đã công bố; tách ra chạy riêng không phải sửa nghiệp vụ." } }
+  - { id: NFR-ARCH-01, was: [NFR-10], attr: Khả năng tách module, text: { vi: "Mỗi module chỉ cho module khác dùng qua giao diện đã công bố; tách ra chạy riêng không phải sửa nghiệp vụ." } }
   - { id: NFR-UX-01, was: [NFR-11], attr: Ứng dụng di động, text: { vi: "Ứng dụng chạy trên Android 12 trở lên, có giao diện tối, cỡ chữ 130%, vùng chạm tối thiểu 48 dp; website dùng được ở bề rộng điện thoại." } }
 
 adr:
@@ -1213,5 +1284,5 @@ adr:
     text: { vi: "Máy chủ và trợ lý AI không gọi thẳng nhà cung cấp mô hình mà gọi qua cổng AI (Bifrost) của hệ thống. Mỗi bên gọi có khóa ảo riêng với hạn mức chi tiêu; máy chủ tự tạo khóa, giá và danh sách mô hình dự phòng trong cổng từ phần Cài đặt AI của trang điều hành. Hết hạn mức hay nhà cung cấp lỗi thì từng tính năng tự lùi về cách làm không cần AI hoặc báo tạm ngừng, không làm hỏng luồng chính." }
   - id: ADR-0005
     status: accepted
-    title: { vi: "Máy chủ là một khối gồm nhiều phân hệ tách biệt", en: "The server is a modular monolith" }
-    text: { vi: "Máy chủ là một chương trình duy nhất chia thành các phân hệ; mỗi phân hệ giữ bảng của mình và chỉ cho phân hệ khác gọi qua giao diện dịch vụ, một bài kiểm thử chặn mọi lối tắt (NFR-ARCH-01). Một nhóm nhỏ triển khai và kiểm thử một khối dễ hơn nhiều dịch vụ, mà vẫn tách được một phân hệ ra chạy riêng khi cần." }
+    title: { vi: "Máy chủ là một khối gồm nhiều module tách biệt", en: "The server is a modular monolith" }
+    text: { vi: "Máy chủ là một chương trình duy nhất chia thành các module; mỗi module giữ bảng của mình và chỉ cho module khác gọi qua giao diện dịch vụ, một bài kiểm thử chặn mọi lối tắt (NFR-ARCH-01). Một nhóm nhỏ triển khai và kiểm thử một khối dễ hơn nhiều dịch vụ, mà vẫn tách được một module ra chạy riêng khi cần." }

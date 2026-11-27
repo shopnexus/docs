@@ -17,7 +17,7 @@ Tài khoản đang bị tạm khóa không viết, xóa hay đánh dấu đượ
 
 ## Đánh giá
 
-Hai bên của một đơn đánh giá nhau khi đơn đã `completed` hoặc `failed` (<Req id="FR-TRS-01" />, <Req id="BR-TRS-04" />). Đơn ở trạng thái khác trả `order_not_delivered`. Đánh giá chấm một người, không chấm một tin đăng:
+Hai bên của một đơn đánh giá nhau khi đơn đã `completed` hoặc `failed` (<Req id="FR-TRS-01" />, <Req id="BR-TRS-04" />). Đơn ở trạng thái khác trả `order_not_delivered`, và đơn giao không thành có vận đơn `lost` cũng vậy: hãng làm thất lạc bưu kiện, không phải lỗi của bên nào. Đánh giá chấm một người, không chấm một tin đăng:
 
 - `role` là phía mà người được đánh giá đứng: `seller` (người mua viết) hoặc `buyer` (người bán viết).
 - 1 tới 5 sao và tối đa 500 ký tự.
@@ -72,7 +72,7 @@ Mỗi số liệu trả lời một câu mà người mua hoặc người bán h
 | Tỉ lệ trả lời | Màn uy tín | Xem bên dưới. Vắng mặt khi đếm được ít hơn 5 cuộc trò chuyện. |
 | Thời gian trả lời | Màn tin đăng và người bán | Xem bên dưới. Vắng mặt khi có ít hơn 5 lần trả lời trong 30 ngày, hoặc khi trung vị quá một ngày. |
 | Số điện thoại đã xác minh | Màn tin đăng và người bán | Người bán đăng nhập bằng số điện thoại, đã được xác minh lúc đăng nhập. Số không bao giờ hiện ra. |
-| Đơn COD và số đơn giao không thành, 90 ngày gần nhất | Màn uy tín | Người gọi ở vai người mua. |
+| Đơn COD và số đơn giao không thành, 90 ngày gần nhất | Màn uy tín | Người gọi ở vai người mua. Đơn giao không thành vì hãng làm thất lạc bưu kiện không được tính. |
 | Hạn mức | Màn uy tín | Số tin đang bán so với 20, số đơn COD đang mở ở vai người mua so với 3. |
 
 **Tỉ lệ trả lời.** Số liệu đếm các cuộc trò chuyện do người khác mở về một tin của người gọi, có tin nhắn đầu tiên trong 90 ngày gần nhất và đã được trả lời hoặc đã quá 24 giờ. Một cuộc trò chuyện là kịp thời khi người gọi trả lời trong 24 giờ. Tỉ lệ là phần trăm kịp thời, làm tròn xuống, kèm số lượng. Số liệu được tính lúc đọc.
