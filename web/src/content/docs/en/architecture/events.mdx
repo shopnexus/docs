@@ -64,7 +64,7 @@ A subscriber reads the current state through the source module's service. Order,
 The bus runs in the server. It wakes on a Postgres notification at each commit, and also once a second. Each round takes up to 100 pending rows and hands each one to Restate with the event ID as the idempotency key. Restate then starts one invocation per subscriber and retries each alone until it succeeds. A failing subscriber holds up no other subscriber and no other event.
 
 - Delivery to the bus's Restate service is at least once, and Restate drops a repeated event ID for 24 hours.
-- An event with no subscriber is marked done without a send.
+- Every event is sent, with or without a subscriber. Restate runs the delivery on the newest server version, which alone knows the subscribers, so an old version still draining after a deploy never drops a kind it does not know.
 - An event the ingress refuses waits 1 second, then 2, 4 and so on, up to an hour. Any other failure ends the round, and the next round sends the rest again.
 - During a rolling deploy, a delivery to a subscriber Restate does not know yet is retried with backoff until the new version is registered.
 - While Restate is down, events wait in the table and the API keeps working.
