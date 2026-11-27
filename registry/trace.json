@@ -1,7 +1,7 @@
 {
   "server": {
     "repo": "https://github.com/shopnexus/server",
-    "commit": "33164179975e1b93e5a7fd2a3dabb660baa396af"
+    "commit": "6477ff07cf52e779a9218f7cd9697c890b160824"
   },
   "refs": {
     "UC-MOD-08": [

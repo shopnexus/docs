@@ -10665,7 +10665,7 @@
         "x-uc": [
           "UC-MOD-09"
         ],
-        "summary": "The open count for the drawer.",
+        "summary": "How many support tickets are open.",
         "tags": [
           "console",
           "internal"
@@ -10801,7 +10801,7 @@
         "x-uc": [
           "UC-MOD-11"
         ],
-        "summary": "What was sent in the last 30 days.",
+        "summary": "Feedback figures of the last 30 days: counts by kind, mood, what waits and what shipped.",
         "tags": [
           "console",
           "internal"
