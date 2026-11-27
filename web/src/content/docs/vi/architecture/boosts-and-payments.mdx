@@ -11,11 +11,11 @@ updated: 2026-11-27
 related: ["/vi/marketplace/boosts", "/vi/marketplace/revenue", "/vi/architecture/feeds", "/vi/architecture/durable-flows", "/vi/operations/configuration"]
 ---
 
-<Term id="boost">Đẩy tin</Term> là thứ đầu tiên người bán trả tiền cho ShopNexus (<Req id="UC-LST-03" />). Tiền giữa người mua và người bán vẫn không bao giờ đi qua hệ thống (<Req id="BR-DEAL-01" />). Gói đẩy tin là một lần bán riêng của ShopNexus cho người bán, trả một lần cho mỗi lần mua qua cổng thanh toán, không có ví hay số dư (<Req id="ADR-0006" />).
+<Term id="boost">Đẩy tin</Term> là thứ đầu tiên người bán trả tiền cho ShopNexus (<Req id="UC-LST-03" />). Tiền giữa người mua và người bán vẫn không bao giờ đi qua hệ thống (<Req id="BR-DEAL-01" />). Gói đẩy tin là một lần bán riêng của ShopNexus cho người bán, trả một lần cho mỗi lần mua qua cổng thanh toán, không có ví hay số dư (<Req id="ADR-0006" />). Không có hoàn tiền, cho giao dịch hay cho gói đẩy tin: tiền đã về thì gói luôn bắt đầu (<Req id="BR-LST-07" />).
 
 Hai module chia việc:
 
-- **payment** giữ một dòng cho mỗi lần mua và làm việc với cổng thanh toán: trang thanh toán, thông báo của cổng (IPN), trang kết quả, hết hạn và hoàn tiền. Nó chỉ biết sản phẩm của một lần thanh toán qua tên và ID, nên một sản phẩm sau này như gói người bán dùng lại được module này.
+- **payment** giữ một dòng cho mỗi lần mua và làm việc với cổng thanh toán: trang thanh toán, thông báo của cổng (IPN), trang kết quả và hết hạn. Nó chỉ biết sản phẩm của một lần thanh toán qua tên và ID, nên một sản phẩm sau này như gói người bán dùng lại được module này.
 - **boost** giữ các gói, các lần mua và bộ hẹn giờ của chúng, và nhờ catalog đưa tin lên. Nó mở lần thanh toán qua service của payment và nghe kết quả qua các event `payment.*`.
 
 ## Các gói
@@ -35,10 +35,11 @@ Hai module chia việc:
 | Tin là của người gọi và chưa xóa | 404 `listing_not_found` |
 | Tin đang bán | 409 `listing_not_boostable` |
 | Tin chưa có gói đang chạy | 409 `boost_active`, kèm `details.boost_id` |
+| Tin không có gói khác đang chờ thanh toán | 409 `boost_pending`, kèm `details.boost_id` |
 
 Sau đó nó mở một lần thanh toán đúng giá và lưu lần mua ở `awaiting_payment`, trả 201 kèm `payment_url` và `payment_expires_at`. Ứng dụng mở `payment_url` trên trình duyệt.
 
-Gửi lại cùng key thì trả 200 với lần mua của lần đầu. Mỗi tin có tối đa một lần mua chờ thanh toán hoặc đang chạy, do một unique index một phần giữ. Mua lại cùng gói khi một lần đang chờ thanh toán thì trả 200 với lần đó, để người bán trả tiếp. Mua gói khác thì lần đang chờ bị hủy và lần mới thay chỗ. Nếu tiền của lần bị hủy vẫn về sau đó, tiền được hoàn.
+Gửi lại cùng key thì trả 200 với lần mua của lần đầu. Mỗi tin có tối đa một lần mua chờ thanh toán hoặc đang chạy, do một unique index một phần giữ. Mua lại cùng gói khi một lần đang chờ thanh toán thì trả 200 với lần đó, để người bán trả tiếp. Mua gói khác bị từ chối cho tới khi lần đang chờ được trả hoặc hết hạn, nên không lần mua đã trả nào bị bỏ mất gói.
 
 Màn tin đăng của người bán và Tin của bạn có `boostable`: true khi lần mua lúc này sẽ qua hết các bước kiểm trên. Service boost tính nó bằng chính các bước kiểm của lần mua, nên ứng dụng không phải tự lặp quy tắc.
 
@@ -75,11 +76,11 @@ Chỉ hai thứ ghi một lần thanh toán là đã trả: một IPN có chữ 
 
 Trang kết quả hiện kết quả theo ngôn ngữ của người trả và mở ứng dụng ở `shopnexus://boost/{id}`. Khi trang báo đã trả mà lần thanh toán vẫn đang chờ, server hỏi VNPay trước và chỉ ghi điều VNPay trả lời.
 
-Một lần thanh toán sống 15 phút, và trang của VNPay cũng từ chối sau đó. Lúc mở, payment hẹn một lời gọi Restate trễ. Nếu tới lúc đó lần thanh toán vẫn đang chờ, server hỏi VNPay một lần: VNPay biết là đã trả thì ghi đã trả, nếu không lần thanh toán hết hạn. Người trả hủy hoặc ngân hàng từ chối thì lần thanh toán thất bại ngay. Cả hai trường hợp lần mua đóng ở `expired` hoặc `failed` và người bán nhận thông báo.
+Một lần thanh toán sống 15 phút. URL thanh toán mang `vnp_ExpireDate` bằng `expires_at` của lần thanh toán, nên trang của VNPay cũng từ chối sau đó. Lúc mở, payment hẹn một lời gọi Restate trễ. Nếu tới lúc đó lần thanh toán vẫn đang chờ, server hỏi VNPay một lần: VNPay biết là đã trả thì ghi đã trả, nếu không lần thanh toán hết hạn. Người trả hủy hoặc ngân hàng từ chối thì lần thanh toán thất bại ngay. Cả hai trường hợp lần mua đóng ở `expired` hoặc `failed` và người bán nhận thông báo.
 
 ## Bắt đầu và đưa tin lên
 
-Khi nghe `payment.succeeded`, boost nhờ catalog đưa tin lên. Nếu tin vẫn đang bán, lần mua chuyển sang `active` với lần lên đầu đầu tiên đã xong, `ends_at` là lúc bắt đầu cộng số ngày, và lượt kế tiếp sau 24 giờ. Mỗi tin giữ `bumped_at`, và thứ tự tin mới xếp theo `fresh_at`, cái muộn hơn giữa `published_at` và `bumped_at`. `published_at` không bao giờ đổi, nên thẻ tin hiện thời gian đăng kèm nhãn "Được đẩy".
+Khi nghe `payment.succeeded`, lần mua luôn chuyển sang `active`: `started_at` là lúc tiền về, `ends_at` là lúc đó cộng số ngày, và lượt kế tiếp sau 24 giờ. Boost nhờ catalog đưa tin lên ngay; tin không đang bán lúc đó thì không lên, và các lượt bỏ qua cho tới khi tin bán lại. Mỗi tin giữ `bumped_at`, và thứ tự tin mới xếp theo `fresh_at`, cái muộn hơn giữa `published_at` và `bumped_at`. `published_at` không bao giờ đổi, nên thẻ tin hiện thời gian đăng kèm nhãn "Được đẩy".
 
 Các danh sách sau xếp theo `fresh_at`:
 
@@ -91,14 +92,13 @@ Xếp theo độ liên quan, khoảng cách và giá không đổi. Lượt đ�
 
 Mỗi lượt là một lời gọi Restate trễ, có key theo lần mua và thời điểm của lượt. Lượt kế tiếp được gửi trước khi lượt hiện tại được lưu, nên server sập cũng không mất lượt nào, và lượt lặp cùng key bị bỏ. Một lượt chỉ đưa tin lên khi tin đang bán. Tin đang ẩn, đang giữ chỗ hoặc bị nhân viên ẩn thì bỏ ngày đó, và gói không được thêm ngày (<Req id="BR-LST-06" />). Lượt ở `ends_at` kết thúc gói và báo người bán.
 
-## Hoàn tiền
+## Không hoàn tiền
 
-Không hoàn tiền cho những ngày mất vì tin bị ẩn hay đã bán. Một lần thanh toán chỉ được hoàn đủ, tự động, khi tiền đã về mà gói không bắt đầu được (<Req id="BR-LST-07" />):
+ShopNexus không hoàn tiền trong mọi trường hợp (<Req id="BR-LST-07" />). Những ngày mất vì tin bị ẩn, giữ chỗ hay đã bán không được hoàn và không được bù. Thay vào đó, những đường từng cần hoàn tiền được đóng lại:
 
-- lúc tiền về tin không còn đang bán;
-- tiền về sau khi lần mua đã hết hạn, thất bại hoặc bị thay.
-
-Boost đánh dấu lần mua `refunding` và gọi `Refund` của payment, một flow bền: đánh dấu lần thanh toán `refunding`, xin VNPay hoàn toàn bộ (`vnp_TransactionType` 02), rồi ghi `refunded`. Lần hoàn VNPay đã nhận rồi thì tính là xong. Khi nghe `payment.refunded`, lần mua chuyển sang `refunded` và người bán được báo số tiền.
+- mua gói khác khi một lần đang chờ thanh toán bị từ chối (`boost_pending`), nên không lần chờ nào bị thay;
+- tiền về khi tin không còn đang bán thì gói vẫn bắt đầu;
+- trang của VNPay và của bản giả từ chối lần thanh toán đã quá `expires_at`. Nếu IPN báo đã trả vẫn tới cho lần thanh toán đã hết hạn hay thất bại, server ghi log mức error và gói bắt đầu như thường. Nếu lúc đó tin đã có gói khác đang chạy hoặc đang chờ, lần muộn giữ trạng thái đóng và log error là thứ nhân viên dựa vào.
 
 ## Trạng thái
 
@@ -109,22 +109,20 @@ Boost đánh dấu lần mua `refunding` và gọi `Refund` của payment, một
 | `ended` | Đã chạy hết số ngày |
 | `failed` | Người trả hủy hoặc ngân hàng từ chối |
 | `expired` | Không trả trong 15 phút |
-| `cancelled` | Bị thay bằng lần mua gói khác trước khi trả |
-| `refunding`, `refunded` | Đã trả nhưng không bắt đầu được; tiền đang được hoàn, hoặc đã hoàn |
 
-Một lần thanh toán ở `pending`, `paid`, `failed`, `expired`, `refunding` hoặc `refunded`. Lần thanh toán đã thất bại hay hết hạn vẫn có thể thành `paid` khi tiền về muộn; khi đó boost hoàn tiền.
+Một lần thanh toán ở `pending`, `paid`, `failed` hoặc `expired`. Lần thanh toán đã thất bại hay hết hạn vẫn có thể thành `paid` khi tiền về muộn; khi đó gói của nó bắt đầu.
 
 ## Thông báo
 
-Người bán nhận một thông báo cho mỗi lần mua, cập nhật tại chỗ: `boost_started`, `boost_ended`, `boost_failed`, `boost_expired` và `boost_refunded`. Chúng nằm cùng nhóm thông báo tin đăng, thông báo đẩy theo công tắc của nhóm đó, và không bao giờ gửi email.
+Người bán nhận một thông báo cho mỗi lần mua, cập nhật tại chỗ: `boost_started`, `boost_ended`, `boost_failed` và `boost_expired`. Chúng nằm cùng nhóm thông báo tin đăng, thông báo đẩy theo công tắc của nhóm đó, và không bao giờ gửi email.
 
 ## Cổng thanh toán giả
 
-Với `PAYMENT_VNPAY=fake`, trang thanh toán là `GET /v1/dev/payments/{id}` của chính server, có nút Thanh toán và Hủy. Bấm nút thì gửi tới cùng đường dẫn, nơi server dựng lời gọi VNPay sẽ gửi, ký như VNPay ký, và đưa thẳng vào phần xử lý IPN. Sau đó nó chuyển hướng tới trang kết quả với cùng query. Bản giả không biết lần thanh toán nào khi được hỏi và nhận mọi lần hoàn. `APP_ENV=prod` từ chối nó. Các stack dev và kiểm thử chạy bản giả, nên mọi luồng được kiểm mà không cần hợp đồng với cổng.
+Với `PAYMENT_VNPAY=fake`, trang thanh toán là `GET /v1/dev/payments/{id}` của chính server, có nút Thanh toán và Hủy. Bấm nút thì gửi tới cùng đường dẫn, nơi server dựng lời gọi VNPay sẽ gửi, ký như VNPay ký, và đưa thẳng vào phần xử lý IPN. Sau đó nó chuyển hướng tới trang kết quả với cùng query. Như trang của VNPay, trang này từ chối lần thanh toán đã quá `expires_at`. Bản giả không biết lần thanh toán nào khi được hỏi. `APP_ENV=prod` từ chối nó. Các stack dev và kiểm thử chạy bản giả, nên mọi luồng được kiểm mà không cần hợp đồng với cổng.
 
 ## Trang điều hành
 
-`GET /v1/console/listings/{id}/boosts` liệt kê các lần mua của một tin kèm lần thanh toán, mới nhất trước, cho nhân viên có `listings.read`. Trang điều hành chỉ đọc; chưa có cách hoàn tay, nên lần hoàn VNPay từ chối dừng ở `refunding` và được ghi log.
+`GET /v1/console/listings/{id}/boosts` liệt kê các lần mua của một tin kèm lần thanh toán, mới nhất trước, cho nhân viên có `listings.read`. Trang điều hành chỉ đọc.
 
 ## Thiết lập
 

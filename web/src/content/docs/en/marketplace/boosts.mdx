@@ -1,6 +1,6 @@
 ---
 title: Boosts
-description: What a boost does for a listing, who can buy one, how the seller pays, and when the money comes back.
+description: What a boost does for a listing, who can buy one, how the seller pays, and why nothing is refunded.
 group: Marketplace
 order: 9
 groupOrder: 1
@@ -26,21 +26,18 @@ Only lists sorted by newest change order: search and category pages sorted newes
 
 ## Who can buy
 
-Only the seller, for a listing on sale, while their account may write and has a phone. A listing runs one package at a time; buying again while one runs is refused (<Req id="BR-LST-05" />). The app offers **Đẩy tin** only when a purchase would go through.
+Only the seller, for a listing on sale, while their account may write and has a phone. A listing has one package at a time: buying again while one runs, or another package while one awaits payment, is refused (<Req id="BR-LST-05" />). The app offers **Đẩy tin** only when a purchase would go through.
 
 ## Paying
 
-The seller pays on VNPay's page, once per purchase. ShopNexus keeps no balance or wallet (<Req id="ADR-0006" />). The package starts when VNPay confirms the payment to ShopNexus, never on the strength of the page the browser comes back to. An unpaid purchase lapses after 15 minutes, and a cancelled one closes at once. Either way the seller is told and nothing is charged.
+The seller pays on VNPay's page, once per purchase. ShopNexus keeps no balance or wallet (<Req id="ADR-0006" />). The package starts when VNPay confirms the payment to ShopNexus, never on the strength of the page the browser comes back to, and its days count from then. An unpaid purchase lapses after 15 minutes, and VNPay's page takes no payment after that. One the seller cancels on that page closes at once. Either way the seller is told and nothing is charged.
 
 This money is the seller's payment to ShopNexus for a service. It has nothing to do with a deal: buyers and sellers still pay each other only at the door (<Req id="BR-DEAL-01" />).
 
-## Lost days and refunds
+## No refunds
 
-A listing hidden, reserved or held by staff on a bump day is not moved that day, and the package gets no extra day (<Req id="BR-LST-06" />). There is no refund for those days.
+ShopNexus refunds nothing, for a deal or for a boost (<Req id="BR-LST-07" />). Money that arrives always starts the package, even if the listing was hidden or reserved at that moment.
 
-The whole amount comes back automatically, through VNPay, only when the money arrived but the package could not start (<Req id="BR-LST-07" />):
+A listing hidden, reserved, held by staff or no longer on sale on a bump day is not moved that day, and the package gets no extra day (<Req id="BR-LST-06" />).
 
-- the listing was no longer on sale when the payment landed, for example because it sold meanwhile;
-- the payment landed after the purchase had lapsed or was replaced by another package.
-
-The seller gets a notice when a package starts, ends, lapses, fails or is refunded.
+The seller gets a notice when a package starts, ends, lapses or fails.

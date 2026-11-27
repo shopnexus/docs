@@ -66,7 +66,7 @@ Every created row has a dedupe key that a unique constraint holds, claimed by th
 A change to an existing row is the write ID save plus a check of the state it finds. A retry of the same request answers success with the current view. A different move that conflicts still gets its error. A deal's moves keep the request key, so a move the caller's key already made answers without moving again.
 </Step>
 <Step title="Outside calls carry our key">
-Every outside call that could act twice carries a key of ours. A carrier order uses the order code as its ID, and a create that may have landed reads back by it. A mail resend carries the challenge ID. A push replaces a repeat on the phone with the same collapse key. A payment's reference at VNPay is its own ID, so a payment the server is unsure of is asked about by that ID, and a refund VNPay already took counts as done.
+Every outside call that could act twice carries a key of ours. A carrier order uses the order code as its ID, and a create that may have landed reads back by it. A mail resend carries the challenge ID. A push replaces a repeat on the phone with the same collapse key. A payment's reference at VNPay is its own ID, so a payment the server is unsure of is asked about by that ID.
 </Step>
 </Steps>
 

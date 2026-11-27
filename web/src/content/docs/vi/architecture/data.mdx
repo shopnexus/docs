@@ -66,7 +66,7 @@ Mỗi hàng được tạo có một dedupe key được giữ bằng ràng bu�
 Thay đổi trên một hàng đã có là lần lưu theo write ID cộng với bước kiểm tra trạng thái mà nó thấy. Lần thử lại của cùng request trả thành công kèm khung nhìn hiện tại. Lượt chuyển khác mà xung đột vẫn nhận lỗi của nó. Các lượt chuyển của deal giữ request key, nên lượt chuyển mà key của người gọi đã thực hiện sẽ trả kết quả mà không chuyển thêm lần nữa.
 </Step>
 <Step title="Lời gọi ra ngoài mang key của mình">
-Mọi lời gọi ra bên ngoài có thể thực hiện hai lần đều mang một key của hệ thống. Vận đơn ở hãng dùng mã đơn làm ID, và lệnh tạo có thể đã thành công sẽ đọc lại theo mã đó. Lần gửi lại email mang challenge ID. Thông báo đẩy thay thế bản lặp trên điện thoại bằng cùng collapse key. Mã tham chiếu của một lần thanh toán ở VNPay là ID của chính nó, nên lần thanh toán server chưa chắc được hỏi lại theo ID đó, và lần hoàn VNPay đã nhận rồi thì tính là xong.
+Mọi lời gọi ra bên ngoài có thể thực hiện hai lần đều mang một key của hệ thống. Vận đơn ở hãng dùng mã đơn làm ID, và lệnh tạo có thể đã thành công sẽ đọc lại theo mã đó. Lần gửi lại email mang challenge ID. Thông báo đẩy thay thế bản lặp trên điện thoại bằng cùng collapse key. Mã tham chiếu của một lần thanh toán ở VNPay là ID của chính nó, nên lần thanh toán server chưa chắc được hỏi lại theo ID đó.
 </Step>
 </Steps>
 

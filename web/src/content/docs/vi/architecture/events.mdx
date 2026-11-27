@@ -39,8 +39,8 @@ Event rất mỏng: một loại có dạng `aggregate.past_tense`, ID của th�
 | discovery | `saved.price_dropped`, `search_watch.matched` |
 | feedback | `feedback.moved`, `feedback.replied` |
 | chotot | `chotot_link.imported`, `chotot_import.sold` |
-| payment | `payment.succeeded`, `payment.failed`, `payment.expired`, `payment.refunded` |
-| boost | `boost.started`, `boost.failed`, `boost.expired`, `boost.refunded`, `boost.ended` |
+| payment | `payment.succeeded`, `payment.failed`, `payment.expired` |
+| boost | `boost.started`, `boost.failed`, `boost.expired`, `boost.ended` |
 
 ## Subscriber
 
@@ -53,7 +53,7 @@ Event rất mỏng: một loại có dạng `aggregate.past_tense`, ID của th�
 | trust | `message.sent` | Chạy kiểm tra lừa đảo trên cuộc trò chuyện |
 | support | `message.sent` | Chuyển trạng thái phiếu hỗ trợ của cuộc trò chuyện hỗ trợ: tin nhắn của người dùng mở lại phiếu, câu trả lời của nhân viên đánh dấu phiếu đã trả lời |
 | chotot | tin đăng sold, updated, deleted | Nhắc người bán ẩn tin trên Chợ Tốt, hoặc cập nhật hay bỏ theo dõi tin đã nhập |
-| boost | `payment.*` | Bắt đầu gói của lần thanh toán đã trả hoặc hoàn tiền, đóng gói khi thanh toán thất bại hay hết hạn, ghi đã hoàn |
+| boost | `payment.*` | Bắt đầu gói của lần thanh toán đã trả, đóng gói khi thanh toán thất bại hay hết hạn |
 | notification | lượt chuyển của deal, tin nhắn, tin đăng published hoặc rejected, đánh giá và trả lời đánh giá, tạm khóa tài khoản, giảm giá, khớp theo dõi tìm kiếm, góp ý, nhập tin từ Chợ Tốt, đẩy tin | Ghi thông báo và gửi thông báo đẩy và email |
 | mọi module có dữ liệu về một người | `account.deleted` | Xóa hoặc kết thúc những gì nó giữ của tài khoản đó |
 

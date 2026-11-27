@@ -11,11 +11,11 @@ updated: 2026-11-27
 related: ["/en/marketplace/boosts", "/en/marketplace/revenue", "/en/architecture/feeds", "/en/architecture/durable-flows", "/en/operations/configuration"]
 ---
 
-A <Term id="boost">boost</Term> is the first thing a seller pays ShopNexus for (<Req id="UC-LST-03" />). Money between a buyer and a seller still never passes through the platform (<Req id="BR-DEAL-01" />). A boost is a separate sale from ShopNexus to the seller, paid once per purchase through a payment gateway, with no wallet or balance (<Req id="ADR-0006" />).
+A <Term id="boost">boost</Term> is the first thing a seller pays ShopNexus for (<Req id="UC-LST-03" />). Money between a buyer and a seller still never passes through the platform (<Req id="BR-DEAL-01" />). A boost is a separate sale from ShopNexus to the seller, paid once per purchase through a payment gateway, with no wallet or balance (<Req id="ADR-0006" />). Nothing is ever refunded, for a deal or for a boost: money that lands always starts its package (<Req id="BR-LST-07" />).
 
 Two modules share the work:
 
-- **payment** keeps one row per purchase and talks to the gateway: the payment page, the gateway's notification (IPN), the return page, expiry and refunds. It knows a payment's product only as a name and an ID, so a later product such as a seller plan uses the same module.
+- **payment** keeps one row per purchase and talks to the gateway: the payment page, the gateway's notification (IPN), the return page and expiry. It knows a payment's product only as a name and an ID, so a later product such as a seller plan uses the same module.
 - **boost** keeps the packages, the purchases and their timers, and asks catalog to move the listing. It opens a payment through payment's service and hears what became of it through `payment.*` events.
 
 ## Packages
@@ -35,10 +35,11 @@ Two modules share the work:
 | The listing is the caller's and not deleted | 404 `listing_not_found` |
 | The listing is on sale | 409 `listing_not_boostable` |
 | No package runs on the listing | 409 `boost_active`, with `details.boost_id` |
+| No other package awaits payment on the listing | 409 `boost_pending`, with `details.boost_id` |
 
 Then it opens a payment for the price and saves the boost as `awaiting_payment`, answering 201 with `payment_url` and `payment_expires_at`. The app opens `payment_url` in the browser.
 
-A repeated key answers 200 with the boost the first call made. A listing has at most one boost awaiting payment or running, which a partial unique index holds. A second purchase of the same package while one awaits payment answers 200 with that boost, so the seller picks the payment up again. A purchase of another package cancels the waiting one and takes its place. If the cancelled one's payment lands later, it is refunded.
+A repeated key answers 200 with the boost the first call made. A listing has at most one boost awaiting payment or running, which a partial unique index holds. A second purchase of the same package while one awaits payment answers 200 with that boost, so the seller picks the payment up again. A purchase of another package is refused until the waiting one is paid or lapses, so no paid purchase is ever left without its package.
 
 The seller's listing view and Tin của bạn carry `boostable`: true when a purchase now would pass every check above. The boost service works it out with the purchase's own checks, so the app never repeats the rule.
 
@@ -75,11 +76,11 @@ Only two things mark a payment paid: an IPN whose signature checks, or the gatew
 
 The return page shows the result in the payer's language and opens the app at `shopnexus://boost/{id}`. When it says paid while the payment is still pending, the server asks VNPay first and records only what VNPay answers.
 
-A payment lives 15 minutes, and VNPay's page refuses it after that too. On opening, payment schedules a delayed Restate call. If the payment is still pending then, the server asks VNPay once: a payment VNPay knows as paid is recorded, otherwise it is expired. A cancel or a bank's refusal fails the payment at once. Either way the boost closes as `expired` or `failed` and the seller gets a notice.
+A payment lives 15 minutes. The payment URL carries `vnp_ExpireDate`, the payment's `expires_at`, so VNPay's page refuses it after that too. On opening, payment schedules a delayed Restate call. If the payment is still pending then, the server asks VNPay once: a payment VNPay knows as paid is recorded, otherwise it is expired. A cancel or a bank's refusal fails the payment at once. Either way the boost closes as `expired` or `failed` and the seller gets a notice.
 
 ## Starting and bumping
 
-On `payment.succeeded` boost asks catalog to bump the listing. If the listing is still on sale, the boost becomes `active` with its first bump done, `ends_at` set to the start plus its days, and the next tick 24 hours on. Each listing keeps `bumped_at`, and the newest order sorts by `fresh_at`, the later of `published_at` and `bumped_at`. `published_at` never changes, so a card shows the posted time with a "Được đẩy" mark.
+On `payment.succeeded` the boost becomes `active`, always: `started_at` is when the payment landed, `ends_at` that plus its days, and the next tick 24 hours on. Boost asks catalog to bump the listing at once; a listing not on sale then is not moved, and its ticks skip until it is back on sale. Each listing keeps `bumped_at`, and the newest order sorts by `fresh_at`, the later of `published_at` and `bumped_at`. `published_at` never changes, so a card shows the posted time with a "Được đẩy" mark.
 
 These lists sort by `fresh_at`:
 
@@ -91,14 +92,13 @@ Relevance, nearby and price sorts do not move. A bump is not a publication: watc
 
 Each tick is a delayed Restate call keyed by the boost and the tick's time. The next tick is sent before the current one is saved, so a crash loses none, and a repeat with the same key is dropped. A tick bumps the listing only while it is on sale. A hidden, reserved or held listing skips that day, and the package gets no extra day for it (<Req id="BR-LST-06" />). The tick at `ends_at` ends the boost and notifies the seller.
 
-## Refunds
+## No refunds
 
-There is no refund for days lost to a hidden or sold listing. A payment is refunded in full, automatically, only when it landed and the package cannot start (<Req id="BR-LST-07" />):
+ShopNexus refunds nothing (<Req id="BR-LST-07" />). Days lost to a hidden, reserved or sold listing are not refunded or added. The paths that could have needed a refund are closed instead:
 
-- the listing is no longer on sale when the payment lands;
-- the payment lands after its boost expired, failed or was replaced.
-
-Boost marks the purchase `refunding` and calls payment's `Refund`, a durable flow that marks the payment `refunding`, asks VNPay for a full refund (`vnp_TransactionType` 02), then records it `refunded`. A refund VNPay has already taken counts as done. On `payment.refunded` the boost becomes `refunded` and the seller is told the amount.
+- a purchase of another package while one awaits payment is refused (`boost_pending`), so no awaiting purchase is ever replaced;
+- a payment that lands while the listing is off sale starts the package anyway;
+- VNPay's page and the fake's refuse a payment past its `expires_at`. Should a paid IPN still arrive for an expired or failed payment, it is logged at error level and the package starts as usual. If the listing has another package live by then, the late one stays closed and the error log is what staff go on.
 
 ## Statuses
 
@@ -109,22 +109,20 @@ Boost marks the purchase `refunding` and calls payment's `Refund`, a durable flo
 | `ended` | Ran its days |
 | `failed` | The payer cancelled or the bank refused |
 | `expired` | Not paid within 15 minutes |
-| `cancelled` | Replaced by a purchase of another package before payment |
-| `refunding`, `refunded` | Paid but could not start; the money is on its way back, or back |
 
-A payment is `pending`, `paid`, `failed`, `expired`, `refunding` or `refunded`. A payment that failed or expired may still turn `paid` when the money arrives late; the boost then refunds it.
+A payment is `pending`, `paid`, `failed` or `expired`. A payment that failed or expired may still turn `paid` when the money arrives late; its boost then starts.
 
 ## Notices
 
-The seller gets one notice per boost, updated in place: `boost_started`, `boost_ended`, `boost_failed`, `boost_expired` and `boost_refunded`. They sit with the listing notices, push under that switch, and never go by mail.
+The seller gets one notice per boost, updated in place: `boost_started`, `boost_ended`, `boost_failed` and `boost_expired`. They sit with the listing notices, push under that switch, and never go by mail.
 
 ## The fake gateway
 
-With `PAYMENT_VNPAY=fake` the payment page is the server's own `GET /v1/dev/payments/{id}`, with Pay and Cancel buttons. A button posts to the same path, which builds the callback VNPay would send, signed as VNPay signs it, and hands it to the IPN code in process. It then redirects to the return page with the same query. The fake knows no payment when asked and takes every refund. `APP_ENV=prod` refuses it. Dev stacks and tests run the fake, so every flow is tested without a merchant contract.
+With `PAYMENT_VNPAY=fake` the payment page is the server's own `GET /v1/dev/payments/{id}`, with Pay and Cancel buttons. A button posts to the same path, which builds the callback VNPay would send, signed as VNPay signs it, and hands it to the IPN code in process. It then redirects to the return page with the same query. Like VNPay's, the page refuses a payment past its `expires_at`. The fake knows no payment when asked. `APP_ENV=prod` refuses it. Dev stacks and tests run the fake, so every flow is tested without a merchant contract.
 
 ## Console
 
-`GET /v1/console/listings/{id}/boosts` lists a listing's boosts with their payments, newest first, for staff with `listings.read`. The console only reads; there is no manual refund yet, so a refund VNPay refuses stays `refunding` and is logged.
+`GET /v1/console/listings/{id}/boosts` lists a listing's boosts with their payments, newest first, for staff with `listings.read`. The console only reads.
 
 ## Settings
 

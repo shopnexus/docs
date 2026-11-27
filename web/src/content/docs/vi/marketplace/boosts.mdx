@@ -1,6 +1,6 @@
 ---
 title: Đẩy tin
-description: Gói đẩy tin làm gì cho một tin đăng, ai mua được, người bán trả tiền thế nào và khi nào tiền được hoàn.
+description: Gói đẩy tin làm gì cho một tin đăng, ai mua được, người bán trả tiền thế nào và vì sao không có hoàn tiền.
 group: Mô hình sàn
 order: 9
 groupOrder: 1
@@ -26,21 +26,18 @@ Chỉ các danh sách xếp theo tin mới đổi thứ tự: tìm kiếm và da
 
 ## Ai mua được
 
-Chỉ người bán, cho tin đang bán của mình, khi tài khoản không bị tạm khóa và có số điện thoại. Mỗi tin chạy một gói một lúc; mua thêm khi gói đang chạy bị từ chối (<Req id="BR-LST-05" />). Ứng dụng chỉ hiện nút **Đẩy tin** khi lần mua sẽ được nhận.
+Chỉ người bán, cho tin đang bán của mình, khi tài khoản không bị tạm khóa và có số điện thoại. Mỗi tin có một gói một lúc: mua thêm khi gói đang chạy, hoặc mua gói khác khi một gói đang chờ thanh toán, đều bị từ chối (<Req id="BR-LST-05" />). Ứng dụng chỉ hiện nút **Đẩy tin** khi lần mua sẽ được nhận.
 
 ## Trả tiền
 
-Người bán trả trên trang của VNPay, mỗi lần mua một lần trả. ShopNexus không giữ số dư hay ví nào (<Req id="ADR-0006" />). Gói bắt đầu khi VNPay xác nhận khoản tiền với ShopNexus, không bao giờ chỉ dựa vào trang trình duyệt quay về. Lần mua chưa trả hết hạn sau 15 phút, lần bị hủy thì đóng ngay. Cả hai trường hợp người bán đều được báo và không mất tiền.
+Người bán trả trên trang của VNPay, mỗi lần mua một lần trả. ShopNexus không giữ số dư hay ví nào (<Req id="ADR-0006" />). Gói bắt đầu khi VNPay xác nhận khoản tiền với ShopNexus, không bao giờ chỉ dựa vào trang trình duyệt quay về, và số ngày tính từ lúc đó. Lần mua chưa trả hết hạn sau 15 phút, và trang của VNPay không nhận tiền sau đó nữa. Lần người bán hủy trên trang đó thì đóng ngay. Cả hai trường hợp người bán đều được báo và không mất tiền.
 
 Khoản này là tiền người bán trả ShopNexus cho một dịch vụ, không liên quan tới giao dịch nào: người mua và người bán vẫn chỉ trả tiền cho nhau tại cửa (<Req id="BR-DEAL-01" />).
 
-## Ngày bị mất và hoàn tiền
+## Không hoàn tiền
 
-Tới ngày đẩy mà tin đang ẩn, đang giữ chỗ hoặc bị nhân viên ẩn thì hôm đó tin không lên đầu, và gói không được thêm ngày (<Req id="BR-LST-06" />). Những ngày đó không được hoàn tiền.
+ShopNexus không hoàn tiền, cho giao dịch hay cho gói đẩy tin (<Req id="BR-LST-07" />). Tiền đã về thì gói luôn bắt đầu, kể cả khi lúc đó tin đang ẩn hay đang giữ chỗ.
 
-Tiền được hoàn đủ, tự động qua VNPay, chỉ khi tiền đã về mà gói không bắt đầu được (<Req id="BR-LST-07" />):
+Tới ngày đẩy mà tin đang ẩn, đang giữ chỗ, bị nhân viên ẩn hoặc không còn bán thì hôm đó tin không lên đầu, và gói không được thêm ngày (<Req id="BR-LST-06" />).
 
-- lúc tiền về tin không còn đang bán, ví dụ vì vừa bán xong;
-- tiền về sau khi lần mua đã hết hạn hoặc đã được thay bằng gói khác.
-
-Người bán nhận thông báo khi gói bắt đầu, kết thúc, hết hạn, thất bại hoặc được hoàn tiền.
+Người bán nhận thông báo khi gói bắt đầu, kết thúc, hết hạn hoặc thất bại.
