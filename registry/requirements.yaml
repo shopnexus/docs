@@ -956,26 +956,26 @@ uc:
     br: [BR-MOD-03]
     nfr: [NFR-PRIV-02, NFR-PERF-02, NFR-IDEM-01]
     adr: [ADR-0003]
-    api: ["GET /v1/console/agent/conversations", "POST /v1/console/agent/conversations", "GET /v1/console/agent/conversations/{id}", "PATCH /v1/console/agent/conversations/{id}", "DELETE /v1/console/agent/conversations/{id}", "POST /v1/console/agent/conversations/{id}/turns", "GET /v1/console/agent/turns/{id}/events", "POST /v1/console/agent/turns/{id}/pause", "POST /v1/console/agent/turns/{id}/stop", "POST /v1/console/agent/turns/{id}/continue", "POST /v1/console/agent/turns/{id}/end", "POST /v1/console/agent/turns/{id}/steer", "POST /v1/console/agent/turns/{id}/input"]
+    api: ["GET /v1/console/agent/conversations", "POST /v1/console/agent/conversations", "GET /v1/console/agent/conversations/{id}", "PATCH /v1/console/agent/conversations/{id}", "DELETE /v1/console/agent/conversations/{id}", "POST /v1/console/agent/conversations/{id}/turns", "GET /v1/console/agent/turns/{id}/events", "GET /v1/console/agent/turns/{id}", "POST /v1/console/agent/turns/{id}/pause", "POST /v1/console/agent/turns/{id}/stop", "POST /v1/console/agent/turns/{id}/resume", "POST /v1/console/agent/turns/{id}/steer", "GET /v1/console/agent/operations", "GET /v1/console/agent/approvals", "POST /v1/console/agent/approvals/{id}/approve", "POST /v1/console/agent/approvals/{id}/reject"]
     pre: "Nhân viên đã đăng nhập trang điều hành (UC-MOD-10)."
-    post: "Nhân viên nhận câu trả lời kèm nguồn; không dữ liệu nghiệp vụ nào bị thay đổi."
+    post: "Nhân viên nhận câu trả lời; một thay đổi trợ lý AI đề nghị chỉ chạy khi một nhân viên duyệt."
     main:
-      1: "Nhân viên mở cuộc trò chuyện chung của một tài khoản hoặc phiếu hỗ trợ, hoặc một cuộc trò chuyện riêng; gõ @ để nhắc thêm bản ghi."
+      1: "Nhân viên mở cuộc trò chuyện chung của một tài khoản hoặc phiếu hỗ trợ, hoặc một cuộc trò chuyện riêng."
       2: "Nhân viên đặt câu hỏi; hệ thống làm sạch câu hỏi, mở lượt hỏi ghi tên người hỏi, mỗi cuộc trò chuyện chỉ một lượt chưa xong."
-      3: "Hệ thống chuyển lượt cho trợ lý AI kèm cấu hình, lịch sử và các bản ghi được nhắc; trợ lý AI đọc bằng các công cụ chỉ đọc, chia việc thành từng bước và trang điều hành hiện từng bước khi đang chạy."
-      4: "Trợ lý AI trả lời bằng chữ và các khối (số liệu, bảng, đồ thị); mỗi ý kèm số nguồn trỏ tới bản ghi đã đọc."
+      3: "Hệ thống chuyển lượt cho dịch vụ agent kèm hướng dẫn, lịch sử và token của lượt; trợ lý AI gọi API của trang điều hành bằng CLI shopnexus, với quyền của nhân viên và trong các capability của agent; trang điều hành hiện từng bước khi đang chạy."
+      4: "Trợ lý AI trả lời bằng chữ; câu trả lời vào lịch sử của cuộc trò chuyện."
     alt:
-      A1: { at: 3, text: "Lượt quá thời hạn (mặc định 60 giây), lỗi hoặc bị gián đoạn sau khi đã làm được một phần: lượt dừng, phần đã đọc giữ lại, nhân viên bấm Tiếp tục để chạy tiếp từ chỗ dừng.", nfr: NFR-PERF-02 }
-      A2: { at: 3, text: "Nhân viên bấm Tạm dừng hoặc Dừng ngay; lượt tạm dừng sau bước đang làm, nhân viên tiếp tục hoặc kết thúc lượt." }
+      A1: { at: 3, text: "Lượt quá thời hạn hoặc lỗi giữa chừng: lượt kết thúc, phần đã làm giữ trong lịch sử; nhân viên bấm Tiếp tục để chạy lại lượt cuối từ chỗ dừng.", nfr: NFR-PERF-02 }
+      A2: { at: 3, text: "Nhân viên bấm Tạm dừng: các lệnh đang chạy làm xong rồi lượt dừng; bấm lần nữa để dừng ngay; Tiếp tục chạy tiếp lượt." }
       A3: { at: 3, text: "Nhân viên gõ thêm chỉ dẫn khi lượt đang chạy; trợ lý AI đọc chỉ dẫn trước lần gọi mô hình kế tiếp." }
-      A4: { at: 3, text: "Câu hỏi chưa rõ: trợ lý AI hỏi lại kèm các lựa chọn; nhân viên chọn câu trả lời và lượt chạy tiếp." }
+      A4: { at: 3, text: "Trợ lý AI đề nghị một thay đổi (thao tác không phải GET): thay đổi chờ duyệt, không chạy; nhân viên duyệt thì yêu cầu chạy với quyền của người duyệt, từ chối thì không chạy; trợ lý AI biết kết quả ở lần chạy sau." }
       A5: { at: 2, text: "Trang điều hành gửi lại cùng một câu hỏi (cùng khóa): hệ thống trả lượt đã mở, không chạy lần hai.", nfr: NFR-IDEM-01 }
       A6: { at: 3, text: "Nhân viên đóng trang: lượt vẫn chạy; mở lại thì xem tiếp từ sự kiện cuối đã thấy." }
     exc:
       E1: { at: 3, text: "Agent đã hết ngân sách tháng: lượt kết thúc, ô hỏi báo đã hết ngân sách; phần còn lại của trang điều hành vẫn dùng được." }
       E2: { at: 3, text: "Dịch vụ trợ lý AI không nhận lượt: lượt vừa mở bị xóa", error: agent_unavailable }
       E3: { at: 2, text: "Cuộc trò chuyện còn một lượt chưa xong", error: agent_turn_in_progress }
-      E4: { at: 2, text: "Câu hỏi dài quá 2000 ký tự", error: agent_input_rejected }
+      E4: { at: 2, text: "Câu hỏi rỗng sau khi làm sạch", error: agent_input_rejected }
       E5: { at: 2, text: "Một nhân viên gửi quá 30 câu hỏi và chỉ dẫn trong một phút", error: agent_rate_limited }
       E6: { at: 2, text: "Agent được chọn không có hoặc không phải agent của trang điều hành", error: ai_agent_not_found }
       E7: { at: 1, text: "Cuộc trò chuyện không có hoặc là cuộc trò chuyện riêng của nhân viên khác", error: agent_conversation_not_found }
@@ -1070,7 +1070,7 @@ uc:
     actors: [admin]
     fr: [FR-MOD-06]
     nfr: [NFR-CONC-01]
-    api: ["GET /v1/console/settings/providers", "GET /v1/console/settings/providers/{name}/models", "GET /v1/console/settings/models", "PUT /v1/console/settings/models/tags", "PUT /v1/console/settings/models/price", "GET /v1/console/settings/agents", "POST /v1/console/settings/agents", "GET /v1/console/settings/agents/usage", "PATCH /v1/console/settings/agents/{id}", "GET /v1/console/settings/agents/{id}/versions", "GET /v1/console/settings/spend", "GET /v1/console/settings/tools", "GET /v1/console/settings/guardrails"]
+    api: ["GET /v1/console/settings/providers", "GET /v1/console/settings/providers/{name}/models", "GET /v1/console/settings/models", "PUT /v1/console/settings/models/tags", "PUT /v1/console/settings/models/price", "GET /v1/console/settings/agents", "POST /v1/console/settings/agents", "GET /v1/console/settings/agents/usage", "PATCH /v1/console/settings/agents/{id}", "GET /v1/console/settings/agents/{id}/versions", "GET /v1/console/settings/spend"]
     pre: "Quản trị viên đã đăng nhập trang điều hành (UC-MOD-10). Nhà cung cấp mô hình và khóa API do hạ tầng cấu hình trong cổng AI."
     post: "Chính sách AI mới được lưu, ghi nhật ký (UC-SHR-02) và ghi vào cổng AI; mọi phần của máy chủ và trợ lý AI dùng nó từ lần gọi kế tiếp."
     main:
