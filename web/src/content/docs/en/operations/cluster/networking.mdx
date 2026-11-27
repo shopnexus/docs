@@ -118,8 +118,9 @@ flowchart TB
   IC --> IP["imgproxy :8080"] --> RF
   W -->|"API_URL"| SA
   SA --> S1["server pods<br/>current version"]
-  AG["agent :3000"] -->|"server-mcp :9090"| S1
-  S1 -->|"AGENT_BASE_URL"| AG
+  S1 -->|"AGENT_URL"| AG["agent :8080"]
+  AG -->|"turn token"| SA
+  AG --> PP["package-proxy :8080"]
   S1 -->|"OTLP :4318"| LG["lgtm"]
   S1 -->|"DATABASE_URL"| PG["postgres-rw"]
   S1 -->|"http://rustfs:9000"| RF
@@ -132,7 +133,7 @@ flowchart TB
 
 - The server's `RestateDeployment` gives each pod template its own ReplicaSet and its own Service, and registers that Service with Restate. A config change or a reseal changes the template's checksums, so it starts a new version. The operator keeps an old version until its invocations finish.
 - Restate invokes the server on the per-version Service, port 9080 (`restate`). An invocation that started on one version stays on it.
-- `server-api` and `server-mcp` select the current version only, by the label `shopnexus.id.vn/version`. They are in sync wave 3, which waits for the new version's pods to be ready, so API traffic moves in one step and a draining version only finishes its invocations.
+- `server-api` selects the current version only, by the label `shopnexus.id.vn/version`. It is in sync wave 3, which waits for the new version's pods to be ready, so API traffic moves in one step and a draining version only finishes its invocations.
 - The server's other pods call module ai in `server-ai` through Restate, never directly.
 - The server reaches Restate's ingress at `http://restate.restate-<stack>:8080` and its admin API at `:9070`. `RestateCluster` lives in its own namespace, `restate-dev` or `restate-prod`.
 
@@ -145,17 +146,18 @@ flowchart TB
 | Policy | Pods it selects | Admits traffic from |
 |---|---|---|
 | `default-deny-ingress` | every pod | nothing |
-| `from-stack` | every pod but `server`, `server-ai`, `agent`, `pgweb`, `imgproxy`, `lgtm` and `bifrost` | any pod in the same namespace |
+| `from-stack` | every pod but `server`, `server-ai`, `agent`, `package-proxy`, `pgweb`, `imgproxy`, `lgtm` and `bifrost` | any pod in the same namespace |
 | `from-traefik` | `website`, `docs`, `console`, `rustfs`, `lgtm`, `bifrost`, `pgweb`, `imgproxy-cache` | pods `app.kubernetes.io/name: traefik` in `kube-system` |
-| `to-server` | `server` | 8080 from the stack and Traefik; 9080 from the stack and `restate-<stack>`; 9090 from `agent` only |
+| `to-server` | `server` | 8080 from the stack and Traefik; 9080 from the stack and `restate-<stack>` |
 | `to-server-ai` | `server-ai` | 9080 from the stack and `restate-<stack>` |
-| `to-agent` | `agent` | 3000 from `server` only |
+| `to-agent` | `agent` | 8080 from `server` only |
+| `to-package-proxy` | `package-proxy` | 8080 from `agent` only |
 | `to-lgtm` | `lgtm` | OTLP on 4318 from the stack; Grafana only through Traefik |
 | `to-imgproxy` | `imgproxy` | 8080 from `imgproxy-cache` only |
 | `from-cnpg` | `cnpg.io/cluster: postgres` | the namespace `cnpg-system` (the CloudNativePG operator) |
 | `from-restate` | `rustfs` | the namespace `restate-<stack>`, for snapshots |
 | `from-monitoring` | the Postgres pods | the cluster's Prometheus, on the exporter port 9187 |
-| `to-bifrost` | `bifrost` | the server, the console agent and the cluster's Prometheus, on 8080 |
+| `to-bifrost` | `bifrost` | the server, the agent and the cluster's Prometheus, on 8080 |
 | `bifrost-egress` | `bifrost` (egress) | DNS, Postgres, the upstream's port, and 443 to public addresses |
 
 ```mermaid title="Allowed flows into shopnexus-prod"
@@ -202,7 +204,7 @@ The restate-operator writes the policies for the Restate namespace from the `Res
 - No policy admits traffic from `shopnexus-dev` into `shopnexus-prod` or the reverse, and each stack's policies name only its own `restate-<stack>` namespace.
 - Grafana and pgweb trust the console's gate, so only Traefik reaches them.
 - Egress is open but for Bifrost. The server calls Firebase and FCM outside the cluster; Bifrost reaches only the upstream and public addresses on 443 ([Bifrost gateway](/en/operations/cluster/llm-gateway#network)).
-- `from-stack` leaves Bifrost out. Only the server and the console agent reach it, and every model call carries a virtual key.
+- `from-stack` leaves Bifrost out. Only the server and the agent reach it, and every model call carries a virtual key.
 </KeyRules>
 
 The failover drill in the [Runbook](/en/operations/cluster/runbook#failover-drills) connects from a `shopnexus-dev` pod to `postgres-rw.shopnexus-prod`. The NetworkPolicy drops the packets, so the connection times out.
