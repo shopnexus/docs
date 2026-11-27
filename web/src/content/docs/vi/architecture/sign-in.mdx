@@ -45,7 +45,7 @@ sequenceDiagram
 ```
 
 1. Mã OTP bị từ chối khi challenge của nó không tồn tại, không phải challenge mới nhất của địa chỉ, dành cho việc thêm định danh, đã hết hạn hoặc hết lượt đoán. Lượt đoán đã tính được lưu lại.
-2. Định danh đã có được đánh dấu vừa dùng. Tài khoản đang bị tạm khóa thì flow dừng với `account_suspended`.
+2. Định danh đã có được đánh dấu vừa dùng. Tài khoản đang bị tạm khóa cũng đăng nhập được; sau đó ứng dụng và website chỉ hiện màn hình tạm khóa <Req id="BR-MOD-02" />.
 3. Địa chỉ mới được tạo tài khoản và định danh trong cùng một transaction. Nếu một lượt đăng ký khác đã chiếm giá trị đó trước, không gì được ghi và câu trả lời là `try_again`.
 4. Phía HTTP tạo [phiên đăng nhập](/vi/architecture/sessions). `account.is_new` báo cho ứng dụng hỏi thông tin hồ sơ.
 

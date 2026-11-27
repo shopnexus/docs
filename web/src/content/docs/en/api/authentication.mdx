@@ -48,7 +48,7 @@ The access token lasts 15 minutes. On a bearer call, 401 is always about the bea
 
 `POST /v1/auth/refresh {"refresh_token": "…"}` returns a new pair. A refresh token works once; reusing one, or two refreshes with one token, signs the session out. So refresh as a single flight, when less than a minute is left or on the first 401, and let other requests wait. The app keeps the refresh token encrypted under a Keystore key.
 
-On `session_revoked`, `session_expired` or `invalid_refresh_token`, send the person to sign-in. `account_suspended` means the account is suspended.
+On `session_revoked`, `session_expired` or `invalid_refresh_token`, send the person to sign-in. A suspended account signs in and refreshes as any other: `GET /v1/accounts/me` then has `status: suspended` and `suspension` (the reason, and `until` unless it has no end). Show only the locked screen, with support and sign-out. A write it may not make answers 403 `account_suspended`; treat that the same way.
 
 ## Reauthenticate
 

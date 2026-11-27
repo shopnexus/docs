@@ -122,7 +122,7 @@ The console agent can read a case and answer questions about it; it changes noth
 Staff act on the account in the console, then close the case with resolve. The actions below do not close it on their own:
 
 - **Hide a listing.** A hidden-by-staff listing is held: the seller cannot show it again (`listing_held`), and an edit or "unmark sold" leaves it hidden. Only staff lift the hold.
-- **Suspend the account**, with a reason and an optional end. A suspended account cannot sign in, refresh its session or write anything new (listings, messages, offers, COD requests, reviews, reports, follows, profile changes). It can still withdraw, decline, cancel, and open or answer a support ticket (<Req id="BR-MOD-02" />).
+- **Suspend the account**, with a reason and an optional end. A suspended account stays signed in, but writes nothing new (listings, messages, offers, COD requests, reviews, reports, follows, profile changes). It can still withdraw, decline, cancel, open or answer a support ticket, and sign out (<Req id="BR-MOD-02" />). `GET /v1/accounts/me` carries the reason and the end, and the app and the website show only a locked screen with them, a way to support and sign-out.
 
 Both are audited. Staff take on only banned and fake goods, organised scams and requests from authorities; price and condition stay between the two people (<Req id="BR-MOD-01" />). There are no automatic sanctions.
 

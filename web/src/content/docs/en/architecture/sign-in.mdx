@@ -45,7 +45,7 @@ sequenceDiagram
 ```
 
 1. A code is refused when its challenge is unknown, not the newest for its address, meant for adding an identity, expired or out of guesses. The counted guess is saved.
-2. A known identity is marked as used; a suspended account ends the run with `account_suspended`.
+2. A known identity is marked as used. A suspended account signs in too; the app and the website then show only its locked screen <Req id="BR-MOD-02" />.
 3. An unknown address gets a new account and identity in one transaction. If another sign-up took the value first, nothing is written and the answer is `try_again`.
 4. The HTTP side creates the [session](/en/architecture/sessions). `account.is_new` tells the app to ask for a profile.
 

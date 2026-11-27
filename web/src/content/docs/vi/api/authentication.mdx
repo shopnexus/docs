@@ -48,7 +48,7 @@ Access token sống 15 phút. Trên lời gọi dùng bearer, 401 luôn nói v�
 
 `POST /v1/auth/refresh {"refresh_token": "…"}` trả về một cặp token mới. Mỗi refresh token chỉ dùng được một lần. Dùng lại token cũ, hoặc hai lần refresh cùng một token, sẽ đăng xuất phiên. Vì vậy hãy refresh theo kiểu single flight, khi access token còn dưới một phút hoặc khi gặp 401 đầu tiên, và cho các request khác chờ. Ứng dụng lưu refresh token đã mã hóa bằng một khóa trong Keystore.
 
-Khi gặp `session_revoked`, `session_expired` hoặc `invalid_refresh_token`, đưa người dùng về màn đăng nhập. `account_suspended` nghĩa là tài khoản đang bị tạm khóa.
+Khi gặp `session_revoked`, `session_expired` hoặc `invalid_refresh_token`, đưa người dùng về màn đăng nhập. Tài khoản bị tạm khóa đăng nhập và làm mới phiên như mọi tài khoản khác: lúc đó `GET /v1/accounts/me` có `status: suspended` và `suspension` (lý do, và `until` trừ khi không có ngày hết). Chỉ hiện màn hình tạm khóa, với lối gửi hỗ trợ và nút đăng xuất. Thao tác ghi không được phép trả 403 `account_suspended`; xử lý như trên.
 
 ## Xác thực lại
 

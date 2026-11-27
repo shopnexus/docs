@@ -17,7 +17,7 @@ A session is one signed-in device <Req id="UC-ACC-02" />. [Sign-in](/en/architec
 
 A JWT signed with Ed25519, valid for 15 minutes <Req id="NFR-SEC-01" />. It carries the account ID, the session ID and the time of the last sign-in, and no name or number. The middleware checks signature and expiry only and reads no database.
 
-So a suspended or deleted person can still read for up to 15 minutes. Every write checks the account's status: suspended is 403 `account_suspended`, deleted is 401 `session_revoked`.
+So a deleted person can still read for up to 15 minutes. A suspended person keeps the session and can still read <Req id="BR-MOD-02" />. Every write checks the account's status: suspended is 403 `account_suspended`, deleted is 401 `session_revoked`.
 
 A key ID in the token header names the signing key. During a key change the previous key still verifies, so a key change signs nobody out.
 
@@ -33,7 +33,6 @@ flowchart TD
   P -- no --> I[invalid_refresh_token]
   C -- yes --> U{Session and account}
   U -- revoked or expired --> Q[session_revoked / session_expired]
-  U -- suspended --> S[Revoke, account_suspended]
   U -- deleted --> D[Revoke, session_revoked]
   U -- fine --> R[Rotate and save]
   R -- conflict --> K[Sign-out or a racing refresh won: session_revoked]
@@ -41,8 +40,8 @@ flowchart TD
 ```
 
 - Two refreshes racing with one token count as a replay: the loser revokes the session.
-- A session revoked for a suspension keeps answering `account_suspended` to its current token while the suspension lasts, so a client that lost the first answer still learns why.
-- A revoked session keeps the reason it was first revoked: `sign_out`, `reuse`, `suspended` or `deleted`.
+- A suspended account refreshes as any other, and a suspension signs out no device <Req id="BR-MOD-02" />. The app learns of it from `GET /v1/accounts/me`, which carries `suspension` with the reason and the end, if any.
+- A revoked session keeps the reason it was first revoked: `sign_out`, `reuse` or `deleted`. Older rows may say `suspended`; such a session answers `session_revoked` like any other.
 
 ## Reauthentication
 

@@ -87,7 +87,7 @@ Mỗi kết nối được gửi 10 frame cùng lúc, sau đó một frame mỗi
 |---|---|---|
 | 1001 | server đang tắt | kết nối lại ngay với seq của mình; instance khác sẽ nhận và không mất gì |
 | 4001 | token hết hạn, không hợp lệ hoặc thuộc tài khoản khác | refresh token rồi kết nối lại |
-| 4003 | tài khoản đang bị tạm khóa, kiểm tra khi kết nối và ở mỗi `auth` | không kết nối lại |
+| 4003 | tài khoản đang bị tạm khóa, kiểm tra khi kết nối và ở mỗi `auth` | không kết nối lại; phiên vẫn còn, nên giữ màn hình tạm khóa và đọc lại khi màn hình mở |
 | 1008 | frame không phải JSON dạng text, có type lạ, hoặc vượt tốc độ frame | sửa client |
 | 1009 | frame quá 4 KB | sửa client |
 

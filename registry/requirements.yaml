@@ -59,6 +59,7 @@ uc:
       A1: { at: 1, text: "Đăng nhập bằng email: hệ thống gửi mã OTP sáu số tới email, sống 5 phút, đoán tối đa 5 lần; người dùng nhập mã. Câu trả lời như nhau dù email đã có tài khoản hay chưa.", br: BR-ACC-02 }
       A2: { at: 3, text: "Chưa tài khoản nào giữ số hoặc email: hệ thống tạo tài khoản và phương thức đăng nhập trong một giao dịch." }
       A3: { at: 4, text: "Ứng dụng gửi lại yêu cầu với cùng khóa: hệ thống cấp mã mới cho phiên đã tạo, không tạo phiên thứ hai.", nfr: NFR-IDEM-01 }
+      A4: { at: 3, text: "Tài khoản đang bị tạm khóa vẫn đăng nhập được; ứng dụng chỉ mở màn hình tạm khóa với lý do, ngày hết, nút gửi hỗ trợ và nút đăng xuất.", br: BR-MOD-02 }
     exc:
       E1: { at: 2, text: "Bằng chứng Firebase không hợp lệ, quá 5 phút, hoặc số không phải số di động Việt Nam", error: invalid_phone_token }
       E2: { at: 2, text: "Bằng chứng Google không hợp lệ hoặc quá 5 phút", error: invalid_google_token }
@@ -68,7 +69,7 @@ uc:
       E6: { at: 2, text: "Mã OTP sai; câu trả lời cho biết còn mấy lần đoán", error: invalid_code }
       E7: { at: 2, text: "Đoán sai quá 5 lần", error: code_locked }
       E8: { at: 2, text: "Mã OTP hết hạn, đã có mã mới hơn, hoặc là mã để thêm email vào tài khoản", error: code_expired }
-      E9: { at: 3, text: "Tài khoản đang bị tạm khóa", error: account_suspended }
+      E9: { status: retired, at: 3, text: "Tài khoản đang bị tạm khóa. Đã bỏ: tài khoản bị tạm khóa vẫn đăng nhập được (A4)." }
       E10: { at: 3, text: "Một lượt đăng ký khác vừa giữ số hoặc email đó, hoặc tài khoản vừa bị xóa; người dùng thử lại (try_again)", br: BR-ACC-05 }
       E11: { at: 4, text: "Phiên của lần gửi đầu đã bị đăng xuất", error: session_revoked }
   - id: UC-ACC-02
@@ -90,6 +91,7 @@ uc:
       A1: { at: 2, text: "Người dùng đăng xuất mọi thiết bị khác cùng lúc.", br: BR-ACC-04 }
       A2: { at: 2, text: "Lần đăng nhập đã quá 15 phút: người dùng xác nhận lại bằng mã OTP qua SMS, Google hoặc mã OTP gửi email của chính tài khoản; hệ thống dời thời điểm đăng nhập của phiên và cấp mã truy cập mới, giữ nguyên mã làm mới.", br: BR-ACC-04 }
       A3: { at: 1, text: "Mã truy cập hết hạn sau 15 phút: ứng dụng làm mới phiên; hệ thống thay mã làm mới và cấp mã truy cập mới.", nfr: NFR-SEC-01 }
+      A4: { at: 1, text: "Tài khoản đang bị tạm khóa vẫn làm mới phiên như mọi tài khoản khác; việc tạm khóa không đăng xuất thiết bị nào.", br: BR-MOD-02 }
     exc:
       E1: { at: 2, text: "Phiên không có hoặc thuộc tài khoản khác", br: BR-ACC-02, error: session_not_found }
       E2: { at: 2, text: "Đăng xuất thiết bị khác khi lần đăng nhập đã quá 15 phút", br: BR-ACC-04, error: reauth_required }
@@ -97,7 +99,7 @@ uc:
       E4: { at: 1, text: "Mã làm mới không có trong hệ thống", error: invalid_refresh_token }
       E5: { at: 1, text: "Mã làm mới đã thay bị dùng lại hoặc hai lần làm mới tranh nhau (hệ thống thu hồi phiên), phiên đã đăng xuất, hoặc tài khoản đã xóa", nfr: NFR-SEC-01, error: session_revoked }
       E6: { at: 1, text: "Phiên đã quá 60 ngày kể từ lúc đăng nhập hoặc 30 ngày không dùng", error: session_expired }
-      E7: { at: 1, text: "Tài khoản đang bị tạm khóa; hệ thống thu hồi phiên", error: account_suspended }
+      E7: { status: retired, at: 1, text: "Tài khoản đang bị tạm khóa; hệ thống thu hồi phiên. Đã bỏ: phiên vẫn làm mới được (A4)." }
   - id: UC-ACC-03
     was: [UC-03]
     status: retired
@@ -1001,7 +1003,7 @@ uc:
       A1: { at: 2, text: "Đơn đã có phiếu báo chưa nhận hàng, hoặc ứng dụng gửi lại cùng khóa: hệ thống trả phiếu đã có, không mở phiếu mới.", nfr: NFR-IDEM-01 }
       A2: { at: 5, text: "Người dùng nhắn tiếp vào phiếu đã xử lý: phiếu mở lại và chờ trả lời; điều phối viên cũng mở lại được." }
       A3: { at: 5, text: "Phiếu xin thêm hãng: trước khi đánh dấu đã xử lý, hệ thống gửi tin «Đã ghi nhận hãng …»." }
-      A4: { at: 1, text: "Tài khoản đang bị tạm khóa vẫn gửi được phiếu hỗ trợ và nhắn trong phiếu.", br: BR-MOD-02 }
+      A4: { at: 1, text: "Tài khoản đang bị tạm khóa vẫn đăng nhập, gửi phiếu hỗ trợ và nhắn trong phiếu; ứng dụng chỉ mở màn hình tạm khóa, từ đó người dùng gửi phiếu và xem các phiếu của mình.", br: BR-MOD-02 }
       A5: { at: 5, text: "Người dùng xóa tài khoản: các phiếu đang mở chuyển sang đã xử lý." }
     exc:
       E1: { at: 2, text: "Quá 10 phiếu trong 24 giờ: không mở cuộc trò chuyện nào", error: too_many_tickets }
@@ -1009,8 +1011,6 @@ uc:
       E3: { at: 1, text: "Đơn chưa gửi, hoặc đã hoàn tất mà không phải hệ thống tự hoàn tất trong 7 ngày qua", error: ticket_not_allowed }
       E4: { at: 1, text: "Phiếu sai giới hạn: thiếu đơn, tên hãng ngoài 1 đến 50 ký tự hoặc yêu cầu khác không có tin nhắn", error: invalid_ticket }
       E5: { at: 2, text: "Tin nhắn đầu bị từ chối (ví dụ ảnh không phải của người dùng): phiếu và cuộc trò chuyện bị bỏ." }
-    gaps:
-      - "A4: tài khoản bị tạm khóa không đăng nhập hay làm mới phiên được (BR-MOD-02), nên chỉ gửi được phiếu trong tối đa 15 phút còn lại của phiên đang có."
   - id: UC-MOD-10
     status: done
     title: { vi: "Đăng nhập trang điều hành", en: "Sign in to the console" }
@@ -1244,7 +1244,7 @@ br:
   - { id: BR-TRS-05, text: { vi: "Uy tín hiển thị bằng số liệu quan sát được, không có điểm hay bậc; hạn mức như nhau cho mọi tài khoản và không mua được bằng gói trả phí; tỉ lệ trả lời chỉ tính khi có từ 5 cuộc trò chuyện trong 90 ngày." } }
   - { id: BR-TRS-06, text: { vi: "Cảnh báo lừa đảo cần ít nhất một dấu hiệu trong tin nhắn; số điện thoại, số tài khoản, số thẻ, email và link được che trước khi AI đọc; cảnh báo đã tắt hiện lại khi có dấu hiệu mới." } }
   - { id: BR-MOD-01, was: [BR-19], text: { vi: "Nhân viên chỉ xử lý phiếu hỗ trợ, hàng cấm và hàng giả bị báo cáo, lừa đảo có tổ chức và yêu cầu của cơ quan có thẩm quyền; giá và tình trạng hàng là việc giữa hai bên." } }
-  - { id: BR-MOD-02, text: { vi: "Tài khoản đang bị tạm khóa không đăng nhập hay làm mới phiên được, nên phiên đang có hết trong tối đa 15 phút. Trong lúc đó tài khoản không ghi được gì mới: đăng hay sửa tin, nhắn tin, trả giá, chấp nhận giá, yêu cầu COD, viết, xóa hay đánh dấu đánh giá, báo cáo hay rút báo cáo, theo dõi, sửa hồ sơ, thêm định danh hay xóa tài khoản. Vẫn được rút giá, từ chối, hủy đơn, gửi phiếu hỗ trợ và nhắn trong phiếu." } }
+  - { id: BR-MOD-02, text: { vi: "Tài khoản đang bị tạm khóa vẫn đăng nhập và giữ phiên, nhưng ứng dụng chỉ cho xem lý do, ngày hết tạm khóa, liên hệ hỗ trợ và đăng xuất. Tài khoản không ghi được gì mới: đăng hay sửa tin, nhắn tin, trả giá, chấp nhận giá, yêu cầu COD, viết, xóa hay đánh dấu đánh giá, báo cáo hay rút báo cáo, theo dõi, sửa hồ sơ, thêm định danh hay xóa tài khoản. Vẫn được rút giá, từ chối, hủy đơn, gửi phiếu hỗ trợ và nhắn trong phiếu." } }
   - { id: BR-MOD-03, text: { vi: "Trợ lý AI của trang điều hành chỉ đọc và đề xuất; mọi thay đổi do nhân viên bấm và được ghi nhật ký kiểm toán; tin nhắn gửi cho người dùng luôn mang tên chung của hệ thống." } }
   - { id: BR-MOD-04, text: { vi: "Quản trị viên chỉ được tạo và quản lý bằng công cụ dòng lệnh của máy chủ; trang điều hành chỉ quản lý điều phối viên." } }
   - { id: BR-SHR-01, text: { vi: "Công tắc tắt chỉ chặn thông báo đẩy hoặc email của loại đó; thông báo vẫn nằm trong danh sách. Thông báo về tin lên sàn hay bị từ chối, tài khoản, góp ý và Chợ Tốt không có công tắc; tìm kiếm theo dõi đẩy theo chuông riêng của từng tìm kiếm. Trong giờ yên lặng (giờ Việt Nam, giờ bắt đầu khác giờ kết thúc) không thông báo đẩy nào đi và thông báo bị bỏ chứ không đẩy sau. Email đơn hàng có công tắc riêng, email tạm khóa và mở khóa tài khoản luôn gửi; email không theo giờ yên lặng." } }

@@ -122,7 +122,7 @@ Trợ lý AI trên trang điều hành đọc được một ca và trả lời 
 Nhân viên xử lý tài khoản trên trang điều hành, rồi đóng ca bằng thao tác xử lý. Các thao tác dưới đây không tự đóng ca:
 
 - **Ẩn một tin đăng.** Tin do nhân viên ẩn bị giữ lại: người bán không hiện tin lại được (`listing_held`), và việc sửa hay "bỏ đánh dấu đã bán" vẫn để tin ẩn. Chỉ nhân viên gỡ được lệnh giữ.
-- **Tạm khóa tài khoản**, kèm lý do và thời điểm kết thúc tùy chọn. Tài khoản đang bị tạm khóa không đăng nhập, làm mới phiên đăng nhập hay viết thêm gì mới được (tin đăng, tin nhắn, giá đề nghị, yêu cầu COD, đánh giá, báo cáo vi phạm, lượt theo dõi, thay đổi hồ sơ). Tài khoản đó vẫn rút giá, từ chối, hủy, và mở hoặc trả lời phiếu hỗ trợ được (<Req id="BR-MOD-02" />).
+- **Tạm khóa tài khoản**, kèm lý do và thời điểm kết thúc tùy chọn. Tài khoản đang bị tạm khóa vẫn đăng nhập, nhưng không viết thêm gì mới được (tin đăng, tin nhắn, giá đề nghị, yêu cầu COD, đánh giá, báo cáo vi phạm, lượt theo dõi, thay đổi hồ sơ). Tài khoản đó vẫn rút giá, từ chối, hủy, mở hoặc trả lời phiếu hỗ trợ, và đăng xuất được (<Req id="BR-MOD-02" />). `GET /v1/accounts/me` có lý do và ngày hết; ứng dụng và website chỉ hiện màn hình tạm khóa với hai thông tin đó, lối gửi hỗ trợ và nút đăng xuất.
 
 Cả hai đều được ghi nhật ký kiểm toán. Nhân viên chỉ nhận hàng cấm và hàng giả, lừa đảo có tổ chức và yêu cầu từ cơ quan chức năng; giá và tình trạng là chuyện giữa hai người (<Req id="BR-MOD-01" />). Không có chế tài tự động.
 

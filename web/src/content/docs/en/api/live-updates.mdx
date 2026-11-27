@@ -87,7 +87,7 @@ A connection may send 10 frames at once and then one a second.
 |---|---|---|
 | 1001 | the server is shutting down | reconnect at once with its seq; another instance picks it up and nothing is lost |
 | 4001 | the token expired, is invalid or belongs to another account | refresh the token, then reconnect |
-| 4003 | the account is suspended, checked at connect and at each `auth` | not reconnect |
+| 4003 | the account is suspended, checked at connect and at each `auth` | not reconnect; the session stays, so keep the locked screen and read again when it opens |
 | 1008 | a frame that is not JSON text, has an unknown type, or breaks the frame rate | fix the client |
 | 1009 | a frame over 4 KB | fix the client |
 

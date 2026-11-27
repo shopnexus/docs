@@ -17,7 +17,7 @@ Mỗi phiên đăng nhập là một thiết bị đã đăng nhập <Req id="UC
 
 Access token là JWT ký bằng Ed25519, sống 15 phút <Req id="NFR-SEC-01" />. Trong token có ID tài khoản, ID phiên và thời điểm đăng nhập gần nhất, không có tên hay số điện thoại. Middleware chỉ kiểm tra chữ ký và hạn, không đọc database.
 
-Vì vậy người bị tạm khóa hoặc đã xóa tài khoản vẫn đọc được tối đa 15 phút. Mọi thao tác ghi đều kiểm tra trạng thái tài khoản: bị tạm khóa trả 403 `account_suspended`, đã xóa trả 401 `session_revoked`.
+Vì vậy người đã xóa tài khoản vẫn đọc được tối đa 15 phút. Người bị tạm khóa giữ phiên và vẫn đọc được <Req id="BR-MOD-02" />. Mọi thao tác ghi đều kiểm tra trạng thái tài khoản: bị tạm khóa trả 403 `account_suspended`, đã xóa trả 401 `session_revoked`.
 
 Header của token có ID khóa, chỉ ra khóa đã ký. Trong lúc đổi khóa, khóa trước vẫn xác minh được, nên đổi khóa không đăng xuất ai.
 
@@ -33,7 +33,6 @@ flowchart TD
   P -- không --> I[invalid_refresh_token]
   C -- có --> U{Phiên và tài khoản}
   U -- đã thu hồi hoặc hết hạn --> Q[session_revoked / session_expired]
-  U -- bị tạm khóa --> S[Thu hồi, account_suspended]
   U -- đã xóa --> D[Thu hồi, session_revoked]
   U -- bình thường --> R[Xoay vòng và lưu]
   R -- xung đột --> K[Đăng xuất hoặc lượt refresh song song thắng: session_revoked]
@@ -41,8 +40,8 @@ flowchart TD
 ```
 
 - Hai lượt refresh chạy song song với cùng một token bị tính là dùng lại: lượt thua thu hồi phiên.
-- Phiên bị thu hồi vì tạm khóa vẫn trả `account_suspended` cho token hiện tại của nó trong suốt thời gian tạm khóa. Nhờ vậy client lỡ mất câu trả lời đầu vẫn biết lý do.
-- Phiên bị thu hồi giữ lý do của lần thu hồi đầu tiên: `sign_out`, `reuse`, `suspended` hoặc `deleted`.
+- Tài khoản bị tạm khóa làm mới phiên như mọi tài khoản khác, và việc tạm khóa không đăng xuất thiết bị nào <Req id="BR-MOD-02" />. Ứng dụng biết mình bị tạm khóa qua `GET /v1/accounts/me`, nơi có `suspension` với lý do và ngày hết, nếu có.
+- Phiên bị thu hồi giữ lý do của lần thu hồi đầu tiên: `sign_out`, `reuse` hoặc `deleted`. Các dòng cũ có thể ghi `suspended`; phiên đó trả `session_revoked` như mọi phiên bị thu hồi khác.
 
 ## Xác thực lại
 
