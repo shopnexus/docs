@@ -30,7 +30,7 @@ flowchart LR
   server -->|runs| agent
   agent --> bifrost
   bifrost --> llm[Model providers]
-  server --> outside[Firebase, Google, FCM, mail,<br/>GHN, GHTK, Chợ Tốt, IndexNow]
+  server --> outside[Firebase, Google, FCM, mail,<br/>GHN, GHTK, VNPay, Chợ Tốt, IndexNow]
 ```
 
 ## The stores
@@ -42,6 +42,7 @@ Postgres with ParadeDB holds every table, the full-text index search runs on, an
 - Firebase verifies a phone number. The client signs in with Firebase and hands the server the token it returns. Google sign-in and email codes are the other two proofs.
 - Firebase Cloud Messaging carries push notifications, and a mail provider sends email codes and notices.
 - GHN and GHTK are the carriers. A seller links their own carrier account, and the server makes, tracks and cancels shipments on it. Carriers report back through webhooks and polling.
+- VNPay takes a seller's payment for a boost and reports it back to the server ([Boosts and payments](/en/architecture/boosts-and-payments)).
 - Chợ Tốt's public API lets a seller bring over listings they already have there.
 - IndexNow tells search engines when a public listing changes.
 

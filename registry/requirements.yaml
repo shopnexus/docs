@@ -35,6 +35,7 @@ actors:
   moderator: { vi: Điều phối viên, en: Moderator }
   admin: { vi: Quản trị viên, en: Administrator }
   llm: { vi: Dịch vụ AI, en: AI service }
+  vnpay: { vi: Cổng thanh toán VNPay, en: VNPay payment gateway }
   sub: { vi: Ca con, en: Sub use case }
 
 uc:
@@ -314,10 +315,51 @@ uc:
       E8: { at: 3, text: "Hai lần sửa cùng lúc: lần thua được báo thử lại; ảnh nó đã gắn vẫn dùng được ở lần sau", nfr: NFR-CONC-01, error: try_again }
   - id: UC-LST-03
     was: [UC-08]
-    status: planned
-    title: { vi: Đẩy tin và đăng ký gói người bán, en: Boost listings and seller plans }
+    status: done
+    title: { vi: Đẩy tin, en: Boost a listing }
     actors: [seller]
+    secondary: [vnpay]
     fr: [FR-LST-03]
+    br: [BR-LST-04, BR-LST-05, BR-LST-06, BR-LST-07, BR-ACC-03]
+    nfr: [NFR-IDEM-01, NFR-IDEM-02, NFR-SEC-02, NFR-DUR-01]
+    adr: [ADR-0002, ADR-0006]
+    api: ["GET /v1/boost-packages", "POST /v1/boosts", "GET /v1/boosts/{id}", "GET /v1/payments/vnpay/return", "GET /v1/payments/vnpay/ipn", "GET /v1/dev/payments/{id}", "POST /v1/dev/payments/{id}", "GET /v1/console/listings/{id}/boosts"]
+    pre: Đã đăng nhập; người bán có một tin đang bán.
+    post: "Tin lên đầu các danh sách xếp theo tin mới ngay khi thanh toán xong, rồi mỗi 24 giờ một lần cho tới hết số ngày của gói; thẻ tin hiện nhãn Được đẩy."
+    main:
+      1: "Người bán mở một tin đang bán của mình và bấm Đẩy tin; ứng dụng hiện các gói kèm số ngày và giá (BR-LST-04)."
+      2: Người bán chọn một gói; ứng dụng gửi lần mua kèm khóa chống trùng.
+      3: Hệ thống kiểm tài khoản không bị tạm khóa và có số điện thoại (BR-LST-05).
+      4: Hệ thống kiểm tin là của người bán và đang bán.
+      5: Hệ thống kiểm tin chưa có gói nào đang chạy (BR-LST-05).
+      6: "Hệ thống mở một lần thanh toán đúng giá gói, sống 15 phút, rồi trả trang thanh toán của VNPay."
+      7: Người bán trả tiền trên trang của VNPay.
+      8: "VNPay báo kết quả về máy chủ (IPN); hệ thống kiểm chữ ký, mã lần thanh toán và số tiền rồi ghi đã trả (NFR-SEC-02)."
+      9: VNPay đưa người bán về trang kết quả; trang mở lại ứng dụng ở tin vừa đẩy.
+      10: "Hệ thống bắt đầu gói: tin lên đầu danh sách tin mới và người bán nhận thông báo gói đã bắt đầu."
+      11: Cứ 24 giờ hệ thống đẩy tin lên đầu một lần.
+      12: Hết số ngày của gói thì gói kết thúc và người bán được báo.
+    alt:
+      A1: { at: 2, text: "Ứng dụng gửi lại cùng lần mua: trả đúng gói và lần thanh toán của lần đầu.", nfr: NFR-IDEM-01 }
+      A2: { at: 5, text: "Tin đang có một gói chờ thanh toán: cùng gói thì trả lại gói đó; gói khác thì gói cũ bị hủy và gói mới thay chỗ." }
+      A3: { at: 7, text: "Quá 15 phút mà VNPay chưa báo: hệ thống hỏi VNPay một lần; VNPay báo đã trả thì đi tiếp bước 10, nếu không lần thanh toán hết hạn và người bán được báo." }
+      A4: { at: 8, text: "Tiền về khi gói đã hết hạn, thất bại hoặc bị thay: hệ thống hoàn đủ tiền qua VNPay và báo người bán.", br: BR-LST-07 }
+      A5: { at: 10, text: "Lúc tiền về tin không còn đang bán: gói không bắt đầu, hệ thống hoàn đủ tiền và báo người bán.", br: BR-LST-07 }
+      A6: { at: 11, text: "Tới lượt đẩy mà tin đang ẩn, đang giữ chỗ hay chưa bán được: bỏ lượt đó, gói không được thêm ngày.", br: BR-LST-06 }
+      A7: { at: 9, text: "Trang kết quả báo đã trả trước khi IPN tới: hệ thống hỏi VNPay rồi mới ghi; trang kết quả một mình không bao giờ ghi đã trả.", nfr: NFR-SEC-02 }
+    exc:
+      E1: { at: 2, text: Máy chủ không nhận thanh toán nên không bán gói nào, error: payment_unavailable }
+      E2: { at: 2, text: Gói không có trong bảng giá, br: BR-LST-04, error: unknown_boost_package }
+      E3: { at: 3, text: Tài khoản đang bị tạm khóa, br: BR-LST-05, error: account_suspended }
+      E4: { at: 3, text: Người bán chưa có số điện thoại, br: BR-ACC-03, error: phone_required }
+      E5: { at: 4, text: Tin không phải của người bán hoặc đã xóa, br: BR-ACC-02, error: listing_not_found }
+      E6: { at: 4, text: "Tin không đang bán (đang xử lý, ẩn, giữ chỗ, đã bán hoặc bị từ chối)", br: BR-LST-05, error: listing_not_boostable }
+      E7: { at: 5, text: Tin đang có một gói chạy, br: BR-LST-05, error: boost_active }
+      E8: { at: 7, text: "Người bán hủy trên trang VNPay hoặc ngân hàng từ chối: lần thanh toán thất bại, gói không bắt đầu và người bán được báo." }
+      E9: { at: 8, text: "IPN sai chữ ký, không khớp lần thanh toán nào hoặc sai số tiền: hệ thống không ghi gì và trả mã lỗi cho VNPay.", nfr: NFR-SEC-02 }
+    notes: "Chỉ các danh sách xếp theo tin mới đổi thứ tự: danh mục và tìm kiếm khi xếp mới nhất, các dải tin mới ở Trang chủ, phần tin mới của Dành cho bạn và tin trên hồ sơ người bán. Thẻ tin giữ thời gian đăng. Lượt đẩy không gửi thông báo tìm kiếm theo dõi hay người theo dõi. Trang điều hành chỉ xem các gói của một tin và lần thanh toán của chúng."
+    gaps:
+      - "A4, A5: VNPay từ chối lần hoàn thì lần thanh toán dừng ở đang hoàn; trang điều hành chưa có cách hoàn tay."
   - id: UC-LST-04
     status: done
     title: { vi: "Mang tin từ Chợ Tốt sang (liên kết trang cá nhân, nhập tin, theo dõi)", en: Bring listings over from Chợ Tốt }
@@ -1189,7 +1231,7 @@ fr:
   - { id: FR-SHR-01, was: [REQ-06], module: Media, uc: [UC-SHR-01], text: { vi: "Tải ảnh lên, chuẩn hóa ảnh, xóa thông tin vị trí chụp" } }
   - { id: FR-LST-01, was: [REQ-07], module: Tin đăng, uc: [UC-LST-01], text: { vi: "Đăng tin từ ảnh hoặc video với AI điền giúp; gợi ý giá từ tin tương tự; nháp đồng bộ giữa các máy; đăng lại từ tin cũ" } }
   - { id: FR-LST-02, was: [REQ-08], module: Tin đăng, uc: [UC-LST-02], text: { vi: "Quản lý tin: sửa, đổi giá, ẩn/hiện, đánh dấu đã bán, xóa" } }
-  - { id: FR-LST-03, was: [REQ-09], module: Tin đăng, uc: [UC-LST-03], text: { vi: "Đẩy tin và gói người bán" } }
+  - { id: FR-LST-03, was: [REQ-09], module: "Đẩy tin, Thanh toán", uc: [UC-LST-03], text: { vi: "Mua gói đẩy tin, trả qua VNPay; tin lên đầu danh sách tin mới mỗi 24 giờ trong thời gian của gói; hoàn tiền tự động khi gói không bắt đầu được" } }
   - { id: FR-LST-04, module: Tin đăng, uc: [UC-LST-04], text: { vi: "Liên kết trang cá nhân Chợ Tốt bằng mã trong phần giới thiệu; mang tin Chợ Tốt sang; đổi giá và ẩn theo Chợ Tốt; nhắc ẩn tin đã bán" } }
   - { id: FR-DSC-01, was: [REQ-10], module: Khám phá, uc: [UC-DSC-01], text: { vi: "Tìm kiếm bằng câu tự nhiên: AI đọc câu của người đã đăng nhập thành điều kiện và trả chip tắt được; khách tìm bằng từ của câu; tìm bằng ảnh; lịch sử tìm" } }
   - { id: FR-DSC-02, was: [REQ-11], module: Khám phá, uc: [UC-DSC-02], text: { vi: "Tìm theo bộ lọc, duyệt danh mục, xem tin tương tự, ẩn tin khỏi kết quả của mình" } }
@@ -1222,10 +1264,14 @@ br:
   - { id: BR-LST-01, was: [BR-02], text: { vi: "Tin đăng gồm tình trạng hàng theo thang Mới / Như mới / Đã dùng, các thông tin người bán ghi trong tin và ảnh; tin không có phần khai vết, AI không chỉ ra vết nào." } }
   - { id: BR-LST-02, was: [BR-04], text: { vi: "Tài khoản đang bị tạm khóa không được đọc tin bằng AI, xem gợi ý giá, đăng hay sửa tin; vẫn được ẩn, hiện, đánh dấu đã bán, bỏ đánh dấu và xóa tin. Mỗi người bán có tối đa 20 tin đang xử lý, đang bán, đang ẩn, đang giữ chỗ hoặc bị từ chối; bỏ đánh dấu đã bán cũng tính vào trần này." } }
   - { id: BR-LST-03, was: [BR-05], text: { vi: "Tiêu đề 1–70 ký tự; giá nguyên đồng từ 10.000 đến 1.000.000.000; mô tả ≤ 1.500 ký tự; danh mục con; 1–10 ảnh khác nhau, ảnh đầu là ảnh bìa; ≤ 20 thông số, mỗi thông số 1–50 ký tự, đủ các thông số danh mục yêu cầu; vị trí theo phường/xã. Vị trí GPS chỉ gửi khi người bán cho phép, phải cách phường/xã không quá 30 km, được làm nhòe khoảng 1 km trước khi lưu và không bao giờ trả về." } }
+  - { id: BR-LST-04, text: { vi: "Gói đẩy tin có 3 ngày giá 15.000 đ và 7 ngày giá 29.000 đ. Gói bắt đầu ngay khi thanh toán xong; mỗi 24 giờ tin lên đầu các danh sách xếp theo tin mới một lần, kể cả lượt đầu." } }
+  - { id: BR-LST-05, text: { vi: "Chỉ người bán mua gói cho tin đang bán của mình, khi tài khoản không bị tạm khóa và có số điện thoại. Mỗi tin có tối đa một gói đang chạy hoặc chờ thanh toán." } }
+  - { id: BR-LST-06, text: { vi: "Tin chỉ được đẩy khi đang bán. Ngày tin bị ẩn, giữ chỗ hay chưa lên sàn vẫn tính vào gói; gói không được thêm ngày và không hoàn tiền cho ngày đó." } }
+  - { id: BR-LST-07, text: { vi: "Tiền đã trả mà gói không bắt đầu được (tin không còn đang bán, gói đã hết hạn, thất bại hoặc bị thay) thì được hoàn đủ, tự động qua cổng thanh toán." } }
   - { id: BR-DSC-01, was: [BR-18], text: { vi: "AI tìm kiếm chỉ đọc câu tìm: không đặt hàng, không trả giá, không nhắn tin thay người dùng; mọi điều kiện AI đặt ra hiện thành chip người dùng tắt được." } }
   - { id: BR-DSC-02, text: { vi: "Tìm kiếm, Trang chủ và lần quét tìm kiếm theo dõi chỉ có tin đang bán; với người đã đăng nhập, chúng bỏ các tin người đó đã ẩn khỏi kết quả và tin của mọi người có chặn với người đó, theo cả hai chiều." } }
   - { id: BR-DSC-03, text: { vi: "Mỗi tài khoản lưu tối đa 500 tin, theo dõi tối đa 20 câu tìm, giữ 1.000 tin ẩn khỏi kết quả và 10 câu tìm gần nhất; câu tìm của một người được mô hình đọc tối đa 200 lần mỗi ngày (giờ UTC)." } }
-  - { id: BR-DEAL-01, was: [BR-01], text: { vi: "Hệ thống không giữ tiền: không ví, không cọc, không thu hộ, không hoàn tiền qua hệ thống." } }
+  - { id: BR-DEAL-01, was: [BR-01], text: { vi: "Hệ thống không giữ tiền của giao dịch giữa người mua và người bán: không ví, không cọc, không thu hộ, không hoàn tiền hàng qua hệ thống. Tiền gói đẩy tin là khoản riêng người bán trả cho nền tảng (ADR-0006)." } }
   - { id: BR-DEAL-02, was: [BR-03], text: { vi: "Người mua tự xem hàng khi đồng kiểm tại cửa rồi nhận hoặc từ chối; ứng dụng không gợi ý cần kiểm gì." } }
   - { id: BR-DEAL-03, was: [BR-06], text: { vi: "Mọi mức giá trong phiên trả giá là bội số 1.000 đ; người mua chỉ đưa giá đề nghị khi tin cho phép trả giá; giá đề nghị ≥ nửa giá niêm yết (làm tròn lên 1.000) và thấp hơn giá niêm yết hoặc phản giá; phản giá cao hơn giá đề nghị và thấp hơn giá niêm yết; mỗi thời điểm chỉ một giá đang mở, giá mở không hết hạn; chấp nhận phải đúng giá mà người chấp nhận đang thấy, nếu giá vừa bị đổi thì lượt chấp nhận bị từ chối và ứng dụng báo giá đã thay đổi." } }
   - { id: BR-DEAL-04, was: [BR-07], text: { vi: "Chốt giá không giữ hàng; nhiều người mua có thể cùng chốt một tin; khi người bán gửi hàng cho một người, các yêu cầu COD khác trên tin tự hủy với lý do \"đã gửi cho người khác\"." } }
@@ -1253,10 +1299,12 @@ br:
 nfr:
   - { id: NFR-DUR-01, was: [NFR-01], attr: Độ bền, text: { vi: "Máy chủ gặp sự cố giữa một quy trình nhiều bước không để lại dữ liệu dở dang; quy trình chạy tiếp từ bước đã xong và không lặp việc đã làm (không tạo hai vận đơn, không gửi hai email mã OTP)." } }
   - { id: NFR-IDEM-01, was: [NFR-02], attr: Không lặp khi gửi lại, text: { vi: "Một thao tác được ứng dụng gửi lại vì mạng chập chờn cho đúng kết quả của lần đầu; hãng báo trùng một trạng thái thì đơn không đổi trạng thái hai lần." } }
+  - { id: NFR-IDEM-02, attr: Không lặp khi gửi lại, text: { vi: "Cổng thanh toán báo một kết quả nhiều lần thì lần thanh toán chỉ đổi trạng thái một lần; một lần mua chỉ mở một lần thanh toán và một lần hoàn." } }
   - { id: NFR-CONC-01, was: [NFR-03], attr: Nhất quán khi đồng thời, text: { vi: "Hai người cùng sửa một dữ liệu thì người sửa sau được báo dữ liệu đã thay đổi thay vì ghi đè; các hạn mức (số đơn COD đang mở, số tin đang bán) vẫn đúng khi nhiều yêu cầu đến cùng lúc." } }
   - { id: NFR-MSG-01, was: [NFR-04], attr: Không mất thông báo giữa các module, text: { vi: "Thông báo cho các module khác được ghi cùng lúc với thay đổi dữ liệu; khi phần điều phối quy trình tạm ngừng, thông báo được giữ lại và gửi sau, người dùng vẫn xem được dữ liệu và giữ được phiên đăng nhập." } }
   - { id: NFR-PERF-01, was: [NFR-05], attr: Hiệu năng, text: { vi: "95% lượt xem dữ liệu trả về dưới 300 ms; 95% lượt tìm kiếm có câu đã đọc trả về dưới 800 ms; mô hình đọc câu quá 4 giây thì hệ thống tìm bằng câu gốc." } }
   - { id: NFR-SEC-01, was: [NFR-06], attr: An toàn xác thực, text: { vi: "Phiên đăng nhập ngắn hạn sống 15 phút và được làm mới tự động; mã làm mới bị dùng lại thì phiên bị thu hồi; có hạn mức gửi OTP; không lộ việc một số điện thoại hay email đã có tài khoản." } }
+  - { id: NFR-SEC-02, attr: An toàn thanh toán, text: { vi: "Chỉ một IPN có chữ ký đúng hoặc câu trả lời của cổng khi máy chủ hỏi mới ghi một lần thanh toán là đã trả; trang kết quả trên trình duyệt không bao giờ tự ghi; khóa bí mật của cổng không ra nhật ký." } }
   - { id: NFR-PRIV-01, was: [NFR-07], attr: Quyền riêng tư, text: { vi: "Xóa thông tin vị trí chụp khỏi ảnh; vị trí tin theo phường/xã; che số điện thoại, email trong nhật ký; mã hóa khóa kết nối tài khoản hãng vận chuyển của người bán." } }
   - { id: NFR-OBS-01, was: [NFR-08], attr: Quan trắc, text: { vi: "Mọi yêu cầu được theo vết; thông báo lỗi mang mã tra cứu để đối chiếu nhật ký; có số liệu đăng nhập, gửi OTP và thông báo đã gửi giữa các module." } }
   - { id: NFR-PERF-02, attr: Hiệu năng, text: { vi: "Một lượt hỏi trợ lý AI của trang điều hành trả lời trong 60 giây; quá hạn thì lượt dừng, giữ phần đã làm, nhân viên bấm Tiếp tục để chạy tiếp. Đóng trang thì lượt vẫn chạy trên máy chủ." } }
@@ -1268,8 +1316,8 @@ nfr:
 adr:
   - id: ADR-0001
     status: accepted
-    title: { vi: "Hệ thống không giữ tiền, giao dịch bằng COD qua tài khoản hãng của người bán", en: "No money held; COD through the seller's own carrier account" }
-    text: { vi: "Vận đơn được tạo trên tài khoản GHTK/GHN của chính người bán; tiền hàng do hãng thu hộ trả thẳng cho người bán. Hệ thống không có ví, không cọc, không hoàn tiền, nên cũng không phải phân xử ai được nhận tiền (BR-DEAL-01)." }
+    title: { vi: "Hệ thống không giữ tiền hàng, giao dịch bằng COD qua tài khoản hãng của người bán", en: "No deal money held; COD through the seller's own carrier account" }
+    text: { vi: "Vận đơn được tạo trên tài khoản GHTK/GHN của chính người bán; tiền hàng do hãng thu hộ trả thẳng cho người bán. Với giao dịch giữa hai người, hệ thống không có ví, không cọc, không hoàn tiền, nên cũng không phải phân xử ai được nhận tiền (BR-DEAL-01). Tiền người bán trả cho nền tảng đi theo ADR-0006." }
   - id: ADR-0002
     status: accepted
     title: { vi: "Quy trình nhiều bước chạy trên Restate", en: "Multi-step flows run on Restate" }
@@ -1286,3 +1334,7 @@ adr:
     status: accepted
     title: { vi: "Máy chủ là một khối gồm nhiều module tách biệt", en: "The server is a modular monolith" }
     text: { vi: "Máy chủ là một chương trình duy nhất chia thành các module; mỗi module giữ bảng của mình và chỉ cho module khác gọi qua giao diện dịch vụ, một bài kiểm thử chặn mọi lối tắt (NFR-ARCH-01). Một nhóm nhỏ triển khai và kiểm thử một khối dễ hơn nhiều dịch vụ, mà vẫn tách được một module ra chạy riêng khi cần." }
+  - id: ADR-0006
+    status: accepted
+    title: { vi: "Thu tiền qua cổng thanh toán có bản giả, trả theo từng lần mua, không ví", en: "Payments through a gateway provider with a fake, pay per purchase, no wallet" }
+    text: { vi: "Tiền người bán trả cho nền tảng (gói đẩy tin) đi qua một cổng thanh toán, hôm nay là VNPay, viết theo tài liệu công khai của cổng. Mỗi lần mua là một lần thanh toán riêng; hệ thống không giữ số dư, không có ví, nên không phải đối soát hay hoàn số dư. Chỉ IPN có chữ ký hoặc câu trả lời của cổng khi máy chủ hỏi mới ghi đã trả (NFR-SEC-02). Một bản giả ký như VNPay chạy ở môi trường phát triển và kiểm thử, có trang Thanh toán/Hủy, nên mọi luồng được kiểm mà không cần hợp đồng với cổng; môi trường production từ chối bản giả." }

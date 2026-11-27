@@ -94,8 +94,14 @@ export const glossary: GlossaryEntry[] = [
   e(
     "boost",
     "marketplace",
-    ["Boost", "A planned paid placement that would put a listing at the top of the nearby feed for one or more days."],
-    ["Đẩy tin", "Dịch vụ trả phí dự kiến, sẽ đưa tin lên đầu mục Gần bạn trong một hoặc vài ngày."],
+    [
+      "Boost",
+      "A paid package that moves a listing to the top of the newest order once a day for 3 or 7 days. The card keeps its posted time and shows a Được đẩy mark.",
+    ],
+    [
+      "Đẩy tin",
+      "Gói trả phí đưa tin lên đầu các danh sách xếp theo tin mới mỗi ngày một lần, trong 3 hoặc 7 ngày. Thẻ tin giữ thời gian đăng và hiện nhãn Được đẩy.",
+    ],
     ["nearby-feed"],
   ),
   e(

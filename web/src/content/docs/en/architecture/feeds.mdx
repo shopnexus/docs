@@ -50,7 +50,7 @@ flowchart LR
   I --> R[20 cards, no repeats]
 ```
 
-Each stream lists its active listings nationwide, newest first. The k-th listing of a stream takes the slot (k − ½) / weight, and the page orders by slot, then publish time, then ID. The square root keeps one interest read many times from crowding out the rest. One interest alone fills half the page and the newest listings the other half; two equal interests take a third each. A guest, or an account with no signals, gets the newest listings. For you also leaves out the viewer's own listings.
+Each stream lists its active listings nationwide, newest first, where a [boost](/en/architecture/boosts-and-payments)'s bump counts as new. The k-th listing of a stream takes the slot (k − ½) / weight, and the page orders by slot, then the later of publish and bump time, then ID. The square root keeps one interest read many times from crowding out the rest. One interest alone fills half the page and the newest listings the other half; two equal interests take a third each. A guest, or an account with no signals, gets the newest listings. For you also leaves out the viewer's own listings.
 
 ### Recently viewed
 

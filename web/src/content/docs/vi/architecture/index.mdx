@@ -30,7 +30,7 @@ flowchart LR
   server -->|chạy| agent
   agent --> bifrost
   bifrost --> llm[Nhà cung cấp mô hình]
-  server --> outside[Firebase, Google, FCM, email,<br/>GHN, GHTK, Chợ Tốt, IndexNow]
+  server --> outside[Firebase, Google, FCM, email,<br/>GHN, GHTK, VNPay, Chợ Tốt, IndexNow]
 ```
 
 ## Các kho dữ liệu
@@ -42,6 +42,7 @@ Postgres bản ParadeDB chứa mọi bảng, index full-text mà tìm kiếm dù
 - Firebase xác minh số điện thoại. Client đăng nhập bằng Firebase và gửi cho server token mà Firebase trả về. Đăng nhập Google và mã OTP qua email là hai bằng chứng còn lại.
 - Firebase Cloud Messaging chuyển thông báo đẩy, và một nhà cung cấp email gửi mã OTP và thông báo.
 - GHN và GHTK là các hãng vận chuyển. Người bán liên kết tài khoản hãng của chính mình, và server tạo, theo dõi và hủy vận đơn trên tài khoản đó. Hãng báo lại qua webhook và polling.
+- VNPay nhận tiền người bán trả cho gói đẩy tin và báo kết quả về server ([Đẩy tin và thanh toán](/vi/architecture/boosts-and-payments)).
 - API công khai của Chợ Tốt cho người bán đưa sang các tin đăng họ đã có ở đó.
 - IndexNow báo cho các công cụ tìm kiếm khi một tin đăng công khai thay đổi.
 

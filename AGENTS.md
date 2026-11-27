@@ -2,8 +2,9 @@
 
 Documentation for ShopNexus, a C2C marketplace for used goods: cash on
 delivery with inspection at the door, through the seller's own carrier
-account. The platform holds no money, so no page mentions escrow, a wallet or
-a refund from the platform. The code lives in the sibling repositories
+account. The platform holds no deal money, so no page mentions escrow, a
+wallet or a refund of a deal. The only money it takes is a seller's boost
+payment, refunded only when the boost cannot start (ADR-0006). The code lives in the sibling repositories
 (`server`, `agent`, `clients`); this repository holds only writing.
 
 ## What lives where

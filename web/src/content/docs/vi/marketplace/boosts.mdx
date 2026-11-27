@@ -1,0 +1,46 @@
+---
+title: Đẩy tin
+description: Gói đẩy tin làm gì cho một tin đăng, ai mua được, người bán trả tiền thế nào và khi nào tiền được hoàn.
+group: Mô hình sàn
+order: 9
+groupOrder: 1
+audience: [everyone]
+type: concept
+readingTime: 2
+updated: 2026-11-27
+related: ["/vi/marketplace/listings", "/vi/marketplace/revenue", "/vi/architecture/boosts-and-payments"]
+---
+
+<Term id="boost">Đẩy tin</Term> là gói người bán mua cho một tin đang bán của mình (<Req id="UC-LST-03" />). Ngay khi thanh toán xong, tin lên đầu các danh sách tin mới, rồi cứ 24 giờ lại lên đầu một lần cho tới hết gói.
+
+| Gói | Giá | Số lần lên đầu |
+|---|---|---|
+| 3 ngày | 15.000 ₫ | 3 lần |
+| 7 ngày | 29.000 ₫ | 7 lần |
+
+<Req id="BR-LST-04" />
+
+## Danh sách nào đổi thứ tự
+
+Chỉ các danh sách xếp theo tin mới đổi thứ tự: tìm kiếm và danh mục khi xếp mới nhất, Dành cho bạn và Vì bạn đã xem gần đây ở Trang chủ, và tin trên hồ sơ người bán. Xếp theo độ liên quan, khoảng cách hay giá thì không đổi. Thẻ tin vẫn giữ thời gian đăng và hiện nhãn **Được đẩy**. Lượt đẩy không phải tin mới, nên người theo dõi tìm kiếm hay theo dõi người bán không nhận thông báo nào.
+
+## Ai mua được
+
+Chỉ người bán, cho tin đang bán của mình, khi tài khoản không bị tạm khóa và có số điện thoại. Mỗi tin chạy một gói một lúc; mua thêm khi gói đang chạy bị từ chối (<Req id="BR-LST-05" />). Ứng dụng chỉ hiện nút **Đẩy tin** khi lần mua sẽ được nhận.
+
+## Trả tiền
+
+Người bán trả trên trang của VNPay, mỗi lần mua một lần trả. ShopNexus không giữ số dư hay ví nào (<Req id="ADR-0006" />). Gói bắt đầu khi VNPay xác nhận khoản tiền với ShopNexus, không bao giờ chỉ dựa vào trang trình duyệt quay về. Lần mua chưa trả hết hạn sau 15 phút, lần bị hủy thì đóng ngay. Cả hai trường hợp người bán đều được báo và không mất tiền.
+
+Khoản này là tiền người bán trả ShopNexus cho một dịch vụ, không liên quan tới giao dịch nào: người mua và người bán vẫn chỉ trả tiền cho nhau tại cửa (<Req id="BR-DEAL-01" />).
+
+## Ngày bị mất và hoàn tiền
+
+Tới ngày đẩy mà tin đang ẩn, đang giữ chỗ hoặc bị nhân viên ẩn thì hôm đó tin không lên đầu, và gói không được thêm ngày (<Req id="BR-LST-06" />). Những ngày đó không được hoàn tiền.
+
+Tiền được hoàn đủ, tự động qua VNPay, chỉ khi tiền đã về mà gói không bắt đầu được (<Req id="BR-LST-07" />):
+
+- lúc tiền về tin không còn đang bán, ví dụ vì vừa bán xong;
+- tiền về sau khi lần mua đã hết hạn hoặc đã được thay bằng gói khác.
+
+Người bán nhận thông báo khi gói bắt đầu, kết thúc, hết hạn, thất bại hoặc được hoàn tiền.

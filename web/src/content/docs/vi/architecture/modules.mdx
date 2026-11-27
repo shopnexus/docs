@@ -11,7 +11,7 @@ updated: 2026-11-27
 related: ["/vi/architecture", "/vi/architecture/events", "/vi/architecture/data"]
 ---
 
-Server là một binary gồm các module. <Req id="ADR-0005" /> Cách chia module bám theo mô hình của hệ thống, một chợ C2C đồ cũ trả tiền khi nhận hàng (COD). ShopNexus không giữ tiền, nên không có module thanh toán hay tài chính.
+Server là một binary gồm các module. <Req id="ADR-0005" /> Cách chia module bám theo mô hình của hệ thống, một chợ C2C đồ cũ trả tiền khi nhận hàng (COD). ShopNexus không giữ tiền của giao dịch, nên không có module ví hay tài chính. Khoản tiền duy nhất hệ thống nhận là tiền người bán trả cho gói đẩy tin, mỗi lần mua một lần thanh toán (<Req id="ADR-0006" />).
 
 ## Các module
 
@@ -27,6 +27,8 @@ Server là một binary gồm các module. <Req id="ADR-0005" /> Cách chia modu
 | discovery | Tìm kiếm với feed gần bạn là một cách sắp, tin đã lưu, lịch sử tìm kiếm và theo dõi tìm kiếm |
 | assist | Đọc ảnh hoặc video thành bản nháp tin đăng, viết bản nháp cho tin nhập từ Chợ Tốt, và bảng giá tham khảo |
 | chotot | Trang cá nhân Chợ Tốt mà người bán đã liên kết và các tin đăng đưa sang từ đó |
+| boost | Các gói đẩy tin, các lần mua của người bán và các lượt đẩy hằng ngày chúng hẹn |
+| payment | Mỗi lần mua một lần thanh toán qua VNPay hoặc bản giả: trang thanh toán, kết quả cổng báo về, hết hạn và hoàn tiền |
 | notification | Danh sách thông báo trong ứng dụng, thông báo đẩy và email |
 | support | Phiếu hỗ trợ, được trả lời trong một cuộc trò chuyện với ShopNexus |
 | feedback | Những gì mọi người góp ý với ShopNexus mà không cần trả lời |
@@ -37,9 +39,9 @@ Server là một binary gồm các module. <Req id="ADR-0005" /> Cách chia modu
 | beacon | Lỗi script, tốc độ trang và các báo cáo khác từ client, dưới dạng metric và log |
 | screen | Mỗi màn hình của ứng dụng hoặc website một lần đọc, ghép từ các module khác |
 
-Không có module xác minh danh tính: số điện thoại đã xác minh là đủ, vì hãng vận chuyển kiểm tra danh tính người bán khi mở tài khoản cho họ. Uy tín cũng không có module hay bảng riêng; screen đọc các số liệu từ những module giữ chúng. `billing`, cho gói đẩy tin và gói người bán, là module dự kiến làm tiếp.
+Không có module xác minh danh tính: số điện thoại đã xác minh là đủ, vì hãng vận chuyển kiểm tra danh tính người bán khi mở tài khoản cho họ. Uy tín cũng không có module hay bảng riêng; screen đọc các số liệu từ những module giữ chúng. Gói người bán, nếu làm, sẽ là một sản phẩm khác của module payment.
 
-Cạnh các module có hai vùng dùng chung. Platform chứa phần mà module nào cũng dùng: config, Postgres, helper cho Restate, event bus, helper HTTP, live socket, lỗi, ngôn ngữ và telemetry. Provider bọc các dịch vụ bên ngoài: Firebase, Google, thông báo đẩy, email, các hãng vận chuyển, Chợ Tốt, Bifrost và các mô hình embedding.
+Cạnh các module có hai vùng dùng chung. Platform chứa phần mà module nào cũng dùng: config, Postgres, helper cho Restate, event bus, helper HTTP, live socket, lỗi, ngôn ngữ và telemetry. Provider bọc các dịch vụ bên ngoài: Firebase, Google, thông báo đẩy, email, các hãng vận chuyển, VNPay, Chợ Tốt, Bifrost và các mô hình embedding.
 
 ## Bên trong một module
 

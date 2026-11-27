@@ -1,0 +1,46 @@
+---
+title: Boosts
+description: What a boost does for a listing, who can buy one, how the seller pays, and when the money comes back.
+group: Marketplace
+order: 9
+groupOrder: 1
+audience: [everyone]
+type: concept
+readingTime: 2
+updated: 2026-11-27
+related: ["/en/marketplace/listings", "/en/marketplace/revenue", "/en/architecture/boosts-and-payments"]
+---
+
+A <Term id="boost">boost</Term> (đẩy tin) is a package a seller buys for one of their listings on sale (<Req id="UC-LST-03" />). It moves the listing to the top of the newest listings as soon as it is paid, then again every 24 hours until the package ends.
+
+| Package | Price | Moves up |
+|---|---|---|
+| 3 days | 15.000 ₫ | 3 times |
+| 7 days | 29.000 ₫ | 7 times |
+
+<Req id="BR-LST-04" />
+
+## What moves
+
+Only lists sorted by newest change order: search and category pages sorted newest, Home's For you and Recently viewed, and the seller's profile. Relevance, nearby and price sorts stay as they are. The card keeps its posted time and shows **Được đẩy**. A bump is not a new listing, so it sends nothing to people who watch a search or follow the seller.
+
+## Who can buy
+
+Only the seller, for a listing on sale, while their account may write and has a phone. A listing runs one package at a time; buying again while one runs is refused (<Req id="BR-LST-05" />). The app offers **Đẩy tin** only when a purchase would go through.
+
+## Paying
+
+The seller pays on VNPay's page, once per purchase. ShopNexus keeps no balance or wallet (<Req id="ADR-0006" />). The package starts when VNPay confirms the payment to ShopNexus, never on the strength of the page the browser comes back to. An unpaid purchase lapses after 15 minutes, and a cancelled one closes at once. Either way the seller is told and nothing is charged.
+
+This money is the seller's payment to ShopNexus for a service. It has nothing to do with a deal: buyers and sellers still pay each other only at the door (<Req id="BR-DEAL-01" />).
+
+## Lost days and refunds
+
+A listing hidden, reserved or held by staff on a bump day is not moved that day, and the package gets no extra day (<Req id="BR-LST-06" />). There is no refund for those days.
+
+The whole amount comes back automatically, through VNPay, only when the money arrived but the package could not start (<Req id="BR-LST-07" />):
+
+- the listing was no longer on sale when the payment landed, for example because it sold meanwhile;
+- the payment landed after the purchase had lapsed or was replaced by another package.
+
+The seller gets a notice when a package starts, ends, lapses, fails or is refunded.

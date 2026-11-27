@@ -11,7 +11,7 @@ updated: 2026-11-27
 related: ["/en/architecture", "/en/architecture/events", "/en/architecture/data"]
 ---
 
-The server is one binary made of modules. <Req id="ADR-0005" /> The modules follow the product model, a C2C marketplace for used goods paid cash on delivery. ShopNexus holds no money, so there is no wallet, payment or finance module.
+The server is one binary made of modules. <Req id="ADR-0005" /> The modules follow the product model, a C2C marketplace for used goods paid cash on delivery. ShopNexus holds no deal money, so there is no wallet or finance module. The only money it takes is a seller's payment for a boost, one payment per purchase (<Req id="ADR-0006" />).
 
 ## The modules
 
@@ -27,6 +27,8 @@ The server is one binary made of modules. <Req id="ADR-0005" /> The modules foll
 | discovery | Search with the nearby feed as one of its sorts, saved listings, search history and search watches |
 | assist | Reading a photo or video into a listing draft, drafting Chợ Tốt imports, and price guides |
 | chotot | A seller's linked Chợ Tốt profile and the listings brought over from it |
+| boost | Boost packages, a seller's purchases and the daily bumps they schedule |
+| payment | One payment per purchase through VNPay or its fake: the payment page, the gateway's reports, expiry and refunds |
 | notification | The in-app notice list, push and mail |
 | support | Support tickets, answered in a chat with ShopNexus |
 | feedback | What people tell ShopNexus without asking for an answer |
@@ -37,9 +39,9 @@ The server is one binary made of modules. <Req id="ADR-0005" /> The modules foll
 | beacon | Script errors, page speed and other reports from the clients, as metrics and logs |
 | screen | One read per app or website view, built from the other modules |
 
-There is no identity-check module: a verified phone is enough, since the carrier checks a seller's identity when it opens their account. Reputation has no module or table either; screen reads the figures from the modules that hold them. `billing`, for boosts and seller plans, is the next planned module.
+There is no identity-check module: a verified phone is enough, since the carrier checks a seller's identity when it opens their account. Reputation has no module or table either; screen reads the figures from the modules that hold them. Seller plans, if they come, would be another product of module payment.
 
-Two shared areas sit beside the modules. The platform holds what every module uses: config, Postgres, the Restate helpers, the event bus, HTTP helpers, the live socket, errors, languages and telemetry. The providers wrap outside services: Firebase, Google, push, mail, the carriers, Chợ Tốt, Bifrost and the embedding models.
+Two shared areas sit beside the modules. The platform holds what every module uses: config, Postgres, the Restate helpers, the event bus, HTTP helpers, the live socket, errors, languages and telemetry. The providers wrap outside services: Firebase, Google, push, mail, the carriers, VNPay, Chợ Tốt, Bifrost and the embedding models.
 
 ## Inside a module
 

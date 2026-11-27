@@ -95,6 +95,12 @@ sections:
       - meaning: ""
         vi: { use: [ẩn tin, hiện tin], avoid: [gỡ tin] }
         en: { use: [hide, show] }
+      - meaning: gói trả phí đưa tin lên đầu các danh sách xếp theo tin mới mỗi 24 giờ, trong 3 hoặc 7 ngày
+        vi: { use: [đẩy tin, gói đẩy tin, Được đẩy (nhãn trên thẻ tin)], avoid: [boost, tin VIP] }
+        en: { use: [boost, boost package], avoid: [promote] }
+      - meaning: dịch vụ nhận tiền người bán trả cho hệ thống, hôm nay là VNPay
+        vi: { use: [cổng thanh toán] }
+        en: { use: [payment gateway] }
 
   - title: Trả giá
     terms:

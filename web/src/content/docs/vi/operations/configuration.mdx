@@ -48,6 +48,7 @@ Test đọc file riêng là `.env.test`, trỏ tới stack test. Các biến tro
 | Hỗ trợ và uy tín | timeout của bước đọc tin đăng và kiểm tra lừa đảo, gateway và CDN của Chợ Tốt, tin nhắn trong cuộc trò chuyện có được đưa qua kiểm tra lừa đảo hay không |
 | Agent của trang điều hành | địa chỉ của agent, token server gửi cho nó, cùng địa chỉ và token của MCP server |
 | Hãng vận chuyển | `CARRIER_GHTK` và `CARRIER_GHN` (live, fake hoặc off), bao lâu đọc vận đơn một lần, và thiết lập API của từng hãng, chỉ đặt khi hãng đó ở chế độ live |
+| Thanh toán | `PAYMENT_VNPAY` (live, fake hoặc off), origin công khai của server `API_PUBLIC_URL`, thiết lập terminal VNPay, chỉ đặt khi live, và các gói đẩy tin `BOOST_PACKAGES` |
 | Firebase và Google | project, URL khóa để kiểm token số điện thoại và token Google, có cho số test của PNV qua hay không, credential cho thông báo đẩy |
 | Email | `EMAIL_SENDER` (log hoặc resend), khóa Resend và địa chỉ gửi |
 | Telemetry | endpoint OTLP và tên service |
@@ -60,6 +61,7 @@ Test đọc file riêng là `.env.test`, trỏ tới stack test. Các biến tro
 - `PNV_TEST_NUMBERS=true`, khi đó số test của PNV đăng nhập được;
 - `FCM_CREDENTIALS` để trống, khi đó thông báo đẩy chỉ được ghi log;
 - `EMAIL_SENDER=log`, khi đó mail chỉ được ghi log;
-- một hãng vận chuyển đặt là `fake`, mà endpoint dev của nó cho phép bất kỳ ai chuyển trạng thái vận đơn.
+- một hãng vận chuyển đặt là `fake`, mà endpoint dev của nó cho phép bất kỳ ai chuyển trạng thái vận đơn;
+- `PAYMENT_VNPAY=fake`, mà trang dev của nó cho phép bất kỳ ai ghi một lần thanh toán là đã trả.
 
 Ở mọi môi trường, server cũng từ chối khởi động khi còn migration chưa chạy.

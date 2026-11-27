@@ -50,7 +50,7 @@ flowchart LR
   I --> R[20 thẻ, không trùng]
 ```
 
-Mỗi luồng liệt kê các tin đang bán trên toàn quốc, mới nhất trước. Tin thứ k của một luồng nhận vị trí (k − ½) / trọng số, và trang sắp theo vị trí, rồi theo thời điểm đăng, rồi theo ID. Căn bậc hai giữ cho một sở thích được xem nhiều lần không lấn hết các sở thích khác. Một sở thích duy nhất chiếm nửa trang, nửa còn lại là các tin mới nhất; hai sở thích bằng nhau mỗi cái chiếm một phần ba. Khách, hoặc tài khoản chưa có tín hiệu, nhận các tin mới nhất. Dành cho bạn cũng bỏ tin của chính người xem.
+Mỗi luồng liệt kê các tin đang bán trên toàn quốc, mới nhất trước, trong đó một lượt [đẩy tin](/vi/architecture/boosts-and-payments) tính là mới. Tin thứ k của một luồng nhận vị trí (k − ½) / trọng số, và trang sắp theo vị trí, rồi theo thời điểm muộn hơn giữa lúc đăng và lúc đẩy, rồi theo ID. Căn bậc hai giữ cho một sở thích được xem nhiều lần không lấn hết các sở thích khác. Một sở thích duy nhất chiếm nửa trang, nửa còn lại là các tin mới nhất; hai sở thích bằng nhau mỗi cái chiếm một phần ba. Khách, hoặc tài khoản chưa có tín hiệu, nhận các tin mới nhất. Dành cho bạn cũng bỏ tin của chính người xem.
 
 ### Đã xem gần đây
 
