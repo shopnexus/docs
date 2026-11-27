@@ -4191,6 +4191,228 @@
         "flows": []
       }
     ],
+    "UC-MOD-13": [
+      {
+        "file": "server/e2e/monitoring_test.go",
+        "line": 30,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/e2e/monitoring_test.go",
+        "line": 62,
+        "kind": "test",
+        "flows": [
+          "A1"
+        ]
+      },
+      {
+        "file": "server/e2e/monitoring_test.go",
+        "line": 112,
+        "kind": "test",
+        "flows": [
+          "E1",
+          "E2",
+          "E3"
+        ]
+      },
+      {
+        "file": "server/e2e/monitoring_test.go",
+        "line": 124,
+        "kind": "test",
+        "flows": [
+          "E1"
+        ]
+      },
+      {
+        "file": "server/e2e/monitoring_test.go",
+        "line": 129,
+        "kind": "test",
+        "flows": [
+          "E2"
+        ]
+      },
+      {
+        "file": "server/e2e/monitoring_test.go",
+        "line": 133,
+        "kind": "test",
+        "flows": [
+          "E3"
+        ]
+      },
+      {
+        "file": "server/e2e/monitoring_test.go",
+        "line": 142,
+        "kind": "test",
+        "flows": [
+          "E2"
+        ]
+      },
+      {
+        "file": "server/internal/monitoring/domain/domain_test.go",
+        "line": 32,
+        "kind": "test",
+        "flows": [
+          "E1"
+        ]
+      },
+      {
+        "file": "server/internal/monitoring/repository/repository_test.go",
+        "line": 83,
+        "kind": "test",
+        "flows": [
+          "E1",
+          "E2"
+        ]
+      },
+      {
+        "file": "server/internal/monitoring/service/health.go",
+        "line": 221,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/monitoring/service/health.go",
+        "line": 237,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/monitoring/service/health.go",
+        "line": 274,
+        "kind": "code",
+        "flows": [
+          "A2"
+        ]
+      },
+      {
+        "file": "server/internal/monitoring/service/logs_query.go",
+        "line": 16,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/monitoring/service/logs_query.go",
+        "line": 18,
+        "kind": "code",
+        "flows": [
+          "E1"
+        ]
+      },
+      {
+        "file": "server/internal/monitoring/service/metrics_list.go",
+        "line": 16,
+        "kind": "code",
+        "flows": [
+          "A1"
+        ]
+      },
+      {
+        "file": "server/internal/monitoring/service/metrics_list.go",
+        "line": 18,
+        "kind": "code",
+        "flows": [
+          "A1"
+        ]
+      },
+      {
+        "file": "server/internal/monitoring/service/metrics_query.go",
+        "line": 11,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/monitoring/service/metrics_query.go",
+        "line": 13,
+        "kind": "code",
+        "flows": [
+          "E1"
+        ]
+      },
+      {
+        "file": "server/internal/monitoring/service/service.go",
+        "line": 20,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/monitoring/service/service.go",
+        "line": 25,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/monitoring/service/service.go",
+        "line": 30,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/monitoring/service/service.go",
+        "line": 35,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/monitoring/service/service_test.go",
+        "line": 129,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/monitoring/service/service_test.go",
+        "line": 164,
+        "kind": "test",
+        "flows": [
+          "A2",
+          "E2"
+        ]
+      },
+      {
+        "file": "server/internal/monitoring/service/service_test.go",
+        "line": 183,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/monitoring/service/service_test.go",
+        "line": 209,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/monitoring/service/service_test.go",
+        "line": 237,
+        "kind": "test",
+        "flows": [
+          "A1"
+        ]
+      },
+      {
+        "file": "server/api/paths/monitoring.yaml",
+        "line": 7,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/monitoring.yaml",
+        "line": 43,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/monitoring.yaml",
+        "line": 84,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/monitoring.yaml",
+        "line": 128,
+        "kind": "api",
+        "flows": []
+      }
+    ],
     "UC-MOD-01": [
       {
         "file": "server/e2e/report_test.go",
@@ -6858,6 +7080,42 @@
         "file": "server/internal/agent/service/service.go",
         "line": 195,
         "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/monitoring/domain/domain.go",
+        "line": 151,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/monitoring/domain/domain_test.go",
+        "line": 53,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/monitoring/service/logs_query.go",
+        "line": 16,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/monitoring/service/logs_query.go",
+        "line": 33,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/monitoring/service/service.go",
+        "line": 35,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/monitoring/service/service_test.go",
+        "line": 209,
+        "kind": "test",
         "flows": []
       }
     ],
@@ -10488,6 +10746,26 @@
         "flows": []
       }
     ],
+    "ADR-0007": [
+      {
+        "file": "server/internal/monitoring/domain/domain.go",
+        "line": 32,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/monitoring/monitoring.go",
+        "line": 3,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/monitoring/service/service.go",
+        "line": 3,
+        "kind": "code",
+        "flows": []
+      }
+    ],
     "UC-SHR-03": [
       {
         "file": "server/internal/notification/domain/notice_test.go",
@@ -12156,6 +12434,17 @@
         "E4": true,
         "E5": true,
         "E6": true
+      }
+    },
+    "UC-MOD-13": {
+      "code": 13,
+      "tests": 14,
+      "flows": {
+        "A1": true,
+        "A2": true,
+        "E1": true,
+        "E2": true,
+        "E3": true
       }
     },
     "UC-SHR-01": {

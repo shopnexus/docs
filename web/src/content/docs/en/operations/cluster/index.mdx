@@ -86,7 +86,7 @@ Each row is one workload that the chart in `infra/stack` renders into a stack na
 | `rustfs` | `StatefulSet` | 9000 S3, 9001 web console | 1, 10Gi | 1, 10Gi |
 | `bifrost` | `Deployment` | 8080 | 1 | 1 |
 | `imgproxy`, `imgproxy-cache` | `Deployment` | 8080, 80 | 1 each | 1 each |
-| `lgtm` | `Deployment` | 3000 Grafana, 4318 OTLP | 1, 5Gi | 1, 5Gi |
+| `lgtm` | `Deployment` | 3000 Grafana, 4318 OTLP, 9090 Prometheus, 3100 Loki | 1, 5Gi | 1, 5Gi |
 | `pgweb` | `Deployment` | 8081 | 1 | 1 |
 
 - `server` runs with `SERVER_ROLE=api`. Speech, photo vectors and video frames run in `server-ai`, the same image with `SERVER_ROLE=ai`, which the other pods call through Restate. Its model files are on the volume `models`.

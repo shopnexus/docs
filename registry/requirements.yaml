@@ -1133,6 +1133,30 @@ uc:
       E6: { at: 1, text: "Điều phối viên mở Cài đặt AI", error: console_forbidden }
 
 
+  - id: UC-MOD-13
+    status: done
+    title: { vi: "Hỏi trợ lý AI về tình trạng hệ thống", en: "Ask the agent about the system's health" }
+    short: { vi: "Hỏi về tình trạng hệ thống" }
+    actors: [admin]
+    fr: [FR-MOD-07]
+    nfr: [NFR-PRIV-02]
+    adr: [ADR-0007]
+    api: ["GET /v1/console/monitoring/health", "GET /v1/console/monitoring/metrics", "GET /v1/console/monitoring/metrics/query", "GET /v1/console/monitoring/logs"]
+    pre: "Quản trị viên đã đăng nhập trang điều hành (UC-MOD-10) và hỏi trợ lý AI (UC-MOD-08); agent được cấp quyền đọc giám sát."
+    post: "Trợ lý AI trả lời bằng số liệu đã đọc; không có gì trong hệ thống thay đổi."
+    main:
+      1: "Quản trị viên hỏi về tình trạng hệ thống, ví dụ vì sao chậm hay có ai đang gọi dồn dập."
+      2: "Trợ lý AI đọc bản tóm tắt sức khỏe trong một khoảng thời gian: lưu lượng, tỉ lệ lỗi, độ trễ, các route chậm nhất, kết nối cơ sở dữ liệu, các lời gọi ra ngoài, bộ nhớ và CPU của máy chủ, và những người gọi nhiều nhất, mỗi số kèm số của cùng khoảng một tuần trước."
+      3: "Trợ lý AI đào sâu bằng truy vấn số liệu (PromQL) và nhật ký (LogQL) do nó tự viết; máy chủ chạy truy vấn trong giới hạn và che dữ liệu cá nhân trong nhật ký."
+      4: "Trợ lý AI trả lời quản trị viên bằng những gì đã thấy."
+    alt:
+      A1: { at: 3, text: "Trợ lý AI chưa biết tên số liệu: nó xem danh sách số liệu và nhãn có thật trước khi viết truy vấn." }
+      A2: { at: 2, text: "Một nguồn không trả lời: bản tóm tắt vẫn trả các phần đọc được và ghi rõ phần thiếu." }
+    exc:
+      E1: { at: 3, text: "Truy vấn sai cú pháp hoặc vượt giới hạn (khoảng thời gian quá 24 giờ, bước quá nhỏ): máy chủ trả lại lý do để trợ lý AI sửa", error: monitoring_query_invalid }
+      E2: { at: 2, text: "Nguồn số liệu hoặc nhật ký không trả lời hay chưa được cấu hình", error: monitoring_unavailable }
+      E3: { at: 1, text: "Điều phối viên hỏi: trợ lý AI không đọc được giám sát", error: console_forbidden }
+
   # ---- SHR ----
   - id: UC-SHR-01
     was: [UC-S1]
@@ -1253,6 +1277,7 @@ fr:
   - { id: FR-MOD-04, module: Hỗ trợ, uc: [UC-MOD-09, UC-MOD-07], text: { vi: "Phiếu hỗ trợ là một cuộc trò chuyện giữa người dùng và hệ thống; nhân viên trả lời trên trang điều hành" } }
   - { id: FR-MOD-05, module: Góp ý, uc: [UC-MOD-11], text: { vi: "Người dùng gửi góp ý kèm ảnh chụp màn hình; nhân viên gộp góp ý trùng, đặt trạng thái và trả lời, người dùng nhận thông báo đẩy" } }
   - { id: FR-MOD-06, module: "AI, Nhân viên", uc: [UC-MOD-12], text: { vi: "Quản trị viên đặt mô hình, thẻ, giá, ngân sách tháng và giới hạn của từng agent; máy chủ ghi chính sách vào cổng AI" } }
+  - { id: FR-MOD-07, module: "Giám sát, AI", uc: [UC-MOD-13], text: { vi: "Quản trị viên hỏi trợ lý AI vì sao hệ thống chậm hay ai đang gọi dồn dập; trợ lý đọc số liệu và nhật ký của hệ thống qua máy chủ, trong giới hạn về khoảng thời gian, số dòng và thời gian chạy" } }
 
 br:
   - { id: BR-ACC-01, was: [BR-20], text: { vi: "Chặn có hiệu lực hai chiều: hai bên không nhắn tin, không mở cuộc trò chuyện, không theo dõi nhau và không mở phiên trả giá trên tin của nhau." } }
@@ -1337,3 +1362,7 @@ adr:
     status: accepted
     title: { vi: "Thu tiền qua cổng thanh toán có bản giả, trả theo từng lần mua, không ví", en: "Payments through a gateway provider with a fake, pay per purchase, no wallet" }
     text: { vi: "Tiền người bán trả cho nền tảng (gói đẩy tin) đi qua một cổng thanh toán, hôm nay là VNPay, viết theo tài liệu công khai của cổng. Mỗi lần mua là một lần thanh toán riêng; hệ thống không giữ số dư, không có ví và không hoàn tiền: tiền đã về thì gói luôn chạy (BR-LST-07), nên không có luồng hoàn nào phải đối soát. Lần thanh toán mang hạn 15 phút sang cổng để cổng từ chối trả muộn. Chỉ IPN có chữ ký hoặc câu trả lời của cổng khi máy chủ hỏi mới ghi đã trả (NFR-SEC-02). Một bản giả ký như VNPay chạy ở môi trường phát triển và kiểm thử, có trang Thanh toán/Hủy, nên mọi luồng được kiểm mà không cần hợp đồng với cổng; môi trường production từ chối bản giả." }
+  - id: ADR-0007
+    status: accepted
+    title: { vi: "Trợ lý AI tự viết truy vấn giám sát, máy chủ chạy trong giới hạn", en: "The agent writes its own monitoring queries; the server runs them within limits" }
+    text: { vi: "Câu hỏi về sự cố lần nào cũng mới, nên vài báo cáo cố định không đủ: trợ lý AI tự viết PromQL và LogQL. Nó không nối thẳng vào Prometheus, Loki hay Grafana mà gọi bốn endpoint chỉ đọc của máy chủ, dành cho quản trị viên, nên đi qua cùng cổng, quyền và nhật ký như mọi lệnh khác (UC-MOD-08). Máy chủ chặn truy vấn quá 24 giờ, bước quá dày, quá 100 chuỗi số liệu hay 500 dòng nhật ký, chạy quá 15 giây, để một truy vấn nặng không làm hệ thống chậm thêm đúng lúc có sự cố; nó che email, số điện thoại và token trong nhật ký và cắt dòng dài (NFR-PRIV-02). Một bản tóm tắt sức khỏe có sẵn số của tuần trước là điểm bắt đầu, vì không có mốc thì không biết một con số là cao hay thấp. Nhật ký chỉ có mã người gọi đã băm, không có địa chỉ IP. Phát hiện sự cố là việc của cảnh báo Grafana, vì khi hệ thống quá tải thì chính trợ lý AI cũng chậm theo; trợ lý chỉ giải thích." }

@@ -121,7 +121,7 @@ flowchart TB
   S1 -->|"AGENT_URL"| AG["agent :8080"]
   AG -->|"turn token"| SA
   AG --> PP["package-proxy :8080"]
-  S1 -->|"OTLP :4318"| LG["lgtm"]
+  S1 -->|"OTLP :4318, queries :9090 :3100"| LG["lgtm"]
   S1 -->|"DATABASE_URL"| PG["postgres-rw"]
   S1 -->|"http://rustfs:9000"| RF
   S1 -->|"http://bifrost:8080/v1"| LL["bifrost"]
@@ -152,7 +152,7 @@ flowchart TB
 | `to-server-ai` | `server-ai` | 9080 from the stack and `restate-<stack>` |
 | `to-agent` | `agent` | 8080 from `server` only |
 | `to-package-proxy` | `package-proxy` | 8080 from `agent` only |
-| `to-lgtm` | `lgtm` | OTLP on 4318 from the stack; Grafana only through Traefik |
+| `to-lgtm` | `lgtm` | OTLP on 4318 from the stack, and Prometheus on 9090 and Loki on 3100 from `server` for the console's monitoring; Grafana only through Traefik |
 | `to-imgproxy` | `imgproxy` | 8080 from `imgproxy-cache` only |
 | `from-cnpg` | `cnpg.io/cluster: postgres` | the namespace `cnpg-system` (the CloudNativePG operator) |
 | `from-restate` | `rustfs` | the namespace `restate-<stack>`, for snapshots |

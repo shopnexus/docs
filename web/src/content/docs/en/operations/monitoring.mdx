@@ -136,6 +136,10 @@ Grafana evaluates the alert rules in every stack. The dev stack sends them to a 
 
 The cluster adds rules from its own Prometheus: a public host down, a TLS certificate near expiry, pods restarting or not ready, a node's disk or memory nearly full, Postgres down, short of connections or holding a long transaction, and the [Bifrost](/en/operations/cluster/llm-gateway) alerts on failing model calls, a failing provider key and an agent out of monthly budget.
 
+## Queries from the console
+
+The console agent answers questions about the system's health from the same Prometheus and Loki, through the server, which limits each query and masks personal data in log lines ([System health questions](/en/agent/monitoring)). The server reads them at `MONITORING_METRICS_URL` and `MONITORING_LOGS_URL`, `lgtm`'s ports 9090 and 3100 in each stack; only the server's pods may reach those ports. When either is empty its part of the monitoring answers 503 `monitoring_unavailable`.
+
 ## Opening the ops dashboards
 
 Grafana, Restate's UI, Bifrost's UI, RustFS's console, pgweb on the stack's database and, in the prod stack, Argo CD each sit on a host of their own: `grafana.`, `restate.`, `bifrost.`, `s3.`, `db.` and `argocd.` under the stack's domain. Nobody signs in to them directly. Staff open them from the console, and Traefik asks the server before every request.
