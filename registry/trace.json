@@ -1,50 +1,56 @@
 {
   "server": {
     "repo": "https://github.com/shopnexus/server",
-    "commit": "de3eee7690c2fc42cf3abba56e02be48492a4d18"
+    "commit": "53812e9ea616058c4647cd9d2cd0be918ed6009c"
   },
   "refs": {
     "UC-MOD-08": [
       {
-        "file": "server/e2e/agent_mcp_test.go",
-        "line": 110,
-        "kind": "test",
-        "flows": []
-      },
-      {
-        "file": "server/e2e/agent_runs_test.go",
-        "line": 38,
+        "file": "server/e2e/agent_test.go",
+        "line": 159,
         "kind": "test",
         "flows": [
-          "A1",
-          "A2",
-          "A3",
-          "A4",
-          "E5"
+          "A5",
+          "A6",
+          "E2",
+          "E4",
+          "E6",
+          "E7"
         ]
       },
       {
         "file": "server/e2e/agent_test.go",
-        "line": 26,
+        "line": 310,
         "kind": "test",
-        "flows": []
+        "flows": [
+          "A2",
+          "A3",
+          "A4"
+        ]
       },
       {
-        "file": "server/internal/agent/domain/runs_test.go",
-        "line": 13,
+        "file": "server/e2e/agent_test.go",
+        "line": 470,
         "kind": "test",
         "flows": [
           "A1",
-          "E1"
+          "A2",
+          "E3"
         ]
       },
       {
-        "file": "server/internal/agent/domain/runs_test.go",
-        "line": 46,
+        "file": "server/e2e/agent_test.go",
+        "line": 525,
         "kind": "test",
         "flows": [
-          "E4"
+          "E5"
         ]
+      },
+      {
+        "file": "server/internal/agent/handler/gate.go",
+        "line": 24,
+        "kind": "code",
+        "flows": []
       },
       {
         "file": "server/internal/agent/handler/turns_test.go",
@@ -55,114 +61,26 @@
         ]
       },
       {
-        "file": "server/internal/agent/service/ask.go",
-        "line": 17,
+        "file": "server/internal/agent/service/approvals.go",
+        "line": 51,
         "kind": "code",
         "flows": []
       },
       {
-        "file": "server/internal/agent/service/ask.go",
-        "line": 25,
-        "kind": "code",
-        "flows": [
-          "A5"
-        ]
-      },
-      {
-        "file": "server/internal/agent/service/ask.go",
-        "line": 35,
-        "kind": "code",
-        "flows": [
-          "E6"
-        ]
-      },
-      {
-        "file": "server/internal/agent/service/ask.go",
-        "line": 46,
-        "kind": "code",
-        "flows": [
-          "E7"
-        ]
-      },
-      {
-        "file": "server/internal/agent/service/ask.go",
-        "line": 66,
-        "kind": "code",
-        "flows": [
-          "E5"
-        ]
-      },
-      {
-        "file": "server/internal/agent/service/ask.go",
-        "line": 70,
-        "kind": "code",
-        "flows": [
-          "E4"
-        ]
-      },
-      {
-        "file": "server/internal/agent/service/ask.go",
-        "line": 84,
+        "file": "server/internal/agent/service/approvals.go",
+        "line": 129,
         "kind": "code",
         "flows": []
       },
       {
-        "file": "server/internal/agent/service/ask.go",
-        "line": 101,
-        "kind": "code",
-        "flows": [
-          "E3"
-        ]
-      },
-      {
-        "file": "server/internal/agent/service/ask.go",
-        "line": 106,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/agent/service/ask.go",
-        "line": 109,
-        "kind": "code",
-        "flows": [
-          "A1"
-        ]
-      },
-      {
-        "file": "server/internal/agent/service/ask.go",
-        "line": 132,
-        "kind": "code",
-        "flows": [
-          "E2"
-        ]
-      },
-      {
-        "file": "server/internal/agent/service/conversations.go",
-        "line": 33,
+        "file": "server/internal/agent/service/approvals.go",
+        "line": 147,
         "kind": "code",
         "flows": []
       },
       {
         "file": "server/internal/agent/service/conversations.go",
-        "line": 57,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/agent/service/conversations.go",
-        "line": 74,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/agent/service/conversations.go",
-        "line": 124,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/agent/service/conversations.go",
-        "line": 143,
+        "line": 32,
         "kind": "code",
         "flows": []
       },
@@ -173,58 +91,38 @@
         "flows": []
       },
       {
-        "file": "server/internal/agent/service/mentions_test.go",
-        "line": 22,
-        "kind": "test",
-        "flows": []
-      },
-      {
-        "file": "server/internal/agent/service/reads.go",
-        "line": 16,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/agent/service/request_keys_test.go",
-        "line": 13,
-        "kind": "test",
-        "flows": [
-          "A5"
-        ]
-      },
-      {
         "file": "server/internal/agent/service/service.go",
-        "line": 33,
+        "line": 35,
         "kind": "code",
         "flows": []
       },
       {
         "file": "server/internal/agent/service/service.go",
-        "line": 39,
+        "line": 41,
         "kind": "code",
         "flows": []
       },
       {
         "file": "server/internal/agent/service/service.go",
-        "line": 43,
+        "line": 45,
         "kind": "code",
         "flows": []
       },
       {
         "file": "server/internal/agent/service/service.go",
-        "line": 48,
+        "line": 50,
         "kind": "code",
         "flows": []
       },
       {
         "file": "server/internal/agent/service/service.go",
-        "line": 54,
+        "line": 55,
         "kind": "code",
         "flows": []
       },
       {
         "file": "server/internal/agent/service/service.go",
-        "line": 59,
+        "line": 60,
         "kind": "code",
         "flows": []
       },
@@ -236,196 +134,115 @@
       },
       {
         "file": "server/internal/agent/service/service.go",
-        "line": 68,
-        "kind": "code",
-        "flows": [
-          "A1",
-          "A2"
-        ]
-      },
-      {
-        "file": "server/internal/agent/service/service.go",
-        "line": 73,
-        "kind": "code",
-        "flows": [
-          "A3"
-        ]
-      },
-      {
-        "file": "server/internal/agent/service/service.go",
-        "line": 77,
+        "line": 69,
         "kind": "code",
         "flows": []
       },
       {
         "file": "server/internal/agent/service/service.go",
-        "line": 81,
-        "kind": "code",
-        "flows": [
-          "A4"
-        ]
-      },
-      {
-        "file": "server/internal/agent/service/service.go",
-        "line": 92,
+        "line": 75,
         "kind": "code",
         "flows": []
       },
       {
         "file": "server/internal/agent/service/service.go",
-        "line": 180,
+        "line": 79,
         "kind": "code",
         "flows": []
       },
       {
-        "file": "server/internal/agent/service/service_test.go",
-        "line": 177,
-        "kind": "test",
-        "flows": []
-      },
-      {
-        "file": "server/internal/agent/service/service_test.go",
-        "line": 272,
-        "kind": "test",
-        "flows": [
-          "E2",
-          "E3",
-          "E4",
-          "E6",
-          "E7"
-        ]
-      },
-      {
-        "file": "server/internal/agent/service/service_test.go",
-        "line": 336,
-        "kind": "test",
-        "flows": [
-          "A1"
-        ]
-      },
-      {
-        "file": "server/internal/agent/service/service_test.go",
-        "line": 392,
-        "kind": "test",
-        "flows": [
-          "A2",
-          "A3"
-        ]
-      },
-      {
-        "file": "server/internal/agent/service/service_test.go",
-        "line": 467,
-        "kind": "test",
-        "flows": [
-          "A2",
-          "A4"
-        ]
-      },
-      {
-        "file": "server/internal/agent/service/service_test.go",
-        "line": 517,
-        "kind": "test",
-        "flows": []
-      },
-      {
-        "file": "server/internal/agent/service/service_test.go",
-        "line": 544,
-        "kind": "test",
-        "flows": []
-      },
-      {
-        "file": "server/internal/agent/service/service_test.go",
-        "line": 599,
-        "kind": "test",
-        "flows": []
-      },
-      {
-        "file": "server/internal/agent/service/turns.go",
-        "line": 60,
+        "file": "server/internal/agent/service/service.go",
+        "line": 84,
         "kind": "code",
         "flows": []
       },
       {
-        "file": "server/internal/agent/service/turns.go",
-        "line": 73,
+        "file": "server/internal/agent/service/service.go",
+        "line": 105,
         "kind": "code",
-        "flows": [
-          "A2"
-        ]
+        "flows": []
       },
       {
-        "file": "server/internal/agent/service/turns.go",
-        "line": 88,
+        "file": "server/internal/agent/service/service.go",
+        "line": 109,
         "kind": "code",
-        "flows": [
-          "A1"
-        ]
+        "flows": []
       },
       {
-        "file": "server/internal/agent/service/turns.go",
+        "file": "server/internal/agent/service/service.go",
+        "line": 116,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/agent/service/service.go",
         "line": 121,
         "kind": "code",
         "flows": []
       },
       {
         "file": "server/internal/agent/service/turns.go",
-        "line": 194,
+        "line": 74,
         "kind": "code",
-        "flows": [
-          "A4"
-        ]
+        "flows": []
       },
       {
         "file": "server/api/paths/console_agent.yaml",
-        "line": 10,
+        "line": 14,
         "kind": "api",
         "flows": []
       },
       {
         "file": "server/api/paths/console_agent.yaml",
-        "line": 64,
+        "line": 50,
         "kind": "api",
         "flows": []
       },
       {
         "file": "server/api/paths/console_agent.yaml",
-        "line": 99,
+        "line": 86,
         "kind": "api",
         "flows": []
       },
       {
         "file": "server/api/paths/console_agent.yaml",
-        "line": 118,
+        "line": 109,
         "kind": "api",
         "flows": []
       },
       {
         "file": "server/api/paths/console_agent.yaml",
-        "line": 159,
+        "line": 151,
         "kind": "api",
         "flows": []
       },
       {
         "file": "server/api/paths/console_agent.yaml",
-        "line": 192,
+        "line": 184,
         "kind": "api",
         "flows": []
       },
       {
         "file": "server/api/paths/console_agent.yaml",
-        "line": 285,
+        "line": 250,
         "kind": "api",
         "flows": []
       },
       {
         "file": "server/api/paths/console_agent.yaml",
-        "line": 330,
+        "line": 274,
         "kind": "api",
         "flows": []
       },
       {
         "file": "server/api/paths/console_agent.yaml",
-        "line": 355,
+        "line": 320,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/console_agent.yaml",
+        "line": 350,
         "kind": "api",
         "flows": []
       },
@@ -437,19 +254,31 @@
       },
       {
         "file": "server/api/paths/console_agent.yaml",
-        "line": 407,
+        "line": 410,
         "kind": "api",
         "flows": []
       },
       {
         "file": "server/api/paths/console_agent.yaml",
-        "line": 432,
+        "line": 447,
         "kind": "api",
         "flows": []
       },
       {
         "file": "server/api/paths/console_agent.yaml",
         "line": 475,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/console_agent.yaml",
+        "line": 513,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/console_agent.yaml",
+        "line": 544,
         "kind": "api",
         "flows": []
       }
@@ -471,7 +300,7 @@
       },
       {
         "file": "server/e2e/ai_settings_test.go",
-        "line": 353,
+        "line": 337,
         "kind": "test",
         "flows": [
           "A2"
@@ -479,61 +308,33 @@
       },
       {
         "file": "server/internal/agent/service/service.go",
-        "line": 115,
+        "line": 132,
         "kind": "code",
         "flows": []
       },
       {
         "file": "server/internal/agent/service/service.go",
-        "line": 119,
+        "line": 136,
         "kind": "code",
         "flows": []
       },
       {
         "file": "server/internal/agent/service/service.go",
-        "line": 123,
+        "line": 140,
         "kind": "code",
         "flows": []
       },
       {
         "file": "server/internal/agent/service/service.go",
-        "line": 127,
+        "line": 144,
         "kind": "code",
         "flows": []
       },
       {
         "file": "server/internal/agent/service/service.go",
-        "line": 131,
+        "line": 148,
         "kind": "code",
         "flows": []
-      },
-      {
-        "file": "server/internal/agent/service/service.go",
-        "line": 135,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/agent/service/service.go",
-        "line": 139,
-        "kind": "code",
-        "flows": [
-          "A1"
-        ]
-      },
-      {
-        "file": "server/internal/agent/service/service.go",
-        "line": 143,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/agent/service/service.go",
-        "line": 147,
-        "kind": "code",
-        "flows": [
-          "A3"
-        ]
       },
       {
         "file": "server/internal/agent/service/service.go",
@@ -543,7 +344,35 @@
       },
       {
         "file": "server/internal/agent/service/service.go",
-        "line": 157,
+        "line": 156,
+        "kind": "code",
+        "flows": [
+          "A1"
+        ]
+      },
+      {
+        "file": "server/internal/agent/service/service.go",
+        "line": 160,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/agent/service/service.go",
+        "line": 164,
+        "kind": "code",
+        "flows": [
+          "A3"
+        ]
+      },
+      {
+        "file": "server/internal/agent/service/service.go",
+        "line": 169,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/agent/service/service.go",
+        "line": 174,
         "kind": "code",
         "flows": [
           "A4"
@@ -551,23 +380,7 @@
       },
       {
         "file": "server/internal/agent/service/service.go",
-        "line": 161,
-        "kind": "code",
-        "flows": [
-          "A4"
-        ]
-      },
-      {
-        "file": "server/internal/agent/service/service.go",
-        "line": 165,
-        "kind": "code",
-        "flows": [
-          "A4"
-        ]
-      },
-      {
-        "file": "server/internal/agent/service/service.go",
-        "line": 175,
+        "line": 178,
         "kind": "code",
         "flows": [
           "A4"
@@ -583,7 +396,7 @@
       },
       {
         "file": "server/internal/agent/service/settings_agents.go",
-        "line": 193,
+        "line": 196,
         "kind": "code",
         "flows": [
           "E5"
@@ -591,13 +404,13 @@
       },
       {
         "file": "server/internal/agent/service/settings_agents.go",
-        "line": 238,
+        "line": 241,
         "kind": "code",
         "flows": []
       },
       {
         "file": "server/internal/agent/service/settings_agents.go",
-        "line": 246,
+        "line": 249,
         "kind": "code",
         "flows": [
           "E3"
@@ -605,7 +418,7 @@
       },
       {
         "file": "server/internal/agent/service/settings_agents.go",
-        "line": 280,
+        "line": 286,
         "kind": "code",
         "flows": [
           "A3"
@@ -613,7 +426,7 @@
       },
       {
         "file": "server/internal/agent/service/settings_agents.go",
-        "line": 298,
+        "line": 304,
         "kind": "code",
         "flows": [
           "E1",
@@ -623,13 +436,13 @@
       },
       {
         "file": "server/internal/agent/service/settings_agents.go",
-        "line": 333,
+        "line": 339,
         "kind": "code",
         "flows": []
       },
       {
         "file": "server/internal/agent/service/settings_agents.go",
-        "line": 347,
+        "line": 353,
         "kind": "code",
         "flows": [
           "A2"
@@ -637,13 +450,13 @@
       },
       {
         "file": "server/internal/agent/service/settings_test.go",
-        "line": 158,
+        "line": 164,
         "kind": "test",
         "flows": []
       },
       {
         "file": "server/internal/agent/service/settings_test.go",
-        "line": 233,
+        "line": 239,
         "kind": "test",
         "flows": [
           "E1",
@@ -654,13 +467,13 @@
       },
       {
         "file": "server/internal/agent/service/settings_test.go",
-        "line": 369,
+        "line": 376,
         "kind": "test",
         "flows": []
       },
       {
         "file": "server/internal/agent/service/settings_test.go",
-        "line": 490,
+        "line": 497,
         "kind": "test",
         "flows": [
           "A4"
@@ -686,80 +499,1286 @@
       },
       {
         "file": "server/api/paths/ai_settings.yaml",
-        "line": 13,
+        "line": 14,
         "kind": "api",
         "flows": []
       },
       {
         "file": "server/api/paths/ai_settings.yaml",
+        "line": 43,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/ai_settings.yaml",
+        "line": 74,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/ai_settings.yaml",
+        "line": 98,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/ai_settings.yaml",
+        "line": 131,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/ai_settings.yaml",
+        "line": 174,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/ai_settings.yaml",
+        "line": 194,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/ai_settings.yaml",
+        "line": 239,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/ai_settings.yaml",
+        "line": 289,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/ai_settings.yaml",
+        "line": 322,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/ai_settings.yaml",
+        "line": 350,
+        "kind": "api",
+        "flows": []
+      }
+    ],
+    "UC-ACC-01": [
+      {
+        "file": "server/e2e/auth_sign_in_test.go",
+        "line": 69,
+        "kind": "test",
+        "flows": [
+          "A4"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/email_code_send.go",
+        "line": 18,
+        "kind": "code",
+        "flows": [
+          "A1"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/email_code_send_durable.go",
+        "line": 82,
+        "kind": "code",
+        "flows": [
+          "A1"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/email_code_send_durable.go",
+        "line": 88,
+        "kind": "code",
+        "flows": [
+          "E3",
+          "E4"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/email_code_send_durable.go",
+        "line": 156,
+        "kind": "code",
+        "flows": [
+          "E5"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/email_code_send_durable_test.go",
+        "line": 108,
+        "kind": "test",
+        "flows": [
+          "A1"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/email_code_send_durable_test.go",
+        "line": 122,
+        "kind": "test",
+        "flows": [
+          "E3",
+          "E4"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/email_code_send_durable_test.go",
+        "line": 143,
+        "kind": "test",
+        "flows": [
+          "E4"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/email_code_send_durable_test.go",
+        "line": 160,
+        "kind": "test",
+        "flows": [
+          "A1"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/email_code_send_durable_test.go",
+        "line": 173,
+        "kind": "test",
+        "flows": [
+          "E5"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/email_code_send_durable_test.go",
+        "line": 230,
+        "kind": "test",
+        "flows": [
+          "A1"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/service.go",
+        "line": 37,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/account/service/service.go",
+        "line": 176,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/account/service/session_issue.go",
+        "line": 20,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/account/service/session_issue.go",
+        "line": 28,
+        "kind": "code",
+        "flows": [
+          "A3"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/session_issue.go",
+        "line": 33,
+        "kind": "code",
+        "flows": [
+          "E11"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/session_issue_test.go",
+        "line": 16,
+        "kind": "test",
+        "flows": [
+          "A3"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/session_issue_test.go",
+        "line": 40,
+        "kind": "test",
+        "flows": [
+          "E11"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/sign_in.go",
+        "line": 14,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/account/service/sign_in.go",
+        "line": 17,
+        "kind": "code",
+        "flows": [
+          "A1"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/sign_in.go",
+        "line": 25,
+        "kind": "code",
+        "flows": [
+          "E1",
+          "E2"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/sign_in.go",
+        "line": 43,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/account/service/sign_in_durable.go",
+        "line": 88,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/account/service/sign_in_durable.go",
+        "line": 95,
+        "kind": "code",
+        "flows": [
+          "A1",
+          "E6",
+          "E7",
+          "E8"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/sign_in_durable.go",
+        "line": 106,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/account/service/sign_in_durable.go",
+        "line": 131,
+        "kind": "code",
+        "flows": [
+          "A4"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/sign_in_durable.go",
+        "line": 133,
+        "kind": "code",
+        "flows": [
+          "E10"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/sign_in_durable.go",
+        "line": 159,
+        "kind": "code",
+        "flows": [
+          "A2"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/sign_in_durable.go",
+        "line": 172,
+        "kind": "code",
+        "flows": [
+          "E10"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/sign_in_durable_test.go",
+        "line": 82,
+        "kind": "test",
+        "flows": [
+          "A2"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/sign_in_durable_test.go",
+        "line": 96,
+        "kind": "test",
+        "flows": [
+          "A2"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/sign_in_durable_test.go",
+        "line": 112,
+        "kind": "test",
+        "flows": [
+          "A4"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/sign_in_durable_test.go",
+        "line": 123,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/account/service/sign_in_durable_test.go",
+        "line": 147,
+        "kind": "test",
+        "flows": [
+          "A2"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/sign_in_durable_test.go",
+        "line": 164,
+        "kind": "test",
+        "flows": [
+          "E10"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/sign_in_durable_test.go",
+        "line": 184,
+        "kind": "test",
+        "flows": [
+          "E10"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/sign_in_durable_test.go",
+        "line": 229,
+        "kind": "test",
+        "flows": [
+          "A1"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/sign_in_durable_test.go",
+        "line": 251,
+        "kind": "test",
+        "flows": [
+          "E6",
+          "E7",
+          "E8"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/sign_in_durable_test.go",
+        "line": 277,
+        "kind": "test",
+        "flows": [
+          "E8"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/sign_in_durable_test.go",
+        "line": 286,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/provider/firebase/verifier_test.go",
+        "line": 54,
+        "kind": "test",
+        "flows": [
+          "E1"
+        ]
+      },
+      {
+        "file": "server/internal/provider/firebase/verifier_test.go",
+        "line": 120,
+        "kind": "test",
+        "flows": [
+          "E1"
+        ]
+      },
+      {
+        "file": "server/internal/provider/google/verifier_test.go",
+        "line": 43,
+        "kind": "test",
+        "flows": [
+          "E2"
+        ]
+      },
+      {
+        "file": "server/api/paths/auth.yaml",
+        "line": 4,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/auth.yaml",
+        "line": 231,
+        "kind": "api",
+        "flows": []
+      }
+    ],
+    "UC-ACC-02": [
+      {
+        "file": "server/e2e/auth_sign_in_test.go",
+        "line": 69,
+        "kind": "test",
+        "flows": [
+          "A4"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/service.go",
         "line": 41,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/account/service/service.go",
+        "line": 47,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/account/service/service.go",
+        "line": 51,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/account/service/service.go",
+        "line": 56,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/account/service/service.go",
+        "line": 60,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/account/service/service.go",
+        "line": 64,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/account/service/session_delete.go",
+        "line": 17,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/account/service/session_delete.go",
+        "line": 25,
+        "kind": "code",
+        "flows": [
+          "A1"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/session_delete.go",
+        "line": 28,
+        "kind": "code",
+        "flows": [
+          "E2"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/session_delete.go",
+        "line": 40,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/account/service/session_delete.go",
+        "line": 42,
+        "kind": "code",
+        "flows": [
+          "E1"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/session_delete_test.go",
+        "line": 41,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/account/service/session_delete_test.go",
+        "line": 57,
+        "kind": "test",
+        "flows": [
+          "A1",
+          "E2"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/session_delete_test.go",
+        "line": 82,
+        "kind": "test",
+        "flows": [
+          "E1"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/session_list.go",
+        "line": 14,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/account/service/session_list_test.go",
+        "line": 13,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/account/service/session_reauthenticate.go",
+        "line": 21,
+        "kind": "code",
+        "flows": [
+          "A2"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/session_reauthenticate.go",
+        "line": 61,
+        "kind": "code",
+        "flows": [
+          "A2"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/session_reauthenticate_durable.go",
+        "line": 52,
+        "kind": "code",
+        "flows": [
+          "A2"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/session_reauthenticate_durable.go",
+        "line": 75,
+        "kind": "code",
+        "flows": [
+          "E3"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/session_reauthenticate_durable_test.go",
+        "line": 108,
+        "kind": "test",
+        "flows": [
+          "A2"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/session_reauthenticate_durable_test.go",
+        "line": 126,
+        "kind": "test",
+        "flows": [
+          "E3"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/session_reauthenticate_durable_test.go",
+        "line": 141,
+        "kind": "test",
+        "flows": [
+          "A2"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/session_reauthenticate_test.go",
+        "line": 97,
+        "kind": "test",
+        "flows": [
+          "A2"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/session_refresh.go",
+        "line": 19,
+        "kind": "code",
+        "flows": [
+          "A3"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/session_refresh.go",
+        "line": 26,
+        "kind": "code",
+        "flows": [
+          "E4"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/session_refresh.go",
+        "line": 33,
+        "kind": "code",
+        "flows": [
+          "E5"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/session_refresh.go",
+        "line": 39,
+        "kind": "code",
+        "flows": [
+          "E5",
+          "E6"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/session_refresh.go",
+        "line": 47,
+        "kind": "code",
+        "flows": [
+          "E5"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/session_refresh.go",
+        "line": 55,
+        "kind": "code",
+        "flows": [
+          "A4"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/session_refresh.go",
+        "line": 56,
+        "kind": "code",
+        "flows": [
+          "A3"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/session_refresh.go",
+        "line": 62,
+        "kind": "code",
+        "flows": [
+          "E5"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/session_refresh_test.go",
+        "line": 57,
+        "kind": "test",
+        "flows": [
+          "A3"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/session_refresh_test.go",
+        "line": 75,
+        "kind": "test",
+        "flows": [
+          "E5"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/session_refresh_test.go",
+        "line": 88,
+        "kind": "test",
+        "flows": [
+          "E4",
+          "E6"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/session_refresh_test.go",
+        "line": 101,
+        "kind": "test",
+        "flows": [
+          "A4"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/session_refresh_test.go",
+        "line": 125,
+        "kind": "test",
+        "flows": [
+          "E5"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/session_refresh_test.go",
+        "line": 204,
+        "kind": "test",
+        "flows": [
+          "E5"
+        ]
+      },
+      {
+        "file": "server/internal/account/service/session_refresh_test.go",
+        "line": 247,
+        "kind": "test",
+        "flows": [
+          "E5"
+        ]
+      },
+      {
+        "file": "server/api/paths/auth.yaml",
+        "line": 58,
         "kind": "api",
         "flows": []
       },
       {
-        "file": "server/api/paths/ai_settings.yaml",
-        "line": 71,
+        "file": "server/api/paths/auth.yaml",
+        "line": 85,
         "kind": "api",
         "flows": []
       },
       {
-        "file": "server/api/paths/ai_settings.yaml",
-        "line": 94,
+        "file": "server/api/paths/auth.yaml",
+        "line": 107,
         "kind": "api",
         "flows": []
       },
       {
-        "file": "server/api/paths/ai_settings.yaml",
+        "file": "server/api/paths/auth.yaml",
         "line": 126,
         "kind": "api",
         "flows": []
       },
       {
-        "file": "server/api/paths/ai_settings.yaml",
-        "line": 168,
+        "file": "server/api/paths/auth.yaml",
+        "line": 140,
         "kind": "api",
         "flows": []
       },
       {
-        "file": "server/api/paths/ai_settings.yaml",
+        "file": "server/api/paths/auth.yaml",
+        "line": 207,
+        "kind": "api",
+        "flows": []
+      }
+    ],
+    "UC-MOD-09": [
+      {
+        "file": "server/e2e/auth_sign_in_test.go",
+        "line": 69,
+        "kind": "test",
+        "flows": [
+          "A4"
+        ]
+      },
+      {
+        "file": "server/e2e/support_test.go",
+        "line": 42,
+        "kind": "test",
+        "flows": [
+          "A1",
+          "E2"
+        ]
+      },
+      {
+        "file": "server/e2e/support_test.go",
+        "line": 177,
+        "kind": "test",
+        "flows": [
+          "A3"
+        ]
+      },
+      {
+        "file": "server/e2e/support_test.go",
+        "line": 261,
+        "kind": "test",
+        "flows": [
+          "A2",
+          "E3"
+        ]
+      },
+      {
+        "file": "server/internal/support/domain/ticket_test.go",
+        "line": 21,
+        "kind": "test",
+        "flows": [
+          "E4"
+        ]
+      },
+      {
+        "file": "server/internal/support/domain/ticket_test.go",
+        "line": 64,
+        "kind": "test",
+        "flows": [
+          "E2",
+          "E3"
+        ]
+      },
+      {
+        "file": "server/internal/support/repository/tickets_pg_test.go",
+        "line": 337,
+        "kind": "test",
+        "flows": [
+          "A5"
+        ]
+      },
+      {
+        "file": "server/internal/support/service/console.go",
+        "line": 59,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/support/service/console.go",
+        "line": 72,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/support/service/console.go",
+        "line": 167,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/support/service/console.go",
         "line": 187,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/support/service/console.go",
+        "line": 193,
+        "kind": "code",
+        "flows": [
+          "A3"
+        ]
+      },
+      {
+        "file": "server/internal/support/service/console.go",
+        "line": 223,
+        "kind": "code",
+        "flows": [
+          "A2"
+        ]
+      },
+      {
+        "file": "server/internal/support/service/service.go",
+        "line": 33,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/support/service/service.go",
+        "line": 38,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/support/service/service.go",
+        "line": 44,
+        "kind": "code",
+        "flows": [
+          "A1"
+        ]
+      },
+      {
+        "file": "server/internal/support/service/service.go",
+        "line": 52,
+        "kind": "code",
+        "flows": [
+          "A2"
+        ]
+      },
+      {
+        "file": "server/internal/support/service/service.go",
+        "line": 57,
+        "kind": "code",
+        "flows": [
+          "A5"
+        ]
+      },
+      {
+        "file": "server/internal/support/service/service.go",
+        "line": 62,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/support/service/service.go",
+        "line": 67,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/support/service/service.go",
+        "line": 72,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/support/service/service.go",
+        "line": 77,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/support/service/service.go",
+        "line": 82,
+        "kind": "code",
+        "flows": [
+          "A3"
+        ]
+      },
+      {
+        "file": "server/internal/support/service/service.go",
+        "line": 86,
+        "kind": "code",
+        "flows": [
+          "A2"
+        ]
+      },
+      {
+        "file": "server/internal/support/service/support_test.go",
+        "line": 132,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/support/service/support_test.go",
+        "line": 157,
+        "kind": "test",
+        "flows": [
+          "A1"
+        ]
+      },
+      {
+        "file": "server/internal/support/service/support_test.go",
+        "line": 177,
+        "kind": "test",
+        "flows": [
+          "E2",
+          "E3"
+        ]
+      },
+      {
+        "file": "server/internal/support/service/support_test.go",
+        "line": 201,
+        "kind": "test",
+        "flows": [
+          "A4"
+        ]
+      },
+      {
+        "file": "server/internal/support/service/support_test.go",
+        "line": 212,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/support/service/support_test.go",
+        "line": 239,
+        "kind": "test",
+        "flows": [
+          "A3"
+        ]
+      },
+      {
+        "file": "server/internal/support/service/support_test.go",
+        "line": 307,
+        "kind": "test",
+        "flows": [
+          "E1"
+        ]
+      },
+      {
+        "file": "server/internal/support/service/support_test.go",
+        "line": 341,
+        "kind": "test",
+        "flows": [
+          "E5"
+        ]
+      },
+      {
+        "file": "server/internal/support/service/support_test.go",
+        "line": 375,
+        "kind": "test",
+        "flows": [
+          "A2"
+        ]
+      },
+      {
+        "file": "server/internal/support/service/ticket_list.go",
+        "line": 87,
+        "kind": "code",
+        "flows": [
+          "A2"
+        ]
+      },
+      {
+        "file": "server/internal/support/service/ticket_open.go",
+        "line": 15,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/support/service/ticket_open.go",
+        "line": 17,
+        "kind": "code",
+        "flows": [
+          "E4"
+        ]
+      },
+      {
+        "file": "server/internal/support/service/ticket_open.go",
+        "line": 21,
+        "kind": "code",
+        "flows": [
+          "A1"
+        ]
+      },
+      {
+        "file": "server/internal/support/service/ticket_open_durable.go",
+        "line": 65,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/support/service/ticket_open_durable.go",
+        "line": 82,
+        "kind": "code",
+        "flows": [
+          "A4"
+        ]
+      },
+      {
+        "file": "server/internal/support/service/ticket_open_durable.go",
+        "line": 86,
+        "kind": "code",
+        "flows": [
+          "A1"
+        ]
+      },
+      {
+        "file": "server/internal/support/service/ticket_open_durable.go",
+        "line": 96,
+        "kind": "code",
+        "flows": [
+          "E1"
+        ]
+      },
+      {
+        "file": "server/internal/support/service/ticket_open_durable.go",
+        "line": 112,
+        "kind": "code",
+        "flows": [
+          "E2"
+        ]
+      },
+      {
+        "file": "server/internal/support/service/ticket_open_durable.go",
+        "line": 119,
+        "kind": "code",
+        "flows": [
+          "E2",
+          "E3"
+        ]
+      },
+      {
+        "file": "server/internal/support/service/ticket_open_durable.go",
+        "line": 134,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/support/service/ticket_open_durable.go",
+        "line": 174,
+        "kind": "code",
+        "flows": [
+          "E5"
+        ]
+      },
+      {
+        "file": "server/api/paths/console.yaml",
+        "line": 668,
         "kind": "api",
         "flows": []
       },
       {
-        "file": "server/api/paths/ai_settings.yaml",
+        "file": "server/api/paths/console.yaml",
+        "line": 693,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/console.yaml",
+        "line": 721,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/console.yaml",
+        "line": 751,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/console.yaml",
+        "line": 792,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/console.yaml",
+        "line": 820,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/console.yaml",
+        "line": 848,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/support.yaml",
+        "line": 4,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/support.yaml",
+        "line": 20,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/support.yaml",
+        "line": 84,
+        "kind": "api",
+        "flows": []
+      },
+      {
+        "file": "server/api/paths/support.yaml",
+        "line": 101,
+        "kind": "api",
+        "flows": []
+      }
+    ],
+    "BR-MOD-02": [
+      {
+        "file": "server/e2e/auth_sign_in_test.go",
+        "line": 69,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/e2e/console_accounts_test.go",
+        "line": 114,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/account/service/account_get.go",
+        "line": 38,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/account/service/account_get_test.go",
+        "line": 50,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/account/service/session_refresh.go",
+        "line": 55,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/account/service/session_refresh_test.go",
+        "line": 101,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/account/service/sign_in_durable.go",
+        "line": 131,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/account/service/sign_in_durable_test.go",
+        "line": 112,
+        "kind": "test",
+        "flows": []
+      },
+      {
+        "file": "server/internal/console/service/service.go",
+        "line": 82,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/deal_move.go",
+        "line": 96,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/deal_open.go",
+        "line": 30,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/deal/service/deal_test.go",
         "line": 231,
-        "kind": "api",
+        "kind": "test",
         "flows": []
       },
       {
-        "file": "server/api/paths/ai_settings.yaml",
-        "line": 280,
-        "kind": "api",
+        "file": "server/internal/deal/service/order_request_durable.go",
+        "line": 52,
+        "kind": "code",
         "flows": []
       },
       {
-        "file": "server/api/paths/ai_settings.yaml",
-        "line": 312,
-        "kind": "api",
+        "file": "server/internal/support/service/ticket_open_durable.go",
+        "line": 82,
+        "kind": "code",
         "flows": []
       },
       {
-        "file": "server/api/paths/ai_settings.yaml",
-        "line": 339,
-        "kind": "api",
+        "file": "server/internal/trust/service/report.go",
+        "line": 22,
+        "kind": "code",
         "flows": []
       },
       {
-        "file": "server/api/paths/ai_settings.yaml",
-        "line": 384,
-        "kind": "api",
+        "file": "server/internal/trust/service/review.go",
+        "line": 32,
+        "kind": "code",
         "flows": []
       },
       {
-        "file": "server/api/paths/ai_settings.yaml",
-        "line": 412,
-        "kind": "api",
+        "file": "server/internal/trust/service/review.go",
+        "line": 145,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/trust/service/review.go",
+        "line": 193,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/trust/service/review_helpful.go",
+        "line": 18,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/trust/service/review_helpful.go",
+        "line": 56,
+        "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/trust/service/service.go",
+        "line": 72,
+        "kind": "code",
         "flows": []
       }
     ],
@@ -1521,37 +2540,31 @@
       },
       {
         "file": "server/api/paths/console.yaml",
-        "line": 339,
+        "line": 353,
         "kind": "api",
         "flows": []
       },
       {
         "file": "server/api/paths/console.yaml",
-        "line": 380,
+        "line": 395,
         "kind": "api",
         "flows": []
       },
       {
         "file": "server/api/paths/console.yaml",
-        "line": 401,
+        "line": 417,
         "kind": "api",
         "flows": []
       },
       {
         "file": "server/api/paths/console.yaml",
-        "line": 436,
+        "line": 453,
         "kind": "api",
         "flows": []
       },
       {
         "file": "server/api/paths/console.yaml",
-        "line": 1106,
-        "kind": "api",
-        "flows": []
-      },
-      {
-        "file": "server/api/paths/console.yaml",
-        "line": 1142,
+        "line": 1143,
         "kind": "api",
         "flows": []
       },
@@ -1563,112 +2576,32 @@
       },
       {
         "file": "server/api/paths/console.yaml",
-        "line": 1214,
+        "line": 1219,
         "kind": "api",
         "flows": []
       },
       {
         "file": "server/api/paths/console.yaml",
-        "line": 1248,
+        "line": 1254,
         "kind": "api",
         "flows": []
       },
       {
         "file": "server/api/paths/console.yaml",
-        "line": 1282,
+        "line": 1289,
         "kind": "api",
         "flows": []
       },
       {
         "file": "server/api/paths/console.yaml",
-        "line": 1322,
+        "line": 1324,
         "kind": "api",
         "flows": []
-      }
-    ],
-    "BR-MOD-02": [
-      {
-        "file": "server/e2e/console_accounts_test.go",
-        "line": 114,
-        "kind": "test",
-        "flows": []
       },
       {
-        "file": "server/internal/console/service/service.go",
-        "line": 82,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/deal/service/deal_move.go",
-        "line": 96,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/deal/service/deal_open.go",
-        "line": 30,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/deal/service/deal_test.go",
-        "line": 231,
-        "kind": "test",
-        "flows": []
-      },
-      {
-        "file": "server/internal/deal/service/order_request_durable.go",
-        "line": 52,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/support/service/ticket_open_durable.go",
-        "line": 82,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/trust/service/report.go",
-        "line": 22,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/trust/service/review.go",
-        "line": 32,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/trust/service/review.go",
-        "line": 145,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/trust/service/review.go",
-        "line": 193,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/trust/service/review_helpful.go",
-        "line": 18,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/trust/service/review_helpful.go",
-        "line": 56,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/trust/service/service.go",
-        "line": 72,
-        "kind": "code",
+        "file": "server/api/paths/console.yaml",
+        "line": 1365,
+        "kind": "api",
         "flows": []
       }
     ],
@@ -1717,7 +2650,7 @@
       },
       {
         "file": "server/api/paths/console.yaml",
-        "line": 463,
+        "line": 481,
         "kind": "api",
         "flows": []
       }
@@ -1737,25 +2670,25 @@
       },
       {
         "file": "server/internal/agent/service/service.go",
-        "line": 127,
+        "line": 144,
         "kind": "code",
         "flows": []
       },
       {
         "file": "server/internal/agent/service/service.go",
-        "line": 131,
+        "line": 148,
         "kind": "code",
         "flows": []
       },
       {
         "file": "server/internal/agent/service/service.go",
-        "line": 139,
+        "line": 156,
         "kind": "code",
         "flows": []
       },
       {
         "file": "server/internal/agent/service/service.go",
-        "line": 143,
+        "line": 160,
         "kind": "code",
         "flows": []
       },
@@ -2203,61 +3136,61 @@
       },
       {
         "file": "server/api/paths/ai_settings.yaml",
-        "line": 440,
+        "line": 396,
         "kind": "api",
         "flows": []
       },
       {
         "file": "server/api/paths/ai_settings.yaml",
-        "line": 459,
+        "line": 416,
         "kind": "api",
         "flows": []
       },
       {
         "file": "server/api/paths/console.yaml",
-        "line": 6,
+        "line": 7,
         "kind": "api",
         "flows": []
       },
       {
         "file": "server/api/paths/console.yaml",
-        "line": 54,
+        "line": 56,
         "kind": "api",
         "flows": []
       },
       {
         "file": "server/api/paths/console.yaml",
-        "line": 86,
+        "line": 89,
         "kind": "api",
         "flows": []
       },
       {
         "file": "server/api/paths/console.yaml",
-        "line": 101,
+        "line": 105,
         "kind": "api",
         "flows": []
       },
       {
         "file": "server/api/paths/console.yaml",
-        "line": 120,
+        "line": 125,
         "kind": "api",
         "flows": []
       },
       {
         "file": "server/api/paths/console.yaml",
-        "line": 495,
+        "line": 514,
         "kind": "api",
         "flows": []
       },
       {
         "file": "server/api/paths/console.yaml",
-        "line": 531,
+        "line": 551,
         "kind": "api",
         "flows": []
       },
       {
         "file": "server/api/paths/console.yaml",
-        "line": 592,
+        "line": 612,
         "kind": "api",
         "flows": []
       }
@@ -2402,49 +3335,49 @@
       },
       {
         "file": "server/api/paths/console.yaml",
-        "line": 143,
+        "line": 149,
         "kind": "api",
         "flows": []
       },
       {
         "file": "server/api/paths/console.yaml",
-        "line": 164,
+        "line": 171,
         "kind": "api",
         "flows": []
       },
       {
         "file": "server/api/paths/console.yaml",
-        "line": 193,
+        "line": 201,
         "kind": "api",
         "flows": []
       },
       {
         "file": "server/api/paths/console.yaml",
-        "line": 224,
+        "line": 233,
         "kind": "api",
         "flows": []
       },
       {
         "file": "server/api/paths/console.yaml",
-        "line": 247,
+        "line": 257,
         "kind": "api",
         "flows": []
       },
       {
         "file": "server/api/paths/console.yaml",
-        "line": 270,
+        "line": 281,
         "kind": "api",
         "flows": []
       },
       {
         "file": "server/api/paths/console.yaml",
-        "line": 293,
+        "line": 305,
         "kind": "api",
         "flows": []
       },
       {
         "file": "server/api/paths/console.yaml",
-        "line": 316,
+        "line": 329,
         "kind": "api",
         "flows": []
       }
@@ -2830,55 +3763,55 @@
       },
       {
         "file": "server/api/paths/console.yaml",
-        "line": 840,
+        "line": 868,
         "kind": "api",
         "flows": []
       },
       {
         "file": "server/api/paths/console.yaml",
-        "line": 864,
+        "line": 893,
         "kind": "api",
         "flows": []
       },
       {
         "file": "server/api/paths/console.yaml",
-        "line": 891,
+        "line": 921,
         "kind": "api",
         "flows": []
       },
       {
         "file": "server/api/paths/console.yaml",
-        "line": 912,
+        "line": 943,
         "kind": "api",
         "flows": []
       },
       {
         "file": "server/api/paths/console.yaml",
-        "line": 931,
+        "line": 963,
         "kind": "api",
         "flows": []
       },
       {
         "file": "server/api/paths/console.yaml",
-        "line": 975,
+        "line": 1008,
         "kind": "api",
         "flows": []
       },
       {
         "file": "server/api/paths/console.yaml",
-        "line": 1016,
+        "line": 1050,
         "kind": "api",
         "flows": []
       },
       {
         "file": "server/api/paths/console.yaml",
-        "line": 1038,
+        "line": 1073,
         "kind": "api",
         "flows": []
       },
       {
         "file": "server/api/paths/console.yaml",
-        "line": 1063,
+        "line": 1099,
         "kind": "api",
         "flows": []
       },
@@ -3988,401 +4921,6 @@
         "flows": []
       }
     ],
-    "UC-MOD-09": [
-      {
-        "file": "server/e2e/support_test.go",
-        "line": 42,
-        "kind": "test",
-        "flows": [
-          "A1",
-          "E2"
-        ]
-      },
-      {
-        "file": "server/e2e/support_test.go",
-        "line": 177,
-        "kind": "test",
-        "flows": [
-          "A3"
-        ]
-      },
-      {
-        "file": "server/e2e/support_test.go",
-        "line": 261,
-        "kind": "test",
-        "flows": [
-          "A2",
-          "E3"
-        ]
-      },
-      {
-        "file": "server/internal/support/domain/ticket_test.go",
-        "line": 21,
-        "kind": "test",
-        "flows": [
-          "E4"
-        ]
-      },
-      {
-        "file": "server/internal/support/domain/ticket_test.go",
-        "line": 64,
-        "kind": "test",
-        "flows": [
-          "E2",
-          "E3"
-        ]
-      },
-      {
-        "file": "server/internal/support/repository/tickets_pg_test.go",
-        "line": 337,
-        "kind": "test",
-        "flows": [
-          "A5"
-        ]
-      },
-      {
-        "file": "server/internal/support/service/console.go",
-        "line": 59,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/support/service/console.go",
-        "line": 72,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/support/service/console.go",
-        "line": 167,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/support/service/console.go",
-        "line": 187,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/support/service/console.go",
-        "line": 193,
-        "kind": "code",
-        "flows": [
-          "A3"
-        ]
-      },
-      {
-        "file": "server/internal/support/service/console.go",
-        "line": 223,
-        "kind": "code",
-        "flows": [
-          "A2"
-        ]
-      },
-      {
-        "file": "server/internal/support/service/service.go",
-        "line": 33,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/support/service/service.go",
-        "line": 38,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/support/service/service.go",
-        "line": 44,
-        "kind": "code",
-        "flows": [
-          "A1"
-        ]
-      },
-      {
-        "file": "server/internal/support/service/service.go",
-        "line": 52,
-        "kind": "code",
-        "flows": [
-          "A2"
-        ]
-      },
-      {
-        "file": "server/internal/support/service/service.go",
-        "line": 57,
-        "kind": "code",
-        "flows": [
-          "A5"
-        ]
-      },
-      {
-        "file": "server/internal/support/service/service.go",
-        "line": 62,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/support/service/service.go",
-        "line": 67,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/support/service/service.go",
-        "line": 72,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/support/service/service.go",
-        "line": 77,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/support/service/service.go",
-        "line": 82,
-        "kind": "code",
-        "flows": [
-          "A3"
-        ]
-      },
-      {
-        "file": "server/internal/support/service/service.go",
-        "line": 86,
-        "kind": "code",
-        "flows": [
-          "A2"
-        ]
-      },
-      {
-        "file": "server/internal/support/service/support_test.go",
-        "line": 132,
-        "kind": "test",
-        "flows": []
-      },
-      {
-        "file": "server/internal/support/service/support_test.go",
-        "line": 157,
-        "kind": "test",
-        "flows": [
-          "A1"
-        ]
-      },
-      {
-        "file": "server/internal/support/service/support_test.go",
-        "line": 177,
-        "kind": "test",
-        "flows": [
-          "E2",
-          "E3"
-        ]
-      },
-      {
-        "file": "server/internal/support/service/support_test.go",
-        "line": 201,
-        "kind": "test",
-        "flows": [
-          "A4"
-        ]
-      },
-      {
-        "file": "server/internal/support/service/support_test.go",
-        "line": 212,
-        "kind": "test",
-        "flows": []
-      },
-      {
-        "file": "server/internal/support/service/support_test.go",
-        "line": 239,
-        "kind": "test",
-        "flows": [
-          "A3"
-        ]
-      },
-      {
-        "file": "server/internal/support/service/support_test.go",
-        "line": 307,
-        "kind": "test",
-        "flows": [
-          "E1"
-        ]
-      },
-      {
-        "file": "server/internal/support/service/support_test.go",
-        "line": 341,
-        "kind": "test",
-        "flows": [
-          "E5"
-        ]
-      },
-      {
-        "file": "server/internal/support/service/support_test.go",
-        "line": 375,
-        "kind": "test",
-        "flows": [
-          "A2"
-        ]
-      },
-      {
-        "file": "server/internal/support/service/ticket_list.go",
-        "line": 87,
-        "kind": "code",
-        "flows": [
-          "A2"
-        ]
-      },
-      {
-        "file": "server/internal/support/service/ticket_open.go",
-        "line": 15,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/support/service/ticket_open.go",
-        "line": 17,
-        "kind": "code",
-        "flows": [
-          "E4"
-        ]
-      },
-      {
-        "file": "server/internal/support/service/ticket_open.go",
-        "line": 21,
-        "kind": "code",
-        "flows": [
-          "A1"
-        ]
-      },
-      {
-        "file": "server/internal/support/service/ticket_open_durable.go",
-        "line": 65,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/support/service/ticket_open_durable.go",
-        "line": 82,
-        "kind": "code",
-        "flows": [
-          "A4"
-        ]
-      },
-      {
-        "file": "server/internal/support/service/ticket_open_durable.go",
-        "line": 86,
-        "kind": "code",
-        "flows": [
-          "A1"
-        ]
-      },
-      {
-        "file": "server/internal/support/service/ticket_open_durable.go",
-        "line": 96,
-        "kind": "code",
-        "flows": [
-          "E1"
-        ]
-      },
-      {
-        "file": "server/internal/support/service/ticket_open_durable.go",
-        "line": 112,
-        "kind": "code",
-        "flows": [
-          "E2"
-        ]
-      },
-      {
-        "file": "server/internal/support/service/ticket_open_durable.go",
-        "line": 119,
-        "kind": "code",
-        "flows": [
-          "E2",
-          "E3"
-        ]
-      },
-      {
-        "file": "server/internal/support/service/ticket_open_durable.go",
-        "line": 134,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/support/service/ticket_open_durable.go",
-        "line": 174,
-        "kind": "code",
-        "flows": [
-          "E5"
-        ]
-      },
-      {
-        "file": "server/api/paths/console.yaml",
-        "line": 647,
-        "kind": "api",
-        "flows": []
-      },
-      {
-        "file": "server/api/paths/console.yaml",
-        "line": 671,
-        "kind": "api",
-        "flows": []
-      },
-      {
-        "file": "server/api/paths/console.yaml",
-        "line": 698,
-        "kind": "api",
-        "flows": []
-      },
-      {
-        "file": "server/api/paths/console.yaml",
-        "line": 727,
-        "kind": "api",
-        "flows": []
-      },
-      {
-        "file": "server/api/paths/console.yaml",
-        "line": 767,
-        "kind": "api",
-        "flows": []
-      },
-      {
-        "file": "server/api/paths/console.yaml",
-        "line": 794,
-        "kind": "api",
-        "flows": []
-      },
-      {
-        "file": "server/api/paths/console.yaml",
-        "line": 821,
-        "kind": "api",
-        "flows": []
-      },
-      {
-        "file": "server/api/paths/support.yaml",
-        "line": 4,
-        "kind": "api",
-        "flows": []
-      },
-      {
-        "file": "server/api/paths/support.yaml",
-        "line": 20,
-        "kind": "api",
-        "flows": []
-      },
-      {
-        "file": "server/api/paths/support.yaml",
-        "line": 84,
-        "kind": "api",
-        "flows": []
-      },
-      {
-        "file": "server/api/paths/support.yaml",
-        "line": 101,
-        "kind": "api",
-        "flows": []
-      }
-    ],
     "UC-ACC-05": [
       {
         "file": "server/internal/account/repository/account_pg_test.go",
@@ -5186,8 +5724,14 @@
       },
       {
         "file": "server/internal/account/service/account_get.go",
-        "line": 39,
+        "line": 40,
         "kind": "code",
+        "flows": []
+      },
+      {
+        "file": "server/internal/account/service/account_get_test.go",
+        "line": 50,
+        "kind": "test",
         "flows": []
       },
       {
@@ -5348,7 +5892,7 @@
       },
       {
         "file": "server/internal/agent/service/service.go",
-        "line": 143,
+        "line": 160,
         "kind": "code",
         "flows": []
       },
@@ -5532,346 +6076,6 @@
         "file": "server/internal/shipping/service/settings.go",
         "line": 42,
         "kind": "code",
-        "flows": []
-      }
-    ],
-    "UC-ACC-01": [
-      {
-        "file": "server/internal/account/service/email_code_send.go",
-        "line": 18,
-        "kind": "code",
-        "flows": [
-          "A1"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/email_code_send_durable.go",
-        "line": 82,
-        "kind": "code",
-        "flows": [
-          "A1"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/email_code_send_durable.go",
-        "line": 88,
-        "kind": "code",
-        "flows": [
-          "E3",
-          "E4"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/email_code_send_durable.go",
-        "line": 156,
-        "kind": "code",
-        "flows": [
-          "E5"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/email_code_send_durable_test.go",
-        "line": 108,
-        "kind": "test",
-        "flows": [
-          "A1"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/email_code_send_durable_test.go",
-        "line": 122,
-        "kind": "test",
-        "flows": [
-          "E3",
-          "E4"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/email_code_send_durable_test.go",
-        "line": 143,
-        "kind": "test",
-        "flows": [
-          "E4"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/email_code_send_durable_test.go",
-        "line": 160,
-        "kind": "test",
-        "flows": [
-          "A1"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/email_code_send_durable_test.go",
-        "line": 173,
-        "kind": "test",
-        "flows": [
-          "E5"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/email_code_send_durable_test.go",
-        "line": 230,
-        "kind": "test",
-        "flows": [
-          "A1"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/service.go",
-        "line": 37,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/account/service/service.go",
-        "line": 176,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/account/service/session_issue.go",
-        "line": 20,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/account/service/session_issue.go",
-        "line": 28,
-        "kind": "code",
-        "flows": [
-          "A3"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/session_issue.go",
-        "line": 33,
-        "kind": "code",
-        "flows": [
-          "E11"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/session_issue_test.go",
-        "line": 16,
-        "kind": "test",
-        "flows": [
-          "A3"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/session_issue_test.go",
-        "line": 40,
-        "kind": "test",
-        "flows": [
-          "E11"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/sign_in.go",
-        "line": 14,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/account/service/sign_in.go",
-        "line": 17,
-        "kind": "code",
-        "flows": [
-          "A1"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/sign_in.go",
-        "line": 25,
-        "kind": "code",
-        "flows": [
-          "E1",
-          "E2"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/sign_in.go",
-        "line": 43,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/account/service/sign_in_durable.go",
-        "line": 88,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/account/service/sign_in_durable.go",
-        "line": 95,
-        "kind": "code",
-        "flows": [
-          "A1",
-          "E6",
-          "E7",
-          "E8"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/sign_in_durable.go",
-        "line": 106,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/account/service/sign_in_durable.go",
-        "line": 133,
-        "kind": "code",
-        "flows": [
-          "E9"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/sign_in_durable.go",
-        "line": 136,
-        "kind": "code",
-        "flows": [
-          "E10"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/sign_in_durable.go",
-        "line": 162,
-        "kind": "code",
-        "flows": [
-          "A2"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/sign_in_durable.go",
-        "line": 175,
-        "kind": "code",
-        "flows": [
-          "E10"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/sign_in_durable_test.go",
-        "line": 82,
-        "kind": "test",
-        "flows": [
-          "A2"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/sign_in_durable_test.go",
-        "line": 96,
-        "kind": "test",
-        "flows": [
-          "A2"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/sign_in_durable_test.go",
-        "line": 112,
-        "kind": "test",
-        "flows": [
-          "E9"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/sign_in_durable_test.go",
-        "line": 121,
-        "kind": "test",
-        "flows": []
-      },
-      {
-        "file": "server/internal/account/service/sign_in_durable_test.go",
-        "line": 145,
-        "kind": "test",
-        "flows": [
-          "A2"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/sign_in_durable_test.go",
-        "line": 162,
-        "kind": "test",
-        "flows": [
-          "E10"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/sign_in_durable_test.go",
-        "line": 182,
-        "kind": "test",
-        "flows": [
-          "E10"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/sign_in_durable_test.go",
-        "line": 227,
-        "kind": "test",
-        "flows": [
-          "A1"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/sign_in_durable_test.go",
-        "line": 249,
-        "kind": "test",
-        "flows": [
-          "E6",
-          "E7",
-          "E8"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/sign_in_durable_test.go",
-        "line": 275,
-        "kind": "test",
-        "flows": [
-          "E8"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/sign_in_durable_test.go",
-        "line": 284,
-        "kind": "test",
-        "flows": []
-      },
-      {
-        "file": "server/internal/provider/firebase/verifier_test.go",
-        "line": 54,
-        "kind": "test",
-        "flows": [
-          "E1"
-        ]
-      },
-      {
-        "file": "server/internal/provider/firebase/verifier_test.go",
-        "line": 120,
-        "kind": "test",
-        "flows": [
-          "E1"
-        ]
-      },
-      {
-        "file": "server/internal/provider/google/verifier_test.go",
-        "line": 43,
-        "kind": "test",
-        "flows": [
-          "E2"
-        ]
-      },
-      {
-        "file": "server/api/paths/auth.yaml",
-        "line": 4,
-        "kind": "api",
-        "flows": []
-      },
-      {
-        "file": "server/api/paths/auth.yaml",
-        "line": 237,
-        "kind": "api",
         "flows": []
       }
     ],
@@ -6113,7 +6317,7 @@
       },
       {
         "file": "server/internal/account/service/sign_in_durable_test.go",
-        "line": 145,
+        "line": 147,
         "kind": "test",
         "flows": []
       },
@@ -6231,13 +6435,13 @@
       },
       {
         "file": "server/internal/account/service/sign_in_durable.go",
-        "line": 175,
+        "line": 172,
         "kind": "code",
         "flows": []
       },
       {
         "file": "server/internal/account/service/sign_in_durable_test.go",
-        "line": 162,
+        "line": 164,
         "kind": "test",
         "flows": []
       }
@@ -6274,347 +6478,13 @@
         "flows": []
       }
     ],
-    "UC-ACC-02": [
+    "NFR-PRIV-02": [
       {
-        "file": "server/internal/account/service/service.go",
-        "line": 41,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/account/service/service.go",
-        "line": 47,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/account/service/service.go",
-        "line": 51,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/account/service/service.go",
-        "line": 56,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/account/service/service.go",
-        "line": 60,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/account/service/service.go",
-        "line": 64,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/account/service/session_delete.go",
-        "line": 17,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/account/service/session_delete.go",
-        "line": 25,
-        "kind": "code",
-        "flows": [
-          "A1"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/session_delete.go",
-        "line": 28,
-        "kind": "code",
-        "flows": [
-          "E2"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/session_delete.go",
-        "line": 40,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/account/service/session_delete.go",
-        "line": 42,
-        "kind": "code",
-        "flows": [
-          "E1"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/session_delete_test.go",
-        "line": 41,
-        "kind": "test",
-        "flows": []
-      },
-      {
-        "file": "server/internal/account/service/session_delete_test.go",
-        "line": 57,
-        "kind": "test",
-        "flows": [
-          "A1",
-          "E2"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/session_delete_test.go",
-        "line": 82,
-        "kind": "test",
-        "flows": [
-          "E1"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/session_list.go",
-        "line": 14,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/account/service/session_list_test.go",
-        "line": 13,
-        "kind": "test",
-        "flows": []
-      },
-      {
-        "file": "server/internal/account/service/session_reauthenticate.go",
-        "line": 21,
-        "kind": "code",
-        "flows": [
-          "A2"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/session_reauthenticate.go",
-        "line": 61,
-        "kind": "code",
-        "flows": [
-          "A2"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/session_reauthenticate_durable.go",
-        "line": 52,
-        "kind": "code",
-        "flows": [
-          "A2"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/session_reauthenticate_durable.go",
-        "line": 75,
-        "kind": "code",
-        "flows": [
-          "E3"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/session_reauthenticate_durable_test.go",
-        "line": 108,
-        "kind": "test",
-        "flows": [
-          "A2"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/session_reauthenticate_durable_test.go",
-        "line": 126,
-        "kind": "test",
-        "flows": [
-          "E3"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/session_reauthenticate_durable_test.go",
-        "line": 141,
-        "kind": "test",
-        "flows": [
-          "A2"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/session_reauthenticate_test.go",
-        "line": 97,
-        "kind": "test",
-        "flows": [
-          "A2"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/session_refresh.go",
-        "line": 19,
-        "kind": "code",
-        "flows": [
-          "A3"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/session_refresh.go",
-        "line": 26,
-        "kind": "code",
-        "flows": [
-          "E4"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/session_refresh.go",
-        "line": 33,
-        "kind": "code",
-        "flows": [
-          "E5"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/session_refresh.go",
-        "line": 39,
-        "kind": "code",
-        "flows": [
-          "E5",
-          "E6",
-          "E7"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/session_refresh.go",
-        "line": 59,
-        "kind": "code",
-        "flows": [
-          "E7",
-          "E5"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/session_refresh.go",
-        "line": 73,
-        "kind": "code",
-        "flows": [
-          "A3"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/session_refresh.go",
+        "file": "server/internal/agent/service/approvals.go",
         "line": 79,
         "kind": "code",
-        "flows": [
-          "E5"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/session_refresh_test.go",
-        "line": 57,
-        "kind": "test",
-        "flows": [
-          "A3"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/session_refresh_test.go",
-        "line": 75,
-        "kind": "test",
-        "flows": [
-          "E5"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/session_refresh_test.go",
-        "line": 88,
-        "kind": "test",
-        "flows": [
-          "E4",
-          "E6",
-          "E7"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/session_refresh_test.go",
-        "line": 108,
-        "kind": "test",
-        "flows": [
-          "E7"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/session_refresh_test.go",
-        "line": 154,
-        "kind": "test",
-        "flows": [
-          "E5"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/session_refresh_test.go",
-        "line": 233,
-        "kind": "test",
-        "flows": [
-          "E5"
-        ]
-      },
-      {
-        "file": "server/internal/account/service/session_refresh_test.go",
-        "line": 276,
-        "kind": "test",
-        "flows": [
-          "E5"
-        ]
-      },
-      {
-        "file": "server/api/paths/auth.yaml",
-        "line": 60,
-        "kind": "api",
         "flows": []
       },
-      {
-        "file": "server/api/paths/auth.yaml",
-        "line": 91,
-        "kind": "api",
-        "flows": []
-      },
-      {
-        "file": "server/api/paths/auth.yaml",
-        "line": 113,
-        "kind": "api",
-        "flows": []
-      },
-      {
-        "file": "server/api/paths/auth.yaml",
-        "line": 132,
-        "kind": "api",
-        "flows": []
-      },
-      {
-        "file": "server/api/paths/auth.yaml",
-        "line": 146,
-        "kind": "api",
-        "flows": []
-      },
-      {
-        "file": "server/api/paths/auth.yaml",
-        "line": 213,
-        "kind": "api",
-        "flows": []
-      }
-    ],
-    "ADR-0003": [
-      {
-        "file": "server/internal/agent/service/ask.go",
-        "line": 108,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/agent/service/service.go",
-        "line": 59,
-        "kind": "code",
-        "flows": []
-      }
-    ],
-    "NFR-PRIV-02": [
       {
         "file": "server/internal/agent/service/reads.go",
         "line": 17,
@@ -6623,21 +6493,7 @@
       },
       {
         "file": "server/internal/agent/service/service.go",
-        "line": 180,
-        "kind": "code",
-        "flows": []
-      },
-      {
-        "file": "server/internal/agent/service/service.go",
-        "line": 186,
-        "kind": "code",
-        "flows": []
-      }
-    ],
-    "BR-MOD-03": [
-      {
-        "file": "server/internal/agent/service/service.go",
-        "line": 59,
+        "line": 190,
         "kind": "code",
         "flows": []
       }
@@ -11299,11 +11155,12 @@
   "coverage": {
     "UC-ACC-01": {
       "code": 20,
-      "tests": 22,
+      "tests": 23,
       "flows": {
         "A1": true,
         "A2": true,
         "A3": true,
+        "A4": true,
         "E1": true,
         "E2": true,
         "E3": true,
@@ -11312,25 +11169,26 @@
         "E6": true,
         "E7": true,
         "E8": true,
-        "E9": true,
+        "E9": false,
         "E10": true,
         "E11": true
       }
     },
     "UC-ACC-02": {
-      "code": 23,
-      "tests": 15,
+      "code": 24,
+      "tests": 16,
       "flows": {
         "A1": true,
         "A2": true,
         "A3": true,
+        "A4": true,
         "E1": true,
         "E2": true,
         "E3": true,
         "E4": true,
         "E5": true,
         "E6": true,
-        "E7": true
+        "E7": false
       }
     },
     "UC-ACC-03": {
@@ -11368,7 +11226,7 @@
     },
     "UC-ACC-06": {
       "code": 11,
-      "tests": 7,
+      "tests": 8,
       "flows": {
         "A1": true,
         "A2": true,
@@ -11805,8 +11663,8 @@
       }
     },
     "UC-MOD-08": {
-      "code": 36,
-      "tests": 16,
+      "code": 22,
+      "tests": 5,
       "flows": {
         "A1": true,
         "A2": true,
@@ -11814,7 +11672,7 @@
         "A4": true,
         "A5": true,
         "A6": true,
-        "E1": true,
+        "E1": false,
         "E2": true,
         "E3": true,
         "E4": true,
@@ -11825,7 +11683,7 @@
     },
     "UC-MOD-09": {
       "code": 29,
-      "tests": 15,
+      "tests": 16,
       "flows": {
         "A1": true,
         "A2": true,
@@ -11870,7 +11728,7 @@
       }
     },
     "UC-MOD-12": {
-      "code": 22,
+      "code": 20,
       "tests": 8,
       "flows": {
         "A1": true,

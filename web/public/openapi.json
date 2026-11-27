@@ -291,9 +291,6 @@
               }
             }
           },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
-          },
           "409": {
             "$ref": "#/components/responses/Conflict"
           },
@@ -394,7 +391,7 @@
           "UC-ACC-02"
         ],
         "summary": "Rotate the refresh token and get a new access token.",
-        "description": "A refresh token works once. Presenting it again, or two refreshes\nracing with one token, signs the session out. A refresh for a\nsuspended account signs the session out with account_suspended, and\nthe same token answers account_suspended again while the suspension\nlasts; after it ends, session_revoked.\n",
+        "description": "A refresh token works once. Presenting it again, or two refreshes\nracing with one token, signs the session out. A suspended account\nrefreshes as any other; GET /v1/accounts/me tells it is suspended.\n",
         "tags": [
           "auth"
         ],
@@ -424,9 +421,6 @@
           },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
           }
         }
       }
@@ -9264,6 +9258,7 @@
       ],
       "post": {
         "operationId": "consoleLogin",
+        "x-capability": "none",
         "x-uc": [
           "UC-MOD-10"
         ],
@@ -9328,6 +9323,7 @@
       ],
       "post": {
         "operationId": "consoleLoginTotpEnrollment",
+        "x-capability": "none",
         "x-uc": [
           "UC-MOD-10"
         ],
@@ -9379,6 +9375,7 @@
       ],
       "post": {
         "operationId": "consoleLogout",
+        "x-capability": "none",
         "x-uc": [
           "UC-MOD-10"
         ],
@@ -9410,6 +9407,7 @@
       ],
       "get": {
         "operationId": "getConsoleMe",
+        "x-capability": "none",
         "x-uc": [
           "UC-MOD-10"
         ],
@@ -9448,6 +9446,7 @@
       ],
       "put": {
         "operationId": "changeConsolePassword",
+        "x-capability": "none",
         "x-uc": [
           "UC-MOD-10"
         ],
@@ -9492,6 +9491,7 @@
       ],
       "get": {
         "operationId": "listConsoleMembers",
+        "x-capability": "none",
         "x-uc": [
           "UC-MOD-04"
         ],
@@ -9534,6 +9534,7 @@
       },
       "post": {
         "operationId": "createConsoleMember",
+        "x-capability": "none",
         "x-uc": [
           "UC-MOD-04"
         ],
@@ -9588,6 +9589,7 @@
       ],
       "patch": {
         "operationId": "renameConsoleMember",
+        "x-capability": "none",
         "x-uc": [
           "UC-MOD-04"
         ],
@@ -9647,6 +9649,7 @@
       ],
       "post": {
         "operationId": "disableConsoleMember",
+        "x-capability": "none",
         "x-uc": [
           "UC-MOD-04"
         ],
@@ -9693,6 +9696,7 @@
       ],
       "post": {
         "operationId": "enableConsoleMember",
+        "x-capability": "none",
         "x-uc": [
           "UC-MOD-04"
         ],
@@ -9739,6 +9743,7 @@
       ],
       "post": {
         "operationId": "unlockConsoleMember",
+        "x-capability": "none",
         "x-uc": [
           "UC-MOD-04"
         ],
@@ -9785,6 +9790,7 @@
       ],
       "post": {
         "operationId": "resetConsoleMemberPassword",
+        "x-capability": "none",
         "x-uc": [
           "UC-MOD-04"
         ],
@@ -9831,6 +9837,7 @@
       ],
       "post": {
         "operationId": "resetConsoleMemberTotp",
+        "x-capability": "none",
         "x-uc": [
           "UC-MOD-04"
         ],
@@ -9877,6 +9884,7 @@
       ],
       "get": {
         "operationId": "listConsoleAccounts",
+        "x-capability": "accounts.read",
         "x-uc": [
           "UC-MOD-02"
         ],
@@ -9946,6 +9954,7 @@
       ],
       "get": {
         "operationId": "listConsoleTickets",
+        "x-capability": "tickets.read",
         "x-uc": [
           "UC-MOD-09"
         ],
@@ -9998,6 +10007,7 @@
       ],
       "get": {
         "operationId": "getConsoleTicket",
+        "x-capability": "tickets.read",
         "x-uc": [
           "UC-MOD-09"
         ],
@@ -10051,6 +10061,7 @@
       ],
       "get": {
         "operationId": "listConsoleTicketMessages",
+        "x-capability": "tickets.read",
         "x-uc": [
           "UC-MOD-09"
         ],
@@ -10110,6 +10121,7 @@
       ],
       "post": {
         "operationId": "replyConsoleTicket",
+        "x-capability": "tickets.reply",
         "x-uc": [
           "UC-MOD-09"
         ],
@@ -10186,6 +10198,7 @@
       ],
       "post": {
         "operationId": "resolveConsoleTicket",
+        "x-capability": "tickets.resolve",
         "x-uc": [
           "UC-MOD-09"
         ],
@@ -10239,6 +10252,7 @@
       ],
       "post": {
         "operationId": "reopenConsoleTicket",
+        "x-capability": "tickets.resolve",
         "x-uc": [
           "UC-MOD-09"
         ],
@@ -10292,6 +10306,7 @@
       ],
       "get": {
         "operationId": "getConsoleSupportSummary",
+        "x-capability": "tickets.read",
         "x-uc": [
           "UC-MOD-09"
         ],
@@ -10330,6 +10345,7 @@
       ],
       "get": {
         "operationId": "listConsoleFeedback",
+        "x-capability": "feedback.read",
         "x-uc": [
           "UC-MOD-11"
         ],
@@ -10382,6 +10398,7 @@
       ],
       "get": {
         "operationId": "listConsoleFeedbackGroups",
+        "x-capability": "feedback.read",
         "x-uc": [
           "UC-MOD-11"
         ],
@@ -10425,6 +10442,7 @@
       ],
       "get": {
         "operationId": "getConsoleFeedbackSummary",
+        "x-capability": "feedback.read",
         "x-uc": [
           "UC-MOD-11"
         ],
@@ -10463,6 +10481,7 @@
       ],
       "get": {
         "operationId": "getConsoleFeedback",
+        "x-capability": "feedback.read",
         "x-uc": [
           "UC-MOD-11"
         ],
@@ -10516,6 +10535,7 @@
       ],
       "post": {
         "operationId": "setConsoleFeedbackStatus",
+        "x-capability": "feedback.triage",
         "x-uc": [
           "UC-MOD-11"
         ],
@@ -10590,6 +10610,7 @@
       ],
       "post": {
         "operationId": "replyConsoleFeedback",
+        "x-capability": "feedback.reply",
         "x-uc": [
           "UC-MOD-11"
         ],
@@ -10667,6 +10688,7 @@
       ],
       "put": {
         "operationId": "heartConsoleFeedback",
+        "x-capability": "feedback.triage",
         "x-uc": [
           "UC-MOD-11"
         ],
@@ -10708,6 +10730,7 @@
       },
       "delete": {
         "operationId": "unheartConsoleFeedback",
+        "x-capability": "feedback.triage",
         "x-uc": [
           "UC-MOD-11"
         ],
@@ -10756,6 +10779,7 @@
       ],
       "post": {
         "operationId": "joinConsoleFeedback",
+        "x-capability": "feedback.triage",
         "x-uc": [
           "UC-MOD-11"
         ],
@@ -10830,6 +10854,7 @@
       ],
       "get": {
         "operationId": "listConsoleReportCases",
+        "x-capability": "reports.read",
         "x-uc": [
           "UC-MOD-02"
         ],
@@ -10899,6 +10924,7 @@
       ],
       "get": {
         "operationId": "getConsoleReportCase",
+        "x-capability": "reports.read",
         "x-uc": [
           "UC-MOD-02"
         ],
@@ -10968,6 +10994,7 @@
       ],
       "post": {
         "operationId": "dismissConsoleReportCase",
+        "x-capability": "reports.resolve",
         "x-uc": [
           "UC-MOD-02"
         ],
@@ -11028,6 +11055,7 @@
       ],
       "post": {
         "operationId": "resolveConsoleReportCase",
+        "x-capability": "reports.resolve",
         "x-uc": [
           "UC-MOD-02"
         ],
@@ -11088,6 +11116,7 @@
       ],
       "post": {
         "operationId": "reopenConsoleReportCase",
+        "x-capability": "reports.resolve",
         "x-uc": [
           "UC-MOD-02"
         ],
@@ -11157,6 +11186,7 @@
       ],
       "get": {
         "operationId": "getConsoleOrder",
+        "x-capability": "orders.read",
         "summary": "One order, its listing, its parties, its shipment and its tickets.",
         "description": "The facts of the agent's order_get, with the parties' accounts, the\nseller's rating and the support tickets about the order. For a\nshipment on the seller's carrier account the carrier is asked for the\nparcel's status now; a carrier that cannot be read gives\ncarrier_error. ShopNexus keeps no carrier events, so the page has\nnone. Reading the tickets' last lines is recorded for the member.\n",
         "tags": [
@@ -11212,6 +11242,7 @@
       ],
       "get": {
         "operationId": "getConsoleListing",
+        "x-capability": "listings.read",
         "summary": "One listing, its seller, its hold, its reports and its price guide.",
         "description": "The facts of the agent's listing_get, read as its seller reads it so a\nhidden or sold listing shows, with the seller's counts, the member who\nhid it, the reports about it in the seller's report case and the\nprice guide. Reading the reports is recorded for the member.\n",
         "tags": [
@@ -11258,6 +11289,7 @@
       ],
       "post": {
         "operationId": "hideConsoleListing",
+        "x-capability": "listings.hide",
         "x-uc": [
           "UC-MOD-02"
         ],
@@ -11328,6 +11360,7 @@
       ],
       "post": {
         "operationId": "unhideConsoleListing",
+        "x-capability": "listings.hide",
         "x-uc": [
           "UC-MOD-02"
         ],
@@ -11398,6 +11431,7 @@
       ],
       "get": {
         "operationId": "getConsoleAccount",
+        "x-capability": "accounts.read",
         "x-uc": [
           "UC-MOD-02"
         ],
@@ -11441,6 +11475,7 @@
       ],
       "post": {
         "operationId": "suspendConsoleAccount",
+        "x-capability": "accounts.suspend",
         "x-uc": [
           "UC-MOD-02"
         ],
@@ -11507,6 +11542,7 @@
       ],
       "post": {
         "operationId": "unsuspendConsoleAccount",
+        "x-capability": "accounts.suspend",
         "x-uc": [
           "UC-MOD-02"
         ],
@@ -11560,6 +11596,7 @@
       ],
       "get": {
         "operationId": "listConsoleActions",
+        "x-capability": "audit.read",
         "x-uc": [
           "UC-MOD-05"
         ],
@@ -11622,11 +11659,12 @@
       ],
       "get": {
         "operationId": "listConsoleAgentConversations",
+        "x-capability": "none",
         "x-uc": [
           "UC-MOD-08"
         ],
         "summary": "The agent conversation of a record, those about records of a kind, or the caller's own.",
-        "description": "With subject_kind and subject_id, the conversation of that ticket or\naccount, which every member shares (at most one). With subject_kind\nalone, the conversations about records of that kind. With\nmention_kind and mention_id, the caller's conversations without a\nrecord in which a question mentioned that record. With none, the\ncaller's conversations without a record. Newest activity first.\n",
+        "description": "With subject_kind and subject_id, the conversation of that ticket or\naccount, which every member shares (at most one). With subject_kind\nalone, the conversations about records of that kind. With none, the\ncaller's conversations without a record. Newest activity first.\n",
         "tags": [
           "console",
           "internal"
@@ -11651,23 +11689,6 @@
               "type": "string",
               "format": "uuid"
             }
-          },
-          {
-            "name": "mention_kind",
-            "in": "query",
-            "description": "Taken with mention_id and without a subject.",
-            "schema": {
-              "$ref": "#/components/schemas/AgentAttachmentKind"
-            }
-          },
-          {
-            "name": "mention_id",
-            "in": "query",
-            "description": "Taken with mention_kind.",
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
           }
         ],
         "responses": {
@@ -11682,14 +11703,7 @@
             }
           },
           "400": {
-            "description": "The request does not match the API description, or mention_kind and mention_id come apart or with a subject (invalid_request).",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
+            "$ref": "#/components/responses/BadRequest"
           },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
@@ -11701,6 +11715,7 @@
       },
       "post": {
         "operationId": "createConsoleAgentConversation",
+        "x-capability": "none",
         "x-uc": [
           "UC-MOD-08"
         ],
@@ -11761,11 +11776,12 @@
       ],
       "get": {
         "operationId": "getConsoleAgentConversation",
+        "x-capability": "none",
         "x-uc": [
           "UC-MOD-08"
         ],
-        "summary": "One agent conversation with its turns, oldest first.",
-        "description": "Each turn names the member who asked.",
+        "summary": "One agent conversation with its messages and turns, oldest first.",
+        "description": "The messages are the conversation's history as the model reads it:\nwhat members wrote, what the agent answered, the commands it ran and\nwhat they printed. Each turn names the member who started it.\n",
         "tags": [
           "console",
           "internal"
@@ -11796,6 +11812,7 @@
       },
       "patch": {
         "operationId": "renameConsoleAgentConversation",
+        "x-capability": "none",
         "x-uc": [
           "UC-MOD-08"
         ],
@@ -11864,11 +11881,12 @@
       },
       "delete": {
         "operationId": "deleteConsoleAgentConversation",
+        "x-capability": "none",
         "x-uc": [
           "UC-MOD-08"
         ],
-        "summary": "Delete a conversation with its turns, events and documents.",
-        "description": "Who may is as for the rename. A conversation with a turn running, paused or waiting for answers is refused (agent_turn_in_progress).",
+        "summary": "Delete a conversation with its messages, turns and approvals.",
+        "description": "Who may is as for the rename. A conversation with a turn running is refused (agent_turn_in_progress).",
         "tags": [
           "console",
           "internal"
@@ -11899,7 +11917,7 @@
             "$ref": "#/components/responses/AgentConversationNotFound"
           },
           "409": {
-            "description": "A turn of the conversation is still open (agent_turn_in_progress).",
+            "description": "A turn of the conversation is running (agent_turn_in_progress).",
             "content": {
               "application/json": {
                 "schema": {
@@ -11922,11 +11940,12 @@
       ],
       "post": {
         "operationId": "askConsoleAgent",
+        "x-capability": "none",
         "x-uc": [
           "UC-MOD-08"
         ],
-        "summary": "Ask a console agent in a conversation; the run starts and the answer comes on its events.",
-        "description": "The server opens the turn as running and starts its run on the agent\nservice with the picked agent's configuration (the Console assistant\nwhen agent_id is left out), then answers 202 with the turn's id; the\nconsole opens GET /v1/console/agent/turns/{id}/events to watch the\nrun step by step. Closing the stream does not stop the run. The\nattachments are kept on the turn, each record once; the run is told\nthe kind and id of every record the conversation's questions\nmention, without the labels. A repeated Idempotency-Key answers the\nturn its first call opened and starts no run.\n",
+        "summary": "Write to a console agent in a conversation; its turn starts and the answer comes on the turn's events.",
+        "description": "The server adds the message to the conversation, opens the turn as\nrunning and starts its run on the agent runtime with the picked\nagent (the Console assistant when agent_id is left out), then\nanswers 202 with the turn's id; the console opens GET\n/v1/console/agent/turns/{id}/events to watch it. Closing the stream\ndoes not stop the run. A repeated Idempotency-Key answers the turn\nits first call opened and starts no run.\n",
         "tags": [
           "console",
           "internal"
@@ -11989,7 +12008,7 @@
             }
           },
           "422": {
-            "description": "The question is longer than 2000 characters (agent_input_rejected).",
+            "description": "The message is empty once trimmed (agent_input_rejected).",
             "content": {
               "application/json": {
                 "schema": {
@@ -11999,7 +12018,7 @@
             }
           },
           "429": {
-            "description": "The member asked too much in a short time (agent_rate_limited). A spent monthly budget ends the run instead, with the status budget.",
+            "description": "The member asked too much in a short time (agent_rate_limited).",
             "content": {
               "application/json": {
                 "schema": {
@@ -12025,8 +12044,12 @@
       ],
       "get": {
         "operationId": "getConsoleAgentTurn",
-        "summary": "One turn as the agent keeps it.",
-        "description": "Its status, answer, sources, outcome, usage, the updates sent to it\nand, while it waits, its questions. last_seq is where a page that\nloads opens the stream.\n",
+        "x-capability": "none",
+        "x-uc": [
+          "UC-MOD-08"
+        ],
+        "summary": "One turn.",
+        "description": "Its status, why it stopped, its usage, and last_seq, where a page that loads opens the stream.",
         "tags": [
           "console",
           "internal"
@@ -12067,11 +12090,12 @@
       ],
       "get": {
         "operationId": "streamConsoleAgentTurnEvents",
+        "x-capability": "none",
         "x-uc": [
           "UC-MOD-08"
         ],
         "summary": "A turn's run as server-sent events, replayed after Last-Event-ID and then live.",
-        "description": "text/event-stream. Each event has `id:` its seq and `data:` one\nAgentRunEvent as JSON; a comment line keeps the connection open. The\nagent replays the turn's events after the given seq from its database\nand then follows the run live, so a closed tab reconnects with\nLast-Event-ID, or with after in the query on a page load. The server\ncopies the stream event by event and sets no deadline. The stream ends\nafter turn.finished, turn.paused or clarify; after Continue, answers or\nan update to a paused turn the console opens it again from its last\nseq. Closing the stream ends the server's read, not the run.\n",
+        "description": "text/event-stream. Each event has `id:` its seq and `data:` one\nAgentRunEvent as JSON; a comment line keeps the connection open. The\nserver replays the turn's events after the given seq and then follows\nthe run live, so a closed tab reconnects with Last-Event-ID, or with\nafter in the query on a page load. The stream ends after turn.paused\nor turn.finished; after a resume the console opens it again from its\nlast seq. Closing the stream does not stop the run.\n",
         "tags": [
           "console",
           "internal"
@@ -12112,6 +12136,9 @@
               }
             }
           },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
           },
@@ -12132,107 +12159,12 @@
       ],
       "post": {
         "operationId": "pauseConsoleAgentTurn",
+        "x-capability": "none",
         "x-uc": [
           "UC-MOD-08"
         ],
         "summary": "Pause a run before its next model call.",
-        "description": "The model call in flight and the tools it asked for finish, so no tool is cut halfway. The turn goes paused (turn.pausing, then turn.paused) and keeps its state, so any agent replica can continue it.",
-        "tags": [
-          "console",
-          "internal"
-        ],
-        "security": [
-          {
-            "consoleAuth": []
-          }
-        ],
-        "responses": {
-          "202": {
-            "description": "Taken; the run's events show it.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AgentTurnState"
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "404": {
-            "$ref": "#/components/responses/AgentTurnNotFound"
-          },
-          "409": {
-            "$ref": "#/components/responses/AgentTurnState"
-          }
-        }
-      }
-    },
-    "/v1/console/agent/turns/{id}/stop": {
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/ConsoleCSRF"
-        },
-        {
-          "$ref": "#/components/parameters/AgentTurnID"
-        }
-      ],
-      "post": {
-        "operationId": "stopConsoleAgentTurn",
-        "x-uc": [
-          "UC-MOD-08"
-        ],
-        "summary": "Stop a run now.",
-        "description": "Ends the model call in flight at once (Stop now). The turn goes paused with reason stop_now and keeps what it wrote; it can be continued.",
-        "tags": [
-          "console",
-          "internal"
-        ],
-        "security": [
-          {
-            "consoleAuth": []
-          }
-        ],
-        "responses": {
-          "202": {
-            "description": "Taken; the run's events show it.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AgentTurnState"
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "404": {
-            "$ref": "#/components/responses/AgentTurnNotFound"
-          },
-          "409": {
-            "$ref": "#/components/responses/AgentTurnState"
-          }
-        }
-      }
-    },
-    "/v1/console/agent/turns/{id}/continue": {
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/ConsoleCSRF"
-        },
-        {
-          "$ref": "#/components/parameters/AgentTurnID"
-        }
-      ],
-      "post": {
-        "operationId": "continueConsoleAgentTurn",
-        "x-uc": [
-          "UC-MOD-08"
-        ],
-        "summary": "Continue a paused, failed, timed out or stopped turn.",
-        "description": "Resumes the same turn with no new message, its counters carried on (turn.resumed with by continue). A spent budget or a guardrail block cannot be continued.",
+        "description": "The commands the agent is running finish first, so none is cut halfway (turn.pausing, then turn.paused). A paused turn resumes with POST .../resume or a new message. To cut the commands short, stop the turn.",
         "tags": [
           "console",
           "internal"
@@ -12268,7 +12200,7 @@
         }
       }
     },
-    "/v1/console/agent/turns/{id}/end": {
+    "/v1/console/agent/turns/{id}/stop": {
       "parameters": [
         {
           "$ref": "#/components/parameters/ConsoleCSRF"
@@ -12278,12 +12210,13 @@
         }
       ],
       "post": {
-        "operationId": "endConsoleAgentTurn",
+        "operationId": "stopConsoleAgentTurn",
+        "x-capability": "none",
         "x-uc": [
           "UC-MOD-08"
         ],
-        "summary": "End a paused turn.",
-        "description": "A paused turn, or one awaiting input, ends cancelled and writes nothing more.",
+        "summary": "Stop a run now.",
+        "description": "Ends the model call and the commands in flight at once; the agent reads that a staff member stopped them. The turn goes stopped and keeps what it wrote; it resumes as a paused one does.",
         "tags": [
           "console",
           "internal"
@@ -12294,8 +12227,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "The turn is cancelled.",
+          "202": {
+            "description": "Taken; the run's events show it.",
             "content": {
               "application/json": {
                 "schema": {
@@ -12312,6 +12245,61 @@
           },
           "409": {
             "$ref": "#/components/responses/AgentTurnState"
+          },
+          "503": {
+            "$ref": "#/components/responses/AgentUnavailable"
+          }
+        }
+      }
+    },
+    "/v1/console/agent/turns/{id}/resume": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/ConsoleCSRF"
+        },
+        {
+          "$ref": "#/components/parameters/AgentTurnID"
+        }
+      ],
+      "post": {
+        "operationId": "resumeConsoleAgentTurn",
+        "x-capability": "none",
+        "x-uc": [
+          "UC-MOD-08"
+        ],
+        "summary": "Resume the conversation's last turn where it ended, with no new message.",
+        "description": "Takes a paused, stopped, failed or timed out turn that is its conversation's last. The turn runs again on the history it left (turn.resumed); the console opens the stream again from its last seq.",
+        "tags": [
+          "console",
+          "internal"
+        ],
+        "security": [
+          {
+            "consoleAuth": []
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "The turn is running.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentTurnState"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/AgentTurnNotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/AgentTurnState"
+          },
+          "503": {
+            "$ref": "#/components/responses/AgentUnavailable"
           }
         }
       }
@@ -12327,11 +12315,12 @@
       ],
       "post": {
         "operationId": "steerConsoleAgentTurn",
+        "x-capability": "none",
         "x-uc": [
           "UC-MOD-08"
         ],
-        "summary": "Steer a run, or continue a paused one with a message.",
-        "description": "The text waits on the turn's control stream and the run reads it\nbefore its next model call (steer.read names the step). Sent to a\npaused turn it continues the run (turn.resumed with by steer). An\nupdate that carries an attachment, a skill or another agent is a new\nquestion instead. A repeated Idempotency-Key answers the steer its\nfirst call sent and sends nothing.\n",
+        "summary": "Write to a running turn; the agent reads it before its next model call.",
+        "description": "The message joins the conversation at the next step (in the step event's messages). A turn that is not running takes a new message instead (POST .../conversations/{id}/turns).",
         "tags": [
           "console",
           "internal"
@@ -12339,11 +12328,6 @@
         "security": [
           {
             "consoleAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/IdempotencyKeyOptional"
           }
         ],
         "requestBody": {
@@ -12362,70 +12346,6 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AgentSteering"
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "404": {
-            "$ref": "#/components/responses/AgentTurnNotFound"
-          },
-          "409": {
-            "$ref": "#/components/responses/AgentTurnState"
-          },
-          "503": {
-            "$ref": "#/components/responses/AgentUnavailable"
-          }
-        }
-      }
-    },
-    "/v1/console/agent/turns/{id}/input": {
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/ConsoleCSRF"
-        },
-        {
-          "$ref": "#/components/parameters/AgentTurnID"
-        }
-      ],
-      "post": {
-        "operationId": "answerConsoleAgentTurn",
-        "x-uc": [
-          "UC-MOD-08"
-        ],
-        "summary": "Answer the clarifying questions a turn waits on.",
-        "description": "The turn is awaiting_input after a clarify event; the answers go to the run and it goes on.",
-        "tags": [
-          "console",
-          "internal"
-        ],
-        "security": [
-          {
-            "consoleAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AgentInput"
-              }
-            }
-          }
-        },
-        "responses": {
-          "202": {
-            "description": "The run goes on.",
-            "content": {
-              "application/json": {
-                "schema": {
                   "$ref": "#/components/schemas/AgentTurnState"
                 }
               }
@@ -12443,35 +12363,26 @@
           "409": {
             "$ref": "#/components/responses/AgentTurnState"
           },
-          "422": {
-            "description": "The answers do not fit the turn's questions (agent_answers_invalid).",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
           "503": {
             "$ref": "#/components/responses/AgentUnavailable"
           }
         }
       }
     },
-    "/v1/console/agent/tool-calls/{id}": {
+    "/v1/console/agent/operations": {
       "parameters": [
         {
           "$ref": "#/components/parameters/ConsoleCSRF"
-        },
-        {
-          "$ref": "#/components/parameters/AgentToolCallID"
         }
       ],
       "get": {
-        "operationId": "getConsoleAgentToolCall",
-        "summary": "One tool call in full, for the tool panel.",
-        "description": "Events carry a tool call's summary only; this is its input, result, timing and attempts.",
+        "operationId": "listConsoleAgentOperations",
+        "x-capability": "turn",
+        "x-uc": [
+          "UC-MOD-08"
+        ],
+        "summary": "The API operations an agent may be given, by capability.",
+        "description": "For a member, every operation an agent may hold through its\ncapabilities, for the AI settings. For an agent's turn, the ones its\nagent holds: the commands of the shopnexus CLI in its sandbox. An\noperation with approval set changes something: the agent's call does\nnot run it but answers 202 with an approval that a member approves or\nrejects (GET /v1/console/agent/approvals). Each operation's body is\nits request body's JSON Schema with the references resolved.\n",
         "tags": [
           "console",
           "internal"
@@ -12487,114 +12398,31 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AgentToolCall"
+                  "$ref": "#/components/schemas/AgentOperationList"
                 }
               }
             }
           },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
-          },
-          "404": {
-            "description": "No such tool call (agent_tool_call_not_found).",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
           }
         }
       }
     },
-    "/v1/console/agent/documents/{id}": {
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/ConsoleCSRF"
-        },
-        {
-          "$ref": "#/components/parameters/AgentDocumentID"
-        }
-      ],
-      "get": {
-        "operationId": "getConsoleAgentDocument",
-        "summary": "A document a turn wrote, with every version, newest first.",
-        "description": "Documents are kept with their chat and deleted with it. Export is the console's (Markdown copy, print to PDF).",
-        "tags": [
-          "console",
-          "internal"
-        ],
-        "security": [
-          {
-            "consoleAuth": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Done.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AgentDocument"
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "404": {
-            "description": "No such document (agent_document_not_found).",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/console/agent/skills": {
+    "/v1/console/agent/approvals": {
       "parameters": [
         {
           "$ref": "#/components/parameters/ConsoleCSRF"
         }
       ],
       "get": {
-        "operationId": "listConsoleAgentSkills",
-        "summary": "Every saved skill; each is shared with every member.",
-        "tags": [
-          "console",
-          "internal"
+        "operationId": "listConsoleAgentApprovals",
+        "x-capability": "turn",
+        "x-uc": [
+          "UC-MOD-08"
         ],
-        "security": [
-          {
-            "consoleAuth": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Done.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AgentSkillList"
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          }
-        }
-      },
-      "post": {
-        "operationId": "createConsoleAgentSkill",
-        "summary": "Save a skill, a question with {{variables}}, for every member.",
-        "description": "A repeated Idempotency-Key answers the skill its first call saved.",
+        "summary": "The changes agents asked for, newest first.",
+        "description": "A member sees the approvals of the conversations they may open;\nwithout conversation_id, every one of those, so at most 100. An\nagent's turn sees its own conversation's only, so it can tell what\nbecame of the changes it asked for.\n",
         "tags": [
           "console",
           "internal"
@@ -12606,78 +12434,19 @@
         ],
         "parameters": [
           {
-            "$ref": "#/components/parameters/IdempotencyKeyOptional"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AgentSkillNew"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Saved.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AgentSkill"
-                }
-              }
+            "name": "conversation_id",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
             }
           },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "409": {
-            "description": "Another skill has this slug (agent_skill_taken).",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "The skill's fields do not fit (agent_skill_invalid).",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/console/agent/skills/{id}": {
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/ConsoleCSRF"
-        },
-        {
-          "$ref": "#/components/parameters/AgentSkillID"
-        }
-      ],
-      "get": {
-        "operationId": "getConsoleAgentSkill",
-        "summary": "One skill.",
-        "tags": [
-          "console",
-          "internal"
-        ],
-        "security": [
           {
-            "consoleAuth": []
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/AgentApprovalStatus"
+            }
           }
         ],
         "responses": {
@@ -12686,55 +12455,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AgentSkill"
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "404": {
-            "description": "No such skill (agent_skill_not_found).",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      },
-      "patch": {
-        "operationId": "updateConsoleAgentSkill",
-        "summary": "Change a skill; its maker or an admin may.",
-        "tags": [
-          "console",
-          "internal"
-        ],
-        "security": [
-          {
-            "consoleAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AgentSkillPatch"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Changed.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AgentSkill"
+                  "$ref": "#/components/schemas/AgentApprovalList"
                 }
               }
             }
@@ -12744,52 +12465,27 @@
           },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "description": "The skill is another member's and the caller is no admin (agent_forbidden).",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "No such skill (agent_skill_not_found).",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Another skill has this slug (agent_skill_taken), or the skill changed meanwhile (try_again).",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "The skill's fields do not fit (agent_skill_invalid).",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
           }
         }
-      },
-      "delete": {
-        "operationId": "deleteConsoleAgentSkill",
-        "summary": "Delete a skill; its maker or an admin may.",
+      }
+    },
+    "/v1/console/agent/approvals/{id}/approve": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/ConsoleCSRF"
+        },
+        {
+          "$ref": "#/components/parameters/AgentApprovalID"
+        }
+      ],
+      "post": {
+        "operationId": "approveConsoleAgentApproval",
+        "x-capability": "none",
+        "x-uc": [
+          "UC-MOD-08"
+        ],
+        "summary": "Approve a change an agent asked for; the server makes the call as the approver.",
+        "description": "The stored request runs now with the approver's session and rights,\nas if they had made it: a role too low or a record that changed\nsince fails it like any call. The approval answers with the call's\nstatus and body: approved for a 2xx, failed otherwise. Any member\nwho may open the conversation may approve.\n",
         "tags": [
           "console",
           "internal"
@@ -12800,31 +12496,72 @@
           }
         ],
         "responses": {
-          "204": {
-            "description": "Deleted."
+          "200": {
+            "description": "Decided.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentApproval"
+                }
+              }
+            }
           },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
           },
-          "403": {
-            "description": "The skill is another member's and the caller is no admin (agent_forbidden).",
+          "404": {
+            "$ref": "#/components/responses/AgentApprovalNotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/AgentApprovalDecided"
+          }
+        }
+      }
+    },
+    "/v1/console/agent/approvals/{id}/reject": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/ConsoleCSRF"
+        },
+        {
+          "$ref": "#/components/parameters/AgentApprovalID"
+        }
+      ],
+      "post": {
+        "operationId": "rejectConsoleAgentApproval",
+        "x-capability": "none",
+        "x-uc": [
+          "UC-MOD-08"
+        ],
+        "summary": "Reject a change an agent asked for.",
+        "tags": [
+          "console",
+          "internal"
+        ],
+        "security": [
+          {
+            "consoleAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Decided.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "$ref": "#/components/schemas/AgentApproval"
                 }
               }
             }
           },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
           "404": {
-            "description": "No such skill (agent_skill_not_found).",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
+            "$ref": "#/components/responses/AgentApprovalNotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/AgentApprovalDecided"
           }
         }
       }
@@ -12837,6 +12574,7 @@
       ],
       "get": {
         "operationId": "listConsoleAgents",
+        "x-capability": "none",
         "summary": "The console agents a member may pick in the ask box.",
         "description": "The agents turned on; the Console assistant is the default.",
         "tags": [
@@ -12873,6 +12611,7 @@
       ],
       "get": {
         "operationId": "listAIProviders",
+        "x-capability": "none",
         "x-uc": [
           "UC-MOD-12"
         ],
@@ -12921,6 +12660,7 @@
       ],
       "get": {
         "operationId": "listAIProviderModels",
+        "x-capability": "none",
         "x-uc": [
           "UC-MOD-12"
         ],
@@ -12976,6 +12716,7 @@
       ],
       "get": {
         "operationId": "listAIModels",
+        "x-capability": "none",
         "x-uc": [
           "UC-MOD-12"
         ],
@@ -13020,6 +12761,7 @@
       ],
       "put": {
         "operationId": "setAIModelTags",
+        "x-capability": "none",
         "x-uc": [
           "UC-MOD-12"
         ],
@@ -13078,6 +12820,7 @@
       ],
       "put": {
         "operationId": "setAIModelPrice",
+        "x-capability": "none",
         "x-uc": [
           "UC-MOD-12"
         ],
@@ -13149,6 +12892,7 @@
       ],
       "get": {
         "operationId": "listAIAgents",
+        "x-capability": "none",
         "x-uc": [
           "UC-MOD-12"
         ],
@@ -13184,6 +12928,7 @@
       },
       "post": {
         "operationId": "createAIAgent",
+        "x-capability": "none",
         "x-uc": [
           "UC-MOD-12"
         ],
@@ -13255,6 +13000,7 @@
       ],
       "get": {
         "operationId": "getAIAgentUsage",
+        "x-capability": "none",
         "x-uc": [
           "UC-MOD-12"
         ],
@@ -13318,6 +13064,7 @@
       ],
       "patch": {
         "operationId": "updateAIAgent",
+        "x-capability": "none",
         "x-uc": [
           "UC-MOD-12"
         ],
@@ -13402,6 +13149,7 @@
       ],
       "get": {
         "operationId": "listAIAgentVersions",
+        "x-capability": "none",
         "x-uc": [
           "UC-MOD-12"
         ],
@@ -13453,6 +13201,7 @@
       ],
       "get": {
         "operationId": "getAISpend",
+        "x-capability": "none",
         "x-uc": [
           "UC-MOD-12"
         ],
@@ -13523,118 +13272,6 @@
         }
       }
     },
-    "/v1/console/settings/tools": {
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/ConsoleCSRF"
-        }
-      ],
-      "get": {
-        "operationId": "getAITools",
-        "x-uc": [
-          "UC-MOD-12"
-        ],
-        "summary": "The agent's tool calls over a range, each tool with its title. Admins only.",
-        "tags": [
-          "console",
-          "internal"
-        ],
-        "security": [
-          {
-            "consoleAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "range",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "enum": [
-                "7d",
-                "30d",
-                "90d"
-              ],
-              "default": "7d"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Done.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AIToolStats"
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/ConsoleForbidden"
-          }
-        }
-      }
-    },
-    "/v1/console/settings/guardrails": {
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/ConsoleCSRF"
-        }
-      ],
-      "get": {
-        "operationId": "getAIGuardrails",
-        "x-uc": [
-          "UC-MOD-12"
-        ],
-        "summary": "The agent's guardrail notices over a range. Admins only.",
-        "tags": [
-          "console",
-          "internal"
-        ],
-        "security": [
-          {
-            "consoleAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "range",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "enum": [
-                "7d",
-                "30d",
-                "90d"
-              ],
-              "default": "7d"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Done.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AIGuardrailStats"
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/ConsoleForbidden"
-          }
-        }
-      }
-    },
     "/v1/console/settings/dashboards": {
       "parameters": [
         {
@@ -13643,6 +13280,7 @@
       ],
       "get": {
         "operationId": "listDashboardFloors",
+        "x-capability": "none",
         "x-uc": [
           "UC-MOD-10"
         ],
@@ -13678,6 +13316,7 @@
       },
       "patch": {
         "operationId": "setDashboardFloors",
+        "x-capability": "none",
         "x-uc": [
           "UC-MOD-10"
         ],
@@ -13733,6 +13372,7 @@
       ],
       "post": {
         "operationId": "createConsoleDashboardTicket",
+        "x-capability": "none",
         "x-uc": [
           "UC-MOD-10"
         ],
@@ -13786,6 +13426,7 @@
     "/v1/console/dashboard-auth": {
       "get": {
         "operationId": "authorizeConsoleDashboard",
+        "x-capability": "none",
         "x-uc": [
           "UC-MOD-10"
         ],
@@ -14352,53 +13993,101 @@
           }
         }
       },
-      "AgentAttachment": {
+      "AgentApproval": {
         "type": "object",
         "additionalProperties": false,
-        "description": "A record or a document the question is about, once per question.",
+        "description": "A change an agent asked for, the API call it would make.",
         "required": [
-          "kind",
-          "id"
+          "id",
+          "conversation_id",
+          "turn_id",
+          "member_id",
+          "operation",
+          "method",
+          "path",
+          "status",
+          "created_at"
         ],
         "properties": {
-          "kind": {
-            "$ref": "#/components/schemas/AgentAttachmentKind"
-          },
           "id": {
             "type": "string",
             "format": "uuid"
           },
-          "label": {
+          "conversation_id": {
             "type": "string",
-            "maxLength": 120,
-            "description": "What the console showed for the record, trimmed. The console's alone; the agent never gets it."
+            "format": "uuid"
+          },
+          "turn_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "member_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The member the agent worked for."
+          },
+          "operation": {
+            "type": "string",
+            "description": "The operation's name, as AgentOperation names it."
+          },
+          "method": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string",
+            "description": "The path with its query."
+          },
+          "body": {
+            "description": "The request's JSON body; absent when it had none."
+          },
+          "status": {
+            "$ref": "#/components/schemas/AgentApprovalStatus"
+          },
+          "decided_by": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "decided_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "result_status": {
+            "type": "integer",
+            "description": "The HTTP status the call answered, once approved."
+          },
+          "result": {
+            "description": "The call's JSON answer, once approved; absent when it had none."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
-      "AgentAttachmentKind": {
-        "type": "string",
-        "description": "A record a question may mention.",
-        "enum": [
-          "ticket",
-          "account",
-          "order",
-          "listing",
-          "report_case",
-          "document"
-        ]
-      },
-      "AgentBlock": {
+      "AgentApprovalList": {
         "type": "object",
-        "description": "One block of an answer, by type: text {markdown} with [n] markers, figures {items: [{value, label, change?, tone?}]}, table {columns, rows}, chart {kind: bar|stacked_bar|line, labels, series}, document_ref {document_id, version}, follow_ups {items}. The agent owns their fields.",
+        "additionalProperties": false,
         "required": [
-          "type"
+          "items"
         ],
         "properties": {
-          "type": {
-            "type": "string"
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AgentApproval"
+            }
           }
-        },
-        "additionalProperties": true
+        }
+      },
+      "AgentApprovalStatus": {
+        "type": "string",
+        "description": "pending until a member decides; approved when the call answered 2xx, failed when it did not.",
+        "enum": [
+          "pending",
+          "approved",
+          "rejected",
+          "failed"
+        ]
       },
       "AgentConversation": {
         "type": "object",
@@ -14431,10 +14120,11 @@
       "AgentConversationDetail": {
         "type": "object",
         "additionalProperties": false,
-        "description": "A conversation with its turns, oldest first.",
+        "description": "A conversation with its messages and turns, oldest first.",
         "required": [
           "id",
           "updated_at",
+          "messages",
           "turns"
         ],
         "properties": {
@@ -14455,6 +14145,12 @@
           "updated_at": {
             "type": "string",
             "format": "date-time"
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AgentMessage"
+            }
           },
           "turns": {
             "type": "array",
@@ -14507,148 +14203,164 @@
           }
         }
       },
-      "AgentDocument": {
+      "AgentMessage": {
         "type": "object",
         "additionalProperties": false,
+        "description": "One message of a conversation's history, as the model reads it. A user\nmessage is what a member wrote, with context, the facts the server put\nin front of it (the time, the member, the conversation's record, the\napprovals decided since the last turn). An assistant message is the\nmodel's text, reasoning and the commands it ran (tool_calls); a tool\nmessage is what one of them printed.\n",
         "required": [
-          "id",
-          "conversation_id",
-          "title",
-          "latest_version",
-          "created_at",
-          "updated_at",
-          "versions"
+          "seq",
+          "role"
         ],
         "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "conversation_id": {
-            "type": "string",
-            "format": "uuid"
+          "seq": {
+            "type": "integer",
+            "minimum": 1
           },
           "turn_id": {
             "type": "string",
             "format": "uuid"
           },
-          "title": {
+          "role": {
+            "type": "string",
+            "enum": [
+              "user",
+              "assistant",
+              "tool"
+            ]
+          },
+          "context": {
             "type": "string"
           },
-          "latest_version": {
-            "type": "integer",
-            "minimum": 1
-          },
-          "created_by": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updated_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "versions": {
-            "type": "array",
-            "description": "Every version, newest first.",
-            "items": {
-              "$ref": "#/components/schemas/AgentDocumentVersion"
-            }
-          }
-        }
-      },
-      "AgentDocumentVersion": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "version",
-          "title",
-          "sections",
-          "created_at"
-        ],
-        "properties": {
-          "version": {
-            "type": "integer",
-            "minimum": 1
-          },
-          "title": {
+          "content": {
             "type": "string"
           },
-          "sections": {
+          "reasoning": {
+            "type": "string"
+          },
+          "tool_calls": {
             "type": "array",
-            "description": "The version's sections, each {type, ...} as the agent writes them.",
             "items": {
               "type": "object",
+              "additionalProperties": false,
               "required": [
-                "type"
+                "id",
+                "name",
+                "input"
               ],
               "properties": {
-                "type": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "input": {
                   "type": "string",
-                  "enum": [
-                    "markdown",
-                    "table",
-                    "chart"
-                  ]
+                  "description": "The call's arguments as the model wrote them, a JSON object."
                 }
-              },
-              "additionalProperties": true
+              }
             }
           },
-          "turn_id": {
-            "type": "string",
-            "format": "uuid"
+          "tool_call_id": {
+            "type": "string"
           },
-          "created_by": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time"
+          "is_error": {
+            "type": "boolean"
           }
         }
       },
-      "AgentInput": {
+      "AgentOperation": {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "One API operation an agent may call, a command of the shopnexus CLI.",
+        "required": [
+          "name",
+          "method",
+          "path",
+          "summary",
+          "capability",
+          "approval",
+          "parameters"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The operationId without Console, the CLI's command."
+          },
+          "method": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "capability": {
+            "type": "string",
+            "description": "The capability that grants it, its x-capability."
+          },
+          "approval": {
+            "type": "boolean",
+            "description": "It changes something, so an agent's call waits for a member's approval."
+          },
+          "parameters": {
+            "type": "array",
+            "description": "Its path and query parameters.",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "name",
+                "in",
+                "required"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "in": {
+                  "type": "string",
+                  "enum": [
+                    "path",
+                    "query"
+                  ]
+                },
+                "required": {
+                  "type": "boolean"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "body": {
+            "type": "object",
+            "description": "Its request body's JSON Schema; absent when it takes none."
+          }
+        }
+      },
+      "AgentOperationList": {
         "type": "object",
         "additionalProperties": false,
         "required": [
-          "answers"
+          "operations"
         ],
         "properties": {
-          "answers": {
-            "type": "object",
-            "description": "Each question's id to the id of the option picked, or to a list of ids for a multi question.",
-            "minProperties": 1,
-            "additionalProperties": {
-              "oneOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              ]
+          "operations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AgentOperation"
             }
           }
         }
-      },
-      "AgentOutcome": {
-        "type": "string",
-        "description": "The group a turn's end falls in, each with its own help: stopped (Continue), out_of_room (Continue or a shorter question), broken (Continue), unavailable (another agent or later), blocked (a budget or a guardrail; nothing to retry). None on success.",
-        "enum": [
-          "stopped",
-          "out_of_room",
-          "broken",
-          "unavailable",
-          "blocked"
-        ]
       },
       "AgentQuestion": {
         "type": "object",
@@ -14660,24 +14372,12 @@
           "text": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 4000
+            "maxLength": 8000
           },
           "agent_id": {
             "type": "string",
             "format": "uuid",
             "description": "A console agent from GET /v1/console/agents; the Console assistant when left out."
-          },
-          "attachments": {
-            "type": "array",
-            "maxItems": 10,
-            "items": {
-              "$ref": "#/components/schemas/AgentAttachment"
-            }
-          },
-          "skill_id": {
-            "type": "string",
-            "format": "uuid",
-            "description": "The skill the question comes from."
           }
         }
       },
@@ -14699,7 +14399,7 @@
       },
       "AgentRunEvent": {
         "type": "object",
-        "description": "The data of one server-sent event of a run, `{seq, type, at, ...}`;\nthe event's `id:` is its seq, counted from 1 per turn. The fields\nbeside seq, type and at are those of the type:\n\n- turn.started: agent {id, name}, model (provider/model), deadline_s\n- turn.resumed: by (continue, steer, input)\n- step.started: step_id, title\n- step.finished: step_id, summary, duration_ms\n- tool.started: call_id, step_id, tool, label, input (cut at 2000\n  characters)\n- tool.retry: call_id, attempt, error, next_in_ms, timeout_ms\n- tool.finished: call_id, status (success, failed, skipped),\n  duration_ms, timing {queued, server, db, return}, result_summary,\n  source_ids, sources\n- model.switched: from_model, to_model (provider/model), reason\n  (fallback when Bifrost tried the next model, changed when an admin\n  gave the agent another model)\n- thinking: summary, duration_ms\n- text.delta: delta\n- block: block, one AgentBlock\n- clarify: questions [{id, label, kind: single|multi, options: [{id,\n  label, hint?}], default?}]; the turn waits\n- usage: input_tokens (uncached), output_tokens, cache_read_tokens?,\n  cache_write_tokens?, cost_usd, provider (Bifrost's provider name),\n  first_token_ms\n- steer.read: steer_id, step_id (or null), step_number\n- turn.pausing, turn.paused: steps_done, reason (member, stop_now)\n- rate.waiting: until\n- context.compacting: before_tokens\n- context.compacted: summary, before_tokens, after_tokens\n- context.meter: used_tokens, window_tokens\n- guardrail: rule (loop_stopped, rate_limited), detail\n- turn.finished: status (SUCCEEDED, FAILED, CANCELLED, TIMED_OUT,\n  BUDGET), outcome (null on success), failure (the error code),\n  continuable, sources\n\nThe stream ends after turn.finished, turn.paused or clarify; after\nContinue, answers or an update to a paused turn the console opens it\nagain with its last seq. Tool inputs and outputs in full are not in the\nevents; GET /v1/console/agent/tool-calls/{id} serves them.\n",
+        "description": "The data of one server-sent event of a turn, `{seq, type, at, ...}`;\nthe event's `id:` is its seq, counted from 1 per turn. The fields\nbeside seq, type and at are those of the type:\n\n- turn.started: agent {id, name}, model\n- turn.resumed: by, the member who resumed it\n- text.delta, reasoning.delta: delta, the model's text as it streams\n- tool.started: call_id, tool, input\n- tool.finished: call_id, tool, output (what the model reads),\n  is_error\n- step: messages, the AgentMessages the step added to the\n  conversation (the model's message, its commands' outputs, and the\n  steers it read)\n- step.failed: error; the text streamed since the last step is void\n- approval: approval, an AgentApproval asked for or decided\n- turn.pausing: by\n- turn.paused: usage\n- turn.finished: status, stop, error, usage\n\nThe stream ends after turn.paused or turn.finished.\n",
         "required": [
           "seq",
           "type",
@@ -14715,25 +14415,15 @@
             "enum": [
               "turn.started",
               "turn.resumed",
-              "step.started",
-              "step.finished",
-              "tool.started",
-              "tool.retry",
-              "tool.finished",
-              "model.switched",
-              "thinking",
               "text.delta",
-              "block",
-              "clarify",
-              "usage",
-              "steer.read",
+              "reasoning.delta",
+              "tool.started",
+              "tool.finished",
+              "step",
+              "step.failed",
+              "approval",
               "turn.pausing",
               "turn.paused",
-              "rate.waiting",
-              "context.compacting",
-              "context.compacted",
-              "context.meter",
-              "guardrail",
               "turn.finished"
             ]
           },
@@ -14743,209 +14433,6 @@
           }
         },
         "additionalProperties": true
-      },
-      "AgentSkill": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "id",
-          "created_by",
-          "name",
-          "slug",
-          "description",
-          "prompt",
-          "variables",
-          "updated_at"
-        ],
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "created_by": {
-            "type": "string",
-            "format": "uuid",
-            "description": "The member who saved it."
-          },
-          "name": {
-            "type": "string"
-          },
-          "slug": {
-            "type": "string",
-            "description": "What a member types after / in the ask box."
-          },
-          "description": {
-            "type": "string"
-          },
-          "prompt": {
-            "type": "string",
-            "description": "The question, with {{name}} for each variable."
-          },
-          "variables": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AgentSkillVariable"
-            }
-          },
-          "updated_at": {
-            "type": "string",
-            "format": "date-time"
-          }
-        }
-      },
-      "AgentSkillList": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "items"
-        ],
-        "properties": {
-          "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AgentSkill"
-            }
-          }
-        }
-      },
-      "AgentSkillNew": {
-        "type": "object",
-        "additionalProperties": false,
-        "description": "A skill; the slug is the name in lower-case ASCII when left out.",
-        "required": [
-          "name",
-          "prompt"
-        ],
-        "properties": {
-          "name": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 100
-          },
-          "slug": {
-            "type": "string",
-            "pattern": "^[a-z0-9][a-z0-9-]{0,39}$"
-          },
-          "description": {
-            "type": "string",
-            "maxLength": 500
-          },
-          "prompt": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 4000
-          },
-          "variables": {
-            "type": "array",
-            "maxItems": 10,
-            "items": {
-              "$ref": "#/components/schemas/AgentSkillVariable"
-            }
-          }
-        }
-      },
-      "AgentSkillPatch": {
-        "type": "object",
-        "additionalProperties": false,
-        "minProperties": 1,
-        "properties": {
-          "name": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 100
-          },
-          "slug": {
-            "type": "string",
-            "pattern": "^[a-z0-9][a-z0-9-]{0,39}$"
-          },
-          "description": {
-            "type": "string",
-            "maxLength": 500
-          },
-          "prompt": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 4000
-          },
-          "variables": {
-            "type": "array",
-            "maxItems": 10,
-            "items": {
-              "$ref": "#/components/schemas/AgentSkillVariable"
-            }
-          }
-        }
-      },
-      "AgentSkillVariable": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "name"
-        ],
-        "properties": {
-          "name": {
-            "type": "string",
-            "pattern": "^[a-z][a-z0-9_]{0,39}$"
-          },
-          "label": {
-            "type": "string",
-            "maxLength": 100
-          },
-          "default": {
-            "type": "string",
-            "maxLength": 500
-          }
-        }
-      },
-      "AgentSource": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "n",
-          "kind",
-          "record_id",
-          "label",
-          "call_id",
-          "tool"
-        ],
-        "description": "A numbered record a tool call returned, which the answer's [n] markers cite.",
-        "properties": {
-          "n": {
-            "type": "integer",
-            "minimum": 1
-          },
-          "kind": {
-            "type": "string",
-            "enum": [
-              "report",
-              "account",
-              "ticket",
-              "order",
-              "listing",
-              "data",
-              "log"
-            ]
-          },
-          "record_id": {
-            "type": "string"
-          },
-          "label": {
-            "type": "string"
-          },
-          "quote": {
-            "type": "string",
-            "description": "The line of the record the answer quotes."
-          },
-          "call_id": {
-            "type": "string",
-            "format": "uuid",
-            "description": "The tool call that returned the record."
-          },
-          "tool": {
-            "type": "string",
-            "description": "The MCP tool, such as ticket_get."
-          }
-        }
       },
       "AgentSteer": {
         "type": "object",
@@ -14957,31 +14444,7 @@
           "text": {
             "type": "string",
             "minLength": 1,
-            "maxLength": 2000
-          }
-        }
-      },
-      "AgentSteering": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "steer_id",
-          "turn_id",
-          "resumed"
-        ],
-        "description": "An update the run reads before its next model call; steer.read says when.",
-        "properties": {
-          "steer_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "turn_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "resumed": {
-            "type": "boolean",
-            "description": "The update continued a paused turn; the console opens the stream again."
+            "maxLength": 4000
           }
         }
       },
@@ -14993,147 +14456,19 @@
           "account"
         ]
       },
-      "AgentTiming": {
-        "type": "object",
-        "additionalProperties": false,
-        "description": "Where a tool call's time went, in milliseconds; db is what the server reported, when it did.",
-        "required": [
-          "queued",
-          "server",
-          "db",
-          "return"
-        ],
-        "properties": {
-          "queued": {
-            "type": [
-              "integer",
-              "null"
-            ]
-          },
-          "server": {
-            "type": [
-              "integer",
-              "null"
-            ]
-          },
-          "db": {
-            "type": [
-              "integer",
-              "null"
-            ]
-          },
-          "return": {
-            "type": [
-              "integer",
-              "null"
-            ]
-          }
-        }
-      },
-      "AgentToolCall": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "id",
-          "turn_id",
-          "tool",
-          "status",
-          "input",
-          "output_spilled",
-          "attempts",
-          "started_at"
-        ],
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "turn_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "tool": {
-            "type": "string"
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "running",
-              "success",
-              "failed",
-              "skipped"
-            ]
-          },
-          "input": {
-            "description": "The arguments the model gave, as JSON."
-          },
-          "output": {
-            "description": "The tool's result as JSON, once it has one; absent 90 days after the call, and once the account the conversation is about is deleted."
-          },
-          "output_spilled": {
-            "type": "boolean",
-            "description": "The output was too long to keep whole."
-          },
-          "attempts": {
-            "type": "integer",
-            "minimum": 0
-          },
-          "started_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "finished_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "duration_ms": {
-            "type": "integer"
-          },
-          "timing": {
-            "$ref": "#/components/schemas/AgentTiming"
-          },
-          "attempt_errors": {
-            "type": "array",
-            "description": "The errors of the attempts that failed before the last.",
-            "items": {
-              "type": "object",
-              "additionalProperties": false,
-              "required": [
-                "attempt",
-                "error",
-                "at"
-              ],
-              "properties": {
-                "attempt": {
-                  "type": "integer"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "at": {
-                  "type": "string",
-                  "format": "date-time"
-                }
-              }
-            }
-          }
-        }
-      },
       "AgentTurn": {
         "type": "object",
         "additionalProperties": false,
-        "description": "The agent's turn view, in the conversation and from GET /v1/console/agent/turns/{id}.",
+        "description": "A turn of a conversation, in it and from GET /v1/console/agent/turns/{id}.",
         "required": [
           "id",
+          "conversation_id",
           "member_id",
-          "text",
+          "agent",
           "status",
-          "blocks",
-          "sources",
-          "continuable",
-          "steers",
+          "usage",
           "last_seq",
-          "created_at"
+          "started_at"
         ],
         "properties": {
           "id": {
@@ -15147,111 +14482,40 @@
           "member_id": {
             "type": "string",
             "format": "uuid",
-            "description": "The member who asked."
-          },
-          "text": {
-            "type": "string",
-            "description": "The question."
-          },
-          "attachments": {
-            "type": "array",
-            "description": "The records the question mentioned; absent when it mentioned none.",
-            "items": {
-              "$ref": "#/components/schemas/AgentAttachment"
-            }
-          },
-          "answer": {
-            "type": "string",
-            "description": "The agent's answer as text, once it has one."
-          },
-          "status": {
-            "$ref": "#/components/schemas/AgentTurnStatus"
-          },
-          "blocks": {
-            "type": "array",
-            "description": "The answer's blocks, in order.",
-            "items": {
-              "$ref": "#/components/schemas/AgentBlock"
-            }
-          },
-          "sources": {
-            "type": "array",
-            "description": "The records the answer's [n] markers cite, by n.",
-            "items": {
-              "$ref": "#/components/schemas/AgentSource"
-            }
-          },
-          "outcome": {
-            "$ref": "#/components/schemas/AgentOutcome"
-          },
-          "error_code": {
-            "type": "string",
-            "description": "The run's failure, such as agent_timeout or agent_budget."
-          },
-          "continuable": {
-            "type": "boolean",
-            "description": "Continue may resume this turn."
+            "description": "The member who started it."
           },
           "agent": {
             "$ref": "#/components/schemas/AgentRef"
           },
+          "model": {
+            "type": "string",
+            "description": "The model at the gateway, provider/model."
+          },
+          "status": {
+            "$ref": "#/components/schemas/AgentTurnStatus"
+          },
+          "stop": {
+            "type": "string",
+            "description": "Why the run ended without an error, as the runtime says: done,\nlength (the answer hit the output limit), deadline, paused, stopped,\nloop (the same calls gave the same results three steps running),\ncontext_full.\n"
+          },
+          "error": {
+            "type": "string",
+            "description": "What went wrong, for a failed turn."
+          },
           "usage": {
             "$ref": "#/components/schemas/AgentUsage"
           },
-          "steers": {
-            "type": "array",
-            "description": "The updates members sent the run.",
-            "items": {
-              "type": "object",
-              "additionalProperties": false,
-              "required": [
-                "steer_id",
-                "text"
-              ],
-              "properties": {
-                "steer_id": {
-                  "type": "string",
-                  "format": "uuid"
-                },
-                "text": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "questions": {
-            "type": "array",
-            "description": "The clarifying questions while the turn is awaiting_input: {id, label, kind: single|multi, options: [{id, label, hint?}], default?}.",
-            "items": {
-              "type": "object",
-              "required": [
-                "id"
-              ],
-              "properties": {
-                "id": {
-                  "type": "string"
-                }
-              },
-              "additionalProperties": true
-            }
-          },
           "last_seq": {
             "type": "integer",
-            "description": "The seq of the turn's newest event; the console opens the stream after it."
+            "description": "The seq of its last event; 0 before the first."
           },
-          "created_at": {
+          "started_at": {
             "type": "string",
-            "format": "date-time",
-            "description": "When the member asked."
+            "format": "date-time"
           },
           "finished_at": {
             "type": "string",
-            "format": "date-time",
-            "description": "When the run ended; absent while it has not."
-          },
-          "duration_ms": {
-            "type": "integer",
-            "description": "How long the run worked, pauses left out; set once it has stopped or paused."
+            "format": "date-time"
           }
         }
       },
@@ -15276,9 +14540,10 @@
       "AgentTurnState": {
         "type": "object",
         "additionalProperties": false,
-        "description": "The turn a control was taken for; end gives its status, cancelled.",
+        "description": "The turn a control was taken for.",
         "required": [
-          "turn_id"
+          "turn_id",
+          "status"
         ],
         "properties": {
           "turn_id": {
@@ -15292,16 +14557,14 @@
       },
       "AgentTurnStatus": {
         "type": "string",
-        "description": "A turn's status. paused and awaiting_input wait on the member; the ones after them are final.",
+        "description": "A turn's status. running until its run ends: paused when a member\npaused it, stopped when one stopped it, succeeded when the agent\nanswered, timed_out past its deadline, failed otherwise. Every status\nbut running can take a new message; the conversation's last turn can\nalso resume.\n",
         "enum": [
           "running",
           "paused",
-          "awaiting_input",
+          "stopped",
           "succeeded",
           "failed",
-          "cancelled",
-          "timed_out",
-          "budget"
+          "timed_out"
         ]
       },
       "AgentUsage": {
@@ -15310,33 +14573,19 @@
         "required": [
           "input_tokens",
           "output_tokens",
-          "cost_usd"
+          "cached_tokens"
         ],
         "properties": {
           "input_tokens": {
             "type": "integer",
-            "description": "The input the prompt cache did not hold."
+            "description": "Every input token, the cached ones included."
           },
           "output_tokens": {
             "type": "integer"
           },
-          "cache_read_tokens": {
+          "cached_tokens": {
             "type": "integer",
-            "description": "Input read from the prompt cache; absent where the agent does not report it."
-          },
-          "cache_write_tokens": {
-            "type": "integer",
-            "description": "Input written to the prompt cache; absent where the agent does not report it."
-          },
-          "cost_usd": {
-            "type": "number"
-          },
-          "first_token_ms": {
-            "type": "integer"
-          },
-          "provider": {
-            "type": "string",
-            "description": "The provider in Bifrost that served the call, such as upstream or openrouter."
+            "description": "The input read from the prompt cache."
           }
         }
       },
@@ -15354,7 +14603,7 @@
           "model",
           "fallbacks",
           "instructions_version",
-          "tools",
+          "capabilities",
           "limits",
           "monthly_budget_usd",
           "budget_spent_usd",
@@ -15412,9 +14661,9 @@
           "instructions_version": {
             "type": "integer"
           },
-          "tools": {
+          "capabilities": {
             "type": "array",
-            "description": "The MCP tools a console agent may call.",
+            "description": "What a console agent may do through the API: each capability grants the operations whose x-capability names it (GET /v1/console/agent/operations lists them). An operation that changes something still waits for a member's approval.",
             "items": {
               "type": "string"
             }
@@ -15592,7 +14841,7 @@
             "type": "string",
             "maxLength": 20000
           },
-          "tools": {
+          "capabilities": {
             "type": "array",
             "maxItems": 50,
             "items": {
@@ -15651,7 +14900,7 @@
             "type": "string",
             "maxLength": 20000
           },
-          "tools": {
+          "capabilities": {
             "type": "array",
             "maxItems": 50,
             "items": {
@@ -15790,67 +15039,6 @@
           },
           "requests": {
             "type": "integer"
-          }
-        }
-      },
-      "AIGuardrailStats": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "items",
-          "recent"
-        ],
-        "properties": {
-          "items": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "additionalProperties": false,
-              "required": [
-                "rule",
-                "count"
-              ],
-              "properties": {
-                "rule": {
-                  "type": "string"
-                },
-                "count": {
-                  "type": "integer"
-                }
-              }
-            }
-          },
-          "recent": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "additionalProperties": false,
-              "required": [
-                "rule",
-                "detail",
-                "at"
-              ],
-              "properties": {
-                "rule": {
-                  "type": "string"
-                },
-                "detail": {
-                  "type": "string"
-                },
-                "member_id": {
-                  "type": "string",
-                  "format": "uuid"
-                },
-                "turn_id": {
-                  "type": "string",
-                  "format": "uuid"
-                },
-                "at": {
-                  "type": "string",
-                  "format": "date-time"
-                }
-              }
-            }
           }
         }
       },
@@ -16222,113 +15410,6 @@
           }
         }
       },
-      "AIToolStats": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "items",
-          "recent"
-        ],
-        "properties": {
-          "items": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "additionalProperties": false,
-              "required": [
-                "name",
-                "display_name",
-                "calls",
-                "failed",
-                "days"
-              ],
-              "properties": {
-                "name": {
-                  "type": "string"
-                },
-                "display_name": {
-                  "type": "string",
-                  "description": "The tool's title."
-                },
-                "calls": {
-                  "type": "integer"
-                },
-                "failed": {
-                  "type": "integer"
-                },
-                "p50_ms": {
-                  "type": "integer"
-                },
-                "days": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "required": [
-                      "date",
-                      "calls"
-                    ],
-                    "properties": {
-                      "date": {
-                        "type": "string",
-                        "format": "date"
-                      },
-                      "calls": {
-                        "type": "integer"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "recent": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "additionalProperties": false,
-              "required": [
-                "call_id",
-                "turn_id",
-                "tool",
-                "label",
-                "status",
-                "at"
-              ],
-              "properties": {
-                "call_id": {
-                  "type": "string",
-                  "format": "uuid"
-                },
-                "turn_id": {
-                  "type": "string",
-                  "format": "uuid"
-                },
-                "member_id": {
-                  "type": "string",
-                  "format": "uuid"
-                },
-                "tool": {
-                  "type": "string"
-                },
-                "label": {
-                  "type": "string"
-                },
-                "duration_ms": {
-                  "type": "integer"
-                },
-                "status": {
-                  "type": "string"
-                },
-                "at": {
-                  "type": "string",
-                  "format": "date-time"
-                }
-              }
-            }
-          }
-        }
-      },
       "Block": {
         "type": "object",
         "additionalProperties": false,
@@ -16407,7 +15488,7 @@
           "failed": {
             "type": "integer",
             "minimum": 0,
-            "description": "Of those, the orders whose delivery failed, but parcels the carrier lost."
+            "description": "Of those, the orders whose delivery failed, not counting parcels the carrier lost."
           }
         }
       },
@@ -21214,6 +20295,9 @@
               "$ref": "#/components/schemas/Identity"
             },
             "description": "How the account signs in. Posting, opening a deal and opening a chat need a phone."
+          },
+          "suspension": {
+            "$ref": "#/components/schemas/Suspension"
           }
         }
       },
@@ -24961,6 +24045,25 @@
           }
         }
       },
+      "Suspension": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "reason"
+        ],
+        "description": "Present only while the account is suspended. A suspended account stays\nsigned in but writes nothing new except in its support tickets.\n",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "description": "Why staff suspended the account, as they wrote it."
+          },
+          "until": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the suspension ends; absent for one without an end."
+          }
+        }
+      },
       "Target": {
         "type": "object",
         "additionalProperties": false,
@@ -25602,6 +24705,26 @@
       }
     },
     "responses": {
+      "AgentApprovalDecided": {
+        "description": "The approval was already decided (agent_approval_decided).",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "AgentApprovalNotFound": {
+        "description": "No such approval, or one of a conversation this member may not open (agent_approval_not_found).",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
       "AgentConversationNotFound": {
         "description": "No such agent conversation, or one of another member's (agent_conversation_not_found).",
         "content": {
@@ -25633,7 +24756,7 @@
         }
       },
       "AgentTurnState": {
-        "description": "The turn is not in a state that takes this control (agent_turn_state): pause and stop take a running turn, continue a paused one or a continuable failed or timed out one, end a paused one or one awaiting input, input one awaiting input.",
+        "description": "The turn is not in a state that takes this control (agent_turn_state): pause, stop and steer take a running turn, resume the conversation's last turn once its run ended.",
         "content": {
           "application/json": {
             "schema": {
@@ -25774,34 +24897,16 @@
           "example": "vi-VN,vi;q=0.9,en;q=0.8"
         }
       },
+      "AgentApprovalID": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
       "AgentConversationID": {
-        "name": "id",
-        "in": "path",
-        "required": true,
-        "schema": {
-          "type": "string",
-          "format": "uuid"
-        }
-      },
-      "AgentDocumentID": {
-        "name": "id",
-        "in": "path",
-        "required": true,
-        "schema": {
-          "type": "string",
-          "format": "uuid"
-        }
-      },
-      "AgentSkillID": {
-        "name": "id",
-        "in": "path",
-        "required": true,
-        "schema": {
-          "type": "string",
-          "format": "uuid"
-        }
-      },
-      "AgentToolCallID": {
         "name": "id",
         "in": "path",
         "required": true,
