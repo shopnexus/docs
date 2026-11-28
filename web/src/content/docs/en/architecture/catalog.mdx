@@ -7,7 +7,7 @@ groupOrder: 4
 audience: [developers]
 type: concept
 readingTime: 4
-updated: 2026-11-27
+updated: 2026-11-28
 related: ["/en/architecture/listings-lifecycle", "/en/architecture/media", "/en/architecture/search-and-discovery", "/en/marketplace/listings"]
 ---
 
@@ -42,7 +42,7 @@ Regions are the 34 provinces and 3,321 communes after the 2025 merger, each comm
 
 ## Seller pages
 
-`GET /v1/sellers/{id}/listings` is public: active and reserved listings, newest first, as search cards. Each card carries the first five thumbnails for hover. Trust and screens read a seller's counts from catalog. "Đã bán" counts every sale, by order or by hand, and deletion keeps the sale, so it erases none.
+`GET /v1/sellers/{id}/listings` is public: active and reserved listings, newest first, as search cards. Each card carries the commune and its province, which a card says from 10 km on, and the first five thumbnails for hover. Trust and screens read a seller's counts from catalog. "Đã bán" counts every sale, by order or by hand, and deletion keeps the sale, so it erases none.
 
 ## Sitemaps and IndexNow
 

@@ -7,7 +7,7 @@ groupOrder: 4
 audience: [developers]
 type: concept
 readingTime: 8
-updated: 2026-11-27
+updated: 2026-11-28
 related: ["/en/architecture/feeds", "/en/architecture/catalog", "/en/architecture/ai", "/en/architecture/notifications"]
 ---
 
@@ -22,7 +22,7 @@ Everything goes through `GET /v1/search`. The parameters pick the mode, and the 
 | Mode | Parameters | Who | Lists fused |
 |---|---|---|---|
 | Text, signed in | `q` | signed in | BM25, text vectors, photo vectors, boosts |
-| Text, guest | `q` | guest | BM25 on the raw words alone |
+| Text, guest | `q` | guest | BM25 on the raw words, device accessories sunk |
 | Similar listings | `like` (with optional `q`) | anyone | BM25, text vectors, photo vectors, boosts |
 | Photo | `photo` alone | signed in | photo vectors alone |
 | Watch | `watch` | the watch's owner | as text, signed in |
@@ -46,7 +46,7 @@ flowchart TD
   M -- answer --> S[Cache 7 days] --> R
   M -- error or timeout --> RAW
   R --> F[Fuse lists, return page and chips]
-  RAW --> F2[BM25 on raw words, no chips]
+  RAW --> F2[BM25 on raw words, accessories sunk, no chips]
 ```
 
 - **Cache.** The answer is cached by the lowercased query and the prompt version for 7 days. The cache stores no account. Turning a chip off (`off=<id>`) reuses the cached answer.
@@ -57,6 +57,8 @@ flowchart TD
 ### Guests
 
 A guest's `q` skips the model and the embeddings: the raw words search through BM25 alone, with no chips. Their vectors, often typed without diacritics, brought in listings that shared no word. The model's cost then follows accounts, and the full search is a reason to sign in.
+
+Raw words have no model to demote accessories, and a phone case's title names every model it fits, so "iphone 12" would list cases first. Any search on raw words, a guest's or one the model did not answer, sinks the device-accessory subcategories (`phones.accessories`, `camera.accessories`) unless the query names an accessory ("ốp lưng", "cáp sạc", "tripod") or a category filter already picks one. The rule reads only the query and the filters, so every page of the search orders alike.
 
 A guest's first page carries `preview_chips`: the chips of a cached answer for the same query, when a signed-in person searched it in the last 7 days. The search does not apply them, and the clients show them locked beside the sign-in button. The preview calls no model.
 

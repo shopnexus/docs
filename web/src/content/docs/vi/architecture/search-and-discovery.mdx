@@ -7,7 +7,7 @@ groupOrder: 4
 audience: [developers]
 type: concept
 readingTime: 8
-updated: 2026-11-27
+updated: 2026-11-28
 related: ["/vi/architecture/feeds", "/vi/architecture/catalog", "/vi/architecture/ai", "/vi/architecture/notifications"]
 ---
 
@@ -22,7 +22,7 @@ Mọi thứ đi qua `GET /v1/search`. Tham số chọn chế độ, và các b�
 | Chế độ | Tham số | Ai | Danh sách được trộn |
 |---|---|---|---|
 | Văn bản, đã đăng nhập | `q` | đã đăng nhập | BM25, vector văn bản, vector ảnh, tăng điểm |
-| Văn bản, khách | `q` | khách | Chỉ BM25 trên từ gốc |
+| Văn bản, khách | `q` | khách | BM25 trên từ gốc, phụ kiện thiết bị bị đẩy xuống |
 | Tin tương tự | `like` (có thể kèm `q`) | mọi người | BM25, vector văn bản, vector ảnh, tăng điểm |
 | Ảnh | chỉ `photo` | đã đăng nhập | Chỉ vector ảnh |
 | Theo dõi | `watch` | chủ của lượt theo dõi | như văn bản, đã đăng nhập |
@@ -46,7 +46,7 @@ flowchart TD
   M -- có câu trả lời --> S[Cache 7 ngày] --> R
   M -- lỗi hoặc quá giờ --> RAW
   R --> F[Trộn danh sách, trả trang và chip]
-  RAW --> F2[BM25 trên từ gốc, không chip]
+  RAW --> F2[BM25 trên từ gốc, đẩy phụ kiện xuống, không chip]
 ```
 
 - **Cache.** Câu trả lời được cache theo câu tìm viết thường và phiên bản prompt trong 7 ngày. Cache không lưu tài khoản nào. Tắt một chip (`off=<id>`) thì dùng lại câu trả lời trong cache.
@@ -57,6 +57,8 @@ flowchart TD
 ### Khách
 
 `q` của khách bỏ qua mô hình và embedding: từ gốc chỉ tìm qua BM25, không có chip. Vector của khách, thường gõ không dấu, từng kéo về những tin không chung chữ nào. Nhờ vậy chi phí mô hình đi theo tài khoản, và tìm kiếm đầy đủ là một lý do để đăng nhập.
+
+Từ gốc không có mô hình để đẩy phụ kiện xuống, mà tiêu đề ốp lưng thường kể mọi đời máy nó vừa, nên "iphone 12" sẽ ra ốp lưng trước. Mọi lần tìm trên từ gốc, của khách hay khi mô hình không trả lời, đẩy các danh mục phụ kiện thiết bị (`phones.accessories`, `camera.accessories`) xuống, trừ khi câu tìm nhắc tới phụ kiện ("ốp lưng", "cáp sạc", "tripod") hoặc bộ lọc danh mục đã chọn sẵn. Quy tắc chỉ đọc câu tìm và bộ lọc, nên mọi trang của lần tìm xếp như nhau.
 
 Trang đầu của khách mang `preview_chips`: các chip của câu trả lời đã cache cho cùng câu tìm, khi một người đã đăng nhập tìm nó trong 7 ngày gần nhất. Lần tìm không áp dụng các chip này, và client hiện chúng ở dạng khóa cạnh nút đăng nhập. Bản xem trước không gọi mô hình nào.
 

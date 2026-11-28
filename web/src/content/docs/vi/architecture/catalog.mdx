@@ -7,7 +7,7 @@ groupOrder: 4
 audience: [developers]
 type: concept
 readingTime: 4
-updated: 2026-11-27
+updated: 2026-11-28
 related: ["/vi/architecture/listings-lifecycle", "/vi/architecture/media", "/vi/architecture/search-and-discovery", "/vi/marketplace/listings"]
 ---
 
@@ -42,7 +42,7 @@ Thông số đi theo key vì có tên mang nghĩa khác nhau tùy danh mục: "K
 
 ## Trang người bán
 
-`GET /v1/sellers/{id}/listings` là endpoint công khai: tin active và reserved, mới nhất trước, dưới dạng thẻ tìm kiếm. Mỗi thẻ mang năm thumbnail đầu để xem khi rê chuột. Trust và các màn đọc số liệu của người bán từ catalog. "Đã bán" đếm mọi lần bán, qua đơn hay tự đánh dấu. Xóa tin vẫn giữ lần bán, nên không làm mất số nào.
+`GET /v1/sellers/{id}/listings` là endpoint công khai: tin active và reserved, mới nhất trước, dưới dạng thẻ tìm kiếm. Mỗi thẻ mang xã và tỉnh của tin (thẻ ghi tỉnh khi cách từ 10 km) cùng năm thumbnail đầu để xem khi rê chuột. Trust và các màn đọc số liệu của người bán từ catalog. "Đã bán" đếm mọi lần bán, qua đơn hay tự đánh dấu. Xóa tin vẫn giữ lần bán, nên không làm mất số nào.
 
 ## Sitemap và IndexNow
 
