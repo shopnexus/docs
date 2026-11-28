@@ -325,7 +325,7 @@ Trễ thì cắt **4**, rồi **6**.
 ### T − 1 ngày
 
 ```sql
--- 1. khoakomlem và admin hiện KHÔNG đăng nhập được. Gán cùng mật khẩu Bob@12345:
+-- 1. khoakomlem và admin hiện KHÔNG đăng nhập được. Gán cho họ mật khẩu của bob_store:
 UPDATE account.account SET password_hash =
   (SELECT password_hash FROM account.account WHERE username='bob_store')
  WHERE username IN ('khoakomlem','admin');

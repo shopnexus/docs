@@ -23,7 +23,6 @@ export interface Item {
   br?: string[];
   nfr?: string[];
   adr?: string[];
-  api?: string[];
   main?: Record<string, string>;
   alt?: Record<string, Flow>;
   exc?: Record<string, Flow>;

@@ -1,8 +1,8 @@
 #!/usr/bin/env bun
 // trace: keeps code, tests, OpenAPI and docs in line with docs/registry.
 //
-//   bun main.ts check  [--server DIR] [--docs DIR]   errors exit 1
-//   bun main.ts build  [--server DIR] [--docs DIR]   check, then write registry/trace.json
+//   bun main.ts check  [--server DIR] [--docs DIR] [--infra DIR]   errors exit 1
+//   bun main.ts build  [--server DIR] [--docs DIR] [--infra DIR]   check, then write registry/trace.json
 //   bun main.ts rename OLD NEW                       rename an ID everywhere
 //   bun main.ts rename --from-was                    replace every old ID by its current one
 //   bun main.ts openapi [--server DIR] [--docs DIR]  bundle server/api into web/public/openapi.json
@@ -14,6 +14,7 @@ import { bundle } from "./openapi";
 import { loadRegistry } from "./registry";
 import { rename, renameFromWas } from "./rename";
 import { type Problem, scanAll } from "./scan";
+import { values } from "./values";
 
 const args = process.argv.slice(2);
 const opt = (name: string, def: string) => {
@@ -24,6 +25,7 @@ const here = import.meta.dir;
 const roots = {
   docs: resolve(opt("--docs", `${here}/../..`)),
   server: resolve(opt("--server", `${here}/../../../server`)),
+  infra: resolve(opt("--infra", `${here}/../../../infra`)),
 };
 const registryPath = `${roots.docs}/registry/requirements.yaml`;
 const [cmd, ...rest] = args;
@@ -41,7 +43,12 @@ async function runCheck(write: boolean): Promise<number> {
   const { reg, errors: regErrors } = await loadRegistry(registryPath);
   const { refs, problems } = await scanAll(roots, reg);
   const report = await check(roots, reg, refs, problems);
-  const errors = [...regErrors.map((msg) => ({ file: registryPath, line: 0, msg })), ...report.errors];
+  const read = await values(roots, reg.raw);
+  const errors = [
+    ...regErrors.map((msg) => ({ file: registryPath, line: 0, msg })),
+    ...report.errors,
+    ...read.errors.map((msg) => ({ file: registryPath, line: 0, msg })),
+  ];
   if (report.warnings.length) {
     console.log(`warnings (${report.warnings.length}):`);
     for (const w of report.warnings) console.log(show(w));
@@ -55,7 +62,7 @@ async function runCheck(write: boolean): Promise<number> {
   console.log(`ok: ${reg.items.size} ids, ${ucs.length} use cases, ${refs.length} references`);
   if (write) {
     const { repo, commit } = await githubOf(roots.server);
-    const trace = buildTrace(reg, refs, repo, commit);
+    const trace = buildTrace(reg, refs, repo, commit, report.api, read.values);
     await Bun.write(`${roots.docs}/registry/trace.json`, `${JSON.stringify(trace, null, 2)}\n`);
     console.log(`wrote registry/trace.json at server ${commit.slice(0, 8)}`);
   }

@@ -6,6 +6,7 @@ import { bundle } from "./openapi";
 import { expandFlows, loadRegistry } from "./registry";
 import { rename, renameFromWas } from "./rename";
 import { scanAll } from "./scan";
+import { duration, fill, format, placeholders, values } from "./values";
 
 const REGISTRY = `
 groups: { DEAL: Giao dịch }
@@ -14,7 +15,6 @@ uc:
     was: [UC-14]
     status: done
     title: { vi: Thương lượng }
-    api: ["POST /v1/deals"]
     main: { 1: Mở, 2: Trả giá }
     alt:
       A1: { at: 1, text: Mở lại }
@@ -87,7 +87,7 @@ async function run(files: Record<string, string> = {}) {
   const { reg, errors } = await loadRegistry(`${roots.docs}/registry/requirements.yaml`);
   const { refs, problems } = await scanAll(roots, reg);
   const report = await check(roots, reg, refs, problems);
-  return { errors: [...errors, ...report.errors.map((e) => e.msg)], warnings: report.warnings.map((w) => w.msg), refs };
+  return { errors: [...errors, ...report.errors.map((e) => e.msg)], warnings: report.warnings.map((w) => w.msg), refs, api: report.api };
 }
 
 afterEach(() => {
@@ -142,14 +142,9 @@ describe("check", () => {
     expect(errors.some((e) => e.includes("error invalid_amount is not declared"))).toBe(true);
   });
 
-  test("an operation without the UC's x-uc is an error", async () => {
-    const { errors } = await run({ "server/api/paths/deal.yaml": DEAL_PATHS.replace("    x-uc: [UC-DEAL-01]\n", "") });
-    expect(errors).toContain("POST /v1/deals lacks x-uc UC-DEAL-01");
-  });
-
-  test("an x-uc the UC does not list is an error", async () => {
-    const { errors } = await run({ "docs/registry/requirements.yaml": REGISTRY.replace(`api: ["POST /v1/deals"]`, "api: []") });
-    expect(errors).toContain("POST /v1/deals has x-uc UC-DEAL-01, but UC-DEAL-01 does not list it under api");
+  test("a UC's operations come from the spec's x-uc", async () => {
+    const { api } = await run();
+    expect(api).toEqual({ "UC-DEAL-01": ["POST /v1/deals"] });
   });
 
   test("a registry entry that names a missing rule is an error", async () => {
@@ -271,5 +266,87 @@ components:
       price: { $ref: "#/components/schemas/ShippingQuote" },
     });
     expect(doc.components.securitySchemes.bearer.scheme).toBe("bearer");
+  });
+});
+
+describe("values", () => {
+  const GO_MOD = "module example.com/s\n\ngo 1.24\n";
+  const LIMITS = `package domain
+
+import "time"
+
+const (
+	MaxOnSale = 20
+	TTL       = 15 * time.Minute
+	maxBytes  = 15 << 20
+)
+
+type waits struct{ Seller time.Duration }
+
+var Waits = waits{Seller: 72 * time.Hour}
+`;
+
+  test("a placeholder is named once, with its hint", () => {
+    const got = placeholders({ uc: [{ main: { 1: "{catalog.MaxOnSale} tin, {catalog.MaxOnSale} lần" } }], br: [{ text: { vi: "{media.MaxPhotoBytes|MB}" } }] });
+    expect([...got.entries()]).toEqual([
+      ["catalog.MaxOnSale", { dir: "catalog", expr: "MaxOnSale", hint: undefined }],
+      ["media.MaxPhotoBytes|MB", { dir: "media", expr: "MaxPhotoBytes", hint: "MB" }],
+    ]);
+  });
+
+  test("an API path's {id} is not a placeholder", () => {
+    expect(placeholders({ x: "DELETE /v1/auth/sessions/{id}" }).size).toBe(0);
+  });
+
+  test("a duration reads in the unit people write it in", () => {
+    expect(duration(86400)).toEqual({ vi: "24 giờ", en: "24 hours" });
+    expect(duration(3 * 86400)).toEqual({ vi: "3 ngày", en: "3 days" });
+    expect(duration(3600)).toEqual({ vi: "1 giờ", en: "1 hour" });
+    expect(duration(60)).toEqual({ vi: "60 giây", en: "60 seconds" });
+    expect(duration(900)).toEqual({ vi: "15 phút", en: "15 minutes" });
+  });
+
+  test("a value reads by its type and hint", () => {
+    expect(format({ type: "int", value: 1000000000 })).toEqual({ vi: "1.000.000.000", en: "1,000,000,000" });
+    expect(format({ type: "time.Duration", value: 15 * 60e9 })).toEqual({ vi: "15 phút", en: "15 minutes" });
+    expect(format({ type: "int", value: 15 << 20 }, "MB")).toEqual({ vi: "15 MB", en: "15 MB" });
+    expect(format({ type: "float64", value: 0.3 }, "%")).toEqual({ vi: "30%", en: "30%" });
+    expect(format({ type: "env", value: "2h" })).toEqual({ vi: "2 giờ", en: "2 hours" });
+    expect(format({ type: "env", value: "3:15000,7:29000" }, "packages")).toEqual({
+      vi: "3 ngày giá 15.000 đ và 7 ngày giá 29.000 đ",
+      en: "3 days for 15,000 đ and 7 days for 29,000 đ",
+    });
+    expect(format({ type: "int", value: 5 }, "weeks")).toBe("unknown |weeks");
+  });
+
+  test("fill puts a value in, or what unknown says", () => {
+    const v = { "catalog.MaxOnSale": { vi: "20", en: "20" } };
+    expect(fill("tối đa {catalog.MaxOnSale} tin", v, "vi")).toBe("tối đa 20 tin");
+    expect(fill("{catalog.MaxDrafts}", v, "vi", (k) => `?${k}`)).toBe("?catalog.MaxDrafts");
+  });
+
+  test("values are read from the server's code and server.env, unexported ones too", async () => {
+    dir = mkdtempSync(`${tmpdir()}/trace-`);
+    await Bun.write(`${dir}/server/go.mod`, GO_MOD);
+    await Bun.write(`${dir}/server/internal/catalog/domain/limits.go`, LIMITS);
+    await Bun.write(`${dir}/infra/stack/env/server.env`, "CARRIER_POLL_EVERY=2h\n");
+    const raw = { br: [{ text: { vi: "{catalog.MaxOnSale} {catalog.TTL} {catalog.maxBytes|MB} {catalog.Waits.Seller} {env.CARRIER_POLL_EVERY}" } }] };
+    const got = await values({ server: `${dir}/server`, infra: `${dir}/infra` }, raw);
+    expect(got.errors).toEqual([]);
+    expect(Object.fromEntries(Object.entries(got.values).map(([k, t]) => [k, t.vi]))).toEqual({
+      "catalog.MaxOnSale": "20",
+      "catalog.TTL": "15 phút",
+      "catalog.Waits.Seller": "3 ngày",
+      "catalog.maxBytes|MB": "15 MB",
+      "env.CARRIER_POLL_EVERY": "2 giờ",
+    });
+  });
+
+  test("a name no package declares, or an env key server.env lacks, is an error", async () => {
+    dir = mkdtempSync(`${tmpdir()}/trace-`);
+    await Bun.write(`${dir}/server/go.mod`, GO_MOD);
+    await Bun.write(`${dir}/server/internal/catalog/domain/limits.go`, LIMITS);
+    const got = await values({ server: `${dir}/server`, infra: `${dir}/infra` }, { x: "{catalog.MaxDrafts} {env.NOPE}" });
+    expect(got.errors).toEqual(["{catalog.MaxDrafts}: MaxDrafts is not declared under server/internal/catalog", "{env.NOPE}: NOPE is not in infra/stack/env/server.env"]);
   });
 });

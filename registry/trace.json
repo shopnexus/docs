@@ -1,7 +1,7 @@
 {
   "server": {
     "repo": "https://github.com/shopnexus/server",
-    "commit": "92f1d6485f9525066bf138f7f1bb2d5e1b519f6d"
+    "commit": "beca00dab60a2b39925c34e0fe37ebf9c61d60cc"
   },
   "refs": {
     "UC-MOD-08": [
@@ -5167,7 +5167,7 @@
       },
       {
         "file": "server/internal/discovery/service/search.go",
-        "line": 130,
+        "line": 131,
         "kind": "code",
         "flows": [
           "E2"
@@ -5175,7 +5175,7 @@
       },
       {
         "file": "server/internal/discovery/service/search.go",
-        "line": 162,
+        "line": 163,
         "kind": "code",
         "flows": [
           "E1"
@@ -5183,7 +5183,7 @@
       },
       {
         "file": "server/internal/discovery/service/search_test.go",
-        "line": 380,
+        "line": 429,
         "kind": "test",
         "flows": [
           "E1"
@@ -5328,7 +5328,7 @@
       },
       {
         "file": "server/internal/discovery/service/search.go",
-        "line": 119,
+        "line": 120,
         "kind": "code",
         "flows": [
           "E2"
@@ -5336,7 +5336,7 @@
       },
       {
         "file": "server/internal/discovery/service/search.go",
-        "line": 126,
+        "line": 127,
         "kind": "code",
         "flows": [
           "E1"
@@ -5344,7 +5344,7 @@
       },
       {
         "file": "server/internal/discovery/service/search.go",
-        "line": 187,
+        "line": 188,
         "kind": "code",
         "flows": [
           "A5"
@@ -5352,7 +5352,7 @@
       },
       {
         "file": "server/internal/discovery/service/search.go",
-        "line": 195,
+        "line": 196,
         "kind": "code",
         "flows": [
           "E3"
@@ -5360,7 +5360,7 @@
       },
       {
         "file": "server/internal/discovery/service/search.go",
-        "line": 210,
+        "line": 211,
         "kind": "code",
         "flows": [
           "E4"
@@ -5368,7 +5368,7 @@
       },
       {
         "file": "server/internal/discovery/service/search.go",
-        "line": 257,
+        "line": 258,
         "kind": "code",
         "flows": [
           "A4"
@@ -5376,7 +5376,7 @@
       },
       {
         "file": "server/internal/discovery/service/search.go",
-        "line": 262,
+        "line": 263,
         "kind": "code",
         "flows": [
           "A1"
@@ -5384,13 +5384,13 @@
       },
       {
         "file": "server/internal/discovery/service/search.go",
-        "line": 285,
+        "line": 286,
         "kind": "code",
         "flows": []
       },
       {
         "file": "server/internal/discovery/service/search.go",
-        "line": 332,
+        "line": 339,
         "kind": "code",
         "flows": [
           "A2"
@@ -5398,13 +5398,13 @@
       },
       {
         "file": "server/internal/discovery/service/search.go",
-        "line": 341,
+        "line": 348,
         "kind": "code",
         "flows": []
       },
       {
         "file": "server/internal/discovery/service/search.go",
-        "line": 360,
+        "line": 367,
         "kind": "code",
         "flows": [
           "A3"
@@ -5412,13 +5412,13 @@
       },
       {
         "file": "server/internal/discovery/service/search_test.go",
-        "line": 78,
+        "line": 79,
         "kind": "test",
         "flows": []
       },
       {
         "file": "server/internal/discovery/service/search_test.go",
-        "line": 109,
+        "line": 110,
         "kind": "test",
         "flows": [
           "A4"
@@ -5426,7 +5426,7 @@
       },
       {
         "file": "server/internal/discovery/service/search_test.go",
-        "line": 147,
+        "line": 148,
         "kind": "test",
         "flows": [
           "A1"
@@ -5434,7 +5434,7 @@
       },
       {
         "file": "server/internal/discovery/service/search_test.go",
-        "line": 169,
+        "line": 196,
         "kind": "test",
         "flows": [
           "A1"
@@ -5442,7 +5442,7 @@
       },
       {
         "file": "server/internal/discovery/service/search_test.go",
-        "line": 222,
+        "line": 218,
         "kind": "test",
         "flows": [
           "A1"
@@ -5450,13 +5450,21 @@
       },
       {
         "file": "server/internal/discovery/service/search_test.go",
-        "line": 435,
+        "line": 271,
+        "kind": "test",
+        "flows": [
+          "A1"
+        ]
+      },
+      {
+        "file": "server/internal/discovery/service/search_test.go",
+        "line": 484,
         "kind": "test",
         "flows": []
       },
       {
         "file": "server/internal/discovery/service/search_test.go",
-        "line": 513,
+        "line": 562,
         "kind": "test",
         "flows": [
           "A5"
@@ -5464,7 +5472,7 @@
       },
       {
         "file": "server/internal/discovery/service/search_test.go",
-        "line": 539,
+        "line": 588,
         "kind": "test",
         "flows": [
           "E1",
@@ -5475,7 +5483,7 @@
       },
       {
         "file": "server/internal/discovery/service/search_test.go",
-        "line": 598,
+        "line": 647,
         "kind": "test",
         "flows": [
           "E4"
@@ -9835,13 +9843,13 @@
       },
       {
         "file": "server/internal/discovery/service/saved.go",
-        "line": 41,
+        "line": 43,
         "kind": "code",
         "flows": []
       },
       {
         "file": "server/internal/discovery/service/saved.go",
-        "line": 48,
+        "line": 50,
         "kind": "code",
         "flows": [
           "E3"
@@ -9849,7 +9857,7 @@
       },
       {
         "file": "server/internal/discovery/service/saved.go",
-        "line": 51,
+        "line": 53,
         "kind": "code",
         "flows": [
           "E1"
@@ -9857,7 +9865,7 @@
       },
       {
         "file": "server/internal/discovery/service/saved.go",
-        "line": 54,
+        "line": 56,
         "kind": "code",
         "flows": [
           "E2"
@@ -9865,7 +9873,7 @@
       },
       {
         "file": "server/internal/discovery/service/saved.go",
-        "line": 59,
+        "line": 61,
         "kind": "code",
         "flows": [
           "E4"
@@ -9873,7 +9881,7 @@
       },
       {
         "file": "server/internal/discovery/service/saved.go",
-        "line": 66,
+        "line": 68,
         "kind": "code",
         "flows": [
           "A5"
@@ -9881,7 +9889,7 @@
       },
       {
         "file": "server/internal/discovery/service/saved.go",
-        "line": 90,
+        "line": 92,
         "kind": "code",
         "flows": []
       },
@@ -9995,7 +10003,7 @@
       },
       {
         "file": "server/internal/discovery/service/search_test.go",
-        "line": 147,
+        "line": 196,
         "kind": "test",
         "flows": []
       }
@@ -10025,7 +10033,7 @@
       },
       {
         "file": "server/internal/discovery/service/search.go",
-        "line": 94,
+        "line": 95,
         "kind": "code",
         "flows": [
           "E6"
@@ -10033,7 +10041,7 @@
       },
       {
         "file": "server/internal/discovery/service/search.go",
-        "line": 101,
+        "line": 102,
         "kind": "code",
         "flows": [
           "E7"
@@ -10041,7 +10049,7 @@
       },
       {
         "file": "server/internal/discovery/service/search.go",
-        "line": 105,
+        "line": 106,
         "kind": "code",
         "flows": [
           "E5"
@@ -10049,7 +10057,7 @@
       },
       {
         "file": "server/internal/discovery/service/search.go",
-        "line": 371,
+        "line": 378,
         "kind": "code",
         "flows": []
       },
@@ -10266,7 +10274,7 @@
       },
       {
         "file": "server/internal/discovery/service/search.go",
-        "line": 179,
+        "line": 180,
         "kind": "code",
         "flows": []
       },
@@ -10335,7 +10343,7 @@
       },
       {
         "file": "server/internal/discovery/service/search.go",
-        "line": 130,
+        "line": 131,
         "kind": "code",
         "flows": [
           "E2"
@@ -10343,7 +10351,7 @@
       },
       {
         "file": "server/internal/discovery/service/search.go",
-        "line": 135,
+        "line": 136,
         "kind": "code",
         "flows": [
           "E3"
@@ -10351,7 +10359,7 @@
       },
       {
         "file": "server/internal/discovery/service/search.go",
-        "line": 149,
+        "line": 150,
         "kind": "code",
         "flows": [
           "E4"
@@ -10359,7 +10367,7 @@
       },
       {
         "file": "server/internal/discovery/service/search.go",
-        "line": 162,
+        "line": 163,
         "kind": "code",
         "flows": [
           "E1"
@@ -10367,7 +10375,7 @@
       },
       {
         "file": "server/internal/discovery/service/search.go",
-        "line": 223,
+        "line": 224,
         "kind": "code",
         "flows": [
           "A1",
@@ -10376,7 +10384,7 @@
       },
       {
         "file": "server/internal/discovery/service/search.go",
-        "line": 342,
+        "line": 349,
         "kind": "code",
         "flows": [
           "A3"
@@ -10384,7 +10392,7 @@
       },
       {
         "file": "server/internal/discovery/service/search_test.go",
-        "line": 248,
+        "line": 297,
         "kind": "test",
         "flows": [
           "E1",
@@ -10395,19 +10403,19 @@
       },
       {
         "file": "server/internal/discovery/service/search_test.go",
-        "line": 277,
+        "line": 326,
         "kind": "test",
         "flows": []
       },
       {
         "file": "server/internal/discovery/service/search_test.go",
-        "line": 317,
+        "line": 366,
         "kind": "test",
         "flows": []
       },
       {
         "file": "server/internal/discovery/service/search_test.go",
-        "line": 342,
+        "line": 391,
         "kind": "test",
         "flows": [
           "A3"
@@ -10415,7 +10423,7 @@
       },
       {
         "file": "server/internal/discovery/service/search_test.go",
-        "line": 569,
+        "line": 618,
         "kind": "test",
         "flows": [
           "A1",
@@ -12057,7 +12065,7 @@
     },
     "UC-DSC-01": {
       "code": 19,
-      "tests": 11,
+      "tests": 12,
       "flows": {
         "A1": true,
         "A2": false,
@@ -12517,6 +12525,767 @@
         "E3": true,
         "E4": true
       }
+    }
+  },
+  "api": {
+    "UC-ACC-01": [
+      "POST /v1/auth/email-codes",
+      "POST /v1/auth/sign-in"
+    ],
+    "UC-ACC-02": [
+      "DELETE /v1/auth/sessions/current",
+      "DELETE /v1/auth/sessions/others",
+      "DELETE /v1/auth/sessions/{id}",
+      "GET /v1/auth/sessions",
+      "POST /v1/auth/refresh",
+      "POST /v1/auth/sessions/current/reauthenticate"
+    ],
+    "UC-ACC-04": [
+      "DELETE /v1/carrier-accounts/{carrier}",
+      "GET /v1/carrier-accounts",
+      "POST /v1/carrier-accounts/{carrier}/otp",
+      "PUT /v1/carrier-accounts/{carrier}",
+      "PUT /v1/me/shipping-settings"
+    ],
+    "UC-ACC-05": [
+      "DELETE /v1/blocks/{account_id}",
+      "GET /v1/blocks",
+      "POST /v1/blocks"
+    ],
+    "UC-ACC-06": [
+      "GET /v1/accounts/me",
+      "PATCH /v1/accounts/me"
+    ],
+    "UC-ACC-07": [
+      "DELETE /v1/addresses/{id}",
+      "GET /v1/addresses",
+      "POST /v1/addresses",
+      "POST /v1/addresses/{id}/default",
+      "PUT /v1/addresses/{id}"
+    ],
+    "UC-ACC-08": [
+      "POST /v1/accounts/me/email-codes",
+      "POST /v1/accounts/me/identities"
+    ],
+    "UC-ACC-09": [
+      "DELETE /v1/accounts/me"
+    ],
+    "UC-DEAL-01": [
+      "GET /v1/screens/inbox/search",
+      "POST /v1/conversations",
+      "POST /v1/conversations/{id}/archive",
+      "POST /v1/conversations/{id}/ignore",
+      "POST /v1/conversations/{id}/messages",
+      "POST /v1/conversations/{id}/read",
+      "POST /v1/conversations/{id}/unarchive",
+      "POST /v1/conversations/{id}/unignore",
+      "POST /v1/conversations/{id}/unread",
+      "PUT /v1/me/quick-replies"
+    ],
+    "UC-DEAL-02": [
+      "POST /v1/deals",
+      "POST /v1/deals/{id}/accept",
+      "POST /v1/deals/{id}/cancel",
+      "POST /v1/deals/{id}/decline",
+      "POST /v1/deals/{id}/offer",
+      "POST /v1/deals/{id}/withdraw"
+    ],
+    "UC-DEAL-03": [
+      "POST /v1/deals/{id}/cod"
+    ],
+    "UC-DEAL-04": [
+      "GET /v1/shipments/quote",
+      "POST /v1/orders/{order_id}/shipment"
+    ],
+    "UC-DEAL-05": [
+      "POST /v1/carriers/{carrier}/webhook/{secret}",
+      "POST /v1/orders/{order_id}/confirm"
+    ],
+    "UC-DEAL-06": [
+      "POST /v1/deals/{id}/cancel",
+      "POST /v1/orders/{order_id}/cancel"
+    ],
+    "UC-DSC-01": [
+      "DELETE /v1/search/history",
+      "DELETE /v1/search/history/{id}",
+      "GET /v1/search",
+      "GET /v1/search/history"
+    ],
+    "UC-DSC-02": [
+      "DELETE /v1/hidden/{listing_id}",
+      "GET /v1/search",
+      "PUT /v1/hidden/{listing_id}"
+    ],
+    "UC-DSC-03": [
+      "DELETE /v1/saved/{listing_id}",
+      "DELETE /v1/saved/{listing_id}/alert",
+      "GET /v1/saved",
+      "PUT /v1/saved/{listing_id}",
+      "PUT /v1/saved/{listing_id}/alert"
+    ],
+    "UC-DSC-04": [
+      "DELETE /v1/follows/{account_id}",
+      "GET /v1/accounts/{id}/reviews",
+      "GET /v1/follows",
+      "GET /v1/screens/seller/{id}",
+      "GET /v1/sellers/{id}/listings",
+      "GET /v1/sellers/{id}/reviews",
+      "POST /v1/follows"
+    ],
+    "UC-DSC-05": [
+      "GET /v1/screens/home",
+      "GET /v1/search"
+    ],
+    "UC-DSC-06": [
+      "DELETE /v1/search/watches/{id}",
+      "GET /v1/search",
+      "GET /v1/search/watches",
+      "POST /v1/search/watches",
+      "POST /v1/search/watches/{id}/mute",
+      "POST /v1/search/watches/{id}/unmute"
+    ],
+    "UC-LST-01": [
+      "DELETE /v1/listing-drafts/{id}",
+      "GET /v1/listing-drafts",
+      "GET /v1/listing-drafts/{id}",
+      "GET /v1/listing-reads/{id}",
+      "GET /v1/listing-reads/{id}/events",
+      "POST /v1/category-guesses",
+      "POST /v1/listing-reads",
+      "POST /v1/listings",
+      "POST /v1/listings/{id}/photo-copies",
+      "POST /v1/price-guides",
+      "PUT /v1/listing-drafts/{id}"
+    ],
+    "UC-LST-02": [
+      "DELETE /v1/listings/{id}",
+      "POST /v1/listings/{id}/hide",
+      "POST /v1/listings/{id}/mark-sold",
+      "POST /v1/listings/{id}/unhide",
+      "POST /v1/listings/{id}/unmark-sold",
+      "PUT /v1/listings/{id}"
+    ],
+    "UC-LST-03": [
+      "GET /v1/boost-packages",
+      "GET /v1/boosts/{id}",
+      "GET /v1/console/listings/{id}/boosts",
+      "GET /v1/dev/payments/{id}",
+      "GET /v1/payments/vnpay/ipn",
+      "GET /v1/payments/vnpay/return",
+      "POST /v1/boosts",
+      "POST /v1/dev/payments/{id}"
+    ],
+    "UC-LST-04": [
+      "DELETE /v1/me/chotot",
+      "GET /v1/me/chotot",
+      "GET /v1/me/chotot/ads",
+      "PATCH /v1/me/chotot",
+      "POST /v1/me/chotot/ads/{list_id}/listing",
+      "POST /v1/me/chotot/codes",
+      "POST /v1/me/chotot/imports",
+      "PUT /v1/me/chotot"
+    ],
+    "UC-MOD-01": [
+      "DELETE /v1/reports/{id}",
+      "GET /v1/reports",
+      "POST /v1/reports"
+    ],
+    "UC-MOD-02": [
+      "GET /v1/console/accounts",
+      "GET /v1/console/accounts/{id}",
+      "GET /v1/console/reports",
+      "GET /v1/console/reports/{account_id}",
+      "POST /v1/console/accounts/{id}/suspend",
+      "POST /v1/console/accounts/{id}/unsuspend",
+      "POST /v1/console/listings/{id}/hide",
+      "POST /v1/console/listings/{id}/unhide",
+      "POST /v1/console/reports/{account_id}/dismiss",
+      "POST /v1/console/reports/{account_id}/reopen",
+      "POST /v1/console/reports/{account_id}/resolve"
+    ],
+    "UC-MOD-04": [
+      "GET /v1/console/members",
+      "PATCH /v1/console/members/{id}",
+      "POST /v1/console/members",
+      "POST /v1/console/members/{id}/disable",
+      "POST /v1/console/members/{id}/enable",
+      "POST /v1/console/members/{id}/reset-password",
+      "POST /v1/console/members/{id}/reset-totp",
+      "POST /v1/console/members/{id}/unlock"
+    ],
+    "UC-MOD-05": [
+      "GET /v1/console/actions"
+    ],
+    "UC-MOD-08": [
+      "DELETE /v1/console/agent/conversations/{id}",
+      "GET /v1/console/agent/approvals",
+      "GET /v1/console/agent/conversations",
+      "GET /v1/console/agent/conversations/{id}",
+      "GET /v1/console/agent/operations",
+      "GET /v1/console/agent/turns/{id}",
+      "GET /v1/console/agent/turns/{id}/events",
+      "PATCH /v1/console/agent/conversations/{id}",
+      "POST /v1/console/agent/approvals/{id}/approve",
+      "POST /v1/console/agent/approvals/{id}/reject",
+      "POST /v1/console/agent/conversations",
+      "POST /v1/console/agent/conversations/{id}/turns",
+      "POST /v1/console/agent/turns/{id}/pause",
+      "POST /v1/console/agent/turns/{id}/resume",
+      "POST /v1/console/agent/turns/{id}/steer",
+      "POST /v1/console/agent/turns/{id}/stop"
+    ],
+    "UC-MOD-09": [
+      "GET /v1/console/support/summary",
+      "GET /v1/console/support/tickets",
+      "GET /v1/console/support/tickets/{id}",
+      "GET /v1/console/support/tickets/{id}/messages",
+      "GET /v1/support/orders/{order_id}/ticket",
+      "GET /v1/support/summary",
+      "GET /v1/support/tickets",
+      "POST /v1/console/support/tickets/{id}/reopen",
+      "POST /v1/console/support/tickets/{id}/replies",
+      "POST /v1/console/support/tickets/{id}/resolve",
+      "POST /v1/support/tickets"
+    ],
+    "UC-MOD-10": [
+      "GET /_dashboard/callback",
+      "GET /v1/console/dashboard-auth",
+      "GET /v1/console/me",
+      "GET /v1/console/settings/dashboards",
+      "PATCH /v1/console/settings/dashboards",
+      "POST /v1/console/dashboard-tickets",
+      "POST /v1/console/login",
+      "POST /v1/console/login/totp-enrollment",
+      "POST /v1/console/logout",
+      "PUT /v1/console/me/password"
+    ],
+    "UC-MOD-11": [
+      "DELETE /v1/console/feedback/{id}/heart",
+      "GET /v1/console/feedback",
+      "GET /v1/console/feedback/groups",
+      "GET /v1/console/feedback/summary",
+      "GET /v1/console/feedback/{id}",
+      "GET /v1/feedback",
+      "POST /v1/console/feedback/{id}/reply",
+      "POST /v1/console/feedback/{id}/same-as",
+      "POST /v1/console/feedback/{id}/status",
+      "POST /v1/feedback",
+      "PUT /v1/console/feedback/{id}/heart"
+    ],
+    "UC-MOD-12": [
+      "GET /v1/console/settings/agents",
+      "GET /v1/console/settings/agents/activity",
+      "GET /v1/console/settings/agents/usage",
+      "GET /v1/console/settings/agents/{id}/versions",
+      "GET /v1/console/settings/models",
+      "GET /v1/console/settings/providers",
+      "GET /v1/console/settings/providers/{name}/models",
+      "GET /v1/console/settings/spend",
+      "PATCH /v1/console/settings/agents/{id}",
+      "POST /v1/console/settings/agents",
+      "PUT /v1/console/settings/models/price",
+      "PUT /v1/console/settings/models/tags"
+    ],
+    "UC-MOD-13": [
+      "GET /v1/console/monitoring/health",
+      "GET /v1/console/monitoring/logs",
+      "GET /v1/console/monitoring/metrics",
+      "GET /v1/console/monitoring/metrics/query"
+    ],
+    "UC-SHR-01": [
+      "POST /v1/uploads"
+    ],
+    "UC-SHR-03": [
+      "DELETE /v1/me/push-token",
+      "GET /v1/me/notification-settings",
+      "GET /v1/notifications",
+      "POST /v1/notifications/read-all",
+      "POST /v1/notifications/unread",
+      "POST /v1/notifications/{id}/read",
+      "PUT /v1/me/notification-settings",
+      "PUT /v1/me/push-token"
+    ],
+    "UC-TRS-01": [
+      "DELETE /v1/orders/{order_id}/review",
+      "POST /v1/reviews/{id}/reply",
+      "PUT /v1/orders/{order_id}/review"
+    ],
+    "UC-TRS-04": [
+      "GET /v1/screens/reputation"
+    ],
+    "UC-TRS-05": [
+      "DELETE /v1/reviews/{id}/helpful",
+      "PUT /v1/reviews/{id}/helpful"
+    ]
+  },
+  "values": {
+    "account.AccessTTL": {
+      "vi": "15 phút",
+      "en": "15 minutes"
+    },
+    "account.addressRules[0].Max": {
+      "vi": "20",
+      "en": "20"
+    },
+    "account.addressRules[0].Window": {
+      "vi": "1 giờ",
+      "en": "1 hour"
+    },
+    "account.CodeTTL": {
+      "vi": "5 phút",
+      "en": "5 minutes"
+    },
+    "account.destinationRules[1].Max": {
+      "vi": "5",
+      "en": "5"
+    },
+    "account.destinationRules[1].Window": {
+      "vi": "1 giờ",
+      "en": "1 hour"
+    },
+    "account.MaxAddresses": {
+      "vi": "10",
+      "en": "10"
+    },
+    "account.MaxAttempts": {
+      "vi": "5",
+      "en": "5"
+    },
+    "account.MaxAway": {
+      "vi": "30 ngày",
+      "en": "30 days"
+    },
+    "account.maxBioRunes": {
+      "vi": "200",
+      "en": "200"
+    },
+    "account.MaxFollows": {
+      "vi": "1.000",
+      "en": "1,000"
+    },
+    "account.RecentAuth": {
+      "vi": "15 phút",
+      "en": "15 minutes"
+    },
+    "account.resend.Window": {
+      "vi": "45 giây",
+      "en": "45 seconds"
+    },
+    "account.SessionIdleLimit": {
+      "vi": "30 ngày",
+      "en": "30 days"
+    },
+    "account.SessionMaxAge": {
+      "vi": "60 ngày",
+      "en": "60 days"
+    },
+    "agent.ConversationsKeptFor": {
+      "vi": "180 ngày",
+      "en": "180 days"
+    },
+    "agent.DefaultDeadlineS|s": {
+      "vi": "60 giây",
+      "en": "60 seconds"
+    },
+    "agent.perMinute": {
+      "vi": "30",
+      "en": "30"
+    },
+    "agent.ReconcileEvery": {
+      "vi": "5 phút",
+      "en": "5 minutes"
+    },
+    "ai.MinSeconds|s": {
+      "vi": "3 giây",
+      "en": "3 seconds"
+    },
+    "assist.Deadline": {
+      "vi": "2 phút",
+      "en": "2 minutes"
+    },
+    "assist.maxSimilar": {
+      "vi": "12",
+      "en": "12"
+    },
+    "assist.MinMarketSample": {
+      "vi": "5",
+      "en": "5"
+    },
+    "assist.PhotoCap": {
+      "vi": "60",
+      "en": "60"
+    },
+    "assist.ReadWindow": {
+      "vi": "24 giờ",
+      "en": "24 hours"
+    },
+    "assist.VideoCap": {
+      "vi": "30",
+      "en": "30"
+    },
+    "boost.Every": {
+      "vi": "24 giờ",
+      "en": "24 hours"
+    },
+    "catalog.blurKm": {
+      "vi": "0,5",
+      "en": "0.5"
+    },
+    "catalog.DraftLife": {
+      "vi": "30 ngày",
+      "en": "30 days"
+    },
+    "catalog.MaxDescription": {
+      "vi": "1.500",
+      "en": "1,500"
+    },
+    "catalog.MaxDrafts": {
+      "vi": "20",
+      "en": "20"
+    },
+    "catalog.MaxGPSKm": {
+      "vi": "30",
+      "en": "30"
+    },
+    "catalog.MaxOnSale": {
+      "vi": "20",
+      "en": "20"
+    },
+    "catalog.MaxPhotos": {
+      "vi": "10",
+      "en": "10"
+    },
+    "catalog.MaxPrice": {
+      "vi": "1.000.000.000",
+      "en": "1,000,000,000"
+    },
+    "catalog.MaxResults": {
+      "vi": "500",
+      "en": "500"
+    },
+    "catalog.MaxSpecs": {
+      "vi": "20",
+      "en": "20"
+    },
+    "catalog.MaxSpecText": {
+      "vi": "50",
+      "en": "50"
+    },
+    "catalog.MaxTitle": {
+      "vi": "70",
+      "en": "70"
+    },
+    "catalog.MinPrice": {
+      "vi": "10.000",
+      "en": "10,000"
+    },
+    "catalog.PriceDropMinPercent": {
+      "vi": "5",
+      "en": "5"
+    },
+    "catalog.PriceDropShownFor": {
+      "vi": "7 ngày",
+      "en": "7 days"
+    },
+    "chat.MaxPhotos": {
+      "vi": "4",
+      "en": "4"
+    },
+    "chat.MaxText": {
+      "vi": "1.000",
+      "en": "1,000"
+    },
+    "chat.MinReplyCount": {
+      "vi": "5",
+      "en": "5"
+    },
+    "chat.ReplyPeriod": {
+      "vi": "90 ngày",
+      "en": "90 days"
+    },
+    "chat.ReplyWindow": {
+      "vi": "24 giờ",
+      "en": "24 hours"
+    },
+    "chotot.CodeLife": {
+      "vi": "30 phút",
+      "en": "30 minutes"
+    },
+    "chotot.DraftLife": {
+      "vi": "30 ngày",
+      "en": "30 days"
+    },
+    "chotot.maxConfirms": {
+      "vi": "20",
+      "en": "20"
+    },
+    "console.DashboardTicketTTL": {
+      "vi": "60 giây",
+      "en": "60 seconds"
+    },
+    "console.LockFor": {
+      "vi": "15 phút",
+      "en": "15 minutes"
+    },
+    "console.MaxFailures": {
+      "vi": "5",
+      "en": "5"
+    },
+    "console.maxLen": {
+      "vi": "128",
+      "en": "128"
+    },
+    "console.maxNameRunes": {
+      "vi": "100",
+      "en": "100"
+    },
+    "console.minLen": {
+      "vi": "12",
+      "en": "12"
+    },
+    "console.SessionTTL": {
+      "vi": "8 giờ",
+      "en": "8 hours"
+    },
+    "deal.BuyerPeriod": {
+      "vi": "90 ngày",
+      "en": "90 days"
+    },
+    "deal.MaxOpenOrders": {
+      "vi": "3",
+      "en": "3"
+    },
+    "deal.OrderWaits.Complete": {
+      "vi": "3 ngày",
+      "en": "3 days"
+    },
+    "deal.OrderWaits.Pickup": {
+      "vi": "3 ngày",
+      "en": "3 days"
+    },
+    "deal.OrderWaits.Seller": {
+      "vi": "3 ngày",
+      "en": "3 days"
+    },
+    "deal.Step": {
+      "vi": "1.000",
+      "en": "1,000"
+    },
+    "deal.TransitWait": {
+      "vi": "30 ngày",
+      "en": "30 days"
+    },
+    "discovery.CacheTTL": {
+      "vi": "7 ngày",
+      "en": "7 days"
+    },
+    "discovery.ForYouDays|days": {
+      "vi": "30 ngày",
+      "en": "30 days"
+    },
+    "discovery.guestSearch.Address.Burst": {
+      "vi": "30",
+      "en": "30"
+    },
+    "discovery.guestSearch.Address.PerSecond": {
+      "vi": "2",
+      "en": "2"
+    },
+    "discovery.LikePriceBand|%": {
+      "vi": "30%",
+      "en": "30%"
+    },
+    "discovery.MaxForYouBoosts": {
+      "vi": "5",
+      "en": "5"
+    },
+    "discovery.MaxHidden": {
+      "vi": "1.000",
+      "en": "1,000"
+    },
+    "discovery.MaxHistory": {
+      "vi": "10",
+      "en": "10"
+    },
+    "discovery.MaxSaved": {
+      "vi": "500",
+      "en": "500"
+    },
+    "discovery.MaxViewed": {
+      "vi": "10",
+      "en": "10"
+    },
+    "discovery.MaxWatches": {
+      "vi": "20",
+      "en": "20"
+    },
+    "discovery.ModelCallsPerDay": {
+      "vi": "200",
+      "en": "200"
+    },
+    "discovery.ModelTimeout": {
+      "vi": "4 giây",
+      "en": "4 seconds"
+    },
+    "discovery.nearRadiusKm": {
+      "vi": "50",
+      "en": "50"
+    },
+    "discovery.SweepBatch": {
+      "vi": "500",
+      "en": "500"
+    },
+    "discovery.SweepEvery": {
+      "vi": "30 phút",
+      "en": "30 minutes"
+    },
+    "env.AI_FRAMES_MAX_SECONDS|s": {
+      "vi": "35 giây",
+      "en": "35 seconds"
+    },
+    "env.BOOST_PACKAGES|packages": {
+      "vi": "3 ngày giá 15.000 đ và 7 ngày giá 29.000 đ",
+      "en": "3 days for 15,000 đ and 7 days for 29,000 đ"
+    },
+    "env.CARRIER_POLL_EVERY": {
+      "vi": "2 giờ",
+      "en": "2 hours"
+    },
+    "feedback.DailyLimit": {
+      "vi": "20",
+      "en": "20"
+    },
+    "feedback.MaxPhotos": {
+      "vi": "3",
+      "en": "3"
+    },
+    "feedback.MaxText": {
+      "vi": "1.000",
+      "en": "1,000"
+    },
+    "feedback.Window": {
+      "vi": "24 giờ",
+      "en": "24 hours"
+    },
+    "media.ExpireAfter": {
+      "vi": "24 giờ",
+      "en": "24 hours"
+    },
+    "media.ExtendFor": {
+      "vi": "30 ngày",
+      "en": "30 days"
+    },
+    "media.MaxPhotoBytes|MB": {
+      "vi": "15 MB",
+      "en": "15 MB"
+    },
+    "media.maxPixels|M": {
+      "vi": "40",
+      "en": "40"
+    },
+    "media.MaxVideoBytes|MB": {
+      "vi": "50 MB",
+      "en": "50 MB"
+    },
+    "media.PhotoSide": {
+      "vi": "1.600",
+      "en": "1,600"
+    },
+    "media.PurgeAfter": {
+      "vi": "24 giờ",
+      "en": "24 hours"
+    },
+    "media.putTTL": {
+      "vi": "15 phút",
+      "en": "15 minutes"
+    },
+    "media.ThumbSide": {
+      "vi": "400",
+      "en": "400"
+    },
+    "monitoring.MaxLines": {
+      "vi": "500",
+      "en": "500"
+    },
+    "monitoring.MaxRange": {
+      "vi": "24 giờ",
+      "en": "24 hours"
+    },
+    "monitoring.MaxSeries": {
+      "vi": "100",
+      "en": "100"
+    },
+    "monitoring.QueryTimeout": {
+      "vi": "15 giây",
+      "en": "15 seconds"
+    },
+    "notification.DefaultSettings().Quiet.From": {
+      "vi": "22:00",
+      "en": "22:00"
+    },
+    "notification.DefaultSettings().Quiet.To": {
+      "vi": "07:00",
+      "en": "07:00"
+    },
+    "notification.MaxToken": {
+      "vi": "4.096",
+      "en": "4,096"
+    },
+    "notification.Retention": {
+      "vi": "90 ngày",
+      "en": "90 days"
+    },
+    "payment.ExpireAfter": {
+      "vi": "15 phút",
+      "en": "15 minutes"
+    },
+    "platform/page.DefaultLimit": {
+      "vi": "20",
+      "en": "20"
+    },
+    "provider/firebase.freshFor": {
+      "vi": "5 phút",
+      "en": "5 minutes"
+    },
+    "provider/google.freshFor": {
+      "vi": "5 phút",
+      "en": "5 minutes"
+    },
+    "support.DailyLimit": {
+      "vi": "10",
+      "en": "10"
+    },
+    "support.maxCarrierName": {
+      "vi": "50",
+      "en": "50"
+    },
+    "support.ReportWindow": {
+      "vi": "7 ngày",
+      "en": "7 days"
+    },
+    "trust.BlindWindow": {
+      "vi": "7 ngày",
+      "en": "7 days"
+    },
+    "trust.EditWindow": {
+      "vi": "7 ngày",
+      "en": "7 days"
+    },
+    "trust.MaxNote": {
+      "vi": "500",
+      "en": "500"
+    },
+    "trust.MaxPhotos": {
+      "vi": "4",
+      "en": "4"
+    },
+    "trust.MaxStars": {
+      "vi": "5",
+      "en": "5"
+    },
+    "trust.MaxText": {
+      "vi": "500",
+      "en": "500"
     }
   }
 }

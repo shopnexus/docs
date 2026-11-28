@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { parse } from "yaml";
+import { fill, type Text as Value } from "../../../scripts/trace/placeholder";
 import type { Lang } from "./i18n";
 
 /**
@@ -29,7 +30,6 @@ export interface UseCase {
   br?: string[];
   nfr?: string[];
   adr?: string[];
-  api?: string[];
   pre?: string;
   post?: string;
   main?: Record<string, string>;
@@ -70,11 +70,34 @@ interface Trace {
   server: { repo: string; commit: string };
   refs: Record<string, TraceRef[]>;
   coverage: Record<string, { code: number; tests: number; flows: Record<string, boolean> }>;
+  api: Record<string, string[]>;
+  values: Record<string, Value>;
 }
 
 const dir = resolve(process.cwd(), "../registry");
-export const registry = parse(readFileSync(`${dir}/requirements.yaml`, "utf8")) as Raw;
 export const trace = JSON.parse(readFileSync(`${dir}/trace.json`, "utf8")) as Trace;
+
+/**
+ * The registry with its placeholders, such as {catalog.MaxOnSale}, replaced
+ * by the server's values that `make trace` read into trace.json: a { vi, en }
+ * text in each language, any other string in Vietnamese. A placeholder
+ * trace.json lacks fails the build, so the site never shows one.
+ */
+function filled(v: unknown, lang: Lang = "vi"): unknown {
+  const missing = (key: string): string => {
+    throw new Error(`registry: {${key}} has no value in trace.json; run make trace`);
+  };
+  if (typeof v === "string") return fill(v, trace.values ?? {}, lang, missing);
+  if (Array.isArray(v)) return v.map((x) => filled(x, lang));
+  if (v && typeof v === "object") {
+    const o = v as Record<string, unknown>;
+    if (typeof o.vi === "string")
+      return { ...o, vi: filled(o.vi, "vi"), ...(typeof o.en === "string" ? { en: filled(o.en, "en") } : {}) };
+    return Object.fromEntries(Object.entries(o).map(([k, x]) => [k, filled(x, lang)]));
+  }
+  return v;
+}
+export const registry = filled(parse(readFileSync(`${dir}/requirements.yaml`, "utf8"))) as Raw;
 
 export const tr = (t: Text | undefined, lang: Lang) => (t ? (lang === "en" && t.en) || t.vi : "");
 
@@ -110,6 +133,11 @@ export function sourceUrl(ref: TraceRef): string {
   const { repo, commit } = trace.server;
   const path = ref.file.replace(/^server\//, "");
   return `${repo}/blob/${commit}/${path}${ref.line ? `#L${ref.line}` : ""}`;
+}
+
+/** The "METHOD /path" operations whose x-uc names uc, from the OpenAPI spec. */
+export function apiOf(uc: string): string[] {
+  return trace.api?.[uc] ?? [];
 }
 
 export function refsOf(id: string): TraceRef[] {

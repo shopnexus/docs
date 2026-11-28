@@ -7,7 +7,29 @@
 // ============================================================
 #import "tokens.typ": ucspec, headfill
 
-#let req = yaml("/registry/requirements.yaml")
+// Chữ trong registry có chỗ giữ như {catalog.MaxOnSale}: giá trị lấy từ
+// code của server, `make trace` ghi vào registry/trace.json. Thiếu giá trị
+// thì dừng biên dịch, để báo cáo không bao giờ in chỗ giữ.
+#let _values = json("/registry/trace.json").at("values", default: (:))
+#let _placeholder = regex("\\{([a-z][a-z0-9/]*)\\.([A-Za-z_][\\w.()\\[\\]]*)(?:\\|([\\w%]+))?\\}")
+#let _fill(v, lang: "vi") = {
+  if type(v) == str {
+    v.replace(_placeholder, m => {
+      let key = m.text.slice(1, -1)
+      let val = _values.at(key, default: none)
+      if val == none { panic("{" + key + "} không có giá trị trong registry/trace.json; chạy make trace") }
+      val.at(lang)
+    })
+  } else if type(v) == array {
+    v.map(x => _fill(x, lang: lang))
+  } else if type(v) == dictionary {
+    let out = (:)
+    for (k, x) in v { out.insert(k, _fill(x, lang: if k == "en" { "en" } else { lang })) }
+    out
+  } else { v }
+}
+
+#let req = _fill(yaml("/registry/requirements.yaml"))
 
 #let _items = (req.uc + req.fr + req.br + req.nfr + req.adr)
 #let _by-id = _items.fold((:), (acc, it) => { acc.insert(it.id, it); acc })

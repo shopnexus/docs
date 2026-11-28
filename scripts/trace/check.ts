@@ -2,10 +2,13 @@
 
 import { flowsOf, type Item, type Registry } from "./registry";
 import { files, type Problem, type Ref, type Roots, SKIP_SERVER } from "./scan";
+import type { Text } from "./values";
 
 export interface Report {
   errors: Problem[];
   warnings: Problem[];
+  // UC → its operations, from the spec's x-uc.
+  api: Record<string, string[]>;
 }
 
 const METHODS = ["get", "post", "put", "patch", "delete"];
@@ -84,20 +87,11 @@ export async function check(roots: Roots, reg: Registry, refs: Ref[], scanProble
     }
   }
 
-  // OpenAPI x-uc and the UCs' api lists must agree.
-  const ops = await apiOperations(roots.server);
-  for (const [op, { ucs, file }] of ops) {
-    for (const uc of ucs) {
-      const it = reg.items.get(uc);
-      if (it && !(it.api ?? []).includes(op)) errors.push(at(file, 0, `${op} has x-uc ${uc}, but ${uc} does not list it under api`));
-    }
-  }
-  for (const it of reg.items.values()) {
-    for (const op of it.api ?? []) {
-      const found = ops.get(op);
-      if (!found) errors.push(at(reg.path, 0, `${it.id} lists ${op}, which is not in openapi.yaml`));
-      else if (!found.ucs.includes(it.id)) errors.push(at(found.file, 0, `${op} lacks x-uc ${it.id}`));
-    }
+  // Each UC's operations come from the x-uc of the OpenAPI spec; the
+  // registry does not list them again.
+  const api: Record<string, string[]> = {};
+  for (const [op, { ucs }] of await apiOperations(roots.server)) {
+    for (const uc of ucs) if (reg.items.get(uc)?.kind === "uc") (api[uc] ??= []).push(op);
   }
 
   // Coverage of what the registry says is done.
@@ -134,7 +128,7 @@ export async function check(roots: Roots, reg: Registry, refs: Ref[], scanProble
     if (["br", "nfr", "adr"].includes(it.kind) && it.status !== "retired" && !named.has(it.id)) warnings.push(at(reg.path, 0, `${it.id} is named nowhere`));
   }
 
-  return { errors: dedupe(errors), warnings: dedupe(warnings) };
+  return { errors: dedupe(errors), warnings: dedupe(warnings), api };
 }
 
 function group(refs: Ref[]): Map<string, Ref[]> {
@@ -159,11 +153,16 @@ export interface Trace {
   refs: Record<string, { file: string; line: number; kind: string; flows: string[] }[]>;
   // UC → flow → whether a test names it.
   coverage: Record<string, { code: number; tests: number; flows: Record<string, boolean> }>;
+  // UC → the "METHOD /path" operations whose x-uc names it.
+  api: Record<string, string[]>;
+  // A placeholder of the registry's prose, such as catalog.MaxOnSale, → its value (values.ts).
+  values: Record<string, Text>;
 }
 
-export function buildTrace(reg: Registry, refs: Ref[], repo: string, commit: string): Trace {
+export function buildTrace(reg: Registry, refs: Ref[], repo: string, commit: string, api: Record<string, string[]>, values: Record<string, Text>): Trace {
   const keep = refs.filter((r) => r.kind === "code" || r.kind === "test" || r.kind === "api");
-  const out: Trace = { server: { repo, commit }, refs: {}, coverage: {} };
+  const sorted = Object.fromEntries(Object.entries(api).sort(([a], [b]) => a.localeCompare(b)).map(([uc, ops]) => [uc, ops.sort()]));
+  const out: Trace = { server: { repo, commit }, refs: {}, coverage: {}, api: sorted, values };
   for (const r of keep) {
     const id = reg.was.get(r.id) ?? r.id;
     (out.refs[id] ??= []).push({ file: r.file, line: r.line, kind: r.kind, flows: r.flows });

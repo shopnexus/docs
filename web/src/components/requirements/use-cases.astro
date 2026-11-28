@@ -2,6 +2,7 @@
 import { withBase } from "../../lib/base";
 import { pageLang } from "../../lib/page-lang";
 import {
+  apiOf,
   type Flow,
   hrefOf,
   REQ_STRINGS,
@@ -69,11 +70,11 @@ const ids = (u: UseCase) => [...(u.fr ?? []), ...(u.br ?? []), ...(u.nfr ?? []),
                   </dd>
                 </>
               )}
-              {u.api?.length && (
+              {apiOf(u.id).length > 0 && (
                 <>
                   <dt>{t.api}</dt>
                   <dd class="req-chips">
-                    {u.api.map((op) => (
+                    {apiOf(u.id).map((op) => (
                       <code>{op}</code>
                     ))}
                   </dd>
