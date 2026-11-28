@@ -51,7 +51,7 @@ export const HOME_STRINGS: Record<Lang, HomeStrings> = {
   en: {
     badge: `${SITE_NAME} developer docs`,
     title: `How ${SITE_NAME} works, from listing to doorstep.`,
-    lead: "A second-hand marketplace where buyers check the item at the door before they pay. How it works, and how it is built.",
+    lead: "A marketplace where people buy and sell to each other, and buyers check the item at the door before they pay. How it works, and how it is built.",
     popularLabel: "Popular:",
     startTitle: "Start here",
     startLead: "Pick the path that matches what you came to do.",
@@ -102,7 +102,7 @@ export const HOME_STRINGS: Record<Lang, HomeStrings> = {
   vi: {
     badge: `Tài liệu kỹ thuật ${SITE_NAME}`,
     title: `${SITE_NAME} vận hành ra sao, từ tin đăng tới tận cửa.`,
-    lead: "Sàn đồ cũ nơi người mua xem hàng tại cửa rồi mới trả tiền. Sàn vận hành ra sao và được xây thế nào.",
+    lead: "Chợ mua bán giữa người với người, nơi người mua xem hàng tại cửa rồi mới trả tiền. Sàn vận hành ra sao và được xây thế nào.",
     popularLabel: "Phổ biến:",
     startTitle: "Bắt đầu từ đây",
     startLead: "Chọn lối đi đúng với việc bạn cần làm.",

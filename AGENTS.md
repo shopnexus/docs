@@ -1,8 +1,8 @@
 # docs
 
-Documentation for ShopNexus, a C2C marketplace for used goods: cash on
-delivery with inspection at the door, through the seller's own carrier
-account. The platform holds no deal money, so no page mentions escrow, a
+Documentation for ShopNexus, a C2C marketplace where people buy and sell
+to each other, paid cash on delivery with inspection at the door through
+the seller's own carrier account. The platform holds no deal money, so no page mentions escrow, a
 wallet or a refund of a deal. The only money it takes is a seller's boost
 payment. No refunds: not for deals, not for boosts (ADR-0006). The code lives in the sibling repositories
 (`server`, `agent`, `clients`); this repository holds only writing.

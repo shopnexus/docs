@@ -4,7 +4,7 @@
 
 == Thương mại điện tử C2C và bài toán niềm tin
 
-Trong thương mại điện tử giữa các cá nhân (C2C), người bán không phải doanh nghiệp mà là một người dùng bình thường, còn nền tảng chỉ đứng giữa để hai bên tìm thấy nhau. Với hàng đã qua sử dụng, mỗi món là duy nhất và tình trạng thật của nó chỉ người bán biết. Thông tin giữa hai bên vì vậy không cân xứng: người mua phải quyết định trả tiền dựa trên ảnh và lời mô tả của một người lạ, còn người bán phải gửi hàng cho một người chưa chắc sẽ nhận.
+Trong thương mại điện tử giữa các cá nhân (C2C), người bán không phải doanh nghiệp mà là một người dùng bình thường, còn nền tảng chỉ đứng giữa để hai bên tìm thấy nhau. Mỗi món do một cá nhân bán là một món cụ thể, nhất là khi hàng đã qua sử dụng, và tình trạng thật của nó chỉ người bán biết. Thông tin giữa hai bên vì vậy không cân xứng: người mua phải quyết định trả tiền dựa trên ảnh và lời mô tả của một người lạ, còn người bán phải gửi hàng cho một người chưa chắc sẽ nhận.
 
 Các nền tảng hiện nay thu hẹp khoảng cách này theo một trong hai cách. Cách thứ nhất là nền tảng giữ tiền: người mua trả cho nền tảng, nền tảng chỉ chuyển cho người bán khi người mua xác nhận hàng đúng, và khi có tranh chấp thì nhân viên của nền tảng phân xử. Cách này cho người mua cảm giác an toàn nhưng đòi hỏi giấy phép trung gian thanh toán, một bộ phận xử lý khiếu nại lớn dần theo số đơn, trong khi người phân xử hiếm khi có căn cứ nào hơn lời kể của hai bên. Cách thứ hai là nền tảng chỉ đăng tin, để hai bên tự thỏa thuận chuyển khoản hoặc gặp mặt; chi phí vận hành thấp nhưng mọi rủi ro dồn về người dùng.
 

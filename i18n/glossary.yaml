@@ -225,8 +225,8 @@ phrases:
   - id: tagline
     why: khẩu hiệu
     in: [app, website, server]
-    vi: Đồ cũ giá tốt, xem hàng rồi mới trả
-    en: Good prices on used things, check before you pay
+    vi: Mua bán dễ dàng, xem hàng rồi mới trả
+    en: Buy and sell easily, check before you pay
   - id: payout
     why: khi nào người bán nhận tiền
     in: [app, website, server]

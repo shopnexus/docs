@@ -1,6 +1,6 @@
 # ShopNexus Docs design system
 
-The docs site of ShopNexus, a Vietnamese C2C marketplace for used goods (COD
+The docs site of ShopNexus, a Vietnamese C2C marketplace where people buy and sell to each other (COD
 with inspection at the door, the platform holds no money). Astro 5 + MDX,
 Tailwind v4, every page in English and Vietnamese, light and dark themes.
 Source of truth for values: `src/styles/tokens.css` and `src/styles/global.css`;

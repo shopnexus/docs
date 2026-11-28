@@ -4,13 +4,13 @@
 
 == Bối cảnh và vấn đề
 
-Thị trường mua bán hàng đã qua sử dụng giữa các cá nhân tại Việt Nam diễn ra chủ yếu trên các trang rao vặt và các nhóm mạng xã hội. Điện thoại, máy tính, xe đạp, đồ gia dụng được rao với giá thấp hơn hàng mới, người mua và người bán thường ở xa nhau và chưa từng giao dịch trước đó. Khác với TMĐT kiểu B2C, mỗi món hàng cũ là duy nhất: tình trạng của nó chỉ người bán biết, và mô tả thường là một đoạn văn tự do không có chuẩn chung.
+Mua bán giữa các cá nhân tại Việt Nam diễn ra chủ yếu trên các trang rao vặt và các nhóm mạng xã hội. Điện thoại, máy tính, xe đạp, đồ gia dụng, mới hay đã dùng, được rao bởi những người bán không chuyên; người mua và người bán thường ở xa nhau và chưa từng giao dịch trước đó. Khác với TMĐT kiểu B2C, mỗi món do một cá nhân rao là một món cụ thể chứ không phải một mã hàng trong kho: tình trạng của nó chỉ người bán biết, và mô tả thường là một đoạn văn tự do không có chuẩn chung.
 
 Trong điều kiện đó, hai bên chỉ có vài cách trả tiền. Chuyển khoản trước đặt toàn bộ rủi ro lên người mua, và đây là kịch bản lừa đảo phổ biến nhất: nhận tiền rồi biến mất. COD tự phát, tức người bán gửi hàng thu hộ qua một hãng vận chuyển, chuyển rủi ro sang người bán: người mua đặt rồi không nhận ("bom hàng"), người bán chịu phí vận chuyển hai chiều mà không có cách nào ghi nhận người mua đó. Việc trả giá diễn ra qua tin nhắn Zalo hoặc Messenger, tách khỏi tin đăng, nên giá đã chốt, địa chỉ nhận hàng và mã vận đơn nằm rải rác ở nhiều nơi và không thể dùng làm căn cứ khi có sự cố.
 
 Ở phía tìm kiếm, người mua phải dịch nhu cầu của mình thành từ khóa và bộ lọc. Một câu như "kiếm gì đó tặng sinh nhật bạn, tầm 500 nghìn, gần đây thôi" không ứng với một từ khóa nào; người mua phải tự chọn danh mục, khoảng giá, khu vực, rồi lặp lại khi kết quả không vừa ý.
 
-Về pháp lý, Luật Bảo vệ quyền lợi người tiêu dùng [1] và Luật Thương mại điện tử [2] đặt ra trách nhiệm cung cấp thông tin trung thực về hàng hóa và trách nhiệm của chủ nền tảng đối với người bán trên nền tảng. Một nền tảng muốn giữ tiền của người mua thì phải trở thành hoặc hợp tác với tổ chức trung gian thanh toán có giấy phép, điều vượt khỏi khả năng của một nhóm sinh viên và cũng không cần thiết cho phân khúc hàng cũ giá vừa phải.
+Về pháp lý, Luật Bảo vệ quyền lợi người tiêu dùng [1] và Luật Thương mại điện tử [2] đặt ra trách nhiệm cung cấp thông tin trung thực về hàng hóa và trách nhiệm của chủ nền tảng đối với người bán trên nền tảng. Một nền tảng muốn giữ tiền của người mua thì phải trở thành hoặc hợp tác với tổ chức trung gian thanh toán có giấy phép, điều vượt khỏi khả năng của một nhóm sinh viên và cũng không cần thiết cho những món hàng giá vừa phải mà các cá nhân bán cho nhau.
 
 == Khảo sát các giải pháp hiện có
 
@@ -18,7 +18,7 @@ Nhóm khảo sát ba nền tảng có lượng người dùng lớn tại Việt
 
 #figure(
   kind: table,
-  caption: [So sánh các nền tảng theo tiêu chí giao dịch C2C hàng cũ],
+  caption: [So sánh các nền tảng theo tiêu chí giao dịch C2C],
   table(
     columns: (1fr, 2cm, 2.3cm, 2cm, 2.6cm),
     align: (left, center, center, center, center),
@@ -32,7 +32,7 @@ Nhóm khảo sát ba nền tảng có lượng người dùng lớn tại Việt
   ),
 )
 
-Chợ Tốt và Facebook Marketplace chỉ làm nơi gặp nhau: việc trả tiền, gửi hàng và xử lý sự cố do hai bên tự lo. Shopee bảo vệ người mua bằng cách giữ tiền và phân xử khiếu nại, nhưng mô hình này được thiết kế cho hàng mới của người bán chuyên nghiệp, đòi giấy phép thanh toán, đội ngũ xử lý khiếu nại tăng theo số đơn và không hợp với một chiếc điện thoại cũ bán một lần. Đề tài nhắm vào khoảng giữa hai nhóm: một hệ thống không giữ tiền và không phán xử, nhưng đưa toàn bộ giao dịch vào ứng dụng, để mọi dữ kiện quan trọng đều có nguồn quan sát được và hiện thành uy tín công khai.
+Chợ Tốt và Facebook Marketplace chỉ làm nơi gặp nhau: việc trả tiền, gửi hàng và xử lý sự cố do hai bên tự lo. Shopee bảo vệ người mua bằng cách giữ tiền và phân xử khiếu nại, nhưng mô hình này được thiết kế cho người bán chuyên nghiệp có hàng trong kho, đòi giấy phép thanh toán, đội ngũ xử lý khiếu nại tăng theo số đơn và không hợp với một người chỉ bán một chiếc điện thoại một lần. Đề tài nhắm vào khoảng giữa hai nhóm: một hệ thống không giữ tiền và không phán xử, nhưng đưa toàn bộ giao dịch vào ứng dụng, để mọi dữ kiện quan trọng đều có nguồn quan sát được và hiện thành uy tín công khai.
 
 == Mô hình nghiệp vụ đề xuất
 
@@ -66,7 +66,7 @@ Phạm vi gồm hệ thống dịch vụ nền chia theo phân hệ nghiệp v�
 
 == Phương pháp thực hiện
 
-Nhóm bắt đầu bằng khảo sát: tìm hiểu cách người dùng đang mua bán đồ cũ trên các trang rao vặt và mạng xã hội, so sánh các nền tảng ở mục 1.2, và liệt kê các rủi ro mà người mua, người bán thường gặp như chuyển khoản rồi mất tiền, bom hàng, bị dụ đặt cọc hay tranh cãi về tình trạng hàng. Mỗi rủi ro được đối chiếu với một nguyên tắc trong mô hình nghiệp vụ ở mục 1.3.
+Nhóm bắt đầu bằng khảo sát: tìm hiểu cách người dùng đang mua bán với nhau trên các trang rao vặt và mạng xã hội, so sánh các nền tảng ở mục 1.2, và liệt kê các rủi ro mà người mua, người bán thường gặp như chuyển khoản rồi mất tiền, bom hàng, bị dụ đặt cọc hay tranh cãi về tình trạng hàng. Mỗi rủi ro được đối chiếu với một nguyên tắc trong mô hình nghiệp vụ ở mục 1.3.
 
 Từ mô hình đó, nhóm mô hình hóa nghiệp vụ bằng UML. Sơ đồ ca sử dụng xác định ai làm gì trên hệ thống; sơ đồ hoạt động mô tả các quy trình đăng tin, trả giá và giao nhận; sơ đồ trạng thái mô tả vòng đời của tin đăng và đơn COD. Các quy tắc nghiệp vụ được ghi thành danh mục đánh mã BR, yêu cầu chức năng và phi chức năng được đánh mã REQ và NFR, để mỗi quy tắc truy vết được tới ca sử dụng và ca kiểm thử tương ứng.
 
